@@ -198,7 +198,7 @@ RowLayout {
     Rectangle {
         id: coins_bar
         Layout.alignment: Qt.AlignRight
-        width: 144  //Stay Golden
+        width: 150
         Layout.fillHeight: true
         color: Style.colorTheme7
 

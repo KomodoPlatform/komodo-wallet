@@ -115,7 +115,7 @@ Item {
     Rectangle {
         id: sidebar
         color: Style.colorTheme8
-        width: 233 //Stay Golden
+        width: 150
         height: parent.height
         x: parent.width - width
 
