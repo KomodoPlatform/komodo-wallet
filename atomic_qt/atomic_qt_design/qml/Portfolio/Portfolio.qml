@@ -161,7 +161,7 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        height: 50
+        height: 75
 
         // Line
         HorizontalLine {
@@ -311,7 +311,8 @@ ColumnLayout {
 
             color: hovered ? Style.colorTheme5 : index % 2 == 0 ? Style.colorTheme6 : Style.colorTheme7
             width: portfolio.width
-            height: 50
+            height: 100
+            opacity: .75
 
             // Click area
             MouseArea {
@@ -431,6 +432,8 @@ ColumnLayout {
                 Component.onCompleted: updateChart(chart, model.modelData.historical)
 
                 backgroundColor: "transparent"
+                layer.enabled: true
+                z: -1
             }
         }
     }
