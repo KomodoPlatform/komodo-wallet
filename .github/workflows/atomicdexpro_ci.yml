@@ -53,15 +53,20 @@ jobs:
                                libssl-dev \
                                libxkbcommon-x11-0 \
                                git -y
-                               
+       
+       
+          # get llvm
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 8
 
           # set clang version
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-9 777
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 777
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-8 777
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 777
           
           # set gnu compilers version
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 777
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 777
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 777
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 777
           
           # get right cmake version
           wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1.tar.gz -O cmake.tar.gz
@@ -70,11 +75,6 @@ jobs:
           ./bootstrap
           sudo make install
           cd ..
-
-          # get llvm
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 9
           
           # get libwally
           git clone https://github.com/KomodoPlatform/libwally-core.git
@@ -96,12 +96,12 @@ jobs:
           # duplicating because got suspicion that update-alternatives doesnt save between steps
          
           # set clang version
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-9 777
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 777
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-8 777
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 777
           
           # set gnu compilers version
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 777
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 777
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 777
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 777
           
           ./ci_tools_atomic_dex --install_dependencies
           ./ci_tools_atomic_dex build debug
