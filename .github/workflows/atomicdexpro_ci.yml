@@ -52,6 +52,12 @@ jobs:
                                unzip \
                                libssl-dev \
                                libxkbcommon-x11-0 \
+                               gcc-8 \
+                               g++-8 \
+                               clang-8 \
+                               lldb-8 \
+                               lld-8 \
+                               clang-format-8 \
                                git -y
 
           # set clang version
