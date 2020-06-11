@@ -646,6 +646,29 @@
     "active": false,
     "currently_enabled": false
   },
+  "NAV": {
+    "coin": "NAV",
+    "name": "NavCoin",
+    "coinpaprika_id": "nav-navcoin",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10056"
+      },
+      {
+        "url": "electrum2.cipig.net:10056"
+      },
+      {
+        "url": "electrum3.cipig.net:10056"
+      }
+    ],
+    "explorer_url": [
+      "https://www.navexplorer.com/"
+    ],
+    "type": "UTXO",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
+  },
   "QTUM": {
     "coin": "QTUM",
     "name": "Qtum",
