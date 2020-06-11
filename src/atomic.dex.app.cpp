@@ -929,6 +929,7 @@ namespace atomic_dex
     QVariantMap
     application::get_trade_infos(const QString& ticker, const QString& receive_ticker, const QString& amount)
     {
+        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         QVariantMap out;
 
         auto trade_fee_f = get_mm2().get_trade_fee(ticker.toStdString(), amount.toStdString(), false);

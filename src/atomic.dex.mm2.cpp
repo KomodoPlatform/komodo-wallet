@@ -721,7 +721,7 @@ namespace atomic_dex
             if (not m_current_orderbook_ticker_rel.empty())
             {
                 t_get_trade_fee_request req_rel{.coin = this->m_current_orderbook_ticker_rel};
-                auto                    answer_rel = ::mm2::api::rpc_get_trade_fee(std::move(req));
+                auto                    answer_rel = ::mm2::api::rpc_get_trade_fee(std::move(req_rel));
                 this->m_trade_fees_registry.insert_or_assign(this->m_current_orderbook_ticker_rel, answer_rel);
             }
         };
@@ -803,6 +803,7 @@ namespace atomic_dex
     {
         spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
 
+        spdlog::info("refreshing orderbook pair: [{} / {}]", evt.base, evt.rel);
         const auto key = evt.base;
 
         {
@@ -1039,6 +1040,7 @@ namespace atomic_dex
     {
         if (get_coin_info(ticker).is_erc_20)
         {
+            spdlog::info("Calculating erc fees of rel ticker: {}", ticker);
             t_get_trade_fee_request rec_req{.coin = ticker};
             auto                    amount = get_trade_fixed_fee(ticker).amount;
             if (!amount.empty())
