@@ -26,18 +26,18 @@
   "BCH": {
     "active": false,
     "coin": "BCH",
-    "coingecko_id": "bitcoin",
+    "coingecko_id": "bitcoin-cash",
     "coinpaprika_id": "bch-bitcoin-cash",
     "currently_enabled": false,
     "electrum": [
       {
-        "url": "bch.imaginary.cash:50001"
+        "url": "electrum1.cipig.net:10055"
       },
       {
-        "url": "electrumx-bch.cryptonermal.net:50001"
+        "url": "electrum2.cipig.net:10055"
       },
       {
-        "url": "bch0.kister.net:50001"
+        "url": "electrum3.cipig.net:10055"
       }
     ],
     "explorer_url": [
