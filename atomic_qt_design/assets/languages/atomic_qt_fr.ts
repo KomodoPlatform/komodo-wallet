@@ -426,7 +426,7 @@
     <message numerus="yes">
         <location filename="../../qml/Screens/NewUser.qml" line="266"/>
         <source>What&apos;s the %n. word in your seed phrase ?</source>
-        <translation type="unfinished">Quel est le %n. mot dans votre phrase de départ?
+        <translation type="unfinished">Quel est le nombre de mot dans votre phrase de départ?
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
