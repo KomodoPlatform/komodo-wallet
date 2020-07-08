@@ -14,11 +14,13 @@
  *                                                                            *
  ******************************************************************************/
 
+
 #include "atomic.dex.app.hpp"
 #include <doctest/doctest.h>
 
 
-TEST_CASE("expressions should be evaluated only once") {
+
+TEST_CASE("AtomicDex Pro expressions should be evaluated only once") {
     int a = 5;
     REQUIRE(++a == 6);
     REQUIRE_EQ(++a, 7);
