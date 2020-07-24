@@ -9,7 +9,7 @@
 
 ## Get Started
 
-Follow the OS specific [build instructions](https://github.com/KomodoPlatform/atomicDEX-Pro/tree/master/ci_tools_atomic_dex#linux-quickstart) if you know what you are doing.
+Follow the OS specific [build instructions](https://github.com/KomodoPlatform/atomicDEX-Pro/blob/dev/ci_tools_atomic_dex/README.md) if you know what you are doing.
 
 You can [download](https://github.com/KomodoPlatform/atomicDEX-Pro/releases) the pre-built <b>alpha</b> binaries on our [github release page](https://github.com/KomodoPlatform/atomicDEX-Pro/releases).
 
