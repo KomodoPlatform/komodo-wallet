@@ -956,6 +956,27 @@
     "active": false,
     "currently_enabled": false
   },
+  "SPACE": {
+    "coin": "SPACE",
+    "name": "Spacecoin",
+    "coingecko_id": "test-coin",
+    "coinpaprika_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.spaceworks.co:50001"
+      },
+      {
+        "url": "electrum2.spaceworks.co:50001"
+      }
+    ],
+    "explorer_url": [
+      "https://explorer.spaceworks.co/"
+    ],
+    "type": "Smart Chain",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
+  },
   "THC": {
     "coin": "THC",
     "name": "HempCoin",
