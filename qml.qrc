@@ -52,6 +52,7 @@
         <file>atomic_defi_design/assets/images/coins/band.png</file>
         <file>atomic_defi_design/assets/images/coins/bat.png</file>
         <file>atomic_defi_design/assets/images/coins/btc.png</file>
+        <file>atomic_defi_design/assets/images/coins/btch.png</file>
         <file>atomic_defi_design/assets/images/coins/bch.png</file>
         <file>atomic_defi_design/assets/images/coins/bet.png</file>
         <file>atomic_defi_design/assets/images/coins/bots.png</file>
@@ -65,6 +66,7 @@
         <file>atomic_defi_design/assets/images/coins/eca.png</file>
         <file>atomic_defi_design/assets/images/coins/ftc.png</file>
         <file>atomic_defi_design/assets/images/coins/jumblr.png</file>
+        <file>atomic_defi_design/assets/images/coins/koin.png</file>
         <file>atomic_defi_design/assets/images/coins/ltc.png</file>
         <file>atomic_defi_design/assets/images/coins/mcl.png</file>
         <file>atomic_defi_design/assets/images/coins/eth.png</file>
@@ -72,8 +74,10 @@
         <file>atomic_defi_design/assets/images/coins/chips.png</file>
         <file>atomic_defi_design/assets/images/coins/dex.png</file>
         <file>atomic_defi_design/assets/images/coins/emc2.png</file>
+        <file>atomic_defi_design/assets/images/coins/hodl.png</file>
         <file>atomic_defi_design/assets/images/coins/iln.png</file>
         <file>atomic_defi_design/assets/images/coins/labs.png</file>
+        <file>atomic_defi_design/assets/images/coins/mshark.png</file>
         <file>atomic_defi_design/assets/images/coins/rick.png</file>
         <file>atomic_defi_design/assets/images/coins/mgw.png</file>
         <file>atomic_defi_design/assets/images/coins/morty.png</file>
@@ -92,11 +96,13 @@
         <file>atomic_defi_design/assets/images/coins/vra.png</file>
         <file>atomic_defi_design/assets/images/coins/vrsc.png</file>
         <file>atomic_defi_design/assets/images/coins/vote2020.png</file>
+        <file>atomic_defi_design/assets/images/coins/wlc.png</file>
         <file>atomic_defi_design/assets/images/coins/tusd.png</file>
         <file>atomic_defi_design/assets/images/coins/tbtc.png</file>
         <file>atomic_defi_design/assets/images/coins/xzc.png</file>
         <file>atomic_defi_design/assets/images/coins/zec.png</file>
         <file>atomic_defi_design/assets/images/coins/zer.png</file>
+        <file>atomic_defi_design/assets/images/coins/zilla.png</file>
         <file>atomic_defi_design/assets/images/lang/en.png</file>
         <file>atomic_defi_design/assets/images/lang/fr.png</file>
         <file>atomic_defi_design/assets/images/lang/tr.png</file>

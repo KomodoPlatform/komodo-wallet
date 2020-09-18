@@ -47,6 +47,30 @@
     "active": true,
     "currently_enabled": false
   },
+  "BTCH": {
+    "coin": "BTCH",
+    "name": "Bitcoin Hush",
+    "coinpaprika_id": "test-coin",
+    "coingecko_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10020"
+      },
+      {
+        "url": "electrum2.cipig.net:10020"
+      },
+      {
+        "url": "electrum3.cipig.net:10020"
+      }
+    ],
+    "explorer_url": [
+      "https://btch.explorer.dexstats.info/"
+    ],
+    "type": "Smart Chain",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
+  },
   "BCH": {
     "active": false,
     "coin": "BCH",
@@ -347,6 +371,30 @@
     "active": false,
     "currently_enabled": false
   },
+  "HODL": {
+    "coin": "HODL",
+    "name": "HODL",
+    "coinpaprika_id": "test-coin",
+    "coingecko_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10009"
+      },
+      {
+        "url": "electrum2.cipig.net:10009"
+      },
+      {
+        "url": "electrum3.cipig.net:10009"
+      }
+    ],
+    "explorer_url": [
+      "https://hodl.explorer.dexstats.info/"
+    ],
+    "type": "Smart Chain",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
+  },
   "JUMBLR": {
     "coin": "JUMBLR",
     "name": "JUMBLR",
@@ -368,6 +416,30 @@
     "explorer_url": [
       "https://jumblr.explorer.dexstats.info/"
     ],
+    "active": false,
+    "currently_enabled": false
+  },
+  "KOIN": {
+    "coin": "KOIN",
+    "name": "Koinon",
+    "coinpaprika_id": "koin-koinon",
+    "coingecko_id": "koinon",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10024"
+      },
+      {
+        "url": "electrum2.cipig.net:10024"
+      },
+      {
+        "url": "electrum3.cipig.net:10024"
+      }
+    ],
+    "explorer_url": [
+      "https://koin.explorer.dexstats.info/"
+    ],
+    "type": "Smart Chain",
+    "is_erc_20": false,
     "active": false,
     "currently_enabled": false
   },
@@ -418,6 +490,30 @@
     "is_erc_20": false,
     "type": "Smart Chain",
     "name": "MCL"
+  },
+  "MSHARK": {
+    "coin": "MSHARK",
+    "name": "MiliShark",
+    "coinpaprika_id": "test-coin",
+    "coingecko_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10013"
+      },
+      {
+        "url": "electrum2.cipig.net:10013"
+      },
+      {
+        "url": "electrum3.cipig.net:10013"
+      }
+    ],
+    "explorer_url": [
+      "https://mshark.explorer.dexstats.info/"
+    ],
+    "type": "Smart Chain",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
   },
   "PAX": {
     "coin": "PAX",
@@ -995,6 +1091,30 @@
     "active": false,
     "currently_enabled": false
   },
+  "WLC": {
+    "coin": "WLC",
+    "name": "Wireless Coin",
+    "coinpaprika_id": "test-coin",
+    "coingecko_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10014"
+      },
+      {
+        "url": "electrum2.cipig.net:10014"
+      },
+      {
+        "url": "electrum3.cipig.net:10014"
+      }
+    ],
+    "explorer_url": [
+      "https://wlc21.explorer.dexstats.info/"
+    ],
+    "type": "Smart Chain",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
+  },
   "XZC": {
     "coin": "XZC",
     "name": "Zcoin",
@@ -1061,6 +1181,30 @@
       "https://insight.zerocurrency.io/insight/"
     ],
     "type": "UTXO",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
+  },
+  "ZILLA": {
+    "coin": "ZILLA",
+    "name": "ChainZilla",
+    "coinpaprika_id": "zilla-chainzilla",
+    "coingecko_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10028"
+      },
+      {
+        "url": "electrum2.cipig.net:10028"
+      },
+      {
+        "url": "electrum3.cipig.net:10028"
+      }
+    ],
+    "explorer_url": [
+      "https://zilla.explorer.dexstats.info/"
+    ],
+    "type": "Smart Chain",
     "is_erc_20": false,
     "active": false,
     "currently_enabled": false
