@@ -778,6 +778,7 @@ namespace atomic_dex
 
         std::ofstream ofs(mm2_cfg_path.string());
         ofs << json_cfg.dump();
+        //std::cout << json_cfg.dump() << std::endl;
         ofs.close();
         const std::array<std::string, 1> args = {(tools_path / "mm2").string()};
         reproc::options                  options;

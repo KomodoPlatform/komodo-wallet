@@ -59,7 +59,7 @@ jobs:
 
       - name: Install QT (Linux)
         if: runner.os == 'Linux'
-        uses: smk762/install-qt-action@v2.9.0
+        uses: KomodoPlatform/install-qt-action@v2.9.0
         with:
           version: ${{ matrix.qt }}
           host: 'linux'
@@ -71,7 +71,7 @@ jobs:
 
       - name: Install QT (MacOS)
         if: runner.os == 'macOS'
-        uses: smk762/install-qt-action@v2.9.0
+        uses: KomodoPlatform/install-qt-action@v2.9.0
         with:
           version: ${{ matrix.qt }}
           host: 'mac'
@@ -79,9 +79,15 @@ jobs:
           dir: '${{ github.workspace }}'
           modules: 'qtcharts qtwidgets debug_info qtwebview qtwebengine'
 
+      - name: Install QT IFW (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+           python3  -m aqt tool mac tools_ifw 4.0 qt.tools.ifw.40 --outputdir ${{ github.workspace }}/Qt
+           echo "${{ github.workspace }}/Qt/Tools/QtInstallerFramework/4.0/bin" >> $GITHUB_PATH
+
       - name: Install QT (Windows)
         if: runner.os == 'Windows'
-        uses: smk762/install-qt-action@v2.9.0
+        uses: KomodoPlatform/install-qt-action@v2.9.0
         with:
           version: ${{ matrix.qt }}
           host: 'windows'
@@ -89,6 +95,14 @@ jobs:
           arch: 'win64_msvc2019_64'
           dir: 'C:\'
           modules: 'qtcharts qtwidgets debug_info qtwebview qtwebengine'
+      
+      - name: Install QT IFW (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          python -m aqt tool windows tools_ifw 4.0 qt.tools.ifw.40 --outputdir C:/Qt
+          echo "C:/Qt/Tools/QtInstallerFramework/4.0/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo $env:GITHUB_PATH
+          echo $env:PATH
 
       - name: Install nim (Linux)
         if: runner.os == 'Linux'
@@ -273,17 +287,41 @@ jobs:
         run: |
           ls ./bundled/osx/
           echo "artifact_name_dmg=atomicdex-desktop-${{ matrix.name }}-$(git rev-parse --short HEAD).dmg" >> $GITHUB_ENV
+          echo "artifact_name_installer=atomicdex-desktop-installer-${{ matrix.name }}-$(git rev-parse --short HEAD).7z" >> $GITHUB_ENV
 
-      - name: Upload artifacts (MacOS)
+      - name: Upload artifacts (MacOS dmg)
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.artifact_name_dmg }}
           path: ./bundled/osx/atomicdex-desktop.dmg
 
-      - name: Upload artifacts (Windows)
+      - name: Upload artifacts (MacOS installer)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_installer }}
+          path: ./bundled/osx/atomicdex_desktop_installer.7z
+          
+      - name: Upload env variable for artifacts (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "on_windows"
+          echo "artifact_name_zip=atomicdex-desktop-${{ matrix.name }}-$(git rev-parse --short HEAD).zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "artifact_name_installer=atomicdex-desktop-installer-${{ matrix.name }}-$(git rev-parse --short HEAD).exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload artifacts (Windows zip)
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.name }}-release.zip
-          path: ./ci_tools_atomic_dex/bundle-Release/bundle.zip
+          name: ${{ env.artifact_name_zip }}
+          path: ./bundled/windows/bin.zip
+      
+      - name: Upload artifacts (Windows installer)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_installer }}
+          path: ./bundled/windows/atomicdex_desktop_installer.exe
+      
+      

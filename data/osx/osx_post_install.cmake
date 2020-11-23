@@ -77,7 +77,34 @@ if (NOT EXISTS ${CMAKE_SOURCE_DIR}/bin/atomicdex-desktop.dmg)
     message(STATUS "Error -> ${PACKAGER_PATH_ERROR}")
     ##-------------------------------------------
 else()
-    message("dmg already generated - skipping")
+    message(STATUS "dmg already generated - skipping")
 endif ()
 
 file(COPY ${CMAKE_SOURCE_DIR}/bin/atomicdex-desktop.dmg DESTINATION ${TARGET_APP_PATH})
+
+get_filename_component(QT_ROOT_DIR  $ENV{QT_ROOT} DIRECTORY)
+set(IFW_BINDIR ${QT_ROOT_DIR}/Tools/QtInstallerFramework/4.0/bin)
+message(STATUS "IFW_BIN PATH IS ${IFW_BINDIR}")
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin/atomicdex_desktop.7z)
+    message(STATUS "Generating atomicdex_desktop.7z")
+    execute_process(COMMAND ${IFW_BINDIR}/archivegen atomicdex_desktop.7z atomicdex-desktop.app
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+            ECHO_OUTPUT_VARIABLE
+            ECHO_ERROR_VARIABLE)
+else()
+    message(STATUS "atomicdex_desktop.7z already created - skipping")
+endif()
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/bin/atomicdex_desktop.7z DESTINATION ${PROJECT_ROOT_DIR}/ci_tools_atomic_dex/installer/osx/packages/com.komodoplatform.atomicdex/data)
+
+execute_process(COMMAND ${IFW_BINDIR}/binarycreator -c ./config/config.xml -p ./packages/ atomicdex_desktop_installer
+        WORKING_DIRECTORY ${PROJECT_ROOT_DIR}/ci_tools_atomic_dex/installer/osx
+        ECHO_OUTPUT_VARIABLE
+        ECHO_ERROR_VARIABLE)
+
+file(COPY ${PROJECT_ROOT_DIR}/ci_tools_atomic_dex/installer/osx/atomicdex_desktop_installer.app DESTINATION ${TARGET_APP_PATH})
+
+execute_process(COMMAND ${IFW_BINDIR}/archivegen atomicdex_desktop_installer.7z atomicdex_desktop_installer.app
+        WORKING_DIRECTORY ${TARGET_APP_PATH}
+        ECHO_OUTPUT_VARIABLE
+        ECHO_ERROR_VARIABLE)
