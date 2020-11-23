@@ -14,7 +14,7 @@
 
 [![atomicDEX Gif](https://i.imgur.com/KN4i6XS.gif)](https://atomicdex.io)
 
-## CI/CD status
+## CI/CD status 
 
 | CI/CD Names | Status |
 |-------------|--------|
