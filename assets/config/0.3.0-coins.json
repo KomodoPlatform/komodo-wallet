@@ -849,23 +849,6 @@
     "active": false,
     "currently_enabled": false
   },
-  "RFOX": {
-    "coin": "RFOX",
-    "name": "RedFOX Labs",
-    "coinpaprika_id": "rfox-redfox-labs",
-    "coingecko_id": "redfox-labs",
-    "eth_nodes": [
-      "http://eth1.cipig.net:8555",
-      "http://eth2.cipig.net:8555",
-      "http://eth3.cipig.net:8555"
-    ],
-    "explorer_url": [
-      "https://etherscan.io/"
-    ],
-    "type": "ERC-20",
-    "active": false,
-    "currently_enabled": false
-  },
   "CHIPS": {
     "coin": "CHIPS",
     "type": "UTXO",
