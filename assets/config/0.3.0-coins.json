@@ -1,4 +1,25 @@
 {
+  "SRBC": {
+    "coin": "SRBC",
+    "name": "SRBC",
+    "coingecko_id": "test-coin",
+    "coinpaprika_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.sudoba.com:50001"
+      },
+      {
+        "url": "electrum2.sudoba.com:50001"
+      }
+    ],
+    "explorer_url": [
+      "http://explorer.sudoba.com:28245/"
+    ],
+    "type": "Smart Chain",
+    "is_erc_20": false,
+    "active": false,
+    "currently_enabled": false
+  },
   "AXE": {
     "coin": "AXE",
     "name": "Axe",
@@ -172,6 +193,29 @@
     ],
     "explorer_url": [
       "https://ccl.explorer.dexstats.info/"
+    ],
+    "type": "Smart Chain",
+    "active": false,
+    "currently_enabled": false
+  },
+  "COQUI": {
+    "coin": "COQUI",
+    "name": "Coqui Cash",
+    "coinpaprika_id": "test-coin",
+    "coingecko_id": "test-coin",
+    "electrum": [
+      {
+        "url": "electrum1.cipig.net:10011"
+      },
+      {
+        "url": "electrum2.cipig.net:10011"
+      },
+      {
+        "url": "electrum3.cipig.net:10011"
+      }
+    ],
+    "explorer_url": [
+      "https://coquicash.explorer.dexstats.info/"
     ],
     "type": "Smart Chain",
     "active": false,
@@ -810,21 +854,15 @@
     "name": "RedFOX Labs",
     "coinpaprika_id": "rfox-redfox-labs",
     "coingecko_id": "redfox-labs",
-    "electrum": [
-      {
-        "url": "electrum1.cipig.net:10034"
-      },
-      {
-        "url": "electrum2.cipig.net:10034"
-      },
-      {
-        "url": "electrum3.cipig.net:10034"
-      }
+    "eth_nodes": [
+      "http://eth1.cipig.net:8555",
+      "http://eth2.cipig.net:8555",
+      "http://eth3.cipig.net:8555"
     ],
     "explorer_url": [
-      "https://rfox.explorer.dexstats.info/"
+      "https://etherscan.io/"
     ],
-    "type": "Smart Chain",
+    "type": "ERC-20",
     "active": false,
     "currently_enabled": false
   },
