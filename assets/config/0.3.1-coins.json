@@ -868,6 +868,27 @@
     "active": false,
     "currently_enabled": false
   },
+  "SRBC": {
+     "coin": "SRBC",
+     "name": "SRBC",
+     "coingecko_id": "test-coin",
+     "coinpaprika_id": "test-coin",
+     "electrum": [
+       {
+         "url": "electrum1.sudoba.com:50001"
+       },
+       {
+         "url": "electrum2.sudoba.com:50001"
+       }
+     ],
+     "explorer_url": [
+       "http://explorer.sudoba.com:28245/"
+     ],
+     "type": "Smart Chain",
+     "is_erc_20": false,
+     "active": false,
+     "currently_enabled": false
+   },
   "SUPERNET": {
     "coin": "SUPERNET",
     "name": "Supernet",
