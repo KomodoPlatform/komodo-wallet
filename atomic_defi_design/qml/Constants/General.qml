@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick 2.15
+import AtomicDEX.TradingError 1.0
 
 QtObject {
     readonly property int width: 1280
@@ -224,6 +225,7 @@ QtObject {
     }
 
     function formatDouble(v, precision, trail_zeros) {
+        if(v === '') return "0"
         if(precision === recommendedPrecision) precision = getRecommendedPrecision(v)
 
         if(precision === 0) return parseInt(v).toString()
@@ -350,11 +352,11 @@ QtObject {
     }
 
     function hasParentCoinFees(trade_info) {
-        return General.isFilled(trade_info.erc_fees) && parseFloat(trade_info.erc_fees) > 0
+        return General.isFilled(trade_info.rel_transaction_fees) && parseFloat(trade_info.rel_transaction_fees) > 0
     }
 
     function feeText(trade_info, base_ticker, has_info_icon=true, has_limited_space=false) {
-        if(!trade_info) return ""
+        if(!trade_info || !trade_info.trading_fee) return ""
 
         const tx_fee = txFeeText(trade_info, base_ticker, has_info_icon, has_limited_space)
         const trading_fee = tradingFeeText(trade_info, base_ticker, has_info_icon)
@@ -363,29 +365,29 @@ QtObject {
     }
 
     function txFeeText(trade_info, base_ticker, has_info_icon=true, has_limited_space=false) {
-        if(!trade_info) return ""
+        if(!trade_info || !trade_info.trading_fee) return ""
 
         const has_parent_coin_fees = hasParentCoinFees(trade_info)
-        const main_fee = (qsTr('Transaction Fee') + ': ' + General.formatCrypto("", trade_info.tx_fee, trade_info.is_ticker_of_fees_eth ? "ETH" : base_ticker)) +
-                             // ETH Fees
-                             (has_parent_coin_fees ? " + " + General.formatCrypto("", trade_info.erc_fees, 'ETH') : '')
+        const main_fee = (qsTr('Transaction Fee') + ': ' + General.formatCrypto("", trade_info.base_transaction_fees, trade_info.base_transaction_fees_ticker)) +
+                                 // Rel Fees
+                                 (has_parent_coin_fees ? " + " + General.formatCrypto("", trade_info.rel_transaction_fees, trade_info.rel_transaction_fees_ticker) : '')
 
         let fiat_part = "("
-        fiat_part += getFiatText(trade_info.tx_fee, trade_info.is_ticker_of_fees_eth ? 'ETH' : base_ticker, false)
-        if(has_parent_coin_fees) fiat_part += (has_limited_space ? "\n\t\t+ " : " + ") + getFiatText(trade_info.erc_fees, 'ETH', has_info_icon)
+        fiat_part += getFiatText(trade_info.base_transaction_fees, trade_info.base_transaction_fees_ticker, false)
+        if(has_parent_coin_fees) fiat_part += (has_limited_space ? "\n\t\t+ " : " + ") + getFiatText(trade_info.rel_transaction_fees, trade_info.rel_transaction_fees_ticker, has_info_icon)
         fiat_part += ")"
 
         return main_fee + " " + fiat_part
     }
 
     function tradingFeeText(trade_info, base_ticker, has_info_icon=true) {
-        if(!trade_info) return ""
+        if(!trade_info || !trade_info.trading_fee) return ""
 
-        return qsTr('Trading Fee') + ': ' + General.formatCrypto("", trade_info.trade_fee, base_ticker) +
+        return qsTr('Trading Fee') + ': ' + General.formatCrypto("", trade_info.trading_fee, trade_info.trading_fee_ticker) +
 
                 // Fiat part
                 (" ("+
-                    getFiatText(trade_info.trade_fee, base_ticker, has_info_icon)
+                    getFiatText(trade_info.trading_fee, trade_info.trading_fee_ticker, has_info_icon)
                  +")")
     }
 
@@ -394,6 +396,33 @@ QtObject {
             return qsTr("Wallet %1 already exists", "WALLETNAME").arg(name)
 
         return ""
+    }
+
+    function getTradingError(error, fee_info, base_ticker, rel_ticker) {
+        switch(error) {
+        case TradingError.None:
+            return ""
+        case TradingError.TradingFeesNotEnoughFunds:
+            return qsTr("Not enough balance for trading fees: %1", "AMT TICKER").arg(General.formatCrypto("", fee_info.trading_fee, fee_info.trading_fee_ticker))
+        case TradingError.BaseNotEnoughFunds:
+            return qsTr("Not enough balance for fees: %1", "AMT TICKER").arg(General.formatCrypto("", fee_info.total_base_fees, base_ticker))
+        case TradingError.BaseTransactionFeesNotEnough:
+            return qsTr("Not enough balance for transaction fees: %1", "AMT TICKER").arg(General.formatCrypto("", fee_info.base_transaction_fees, fee_info.base_transaction_fees_ticker))
+        case TradingError.RelTransactionFeesNotEnough:
+            return qsTr("Not enough balance for transaction fees: %1", "AMT TICKER").arg(General.formatCrypto("", fee_info.rel_transaction_fees, fee_info.rel_transaction_fee_ticker))
+        case TradingError.BalanceIsLessThanTheMinimalTradingAmount:
+            return qsTr("Tradable (after fees) %1 balance is lower than minimum trade amount").arg(base_ticker) + " : " + General.getMinTradeAmount()
+        case TradingError.PriceFieldNotFilled:
+            return qsTr("Please fill the price field")
+        case TradingError.VolumeFieldNotFilled:
+            return qsTr("Please fill the volume field")
+        case TradingError.VolumeIsLowerThanTheMinimum:
+            return qsTr("%1 volume is lower than minimum trade amount").arg(base_ticker) + " : " + General.getMinTradeAmount()
+        case TradingError.ReceiveVolumeIsLowerThanTheMinimum:
+            return qsTr("%1 volume is lower than minimum trade amount").arg(rel_ticker) + " : " + General.getMinTradeAmount()
+        default:
+            return qsTr("Unknown Error") + ": " + error
+        }
     }
 
     readonly property var supported_pairs: ({

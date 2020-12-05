@@ -55,9 +55,6 @@ namespace atomic_dex
     orders_model::orders_model(ag::ecs::system_manager& system_manager, entt::dispatcher& dispatcher, QObject* parent) noexcept :
         QAbstractListModel(parent), m_system_manager(system_manager), m_dispatcher(dispatcher), m_model_proxy(new orders_proxy_model(this))
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("orders model created");
-
         this->m_model_proxy->setSourceModel(this);
         this->m_model_proxy->setDynamicSortFilter(true);
         this->m_model_proxy->setSortRole(UnixTimestampRole);
@@ -65,14 +62,6 @@ namespace atomic_dex
         this->m_model_proxy->sort(0, Qt::DescendingOrder);
 
         this->m_dispatcher.sink<current_currency_changed>().connect<&orders_model::on_current_currency_changed>(this);
-    }
-
-    orders_model::~orders_model() noexcept
-    {
-        //this->m_dispatcher.sink<current_currency_changed>().disconnect<&orders_model::on_current_currency_changed>(this);
-
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("orders model destroyed");
     }
 
     int
@@ -225,7 +214,7 @@ namespace atomic_dex
     bool
     orders_model::removeRows(int position, int rows, [[maybe_unused]] const QModelIndex& parent)
     {
-        spdlog::trace("(orders_model::removeRows) removing {} elements at position {}", rows, position);
+        SPDLOG_DEBUG("(orders_model::removeRows) removing {} elements at position {}", rows, position);
 
         beginRemoveRows(QModelIndex(), position, position + rows - 1);
         for (int row = 0; row < rows; ++row)
@@ -310,7 +299,6 @@ namespace atomic_dex
     void
     orders_model::initialize_swap(const ::mm2::api::swap_contents& contents) noexcept
     {
-        spdlog::trace("inserting in model order id {}", contents.uuid);
         beginInsertRows(QModelIndex(), this->m_model_data.count(), this->m_model_data.count());
         bool       is_maker = boost::algorithm::to_lower_copy(contents.type) == "maker";
         order_data data{
@@ -404,7 +392,7 @@ namespace atomic_dex
         else
         {
             bool is_maker = boost::algorithm::to_lower_copy(contents.type) == "maker";
-            spdlog::error(
+            SPDLOG_ERROR(
                 "swap with id {} and ticker: {}, not found in the model, cannot update, forcing an initialization instead", contents.uuid,
                 is_maker ? contents.maker_coin : contents.taker_coin);
             initialize_swap(contents);
@@ -414,7 +402,6 @@ namespace atomic_dex
     void
     orders_model::initialize_order(const ::mm2::api::my_order_contents& contents) noexcept
     {
-        spdlog::trace("inserting in model order id {}", contents.order_id);
         beginInsertRows(QModelIndex(), this->m_model_data.count(), this->m_model_data.count());
         order_data data{
             .is_maker       = contents.order_type == "maker",
@@ -460,6 +447,11 @@ namespace atomic_dex
             update_value(OrdersRoles::CancellableRole, contents.cancellable, idx, *this);
             update_value(OrdersRoles::IsMakerRole, contents.order_type == "maker", idx, *this);
             update_value(OrdersRoles::OrderTypeRole, QString::fromStdString(contents.order_type), idx, *this);
+            if (contents.order_type == "maker")
+            {
+                update_value(OrdersRoles::BaseCoinAmountRole, QString::fromStdString(contents.base_amount), idx, *this);
+                update_value(OrdersRoles::RelCoinAmountRole, QString::fromStdString(contents.rel_amount), idx, *this);
+            }
             emit lengthChanged();
         }
     }
@@ -492,11 +484,6 @@ namespace atomic_dex
             functor_process_orders(orders.maker_orders);
             functor_process_orders(orders.taker_orders);
 
-            spdlog::trace(
-                "size of raw orders: {}, taker orders size: {}, maker orders size: {}", orders.maker_orders.size() + orders.taker_orders.size(),
-                orders.taker_orders.size(), orders.maker_orders.size());
-
-            spdlog::trace("size of id registry: {}", m_orders_id_registry.size());
             //! Check for cleaning orders that are not present anymore
             std::unordered_set<std::string> to_remove;
             for (auto&& id: this->m_orders_id_registry)
@@ -515,7 +502,6 @@ namespace atomic_dex
                     if (not res_list.empty())
                     {
                         //! And then delete it
-                        spdlog::trace("removing order with id {} from the UI", id);
                         this->removeRow(res_list.at(0).row());
                         to_remove.emplace(id);
                     }
@@ -589,7 +575,7 @@ namespace atomic_dex
     void
     orders_model::clear_registry() noexcept
     {
-        spdlog::trace("clearing orders");
+        SPDLOG_DEBUG("clearing orders");
         this->beginResetModel();
         this->m_swaps_id_registry.clear();
         this->m_orders_id_registry.clear();
@@ -601,15 +587,15 @@ namespace atomic_dex
     orders_model::determine_amounts_in_current_currency(
         const std::string& base_coin, const std::string& base_amount, const std::string& rel_coin, const std::string& rel_amount) noexcept
     {
-        const auto&     settings_system         = m_system_manager.get_system<settings_page>();
-        const auto&     current_currency        = settings_system.get_current_currency().toStdString();
-        const auto&     global_price_system     = m_system_manager.get_system<global_price_service>();
+        const auto&     settings_system     = m_system_manager.get_system<settings_page>();
+        const auto&     current_currency    = settings_system.get_current_currency().toStdString();
+        const auto&     global_price_system = m_system_manager.get_system<global_price_service>();
         std::string     base_amount_in_currency;
         std::string     rel_amount_in_currency;
         std::error_code ec;
-    
+
         base_amount_in_currency = global_price_system.get_price_as_currency_from_amount(current_currency, base_coin, base_amount, ec);
-        rel_amount_in_currency = global_price_system.get_price_as_currency_from_amount(current_currency, rel_coin, rel_amount, ec);
+        rel_amount_in_currency  = global_price_system.get_price_as_currency_from_amount(current_currency, rel_coin, rel_amount, ec);
         return std::make_pair(base_amount_in_currency, rel_amount_in_currency);
     }
 
@@ -624,7 +610,7 @@ namespace atomic_dex
         }
         return determine_amounts_in_current_currency(contents.taker_coin, contents.taker_amount, contents.maker_coin, contents.maker_amount);
     }
-  
+
     void
     orders_model::on_current_currency_changed([[maybe_unused]] const current_currency_changed&) noexcept
     {

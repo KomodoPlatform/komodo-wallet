@@ -23,14 +23,6 @@ namespace atomic_dex
 {
     orderbook_proxy_model::orderbook_proxy_model(QObject* parent) : QSortFilterProxyModel(parent)
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("orderbook proxy model created");
-    }
-
-    orderbook_proxy_model::~orderbook_proxy_model()
-    {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("orderbook proxy model destroyed");
     }
 
     bool
@@ -56,6 +48,12 @@ namespace atomic_dex
         case orderbook_model::PriceNumerRole:
             break;
         case orderbook_model::PercentDepthRole:
+            break;
+        case orderbook_model::QuantityDenomRole:
+            break;
+        case orderbook_model::QuantityNumerRole:
+            break;
+        case orderbook_model::CoinRole:
             break;
         }
         return true;

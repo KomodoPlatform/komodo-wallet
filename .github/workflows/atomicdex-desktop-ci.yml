@@ -2,7 +2,7 @@ name: AtomicDex-Desktop CI
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
   push:
     branches:
       - master
@@ -10,7 +10,7 @@ on:
     - cron: '0 0 * * 1'
 
 jobs:
-  
+
   ci-flow:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -18,48 +18,51 @@ jobs:
     strategy:
       matrix:
         name: [
-          ubuntu-qt-5-15-0,
-          ubuntu-qt-5-15-1,
-          osx-qt-5-15-0,
-          osx-qt-5-15-1,
-          windows-10-qt-5-15-0,
-          windows-10-qt-5-15-1
+            ubuntu-qt-5-15-2,
+            osx-qt-5-15-2,
+            windows-10-qt-5-15-2
         ]
-    
+
         include:
-          - name: ubuntu-qt-5-15-0
+          - name: ubuntu-qt-5-15-2
             os: ubuntu-16.04
-            qt: '5.15.0'
+            qt: '5.15.2'
 
-          - name: ubuntu-qt-5-15-1
-            os: ubuntu-16.04
-            qt: '5.15.1'
-
-          - name: osx-qt-5-15-0
+          - name: osx-qt-5-15-2
             os: macos-latest
-            qt: '5.15.0'
+            qt: '5.15.2'
 
-          - name: osx-qt-5-15-1
-            os: macos-latest
-            qt: '5.15.1'
-
-          - name: windows-10-qt-5-15-0
+          - name: windows-10-qt-5-15-2
             os: windows-latest
-            qt: '5.15.0'
+            qt: '5.15.2'
 
-          - name: windows-10-qt-5-15-1
-            os: windows-latest
-            qt: '5.15.1'
-    
     steps:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: 'true'
-      
+
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      #- name: setup rdp (Windows)
+      #  if: runner.os == 'Windows'
+      #  env:
+      #    NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+      #  run: |
+      #    Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+      #    Expand-Archive ngrok.zip
+      #    .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      #    Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+      #    Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+      #    Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+      #    Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+
       - name: Install QT (Linux)
         if: runner.os == 'Linux'
-        uses: KomodoPlatform/install-qt-action@v2
+        uses: KomodoPlatform/install-qt-action@v2.9.0
         with:
           version: ${{ matrix.qt }}
           host: 'linux'
@@ -71,7 +74,7 @@ jobs:
 
       - name: Install QT (MacOS)
         if: runner.os == 'macOS'
-        uses: KomodoPlatform/install-qt-action@v2
+        uses: KomodoPlatform/install-qt-action@v2.9.0
         with:
           version: ${{ matrix.qt }}
           host: 'mac'
@@ -79,9 +82,15 @@ jobs:
           dir: '${{ github.workspace }}'
           modules: 'qtcharts qtwidgets debug_info qtwebview qtwebengine'
 
+      - name: Install QT IFW (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          python3  -m aqt tool mac tools_ifw 4.0 qt.tools.ifw.40 --outputdir ${{ github.workspace }}/Qt
+          echo "${{ github.workspace }}/Qt/Tools/QtInstallerFramework/4.0/bin" >> $GITHUB_PATH
+
       - name: Install QT (Windows)
         if: runner.os == 'Windows'
-        uses: KomodoPlatform/install-qt-action@v2
+        uses: KomodoPlatform/install-qt-action@v2.9.0
         with:
           version: ${{ matrix.qt }}
           host: 'windows'
@@ -90,28 +99,42 @@ jobs:
           dir: 'C:\'
           modules: 'qtcharts qtwidgets debug_info qtwebview qtwebengine'
 
+      - name: Install QT IFW (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          python -m aqt tool windows tools_ifw 4.0 qt.tools.ifw.40 --outputdir C:/Qt
+          echo "C:/Qt/Tools/QtInstallerFramework/4.0/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo $env:GITHUB_PATH
+          echo $env:PATH
+
       - name: Install nim (Linux)
         if: runner.os == 'Linux'
-        uses: KomodoPlatform/setup-nim-action@v1.0.2
-        with:
-          nim-version: '1.2.0'
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          echo "CHOOSENIM_CHOOSE_VERSION=1.4.0" >> $GITHUB_ENV
+          curl https://nim-lang.org/choosenim/init.sh > choosenim.sh
+          chmod +x choosenim.sh
+          ./choosenim.sh -y
+          export PATH=/home/runner/.nimble/bin:$PATH
 
       - name: Install deps (Linux)
         if: runner.os == 'Linux'
-        env:
-          DEBIAN_FRONTEND: noninteractive
         run: |
+          echo "DEBIAN_FRONTEND=noninteractive" >> $GITHUB_ENV
           echo ${{ github.sha }}
           sudo ./ci_tools_atomic_dex/ci_scripts/linux_script.sh
 
+      - name: Upload env variable for vpkg (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "CXXFLAGS=-stdlib=libc++" >> $GITHUB_ENV
+          echo "LDFLAGS=-stdlib=libc++" >> $GITHUB_ENV
+          echo "CXX=clang++-11" >> $GITHUB_ENV
+          echo "CC=clang-11" >> $GITHUB_ENV
+
       - name: vcpkg deps (Linux)
         if: runner.os == 'Linux'
-        env: # Or as an environment variable
-          CXXFLAGS: -stdlib=libc++
-          LDFLAGS: -stdlib=libc++
-          CXX: clang++-10
-          CC: clang-10
-        uses: KomodoPlatform/run-vcpkg@v3
+        uses: KomodoPlatform/run-vcpkg@v5
         with:
           vcpkgArguments: '@${{ github.workspace }}/.github/workflows/linux_response_file.txt --overlay-ports=${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-custom-ports/ports'
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
@@ -122,12 +145,15 @@ jobs:
         run: |
           ./ci_tools_atomic_dex/ci_scripts/osx_script.sh
 
+      - name: Upload env variable for vpkg (Linux)
+        if: runner.os == 'macOS'
+        run: |
+          echo "CXX=/usr/local/opt/llvm@9/bin/clang++" >> $GITHUB_ENV
+          echo "CC=/usr/local/opt/llvm@9/bin/clang" >> $GITHUB_ENV
+
       - name: vcpkg deps (MacOS)
         if: runner.os == 'macOS'
-        env: # Or as an environment variable
-          CXX: /usr/local/opt/llvm@9/bin/clang++
-          CC: /usr/local/opt/llvm@9/bin/clang
-        uses: KomodoPlatform/run-vcpkg@v3
+        uses: KomodoPlatform/run-vcpkg@v5
         with:
           vcpkgArguments: '@${{ github.workspace }}/.github/workflows/osx_response_file.txt --overlay-ports=${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-custom-ports/ports'
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
@@ -135,7 +161,7 @@ jobs:
 
       - name: vcpkg deps (Windows)
         if: runner.os == 'Windows'
-        uses: KomodoPlatform/run-vcpkg@v3
+        uses: KomodoPlatform/run-vcpkg@v5
         with:
           vcpkgArguments: '@${{ github.workspace }}/.github/workflows/windows_response_file.txt --overlay-ports=${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-custom-ports/ports'
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
@@ -150,8 +176,8 @@ jobs:
           export PATH=$HOME/.nimble/bin:$PATH
           export CXXFLAGS=-stdlib=libc++
           export LDFLAGS=-stdlib=libc++
-          export CXX=clang++-10
-          export CC=clang-10
+          export CXX=clang++-11
+          export CC=clang-11
           cd ci_tools_atomic_dex
           nimble build -y
 
@@ -166,30 +192,31 @@ jobs:
           cd ci_tools_atomic_dex
           nimble build -y
           ./ci_tools_atomic_dex bundle release --osx_sdk=$HOME/sdk/MacOSX10.14.sdk --compiler=clang++
-          ls bundle-Release/atomicdex-desktop.dmg
+
+      #- name: launch rdp (Windows)
+      #  if: runner.os == 'Windows'
+      #  run: .\ngrok\ngrok.exe tcp 3389
 
       - name: Build AtomicDEX (Windows)
         if: runner.os == 'Windows'
         shell: powershell
-        env:
-          QT_VERSION: ${{ matrix.qt }}
         run: |
+          $Env:QT_VERSION = "${{ matrix.qt }}"
           .\ci_tools_atomic_dex\ci_scripts\windows_script.ps1
 
       - name: Running Tests (Linux)
-        env: # Or as an environment variable
-          REPORT_CI_TOKEN: ${{ secrets.REPORT_CI_TOKEN_SECRET }}
         working-directory: ci_tools_atomic_dex
         if: runner.os == 'Linux'
         run: |
+          export REPORT_CI_TOKEN=${{ secrets.REPORT_CI_TOKEN_SECRET }}
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/gcc_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
           export PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/gcc_64/bin:$PATH
           export PATH=$HOME/.nimble/bin:$PATH
           export CXXFLAGS=-stdlib=libc++
           export LDFLAGS=-stdlib=libc++
-          export CXX=clang++-10
-          export CC=clang-10
+          export CXX=clang++-11
+          export CC=clang-11
           echo "Running tests"
           ./ci_tools_atomic_dex tests release
           cd build-Release/bin/AntaraAtomicDexTestsAppDir/usr/bin
@@ -200,11 +227,10 @@ jobs:
           echo "Uploading tests on Linux finished"
 
       - name: Running Tests (MacOS)
-        env: # Or as an environment variable
-          REPORT_CI_TOKEN: ${{ secrets.REPORT_CI_TOKEN_SECRET }}
         working-directory: ci_tools_atomic_dex
         if: runner.os == 'macOS'
         run: |
+          export REPORT_CI_TOKEN=${{ secrets.REPORT_CI_TOKEN_SECRET }}
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/clang_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
           echo "Running tests"
@@ -218,12 +244,11 @@ jobs:
 
       - name: Running Tests (Windows)
         shell: powershell
-        env: # Or as an environment variable
-          REPORT_CI_TOKEN: ${{ secrets.REPORT_CI_TOKEN_SECRET }}
         working-directory: ci_tools_atomic_dex
         if: runner.os == 'Windows'
         run: |
           echo "Running tests"
+          $Env:REPORT_CI_TOKEN = "${{ secrets.REPORT_CI_TOKEN_SECRET }}"
           $Env:QT_INSTALL_CMAKE_PATH = "C:\Qt\${{ matrix.qt }}\msvc2019_64"
           cmd /c '.\ci_tools_atomic_dex.exe tests release 2>&1'
           cd build-Release
@@ -232,23 +257,78 @@ jobs:
           Invoke-WebRequest -Uri https://report.ci/upload.py -OutFile upload.py
           python upload.py --sha $(git rev-parse HEAD) -n "[Doctest Windows]" --include='atomic-dex-tests-result.xml' --framework=doctest --merge ".*"
 
-      - name: Upload bundle artifact (Linux)
+      - name: Upload env variable for artifacts (Linux)
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v1
-        with:
-          name: ${{ matrix.name }}-release.tar.gz
-          path: ./ci_tools_atomic_dex/bundle-Release/AntaraAtomicDexAppDir.tar.gz
+        run: |
+          ls ./bundled/linux/
+          echo "artifact_name_zstd=atomicdex-desktop-${{ matrix.name }}-$(git rev-parse --short HEAD).tar.zst" >> $GITHUB_ENV
+          echo "artifact_name_zip=atomicdex-desktop-${{ matrix.name }}-$(git rev-parse --short HEAD).zip" >> $GITHUB_ENV
+          echo "artifact_name_appimage=atomicdex-desktop-${{ matrix.name }}-$(git rev-parse --short HEAD)-x86_64.AppImage" >> $GITHUB_ENV
+          echo "target_name_zstd=atomicdex-desktop-linux-$(git rev-parse --short HEAD).tar.zst" >> $GITHUB_ENV
+          echo "target_name_zip=atomicdex-desktop-linux-$(git rev-parse --short HEAD).zip" >> $GITHUB_ENV
+          echo "target_name_appimage=atomicdex-desktop-$(git rev-parse --short HEAD)-x86_64.AppImage" >> $GITHUB_ENV
 
-      - name: Upload artifacts (MacOS)
+      - name: Upload bundle artifact (Linux ZSTD)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_zstd }}
+          path: ./bundled/linux/${{ env.target_name_zstd }}
+
+      - name: Upload bundle artifact (Linux ZIP)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_zip }}
+          path: ./bundled/linux/${{ env.target_name_zip }}
+
+      - name: Upload bundle artifact (Linux AppImage)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_appimage }}
+          path: ./bundled/linux/${{ env.target_name_appimage }}
+
+      - name: Upload env variable for artifacts (macOS)
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v1
-        with:
-          name: ${{ matrix.name }}-release.dmg
-          path: ./ci_tools_atomic_dex/bundle-Release/atomicdex-desktop.dmg
+        run: |
+          ls ./bundled/osx/
+          echo "artifact_name_dmg=atomicdex-desktop-${{ matrix.name }}-$(git rev-parse --short HEAD).dmg" >> $GITHUB_ENV
+          echo "artifact_name_installer=atomicdex-desktop-installer-${{ matrix.name }}-$(git rev-parse --short HEAD).7z" >> $GITHUB_ENV
 
-      - name: Upload artifacts (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v1
+      - name: Upload artifacts (MacOS dmg)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.name }}-release.zip
-          path: ./ci_tools_atomic_dex/bundle-Release/bundle.zip
+          name: ${{ env.artifact_name_dmg }}
+          path: ./bundled/osx/atomicdex-desktop.dmg
+
+      - name: Upload artifacts (MacOS installer)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_installer }}
+          path: ./bundled/osx/atomicdex_desktop_installer.7z
+
+      - name: Upload env variable for artifacts (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "on_windows"
+          echo "artifact_name_zip=atomicdex-desktop-${{ matrix.name }}-$(git rev-parse --short HEAD).zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "artifact_name_installer=atomicdex-desktop-installer-${{ matrix.name }}-$(git rev-parse --short HEAD).exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload artifacts (Windows zip)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_zip }}
+          path: ./bundled/windows/bin.zip
+
+      - name: Upload artifacts (Windows installer)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.artifact_name_installer }}
+          path: ./bundled/windows/atomicdex_desktop_installer.exe
+      
+      

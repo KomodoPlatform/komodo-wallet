@@ -5,6 +5,11 @@ import QtQuick.Controls.Universal 2.15
 import "../Constants"
 
 Switch {
+    Universal.theme: Style.dark_theme ? Universal.Dark : Universal.Light
+    Universal.accent: Style.colorQtThemeAccent
+    Universal.foreground: Style.colorQtThemeForeground
+    Universal.background: Style.colorQtThemeBackground
+
     DefaultMouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.NoButton

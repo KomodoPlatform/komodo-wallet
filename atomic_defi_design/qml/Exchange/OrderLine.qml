@@ -153,7 +153,7 @@ AnimatedRectangle {
     // Recoverable
     DefaultText {
         font.pixelSize: base_amount.font.pixelSize
-        visible: !details ? false :
+        visible: !details || details.recoverable === undefined ? false :
                  details.recoverable && details.order_status !== "refunding"
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
@@ -186,7 +186,6 @@ AnimatedRectangle {
     }
 
     HorizontalLine {
-        visible: !items ? true : index !== items.length -1
         width: parent.width
         color: Style.colorWhite9
         anchors.bottom: parent.bottom

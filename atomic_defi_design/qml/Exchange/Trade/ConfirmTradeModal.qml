@@ -31,8 +31,8 @@ BasicModal {
             details: ({
                     base_coin: base_ticker,
                     rel_coin: rel_ticker,
-                    base_amount: sell_mode ? getCurrentForm().field.text : getCurrentForm().total_amount,
-                    rel_amount: sell_mode ? getCurrentForm().total_amount : getCurrentForm().field.text,
+                    base_amount: base_amount,
+                    rel_amount: rel_amount,
 
                     order_id: '',
                     date: '',
@@ -166,7 +166,7 @@ BasicModal {
                         color: parent.enabled ? Style.colorText : Style.colorTextDisabled
                     }
 
-                    Slider {
+                    DefaultSlider {
                         id: required_confirmation_count
                         readonly property int default_confirmation_count: 3
                         Layout.alignment: Qt.AlignHCenter
@@ -221,7 +221,7 @@ BasicModal {
                 Layout.fillWidth: true
                 enabled: !buy_sell_rpc_busy
                 onClicked: {
-                    trade(left_ticker, right_ticker, {
+                    trade({
                             enable_custom_config: enable_custom_config.checked,
                             is_dpow_configurable: config_section.is_dpow_configurable,
                             enable_dpow_confs: enable_dpow_confs.checked,

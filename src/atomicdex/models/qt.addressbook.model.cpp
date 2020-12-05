@@ -26,8 +26,6 @@ namespace atomic_dex
     addressbook_model::addressbook_model(atomic_dex::qt_wallet_manager& wallet_manager_, QObject* parent) noexcept :
         QAbstractListModel(parent), m_wallet_manager(wallet_manager_), m_addressbook_proxy(new addressbook_proxy_model(this))
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("addressbook model created");
         this->m_addressbook_proxy->setSourceModel(this);
         this->m_addressbook_proxy->setSortRole(SubModelRole);
         this->m_addressbook_proxy->setDynamicSortFilter(true);
@@ -36,8 +34,6 @@ namespace atomic_dex
 
     addressbook_model::~addressbook_model() noexcept
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("addressbook model destroyed");
     }
 
     int
@@ -66,7 +62,6 @@ namespace atomic_dex
     bool
     atomic_dex::addressbook_model::insertRows(int position, int rows, [[maybe_unused]] const QModelIndex& parent)
     {
-        spdlog::trace("(addressbook_model::insertRows) inserting {} elements at position {}", rows, position);
         beginInsertRows(QModelIndex(), position, position + rows - 1);
 
         for (int row = 0; row < rows; ++row) { this->m_addressbook.insert(position, new contact_model(this->m_wallet_manager, this)); }
@@ -78,7 +73,6 @@ namespace atomic_dex
     bool
     atomic_dex::addressbook_model::removeRows(int position, int rows, [[maybe_unused]] const QModelIndex& parent)
     {
-        spdlog::trace("(addressbook_model::removeRows) removing {} elements at position {}", rows, position);
         beginRemoveRows(QModelIndex(), position, position + rows - 1);
 
         for (int row = 0; row < rows; ++row)
@@ -105,7 +99,6 @@ namespace atomic_dex
         auto functor = [this](const atomic_dex::contact& cur_contact) {
             int position = 0;
             int rows     = 1;
-            spdlog::trace("(addressbook_model::initializeFromCfg) inserting {} elements at position {}", rows, position);
 
             auto* contact_ptr = new contact_model(this->m_wallet_manager, nullptr);
             contact_ptr->set_name(QString::fromStdString(cur_contact.name));

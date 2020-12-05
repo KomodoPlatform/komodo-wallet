@@ -28,7 +28,7 @@ namespace
             return answer;
         }
 
-        spdlog::warn("unable to fetch last open rates");
+        SPDLOG_WARN("unable to fetch last open rates");
         return answer;
     }
 } // namespace
@@ -52,7 +52,8 @@ namespace
             if (result.find("e") != std::string::npos)
             {
                 //! We have scientific notations lets get ride of that
-                do {
+                do
+                {
                     default_precision += 1;
                     retry();
                 } while (t_float_50(result) <= 0);
@@ -95,7 +96,9 @@ namespace atomic_dex
                         }
                     }
                     else
+                    {
                         this->m_coin_rate_providers.insert_or_assign(ticker, "0.00");
+                    }
                 }
                 if (with_update_providers)
                 {
@@ -237,7 +240,7 @@ namespace atomic_dex
 
                 if (ec)
                 {
-                    spdlog::warn("error when converting {} to {}, err: {}", current_coin.ticker, fiat, ec.message());
+                    //SPDLOG_WARN("error when converting {} to {}, err: {}", current_coin.ticker, fiat, ec.message());
                     ec.clear(); //! Reset
                     continue;
                 }
@@ -259,7 +262,8 @@ namespace atomic_dex
         }
         catch (const std::exception& error)
         {
-            spdlog::error("exception caught: {}", error.what());
+            SPDLOG_ERROR("exception caught in func[{}] line[{}] file[{}] error[{}]", 
+                        __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string(), error.what());
             return "0.00";
         }
     }
@@ -289,12 +293,12 @@ namespace atomic_dex
     global_price_service::get_price_in_fiat(const std::string& fiat, const std::string& ticker, std::error_code& ec, bool skip_precision) const noexcept
     {
         auto& mm2_instance = m_system_manager.get_system<mm2_service>();
-    
+
         if (mm2_instance.get_coin_info(ticker).coinpaprika_id == "test-coin")
         {
             return "0.00";
         }
-        
+
         if (m_supported_fiat_registry.count(fiat) == 0u)
         {
             ec = dextop_error::invalid_fiat_for_rate_conversion;
@@ -314,7 +318,7 @@ namespace atomic_dex
         if (t_ec)
         {
             ec = t_ec;
-            spdlog::error("my_balance error: {}", t_ec.message());
+            SPDLOG_ERROR("my_balance error: {}", t_ec.message());
             return "0.00";
         }
 

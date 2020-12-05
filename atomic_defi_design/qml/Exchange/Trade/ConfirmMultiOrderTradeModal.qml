@@ -113,8 +113,6 @@ BasicModal {
 
                     root.close()
 
-                    action_result = "success"
-
                     toast.show(qsTr("Placed multiple orders"), General.time_toast_basic_info, "", false)
 
                     onOrderSuccess()

@@ -14,12 +14,10 @@
  *                                                                            *
  ******************************************************************************/
 
+/*#include "atomicdex/config/wallet.cfg.hpp"
 #include "atomicdex/pch.hpp"
-
-#include "atomicdex/config/wallet.cfg.hpp"
-#include "atomicdex/pch.hpp"
+#include <nlohmann/json.hpp>*/
 #include <doctest/doctest.h>
-#include <nlohmann/json.hpp>
 
 TEST_CASE("validate json serialization to cpp data structure (wallet_config)")
 {

@@ -29,7 +29,7 @@ namespace atomic_dex
 {
     ohlc_provider::ohlc_provider(entt::registry& registry, mm2_service& mm2_instance) : system(registry), m_mm2_instance(mm2_instance)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         dispatcher_.sink<mm2_started>().connect<&ohlc_provider::on_mm2_started>(*this);
         dispatcher_.sink<orderbook_refresh>().connect<&ohlc_provider::on_current_orderbook_ticker_pair_changed>(*this);
     }
@@ -53,7 +53,7 @@ namespace atomic_dex
 
     ohlc_provider::~ohlc_provider() noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         dispatcher_.sink<mm2_started>().disconnect<&ohlc_provider::on_mm2_started>(*this);
         dispatcher_.sink<orderbook_refresh>().disconnect<&ohlc_provider::on_current_orderbook_ticker_pair_changed>(*this);
     }
@@ -61,7 +61,7 @@ namespace atomic_dex
     void
     ohlc_provider::on_current_orderbook_ticker_pair_changed(const orderbook_refresh& evt) noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
 
         if (auto [normal, quoted] = is_pair_supported(evt.base, evt.rel); !normal && !quoted)
         {
@@ -75,14 +75,14 @@ namespace atomic_dex
         m_current_ohlc_data             = nlohmann::json::array();
         m_current_orderbook_ticker_pair = {boost::algorithm::to_lower_copy(evt.base), boost::algorithm::to_lower_copy(evt.rel)};
         auto [base, rel]                = m_current_orderbook_ticker_pair;
-        spdlog::debug("new orderbook pair for cex provider [{} / {}]", base, rel);
+        SPDLOG_DEBUG("new orderbook pair for cex provider [{} / {}]", base, rel);
         process_ohlc(base, rel, true);
     }
 
     void
     ohlc_provider::on_mm2_started([[maybe_unused]] const mm2_started& evt) noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         m_mm2_started  = true;
         m_update_clock = std::chrono::high_resolution_clock::now();
         update_ohlc();
@@ -91,10 +91,10 @@ namespace atomic_dex
     bool
     ohlc_provider::process_ohlc(const std::string& base, const std::string& rel, bool is_a_reset) noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         if (auto [normal, quoted] = is_pair_supported(base, rel); normal || quoted)
         {
-            spdlog::info("{} / {} is supported, processing", base, rel);
+            SPDLOG_INFO("{} / {} is supported, processing", base, rel);
             this->dispatcher_.trigger<start_fetching_new_ohlc_data>(is_a_reset);
             atomic_dex::ohlc_request req{base, rel};
             if (quoted)
@@ -113,7 +113,7 @@ namespace atomic_dex
                         this->updating_quote_and_average(quoted);
                         this->dispatcher_.trigger<refresh_ohlc_needed>(is_a_reset);
                     }
-                    spdlog::error("http error: {}", answer.error.value_or("dummy"));
+                    SPDLOG_ERROR("http error: {}", answer.error.value_or("dummy"));
                 })
                 .then(&handle_exception_pplx_task);
             ;
@@ -121,7 +121,7 @@ namespace atomic_dex
             return false;
         }
 
-        spdlog::warn("{} / {}  not supported yet from the provider, skipping", base, rel);
+        SPDLOG_WARN("{} / {}  not supported yet from the provider, skipping", base, rel);
         return false;
     }
 
@@ -139,7 +139,7 @@ namespace atomic_dex
     bool
     ohlc_provider::is_ohlc_data_available() const noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         bool res = false;
         res      = !m_current_ohlc_data->empty();
         return res;
@@ -226,7 +226,7 @@ namespace atomic_dex
     void
     ohlc_provider::update_ohlc() noexcept
     {
-        spdlog::info("fetching ohlc value");
+        SPDLOG_INFO("fetching ohlc value");
         auto [base, rel] = m_current_orderbook_ticker_pair;
         if (not base.empty() && not rel.empty() && m_mm2_instance.is_orderbook_thread_active())
         {
@@ -234,7 +234,7 @@ namespace atomic_dex
         }
         else
         {
-            spdlog::info("Nothing to achieve, sleeping");
+            SPDLOG_INFO("Nothing to achieve, sleeping");
         }
     }
 } // namespace atomic_dex

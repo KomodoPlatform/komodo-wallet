@@ -44,7 +44,7 @@ DefaultListView {
 
         Arrow {
             id: received_icon
-            up: am_i_sender
+            up: am_i_sender ? true : false
             color: !am_i_sender ? Style.colorGreen : Style.colorRed
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: note_tag.right
@@ -98,7 +98,7 @@ DefaultListView {
         // Date
         DefaultText {
             font.pixelSize: description.font.pixelSize
-            text_value: unconfirmed ? qsTr("Unconfirmed") :  date
+            text_value: !date || unconfirmed ? qsTr("Unconfirmed") : date
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: 20

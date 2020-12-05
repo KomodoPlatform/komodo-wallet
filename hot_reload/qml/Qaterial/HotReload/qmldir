@@ -1,0 +1,16 @@
+# File auto generated with CMake qt_generate_qmldir. Run CMake to regenerate if files changed.
+
+module Qaterial.HotReload
+
+HotReload 1.0 HotReload.qml
+HotReloadWindow 1.0 HotReloadWindow.qml
+IconsMenu 1.0 IconsMenu.qml
+singleton Images 1.0 Images.qml
+ImportPathMenu 1.0 ImportPathMenu.qml
+Imports 1.0 Imports.qml
+Main 1.0 Main.qml
+MaterialPaletteMenu 1.0 MaterialPaletteMenu.qml
+SplashScreenApplication 1.0 SplashScreenApplication.qml
+SplashScreenWindow 1.0 SplashScreenWindow.qml
+StatusView 1.0 StatusView.qml
+TypoMenu 1.0 TypoMenu.qml

@@ -24,7 +24,7 @@ BasicModal {
         title: qsTr("Transaction Details")
 
         // Amount
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Amount")
             text: !details ? "" :
                     General.formatCrypto(!details.am_i_sender, details.amount, api_wallet_page.ticker, details.amount_fiat, API.app.settings_pg.current_currency)
@@ -34,22 +34,24 @@ BasicModal {
         }
 
         // Fees
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Fees")
             text: !details ? "" :
-                    General.formatCrypto("", details.fees, current_ticker_infos.fee_ticker)
+                    General.formatCrypto(parseFloat(details.fees) < 0, Math.abs(parseFloat(details.fees)), current_ticker_infos.fee_ticker)
+            value_color: !details ? "white" :
+                         parseFloat(details.fees) > 0 ? Style.colorRed : Style.colorGreen
             privacy: true
         }
 
         // Date
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Date")
             text: !details ? "" :
                     details.timestamp === 0 ? qsTr("Unconfirmed"):  details.date
         }
 
         // Transaction Hash
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Transaction Hash")
             text: !details ? "" :
                     details.tx_hash
@@ -57,14 +59,14 @@ BasicModal {
         }
 
         // Confirmations
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Confirmations")
             text: !details ? "" :
                     details.confirmations
         }
 
         // Block Height
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Block Height")
             text: !details ? "" :
                     details.blockheight

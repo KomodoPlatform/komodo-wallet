@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>AtomicDEX Pro</Name>
-    <Version>0.1.2</Version>
-    <Title>AtomicDEX Pro Installer</Title>
-    <Publisher>Komodo Platform</Publisher>
-    <ProductUrl>https://komodoplatform.com/</ProductUrl>
-    <StartMenuDir>AtomicDEX Pro</StartMenuDir>
-    <TargetDir>@ApplicationsDirX64@/AtomicDEX Pro</TargetDir>
-    <RunProgram>@TargetDir@/atomic_qt.exe</RunProgram>
-    <RunProgramDescription>Run AtomicDEX Pro now.</RunProgramDescription>
-    <InstallerWindowIcon>installer_icon</InstallerWindowIcon>
-    <InstallerApplicationIcon>installer_icon</InstallerApplicationIcon>
-    <Logo>installer_icon.png</Logo>
+    <Name>AtomicDEX Desktop</Name>
+    <Version>0.3.1</Version>
+    <Title>AtomicDEX Desktop Installer</Title>
+    <ProductUrl>https://atomicdex.io/</ProductUrl>
+    <Publisher>KomodoPlatform</Publisher>
+	<TargetDir>@ApplicationsDirX64@/AtomicDEX Desktop</TargetDir>
+    <RunProgram>@TargetDir@/atomicdex-desktop.exe</RunProgram>
+	<RunProgramDescription>Run AtomicDEX Desktop now.</RunProgramDescription>
+    <StartMenuDir>AtomicDEX Desktop</StartMenuDir>
+    <MaintenanceToolName>AtomicDEX Maintenance Tool</MaintenanceToolName>
+	<InstallerWindowIcon>install_icon</InstallerWindowIcon>
+    <InstallerApplicationIcon>install_icon</InstallerApplicationIcon>
+    <Logo>install_icon.png</Logo>
+    <WizardStyle>Mac</WizardStyle>
 </Installer>

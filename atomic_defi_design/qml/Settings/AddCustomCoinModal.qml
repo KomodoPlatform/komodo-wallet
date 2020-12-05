@@ -18,26 +18,28 @@ BasicModal {
     }
 
     property var config_fields: ({})
-    readonly property bool fetching_erc_data_busy: API.app.settings_pg.fetching_erc_data_busy
-    readonly property var custom_erc_token_data: API.app.settings_pg.custom_erc_token_data
+    readonly property bool fetching_custom_token_data_busy: API.app.settings_pg.fetching_custom_token_data_busy
+    readonly property var custom_token_data: API.app.settings_pg.custom_token_data
 
     function fetchAssetData() {
         const fields = General.clone(config_fields)
+        console.log("Fetching asset data:", JSON.stringify(fields))
         if(fields.type === "ERC-20") {
-            console.log("Fetching asset data:", JSON.stringify(fields))
             API.app.settings_pg.process_erc_20_token_add(fields.contract_address, fields.coinpaprika_id, fields.image_path)
+        }
+        else if(fields.type === "QRC-20") {
+            API.app.settings_pg.process_qrc_20_token_add(fields.contract_address, fields.coinpaprika_id, fields.image_path)
         }
     }
 
-    onCustom_erc_token_dataChanged: {
-        const data = custom_erc_token_data
-        const mm2_cfg = custom_erc_token_data.mm2_cfg
-        if(!mm2_cfg) return
+    onCustom_token_dataChanged: {
+        const data = custom_token_data
+        if(!data.mm2_cfg) return
 
         var fields = General.clone(config_fields)
 
-        fields.ticker = mm2_cfg.coin
-        fields.name = mm2_cfg.name
+        fields.ticker = data.ticker
+        fields.name = data.name
         fields.error_code = data.error_code
 
         config_fields = General.clone(fields)
@@ -85,7 +87,7 @@ BasicModal {
             id: input_type
             Layout.fillWidth: true
             title: qsTr("Type")
-            model: ["ERC-20"]//, "QRC-20", "UTXO", "Smart Chain"]
+            model: ["ERC-20", "QRC-20"]//, "UTXO", "Smart Chain"]
             currentIndex: 0
         }
 
@@ -128,12 +130,16 @@ BasicModal {
             Layout.fillWidth: true
             title: qsTr("Contract Address")
             field.placeholderText: qsTr("Enter the contract address")
+            field.left_text: is_qrc20 ? "0x" : ""
         }
 
         DefaultText {
             visible: input_contract_address.visible
             Layout.fillWidth: true
-            text_value: General.cex_icon + ' <a href="https://etherscan.io/tokens">' + qsTr('Get the contract address from Etherscan') + '</a>'
+            text_value: General.cex_icon + (
+                            is_erc20 ? ' <a href="https://etherscan.io/tokens">' + qsTr('Get the contract address from Etherscan') + '</a>'
+                                     : ' <a href="https://explorer.qtum.org/tokens/search">' + qsTr('Get the contract address from QTUM Insight') + '</a>'
+                            )
         }
 
 
@@ -142,7 +148,7 @@ BasicModal {
             content: DefaultAnimatedImage {
                 visible: input_contract_address.visible
                 playing: root.visible && visible
-                source: General.image_path + "guide_contract_address.gif"
+                source: General.image_path + "guide_contract_address_" + (is_erc20 ? "erc" : "qrc") + ".gif"
             }
         }
 
@@ -272,7 +278,7 @@ BasicModal {
         }
 
         DefaultBusyIndicator {
-            visible: root.fetching_erc_data_busy
+            visible: root.fetching_custom_token_data_busy
             Layout.alignment: Qt.AlignCenter
         }
 
@@ -287,7 +293,7 @@ BasicModal {
             PrimaryButton {
                 text: qsTr("Preview")
                 Layout.fillWidth: true
-                enabled: ! root.fetching_erc_data_busy &&
+                enabled: !root.fetching_custom_token_data_busy &&
                          (!input_name.enabled || input_name.field.text !== "") &&
                          (!input_coinpaprika_id.enabled || input_coinpaprika_id.field.text !== "")
                 onClicked: {
@@ -367,7 +373,7 @@ BasicModal {
             field.readOnly: true
             remove_newline: false
             copyable: true
-            field.text: General.prettifyJSON(custom_erc_token_data)
+            field.text: General.prettifyJSON(custom_token_data)
         }
 
 

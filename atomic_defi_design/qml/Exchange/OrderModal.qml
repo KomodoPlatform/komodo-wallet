@@ -90,7 +90,7 @@ BasicModal {
         }
 
         // Date
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Date")
             text: !details ? "" :
                 details.date
@@ -98,7 +98,7 @@ BasicModal {
         }
 
         // ID
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("ID")
             text: !details ? "" :
                 details.order_id
@@ -107,7 +107,7 @@ BasicModal {
         }
 
         // Payment ID
-        TextWithTitle {
+        TextEditWithTitle {
             title: !details ? "" :
                 details.is_maker ? qsTr("Maker Payment Sent ID") : qsTr("Maker Payment Spent ID")
             text: !details ? "" :
@@ -117,7 +117,7 @@ BasicModal {
         }
 
         // Payment ID
-        TextWithTitle {
+        TextEditWithTitle {
             title: !details ? "" :
                     details.is_maker ? qsTr("Taker Payment Spent ID") : qsTr("Taker Payment Sent ID")
             text: !details ? "" :
@@ -127,7 +127,7 @@ BasicModal {
         }
 
         // Error ID
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Error ID")
             text: !details ? "" :
                     details.order_error_state

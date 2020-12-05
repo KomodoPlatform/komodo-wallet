@@ -46,7 +46,7 @@ namespace atomic_dex
     t_password_key
     derive_password(const std::string& password, std::error_code& ec)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         t_salt_array   salt{};
         t_password_key generated_crypto_key{};
 
@@ -59,7 +59,7 @@ namespace atomic_dex
             ec = dextop_error::derive_password_failed;
             return generated_crypto_key;
         }
-        spdlog::info("Key generated successfully");
+        SPDLOG_INFO("Key generated successfully");
 
         return generated_crypto_key;
     }
@@ -67,7 +67,7 @@ namespace atomic_dex
     void
     encrypt(const fs::path& target_path, const char* mnemonic, const unsigned char* key)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
 
         std::array<unsigned char, g_chunk_size>     buf_in{};
         std::array<unsigned char, g_buff_len>       buf_out{};
@@ -92,7 +92,7 @@ namespace atomic_dex
     std::string
     decrypt(const fs::path& encrypted_file_path, const unsigned char* key, std::error_code& ec)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
 
         std::array<unsigned char, g_buff_len>       buf_in{};
         std::array<unsigned char, g_chunk_size>     buf_out{};

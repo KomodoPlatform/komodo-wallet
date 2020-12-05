@@ -15,23 +15,14 @@
  ******************************************************************************/
 
 //! Project Headers
-#include "atomicdex/models/qt.portfolio.model.hpp"
 #include "atomicdex/models/qt.portfolio.proxy.filter.model.hpp"
+#include "atomicdex/models/qt.portfolio.model.hpp"
 
 namespace atomic_dex
 {
     //! Constructor
     portfolio_proxy_model::portfolio_proxy_model(QObject* parent) : QSortFilterProxyModel(parent)
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("portfolio proxy model created");
-    }
-
-    //! Destructor
-    portfolio_proxy_model::~portfolio_proxy_model()
-    {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("portfolio proxy model destroyed");
     }
 
     //! Public API
@@ -74,6 +65,10 @@ namespace atomic_dex
         {
         case atomic_dex::portfolio_model::TickerRole:
             return left_data.toString() > right_data.toString();
+        case atomic_dex::portfolio_model::GuiTickerRole:
+            return left_data.toString() > right_data.toString();
+        case atomic_dex::portfolio_model::NameRole:
+            return left_data.toString().toLower() < right_data.toString().toLower();
         case atomic_dex::portfolio_model::BalanceRole:
             return t_float_50(left_data.toString().toStdString()) < t_float_50(right_data.toString().toStdString());
         case atomic_dex::portfolio_model::MainCurrencyBalanceRole:
@@ -87,22 +82,17 @@ namespace atomic_dex
             return left_data.toFloat() < right_data.toFloat();
         case atomic_dex::portfolio_model::MainCurrencyPriceForOneUnit:
             return t_float_50(left_data.toString().toStdString()) < t_float_50(right_data.toString().toStdString());
-        case atomic_dex::portfolio_model::NameRole:
-            return left_data.toString().toLower() < right_data.toString().toLower();
-        case portfolio_model::Trend7D:
-            return false;
-        case portfolio_model::Excluded:
-            return false;
-        case portfolio_model::Display:
-            return false;
-        case portfolio_model::NameAndTicker:
-            return false;
-        case portfolio_model::IsMultiTickerCurrentlyEnabled:
-            return false;
-        case portfolio_model::MultiTickerData:
-            return false;
         case portfolio_model::MainFiatPriceForOneUnit:
-            return false;
+        case portfolio_model::Trend7D:
+        case portfolio_model::Excluded:
+        case portfolio_model::Display:
+        case portfolio_model::NameAndTicker:
+        case portfolio_model::MultiTickerCurrentlyEnabled:
+        case portfolio_model::MultiTickerData:
+        case portfolio_model::MultiTickerError:
+        case portfolio_model::MultiTickerPrice:
+        case portfolio_model::MultiTickerReceiveAmount:
+        case portfolio_model::MultiTickerFeesInfo:
         case portfolio_model::CoinType:
             return false;
         }
@@ -115,14 +105,10 @@ namespace atomic_dex
         assert(this->sourceModel()->hasIndex(idx.row(), 0));
         QString ticker = this->sourceModel()->data(idx, atomic_dex::portfolio_model::TickerRole).toString();
         QString type   = this->sourceModel()->data(idx, atomic_dex::portfolio_model::CoinType).toString();
-        //! TODO: Remove when QRC-20 swap is supported
-        if (am_i_a_market_selector && ticker != "QTUM" && type == "QRC-20")
+
+        if (this->filterRole() == atomic_dex::portfolio_model::MultiTickerCurrentlyEnabled)
         {
-            return false;
-        }
-        if (this->filterRole() == atomic_dex::portfolio_model::IsMultiTickerCurrentlyEnabled)
-        {
-            bool is_enabled = this->sourceModel()->data(idx, atomic_dex::portfolio_model::IsMultiTickerCurrentlyEnabled).toBool();
+            bool is_enabled = this->sourceModel()->data(idx, atomic_dex::portfolio_model::MultiTickerCurrentlyEnabled).toBool();
             if (not is_enabled)
             {
                 return false;

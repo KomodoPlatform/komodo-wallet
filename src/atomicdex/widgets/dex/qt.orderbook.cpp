@@ -28,14 +28,6 @@ namespace atomic_dex
         QObject(parent), m_system_manager(system_manager), m_asks(new orderbook_model(orderbook_model::kind::asks, this)),
         m_bids(new orderbook_model(orderbook_model::kind::bids, this))
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("orderbook wrapper object created");
-    }
-
-    qt_orderbook_wrapper::~qt_orderbook_wrapper() noexcept
-    {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("orderbook wrapper object destroyed");
     }
 
     atomic_dex::orderbook_model*
@@ -53,7 +45,7 @@ namespace atomic_dex
     void
     qt_orderbook_wrapper::refresh_orderbook(t_orderbook_answer answer)
     {
-        spdlog::trace("refresh orderbook");
+        SPDLOG_DEBUG("refresh orderbook");
         this->m_asks->refresh_orderbook(answer);
         this->m_bids->refresh_orderbook(answer);
         this->set_both_taker_vol();
@@ -62,7 +54,7 @@ namespace atomic_dex
     void
     qt_orderbook_wrapper::reset_orderbook(t_orderbook_answer answer)
     {
-        spdlog::trace("full reset orderbook");
+        SPDLOG_DEBUG("full reset orderbook");
         this->m_asks->reset_orderbook(answer);
         this->m_bids->reset_orderbook(answer);
         this->set_both_taker_vol();

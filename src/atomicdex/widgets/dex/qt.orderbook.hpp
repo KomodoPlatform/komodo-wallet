@@ -37,7 +37,7 @@ namespace atomic_dex
         Q_PROPERTY(QVariant rel_max_taker_vol READ get_rel_max_taker_vol NOTIFY relMaxTakerVolChanged)
       public:
         qt_orderbook_wrapper(ag::ecs::system_manager& system_manager, QObject* parent = nullptr);
-        ~qt_orderbook_wrapper() noexcept final;
+        ~qt_orderbook_wrapper() noexcept final = default;
 
       public:
         void                           refresh_orderbook(t_orderbook_answer answer);

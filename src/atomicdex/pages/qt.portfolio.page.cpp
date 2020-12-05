@@ -66,14 +66,12 @@ namespace atomic_dex
     void
     portfolio_page::on_band_oracle_refreshed(const band_oracle_refreshed&)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         emit oraclePriceUpdated();
     }
 
     void
     portfolio_page::set_current_balance_fiat_all(QString current_fiat_all_balance) noexcept
     {
-        spdlog::trace("refresh current balance all");
         if (this->m_current_balance_all != current_fiat_all_balance)
         {
             this->m_current_balance_all = std::move(current_fiat_all_balance);
@@ -90,7 +88,6 @@ namespace atomic_dex
     void
     portfolio_page::on_update_portfolio_values_event(const update_portfolio_values& evt) noexcept
     {
-        spdlog::trace("refreshing portfolio values");
         if (evt.with_update_model)
         {
             m_portfolio_mdl->update_currency_values();

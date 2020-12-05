@@ -16,7 +16,8 @@
         <file>atomic_defi_design/assets/fonts/Ubuntu-R.ttf</file>
         <file>atomic_defi_design/assets/fonts/Ubuntu-RI.ttf</file>
         <file>atomic_defi_design/assets/fonts/Ubuntu-Th.ttf</file>
-        <file>atomic_defi_design/assets/images/guide_contract_address.gif</file>
+        <file>atomic_defi_design/assets/images/guide_contract_address_qrc.gif</file>
+        <file>atomic_defi_design/assets/images/guide_contract_address_erc.gif</file>
         <file>atomic_defi_design/assets/images/guide_coinpaprika_id.gif</file>
         <file>atomic_defi_design/assets/images/icon-discord.png</file>
         <file>atomic_defi_design/assets/images/icon-twitter.png</file>
@@ -64,6 +65,7 @@
         <file>atomic_defi_design/assets/images/coins/bots.png</file>
         <file>atomic_defi_design/assets/images/coins/busd.png</file>
         <file>atomic_defi_design/assets/images/coins/ccl.png</file>
+        <file>atomic_defi_design/assets/images/coins/coqui.png</file>
         <file>atomic_defi_design/assets/images/coins/crypto.png</file>
         <file>atomic_defi_design/assets/images/coins/dai.png</file>
         <file>atomic_defi_design/assets/images/coins/dash.png</file>
@@ -98,6 +100,7 @@
         <file>atomic_defi_design/assets/images/coins/rfox.png</file>
         <file>atomic_defi_design/assets/images/coins/qtum.png</file>
         <file>atomic_defi_design/assets/images/coins/qrc20.png</file>
+        <file>atomic_defi_design/assets/images/coins/tqtum.png</file>
         <file>atomic_defi_design/assets/images/coins/rvn.png</file>
         <file>atomic_defi_design/assets/images/coins/space.png</file>
 	<file>atomic_defi_design/assets/images/coins/srbc.png</file>
@@ -106,11 +109,13 @@
         <file>atomic_defi_design/assets/images/coins/usdc.png</file>
         <file>atomic_defi_design/assets/images/coins/vra.png</file>
         <file>atomic_defi_design/assets/images/coins/vrsc.png</file>
+        <file>atomic_defi_design/assets/images/coins/qc.png</file>
+        <file>atomic_defi_design/assets/images/coins/pbc.png</file>
         <file>atomic_defi_design/assets/images/coins/vote2020.png</file>
         <file>atomic_defi_design/assets/images/coins/wlc.png</file>
         <file>atomic_defi_design/assets/images/coins/tusd.png</file>
         <file>atomic_defi_design/assets/images/coins/tbtc.png</file>
-        <file>atomic_defi_design/assets/images/coins/xzc.png</file>
+        <file>atomic_defi_design/assets/images/coins/firo.png</file>
         <file>atomic_defi_design/assets/images/coins/zec.png</file>
         <file>atomic_defi_design/assets/images/coins/zer.png</file>
         <file>atomic_defi_design/assets/images/coins/zilla.png</file>
@@ -174,6 +179,7 @@
         <file>atomic_defi_design/qml/Components/AmountField.qml</file>
         <file>atomic_defi_design/qml/Components/AmountFieldWithInfo.qml</file>
         <file>atomic_defi_design/qml/Components/AmountIntField.qml</file>
+        <file>atomic_defi_design/qml/Components/ComponentWithTitle.qml</file>
         <file>atomic_defi_design/qml/Components/CopyFieldButton.qml</file>
         <file>atomic_defi_design/qml/Components/HideFieldButton.qml</file>
         <file>atomic_defi_design/qml/Components/PasswordField.qml</file>
@@ -199,6 +205,7 @@
         <file>atomic_defi_design/qml/Components/DefaultTextArea.qml</file>
         <file>atomic_defi_design/qml/Components/DefaultListView.qml</file>
         <file>atomic_defi_design/qml/Components/DefaultFlickable.qml</file>
+        <file>atomic_defi_design/qml/Components/DefaultSlider.qml</file>
         <file>atomic_defi_design/qml/Components/DefaultSwitch.qml</file>
         <file>atomic_defi_design/qml/Components/DefaultComboBox.qml</file>
         <file>atomic_defi_design/qml/Components/DefaultCheckBox.qml</file>
@@ -220,6 +227,7 @@
         <file>atomic_defi_design/qml/Components/ComboBoxWithTitle.qml</file>
         <file>atomic_defi_design/qml/Components/TitleText.qml</file>
         <file>atomic_defi_design/qml/Components/TextWithTitle.qml</file>
+        <file>atomic_defi_design/qml/Components/TextEditWithTitle.qml</file>
         <file>atomic_defi_design/qml/Components/TextFieldWithTitle.qml</file>
         <file>atomic_defi_design/qml/Components/TextAreaWithTitle.qml</file>
         <file>atomic_defi_design/qml/Components/ModalHeader.qml</file>

@@ -32,7 +32,7 @@ namespace atomic_dex
         portfolio_proxy_model(QObject* parent);
 
         //! Destructor
-        ~portfolio_proxy_model() final;
+        ~portfolio_proxy_model() noexcept final = default;
 
       public:
         //! API

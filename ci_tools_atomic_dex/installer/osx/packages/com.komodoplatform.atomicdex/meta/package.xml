@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>AtomicDEX Desktop</DisplayName>
+    <Description>Install AtomicDEX Desktop.</Description>
+    <Version>0.3.1</Version>
+    <ReleaseDate>2020-11-27</ReleaseDate>
+    <Licenses>
+        <License name="GNU General Public License v2.0" file="license.txt" />
+    </Licenses>
+	<Default>true</Default>
+	<Script>installscript.qs</Script>
+</Package>

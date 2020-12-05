@@ -72,7 +72,7 @@ namespace atomic_dex
         };
 
         orders_model(ag::ecs::system_manager& system_manager, entt::dispatcher& dispatcher, QObject* parent = nullptr) noexcept;
-        ~orders_model() noexcept final;
+        ~orders_model() noexcept final = default;
         int                    rowCount(const QModelIndex& parent) const final;
         QVariant               data(const QModelIndex& index, int role) const final;
         bool                   removeRows(int row, int count, const QModelIndex& parent) final;

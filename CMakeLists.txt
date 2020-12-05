@@ -1,24 +1,45 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
-if (EXISTS ${CMAKE_BINARY_DIR}/conan_paths.cmake)
-    set(CONAN_ENABLED ON)
-    message(STATUS "Conan package manager enabled")
-    include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-else ()
-    message(STATUS "VCPKG package manager enabled")
-    set(CMAKE_TOOLCHAIN_FILE
-            "${CMAKE_CURRENT_SOURCE_DIR}/ci_tools_atomic_dex/vcpkg-repo/scripts/buildsystems/vcpkg.cmake"
-            CACHE STRING "")
-    if (WIN32)
-        set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
+################# BUILD TYPE ##################################
+if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+    if (NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
     endif ()
 endif ()
+################# END BUILD TYPE ###############################
 
-project(atomicdex-desktop LANGUAGES CXX VERSION 0.3.0)
+############################ VCPKG PREREQUISITES ##############
+message(STATUS "VCPKG package manager enabled")
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_SOURCE_DIR}/ci_tools_atomic_dex/vcpkg-custom-ports/ports" CACHE STRING "")
+set(_VCPKG_INSTALLED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ci_tools_atomic_dex/vcpkg-repo/installed")
+set(CMAKE_TOOLCHAIN_FILE
+        "${CMAKE_CURRENT_SOURCE_DIR}/ci_tools_atomic_dex/vcpkg-repo/scripts/buildsystems/vcpkg.cmake"
+        CACHE STRING "")
+if (WIN32)
+    set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
+endif ()
+find_program(ANTARA_CXX_COMPILER clang++)
+find_program(ANTARA_C_COMPILER clang)
+message(STATUS "Compiler: ${ANTARA_CXX_COMPILER} and ${ANTARA_C_COMPILER}")
+set(CMAKE_CXX_COMPILER "${ANTARA_CXX_COMPILER}" CACHE STRING "")
+set(CMAKE_C_COMPILER "${ANTARA_C_COMPILER}" CACHE STRING "")
+if (WIN32)
+    set(CMAKE_PREFIX_PATH "$ENV{QT_INSTALL_CMAKE_PATH}/lib/cmake" CACHE STRING "")
+else ()
+    set(CMAKE_PREFIX_PATH "$ENV{QT_INSTALL_CMAKE_PATH}" CACHE STRING "")
+endif ()
+message(STATUS "CMake Prefix path is: ${CMAKE_PREFIX_PATH}")
 
+if (APPLE)
+    set(VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "")
+endif ()
+############################ END VCPKG PREREQUISITES ##############################
+
+project(atomicdex-desktop LANGUAGES CXX VERSION 0.3.1)
 
 option(DISABLE_GEOBLOCKING "Enable to disable geoblocking (for dev purpose)" OFF)
 option(PREFER_BOOST_FILESYSTEM "Enable to use boost filesystem instead of std::filesystem" OFF)
+option(WITH_HOTRELOAD "Enable to use qml Hot reload" OFF)
 set(FETCHCONTENT_QUIET OFF CACHE BOOL "Override option" FORCE)
 
 if (PREFER_BOOST_FILESYSTEM)
@@ -56,13 +77,13 @@ endif ()
 ##! We fetch our dependencies
 if (APPLE)
     FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.0.2422/mm2-31d1803b0-Darwin-Release.zip)
+            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.1.2793/mm2-19701cc87-Darwin-Release.zip)
 elseif (UNIX AND NOT APPLE)
     FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.0.2422/mm2-31d1803b0-Linux-Release.zip)
+            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.1.2793/mm2-19701cc87-Linux-Release.zip)
 else ()
     FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.0.2422/mm2-31d1803b0-Windows_NT-Release.zip)
+            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.1.2793/mm2-19701cc87-Windows_NT-Release.zip)
 endif ()
 
 FetchContent_Declare(qmaterial URL https://github.com/KomodoPlatform/Qaterial/archive/master.zip)
@@ -124,7 +145,6 @@ endif ()
 target_sources(atomicdex-desktop_shared_deps PRIVATE
         ##! App
         ${CMAKE_SOURCE_DIR}/src/atomicdex/app.cpp
-        ${CMAKE_SOURCE_DIR}/src/atomicdex/app.entry.cpp
 
         ##! Utilities
         ${CMAKE_SOURCE_DIR}/src/atomicdex/utilities/kill.cpp
@@ -136,6 +156,7 @@ target_sources(atomicdex-desktop_shared_deps PRIVATE
 
         ##! Constants
         ${CMAKE_SOURCE_DIR}/src/atomicdex/constants/mm2.error.code.cpp
+        ${CMAKE_SOURCE_DIR}/src/atomicdex/constants/qt.trading.enums.cpp
 
         ##! Config
         ${CMAKE_SOURCE_DIR}/src/atomicdex/config/app.cfg.cpp
@@ -264,13 +285,7 @@ add_executable(atomicdex-desktop_tests MACOSX_BUNDLE ${ICON}
         src/atomicdex/tests/atomic.dex.utilities.tests.cpp
         src/atomicdex/tests/atomic.dex.provider.cex.prices.tests.cpp
         src/atomicdex/tests/atomic.dex.qt.utilities.tests.cpp
-        src/atomicdex/tests/atomic.dex.provider.cex.prices.api.tests.cpp
-        ##! QRC
-        ${CMAKE_SOURCE_DIR}/qml.qrc
-
-        ##! Linguistic
-        ${QM_FILES}
-        ${TS_FILES})
+        src/atomicdex/tests/atomic.dex.provider.cex.prices.api.tests.cpp)
 
 target_link_libraries(atomicdex-desktop
         PUBLIC
@@ -281,8 +296,7 @@ target_include_directories(atomicdex-desktop PUBLIC src)
 
 target_link_libraries(atomicdex-desktop_tests
         PUBLIC
-        atomicdex-desktop_shared_deps
-        $<$<PLATFORM_ID:Darwin>:/usr/local/lib/libcurl.a>
+        #atomicdex-desktop_shared_deps
         doctest::doctest)
 
 ##! Setting output directory
@@ -340,6 +354,7 @@ if (LINUX)
     configure_file(${from_dir}/${appdata_file} ${output_dir_at}/usr/share/metainfo/${appdata_file} COPYONLY)
     configure_file(${from_dir}/${app_icon} ${output_dir_at}/usr/share/icons/hicolor/64x64/apps/${app_icon} COPYONLY)
     configure_file(${from_dir}/${app_icon} ${output_dir_at}/usr/share/icons/default/64x64/apps/${app_icon} COPYONLY)
+    include(data/linux/atomicdex_install.cmake)
 endif ()
 
 if (WIN32)
@@ -366,7 +381,6 @@ if (WIN32)
     else ()
         message(FATAL_ERROR "Didn't find windeployqt ${WINDEPLOYQT_PATH}")
     endif ()
-    #bin --qmldir
     add_custom_command(TARGET atomicdex-desktop PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/ci_tools_atomic_dex/windows_misc $<TARGET_FILE_DIR:atomicdex-desktop>)
@@ -375,10 +389,79 @@ if (WIN32)
             POST_BUILD
             COMMAND ${WINDEPLOYQT_PATH} ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.exe ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_shared_deps.dll --qmldir ${CMAKE_SOURCE_DIR}/atomic_defi_design/qml
             )
+    include(data/windows/atomicdex_install.cmake)
 endif ()
 
 if (APPLE)
     file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.app/Contents/Resources)
     file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_tests.app/Contents/Resources)
     include(data/osx/atomicdex_install.cmake)
+endif ()
+
+if (WITH_HOTRELOAD)
+    add_compile_definitions(ATOMICDEX_HOT_RELOAD)
+    message(STATUS "Hot reload enabled")
+    include(hot_reload/cmake/Configuration.cmake)
+    include(hot_reload/cmake/FetchDependencies.cmake)
+    set(QATERIALHOTRELOAD_LIB QaterialHotReload)
+    set(QATERIALHOTRELOAD_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hot_reload/src/Qaterial/HotReload)
+    add_subdirectory(hot_reload/qml/Qaterial/HotReload)
+
+
+    add_library(${QATERIALHOTRELOAD_LIB} STATIC
+            ${QATERIALHOTRELOAD_SRC_DIR}/HotReload.hpp
+            ${QATERIALHOTRELOAD_SRC_DIR}/HotReload.cpp
+            ${QATERIALHOTRELOAD_QML_RES}
+            )
+    add_library(Qaterial::HotReload ALIAS ${QATERIALHOTRELOAD_LIB})
+
+    target_link_libraries(${QATERIALHOTRELOAD_LIB} PUBLIC
+            Qaterial
+            SortFilterProxyModel
+            atomicdex-desktop_shared_deps
+            )
+    target_link_libraries(${QATERIALHOTRELOAD_LIB} PRIVATE
+            Qaterial::HotReload::Ui
+            )
+
+    function(target_link_quiet_libraries TARGET)
+        foreach (LIB ${ARGN})
+            if (TARGET ${LIB})
+                target_link_libraries(${TARGET} PUBLIC ${LIB})
+            endif ()
+        endforeach (LIB)
+    endfunction()
+
+    # Optionnal Qt libs that might be interessant to have packaged with hotreloader
+    find_package(Qt5 QUIET COMPONENTS
+            Charts)
+
+    target_link_quiet_libraries(${QATERIALHOTRELOAD_LIB}
+            Qt::Charts)
+
+
+    set_target_properties(${QATERIALHOTRELOAD_LIB} PROPERTIES
+            FOLDER ${QATERIALHOTRELOAD_FOLDER_PREFIX}
+            AUTORCC TRUE
+            AUTOMOC TRUE)
+    target_include_directories(${QATERIALHOTRELOAD_LIB} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/hot_reload/src)
+    target_compile_definitions(${QATERIALHOTRELOAD_LIB}
+            PRIVATE -DQATERIALHOTRELOAD_VERSION_MAJOR=${QATERIALHOTRELOAD_VERSION_MAJOR}
+            PRIVATE -DQATERIALHOTRELOAD_VERSION_MINOR=${QATERIALHOTRELOAD_VERSION_MINOR}
+            PRIVATE -DQATERIALHOTRELOAD_VERSION_PATCH=${QATERIALHOTRELOAD_VERSION_PATCH}
+            PRIVATE -DQATERIALHOTRELOAD_VERSION_TAG=${QATERIALHOTRELOAD_VERSION_TAG}
+            PRIVATE -DQATERIALHOTRELOAD_VERSION_TAG_HEX=${QATERIALHOTRELOAD_VERSION_TAG_HEX}
+            )
+
+    if (QATERIALHOTRELOAD_ENABLE_PCH AND COMMAND target_precompile_headers)
+        target_precompile_headers(${QATERIALHOTRELOAD_LIB} PRIVATE ${PROJECT_SOURCE_DIR}/hot_reload/src/Qaterial/HotReload/Pch/Pch.hpp)
+    endif ()
+
+    get_target_property(QT_TARGET_TYPE Qt::Core TYPE)
+    if (${QT_TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
+        qt_generate_qml_plugin_import(${QATERIALHOTRELOAD_LIB} QML_SRC ${CMAKE_CURRENT_SOURCE_DIR})
+        qt_generate_plugin_import(${QATERIALHOTRELOAD_LIB})
+    endif ()
+
+    target_link_libraries(atomicdex-desktop PRIVATE Qaterial::HotReload)
 endif ()

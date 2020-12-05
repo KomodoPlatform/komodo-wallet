@@ -33,7 +33,7 @@ namespace atomic_dex
         Q_OBJECT
       public:
         notification_manager(entt::dispatcher& dispatcher, QObject* parent = nullptr) noexcept;
-        ~notification_manager() noexcept final;
+        ~notification_manager() noexcept final = default;
 
         //! Public API
         void connect_signals() noexcept;

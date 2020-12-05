@@ -15,11 +15,11 @@
  ******************************************************************************/
 
 
-#include <vector>
+/*#include <vector>
 #include <string>
 #include "atomicdex/events/events.hpp"
 #include "atomicdex/pch.hpp"
-#include "atomicdex/services/ohlc/ohlc.provider.hpp"
+#include "atomicdex/services/ohlc/ohlc.provider.hpp"*/
 #include <doctest/doctest.h>
 
 TEST_CASE("atomic dex cex prices provider constructor")

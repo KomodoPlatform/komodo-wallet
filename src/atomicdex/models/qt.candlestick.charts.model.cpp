@@ -30,14 +30,14 @@ namespace atomic_dex
     candlestick_charts_model::candlestick_charts_model(ag::ecs::system_manager& system_manager, QObject* parent) :
         QAbstractTableModel(parent), m_system_manager(system_manager)
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("candlestick charts model created");
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("candlestick charts model created");
     }
 
     candlestick_charts_model::~candlestick_charts_model() noexcept
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("candlestick charts model destroyed");
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("candlestick charts model destroyed");
     }
 
     int
@@ -159,7 +159,7 @@ namespace atomic_dex
                 max_value = max_to_compare;
             }
         }
-        spdlog::trace("new range value IS: min: {} / max: {}", min_value, max_value);
+        SPDLOG_DEBUG("new range value IS: min: {} / max: {}", min_value, max_value);
         this->set_global_min_value(min_value);
         this->set_global_max_value(max_value);
 
@@ -203,11 +203,11 @@ namespace atomic_dex
         //! If it's already empty dont reset the model
         if (this->m_model_data.empty())
         {
-            spdlog::trace("already empty, skipping");
+            SPDLOG_DEBUG("already empty, skipping");
             return;
         }
 
-        spdlog::trace("clearing the chart candlestick model");
+        SPDLOG_DEBUG("clearing the chart candlestick model");
         beginResetModel();
         this->m_model_data.clear();
         this->set_min_value(0);

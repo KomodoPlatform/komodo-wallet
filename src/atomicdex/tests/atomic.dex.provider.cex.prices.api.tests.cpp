@@ -15,9 +15,6 @@
  ******************************************************************************/
 
 //! Deps
-#include <nlohmann/json.hpp>
-
-#include "atomicdex/api/ohlc/ohlc.api.hpp"
 #include <doctest/doctest.h>
 
 

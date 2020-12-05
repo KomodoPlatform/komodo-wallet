@@ -25,7 +25,6 @@ namespace atomic_dex
     void
     to_json(nlohmann::json& j, const electrum_server& cfg)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         j["url"] = cfg.url;
         if (cfg.protocol.has_value())
         {
@@ -40,7 +39,6 @@ namespace atomic_dex
     void
     from_json(const nlohmann::json& j, electrum_server& cfg)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         if (j.count("protocol") == 1)
         {
             cfg.protocol = j.at("protocol").get<std::string>();
@@ -55,19 +53,19 @@ namespace atomic_dex
     void
     from_json(const nlohmann::json& j, coin_config& cfg)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         j.at("coin").get_to(cfg.ticker);
+        cfg.gui_ticker = j.contains("gui_coin") ? j.at("gui_coin").get<std::string>() : cfg.ticker;
         j.at("name").get_to(cfg.name);
         j.at("type").get_to(cfg.type);
         if (j.contains("mm2_backup"))
         {
             cfg.custom_backup = j.at("mm2_backup");
         }
-        if (j.count("electrum") > 0)
+        if (j.contains("electrum"))
         {
             cfg.electrum_urls = j.at("electrum").get<std::vector<electrum_server>>();
         }
-        if (j.count("eth_nodes") > 0)
+        if (j.contains("eth_nodes"))
         {
             cfg.eth_urls = j.at("eth_nodes").get<std::vector<std::string>>();
         }
@@ -80,10 +78,7 @@ namespace atomic_dex
         {
             cfg.is_custom_coin = true;
         }
-        cfg.is_erc_20 = cfg.type == "ERC-20";
-        cfg.is_qrc_20 = cfg.type == "QRC-20";
-        spdlog::debug("coin: {} is of type: {}", cfg.ticker, cfg.type);
-        // j.at("is_erc_20").get_to(cfg.is_erc_20);
+        
         j.at("explorer_url").get_to(cfg.explorer_url);
         if (j.contains("explorer_tx_url"))
         {
@@ -92,6 +87,30 @@ namespace atomic_dex
         if (j.contains("explorer_address_url"))
         {
             j.at("explorer_address_url").get_to(cfg.address_url);
+        }
+        if (j.contains("need_electrum"))
+        {
+            cfg.need_electrum = j.at("need_electrum").get<bool>();
+        }
+        if (j.contains("is_testnet"))
+        {
+            cfg.is_testnet = j.at("is_testnet").get<bool>();
+        }
+        if (cfg.type == "QRC-20")
+        {
+            cfg.coin_type = coin_type::QRC20;
+        }
+        else if (cfg.type == "ERC-20")
+        {
+            cfg.coin_type = coin_type::ERC20;
+        }
+        else if (cfg.type == "UTXO")
+        {
+            cfg.coin_type = coin_type::UTXO;
+        }
+        else if (cfg.type == "Smart Chain")
+        {
+            cfg.coin_type = coin_type::SmartChain;
         }
     }
 } // namespace atomic_dex

@@ -84,7 +84,7 @@ FetchContent_Declare(
 
 FetchContent_Declare(
         reproc
-        URL https://github.com/KomodoPlatform/reproc/archive/v13.0.1.zip
+        URL https://github.com/KomodoPlatform/reproc/archive/v14.2.1.zip
 )
 
 set(EXPECTED_ENABLE_TESTS OFF CACHE BOOL "Override option" FORCE)

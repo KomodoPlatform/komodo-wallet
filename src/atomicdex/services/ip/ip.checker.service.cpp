@@ -61,7 +61,7 @@ namespace atomic_dex
                 .then([this, ip](web::http::http_response resp) {
                     if (resp.status_code() == 200)
                     {
-                        spdlog::info("Successfully retrieve ip informations of {}", ip);
+                        SPDLOG_INFO("Successfully retrieve ip informations of {}", ip);
                         std::string body   = TO_STD_STR(resp.extract_string(true).get());
                         auto        answer = nlohmann::json::parse(body);
                         this->m_country    = answer.at("country").get<std::string>();
@@ -70,11 +70,11 @@ namespace atomic_dex
                             this->m_external_ip_authorized = false;
                             emit this->ipCountryChanged();
                             emit this->ipAuthorizedStatusChanged();
-                            spdlog::error("ip {} is not authorized in your country: {}", ip, m_country.get());
+                            SPDLOG_ERROR("ip {} is not authorized in your country: {}", ip, m_country.get());
                         }
                         else
                         {
-                            spdlog::info("ip {} is authorized in your country -> {}", ip, m_country.get());
+                            SPDLOG_INFO("ip {} is authorized in your country -> {}", ip, m_country.get());
                         }
                     }
                 })
@@ -86,7 +86,7 @@ namespace atomic_dex
                 {
                     std::string ip      = TO_STD_STR(resp.extract_string(true).get());
                     this->m_external_ip = ip;
-                    spdlog::info("my ip address is: [{}]", ip);
+                    SPDLOG_INFO("my ip address is: [{}]", ip);
                     ip_validator_functor(ip);
                 }
             })

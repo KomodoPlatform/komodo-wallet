@@ -13,7 +13,7 @@ Item {
     id: root
 
     readonly property date default_min_date: new Date("2019-01-01")
-    readonly property date default_max_date: new Date(new Date().setDate(new Date().getDate() + 1))
+    readonly property date default_max_date: new Date(new Date().setDate(new Date().getDate() + 30))
 
     property var list_model: API.app.orders_mdl
     property var list_model_proxy: API.app.orders_mdl.orders_proxy_mdl

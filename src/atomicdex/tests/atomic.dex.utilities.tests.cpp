@@ -14,8 +14,8 @@
  *                                                                            *
  ******************************************************************************/
 
-#include "atomicdex/pch.hpp"
-#include "atomicdex/utilities/global.utilities.hpp"
+/*#include "atomicdex/pch.hpp"
+#include "atomicdex/utilities/global.utilities.hpp"*/
 #include <doctest/doctest.h>
 
 TEST_CASE("AtomicDex Pro get_atomic_dex_data_folder()")

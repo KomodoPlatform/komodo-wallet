@@ -44,6 +44,10 @@ namespace mm2::api
     to_json(nlohmann::json& j, const max_taker_vol_request& cfg)
     {
         j["coin"] = cfg.coin;
+        if (cfg.trade_with.has_value())
+        {
+            j["trade_with"] = cfg.trade_with.value();
+        }
     }
 
     //! Deserialization
@@ -78,11 +82,14 @@ namespace mm2::api
     void
     to_json(nlohmann::json& j, const enable_request& cfg)
     {
-        j["coin"]                  = cfg.coin_name;
-        j["gas_station_url"]       = cfg.gas_station_url;
-        j["swap_contract_address"] = cfg.swap_contract_address;
-        j["urls"]                  = cfg.urls;
-        j["tx_history"]            = cfg.with_tx_history;
+        j["coin"] = cfg.coin_name;
+        if (cfg.coin_type == atomic_dex::ERC20)
+        {
+            j["gas_station_url"]       = cfg.gas_station_url;
+            j["swap_contract_address"] = cfg.erc_swap_contract_address;
+            j["urls"]                  = cfg.urls;
+        }
+        j["tx_history"] = cfg.with_tx_history;
     }
 
     //! Deserialization
@@ -105,6 +112,10 @@ namespace mm2::api
         j["coin"]       = cfg.coin_name;
         j["servers"]    = cfg.servers;
         j["tx_history"] = cfg.with_tx_history;
+        if (cfg.coin_type == atomic_dex::QRC20)
+        {
+            j["swap_contract_address"] = cfg.is_testnet ? cfg.testnet_qrc_swap_contract_address : cfg.mainnet_qrc_swap_contract_address;
+        }
     }
 
     //! Deserialization
@@ -200,7 +211,7 @@ namespace mm2::api
             cfg.erc_fees = fee_erc_coin{};
             from_json(j, cfg.erc_fees.value());
         }
-        else if (j.at("coin").get<std::string>() == "QTUM")
+        else if (j.at("coin").get<std::string>() == "QTUM" || j.at("coin").get<std::string>() == "tQTUM")
         {
             cfg.qrc_fees = fee_qrc_coin{};
             from_json(j, cfg.qrc_fees.value());
@@ -431,6 +442,8 @@ namespace mm2::api
         // contents.price = t_float_50(contents.price).str(8, std::ios_base::fixed);
         j.at("price_fraction").at("numer").get_to(contents.price_fraction_numer);
         j.at("price_fraction").at("denom").get_to(contents.price_fraction_denom);
+        j.at("max_volume_fraction").at("numer").get_to(contents.max_volume_fraction_numer);
+        j.at("max_volume_fraction").at("denom").get_to(contents.max_volume_fraction_denom);
         j.at("maxvolume").get_to(contents.maxvolume);
         j.at("pubkey").get_to(contents.pubkey);
         j.at("age").get_to(contents.age);
@@ -548,8 +561,6 @@ namespace mm2::api
     void
     to_json(nlohmann::json& j, const buy_request& request)
     {
-        spdlog::debug("price: {}, volume: {}", request.price, request.volume);
-
         j["base"]   = request.base;
         j["price"]  = request.price;
         j["rel"]    = request.rel;
@@ -564,29 +575,46 @@ namespace mm2::api
         }
         if (not request.is_created_order)
         {
-            spdlog::info(
-                "The order is picked from the orderbook, setting price_numer and price_denom from it {}, {}", request.price_numer, request.price_denom);
             //! From orderbook
             nlohmann::json price_fraction_repr = nlohmann::json::object();
             price_fraction_repr["numer"]       = request.price_numer;
             price_fraction_repr["denom"]       = request.price_denom;
             j["price"]                         = price_fraction_repr;
+            nlohmann::json volume_fraction_repr = nlohmann::json::object();
+            if (not request.selected_order_use_input_volume)
+            {
+                volume_fraction_repr["numer"] = request.volume_numer;
+                volume_fraction_repr["denom"] = request.volume_denom;
+                j["volume"]                   = volume_fraction_repr;
+            }
+            SPDLOG_INFO("The order is picked from the orderbook price: {}, volume: {}", j.at("price").dump(4), j.at("volume").dump(4));
         }
         else
         {
-            spdlog::info("The order is not picked from orderbook we create it volume = {}, price = {}", request.volume, request.price);
+            SPDLOG_INFO("The order is not picked from orderbook we create it from volume = {}, price = {}", j.at("volume").dump(4), request.price);
         }
     }
 
     void
     to_json(nlohmann::json& j, const sell_request& request)
     {
-        spdlog::debug("price: {}, volume: {}", request.price, request.volume);
+        SPDLOG_DEBUG("price: {}, volume: {}", request.price, request.volume);
+
+        auto volume_fraction_functor = [&request]() {
+            nlohmann::json volume_fraction_repr = nlohmann::json::object();
+            volume_fraction_repr["numer"]       = request.volume_numer;
+            volume_fraction_repr["denom"]       = request.volume_denom;
+            return volume_fraction_repr;
+        };
 
         j["base"]   = request.base;
         j["rel"]    = request.rel;
-        j["volume"] = request.volume; // 7.77
-        j["price"]  = request.price;
+        j["volume"] = request.volume; //< First take the user input
+        if (request.is_max)           //< It's a real max means user want to sell his base_max_taker_vol let's take the fraction repr
+        {
+            j["volume"] = volume_fraction_functor();
+        }
+        j["price"] = request.price;
         if (request.rel_nota.has_value())
         {
             j["rel_nota"] = request.rel_nota.value();
@@ -598,17 +626,20 @@ namespace mm2::api
 
         if (not request.is_created_order)
         {
-            spdlog::info(
-                "The order is picked from the orderbook, setting price_numer and price_denom from it {}, {}", request.price_numer, request.price_denom);
             //! From orderbook
             nlohmann::json price_fraction_repr = nlohmann::json::object();
             price_fraction_repr["numer"]       = request.price_numer;
             price_fraction_repr["denom"]       = request.price_denom;
             j["price"]                         = price_fraction_repr;
+            if (request.is_exact_selected_order_volume)
+            {
+                j["volume"] = volume_fraction_functor();
+            }
+            SPDLOG_INFO("The order is picked from the orderbook price: {}, volume: {}", j.at("price").dump(4), j.at("volume").dump(4));
         }
         else
         {
-            spdlog::info("The order is not picked from orderbook we create it volume = {}, price = {}", request.volume, request.price);
+            SPDLOG_INFO("The order is not picked from orderbook we create it from volume = {}, price = {}", j.at("volume").dump(4), request.price);
         }
     }
 
@@ -711,7 +742,7 @@ namespace mm2::api
               .cancellable      = value.at("cancellable").get<bool>(),
               .timestamp        = time_key,
               .order_type       = is_maker ? "maker" : "taker",
-              .base_amount      = is_maker ? value.at("max_base_vol").get<std::string>() : value.at("request").at("base_amount").get<std::string>(),
+              .base_amount      = is_maker ? value.at("available_amount").get<std::string>() : value.at("request").at("base_amount").get<std::string>(),
               .rel_amount       = is_maker ? (t_float_50(contents.price) * t_float_50(contents.base_amount)).convert_to<std::string>() : value.at("request").at("rel_amount").get<std::string>(),
               .human_timestamp  = atomic_dex::utils::to_human_date<std::chrono::seconds>(time_key / 1000, "%F    %T"),
               .action = action};
@@ -731,18 +762,6 @@ namespace mm2::api
         {
             j["from_uuid"] = request.from_uuid.value();
         }
-    }
-
-    void
-    from_json(const nlohmann::json& j, started_data& contents)
-    {
-        j.at("lock_duration").get_to(contents.lock_duration);
-    }
-
-    void
-    from_json(const nlohmann::json& j, error_data& contents)
-    {
-        j.at("error").get_to(contents.error_message);
     }
 
     void
@@ -885,12 +904,6 @@ namespace mm2::api
         }
     }
 
-    my_recent_swaps_answer
-    rpc_my_recent_swaps(my_recent_swaps_request&& request, std::shared_ptr<t_http_client> mm2_client)
-    {
-        return process_rpc<my_recent_swaps_request, my_recent_swaps_answer>(std::forward<my_recent_swaps_request>(request), "my_recent_swaps", mm2_client);
-    }
-
     enable_answer
     rpc_enable(enable_request&& request, std::shared_ptr<t_http_client> mm2_client)
     {
@@ -980,31 +993,11 @@ namespace mm2::api
             std::forward<recover_funds_of_swap_request>(request), "recover_funds_of_swap", mm2_client);
     }
 
-    my_orders_answer
-    rpc_my_orders(std::shared_ptr<t_http_client> mm2_http_client) noexcept
-    {
-        nlohmann::json json_data = template_request("my_orders");
-
-        spdlog::info("Processing rpc call: rpc my_orders");
-
-
-        if (mm2_http_client != nullptr)
-        {
-            web::http::http_request request(web::http::methods::POST);
-            request.headers().set_content_type(FROM_STD_STR("application/json"));
-            request.set_body(json_data.dump());
-            auto resp = mm2_http_client->request(request).get();
-            return rpc_process_answer<my_orders_answer>(resp, "my_orders");
-        }
-
-        return {};
-    }
-
     template <typename TRequest, typename TAnswer>
     static TAnswer
     process_rpc(TRequest&& request, std::string rpc_command, std::shared_ptr<t_http_client> mm2_http_client)
     {
-        spdlog::info("Processing rpc call: {}", rpc_command);
+        SPDLOG_INFO("Processing rpc call: {}", rpc_command);
 
         nlohmann::json json_data = template_request(rpc_command);
 
@@ -1012,7 +1005,7 @@ namespace mm2::api
 
         auto json_copy        = json_data;
         json_copy["userpass"] = "*******";
-        spdlog::trace("request: {}", json_copy.dump());
+        SPDLOG_DEBUG("request: {}", json_copy.dump());
 
         if (mm2_http_client != nullptr)
         {
@@ -1096,8 +1089,6 @@ namespace mm2::api
     nlohmann::json
     basic_batch_answer(const web::http::http_response& resp)
     {
-        spdlog::info("{} resp code: {}", __FUNCTION__, resp.status_code());
-
         nlohmann::json answer;
         std::string    body = TO_STD_STR(resp.extract_string(true).get());
         try
@@ -1106,7 +1097,7 @@ namespace mm2::api
         }
         catch (const nlohmann::detail::parse_error& err)
         {
-            spdlog::error("{}, body: {}", err.what(), body);
+            SPDLOG_ERROR("exception caught {}, body: {}", err.what(), body);
             answer["error"] = body;
         }
         return answer;
@@ -1123,7 +1114,7 @@ namespace mm2::api
             auto resp = mm2_http_client->request(request).get();
 
 
-            spdlog::info("{} resp code: {}", __FUNCTION__, resp.status_code());
+            SPDLOG_INFO("{} resp code: {}", __FUNCTION__, resp.status_code());
 
             nlohmann::json answer;
             std::string    body = TO_STD_STR(resp.extract_string(true).get());
@@ -1133,7 +1124,7 @@ namespace mm2::api
             }
             catch (const nlohmann::detail::parse_error& err)
             {
-                spdlog::error("{}, body: {}", err.what(), body);
+                SPDLOG_ERROR("{}, body: {}", err.what(), body);
                 answer["error"] = body;
             }
             return answer;

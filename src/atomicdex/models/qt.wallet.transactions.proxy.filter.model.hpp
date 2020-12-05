@@ -29,7 +29,7 @@ namespace atomic_dex
         transactions_proxy_model(QObject* parent);
 
         //! Destructor
-        ~transactions_proxy_model() final;
+        ~transactions_proxy_model() noexcept final = default;
 
       protected:
         //! Override member functions

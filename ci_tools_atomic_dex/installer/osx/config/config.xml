@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>AtomicDEX Desktop</Name>
+    <Version>0.3.1</Version>
+    <Title>AtomicDEX Desktop Installer</Title>
+    <ProductUrl>https://atomicdex.io/</ProductUrl>
+    <Publisher>KomodoPlatform</Publisher>
+	<TargetDir>@ApplicationsDir@/AtomicDEX Desktop</TargetDir>
+    <RunProgram>@TargetDir@/atomicdex-desktop.app/Contents/MacOS/atomicdex-desktop</RunProgram>
+	<RunProgramDescription>Run AtomicDEX Desktop now.</RunProgramDescription>
+    <StartMenuDir>AtomicDEX Desktop</StartMenuDir>
+    <MaintenanceToolName>AtomicDEX Maintenance Tool</MaintenanceToolName>
+	<InstallerWindowIcon>install_icon</InstallerWindowIcon>
+    <InstallerApplicationIcon>install_icon</InstallerApplicationIcon>
+    <Logo>install_icon.png</Logo>
+    <WizardStyle>Mac</WizardStyle>
+</Installer>

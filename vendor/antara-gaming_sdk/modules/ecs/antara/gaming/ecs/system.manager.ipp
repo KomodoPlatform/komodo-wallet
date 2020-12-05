@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "system.manager.hpp"
+
 namespace antara::gaming::ecs
 {
     // LCOV_EXCL_START

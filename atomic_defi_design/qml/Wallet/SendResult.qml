@@ -16,32 +16,32 @@ ModalContent {
     title: qsTr("Transaction Complete!")
 
     // Address
-    TextWithTitle {
+    TextEditWithTitle {
         id: address
         title: qsTr("Recipient's address")
         visible: text !== ""
     }
 
     // Amount
-    TextWithTitle {
+    TextEditWithTitle {
         title: qsTr("Amount")
         text: General.formatCrypto("", custom_amount !== "" ? custom_amount : result.balance_change, api_wallet_page.ticker)
     }
 
     // Fees
-    TextWithTitle {
+    TextEditWithTitle {
         title: qsTr("Fees")
         text: General.formatCrypto("", result.fees, current_ticker_infos.fee_ticker)
     }
 
     // Date
-    TextWithTitle {
+    TextEditWithTitle {
         title: qsTr("Date")
         text: result.date
     }
 
     // Transaction Hash
-    TextWithTitle {
+    TextEditWithTitle {
         id: tx_hash
         title: qsTr("Transaction Hash")
     }

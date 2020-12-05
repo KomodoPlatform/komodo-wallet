@@ -66,6 +66,14 @@ namespace antara::gaming::ecs
         });
     }
 
+    void
+    system_manager::mark_all_systems() noexcept
+    {
+        for (auto&& current_sys_vec: systems_)
+            for (auto&& current_sys: current_sys_vec)
+                current_sys->mark();
+    }
+
 
     std::size_t
     system_manager::update() noexcept

@@ -9,6 +9,11 @@ import "../Constants"
 ComboBox {
     id: control
 
+    Universal.theme: Style.dark_theme ? Universal.Dark : Universal.Light
+    Universal.accent: Style.colorQtThemeAccent
+    Universal.foreground: Style.colorQtThemeForeground
+    Universal.background: Style.colorQtThemeBackground
+
     font.family: Style.font_family
 
     property color lineHoverColor: Style.colorTheme5

@@ -23,15 +23,11 @@ namespace atomic_dex
     //! Constructor
     addressbook_proxy_model::addressbook_proxy_model(QObject* parent) : QSortFilterProxyModel(parent)
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("addressbook proxy model created");
     }
 
     //! Destructor
     addressbook_proxy_model::~addressbook_proxy_model()
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("addressbook proxy model destroyed");
     }
 
     //! Protected members override
@@ -49,7 +45,6 @@ namespace atomic_dex
             contact_model* left_contact  = qobject_cast<contact_model*>(left_obj);
             QObject*       right_obj     = qvariant_cast<QObject*>(right_data);
             contact_model* right_contact = qobject_cast<contact_model*>(right_obj);
-            spdlog::trace("comparing {} to {}", left_contact->get_name().toLower().toStdString(), right_contact->get_name().toLower().toStdString());
             return left_contact->get_name().toLower() < right_contact->get_name().toLower();
         }
         return false;

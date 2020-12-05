@@ -369,7 +369,11 @@ ColumnLayout {
                 anchors.verticalCenter: parent.verticalCenter
                 legend.visible: false
 
-                onHistoricalChanged: updateChart(chart, historical, Style.getValueColor(change_24h))
+                function refresh() { updateChart(chart, historical, Style.getValueColor(change_24h)) }
+
+                property bool dark_theme: Style.dark_theme
+                onDark_themeChanged: refresh()
+                onHistoricalChanged: refresh()
                 backgroundColor: "transparent"
             }
 

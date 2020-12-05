@@ -704,6 +704,8 @@ namespace antara::gaming::ecs
         template <typename SystemToSwap, typename SystemB>
         bool prioritize_system() noexcept;
 
+        void mark_all_systems() noexcept;
+
         system_manager& operator+=(system_ptr system) noexcept;
     };
 } // namespace antara::gaming::ecs

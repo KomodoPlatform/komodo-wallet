@@ -10,6 +10,7 @@ sudo apt-get install build-essential \
                     ninja-build \
                     curl \
                     wget \
+                    zstd \
                     software-properties-common \
                     lsb-release \
                     libpulse-dev \
@@ -30,26 +31,28 @@ sudo apt-get install build-essential \
 # get llvm
 wget https://apt.llvm.org/llvm.sh
 chmod +x llvm.sh
-sudo ./llvm.sh 10
+sudo ./llvm.sh 11
 # set clang version
-sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 777
-sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 777
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-11 777
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-11 777
 # set gnu compilers version
 sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 777
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 777
 sudo apt-get update
-sudo apt-get install libc++abi-10-dev libc++-10-dev -y
+sudo apt-get install libc++abi-11-dev libc++-11-dev -y
 export CXXFLAGS=-stdlib=libc++
 export LDFLAGS=-stdlib=libc++
-export CXX=clang++-10
-export CC=clang-10
+export CXX=clang++-11
+export CC=clang-11
+
 # get right cmake version
-wget https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz
-tar xvf cmake-3.17.3-Linux-x86_64.tar.gz
-cd cmake-3.17.3-Linux-x86_64
+wget https://github.com/Kitware/CMake/releases/download/v3.19.0-rc3/cmake-3.19.0-rc3-Linux-x86_64.tar.gz
+tar xvf cmake-3.19.0-rc3-Linux-x86_64.tar.gz
+cd cmake-3.19.0-rc3-Linux-x86_64
 sudo cp -r * /usr/
 sudo cp -r * /usr/local/
 cmake --version
+
 # get libwally
 git clone https://github.com/KomodoPlatform/libwally-core.git
 cd libwally-core
@@ -57,3 +60,11 @@ cd libwally-core
 ./configure --disable-shared
 sudo make -j3 install
 cd ..
+
+wget https://ftp.gnu.org/gnu/tar/tar-1.32.tar.gz
+tar xvf tar-1.32.tar.gz
+cd tar-1.32
+export FORCE_UNSAFE_CONFIGURE=1
+./configure
+sudo make -j install
+sudo update-alternatives --install /usr/bin/tar tar /usr/local/bin/tar 777

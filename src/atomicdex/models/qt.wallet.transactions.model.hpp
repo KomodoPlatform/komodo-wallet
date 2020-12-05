@@ -56,7 +56,7 @@ namespace atomic_dex
         };
 
         transactions_model(ag::ecs::system_manager& system_manager, QObject* parent = nullptr) noexcept;
-        ~transactions_model() noexcept final;
+        ~transactions_model() noexcept final = default;
 
         void reset();
         void init_transactions(const t_transactions& transactions);

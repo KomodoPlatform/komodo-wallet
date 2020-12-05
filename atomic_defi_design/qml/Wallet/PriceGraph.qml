@@ -70,7 +70,7 @@ ChartView {
     // Price, front
     LineSeries {
         id: series
-        color: Style.colorTheme0
+        color: Style.colorGreen
 
         style: Qt.SolidLine
         width: 1.5

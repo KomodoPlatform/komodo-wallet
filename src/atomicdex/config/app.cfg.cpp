@@ -24,14 +24,15 @@
 
 //! Project Header
 #include "atomicdex/config/app.cfg.hpp"
+#include "atomicdex/utilities/global.utilities.hpp"
 
 namespace
 {
     void
     upgrade_cfg(atomic_dex::cfg& config)
     {
-        fs::path       cfg_path = ag::core::assets_real_path() / "config";
-        std::ifstream  ifs((cfg_path / "cfg.json").c_str());
+        fs::path       cfg_path = atomic_dex::utils::get_current_configs_path() / "cfg.json";
+        std::ifstream  ifs(cfg_path.string());
         nlohmann::json config_json_data;
 
         assert(ifs.is_open());
@@ -48,7 +49,7 @@ namespace
         ifs.close();
 
         //! Write contents
-        std::ofstream ofs((cfg_path / "cfg.json").c_str(), std::ios::trunc);
+        std::ofstream ofs(cfg_path.string(), std::ios::trunc);
         assert(ofs.is_open());
         ofs << config_json_data;
     }
@@ -94,9 +95,17 @@ namespace atomic_dex
     cfg
     load_cfg()
     {
-        cfg            out;
-        fs::path       cfg_path = ag::core::assets_real_path() / "config";
-        std::ifstream  ifs((cfg_path / "cfg.json").c_str());
+        cfg      out;
+        fs::path cfg_path = utils::get_current_configs_path() / "cfg.json";
+        if (not fs::exists(cfg_path))
+        {
+            fs::path original_cfg_path{ag::core::assets_real_path() / "config" / "cfg.json"};
+            //! Copy our json to current version
+            SPDLOG_INFO("Copying app cfg: {} to {}", original_cfg_path.string(), cfg_path.string());
+
+            fs::copy_file(original_cfg_path, cfg_path, get_override_options());
+        }
+        std::ifstream  ifs(cfg_path.string());
         nlohmann::json config_json_data;
 
         assert(ifs.is_open());
@@ -121,7 +130,7 @@ namespace atomic_dex
         //! If it's fiat, i set the first element of the possible currencies to the new currency (the new fiat here) and i also set the current fiat
         if (is_this_currency_a_fiat(config, new_currency))
         {
-            spdlog::info("{} is fiat, setting it as current fiat and possible currencies", new_currency);
+            SPDLOG_INFO("{} is fiat, setting it as current fiat and possible currencies", new_currency);
             config.current_fiat           = new_currency;
             config.current_fiat_sign      = config.current_currency_sign;
             config.possible_currencies[0] = new_currency;

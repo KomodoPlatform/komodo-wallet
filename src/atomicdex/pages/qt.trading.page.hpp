@@ -23,29 +23,49 @@
 #include <QObject>
 
 //! Project Headers
+#include "atomicdex/constants/qt.actions.hpp"
+#include "atomicdex/constants/qt.trading.enums.hpp"
 #include "atomicdex/events/events.hpp"
-#include "src/atomicdex/constants/qt.actions.hpp"
-#include "src/atomicdex/events/qt.events.hpp"
-#include "src/atomicdex/models/qt.candlestick.charts.model.hpp"
-#include "src/atomicdex/models/qt.portfolio.model.hpp"
-#include "src/atomicdex/widgets/dex/qt.market.pairs.hpp"
-#include "src/atomicdex/widgets/dex/qt.orderbook.hpp"
+#include "atomicdex/events/qt.events.hpp"
+#include "atomicdex/models/qt.candlestick.charts.model.hpp"
+#include "atomicdex/models/qt.portfolio.model.hpp"
+#include "atomicdex/widgets/dex/qt.market.pairs.hpp"
+#include "atomicdex/widgets/dex/qt.orderbook.hpp"
 
 namespace atomic_dex
 {
     class trading_page final : public QObject, public ag::ecs::pre_update_system<trading_page>
     {
+      private:
         //! Q_Object definition
         Q_OBJECT
 
         //! Q Properties definitions
         Q_PROPERTY(qt_orderbook_wrapper* orderbook READ get_orderbook_wrapper NOTIFY orderbookChanged)
-        //Q_PROPERTY(candlestick_charts_model* candlestick_charts_mdl READ get_candlestick_charts NOTIFY candlestickChartsChanged)
         Q_PROPERTY(market_pairs* market_pairs_mdl READ get_market_pairs_mdl NOTIFY marketPairsChanged)
         Q_PROPERTY(QVariant buy_sell_last_rpc_data READ get_buy_sell_last_rpc_data WRITE set_buy_sell_last_rpc_data NOTIFY buySellLastRpcDataChanged)
         Q_PROPERTY(bool buy_sell_rpc_busy READ is_buy_sell_rpc_busy WRITE set_buy_sell_rpc_busy NOTIFY buySellRpcStatusChanged)
         Q_PROPERTY(bool fetching_multi_ticker_fees_busy READ is_fetching_multi_ticker_fees_busy WRITE set_fetching_multi_ticker_fees_busy NOTIFY
                        multiTickerFeesStatusChanged)
+
+        //! Trading logic
+        Q_PROPERTY(MarketMode market_mode READ get_market_mode WRITE set_market_mode NOTIFY marketModeChanged)
+        Q_PROPERTY(TradingError last_trading_error READ get_trading_error WRITE set_trading_error NOTIFY tradingErrorChanged)
+        Q_PROPERTY(QString price READ get_price WRITE set_price NOTIFY priceChanged)
+        Q_PROPERTY(QString volume READ get_volume WRITE set_volume NOTIFY volumeChanged)
+        Q_PROPERTY(QString max_volume READ get_max_volume WRITE set_max_volume NOTIFY maxVolumeChanged)
+        Q_PROPERTY(QString total_amount READ get_total_amount WRITE set_total_amount NOTIFY totalAmountChanged)
+        Q_PROPERTY(QString base_amount READ get_base_amount NOTIFY baseAmountChanged)
+        Q_PROPERTY(QString rel_amount READ get_rel_amount NOTIFY relAmountChanged)
+        Q_PROPERTY(QVariantMap fees READ get_fees WRITE set_fees NOTIFY feesChanged)
+        Q_PROPERTY(QVariantMap preffered_order READ get_preffered_order WRITE set_preffered_order NOTIFY prefferedOrderChanged)
+        Q_PROPERTY(QString price_reversed READ get_price_reversed NOTIFY priceReversedChanged)
+        Q_PROPERTY(QString cex_price READ get_cex_price NOTIFY cexPriceChanged)
+        Q_PROPERTY(QString cex_price_reversed READ get_cex_price_reversed NOTIFY cexPriceReversedChanged)
+        Q_PROPERTY(QString cex_price_diff READ get_cex_price_diff NOTIFY cexPriceDiffChanged)
+        Q_PROPERTY(bool invalid_cex_price READ get_invalid_cex_price NOTIFY invalidCexPriceChanged)
+        Q_PROPERTY(bool multi_order_enabled READ get_multi_order_enabled WRITE set_multi_order_enabled NOTIFY multiOrderEnabledChanged)
+
 
         //! Private enum
         enum models
@@ -57,19 +77,13 @@ namespace atomic_dex
 
         enum models_actions
         {
-            orderbook_need_a_reset   = 0,
-            models_actions_size      = 1
+            orderbook_need_a_reset = 0,
+            models_actions_size    = 1
         };
 
         enum class trading_actions
         {
             post_process_orderbook_finished = 0,
-        };
-
-        enum market_mode
-        {
-            sell = 0,
-            buy  = 1
         };
 
         //! Private typedefs
@@ -87,10 +101,30 @@ namespace atomic_dex
         std::atomic_bool         m_rpc_buy_sell_busy{false};
         std::atomic_bool         m_fetching_multi_ticker_fees_busy{false};
         t_qt_synchronized_json   m_rpc_buy_sell_result;
-        market_mode              m_market_mode{sell};
 
-        //! Privae function
-        void common_cancel_all_orders(bool by_coin = false, const QString& ticker = "");
+        //! Trading Logic
+        MarketMode                    m_market_mode{MarketModeGadget::Sell};
+        TradingError                  m_last_trading_error{TradingErrorGadget::None};
+        QString                       m_price{""};
+        QString                       m_volume{""};
+        QString                       m_max_volume{"0"};
+        QString                       m_total_amount{"0"};
+        QString                       m_cex_price{"0"};
+        std::optional<nlohmann::json> m_preffered_order;
+        QVariantMap                   m_fees;
+        bool                          m_multi_order_enabled{false};
+
+        //! Private function
+        void                       common_cancel_all_orders(bool by_coin = false, const QString& ticker = "");
+        void                       clear_forms() noexcept;
+        void                       determine_max_volume() noexcept;
+        void                       determine_fees() noexcept;
+        void                       determine_total_amount() noexcept;
+        void                       determine_error_cases() noexcept;
+        void                       determine_cex_rates() noexcept;
+        void                       cap_volume() noexcept;
+        [[nodiscard]] t_float_50   get_max_balance_without_dust(std::optional<QString> trade_with = std::nullopt) const noexcept;
+        [[nodiscard]] TradingError generate_fees_error(QVariantMap fees, t_float_50 max_balance_without_dust) const noexcept;
 
       public:
         //! Constructor
@@ -120,45 +154,62 @@ namespace atomic_dex
         Q_INVOKABLE QVariant get_raw_mm2_coin_cfg(const QString& ticker) const noexcept;
 
         //! Trading business
-        Q_INVOKABLE void swap_market_pair();                                             ///< market_selector (button to switch market selector and orderbook)
+        Q_INVOKABLE void swap_market_pair(); ///< market_selector (button to switch market selector and orderbook)
+        Q_INVOKABLE bool set_pair(bool is_left_side, QString changed_ticker) noexcept;
         Q_INVOKABLE void set_current_orderbook(const QString& base, const QString& rel); ///< market_selector (called and selecting another coin)
 
-        Q_INVOKABLE void switch_market_mode() noexcept; ///< trading_widget (when clicking on buy or sell)
-        Q_INVOKABLE void place_buy_order(
-            const QString& base,
-            const QString& rel,
-            const QString& price,
-            const QString& volume,
-            bool is_created_order,
-            const QString& price_denom,
-            const QString& price_numer,
-            const QString& base_nota = "",
-            const QString& base_confs = "");
-        Q_INVOKABLE void place_sell_order(
-            const QString& base, const QString& rel, const QString& price, const QString& volume, bool is_created_order, const QString& price_denom,
-            const QString& price_numer, const QString& rel_nota = "", const QString& rel_confs = "");
+        Q_INVOKABLE void place_buy_order(const QString& base_nota = "", const QString& base_confs = "");
+        Q_INVOKABLE void place_sell_order(const QString& rel_nota = "", const QString& rel_confs = "");
 
         Q_INVOKABLE void fetch_additional_fees(const QString& ticker) noexcept; ///< multi ticker (when enabling a coin of the list)
         Q_INVOKABLE void place_multiple_sell_order() noexcept;                  ///< multi ticker (when confirming a multi order)
 
         //! Properties
-        [[nodiscard]] qt_orderbook_wrapper*     get_orderbook_wrapper() const noexcept;
-        //[[nodiscard]] candlestick_charts_model* get_candlestick_charts() const noexcept;
-        [[nodiscard]] market_pairs*             get_market_pairs_mdl() const noexcept;
-        [[nodiscard]] bool                      is_buy_sell_rpc_busy() const noexcept;
-        void                                    set_buy_sell_rpc_busy(bool status) noexcept;
+        [[nodiscard]] qt_orderbook_wrapper* get_orderbook_wrapper() const noexcept;
+        [[nodiscard]] market_pairs*         get_market_pairs_mdl() const noexcept;
+        [[nodiscard]] bool                  is_buy_sell_rpc_busy() const noexcept;
+        void                                set_buy_sell_rpc_busy(bool status) noexcept;
+
+        //! Trading Logic
+        [[nodiscard]] MarketMode   get_market_mode() const noexcept;
+        void                       set_market_mode(MarketMode market_mode) noexcept;
+        [[nodiscard]] TradingError get_trading_error() const noexcept;
+        void                       set_trading_error(TradingError trading_error) noexcept;
+        [[nodiscard]] QString      get_price_reversed() const noexcept;
+        [[nodiscard]] QString      get_price() const noexcept;
+        void                       set_price(QString price) noexcept;
+        [[nodiscard]] QString      get_volume() const noexcept;
+        void                       set_volume(QString volume) noexcept;
+        [[nodiscard]] QString      get_max_volume() const noexcept;
+        void                       set_max_volume(QString max_volume) noexcept;
+        [[nodiscard]] QString      get_total_amount() const noexcept;
+        void                       set_total_amount(QString total_amount) noexcept;
+        [[nodiscard]] QString      get_base_amount() const noexcept;
+        [[nodiscard]] QString      get_rel_amount() const noexcept;
+        [[nodiscard]] QString      get_cex_price() const noexcept;
+        [[nodiscard]] QString      get_cex_price_reversed() const noexcept;
+        [[nodiscard]] QString      get_cex_price_diff() const noexcept;
+        [[nodiscard]] bool         get_invalid_cex_price() const noexcept;
+        [[nodiscard]] QVariantMap  get_preffered_order() noexcept;
+        void                       set_preffered_order(QVariantMap price_object) noexcept;
+        [[nodiscard]] QVariantMap  get_fees() const noexcept;
+        void                       set_fees(QVariantMap fees) noexcept;
+        [[nodiscard]] bool         get_multi_order_enabled() const noexcept;
+        void                       set_multi_order_enabled(bool multi_order_enabled) noexcept;
 
         //! For multi ticker part
         [[nodiscard]] bool is_fetching_multi_ticker_fees_busy() const noexcept;
         void               set_fetching_multi_ticker_fees_busy(bool status) noexcept;
+        void               determine_multi_ticker_fees(const QString& ticker);
+        void               determine_multi_ticker_total_amount(const QString& ticker, const QString& input_price, bool is_enabled);
+        void               determine_multi_ticker_error_cases(const QString& ticker, QVariantMap fees);
+        void               determine_all_multi_ticker_forms() noexcept;
 
         [[nodiscard]] QVariant get_buy_sell_last_rpc_data() const noexcept;
         void                   set_buy_sell_last_rpc_data(QVariant rpc_data) noexcept;
 
         //! Events Callbacks
         void on_process_orderbook_finished_event(const process_orderbook_finished& evt) noexcept;
-        void on_start_fetching_new_ohlc_data_event(const start_fetching_new_ohlc_data& evt);
-        void on_refresh_ohlc_event(const refresh_ohlc_needed& evt) noexcept;
         void on_multi_ticker_enabled(const multi_ticker_enabled& evt) noexcept;
 
       signals:
@@ -168,6 +219,24 @@ namespace atomic_dex
         void buySellLastRpcDataChanged();
         void buySellRpcStatusChanged();
         void multiTickerFeesStatusChanged();
+
+        //! Trading logic
+        void priceChanged();
+        void volumeChanged();
+        void marketModeChanged();
+        void maxVolumeChanged();
+        void tradingErrorChanged();
+        void prefferedOrderChanged();
+        void totalAmountChanged();
+        void baseAmountChanged();
+        void relAmountChanged();
+        void feesChanged();
+        void cexPriceChanged();
+        void cexPriceReversedChanged();
+        void cexPriceDiffChanged();
+        void invalidCexPriceChanged();
+        void priceReversedChanged();
+        void multiOrderEnabledChanged();
     };
 } // namespace atomic_dex
 

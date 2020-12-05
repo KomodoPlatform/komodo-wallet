@@ -7,23 +7,24 @@ import "../../Constants"
 
 // Price
 RowLayout {
-    readonly property double price: !orderIsSelected() ? getCalculatedPrice() : preffered_order.price
-    readonly property bool invalid_cex_price: parseFloat(cex_price) === 0
-    readonly property double price_diff: invalid_cex_price ? 0 : 100 * (1 - parseFloat(price) / parseFloat(cex_price)) *
-                                                                                                            (sell_mode ? 1 : -1)
+    readonly property string price: non_null_price
+    readonly property string price_reversed: API.app.trading_pg.price_reversed
+    readonly property string cex_price: API.app.trading_pg.cex_price
+    readonly property string cex_price_reversed: API.app.trading_pg.cex_price_reversed
+    readonly property string cex_price_diff: API.app.trading_pg.cex_price_diff
+    readonly property bool invalid_cex_price: API.app.trading_pg.invalid_cex_price
+    readonly property bool price_entered: !General.isZero(non_null_price)
 
     readonly property int fontSize: Style.textSizeSmall1
     readonly property int fontSizeBigger: Style.textSizeSmall2
-    readonly property int line_scale: getComparisonScale(price_diff)
-
-    readonly property bool price_entered: hasValidPrice()
+    readonly property int line_scale: getComparisonScale(cex_price_diff)
 
     function getComparisonScale(value) {
-        return Math.min(Math.pow(10, General.getDigitCount(value)), 1000000000)
+        return Math.min(Math.pow(10, General.getDigitCount(parseFloat(value))), 1000000000)
     }
 
     function limitDigits(value) {
-        return parseFloat(value.toFixed(2))
+        return parseFloat(General.formatDouble(value, 2))
     }
 
     DefaultText {
@@ -40,14 +41,14 @@ RowLayout {
 
         DefaultText {
             Layout.alignment: Qt.AlignHCenter
-            text_value: qsTr("Exchange rate") + (orderIsSelected() ? (" (" + qsTr("Selected") + ")") : "")
+            text_value: qsTr("Exchange rate") + (preffered_order.price !== undefined ? (" (" + qsTr("Selected") + ")") : "")
             font.pixelSize: fontSize
         }
 
         // Price reversed
         DefaultText {
             Layout.alignment: Qt.AlignHCenter
-            text_value: General.formatCrypto("", "1", right_ticker) + " = " + General.formatCrypto("", General.formatDouble(1 / parseFloat(price)), left_ticker)
+            text_value: General.formatCrypto("", "1", right_ticker) + " = " + General.formatCrypto("", price_reversed, left_ticker)
             font.pixelSize: fontSizeBigger
             font.weight: Font.Medium
         }
@@ -71,8 +72,8 @@ RowLayout {
             Layout.topMargin: 10
             Layout.bottomMargin: Layout.topMargin
             Layout.alignment: Qt.AlignHCenter
-            color: price_diff <= 0 ? Style.colorGreen : Style.colorRed
-            text_value: (price_diff > 0 ? qsTr("Expensive") : qsTr("Expedient")) + ":&nbsp;&nbsp;&nbsp;&nbsp;" + qsTr("%1 compared to CEX", "PRICE_DIFF%").arg("<b>" + General.formatPercent(limitDigits(price_diff)) + "</b>")
+            color: parseFloat(cex_price_diff) <= 0 ? Style.colorGreen : Style.colorRed
+            text_value: (parseFloat(cex_price_diff) > 0 ? qsTr("Expensive") : qsTr("Expedient")) + ":&nbsp;&nbsp;&nbsp;&nbsp;" + qsTr("%1 compared to CEX", "PRICE_DIFF%").arg("<b>" + General.formatPercent(limitDigits(cex_price_diff)) + "</b>")
             font.pixelSize: fontSize
         }
 
@@ -95,7 +96,7 @@ RowLayout {
                     height: parent.height * 2
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.horizontalCenterOffset: 0.5 * parent.width * Math.min(Math.max(price_diff / line_scale, -1), 1)
+                    anchors.horizontalCenterOffset: 0.5 * parent.width * Math.min(Math.max(parseFloat(cex_price_diff) / line_scale, -1), 1)
                 }
             }
 
@@ -126,7 +127,7 @@ RowLayout {
         // Price reversed
         DefaultText {
             Layout.alignment: Qt.AlignHCenter
-            text_value: General.formatCrypto("", "1", right_ticker) + " = " + General.formatCrypto("", General.formatDouble(1 / parseFloat(cex_price)), left_ticker)
+            text_value: General.formatCrypto("", "1", right_ticker) + " = " + General.formatCrypto("", cex_price_reversed, left_ticker)
             font.pixelSize: fontSizeBigger
             font.weight: Font.Medium
         }

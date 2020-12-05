@@ -22,14 +22,6 @@ namespace atomic_dex
 {
     transactions_proxy_model::transactions_proxy_model(QObject* parent) : QSortFilterProxyModel(parent)
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("transactions proxy model created");
-    }
-
-    transactions_proxy_model::~transactions_proxy_model()
-    {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("transactions proxy model destroyed");
     }
 
     bool

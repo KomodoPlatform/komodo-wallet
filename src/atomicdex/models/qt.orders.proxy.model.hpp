@@ -34,7 +34,7 @@ namespace atomic_dex
         orders_proxy_model(QObject* parent);
 
         //! Destructor
-        ~orders_proxy_model() final;
+        ~orders_proxy_model() noexcept final = default;
 
         [[nodiscard]] bool am_i_in_history() const noexcept;
 

@@ -60,8 +60,13 @@ BasicModal {
     }
 
     onBroadcast_resultChanged: {
-        if(root.visible && broadcast_result !== "")
-            root.currentIndex = 2
+        if(root.visible && broadcast_result !== "") {
+            if(broadcast_result.indexOf("error") !== -1) {
+                reset()
+                showError(qsTr("Failed to Send"), General.prettifyJSON(broadcast_result))
+            }
+            else root.currentIndex = 2
+        }
     }
 
     function prepareSendCoin(address, amount, with_fees, fees_amount, is_special_token, gas_limit, gas_price) {
@@ -359,26 +364,26 @@ BasicModal {
         title: qsTr("Send")
 
         // Address
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Recipient's address")
             text: input_address.field.text
         }
 
         // Amount
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Amount")
             text: General.formatCrypto("", input_amount.field.text, api_wallet_page.ticker, send_result.withdraw_answer.total_amount_fiat, API.app.settings_pg.current_currency)
         }
 
         // Fees
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Fees")
             text: empty_data ? "" :
                   General.formatCrypto("", send_result.withdraw_answer.fee_details.amount, current_ticker_infos.fee_ticker, send_result.withdraw_answer.fee_details.amount_fiat, API.app.settings_pg.current_currency)
         }
 
         // Date
-        TextWithTitle {
+        TextEditWithTitle {
             title: qsTr("Date")
             text: empty_data ? "" :
                   send_result.withdraw_answer.date

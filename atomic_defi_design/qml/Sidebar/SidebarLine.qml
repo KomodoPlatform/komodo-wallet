@@ -76,7 +76,7 @@ Item {
         font.pixelSize: Style.textSizeSmall4
         font.weight: selected ? Font.Medium : Font.Normal
         color: !section_enabled ? Style.colorTextDisabled :
-                selected ? Style.colorWhite1 :
+                selected ? Style.colorSidebarSelectedText :
                 mouse_area.containsMouse ? Style.colorThemePassiveLight :
                                            Style.colorThemePassive
     }

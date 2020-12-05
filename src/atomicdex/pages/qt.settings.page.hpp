@@ -46,8 +46,9 @@ namespace atomic_dex
         Q_PROPERTY(QString current_fiat_sign READ get_current_fiat_sign NOTIFY onFiatSignChanged)
         Q_PROPERTY(QString current_fiat READ get_current_fiat WRITE set_current_fiat NOTIFY onFiatChanged)
         Q_PROPERTY(bool notification_enabled READ is_notification_enabled WRITE set_notification_enabled NOTIFY onNotificationEnabledChanged)
-        Q_PROPERTY(QVariant custom_erc_token_data READ get_custom_erc_token_data WRITE set_custom_erc_token_data NOTIFY customErcTokenDataChanged)
-        Q_PROPERTY(bool fetching_erc_data_busy READ is_fetching_erc_data_busy WRITE set_fetching_erc_data_busy NOTIFY ercDataStatusChanged)
+        Q_PROPERTY(QVariant custom_token_data READ get_custom_token_data WRITE set_custom_token_data NOTIFY customTokenDataChanged)
+        Q_PROPERTY(bool fetching_custom_token_data_busy READ is_fetching_custom_token_data_busy WRITE set_fetching_custom_token_data_busy NOTIFY
+                       customTokenDataStatusChanged)
 
         using t_synchronized_json = boost::synchronized_value<nlohmann::json>;
 
@@ -59,7 +60,7 @@ namespace atomic_dex
         QTranslator                   m_translator;
         QString                       m_empty_string{""};
         std::atomic_bool              m_fetching_erc_data_busy{false};
-        t_synchronized_json           m_custom_erc_token_data;
+        t_synchronized_json           m_custom_token_data;
 
       public:
         explicit settings_page(
@@ -81,10 +82,10 @@ namespace atomic_dex
         void                   set_notification_enabled(bool is_enabled) noexcept;
         void                   set_current_currency(const QString& current_currency) noexcept;
         void                   set_current_fiat(const QString& current_fiat) noexcept;
-        [[nodiscard]] bool     is_fetching_erc_data_busy() const noexcept;
-        void                   set_fetching_erc_data_busy(bool status) noexcept;
-        [[nodiscard]] QVariant get_custom_erc_token_data() const noexcept;
-        void                   set_custom_erc_token_data(QVariant rpc_data) noexcept;
+        [[nodiscard]] bool     is_fetching_custom_token_data_busy() const noexcept;
+        void                   set_fetching_custom_token_data_busy(bool status) noexcept;
+        [[nodiscard]] QVariant get_custom_token_data() const noexcept;
+        void                   set_custom_token_data(QVariant rpc_data) noexcept;
 
         //! Public API
         [[nodiscard]] atomic_dex::cfg&       get_cfg() noexcept;
@@ -102,6 +103,7 @@ namespace atomic_dex
         Q_INVOKABLE [[nodiscard]] QVariantList get_custom_coins() const noexcept;
         Q_INVOKABLE [[nodiscard]] QString      get_custom_coins_icons_path() const noexcept;
         Q_INVOKABLE void process_erc_20_token_add(const QString& contract_address, const QString& coinpaprika_id, const QString& icon_filepath);
+        Q_INVOKABLE void process_qrc_20_token_add(const QString& contract_address, const QString& coinpaprika_id, const QString& icon_filepath);
         Q_INVOKABLE void submit();
         Q_INVOKABLE void reset_coin_cfg();
 
@@ -113,8 +115,8 @@ namespace atomic_dex
         void onFiatSignChanged();
         void onFiatChanged();
         void onNotificationEnabledChanged();
-        void customErcTokenDataChanged();
-        void ercDataStatusChanged();
+        void customTokenDataChanged();
+        void customTokenDataStatusChanged();
     };
 } // namespace atomic_dex
 

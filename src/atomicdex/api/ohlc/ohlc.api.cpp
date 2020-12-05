@@ -33,7 +33,7 @@ namespace atomic_dex
     void
     from_json(const nlohmann::json& j, ohlc_answer_success& answer)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
 
         answer.raw_result = j;
 
@@ -61,7 +61,7 @@ namespace atomic_dex
     void
     from_json(const nlohmann::json& j, ohlc_answer& answer)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
 
         if (j.contains("60"))
         {
@@ -74,7 +74,7 @@ namespace atomic_dex
     ohlc_answer_from_async_resp(web::http::http_response resp)
     {
         using namespace std::string_literals;
-        spdlog::info("{} l{} resp code: {}", __FUNCTION__, __LINE__, resp.status_code());
+        SPDLOG_INFO("{} l{} resp code: {}", __FUNCTION__, __LINE__, resp.status_code());
         ohlc_answer answer;
         if (resp.status_code() != 200)
         {
@@ -89,7 +89,7 @@ namespace atomic_dex
             }
             catch (const std::exception& error)
             {
-                spdlog::warn("{}", error.what());
+                SPDLOG_WARN("{}", error.what());
                 answer.error = error.what();
             }
         }
@@ -100,10 +100,10 @@ namespace atomic_dex
     async_rpc_ohlc_get_data(ohlc_request&& request)
     {
         using namespace std::string_literals;
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         auto&& [base_id, quote_id] = request;
         const auto url             = g_cex_endpoint + "/api/v1/ohlc/"s + base_id + "-"s + quote_id;
-        spdlog::info("url: {}", url);
+        SPDLOG_INFO("url: {}", url);
         web::http::http_request req;
         req.set_method(web::http::methods::GET);
         req.set_request_uri(FROM_STD_STR(url));

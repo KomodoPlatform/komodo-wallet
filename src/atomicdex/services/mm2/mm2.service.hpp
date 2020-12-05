@@ -20,14 +20,13 @@
 #include <antara/gaming/ecs/system.hpp>
 #include <antara/gaming/ecs/system.manager.hpp>
 #include <boost/thread/synchronized_value.hpp>
-#include <folly/Memory.h>
-#include <folly/concurrency/ConcurrentHashMap.h>
 #include <reproc++/reproc.hpp>
 
 //! Project Headers
 #include "atomicdex/api/mm2/mm2.hpp"
 #include "atomicdex/config/coins.cfg.hpp"
 #include "atomicdex/config/raw.mm2.coins.cfg.hpp"
+#include "atomicdex/constants/mm2.constants.hpp"
 #include "atomicdex/constants/mm2.error.code.hpp"
 #include "atomicdex/events/events.hpp"
 #include "atomicdex/utilities/global.utilities.hpp"
@@ -63,9 +62,6 @@ namespace atomic_dex
         std::size_t transactions_left;
     };
 
-    using t_allocator = folly::AlignedSysAllocator<std::uint8_t, folly::FixedAlign<bit_size<std::size_t>()>>;
-    template <typename Key, typename Value>
-    using t_concurrent_reg      = folly::ConcurrentHashMap<Key, Value, std::hash<Key>, std::equal_to<>, t_allocator>;
     using t_ticker              = std::string;
     using t_tx_state            = tx_state;
     using t_coins_registry      = t_concurrent_reg<t_ticker, coin_config>;
@@ -151,6 +147,7 @@ namespace atomic_dex
 
         //!
         std::pair<bool, std::string> process_batch_enable_answer(const nlohmann::json& answer);
+        std::vector<electrum_server> get_electrum_server_from_token(const std::string& ticker);
 
       public:
         //! Constructor
@@ -165,9 +162,6 @@ namespace atomic_dex
         //! Destructor
         ~mm2_service() noexcept final;
 
-        //! Refresh the orders registry (internal)
-        void process_orders();
-
         //! Events
         void on_refresh_orderbook(const orderbook_refresh& evt);
 
@@ -180,9 +174,6 @@ namespace atomic_dex
 
         //! Refresh the current info (internally call process_balance and process_tx)
         void fetch_infos_thread(bool is_a_fresh = true, bool only_tx = false);
-
-        //! Refresh the swaps history
-        void process_swaps();
 
         //! Enable coins
         bool enable_default_coins() noexcept;
@@ -247,12 +238,11 @@ namespace atomic_dex
         //! Get Specific info about one coin
         [[nodiscard]] coin_config get_coin_info(const std::string& ticker) const;
 
-        [[nodiscard]] t_float_50  get_trade_fee(const std::string& ticker, const std::string& sell_amount, bool is_max) const;
-        [[nodiscard]] std::string get_trade_fee_str(const std::string& ticker, const std::string& sell_amount, bool is_max) const;
+        [[nodiscard]] t_float_50 get_trading_fees(const std::string& ticker, const std::string& sell_amount, bool is_max) const;
 
-        [[nodiscard]] t_get_trade_fee_answer get_trade_fixed_fee(const std::string& ticker) const;
+        [[nodiscard]] t_get_trade_fee_answer get_transaction_fees(const std::string& ticker) const;
 
-        void apply_erc_fees(const std::string& ticker, t_float_50& value);
+        std::string apply_specific_fees(const std::string& ticker, t_float_50& value) const;
 
         //! Get Current orderbook
         [[nodiscard]] t_orderbook_answer get_orderbook(t_mm2_ec& ec) const noexcept;

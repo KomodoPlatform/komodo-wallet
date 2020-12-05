@@ -43,6 +43,7 @@ namespace atomic_dex
         enum PortfolioRoles
         {
             TickerRole = Qt::UserRole + 1,
+            GuiTickerRole,
             NameRole,
             BalanceRole,
             MainCurrencyBalanceRole,
@@ -53,8 +54,12 @@ namespace atomic_dex
             Excluded,
             Display,
             NameAndTicker,
-            IsMultiTickerCurrentlyEnabled,
-            MultiTickerData,
+            MultiTickerCurrentlyEnabled, ///< If set to true multi ticker is enabled
+            MultiTickerData,             ///< Multi ticker data for the confirm model
+            MultiTickerError,            ///< In case of error code will be stored
+            MultiTickerPrice,            ///< The price field of multi ticker
+            MultiTickerReceiveAmount,    ///< The total receive amount (it's readonly from front-end)
+            MultiTickerFeesInfo,         ///< the fees json infos (it's readonly from front-end)
             CoinType
         };
         Q_ENUM(PortfolioRoles)
@@ -67,7 +72,7 @@ namespace atomic_dex
       public:
         //! Constructor / Destructor
         explicit portfolio_model(ag::ecs::system_manager& system_manager, entt::dispatcher& dispatcher, QObject* parent = nullptr) noexcept;
-        ~portfolio_model() noexcept final;
+        ~portfolio_model() noexcept final = default;
 
         //! Overrides
         [[nodiscard]] QVariant               data(const QModelIndex& index, int role) const final;

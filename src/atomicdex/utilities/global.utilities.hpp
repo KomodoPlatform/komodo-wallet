@@ -28,6 +28,7 @@ namespace atomic_dex::utils
     //! Float numbers helpers
     std::string get_formated_float(t_float_50 value);
     std::string adjust_precision(const std::string& current);
+    std::string format_float(t_float_50 value);
 
     //! Fs helpers
     void create_if_doesnt_exist(const fs::path& path);
@@ -60,6 +61,9 @@ namespace atomic_dex::utils
     fs::path get_atomic_dex_logs_folder() noexcept;
 
     ENTT_API fs::path get_atomic_dex_current_log_file();
+    ENTT_API std::shared_ptr<spdlog::logger> register_logger();
+
+    fs::path get_current_configs_path();
 
     fs::path get_mm2_atomic_dex_current_log_file();
 

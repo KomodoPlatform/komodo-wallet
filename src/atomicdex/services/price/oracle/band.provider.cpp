@@ -53,12 +53,12 @@ namespace atomic_dex
     void
     band_oracle_price_service::fetch_oracle() noexcept
     {
-        spdlog::info("start fetching oracle");
+        SPDLOG_INFO("start fetching oracle");
         async_fetch_oracle_result()
             .then([this](web::http::http_response resp) {
                 if (resp.status_code() == 200)
                 {
-                    spdlog::info("band oracle successfully fetched");
+                    SPDLOG_INFO("band oracle successfully fetched");
                     auto                     body = TO_STD_STR(resp.extract_string(true).get());
                     nlohmann::json           j    = nlohmann::json::parse(body);
                     band_oracle_price_result result;
@@ -72,7 +72,7 @@ namespace atomic_dex
                     this->m_oracle_ready                 = s > 20min ? false : true;
                     if (s > 20min)
                     {
-                        spdlog::warn(
+                        SPDLOG_WARN(
                             "last oracle too much outdated: {}, fallback to coinpaprika",
                             utils::to_human_date<std::chrono::seconds>(last_oracle_timestamp, "%e %b %Y, %H:%M"));
                     }

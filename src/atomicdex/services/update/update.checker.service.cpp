@@ -98,8 +98,8 @@ namespace atomic_dex
     void
     update_service_checker::fetch_update_status() noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::info("fetching update status");
+        SPDLOG_DEBUG("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_INFO("fetching update status");
         async_check_retrieve()
             .then([this](web::http::http_response resp) {
                 this->m_update_status = get_update_status_rpc(resp);

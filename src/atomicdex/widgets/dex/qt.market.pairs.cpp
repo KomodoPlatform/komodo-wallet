@@ -26,9 +26,6 @@ namespace atomic_dex
         QObject(parent), m_left_selection_box(new portfolio_proxy_model(nullptr)), m_right_selection_box(new portfolio_proxy_model(nullptr)),
         m_multiple_selection_box(new portfolio_proxy_model(nullptr)), m_multi_order_coins(new portfolio_proxy_model(nullptr))
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("market pairs model created");
-
         m_left_selection_box->is_a_market_selector(true);
         m_left_selection_box->setSourceModel(portfolio_mdl);
         m_left_selection_box->setDynamicSortFilter(true);
@@ -53,14 +50,12 @@ namespace atomic_dex
         m_multi_order_coins->setSourceModel(portfolio_mdl);
         m_multi_order_coins->setDynamicSortFilter(true);
         m_multi_order_coins->sort_by_name(true);
-        this->m_multi_order_coins->setFilterRole(portfolio_model::PortfolioRoles::IsMultiTickerCurrentlyEnabled);
+        this->m_multi_order_coins->setFilterRole(portfolio_model::PortfolioRoles::MultiTickerCurrentlyEnabled);
         this->m_multiple_selection_box->setFilterCaseSensitivity(Qt::CaseInsensitive);
     }
 
     market_pairs::~market_pairs() noexcept
     {
-        spdlog::trace("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-        spdlog::trace("market pairs destroyed");
         delete m_left_selection_box;
         delete m_right_selection_box;
         delete m_multiple_selection_box;
@@ -134,8 +129,46 @@ namespace atomic_dex
     {
         this->m_left_selected_coin  = "";
         this->m_right_selected_coin = "";
+        this->m_base_selected_coin  = "";
+        this->m_rel_selected_coin   = "";
         emit rightSelectedCoinChanged();
         emit leftSelectedCoinChanged();
+        emit baseSelectedCoinChanged();
+        emit relSelectedCoinChanged();
+    }
+
+    QString
+    market_pairs::get_base_selected_coin() const noexcept
+    {
+        return m_base_selected_coin;
+    }
+
+    QString
+    market_pairs::get_rel_selected_coin() const noexcept
+    {
+        return m_rel_selected_coin;
+    }
+
+    void
+    market_pairs::set_base_selected_coin(QString base_coin) noexcept
+    {
+        if (base_coin != m_base_selected_coin)
+        {
+            //! Set new one to true
+            m_base_selected_coin = std::move(base_coin);
+            emit baseSelectedCoinChanged();
+        }
+    }
+
+    void
+    market_pairs::set_rel_selected_coin(QString rel_coin) noexcept
+    {
+        if (rel_coin != m_rel_selected_coin)
+        {
+            //! Set new one to true
+            m_rel_selected_coin = std::move(rel_coin);
+            emit relSelectedCoinChanged();
+        }
     }
 } // namespace atomic_dex
 

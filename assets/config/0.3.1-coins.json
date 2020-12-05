@@ -868,7 +868,7 @@
     "active": false,
     "currently_enabled": false
   },
-  "SRBC": {
+"SRBC": {
     "coin": "SRBC",
     "name": "SRBC",
     "coingecko_id": "test-coin",

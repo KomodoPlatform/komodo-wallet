@@ -46,8 +46,13 @@ Item {
         }
     }
 
+    readonly property string theme: Style.dark_theme ? "dark" : "light"
+    onThemeChanged: loadChart(chart_base, chart_rel, true)
+
+    property string chart_base
+    property string chart_rel
     property string loaded_symbol
-    function loadChart(base, rel) {
+    function loadChart(base, rel, force=false) {
         const pair = base + "/" + rel
         const pair_reversed = rel + "/" + base
 
@@ -70,13 +75,16 @@ Item {
         pair_supported = true
 
         // Load HTML
-        if(symbol === loaded_symbol) {
+        if(!force && symbol === loaded_symbol) {
             console.log("Chart is already loaded,", symbol)
             return
         }
 
         loaded_symbol = symbol
-        console.log("Loading TradingView chart", symbol)
+        console.log("Loading TradingView chart", symbol, " theme: ", theme)
+
+        chart_base = base
+        chart_rel = rel
 
         chart.loadHtml(`
 <style>
@@ -95,7 +103,7 @@ new TradingView.widget(
 "autosize": true,
 "symbol": "${symbol}",
 "interval": "D",
-"theme": "dark",
+"theme": "${theme}",
 "style": "1",
 "enable_publishing": false,
 "save_image": false

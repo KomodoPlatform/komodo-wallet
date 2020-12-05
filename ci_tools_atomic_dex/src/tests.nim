@@ -2,16 +2,14 @@ import os
 import osproc
 
 import build
-
-when defined(windows):
-    import generate
+import generate
 
 proc run_tests*(build_type: string, osx_sdk_path: string, compiler_path: string) =
      when defined(linux) or defined(osx):
-        build_atomic_qt(build_type, osx_sdk_path, compiler_path)
+        generate_solution(build_type, osx_sdk_path, compiler_path)
      when defined(windows):
         # build first and then generate to scan for missing dll
-        build_atomic_qt(build_type, osx_sdk_path, compiler_path)
+        generate_solution(build_type, osx_sdk_path, compiler_path)
     
      when defined(osx):
         echo os.getCurrentDir()

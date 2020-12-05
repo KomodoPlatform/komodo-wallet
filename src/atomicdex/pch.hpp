@@ -77,6 +77,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 //! Boost Headers
 #include <boost/algorithm/string/trim.hpp>
 
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog/async.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>

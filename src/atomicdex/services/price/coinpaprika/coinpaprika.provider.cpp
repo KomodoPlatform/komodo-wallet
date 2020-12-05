@@ -34,10 +34,8 @@ namespace
         const ticker_infos_request& request, const atomic_dex::coin_config& current_coin, atomic_dex::coinpaprika_provider::t_ticker_infos_registry& reg,
         std::shared_ptr<std::atomic_uint16_t> idx, entt::dispatcher* dispatcher, std::uint16_t target_size, std::vector<std::string> tickers)
     {
-        spdlog::trace("async ticker info started");
         auto answer_functor = [request, current_coin, &reg, idx, dispatcher, target_size, tickers](web::http::http_response resp) {
             auto answer = process_generic_resp<ticker_info_answer>(resp);
-            spdlog::trace("async ticker info finished");
             if (answer.rpc_result_code == e_http_code::too_many_requests)
             {
                 std::this_thread::sleep_for(1s);
@@ -49,7 +47,7 @@ namespace
                 if (idx != nullptr && dispatcher != nullptr)
                 {
                     auto cur = idx->fetch_add(1) + 1;
-                    // spdlog::trace("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
+                    // SPDLOG_DEBUG("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
                     if (cur == target_size)
                     {
                         dispatcher->trigger<atomic_dex::coin_fully_initialized>(tickers);
@@ -77,11 +75,9 @@ namespace
         atomic_dex::coinpaprika_provider::t_ticker_historical_registry& reg, std::shared_ptr<std::atomic_uint16_t> idx, entt::dispatcher* dispatcher,
         std::uint16_t target_size, std::vector<std::string> tickers)
     {
-        spdlog::trace("async ticker historical started");
         async_ticker_historical(request)
             .then([request, current_coin, &reg, idx, dispatcher, target_size, tickers](web::http::http_response resp) {
                 auto answer = process_generic_resp<ticker_historical_answer>(resp);
-                spdlog::trace("async ticker historical finished");
                 if (answer.rpc_result_code == e_http_code::too_many_requests)
                 {
                     std::this_thread::sleep_for(1s);
@@ -97,7 +93,7 @@ namespace
                     if (idx != nullptr && dispatcher != nullptr)
                     {
                         auto cur = idx->fetch_add(1) + 1;
-                        // spdlog::trace("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
+                        // SPDLOG_DEBUG("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
                         if (cur == target_size)
                         {
                             dispatcher->trigger<atomic_dex::coin_fully_initialized>(tickers);
@@ -119,7 +115,7 @@ namespace
             if (idx != nullptr && dispatcher != nullptr)
             {
                 auto cur = idx->fetch_add(1) + 1;
-                // spdlog::trace("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
+                // SPDLOG_DEBUG("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
                 if (cur == target_size)
                 {
                     dispatcher->trigger<atomic_dex::coin_fully_initialized>(tickers);
@@ -137,10 +133,8 @@ namespace
         const price_converter_request& request, atomic_dex::coin_config current_coin, Provider& rate_providers, std::shared_ptr<std::atomic_uint16_t> idx,
         entt::dispatcher* dispatcher, std::uint16_t target_size, std::vector<std::string> tickers)
     {
-        spdlog::trace("async price converter started");
         async_price_converter(request)
             .then([request, &rate_providers, current_coin, idx, dispatcher, target_size, tickers](web::http::http_response resp) {
-                spdlog::trace("async price converter finished");
                 auto answer = process_generic_resp<price_converter_answer>(resp);
                 if (answer.rpc_result_code == e_http_code::too_many_requests)
                 {
@@ -164,7 +158,7 @@ namespace
                         auto cur = idx->fetch_add(1) + 1;
                         if (not tickers.empty()) ///< Initialization
                         {
-                            // spdlog::trace("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
+                            // SPDLOG_DEBUG("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
                             if (cur == target_size)
                             {
                                 dispatcher->trigger<atomic_dex::coin_fully_initialized>(tickers);
@@ -172,7 +166,7 @@ namespace
                         }
                         else ///< update
                         {
-                            // spdlog::trace("cur: {}, target size: {}, remaining before updating rates: {}", cur, target_size, target_size - cur);
+                            // SPDLOG_DEBUG("cur: {}, target size: {}, remaining before updating rates: {}", cur, target_size, target_size - cur);
                             if (cur == target_size)
                             {
                                 dispatcher->trigger<fiat_rate_updated>("");
@@ -209,7 +203,6 @@ namespace atomic_dex
 
     coinpaprika_provider::coinpaprika_provider(entt::registry& registry, mm2_service& mm2_instance) : system(registry), m_mm2_instance(mm2_instance)
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         disable();
         dispatcher_.sink<mm2_started>().connect<&coinpaprika_provider::on_mm2_started>(*this);
         dispatcher_.sink<coin_enabled>().connect<&coinpaprika_provider::on_coin_enabled>(*this);
@@ -223,7 +216,6 @@ namespace atomic_dex
 
     coinpaprika_provider::~coinpaprika_provider() noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
         dispatcher_.sink<mm2_started>().disconnect<&coinpaprika_provider::on_mm2_started>(*this);
         dispatcher_.sink<coin_enabled>().disconnect<&coinpaprika_provider::on_coin_enabled>(*this);
         dispatcher_.sink<coin_disabled>().disconnect<&coinpaprika_provider::on_coin_disabled>(*this);
@@ -232,15 +224,12 @@ namespace atomic_dex
     void
     coinpaprika_provider::on_mm2_started([[maybe_unused]] const mm2_started& evt) noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
-
         update_ticker_and_provider();
     }
+
     void
     coinpaprika_provider::update_ticker_and_provider()
     {
-        spdlog::info("refreshing rate conversion from coinpaprika");
-
         t_coins coins = m_mm2_instance.get_enabled_coins();
 
         auto idx{std::make_shared<std::atomic_uint16_t>(0)};
@@ -284,7 +273,7 @@ namespace atomic_dex
     void
     coinpaprika_provider::on_coin_enabled(const coin_enabled& evt) noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_INFO("{} enabled, retrieve coinpaprika infos", fmt::format("{}", fmt::join(evt.tickers, ", ")));
         auto idx{std::make_shared<std::atomic_uint16_t>(0)};
         auto target_size = evt.tickers.size() * g_pending_init_tasks_limit;
         for (auto&& ticker: evt.tickers)
@@ -299,7 +288,7 @@ namespace atomic_dex
             else
             {
                 std::uint16_t cur = idx->fetch_add(g_pending_init_tasks_limit) + g_pending_init_tasks_limit;
-                // spdlog::trace("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
+                // SPDLOG_DEBUG("cur: {}, target size: {}, remaining before adding in the model: {}", cur, target_size, target_size - cur);
                 if (cur == target_size)
                 {
                     this->dispatcher_.trigger<coin_fully_initialized>(evt.tickers);
@@ -311,7 +300,7 @@ namespace atomic_dex
     void
     coinpaprika_provider::on_coin_disabled(const coin_disabled& evt) noexcept
     {
-        spdlog::debug("{} l{} f[{}]", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string());
+        SPDLOG_INFO("{} disabled, removing from paprika provider", evt.ticker);
         const auto config = m_mm2_instance.get_coin_info(evt.ticker);
 
         m_usd_rate_providers.erase(config.ticker);

@@ -32,6 +32,10 @@ BasicModal {
         input_coin_filter.text = ""
     }
 
+    onOpened: {
+        input_coin_filter.forceActiveFocus()
+    }
+
     onClosed: {
         reset()
     }

@@ -22,6 +22,7 @@
 
 //! Project Headers
 #include "atomicdex/config/coins.cfg.hpp"
+#include "atomicdex/constants/mm2.constants.hpp"
 #include "atomicdex/utilities/cpprestsdk.utilities.hpp"
 
 namespace mm2::api
@@ -30,11 +31,8 @@ namespace mm2::api
     inline constexpr const char*                           g_etherscan_proxy_endpoint = "https://komodo.live:3334";
     inline std::unique_ptr<web::http::client::http_client> g_etherscan_proxy_http_client{
         std::make_unique<web::http::client::http_client>(FROM_STD_STR(g_etherscan_proxy_endpoint))};
-
-    static inline void
-    reset_client()
-    {
-    }
+    inline std::unique_ptr<web::http::client::http_client> g_qtum_proxy_http_client{
+        std::make_unique<web::http::client::http_client>(FROM_STD_STR(::atomic_dex::g_qtum_infos_endpoint))};
 
     nlohmann::json rpc_batch_standalone(nlohmann::json batch_array, std::shared_ptr<t_http_client> mm2_client);
     pplx::task<web::http::http_response>
@@ -46,7 +44,8 @@ namespace mm2::api
     //! max taker vol
     struct max_taker_vol_request
     {
-        std::string coin;
+        std::string                coin;
+        std::optional<std::string> trade_with;
     };
 
     void to_json(nlohmann::json& j, const max_taker_vol_request& cfg);
@@ -77,8 +76,10 @@ namespace mm2::api
     {
         std::string              coin_name;
         std::vector<std::string> urls;
-        std::string              swap_contract_address{"0x8500AFc0bc5214728082163326C2FF0C73f4a871"};
+        atomic_dex::coin_type    coin_type;
+        const std::string        erc_swap_contract_address{"0x8500AFc0bc5214728082163326C2FF0C73f4a871"};
         std::string              gas_station_url{"https://ethgasstation.info/json/ethgasAPI.json"};
+        std::string              type; ///< QRC-20 ?
         bool                     with_tx_history{true};
     };
 
@@ -101,7 +102,11 @@ namespace mm2::api
     {
         std::string                              coin_name;
         std::vector<atomic_dex::electrum_server> servers;
+        atomic_dex::coin_type                    coin_type;
+        bool                                     is_testnet{false};
         bool                                     with_tx_history{true};
+        const std::string                        testnet_qrc_swap_contract_address{"0xba8b71f3544b93e2f681f996da519a98ace0107a"};
+        const std::string                        mainnet_qrc_swap_contract_address{"0x2f754733acd6d753731c00fee32cb484551cc15d"};
     };
 
     struct electrum_answer
@@ -412,6 +417,8 @@ namespace mm2::api
         std::string price;
         std::string price_fraction_numer;
         std::string price_fraction_denom;
+        std::string max_volume_fraction_numer;
+        std::string max_volume_fraction_denom;
         std::string maxvolume;
         std::string pubkey;
         std::size_t age;
@@ -473,6 +480,10 @@ namespace mm2::api
         bool                       is_created_order;
         std::string                price_denom;
         std::string                price_numer;
+        std::string                volume_denom;
+        std::string                volume_numer;
+        bool                       is_exact_selected_order_volume;
+        bool                       selected_order_use_input_volume{false};
         std::optional<bool>        base_nota{std::nullopt};
         std::optional<std::size_t> base_confs{std::nullopt};
     };
@@ -519,8 +530,13 @@ namespace mm2::api
         bool                       is_created_order;
         std::string                price_denom;
         std::string                price_numer;
+        std::string                volume_denom;
+        std::string                volume_numer;
+        bool                       is_exact_selected_order_volume;
+        bool                       selected_order_use_input_volume{false};
         std::optional<bool>        rel_nota;
         std::optional<std::size_t> rel_confs;
+        bool                       is_max;
     };
 
     void to_json(nlohmann::json& j, const sell_request& request);
@@ -627,8 +643,6 @@ namespace mm2::api
 
     void from_json(const nlohmann::json& j, my_orders_answer& answer);
 
-    my_orders_answer rpc_my_orders(std::shared_ptr<t_http_client> mm2_client) noexcept;
-
     struct my_recent_swaps_request
     {
         std::size_t                limit{50ull};
@@ -636,47 +650,6 @@ namespace mm2::api
     };
 
     void to_json(nlohmann::json& j, const my_recent_swaps_request& request);
-
-    struct finished_event
-    {
-        std::size_t timestamp;
-        std::string human_date;
-    };
-
-    struct started_data
-    {
-        std::size_t lock_duration;
-    };
-
-    void from_json(const nlohmann::json& j, started_data& contents);
-
-    struct started_event
-    {
-        std::size_t  timestamp;
-        std::string  human_date;
-        started_data data;
-    };
-
-    struct error_data
-    {
-        std::string error_message;
-    };
-
-    void from_json(const nlohmann::json& j, error_data& contents);
-
-    struct start_failed_event
-    {
-        std::size_t timestamp;
-        std::string human_date;
-        error_data  data;
-    };
-
-    struct negotiate_failed_event
-    {
-        std::size_t timestamp;
-        std::string human_date;
-        error_data  data;
-    };
 
     struct swap_contents
     {
@@ -718,8 +691,6 @@ namespace mm2::api
 
     void from_json(const nlohmann::json& j, my_recent_swaps_answer& answer);
 
-    my_recent_swaps_answer rpc_my_recent_swaps(my_recent_swaps_request&& request, std::shared_ptr<t_http_client> mm2_client);
-
     struct kmd_rewards_info_answer
     {
         nlohmann::json result;
@@ -729,9 +700,6 @@ namespace mm2::api
     // kmd_rewards_info_answer rpc_kmd_rewards_info(std::shared_ptr<t_http_client> mm2_client);
     kmd_rewards_info_answer process_kmd_rewards_answer(nlohmann::json result);
 
-    nlohmann::json rpc_batch_electrum(std::vector<electrum_request> requests, std::shared_ptr<t_http_client> mm2_client);
-    nlohmann::json rpc_batch_enable(std::vector<enable_request> requests, std::shared_ptr<t_http_client> mm2_client);
-
     template <typename T>
     using have_error_field = decltype(std::declval<T&>().error.has_value());
 
@@ -739,20 +707,20 @@ namespace mm2::api
     RpcReturnType static inline rpc_process_answer(const web::http::http_response& resp, const std::string& rpc_command) noexcept
     {
         std::string body = TO_STD_STR(resp.extract_string(true).get());
-        spdlog::info("resp code for rpc_command {} is {}", rpc_command, resp.status_code());
+        SPDLOG_INFO("resp code for rpc_command {} is {}", rpc_command, resp.status_code());
         RpcReturnType answer;
 
         try
         {
             if (resp.status_code() not_eq 200)
             {
-                spdlog::warn("rpc answer code is not 200, body : {}", body);
+                SPDLOG_WARN("rpc answer code is not 200, body : {}", body);
                 if constexpr (doom::meta::is_detected_v<have_error_field, RpcReturnType>)
                 {
-                    spdlog::debug("error field detected inside the RpcReturnType");
+                    SPDLOG_DEBUG("error field detected inside the RpcReturnType");
                     if constexpr (std::is_same_v<std::optional<std::string>, decltype(answer.error)>)
                     {
-                        spdlog::debug("The error field type is string, parsing it from the response body");
+                        SPDLOG_DEBUG("The error field type is string, parsing it from the response body");
                         if (auto json_data = nlohmann::json::parse(body); json_data.at("error").is_string())
                         {
                             answer.error = json_data.at("error").get<std::string>();
@@ -761,7 +729,7 @@ namespace mm2::api
                         {
                             answer.error = body;
                         }
-                        spdlog::debug("The error after getting extracted is: {}", answer.error.value());
+                        SPDLOG_DEBUG("The error after getting extracted is: {}", answer.error.value());
                     }
                 }
                 answer.rpc_result_code = resp.status_code();
@@ -778,7 +746,7 @@ namespace mm2::api
         }
         catch (const std::exception& error)
         {
-            spdlog::error(
+            SPDLOG_ERROR(
                 "{} l{} f[{}], exception caught {} for rpc {}, body: {}", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string(), error.what(),
                 rpc_command, body);
             answer.rpc_result_code = -1;
@@ -792,6 +760,10 @@ namespace mm2::api
     RpcReturnType static inline rpc_process_answer_batch(nlohmann::json& json_answer, const std::string& rpc_command) noexcept
     {
         RpcReturnType answer;
+        /*if (rpc_command == "my_orders")
+        {
+            SPDLOG_INFO("my_orders answer {}", json_answer.dump(4));
+        }*/
 
         try
         {
@@ -800,7 +772,7 @@ namespace mm2::api
         }
         catch (const std::exception& error)
         {
-            spdlog::error(
+            SPDLOG_ERROR(
                 "{} l{} f[{}], exception caught {} for rpc {}", __FUNCTION__, __LINE__, fs::path(__FILE__).filename().string(), error.what(), rpc_command);
             answer.rpc_result_code = -1;
             answer.raw_result      = error.what();
@@ -810,21 +782,24 @@ namespace mm2::api
     }
 
     static inline pplx::task<web::http::http_response>
-    async_process_rpc_get(std::string rpc_command, const std::string& url)
+    async_process_rpc_get(t_http_client_ptr& client, const std::string rpc_command, const std::string& url)
     {
-        spdlog::info("Processing rpc call: {}, url: {}, endpoint: {}", rpc_command, url, g_etherscan_proxy_endpoint);
+        SPDLOG_INFO("Processing rpc call: {}, url: {}, endpoint: {}", rpc_command, url, TO_STD_STR(client->base_uri().to_string()));
 
-        web::http::http_request request;
-        request.set_method(web::http::methods::GET);
-        request.set_request_uri(FROM_STD_STR(url));
-        return g_etherscan_proxy_http_client->request(request);
+        web::http::http_request req;
+        req.set_method(web::http::methods::GET);
+        if (not url.empty())
+        {
+            req.set_request_uri(FROM_STD_STR(url));
+        }
+        return client->request(req);
     }
 
     template <typename TAnswer>
     TAnswer
     process_rpc_get(std::string rpc_command, const std::string& url)
     {
-        spdlog::info("Processing rpc call: {}, url: {}, endpoint: {}", rpc_command, url, g_etherscan_proxy_endpoint);
+        SPDLOG_INFO("Processing rpc call: {}, url: {}, endpoint: {}", rpc_command, url, g_etherscan_proxy_endpoint);
 
         web::http::http_request request;
         request.set_method(web::http::methods::GET);

@@ -30,10 +30,10 @@ namespace atomic_dex
         orderbook_proxy_model(QObject* parent);
 
         //! Destructor
-        ~orderbook_proxy_model() final;
+        ~orderbook_proxy_model() noexcept final = default;
 
       protected:
         //! Override member functions
-        [[nodiscard]] bool lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const final;;
+        [[nodiscard]] bool lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const final;
     };
 } // namespace atomic_dex

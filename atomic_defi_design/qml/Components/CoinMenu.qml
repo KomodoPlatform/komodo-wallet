@@ -5,6 +5,11 @@ import QtQuick.Controls.Universal 2.15
 import "../Constants"
 
 Menu {
+    Universal.theme: Style.dark_theme ? Universal.Dark : Universal.Light
+    Universal.accent: Style.colorQtThemeAccent
+    Universal.foreground: Style.colorQtThemeForeground
+    Universal.background: Style.colorQtThemeBackground
+
     // Ugly but required hack for automatic menu width, otherwise long texts are being cut
     width: {
         let result = 0

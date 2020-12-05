@@ -61,7 +61,7 @@ namespace atomic_dex
         auto            key = atomic_dex::derive_password(password.toStdString(), ec);
         if (ec)
         {
-            spdlog::warn("{}", ec.message());
+            SPDLOG_WARN("{}", ec.message());
             if (ec == dextop_error::derive_password_failed)
             {
                 return false;
@@ -113,7 +113,6 @@ namespace atomic_dex
             }
         }
 
-        qDebug() << out;
         return out;
     }
 
@@ -150,7 +149,7 @@ namespace atomic_dex
         auto            key = atomic_dex::derive_password(password.toStdString(), ec);
         if (ec)
         {
-            spdlog::debug("{}", ec.message());
+            SPDLOG_DEBUG("{}", ec.message());
             if (ec == dextop_error::derive_password_failed)
             {
                 return false;
@@ -161,7 +160,7 @@ namespace atomic_dex
         auto           seed      = atomic_dex::decrypt(seed_path, key.data(), ec);
         if (ec == dextop_error::corrupted_file_or_wrong_password)
         {
-            spdlog::warn("{}", ec.message());
+            SPDLOG_WARN("{}", ec.message());
             return false;
         }
         return true;
@@ -221,7 +220,7 @@ namespace atomic_dex
             if (it != m_wallet_cfg.address_book.end())
             {
                 //! Find this contact already exist do nothing
-                spdlog::trace("contact {} already exist, skipping", contact_name_str);
+                SPDLOG_DEBUG("contact {} already exist, skipping", contact_name_str);
                 return;
             }
             m_wallet_cfg.address_book.push_back(contact{.name = std::move(contact_name_str)});
@@ -233,7 +232,7 @@ namespace atomic_dex
             });
             if (it != m_wallet_cfg.address_book.end())
             {
-                spdlog::trace("old contact {} found, changing the contact name to: {}", old_contact_name_str, contact_name_str);
+                SPDLOG_DEBUG("old contact {} found, changing the contact name to: {}", old_contact_name_str, contact_name_str);
                 it->name = contact_name_str;
             }
         }
@@ -262,7 +261,7 @@ namespace atomic_dex
 
             if (it != m_wallet_cfg.address_book.end())
             {
-                spdlog::trace("add for contact {}, ticker {} entry", contact_name_str, new_ticker.toStdString());
+                SPDLOG_DEBUG("add for contact {}, ticker {} entry", contact_name_str, new_ticker.toStdString());
                 it->contents.emplace_back(contact_contents{.type = new_ticker.toStdString()});
             }
         }
@@ -287,7 +286,7 @@ namespace atomic_dex
     void
     qt_wallet_manager::update_contact_address(const QString& contact_name, const QString& ticker, const QString& address)
     {
-        spdlog::trace("update contact {} with ticker {} with the new address {}", contact_name.toStdString(), ticker.toStdString(), address.toStdString());
+        SPDLOG_DEBUG("update contact {} with ticker {} with the new address {}", contact_name.toStdString(), ticker.toStdString(), address.toStdString());
         std::string contact_name_str = contact_name.toStdString();
         auto        it               = std::find_if(begin(m_wallet_cfg.address_book), end(m_wallet_cfg.address_book), [contact_name_str](auto&& cur_contact) {
             return cur_contact.name == contact_name_str;

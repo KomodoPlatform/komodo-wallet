@@ -3,6 +3,7 @@ folly
 boost-multiprecision
 boost-random
 boost-lockfree
+boost-stacktrace
 doctest
 fmt
 nlohmann-json
