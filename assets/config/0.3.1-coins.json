@@ -1344,5 +1344,22 @@
     "type": "UTXO",
     "active": false,
     "currently_enabled": false
-  }
+  },
+    "GETH": {
+    "active": false,
+    "coin": "GETH",
+    "coingecko_id": "test-coin",
+    "coinpaprika_id": "test-coin",
+    "currently_enabled": false,
+    "eth_nodes": [
+      "http://eth1.cipig.net:8555",
+      "http://eth2.cipig.net:8555",
+      "http://eth3.cipig.net:8555"
+    ],
+    "explorer_url": [
+      "https://etherscan.io/"
+    ],
+    "type": "ERC-20",
+    "name": "Guarded Ether"
+  },
 }
