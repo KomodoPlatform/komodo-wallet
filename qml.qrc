@@ -7,6 +7,7 @@
         <file>atomic_defi_design/assets/languages/atomic_defi_tr.qm</file>
         <file>atomic_defi_design/assets/languages/atomic_defi_fr.qm</file>
         <file>atomic_defi_design/assets/languages/atomic_defi_ru.qm</file>
+        <file>atomic_defi_design/assets/languages/atomic_defi_nl.qm</file>
         <file>atomic_defi_design/assets/fonts/Ubuntu-B.ttf</file>
         <file>atomic_defi_design/assets/fonts/Ubuntu-BI.ttf</file>
         <file>atomic_defi_design/assets/fonts/Ubuntu-L.ttf</file>
@@ -123,6 +124,7 @@
         <file>atomic_defi_design/assets/images/lang/fr.png</file>
         <file>atomic_defi_design/assets/images/lang/tr.png</file>
         <file>atomic_defi_design/assets/images/lang/ru.png</file>
+        <file>atomic_defi_design/assets/images/lang/nl.png</file>
         <file>atomic_defi_design/qml/App.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>atomic_defi_design/qml/Screens/FirstLaunch.qml</file>
