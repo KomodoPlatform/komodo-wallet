@@ -2374,7 +2374,7 @@
     "name": "Supernet",
     "type": "Smart Chain",
     "coingecko_id": "test-coin",
-    "coinpaprika_id": "test-coin",
+    "coinpaprika_id": "sca-scalaris",
     "electrum": [
       {
         "url": "electrum1.cipig.net:10005"
