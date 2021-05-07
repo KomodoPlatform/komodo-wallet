@@ -2383,7 +2383,7 @@
     "name": "Scalaris",
     "type": "UTXO",
     "coingecko_id": "test-coin",
-    "coinpaprika_id": "test-coin",
+    "coinpaprika_id": "sca-scalaris",
     "electrum": [
       {
         "url": "electrum1.scalaris.info:10001"
