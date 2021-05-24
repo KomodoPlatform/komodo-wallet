@@ -4,6 +4,10 @@ sudo apt-get update  # prevents repo404 errors on apt-remove below
 sudo apt-get remove php* msodbcsql17 mysql*
 sudo apt-get update
 sudo ACCEPT_EULA=Y apt-get upgrade -y
+
+# Remove g11 until Github fixes Virtual environment
+sudo apt-get autoremove -y libgcc-11-dev gcc-11 || true
+
 # base deps
 sudo apt-get install build-essential \
                     libgl1-mesa-dev \
