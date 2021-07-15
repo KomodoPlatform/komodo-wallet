@@ -11,6 +11,7 @@ Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.
 scoop install llvm --global
 scoop install ninja --global
 scoop install cmake --global
+cmake --version
 scoop install git --global
 scoop install 7zip  --global
 scoop cache rm 7zip
