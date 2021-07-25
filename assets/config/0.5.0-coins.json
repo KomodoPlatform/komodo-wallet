@@ -5098,5 +5098,25 @@
     "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
+  },
+  "DRAGONFAIRY": {
+    "coin": "DRAGONFAIRY",
+    "name": "DRAGONFAIRY",
+    "coinpaprika_id": "test-coin",
+    "coingecko_id": "test-coin",
+    "electrum": [
+      {
+        "url": "51.222.85.227:10001"
+      },
+      {
+        "url": "78.141.233.64:10001"
+      }
+    ],
+    "explorer_url": [
+      "http://dragonfairy.gives/"
+    ],
+    "type": "Smart Chain",
+    "active": false,
+    "currently_enabled": false
   }
 }
