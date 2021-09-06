@@ -3606,6 +3606,26 @@
     "active": false,
     "currently_enabled": false
   }, 
+  "GRMS": {
+    "coin": "GRMS",
+    "type": "Smart Chain",
+    "name": "GRMS",
+    "coingecko_id": "test-coin",
+    "coinpaprika_id": "test-coin",
+    "electrum": [
+      {
+        "url": "89.108.102.188:17485"
+      },
+      {
+        "url": "31.31.199.13:17485"
+      }
+    ],
+    "explorer_url": [
+      "http://91.231.187.20:3006/"
+    ],
+    "active": false,
+    "currently_enabled": false
+  },
   "TRC": {
     "coin": "TRC",
     "name": "Terracoin",
