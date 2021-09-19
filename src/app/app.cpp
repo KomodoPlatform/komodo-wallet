@@ -45,7 +45,6 @@
 #include "atomicdex/services/price/coinpaprika/coinpaprika.provider.hpp"
 #include "atomicdex/services/price/oracle/band.provider.hpp"
 #include "atomicdex/services/price/orderbook.scanner.service.hpp"
-#include "atomicdex/services/price/smartfi/smartfi.provider.hpp"
 
 namespace
 {
@@ -341,7 +340,6 @@ namespace atomic_dex
         system_manager_.create_system<global_price_service>(system_manager_, settings_page_system.get_cfg());
         system_manager_.create_system<orderbook_scanner_service>(system_manager_);
         system_manager_.create_system<band_oracle_price_service>();
-        system_manager_.create_system<smartfi_price_service>();
         // system_manager_.create_system<coinpaprika_provider>(system_manager_);
         //system_manager_.create_system<coingecko_provider>(system_manager_);
         system_manager_.create_system<komodo_prices_provider>();
