@@ -179,7 +179,7 @@ Item {
                         family: DexTypo.fontFamily,
                         weight: Font.Normal
                     })
-                    text: qsTr("Add crypto")
+                    text: qsTr("Add asset")
                     iconSource: Qaterial.Icons.plus
                     leftPadding: 3
                     rightPadding: 3

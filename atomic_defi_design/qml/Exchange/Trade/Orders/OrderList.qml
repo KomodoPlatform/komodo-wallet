@@ -80,4 +80,11 @@ Item {
             Layout.bottomMargin: 10
         }
     }
+
+    DexLabel
+    {
+        visible: list.count === 0
+        anchors.centerIn: parent
+        text: qsTr("No results found")
+    }
 }

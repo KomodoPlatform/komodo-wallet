@@ -16,7 +16,7 @@ AnimatedRectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         text: type
-        color: DexTheme.foregroundColor
+        color: Style.getCoinTypeTextColor(model.type)
         font: DexTypo.overLine
     }
 }

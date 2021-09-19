@@ -450,13 +450,6 @@ QtObject {
         return Style.colorWhite4
     }
 
-    function getCoinTypeColor(type) {
-        return getCoinColor(type === "ERC-20" ? "ETH" :
-                            type === "QRC-20" ? "QTUM" :
-                            type === "Komodo Chain" ? "KMD" :
-                                                     "BTC")
-    }
-
     function getCoinColor(ticker) {
         const c = colorCoin[ticker]
         return c || Style.colorTheme2

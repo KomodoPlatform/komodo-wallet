@@ -142,6 +142,23 @@
     "active": false,
     "currently_enabled": false
   },
+  "ARRR-BEP20": {
+      "coin": "ARRR-BEP20",
+      "name": "Pirate",
+      "coinpaprika_id": "arrr-pirate",
+      "coingecko_id": "pirate-chain",
+      "nodes": [
+        "http://bsc1.cipig.net:8655",
+        "http://bsc2.cipig.net:8655",
+        "http://bsc3.cipig.net:8655"
+      ],
+      "explorer_url": [
+        "https://bscscan.com/"
+      ],
+      "type": "BEP-20",
+      "active": false,
+      "currently_enabled": false
+  },
   "AXS-BEP20": {
       "coin": "AXS-BEP20",
       "name": "Axie Infinity",
@@ -190,7 +207,7 @@
       "https://bscscan.com/"
     ],
     "type": "BEP-20",
-    "active": true,
+    "active": false,
     "currently_enabled": false
   },
   "BNBT": {
@@ -677,7 +694,7 @@
     "explorer_url": [
       "https://btch.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -702,7 +719,7 @@
     "currently_enabled": false
   },
   "BCH": {
-    "active": true,
+    "active": false,
     "coin": "BCH",
     "coingecko_id": "bitcoin-cash",
     "coinpaprika_id": "bch-bitcoin-cash",
@@ -730,7 +747,7 @@
   "BET": {
     "coin": "BET",
     "name": "BET",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -757,7 +774,7 @@
   "BOTS": {
     "coin": "BOTS",
     "name": "BOTS",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -894,7 +911,7 @@
     "explorer_url": [
       "https://ccl.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -965,7 +982,7 @@
     "explorer_url": [
       "https://clc.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -1025,14 +1042,14 @@
     "explorer_url": [
       "https://coquicash.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
   "CRYPTO": {
     "coin": "CRYPTO",
     "name": "CRYPTO",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -1299,7 +1316,7 @@
     "explorer_url": [
       "https://dp.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -1574,6 +1591,23 @@
     "active": false,
     "currently_enabled": false
   },
+  "FJC-BEP20": {
+    "coin": "FJC-BEP20",
+    "name": "Fujicoin",
+    "coinpaprika_id": "fjc-fujicoin",
+    "coingecko_id": "fujicoin",
+    "nodes": [
+      "http://bsc1.cipig.net:8655",
+      "http://bsc2.cipig.net:8655",
+      "http://bsc3.cipig.net:8655"
+    ],
+    "explorer_url": [
+      "https://bscscan.com/"
+    ],
+    "type": "BEP-20",
+    "active": false,
+    "currently_enabled": false
+  },
   "STFIRO": {
     "coin": "STFIRO",
     "name": "StakedFIRO",
@@ -1673,7 +1707,7 @@
     "explorer_url": [
       "https://gleec.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -1773,7 +1807,7 @@
     "explorer_url": [
       "https://hodl.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false,
     "wallet_only": true
@@ -1865,7 +1899,7 @@
   "JUMBLR": {
     "coin": "JUMBLR",
     "name": "JUMBLR",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -1945,7 +1979,7 @@
     "explorer_url": [
       "https://koin.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -2144,7 +2178,7 @@
     "explorer_url": [
       "http://explorer.marmara.io/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "name": "MCL"
   },
   "MM-ERC20": {
@@ -2186,7 +2220,7 @@
     "explorer_url": [
       "https://mshark.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false,
     "wallet_only": true
@@ -2328,7 +2362,7 @@
     "currently_enabled": false
   },
   "ETH": {
-    "active": true,
+    "active": false,
     "coin": "ETH",
     "coingecko_id": "ethereum",
     "coinpaprika_id": "eth-ethereum",
@@ -2426,38 +2460,38 @@
     "currently_enabled": false
   },
   "USDC-BEP20": {
-      "coin": "USDC-BEP20",
-      "name": "USD Coin",
-      "coinpaprika_id": "usdc-usd-coin",
-      "coingecko_id": "usd-coin",
-      "nodes": [
-        "http://bsc1.cipig.net:8655",
-        "http://bsc2.cipig.net:8655",
-        "http://bsc3.cipig.net:8655"
-      ],
-      "explorer_url": [
-        "https://bscscan.com/"
-      ],
-      "type": "BEP-20",
-      "active": true,
-      "currently_enabled": false
+    "coin": "USDC-BEP20",
+    "name": "USD Coin",
+    "coinpaprika_id": "usdc-usd-coin",
+    "coingecko_id": "usd-coin",
+    "nodes": [
+      "http://bsc1.cipig.net:8655",
+      "http://bsc2.cipig.net:8655",
+      "http://bsc3.cipig.net:8655"
+    ],
+    "explorer_url": [
+      "https://bscscan.com/"
+    ],
+    "type": "BEP-20",
+    "active": false,
+    "currently_enabled": false
   },
   "USDC-ERC20": {
-      "coin": "USDC-ERC20",
-      "name": "USD Coin",
-      "coinpaprika_id": "usdc-usd-coin",
-      "coingecko_id": "usd-coin",
-      "nodes": [
-        "http://eth1.cipig.net:8555",
-        "http://eth2.cipig.net:8555",
-        "http://eth3.cipig.net:8555"
-      ],
-      "explorer_url": [
-        "https://etherscan.io/"
-      ],
-      "type": "ERC-20",
-      "active": true,
-      "currently_enabled": false
+    "coin": "USDC-ERC20",
+    "name": "USD Coin",
+    "coinpaprika_id": "usdc-usd-coin",
+    "coingecko_id": "usd-coin",
+    "nodes": [
+      "http://eth1.cipig.net:8555",
+      "http://eth2.cipig.net:8555",
+      "http://eth3.cipig.net:8555"
+    ],
+    "explorer_url": [
+      "https://etherscan.io/"
+    ],
+    "type": "ERC-20",
+    "active": false,
+    "currently_enabled": false
   },
   "USDT-BEP20": {
     "coin": "USDT-BEP20",
@@ -2565,7 +2599,7 @@
   "KMD": {
     "coin": "KMD",
     "name": "Komodo",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "is_claimable": true,
     "minimal_claim_amount": "10",
     "coingecko_id": "komodo",
@@ -2610,7 +2644,7 @@
   "LABS": {
     "coin": "LABS",
     "name": "Labs",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -2686,14 +2720,14 @@
     "explorer_url": [
       "https://mesh.kmdexplorer.io/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
   "MGW": {
     "coin": "MGW",
     "name": "MGW",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -2720,7 +2754,7 @@
   "DEX": {
     "coin": "DEX",
     "name": "Dex",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -2747,7 +2781,7 @@
   "RICK": {
     "coin": "RICK",
     "asset": "RICK",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "name": "Rick (TESTCOIN)",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
@@ -2774,7 +2808,7 @@
   "MORTY": {
     "coin": "MORTY",
     "asset": "MORTY",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "name": "Morty (TESTCOIN)",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
@@ -2801,7 +2835,7 @@
   "PANGEA": {
     "coin": "PANGEA",
     "name": "Pangea",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -2872,7 +2906,7 @@
   "REVS": {
     "coin": "REVS",
     "name": "REVS",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -2897,21 +2931,21 @@
     "wallet_only": true
   },
   "SMTF": {
-      "coin": "SMTF",
-      "name": "SmartFi",
-      "coinpaprika_id": "test-coin",
-      "coingecko_id": "test-coin",
-      "nodes": [
-        "http://bsc1.cipig.net:8655",
-        "http://bsc2.cipig.net:8655",
-        "http://bsc3.cipig.net:8655"
-      ],
-      "explorer_url": [
-        "https://bscscan.com/"
-      ],
-      "type": "BEP-20",
-      "active": true,
-      "currently_enabled": false
+    "coin": "SMTF",
+    "name": "SmartFi",
+    "coinpaprika_id": "test-coin",
+    "coingecko_id": "test-coin",
+    "nodes": [
+      "http://bsc1.cipig.net:8655",
+      "http://bsc2.cipig.net:8655",
+      "http://bsc3.cipig.net:8655"
+    ],
+    "explorer_url": [
+      "https://bscscan.com/"
+    ],
+    "type": "BEP-20",
+    "active": false,
+    "currently_enabled": false
   },
   "SOULJA": {
     "coin": "SOULJA",
@@ -2935,7 +2969,7 @@
     "explorer_url": [
       "https://explorer.souljacoin.cash/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -3023,7 +3057,7 @@
     "explorer_url": [
       "https://wsb.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -3079,7 +3113,7 @@
   "SUPERNET": {
     "coin": "SUPERNET",
     "name": "Supernet",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
     "electrum": [
@@ -3156,7 +3190,7 @@
   },
   "VRSC": {
     "coin": "VRSC",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "name": "Verus Coin",
     "coingecko_id": "verus-coin",
     "coinpaprika_id": "vrsc-verus-coin",
@@ -3220,7 +3254,7 @@
   },
   "ILN": {
     "coin": "ILN",
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "name": "iLien",
     "coingecko_id": "test-coin",
     "coinpaprika_id": "test-coin",
@@ -3423,7 +3457,7 @@
     "explorer_url": [
       "https://explorer.utrum.io/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -3581,7 +3615,7 @@
     "explorer_url": [
       "https://explorer.spaceworks.co/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -3601,7 +3635,7 @@
     "explorer_url": [
       "https://thc.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -3622,7 +3656,7 @@
     "explorer_url": [
       "https://tokel.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   }, 
@@ -3868,7 +3902,7 @@
     "explorer_url": [
       "https://wlc21.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -4217,7 +4251,7 @@
     "explorer_url": [
       "https://zilla.explorer.dexstats.info/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   },
@@ -4430,7 +4464,7 @@
       "https://explorer.sfusd.kmd.sh/"
     ],
     "type": "UTXO",
-    "active": true,
+    "active": false,
     "currently_enabled": false
   },
   "AGI": {
@@ -5266,6 +5300,30 @@
     "active": false,
     "currently_enabled": false
   },
+  "USBL": {
+    "active": false,
+    "coin": "USBL",
+    "name": "Balanced",
+    "coingecko_id": "balanced",
+    "coinpaprika_id": "balanced-balanced",
+    "currently_enabled": false,
+    "electrum": [
+      {
+        "url": "swap.softbalanced.com:50001",
+        "protocol": "TCP"
+      },
+      {
+        "url": "swap.softbalanced.com:50002",
+        "protocol": "SSL",
+        "disable_cert_verification": true
+      }
+    ],
+    "explorer_url": [
+      "https://softbalanced.com:3001/insight/"
+    ],
+    "explorer_tx_url": "tx/",
+    "type": "UTXO"
+  },
   "UTK": {
     "coin": "UTK",
     "name": "UTRUST",
@@ -5367,7 +5425,7 @@
     "explorer_url": [
       "http://152.89.247.97:50604/"
     ],
-    "type": "Komodo Chain",
+    "type": "Smart Chain",
     "active": false,
     "currently_enabled": false
   }

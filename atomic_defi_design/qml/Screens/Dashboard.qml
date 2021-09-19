@@ -1,6 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
 import QtWebEngine 1.10
 
@@ -339,6 +339,25 @@ Item {
                 return Style.failureCharacter
             default:
                 return "?"
+        }
+    }
+
+    function getStatusText(status, short_text=false) {
+        switch(status) {
+            case "matching":
+                return short_text ? qsTr("Matching") : qsTr("Order Matching")
+            case "matched":
+                return short_text ? qsTr("Matched") : qsTr("Order Matched")
+            case "ongoing":
+                return short_text ? qsTr("Ongoing") : qsTr("Swap Ongoing")
+            case "successful":
+                return short_text ? qsTr("Successful") : qsTr("Swap Successful")
+            case "refunding":
+                return short_text ? qsTr("Refunding") : qsTr("Refunding")
+            case "failed":
+                return short_text ? qsTr("Failed") : qsTr("Swap Failed")
+            default:
+                return short_text ? qsTr("Unknown") : qsTr("Unknown State")
         }
     }
 

@@ -13,7 +13,7 @@ import "../../../Constants" as Constants  //> Style
 import "../Orders" as Orders
 import "Main.js" as Main
 
-import App 1.0 
+import App 1.0
 
 Item {
     id: _subHistoryRoot
@@ -27,7 +27,7 @@ Item {
         reset()
         if(combo_base.currentTicker !== "All" | combo_rel.currentTicker !== "All") {
             buttonDelay.start()
-        } 
+        }
     }
 
     function reset() {
@@ -35,10 +35,10 @@ Item {
         applyFilter()
         applyAllFiltering()
         list_model_proxy.is_history = true
-        
+
     }
 
-    function applyTickerFilter() {  
+    function applyTickerFilter() {
         applyTickerFilter2(combo_base.currentTicker, combo_rel.currentTicker)
     }
 
@@ -75,7 +75,7 @@ Item {
         onTriggered: applyButton.clicked()
     }
 
-    ColumnLayout // History 
+    ColumnLayout // History
     {
         height: parent.height
         width: parent.width
@@ -105,10 +105,10 @@ Item {
                                                     .arg(combo_rel.currentTicker)
                                                     .arg(qsTr("Date"))
                                                     .arg(min_date.date.toLocaleDateString(Locale.ShortFormat, "yyyy.MM.dd"))
-                                                    .arg(max_date.date.toLocaleDateString(Locale.ShortFormat, "yyyy.MM.dd"))   
+                                                    .arg(max_date.date.toLocaleDateString(Locale.ShortFormat, "yyyy.MM.dd"))
                 }
 
-                DexAppButton 
+                DexAppButton
                 {
                     anchors.right: parent.right
                     anchors.rightMargin: -5
@@ -123,7 +123,7 @@ Item {
                     ToolTip.delay: 500
                     ToolTip.timeout: 5000
                     ToolTip.visible: containsMouse
-                    ToolTip.text: _subHistoryRoot.displayFilter ? qsTr("Close filtering options.") : qsTr("Open filering options.")
+                    ToolTip.text: _subHistoryRoot.displayFilter ? qsTr("Close filtering options.") : qsTr("Open filtering options.")
                     onClicked: _subHistoryRoot.displayFilter = !_subHistoryRoot.displayFilter
                 }
             }
@@ -136,7 +136,7 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             property bool is_history: true
-            
+
             Component.onCompleted: {
                 _subHistoryRoot.list_model_proxy.is_history = is_history
             }
@@ -144,7 +144,7 @@ Item {
                 id: order_list_view
             }
             DexRectangle {
-                anchors.fill: parent 
+                anchors.fill: parent
                 color: DexTheme.portfolioPieGradient ? 'transparent' : DexTheme.dexBoxBackgroundColor
                 opacity: .8
                 visible: _subHistoryRoot.displayFilter
@@ -160,7 +160,7 @@ Item {
                 y: -20
                 Column {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    leftPadding: 15 
+                    leftPadding: 15
                     rightPadding: 15
                     visible: parent.height > 250
                     DexLabel {
@@ -184,7 +184,7 @@ Item {
                             valueRole: "ticker"
                             textRole: 'ticker'
                         }
-                        
+
                     }
                     RowLayout {
                         width: main_order.width - 30
@@ -201,7 +201,7 @@ Item {
                             textRole: 'ticker'
 
                         }
-                        
+
                     }
                     spacing: 10
                     RowLayout {
@@ -238,7 +238,7 @@ Item {
                             color: DexTheme.foregroundColor
                             backgroundColor: DexTheme.portfolioPieGradient ? '#FFFFFF' : 'transparent'
                         }
-                        
+
                     }
                 }
 
@@ -276,7 +276,7 @@ Item {
                     }
                 }
             }
-            
+
         }
         Item
         {
@@ -313,7 +313,7 @@ Item {
                     }
                 }
             }
-            
+
         }
         FileDialog {
             id: export_csv_dialog
@@ -326,7 +326,7 @@ Item {
 
             onAccepted: {
                 const path = currentFile.toString()
-                
+
                 // Export
                 console.log("Exporting to CSV: " + path)
                 API.app.exporter_service.export_swaps_history_to_csv(path.replace(General.os_file_prefix, ""))
@@ -339,6 +339,13 @@ Item {
                 console.log("CSV export cancelled")
             }
         }
-        
+
+    }
+
+    DexLabel
+    {
+        visible: !_subHistoryRoot.displayFilter && order_list_view.count === 0
+        anchors.centerIn: parent
+        text: qsTr("No results found")
     }
 }

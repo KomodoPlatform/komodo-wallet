@@ -116,7 +116,7 @@ Item
                     ToolTip.delay: 500
                     ToolTip.timeout: 5000
                     ToolTip.visible: containsMouse
-                    ToolTip.text: _subOrdersRoot.displayFilter ? qsTr("Close filtering options.") : qsTr("Open filering options.")
+                    ToolTip.text: _subOrdersRoot.displayFilter ? qsTr("Close filtering options.") : qsTr("Open filtering options.")
                     onClicked: _subOrdersRoot.displayFilter = !_subOrdersRoot.displayFilter
                 }
             }
@@ -294,5 +294,12 @@ Item
             }
         }
         
+    }
+
+    DexLabel
+    {
+        visible: !_subOrdersRoot.displayFilter && order_list_view.count === 0
+        anchors.centerIn: parent
+        text: qsTr("No results found")
     }
 }
