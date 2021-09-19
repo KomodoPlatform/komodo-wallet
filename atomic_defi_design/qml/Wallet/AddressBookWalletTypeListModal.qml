@@ -111,9 +111,9 @@ BasicModal {
             Layout.rightMargin: 10
             Layout.fillWidth: true
 
-            title: "Smart Chain coins"
-            type_title: "Smart Chain"
-            type: "Smart Chain"
+            title: "Komodo Chain coins"
+            type_title: "Komodo Chain"
+            type: "Komodo Chain"
 
             model: glbCoinsCfgModel.all_smartchains_proxy
         }

@@ -10,10 +10,10 @@ on:
     - cron: '0 0 * * 1'
 
 env:
-  DEX_PROJECT_NAME: "atomicdex-desktop"
-  DEX_DISPLAY_NAME: "AtomicDex Desktop"
-  DEX_COMPANY: "KomodoPlatform"
-  DEX_WEBSITE: "https://atomicdex.io/"
+  DEX_PROJECT_NAME: "smartdex-desktop"
+  DEX_DISPLAY_NAME: "SmartDEX"
+  DEX_COMPANY: "SmartFi"
+  DEX_WEBSITE: "https://smartfi.com/"
 
 jobs:
 
@@ -32,7 +32,7 @@ jobs:
 
         include:
           - name: ubuntu-qt-5-15-2
-            os: ubuntu-18.04
+            os: ubuntu-16.04
             qt: '5.15.2'
             type: 'release'
 
@@ -300,7 +300,6 @@ jobs:
         with:
           name: ${{ env.artifact_name_zstd }}
           path: ./bundled/linux/${{ env.target_name_zstd }}
-          retention-days: 7
 
       - name: Upload bundle artifact (Linux ZIP)
         if: runner.os == 'Linux'
@@ -308,7 +307,6 @@ jobs:
         with:
           name: ${{ env.artifact_name_zip }}
           path: ./bundled/linux/${{ env.target_name_zip }}
-          retention-days: 7
 
       - name: Upload bundle artifact (Linux AppImage)
         if: runner.os == 'Linux'
@@ -316,7 +314,6 @@ jobs:
         with:
           name: ${{ env.artifact_name_appimage }}
           path: ./bundled/linux/${{ env.target_name_appimage }}
-          retention-days: 7
 
       - name: Upload env variable for artifacts (macOS)
         if: runner.os == 'macOS'
@@ -331,7 +328,6 @@ jobs:
         with:
           name: ${{ env.artifact_name_dmg }}
           path: ./bundled/osx/${{ env.DEX_PROJECT_NAME }}.dmg
-          retention-days: 7
 
       - name: Upload artifacts (MacOS installer)
         if: runner.os == 'macOS'
@@ -339,7 +335,6 @@ jobs:
         with:
           name: ${{ env.artifact_name_installer }}
           path: ./bundled/osx/${{ env.DEX_PROJECT_NAME }}_installer.7z
-          retention-days: 7
 
       - name: Upload env variable for artifacts (Windows)
         if: runner.os == 'Windows'
@@ -354,7 +349,6 @@ jobs:
         with:
           name: ${{ env.artifact_name_zip }}
           path: ./bundled/windows/bin.zip
-          retention-days: 7
 
       - name: Upload artifacts (Windows installer)
         if: runner.os == 'Windows'
@@ -362,6 +356,5 @@ jobs:
         with:
           name: ${{ env.artifact_name_installer }}
           path: ./bundled/windows/${{ env.DEX_PROJECT_NAME }}_installer.exe
-          retention-days: 7
       
       

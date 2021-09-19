@@ -18,8 +18,9 @@
 #include "atomicdex/services/price/global.provider.hpp"
 #include "atomicdex/api/coinpaprika/coinpaprika.hpp"
 #include "atomicdex/pages/qt.settings.page.hpp"
+#include "atomicdex/services/price/smartfi/smartfi.provider.hpp"
 #include "atomicdex/services/price/komodo_prices/komodo.prices.provider.hpp"
-#include "atomicdex/services/price/oracle/band.provider.hpp"
+//#include "atomicdex/services/price/oracle/band.provider.hpp"
 
 namespace
 {
@@ -39,7 +40,7 @@ namespace
         web::http::http_request req;
         req.set_method(web::http::methods::GET);
         req.set_request_uri(FROM_STD_STR("api/v1/usd_rates"));
-        //SPDLOG_INFO("req: {}", TO_STD_STR(req.to_string()));
+        // SPDLOG_INFO("req: {}", TO_STD_STR(req.to_string()));
         return g_openrates_client->request(req, g_token_source.get_token());
     }
 
@@ -198,10 +199,14 @@ namespace atomic_dex
             //! FIXME: fix zatJum crash report, frontend QML try to retrieve price before program is even launched
             if (ticker.empty())
                 return "0";
+
             auto&       provider       = m_system_manager.get_system<komodo_prices_provider>();
-            auto&       band_service    = m_system_manager.get_system<band_oracle_price_service>();
-            std::string current_price   = band_service.retrieve_if_this_ticker_supported(ticker);
-            const bool  is_oracle_ready = band_service.is_oracle_ready();
+            auto&       smartfi_service = m_system_manager.get_system<smartfi_price_service>();
+            std::string current_price   = smartfi_service.retrieve_if_this_ticker_supported(ticker);
+            // const bool  is_oracle_ready = band_service.is_oracle_ready();   
+            //auto&       band_service    = m_system_manager.get_system<band_oracle_price_service>();
+            //std::string current_price   = band_service.retrieve_if_this_ticker_supported(ticker);
+            //const bool  is_oracle_ready = band_service.is_oracle_ready();
 
             if (current_price.empty())
             {
@@ -224,18 +229,18 @@ namespace atomic_dex
             }
             else
             {
-                //! We use oracle
+                //! We use smartfi and the fiat is not USD, we multiply the current price with the rate
                 if (is_this_currency_a_fiat(m_cfg, fiat) && fiat != "USD")
                 {
                     t_float_50 tmp_current_price = t_float_50(current_price) * m_other_fiats_rates->at("rates").at(fiat).get<double>();
                     current_price                = tmp_current_price.str();
                 }
 
-                else if (!is_this_currency_a_fiat(m_cfg, fiat) && is_oracle_ready)
+                /*else if (!is_this_currency_a_fiat(m_cfg, fiat) && is_oracle_ready)
                 {
                     t_float_50 tmp_current_price = (t_float_50(current_price)) * band_service.retrieve_rates(fiat);
                     current_price                = tmp_current_price.str();
-                }
+                }*/
             }
 
             if (adjusted)
@@ -372,7 +377,7 @@ namespace atomic_dex
             if (t_ec)
             {
                 ec = t_ec;
-                //SPDLOG_ERROR("my_balance error: {} {}", t_ec.message(), ticker);
+                // SPDLOG_ERROR("my_balance error: {} {}", t_ec.message(), ticker);
                 return "0.00";
             }
 

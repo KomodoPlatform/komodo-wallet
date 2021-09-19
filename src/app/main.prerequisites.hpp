@@ -313,7 +313,7 @@ handle_settings(QSettings& settings)
         }
     };
     SPDLOG_INFO("file name settings: {}", settings.fileName().toStdString());
-    create_settings_functor("CurrentTheme", QString("Dark.json"));
+    create_settings_functor("CurrentTheme", QString("Light.json"));
 
 #if defined(_WIN32) || defined(WIN32)
     create_settings_functor("ThemePath", QString::fromStdWString(atomic_dex::utils::get_themes_path().wstring()));

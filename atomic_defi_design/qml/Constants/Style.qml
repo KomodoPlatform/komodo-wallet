@@ -245,21 +245,12 @@ QtObject {
         {
             case 'ERC-20':      return getCoinColor("ETH")
             case 'QRC-20':      return getCoinColor("QTUM")
-            case 'Smart Chain': return getCoinColor("KMD")
+            case 'Komodo Chain': return getCoinColor("KMD")
             case 'UTXO':        return getCoinColor("BTC")
             case 'BEP-20':      return getCoinColor("BNB")
             case 'SLP':         return getCoinColor("BCH")
             case 'IDO':         return getCoinColor("TKL")
             default:            return getCoinColor("BTC")
-        }
-    }
-
-    function getCoinTypeTextColor(type)
-    {
-        switch (type)
-        {
-            case 'BEP-20':      return '#232323'
-            default:            return '#F9F9F9'
         }
     }
 
@@ -274,18 +265,17 @@ QtObject {
                                           "ADX": "#1B75BC",
                                           "ANKR": "#2075E8",
                                           "ARPA": "#CCD9E2",
-                                          "ARRR": "#C7A34C",
                                           "ATOM": "#474B6C",
                                           "AUR": "#0A6C5E",
                                           "AVA": "#5B567F",
                                           "AVAX": "#E84142",
                                           "AXS": "#0055D5",
                                           "BAL": "#4D4D4D",
-                                          "BNB": "#F9D987",
+                                          "BNB": "#F3BA2F",
                                           "BCH": "#8DC351",
                                           "BIDR": "#F0B90B",
                                           "BSTY": "#78570D",
-                                          "BTC": "#E9983C",
+                                          "BTC": "#F7931A",
                                           "BTT": "#666666",
                                           "BTE": "#FFE201",
                                           "CAKE": "#D1884F",
@@ -303,9 +293,9 @@ QtObject {
                                           "JSTR": "#627EEA",
                                           "DOGE": "#C3A634",
                                           "ETC": "#328432",
-                                          "ETH": "#687DE3",
+                                          "ETH": "#627EEA",
                                           "ETHR": "#627EEA",
-                                          "KMD": "#7490AA",
+                                          "KMD": "#2B6680",
                                           "MORTY": "#A4764D",
                                           "RICK": "#A5CBDD",
                                           "EMC2": "#00CCFF",
@@ -318,7 +308,7 @@ QtObject {
                                           "LBC": "#00775C",
                                           "LTC": "#BFBBBB",
                                           "LYNX": "#0071BA",
-                                          "LTFN": "#0099CC",  
+                                          "LTFN": "#0099CC",										  
                                           "XPM": "#A67522",
                                           "XVC": "#B50126",
                                           "ZEC": "#ECB244",
@@ -449,7 +439,6 @@ QtObject {
                                           "ZET": "#155169",
                                           "ZIL": "#42BBB9",
                                           "ZRX": "#302C2C",
-                                          "UNI": "#FF007A",
-                                          "USBL": "#279553"
+                                          "UNI": "#FF007A"
                                       })
 }

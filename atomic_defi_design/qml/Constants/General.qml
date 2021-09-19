@@ -351,7 +351,7 @@ QtObject {
     function getParentCoin(type) {
         if(type === "ERC-20") return "ETH"
         else if(type === "QRC-20") return "QTUM"
-        else if(type === "Smart Chain") return "KMD"
+        else if(type === "Komodo Chain") return "KMD"
         return "?"
     }
 
@@ -566,14 +566,6 @@ QtObject {
                                                 "ARPA/DAI": "BINANCE:ARPAUSD",
                                                 "ARPA/PAX": "BINANCE:ARPAUSD",
                                                 "ARPA/TRYB": "BINANCE:ARPATRY",
-                                                "ARRR/BTC": "KUCOIN:ARRRBTC",
-                                                "ARRR/USDT": "KUCOIN:ARRRUSDT",
-                                                "ARRR/BUSD": "KUCOIN:ARRRUSDT",
-                                                "ARRR/USDC": "KUCOIN:ARRRUSDT",
-                                                "ARRR/TUSD": "KUCOIN:ARRRUSDT",
-                                                "ARRR/HUSD": "KUCOIN:ARRRUSDT",
-                                                "ARRR/DAI": "KUCOIN:ARRRUSDT",
-                                                "ARRR/PAX": "KUCOIN:ARRRUSDT",
                                                 "ATOM/BTC": "BINANCE:ATOMBTC",
                                                 "ATOM/ETH": "KRAKEN:ATOMETH",
                                                 "ATOM/USDT": "COINBASE:ATOMUSD",

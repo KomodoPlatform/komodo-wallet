@@ -34,7 +34,7 @@ BasicModal
             case "QRC-20":      return "QTUM";
             case "BEP-20":      return "BNB";
             case "ERC-20":      return "ETH";
-            case "Smart Chain": return "KMD";
+            case "Komodo Chain": return "KMD";
             case "SLP":         return "BCH";
         }
 

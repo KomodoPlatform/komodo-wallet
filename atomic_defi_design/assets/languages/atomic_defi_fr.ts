@@ -2,21 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
-    <name>QPlatformTheme</name>
-    <message>
-        <source>&amp;Yes</source>
-        <translation>Oui</translation>
-    </message>
-    <message>
-        <source>&amp;No</source>
-        <translation>Non</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-</context>
-<context>
     <name>AddCustomCoinModal</name>
     <message>
         <location filename="../../qml/Settings/AddCustomCoinModal.qml" line="118"/>
@@ -503,6 +488,29 @@
     </message>
 </context>
 <context>
+    <name>AssetsList</name>
+    <message>
+        <location filename="../../qml/Portfolio/AssetsList.qml" line="40"/>
+        <source>Asset</source>
+        <translation type="unfinished">Actif</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Portfolio/AssetsList.qml" line="47"/>
+        <source>Balance</source>
+        <translation type="unfinished">Balance</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Portfolio/AssetsList.qml" line="54"/>
+        <source>Change 24h</source>
+        <translation type="unfinished">Changement 24H</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Portfolio/AssetsList.qml" line="61"/>
+        <source>Price</source>
+        <translation type="unfinished">Prix</translation>
+    </message>
+</context>
+<context>
     <name>BestOrdersModal</name>
     <message>
         <location filename="../../qml/Exchange/Trade/SimpleView/BestOrdersModal.qml" line="28"/>
@@ -591,7 +599,7 @@
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/CamouflagePasswordModal.qml" line="78"/>
+        <location filename="../../qml/Settings/CamouflagePasswordModal.qml" line="82"/>
         <source>Save</source>
         <translation>Sauvegarder</translation>
     </message>
@@ -641,8 +649,8 @@
     </message>
     <message>
         <location filename="../../qml/Components/CexInfoModal.qml" line="20"/>
-        <source>Market data (prices, charts, etc.) marked with the ⓘ icon originates from third-party sources.&lt;br&gt;&lt;br&gt;Data is sourced via &lt;a href=&quot;https://bandprotocol.com/&quot;&gt;Band Decentralized Oracle&lt;/a&gt; and &lt;a href=&quot;https://coingecko.com&quot;&gt;CoinGecko&lt;/a&gt;.&lt;br&gt;&lt;br&gt;&lt;b&gt;Oracle Supported Pairs:&lt;/b&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;&lt;b&gt;Last reference (Band Oracle):&lt;/b&gt;&lt;br&gt;&lt;a href=&quot;%2&quot;&gt;%2&lt;/a&gt;</source>
-        <translation>Les données de marché (prix, graphiques, etc.) marquées de l&apos;icône ⓘ proviennent de sources tierces.&lt;br&gt;&lt;br&gt;Les données proviennent de &lt;a href=&quot;https://bandprotocol.com/&quot;&gt; Band Decentralized Oracle&lt;/a&gt; et &lt;a href=&quot;https://www.coingecko.com/fr&quot;&gt;Coingecko &lt;/a&gt;.&lt;br&gt;&lt;br&gt;&lt;b&gt;Paires prises en charge par Oracle:&lt;/b&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;&lt;b&gt;Dernière référence (Band Oracle) :&lt;/b&gt;&lt;br&gt;&lt;a href=&quot;%2&quot;&gt;%2&lt;/a&gt;</translation>
+        <source>Market data (prices, charts, etc.) marked with the ⓘ icon originates from third-party sources.&lt;br&gt;&lt;br&gt;Data is sourced via &lt;a href=&quot;https://smartportal.smartfi.com&quot;&gt;SmartFi&lt;/a&gt; and &lt;a href=&quot;https://coingecko.com&quot;&gt;CoinGecko&lt;/a&gt;.&lt;br&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -964,177 +972,112 @@
         <translation>Le contenu de cette section sera ajouté ultérieurement. Restez à l&apos;écoute !</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="299"/>
-        <source>Matching</source>
-        <translation>Recherche en cours</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="299"/>
-        <source>Order Matching</source>
-        <translation>Recherche d&apos;un ordre</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="301"/>
-        <source>Matched</source>
-        <translation>Trouvé</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="301"/>
-        <source>Order Matched</source>
-        <translation>Ordre trouvé</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="303"/>
-        <source>Ongoing</source>
-        <translation>En cours</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="303"/>
-        <source>Swap Ongoing</source>
-        <translation>Échange en cours</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="305"/>
-        <source>Successful</source>
-        <translation>Réussi</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="305"/>
-        <source>Swap Successful</source>
-        <translation>Échange terminé</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="307"/>
-        <source>Refunding</source>
-        <translation>En cours de remboursement</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="309"/>
-        <source>Failed</source>
-        <translation>Échoué</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="309"/>
-        <source>Swap Failed</source>
-        <translation>Erreur lors de l&apos;échange</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="311"/>
-        <source>Unknown</source>
-        <translation>Inconnue</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="311"/>
-        <source>Unknown State</source>
-        <translation>État inconnu</translation>
-    </message>
-    <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="355"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="337"/>
         <source>Started</source>
         <translation>Commencé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="357"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="339"/>
         <source>Negotiated</source>
         <translation>Négocié</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="359"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="341"/>
         <source>Taker fee sent</source>
         <translation>Frais de preneur envoyés</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="361"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="343"/>
         <source>Maker payment received</source>
         <translation>Paiement de l&apos;envoyeur reçu</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="363"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="345"/>
         <source>Maker payment wait confirm started</source>
         <translation>La confirmation d&apos;attente de paiement de l&apos;envoyeur a commencé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="365"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="347"/>
         <source>Maker payment validated and confirmed</source>
         <translation>Paiement de l&apos;envoyeur validé et confirmé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="367"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="349"/>
         <source>Taker payment sent</source>
         <translation>Paiement du preneur envoyé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="369"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="351"/>
         <source>Taker payment spent</source>
         <translation>Paiement du preneur dépensé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="371"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="353"/>
         <source>Maker payment spent</source>
         <translation>Paiement de l&apos;envoyeur dépensé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="373"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="355"/>
         <source>Finished</source>
         <translation>Fini</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="375"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="357"/>
         <source>Start failed</source>
         <translation>Le démarrage a échoué</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="377"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="359"/>
         <source>Negotiate failed</source>
         <translation>La négociation a échoué</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="379"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="361"/>
         <source>Taker fee validate failed</source>
         <translation>Échec de la validation des frais du preneur</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="381"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="363"/>
         <source>Maker payment transaction failed</source>
         <translation>La transaction de paiement du créateur a échoué</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="383"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="365"/>
         <source>Maker payment Data send failed</source>
         <translation>Échec de l&apos;envoi des données de paiement du créateur</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="385"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="367"/>
         <source>Maker payment wait confirm failed</source>
         <translation>La confirmation de l&apos;attente de paiement du créateur a échoué</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="387"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="369"/>
         <source>Taker payment validate failed</source>
         <translation>La validation du paiement du preneur a échoué</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="389"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="371"/>
         <source>Taker payment wait confirm failed</source>
         <translation>La confirmation de l&apos;attente de paiement du preneur a échoué</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="391"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="373"/>
         <source>Taker payment spend failed</source>
         <translation>Échec des dépenses de paiement du preneur</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="393"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="375"/>
         <source>Maker payment wait refund started</source>
         <translation>attente de paiement du créateur, remboursement commencé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="395"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="377"/>
         <source>Maker payment refunded</source>
         <translation>Paiement du créateur remboursé</translation>
     </message>
     <message>
-        <location filename="../../qml/Screens/Dashboard.qml" line="397"/>
+        <location filename="../../qml/Screens/Dashboard.qml" line="379"/>
         <source>Maker payment refund failed</source>
         <translation>échec du remboursement du paiement du créateur</translation>
     </message>
@@ -1269,7 +1212,7 @@
 <context>
     <name>DexSweetComboBox</name>
     <message>
-        <location filename="../../qml/Components/DexSweetComboBox.qml" line="73"/>
+        <location filename="../../qml/Components/DexSweetComboBox.qml" line="75"/>
         <source>Search</source>
         <translation>Rechercher</translation>
     </message>
@@ -1277,47 +1220,47 @@
 <context>
     <name>EnableCoinModal</name>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="45"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="47"/>
         <source>Enable assets</source>
         <translation>Activer les actifs</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="161"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="167"/>
         <source>Add a custom asset to the list</source>
         <translation>Ajouter un token personnalisé à la liste</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="140"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="142"/>
         <source>All assets are already enabled!</source>
         <translation>Tous les actifs sont déjà activés !</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="151"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="154"/>
         <source>Change assets limit</source>
         <translation>Limiter le nombre d&apos;actifs</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="59"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="61"/>
         <source>Search</source>
         <translation>Rechercher</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="67"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="69"/>
         <source>Select all assets</source>
         <translation>Sélectionnez tous les actifs</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="172"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="182"/>
         <source>You can still enable %1 assets. Selected: %2.</source>
         <translation>Vous pouvez toujours activer %1 actifs. Sélectionnés: %2.</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="180"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="190"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="194"/>
+        <location filename="../../qml/Wallet/EnableCoinModal.qml" line="204"/>
         <source>Enable</source>
         <translation>Activer</translation>
     </message>
@@ -1330,29 +1273,620 @@
         <translation>Clause de non-responsabilité et conditions d&apos;utilisation</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/EulaModal.qml" line="51"/>
+        <location filename="../../qml/Components/EulaModal.qml" line="52"/>
         <source>Accept EULA</source>
         <translation>Acceptez l&apos;EULA</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/EulaModal.qml" line="57"/>
+        <location filename="../../qml/Components/EulaModal.qml" line="58"/>
         <source>Accept Terms and Conditions</source>
         <translation>Accepter les termes et conditions</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/EulaModal.qml" line="73"/>
+        <location filename="../../qml/Components/EulaModal.qml" line="74"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/EulaModal.qml" line="73"/>
+        <location filename="../../qml/Components/EulaModal.qml" line="74"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/EulaModal.qml" line="81"/>
+        <location filename="../../qml/Components/EulaModal.qml" line="82"/>
         <source>Confirm</source>
         <translation>Confirmer</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Components/EulaModal.qml" line="96"/>
+        <source>**SmartFi Non-Custodial Wallet**<byte value="xd"/>
+<byte value="xd"/>
+**Terms of Service**<byte value="xd"/>
+<byte value="xd"/>
+**February 16 2021**<byte value="xd"/>
+<byte value="xd"/>
+Power Block Coin LLC, doing business as c, (**&quot;SmartFi&quot;** or **&quot;we&quot;** or<byte value="xd"/>
+**&quot;us&quot;** or **&quot;our&quot;**) makes available to users certain software<byte value="xd"/>
+services accessible via desktop application a mobile device application<byte value="xd"/>
+and or website, including the SmartFi Wallet (the&#xa0;**&quot;Wallet<byte value="xd"/>
+Application&quot;**&#xa0;or&#xa0;**&quot;App&quot;**). The Wallet Application enables users to<byte value="xd"/>
+(i) self custody digital assets; (ii) access a digital asset browser and<byte value="xd"/>
+link to decentralized applications and decentralized exchanges<byte value="xd"/>
+(**&quot;Dapp(s)&quot;**); (iii) view addresses and information that are part of<byte value="xd"/>
+digital asset networks and broadcast transactions; and (iv) additional<byte value="xd"/>
+functionality as SmartFi may add to the App from time to time<byte value="xd"/>
+(collectively the **&quot;Services&quot;**). SmartFi developed these Terms of<byte value="xd"/>
+Service (these&#xa0;**&quot;Terms&quot;**) to describe the terms that govern your use<byte value="xd"/>
+of all versions of the Wallet Application. These terms and additional<byte value="xd"/>
+information about the Wallet Application can be found on the SmartFi<byte value="xd"/>
+website located at www.smartfi.com (the **&quot;Site&quot;**).<byte value="xd"/>
+<byte value="xd"/>
+**Agreement to Terms**<byte value="xd"/>
+<byte value="xd"/>
+By clicking &quot;I Agree&quot; or by accessing the Wallet Application or using<byte value="xd"/>
+any or all of the Services, you agree to be bound by these Terms. If you<byte value="xd"/>
+don&apos;t agree to be bound by these Terms, you may not access or use the<byte value="xd"/>
+Services.<byte value="xd"/>
+<byte value="xd"/>
+**Privacy Policy**<byte value="xd"/>
+<byte value="xd"/>
+Please refer to our SmartFi Wallet Privacy Policy for information on how<byte value="xd"/>
+we collect, use and disclose information from our users. You acknowledge<byte value="xd"/>
+and agree that your use of the Services is subject to, and that we can<byte value="xd"/>
+collect, use and/or disclose your information (including any personal<byte value="xd"/>
+data you provide to us) in accordance with, our Privacy Policy.<byte value="xd"/>
+<byte value="xd"/>
+**Changes to Terms or Services**<byte value="xd"/>
+<byte value="xd"/>
+We may modify the Terms at any time at our sole discretion. If we do so,<byte value="xd"/>
+we&apos;ll let you know either by posting the modified Terms on the Site, by<byte value="xd"/>
+providing you a notice through the App, or through other methods of<byte value="xd"/>
+communication which we deem reasonable. The modified Terms will be<byte value="xd"/>
+effective at the time they are posted on the Site. It&apos;s important that<byte value="xd"/>
+you review the Terms whenever we modify them because if you continue to<byte value="xd"/>
+use the Services after we have modified the Terms, you are agreeing to<byte value="xd"/>
+be bound by the modified Terms. If you don&apos;t agree to be bound by the<byte value="xd"/>
+modified Terms, then you may not use the Services. Because our Services<byte value="xd"/>
+are evolving over time we may change or discontinue all or any part of<byte value="xd"/>
+the Services, at any time and without notice, at our sole discretion.<byte value="xd"/>
+<byte value="xd"/>
+**ARBITRATION NOTICE: THESE TERMS CONTAIN AN ARBITRATION CLAUSE FOR<byte value="xd"/>
+USERS IN CERTAIN JURISDICTIONS. IF YOU ARE A USER LOCATED IN THE UNITED<byte value="xd"/>
+STATES YOU AGREE THAT DISPUTES BETWEEN YOU AND SMARTFI WILL BE RESOLVED<byte value="xd"/>
+BY BINDING, INDIVIDUAL ARBITRATION IN THE UNITED STATES, AND YOU ARE<byte value="xd"/>
+WAIVING YOUR RIGHT TO A TRIAL BY JURY OR TO PARTICIPATE AS A PLAINTIFF<byte value="xd"/>
+OR CLASS MEMBER IN ANY PURPORTED CLASS ACTION OR REPRESENTATIVE<byte value="xd"/>
+PROCEEDING.**<byte value="xd"/>
+<byte value="xd"/>
+**Who May Use the Services**<byte value="xd"/>
+<byte value="xd"/>
+**Eligibility**<byte value="xd"/>
+<byte value="xd"/>
+You may use the Services if you are 18 years or older and are not barred<byte value="xd"/>
+from using the Services under applicable law.<byte value="xd"/>
+<byte value="xd"/>
+**Registration and Your Information**<byte value="xd"/>
+<byte value="xd"/>
+If you want to use the Services you&apos;ll have to create an account<byte value="xd"/>
+(**&quot;Account&quot;**) via the App. You agree that you won&apos;t disclose your<byte value="xd"/>
+Account credentials to anyone and you&apos;ll notify us immediately of any<byte value="xd"/>
+unauthorized use of your Account. You&apos;re responsible for all activities<byte value="xd"/>
+that occur under your Account, or are otherwise referable to your<byte value="xd"/>
+Account credentials, whether or not you know about them. We reserve the<byte value="xd"/>
+right to suspend or terminate your Account if you provide inaccurate,<byte value="xd"/>
+untrue, or incomplete information, or if you fail to comply with the<byte value="xd"/>
+Account registration requirements or these terms.<byte value="xd"/>
+<byte value="xd"/>
+You are solely responsible for the retention and security of your twelve<byte value="xd"/>
+word recovery phrase (**&quot;Recovery Phrase&quot;**). Your Recovery Phrase is<byte value="xd"/>
+the only way to access the cryptocurrency associated with your Account.<byte value="xd"/>
+Anyone that has access to your Recovery Phrase can access your<byte value="xd"/>
+cryptocurrency. If you lose your Recovery Phrase, you will not be able<byte value="xd"/>
+to access your cryptocurrency. You acknowledge that SmartFi does not<byte value="xd"/>
+store and is not responsible in any way for the security of your<byte value="xd"/>
+Recovery Phrase and you agree to hold SmartFi harmless and that SmartFi<byte value="xd"/>
+shall not be liable in any way in the event you lose your Recovery<byte value="xd"/>
+Phrase and cannot access your cryptocurrency.<byte value="xd"/>
+<byte value="xd"/>
+**Feedback**<byte value="xd"/>
+<byte value="xd"/>
+We welcome feedback, comments, ideas, and suggestions for improvements<byte value="xd"/>
+to the Services (**&quot;Feedback&quot;**). You can submit Feedback by contacting<byte value="xd"/>
+us support@smartfi.com. You grant to us a non-exclusive, worldwide,<byte value="xd"/>
+perpetual, irrevocable, fully-paid, royalty-free, sublicensable and<byte value="xd"/>
+transferable license under any and all intellectual property rights that<byte value="xd"/>
+you own or control to use, copy, modify, create derivative works based<byte value="xd"/>
+upon and otherwise exploit the Feedback for any purpose.&#xa0;**If you lose<byte value="xd"/>
+your Recovery Phrase, you will not be able to access your<byte value="xd"/>
+cryptocurrency. You acknowledge that SmartFi does not store and is not<byte value="xd"/>
+responsible in any way for the security of your Recovery Phrase and you<byte value="xd"/>
+agree to hold SmartFi harmless and that SmartFi shall not be liable in<byte value="xd"/>
+any way in the event you lose your Recovery Phrase and cannot access<byte value="xd"/>
+your cryptocurrency.**<byte value="xd"/>
+<byte value="xd"/>
+**Content Ownership, Responsibility and Removal**<byte value="xd"/>
+<byte value="xd"/>
+For purposes of these Terms: (i) **&quot;Content&quot;** means text, graphics,<byte value="xd"/>
+images, music, software, audio, video, works of authorship of any kind,<byte value="xd"/>
+and information or other materials that are posted, generated, provided<byte value="xd"/>
+or otherwise made available through the Services; and (ii)&#xa0;**&quot;User<byte value="xd"/>
+Content&quot;**&#xa0;means any Content that Account holders (including you) make<byte value="xd"/>
+available through the Services. Content includes without limitation User<byte value="xd"/>
+Content.<byte value="xd"/>
+<byte value="xd"/>
+We do not claim any ownership rights in any User Content and nothing in<byte value="xd"/>
+these Terms will be deemed to restrict any rights that you may have to<byte value="xd"/>
+use and exploit your User Content.<byte value="xd"/>
+<byte value="xd"/>
+Subject to the foregoing, SmartFi and its licensors exclusively own all<byte value="xd"/>
+right, title and interest in and to the Services and Content, including<byte value="xd"/>
+all associated intellectual property rights. You acknowledge that the<byte value="xd"/>
+Services and Content are protected by copyright, trademark, and other<byte value="xd"/>
+laws of the United States and foreign countries. You agree not to<byte value="xd"/>
+remove, alter or obscure any copyright, trademark, service mark or other<byte value="xd"/>
+proprietary rights notices incorporated in or accompanying the Services<byte value="xd"/>
+or Content.<byte value="xd"/>
+<byte value="xd"/>
+**Rights in User Content Granted by You**<byte value="xd"/>
+<byte value="xd"/>
+In order to operate and provide our Services, you grant us a worldwide,<byte value="xd"/>
+non-exclusive, royalty-free, sublicensable, and transferable license to<byte value="xd"/>
+use, copy, distribute, create derivative works of, display, and perform<byte value="xd"/>
+the User Content that you upload, submit, store, send, or receive on the<byte value="xd"/>
+App or through our Services. The rights you grant in this license are<byte value="xd"/>
+for the limited purpose of operating and providing our Services.<byte value="xd"/>
+Additional information about your privacy and how we use User Content is<byte value="xd"/>
+available in the Privacy Policy.<byte value="xd"/>
+<byte value="xd"/>
+You warrant and represent that you have the right and authority to<byte value="xd"/>
+submit your User Content and that the User Content or any part thereof<byte value="xd"/>
+does not infringe the intellectual property rights or any other rights<byte value="xd"/>
+of any third party.<byte value="xd"/>
+<byte value="xd"/>
+You acknowledge that, in certain instances, where you have removed your<byte value="xd"/>
+User Content by specifically deleting it, some of your User Content<byte value="xd"/>
+(such as posts or comments you make) may not be completely removed and<byte value="xd"/>
+copies of your User Content may continue to exist on the Services. We<byte value="xd"/>
+are not responsible or liable for the removal or deletion of (or the<byte value="xd"/>
+failure to remove or delete) any of your User Content.<byte value="xd"/>
+<byte value="xd"/>
+**Rights in Content Granted by SmartFi**<byte value="xd"/>
+<byte value="xd"/>
+Subject to your compliance with these Terms, we grant you a limited,<byte value="xd"/>
+non-exclusive, non-transferable, non-sublicensable license to download,<byte value="xd"/>
+view, copy, display and print the Content solely in connection with your<byte value="xd"/>
+permitted use of the Services.<byte value="xd"/>
+<byte value="xd"/>
+**Rights in App, Site and Services Granted by SmartFi**<byte value="xd"/>
+<byte value="xd"/>
+The App, Site and Services are proprietary to SmartFi and its licensors<byte value="xd"/>
+and must not be used other than strictly in accordance with these Terms.<byte value="xd"/>
+SmartFi grants to you a limited, non-exclusive, non-transferable,<byte value="xd"/>
+non-sublicensable right to use the App and Site for the purposes of<byte value="xd"/>
+accessing and using the Services in accordance with these Terms.<byte value="xd"/>
+<byte value="xd"/>
+**Fees**<byte value="xd"/>
+<byte value="xd"/>
+We may charge fees for some or part of the Services we make available to<byte value="xd"/>
+you. We reserve the right to change those fees at our discretion with<byte value="xd"/>
+notice. We will disclose the amount of fees we will charge you for the<byte value="xd"/>
+applicable Service at the time that you access the Service.<byte value="xd"/>
+<byte value="xd"/>
+You may incur charges from third parties for use of linked services. For<byte value="xd"/>
+example, you may be charged fees via the Dapps and/or decentralized<byte value="xd"/>
+exchanges (&quot;**DEXs**&quot;) that you may access via the App. You may also be<byte value="xd"/>
+charged fees by SmartFi if you elect to link the Wallet App to your<byte value="xd"/>
+SmartFi exchange account and transact in your SmartFi exchange account.<byte value="xd"/>
+Third party fees are not charged by SmartFi and are not paid to SmartFi.<byte value="xd"/>
+<byte value="xd"/>
+**Acceptable Use and SmartFi Wallet Holding&apos;s Enforcement Rights**<byte value="xd"/>
+<byte value="xd"/>
+You agree not to use the Services in ways that:<byte value="xd"/>
+<byte value="xd"/>
+-   Violate, misappropriate, or infringe the rights of SmartFi, our<byte value="xd"/>
+    users, or others, including privacy, publicity, intellectual<byte value="xd"/>
+    property, or other proprietary rights;<byte value="xd"/>
+<byte value="xd"/>
+-   Are illegal, obscene, defamatory, threatening, intimidating,<byte value="xd"/>
+    harassing, hateful, racially, or ethnically offensive, or instigate<byte value="xd"/>
+    or encourage conduct that would be illegal, or otherwise<byte value="xd"/>
+    inappropriate, including promoting violent crimes;<byte value="xd"/>
+<byte value="xd"/>
+-   Involve publishing falsehoods, misrepresentations, or misleading<byte value="xd"/>
+    statements, including impersonating someone;<byte value="xd"/>
+<byte value="xd"/>
+-   Breach any duty toward or rights of any person or entity, including<byte value="xd"/>
+    rights of publicity, privacy, or trademark;<byte value="xd"/>
+<byte value="xd"/>
+-   Involve sending illegal or impermissible communications such as bulk<byte value="xd"/>
+    messaging, auto-messaging, auto-dialing, and the like;<byte value="xd"/>
+<byte value="xd"/>
+-   Avoid, bypass, remove, deactivate, impair, descramble or otherwise<byte value="xd"/>
+    circumvent any technological measure implemented by us or any of our<byte value="xd"/>
+    service providers or any other third party (including another user)<byte value="xd"/>
+    to protect the Services or Content;<byte value="xd"/>
+<byte value="xd"/>
+-   Disguise your location through IP proxying or other methods;<byte value="xd"/>
+<byte value="xd"/>
+-   Interfere with, or attempt to interfere with, the access of any<byte value="xd"/>
+    user, host or network, including, without limitation, sending a<byte value="xd"/>
+    virus, overloading, flooding, spamming, or mail-bombing the<byte value="xd"/>
+    Services;<byte value="xd"/>
+<byte value="xd"/>
+-   Violate any applicable law or regulation; or<byte value="xd"/>
+<byte value="xd"/>
+-   Encourage or enable any other individual to do any of the foregoing.<byte value="xd"/>
+<byte value="xd"/>
+Although we have no obligation to monitor any User Content, we have<byte value="xd"/>
+absolute discretion to remove User Content at any time and for any<byte value="xd"/>
+reason without notice. You understand that by using the Services, you<byte value="xd"/>
+may be exposed to User Content that is offensive, indecent, or<byte value="xd"/>
+objectionable. We take no responsibility and assume no liability for any<byte value="xd"/>
+User Content, including any loss or damage to any of your User Content.<byte value="xd"/>
+<byte value="xd"/>
+You agree to comply with all applicable U.S. and non-U.S. export control<byte value="xd"/>
+and trade sanctions laws (**&quot;Export Laws&quot;**). Without limiting the<byte value="xd"/>
+foregoing, you may not download the App or use the Services if 1) you<byte value="xd"/>
+are in, under the control of, or a national or resident of Cuba, Iran,<byte value="xd"/>
+North Korea, Sudan, or Syria or any other country subject to United<byte value="xd"/>
+States embargo, UN Security Council Resolutions (&quot;UNSCR&quot;), HM<byte value="xd"/>
+Treasury&apos;s financial sanctions regime, or if you are on the U.S.<byte value="xd"/>
+Treasury Department&apos;s Specially Designated Nationals List or the U.S.<byte value="xd"/>
+Commerce Department&apos;s Denied Persons List, Unverified List, Entity List<byte value="xd"/>
+HM Treasury&apos;s financial sanctions regime; or (2) you intend to supply<byte value="xd"/>
+any Services to Cuba, Iran, North Korea, Sudan or Syria or any other<byte value="xd"/>
+country subject to United States embargo or HM Treasury&apos;s financial<byte value="xd"/>
+sanctions regime (or a national or resident of one of these countries),<byte value="xd"/>
+or to a person on the Specially Designated Nationals List, Denied<byte value="xd"/>
+Persons List, Unverified List, Entity List, or HM Treasury&apos;s financial<byte value="xd"/>
+sanctions regime.<byte value="xd"/>
+<byte value="xd"/>
+**Third Party Materials**<byte value="xd"/>
+<byte value="xd"/>
+The Services and App may contain links to third-party services and/or<byte value="xd"/>
+Dapps (**&quot;Third Party Materials&quot;**). The Services enable you to access<byte value="xd"/>
+Dapps via a Dapp browser and Wallet Link by navigating away from the App<byte value="xd"/>
+to the Dapp or by enabling a native frontend software link within the<byte value="xd"/>
+App. When using a Dapp or other Third Party Materials, you understand<byte value="xd"/>
+that you are at no time transferring your assets to us. We provide<byte value="xd"/>
+access to Third Party Materials only as a convenience, do not have<byte value="xd"/>
+control over their content, do not warrant or endorse, and are not<byte value="xd"/>
+responsible for the availability or legitimacy of, the content, products<byte value="xd"/>
+or services on or accessible from those Third Party Materials (including<byte value="xd"/>
+any related websites, resources or links displayed therein). We make no<byte value="xd"/>
+warranties or representations, express or implied, about such linked<byte value="xd"/>
+Third Party Materials, the third parties they are owned and operated by,<byte value="xd"/>
+the information contained on them or the suitability of their products<byte value="xd"/>
+or services. You acknowledge sole responsibility for and assume all risk<byte value="xd"/>
+arising from your use of any third-party websites, applications, or<byte value="xd"/>
+resources.<byte value="xd"/>
+<byte value="xd"/>
+You may be able to link Wallet to your SmartFi exchange account to<byte value="xd"/>
+enable access to your SmartFi account from Wallet. In doing so, you<byte value="xd"/>
+understand and agree that all transactions made when accessing your<byte value="xd"/>
+SmartFi exchange account from the Smartfi Wallet is subject to the terms<byte value="xd"/>
+of use for the SmartFi exchange account and the SmartFi exchange privacy<byte value="xd"/>
+policy.<byte value="xd"/>
+<byte value="xd"/>
+**Termination**<byte value="xd"/>
+<byte value="xd"/>
+We may terminate your access to and use of the Services, at our sole<byte value="xd"/>
+discretion, at any time and without notice to you. You may cancel your<byte value="xd"/>
+Account at any time by following the account closure instructions in the<byte value="xd"/>
+App. Upon any termination, discontinuation or cancellation of Services<byte value="xd"/>
+or your Account, (i) all rights and/or licences granted to you under<byte value="xd"/>
+these Terms shall immediately cease and terminate and you shall<byte value="xd"/>
+forthwith cease the use and/or access of the App, Site, Services and<byte value="xd"/>
+Content in any way whatsoever; and (ii) notwithstanding the foregoing,<byte value="xd"/>
+the following provisions will survive: Feedback, Content and Content<byte value="xd"/>
+Rights, Content Ownership, Responsibility and Removal (save for the<byte value="xd"/>
+subsection &quot;Rights in Content Granted by SmartFi&quot;), Termination,<byte value="xd"/>
+Warranty Disclaimers, Indemnity, Limitation of Liability, Dispute<byte value="xd"/>
+Resolution, and General Terms.<byte value="xd"/>
+<byte value="xd"/>
+**Warranty Disclaimers**<byte value="xd"/>
+<byte value="xd"/>
+YOU EXPRESSLY ACKNOWLEDGE AND AGREE THAT USE OF THE SERVICES (INCLUDING<byte value="xd"/>
+ANY PRIVATE KEY STORAGE SERVICE OFFERED AS PART OF THE SERVICES, WHETHER<byte value="xd"/>
+CLOUD OR HARDWARE-BASED) AND CONTENT IS AT YOUR SOLE RISK AND THAT THE<byte value="xd"/>
+ENTIRE RISK AS TO SATISFACTORY QUALITY, PERFORMANCE, ACCURACY AND EFFORT<byte value="xd"/>
+IS WITH YOU. THE APP, SITE AND SERVICES ARE PROVIDED ON AN &quot;AS IS&quot; AND<byte value="xd"/>
+&quot;AS AVAILABLE&quot; BASIS WITHOUT ANY REPRESENTATION OR WARRANTY, WHETHER<byte value="xd"/>
+EXPRESS, IMPLIED OR STATUTORY. TO THE MAXIMUM EXTENT PERMITTED BY<byte value="xd"/>
+APPLICABLE LAW, SMARTFI SPECIFICALLY DISCLAIMS ANY EXPRESS OR IMPLIED<byte value="xd"/>
+WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE<byte value="xd"/>
+AND/OR NON-INFRINGEMENT. SMARTFI DOES NOT MAKE ANY REPRESENTATIONS OR<byte value="xd"/>
+WARRANTIES THAT ACCESS TO THE SERVICES OR ANY OF THE MATERIALS CONTAINED<byte value="xd"/>
+THEREIN WILL BE CONTINUOUS, UNINTERRUPTED, TIMELY, OR ERROR-FREE.<byte value="xd"/>
+<byte value="xd"/>
+USE OF ANY PRIVATE KEY STORAGE SERVICE INCLUDED AS PART OF THE SERVICES<byte value="xd"/>
+IS OFFERED TO YOU AS A CONVENIENCE, SUBJECT TO THE LIMITATIONS ABOVE. TO<byte value="xd"/>
+BE SAFE, YOU SHOULD ALWAYS BACKUP YOUR PRIVATE ACCESS KEY VIA SECONDARY<byte value="xd"/>
+MEANS.<byte value="xd"/>
+<byte value="xd"/>
+**Disclaimers; Risks**<byte value="xd"/>
+<byte value="xd"/>
+**Warranty disclaimer**<byte value="xd"/>
+<byte value="xd"/>
+You expressly understand and agree that your use of the Services is at<byte value="xd"/>
+your sole risk. The Services (including the Site, the App and the<byte value="xd"/>
+Content) are provided on an &quot;as is&quot; and &quot;as available&quot; basis, without<byte value="xd"/>
+warranties of any kind, either express or implied, including, without<byte value="xd"/>
+limitation, implied warranties of merchantability, fitness for a<byte value="xd"/>
+particular purpose or non-infringement. You acknowledge that SmartFi has<byte value="xd"/>
+no control over, and no duty to take any action regarding: which users<byte value="xd"/>
+gain access to or use the Services; what effects the Content may have on<byte value="xd"/>
+you; how you may interpret or use the Content; or what actions you may<byte value="xd"/>
+take as a result of having been exposed to the Content. You release<byte value="xd"/>
+SmartFi from all liability for you having acquired or not acquired<byte value="xd"/>
+Content through the Services. SmartFi makes no representations<byte value="xd"/>
+concerning any Content contained in or accessed through the Services,<byte value="xd"/>
+and SmartFi will not be responsible or liable for the accuracy,<byte value="xd"/>
+copyright compliance, legality or decency of material contained in or<byte value="xd"/>
+accessed through the Services.<byte value="xd"/>
+<byte value="xd"/>
+We do not represent or warrant that access to the Services will be<byte value="xd"/>
+continuous, uninterrupted, timely or secure. You acknowledge and accept<byte value="xd"/>
+that the Services (a) may contain bugs, errors and defects, (b) may<byte value="xd"/>
+function improperly or be subject to periods of downtime and<byte value="xd"/>
+unavailability, (c) may result in total or partial loss or corruption of<byte value="xd"/>
+data and (d) may be modified at any time, including through the release<byte value="xd"/>
+of subsequent versions, all with or without notice to you.<byte value="xd"/>
+<byte value="xd"/>
+You acknowledge that SmartFi is not responsible for transferring,<byte value="xd"/>
+safeguarding, or maintaining your private keys or any digital currency<byte value="xd"/>
+associated therewith. If you lose, mishandle or have stolen associated<byte value="xd"/>
+digital currency private keys, you acknowledge that you may not be able<byte value="xd"/>
+to recover associated digital currency, and that SmartFi is not<byte value="xd"/>
+responsible for such loss. You acknowledge that SmartFi is not<byte value="xd"/>
+responsible for any loss, damage or liability arising from your failure<byte value="xd"/>
+to comply with the terms hereunder.<byte value="xd"/>
+<byte value="xd"/>
+**Sophistication and Risk of Cryptographic Systems**<byte value="xd"/>
+<byte value="xd"/>
+By utilizing the Services or interacting with the Content or platform in<byte value="xd"/>
+any way, you represent that you understand the inherent risks associated<byte value="xd"/>
+with cryptographic systems; and warrant that you have an understanding<byte value="xd"/>
+of the usage and intricacies of native cryptographic tokens such as<byte value="xd"/>
+Ether (ETH) and Bitcoin (BTC), smart contract based tokens such as those<byte value="xd"/>
+that follow an Ethereum token standard (e.g.<byte value="xd"/>
+&lt;https://github.com/ethereum/EIPs/issues/20&gt;), and blockchain-based<byte value="xd"/>
+software systems.<byte value="xd"/>
+<byte value="xd"/>
+**Risk of Regulatory Actions in One or More Jurisdictions**<byte value="xd"/>
+<byte value="xd"/>
+SmartFi and any supported cryptographic token and blockchain could be<byte value="xd"/>
+impacted by one or more regulatory inquiries or regulatory action, which<byte value="xd"/>
+could impede or limit the ability of SmartFi to continue to develop, or<byte value="xd"/>
+which could impede or limit your ability to access or use the Services<byte value="xd"/>
+or the underlying blockchain network.<byte value="xd"/>
+<byte value="xd"/>
+**Risk of Weaknesses or Exploits in the Field of Cryptography**<byte value="xd"/>
+<byte value="xd"/>
+You acknowledge and understand that Cryptography is a progressing field.<byte value="xd"/>
+Advances in code cracking or technical advances such as the development<byte value="xd"/>
+of quantum computers may present risks to cryptocurrencies and Services<byte value="xd"/>
+of Content, which could result in the theft or loss of your<byte value="xd"/>
+cryptographic tokens or property. To the extent possible, SmartFi<byte value="xd"/>
+intends to update the protocol underlying Services to account for any<byte value="xd"/>
+advances in cryptography and to incorporate additional security<byte value="xd"/>
+measures, but does not guarantee or otherwise represent full security of<byte value="xd"/>
+the system. By using the Services or accessing Content, you acknowledge<byte value="xd"/>
+these inherent risks.<byte value="xd"/>
+<byte value="xd"/>
+**Volatility of Cryptocurrencies**<byte value="xd"/>
+<byte value="xd"/>
+You understand that Ethereum and other blockchain technologies and<byte value="xd"/>
+associated cryptographic tokens are highly volatile due to many factors<byte value="xd"/>
+including but not limited to adoption, speculation, technology and<byte value="xd"/>
+security risks. You also acknowledge that the cost of transacting on<byte value="xd"/>
+such technologies is variable and may increase at any time causing<byte value="xd"/>
+impact to any activities taking place on the blockchain network. You<byte value="xd"/>
+acknowledge these risks and agree that SmartFi cannot be held liable for<byte value="xd"/>
+such fluctuations or increased costs.<byte value="xd"/>
+<byte value="xd"/>
+**Application Security**<byte value="xd"/>
+<byte value="xd"/>
+You further acknowledge that blockchain applications are code subject to<byte value="xd"/>
+flaws and acknowledge that you are solely responsible for evaluating any<byte value="xd"/>
+code provided by the Services or Content and the trustworthiness of any<byte value="xd"/>
+third-party websites, products, smart-contracts, or Content you access<byte value="xd"/>
+or use through the Services. You further expressly acknowledge and<byte value="xd"/>
+represent that blockchain applications can be written maliciously or<byte value="xd"/>
+negligently, that SmartFi cannot be held liable for your interaction<byte value="xd"/>
+with such applications and that such applications may cause the loss of<byte value="xd"/>
+property or even identity. This warning and others later provided by<byte value="xd"/>
+SmartFi in no way evidence or represent an on-going duty to alert you to<byte value="xd"/>
+all of the potential risks of utilizing the Services or Content.<byte value="xd"/>
+<byte value="xd"/>
+**Other Affiliated Services and Third Party Services**<byte value="xd"/>
+<byte value="xd"/>
+Software and services provided by our affiliates (&quot;**Affiliated<byte value="xd"/>
+Services**&quot;) and third party software and services (&quot;**Third Party<byte value="xd"/>
+Services**&quot; and, together with Affiliated Services, &quot;**Additional<byte value="xd"/>
+Services**&quot;) included in, integrated into, or made accessible through,<byte value="xd"/>
+the Services, including through the Snap System, are made available to<byte value="xd"/>
+you under the terms of use of such service providers (collectively,<byte value="xd"/>
+&quot;**Service Providers**&quot;) (for example, Komodo). Please review the<byte value="xd"/>
+applicable terms of use on their websites prior to using or accessing<byte value="xd"/>
+their services or see appendix A hereto.<byte value="xd"/>
+<byte value="xd"/>
+Service Providers may charge you a fee for use of, or access to, such<byte value="xd"/>
+Additional Services. You acknowledge that SmartFi may earn fees from<byte value="xd"/>
+Service Providers in connection with your use of such Additional<byte value="xd"/>
+Services.<byte value="xd"/>
+<byte value="xd"/>
+You agree that SmartFi and its affiliates are not in any way associated<byte value="xd"/>
+with the owner or operator of any Third Party Services or responsible or<byte value="xd"/>
+liable for the software and services offered by them or for anything in<byte value="xd"/>
+connection with such Third Party Services. SmartFi does not endorse or<byte value="xd"/>
+approve and makes no warranties, representations or undertakings<byte value="xd"/>
+relating to the software, service or content of any Third Party<byte value="xd"/>
+Services.<byte value="xd"/>
+<byte value="xd"/>
+In addition, SmartFi disclaims liability for any loss, damage and any<byte value="xd"/>
+other consequence resulting directly or indirectly from or relating to<byte value="xd"/>
+your use or access of Third Party Services or any information that you<byte value="xd"/>
+may provide or any transaction conducted with or through the Third Party<byte value="xd"/>
+Services or the failure of any information, software or services posted<byte value="xd"/>
+or offered by such Service Providers or any error, omission or<byte value="xd"/>
+misrepresentation by such Service Providers or any computer virus<byte value="xd"/>
+arising from or system failure associated with the Third Party Services.<byte value="xd"/>
+<byte value="xd"/>
+In the event of any inconsistency between the terms herein and the terms<byte value="xd"/>
+of the Additional Services, the terms herein will prevail.<byte value="xd"/>
+<byte value="xd"/>
+**Indemnity**<byte value="xd"/>
+<byte value="xd"/>
+You will indemnify and hold harmless SmartFi and its officers,<byte value="xd"/>
+directors, employees and agents, from and against any claims, disputes,<byte value="xd"/>
+demands, liabilities, damages, losses, and costs and expenses,<byte value="xd"/>
+including, without limitation, reasonable legal and accounting fees<byte value="xd"/>
+arising out of or in any way connected with (i) your access to or use of<byte value="xd"/>
+the Services or Content, (ii) your User Content, (iii) Third Party<byte value="xd"/>
+Materials, or (iv) your violation of these Terms.<byte value="xd"/>
+<byte value="xd"/>
+**Limitation of Liability**<byte value="xd"/>
+<byte value="xd"/>
+TO THE MAXIMUM EXTENT NOT PROHIBITED BY LAW, SMARTFI SHALL NOT BE LIABLE<byte value="xd"/>
+FOR DAMAGES OF ANY TYPE, WHETHER DIRECT OR INDIRECT, ARISING OUT OF OR<byte value="xd"/>
+IN ANY WAY RELATED TO YOUR USE OR INABILITY TO USE THE SERVICES,<byte value="xd"/>
+INCLUDING BUT NOT LIMITED TO DAMAGES ALLEGEDLY ARISING FROM THE<byte value="xd"/>
+COMPROMISE OR LOSS OF YOUR LOGIN CREDENTIALS OR FUNDS, OR LOSS OF OR<byte value="xd"/>
+INABILITY TO RESTORE ACCESS FROM YOUR BACKUP PHRASE, OR FOR MISTAKES,<byte value="xd"/>
+OMISSIONS, INTERRUPTIONS, DELAYS, DEFECTS AND/OR ERRORS IN THE<byte value="xd"/>
+TRANSMISSION OF TRANSACTIONS OR MESSAGES TO THE ETHEREUM NETWORK, OR THE<byte value="xd"/>
+FAILURE OF ANY MESSAGE TO SEND OR BE RECEIVED BY THE INTENDED RECIPIENT<byte value="xd"/>
+IN THE INTENDED FORM, OR FOR DIMINUTION OF VALUE OF ETHER OR ANY OTHER<byte value="xd"/>
+DIGITAL TOKEN OR DIGITAL ASSET ON THE ETHEREUM NETWORK. SMARTFI SHALL<byte value="xd"/>
+NOT BE LIABLE UNDER ANY CIRCUMSTANCES FOR ANY LOST PROFITS OR ANY<byte value="xd"/>
+SPECIAL, INCIDENTAL, INDIRECT, INTANGIBLE, OR CONSEQUENTIAL DAMAGES,<byte value="xd"/>
+WHETHER BASED IN CONTRACT, TORT, NEGLIGENCE, STRICT LIABILITY, OR<byte value="xd"/>
+OTHERWISE, ARISING OUT OF OR IN CONNECTION WITH AUTHORIZED OR<byte value="xd"/>
+UNAUTHORIZED USE OF THE SERVICES, EVEN IF AN AUTHORIZED REPRESENTATIVE<byte value="xd"/>
+OF SMARTFI HAS BEEN ADVISED OF OR KNEW OR SHOULD HAVE KNOWN OF THE<byte value="xd"/>
+POSSIBILITY OF SUCH DAMAGES. SMARTFI SHALL NOT BE LIABLE UNDER ANY<byte value="xd"/>
+CIRCUMSTANCES FOR DAMAGES ARISING OUT OF OR IN ANY WAY RELATED TO<byte value="xd"/>
+SOFTWARE, PRODUCTS, SERVICES, AND/OR INFORMATION OFFERED OR PROVIDED BY<byte value="xd"/>
+THIRD-PARTIES AND ACCESSED THROUGH THE APP, SITE OR SERVICES.<byte value="xd"/>
+<byte value="xd"/>
+SOME JURISDICTIONS DO NOT ALLOW THE LIMITATION OF LIABILITY FOR PERSONAL<byte value="xd"/>
+INJURY, OR OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THIS LIMITATION<byte value="xd"/>
+MAY NOT APPLY TO YOU. IN NO EVENT SHALL SMARTFI&apos; TOTAL LIABILITY TO YOU<byte value="xd"/>
+FOR ALL DAMAGES (OTHER THAN AS MAY BE REQUIRED BY APPLICABLE LAW IN<byte value="xd"/>
+CASES INVOLVING PERSONAL INJURY) EXCEED THE AMOUNT OF ONE HUNDRED U.S.<byte value="xd"/>
+DOLLARS ($USD100.00) OR ITS EQUIVALENT IN THE LOCAL CURRENCY OF THE<byte value="xd"/>
+APPLICABLE JURISDICTION.<byte value="xd"/>
+<byte value="xd"/>
+**Dispute Resolution**<byte value="xd"/>
+<byte value="xd"/>
+**Governing Law, Forum and Venue**<byte value="xd"/>
+<byte value="xd"/>
+These Terms and any action related thereto will be governed by the laws<byte value="xd"/>
+of the state of Delaware in the United States, without regard to its<byte value="xd"/>
+conflict of laws provisions, If you are a user located in the United<byte value="xd"/>
+States, the terms in the &quot;Special Arbitration Provision for United<byte value="xd"/>
+States&quot; section below apply to you.<byte value="xd"/>
+<byte value="xd"/>
+If you are not located in the United States, you agree that you will<byte value="xd"/>
+resolve any claim you have with us relating to, arising out of, or in<byte value="xd"/>
+any way in connection with our Terms, us, or our Services (each, a<byte value="xd"/>
+&quot;Dispute,&quot; and together, &quot;Disputes&quot;) exclusively in the state courts<byte value="xd"/>
+located in Delaware, or federal court for Delaware and you agree to<byte value="xd"/>
+submit to the personal jurisdiction of such courts for the purpose of<byte value="xd"/>
+litigating all such Disputes.<byte value="xd"/>
+<byte value="xd"/>
+**Special Arbitration Provision for United States Users**<byte value="xd"/>
+<byte value="xd"/>
+If you are a user located in the United States, you and SmartFi agree<byte value="xd"/>
+that any Dispute **shall be finally settled in binding arbitration, on<byte value="xd"/>
+an individual basis, in accordance with the American Arbitration<byte value="xd"/>
+Association&apos;s rules for arbitration of consumer-related disputes<byte value="xd"/>
+(accessible at &lt;https://www.adr.org/aaa/faces/rules&gt;) and you and<byte value="xd"/>
+SmartFi hereby expressly waive trial by jury and right to participate in<byte value="xd"/>
+a class action lawsuit, private attorney general actions, or class-wide<byte value="xd"/>
+arbitration,**&#xa0;except that each party retains the right: (i) to bring an<byte value="xd"/>
+individual action in small claims court and (ii) to seek injunctive or<byte value="xd"/>
+other equitable relief in a court of competent jurisdiction to prevent<byte value="xd"/>
+the actual or threatened infringement, misappropriation or violation of<byte value="xd"/>
+a party&apos;s copyrights, trademarks, trade secrets, patents or other<byte value="xd"/>
+intellectual property rights (the action described in the foregoing<byte value="xd"/>
+clause (ii), an &quot;IP Protection Action&quot;). The exclusive jurisdiction of<byte value="xd"/>
+an IP Protection Action shall be the courts of Delaware and you agree to<byte value="xd"/>
+submit to the personal jurisdiction of such courts for the purpose of<byte value="xd"/>
+litigating IP Protection Actions.<byte value="xd"/>
+<byte value="xd"/>
+The Federal Arbitration Act, 9 U.S.C. §§ 1-16, fully applies to the<byte value="xd"/>
+arbitration. The arbitration will be conducted by a single, neutral<byte value="xd"/>
+arbitrator and shall take place in the county or parish in which you<byte value="xd"/>
+reside, or another mutually agreeable location, in the English language.<byte value="xd"/>
+The arbitrator may award any relief that a court of competent<byte value="xd"/>
+jurisdiction could award, including attorneys&apos; fees when authorized by<byte value="xd"/>
+law, and the arbitral decision may be entered as a judgement and<byte value="xd"/>
+enforced in any court of law. At your request, hearings may be conducted<byte value="xd"/>
+in person or by telephone and the arbitrator may provide for submitting<byte value="xd"/>
+and determining motions on briefs, without oral hearings. The prevailing<byte value="xd"/>
+party in any action or proceeding to enforce this agreement shall be<byte value="xd"/>
+entitled to costs and attorneys&apos; fees.<byte value="xd"/>
+<byte value="xd"/>
+If the arbitrator(s) or arbitration administrator would impose filing<byte value="xd"/>
+fees or other administrative costs on you, we will reimburse you, upon<byte value="xd"/>
+request, to the extent such fees or costs would exceed those that you<byte value="xd"/>
+would otherwise have to pay if you were proceeding instead in a court.<byte value="xd"/>
+We will also pay additional fees or costs if required to do so by the<byte value="xd"/>
+arbitration administrator&apos;s rules or applicable law. Apart from the<byte value="xd"/>
+foregoing, each Party will be responsible for any other fees or costs,<byte value="xd"/>
+such as attorney fees that the Party may incur. If a court decides that<byte value="xd"/>
+any provision of this Special Arbitration Provision is invalid or<byte value="xd"/>
+unenforceable, that provision shall be severed and the other parts of<byte value="xd"/>
+this Special Arbitration Provision shall still apply. In any case, the<byte value="xd"/>
+remainder of this User Agreement, will continue to apply.<byte value="xd"/>
+<byte value="xd"/>
+**General Terms**<byte value="xd"/>
+<byte value="xd"/>
+These Terms constitute the entire and exclusive understanding and<byte value="xd"/>
+agreement between SmartFi and you regarding the Services and Content,<byte value="xd"/>
+and these Terms supersede and replace any and all prior oral or written<byte value="xd"/>
+understandings or agreements between SmartFi and you regarding the<byte value="xd"/>
+Services and Content. If any provision of these Terms is held invalid or<byte value="xd"/>
+unenforceable (either by an arbitrator appointed pursuant to the terms<byte value="xd"/>
+of the &quot;Special Arbitration Provision&quot; section above or by a court of<byte value="xd"/>
+competent jurisdiction, that provision will be enforced to the maximum<byte value="xd"/>
+extent permissible and the other provisions of these Terms will remain<byte value="xd"/>
+in full force and effect. You may not assign or transfer these Terms, by<byte value="xd"/>
+operation of law or otherwise, without our prior written consent. Any<byte value="xd"/>
+attempt by you to assign or transfer these Terms, without such consent,<byte value="xd"/>
+will be null. We may freely assign or transfer these Terms without<byte value="xd"/>
+restriction. Subject to the foregoing, these Terms will bind and inure<byte value="xd"/>
+to the benefit of the parties, their successors and permitted assigns.<byte value="xd"/>
+<byte value="xd"/>
+Any notices or other communications provided by us under these Terms,<byte value="xd"/>
+including those regarding modifications to these Terms, will be given by<byte value="xd"/>
+posting to the Services and/or through other electronic communication.<byte value="xd"/>
+You agree and consent to receive electronically all communications,<byte value="xd"/>
+agreements, documents, notices and disclosures (collectively,<byte value="xd"/>
+&quot;Communications&quot;) that we provide in connection with your Account and<byte value="xd"/>
+your use of the Services.<byte value="xd"/>
+<byte value="xd"/>
+**Our failure to enforce any right or provision of these Terms will not<byte value="xd"/>
+be considered a waiver of such right or provision. The waiver of any<byte value="xd"/>
+such right or provision will be effective only if in writing and signed<byte value="xd"/>
+by a duly authorized representative of SmartFi. Except as expressly set<byte value="xd"/>
+forth in these Terms, the exercise by either party of any of its<byte value="xd"/>
+remedies under these Terms will be without prejudice to its other<byte value="xd"/>
+remedies under these Terms or otherwise.**<byte value="xd"/>
+<byte value="xd"/>
+**These Terms are written in English (U.S.). Any translated version is<byte value="xd"/>
+provided solely for your convenience. To the extent any translated<byte value="xd"/>
+version of our Terms conflicts with the English version, the English<byte value="xd"/>
+version controls.**<byte value="xd"/>
+<byte value="xd"/>
+**Contact Information**<byte value="xd"/>
+<byte value="xd"/>
+If you have any questions about these Terms or the Services, please<byte value="xd"/>
+contact us at &lt;support@smartfi.com&gt;.<byte value="xd"/>
+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2091,80 +2625,145 @@
 <context>
     <name>NotificationsModal</name>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="158"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="151"/>
+        <source>Matching</source>
+        <translation type="unfinished">Recherche en cours</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="151"/>
+        <source>Order Matching</source>
+        <translation type="unfinished">Recherche d&apos;un ordre</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="153"/>
+        <source>Matched</source>
+        <translation type="unfinished">Trouvé</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="153"/>
+        <source>Order Matched</source>
+        <translation type="unfinished">Ordre trouvé</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="155"/>
+        <source>Ongoing</source>
+        <translation type="unfinished">En cours</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="155"/>
+        <source>Swap Ongoing</source>
+        <translation type="unfinished">Échange en cours</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="157"/>
+        <source>Successful</source>
+        <translation type="unfinished">Réussi</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="157"/>
+        <source>Swap Successful</source>
+        <translation type="unfinished">Échange terminé</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="159"/>
+        <source>Refunding</source>
+        <translation type="unfinished">En cours de remboursement</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="161"/>
+        <source>Failed</source>
+        <translation type="unfinished">Échoué</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="161"/>
+        <source>Swap Failed</source>
+        <translation type="unfinished">Erreur lors de l&apos;échange</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="163"/>
+        <source>Unknown</source>
+        <translation type="unfinished">Inconnue</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="163"/>
+        <source>Unknown State</source>
+        <translation type="unfinished">État inconnu</translation>
+    </message>
+    <message>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="178"/>
         <source>Swap status updated</source>
         <translation>État du swap mis à jour</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="175"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="195"/>
         <source>You sent %1</source>
         <translation>Vous avez envoyé %1</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="175"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="195"/>
         <source>You received %1</source>
         <translation>Vous avez reçu %1</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="176"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="196"/>
         <source>Your wallet balance changed</source>
         <translation>Le solde de votre portefeuille a changé</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="182"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="202"/>
         <source>Please check your internet connection (e.g. VPN service or firewall might block it).</source>
         <translation>Veuillez vérifier votre connexion Internet (par exemple, le service VPN ou le pare-feu peut la bloquer).</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="193"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="213"/>
         <source>Failed to enable %1</source>
         <comment>TICKER</comment>
         <translation>Échec de l&apos;activation de %1</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="214"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="234"/>
         <source>Endpoint not reachable</source>
         <translation>Point final non accessible</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="216"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="236"/>
         <source>Could not reach to endpoint</source>
         <translation>Impossible d&apos;atteindre le point de terminaison</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="234"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="254"/>
         <source>Mismatch at %1 custom asset configuration</source>
         <comment>TICKER</comment>
         <translation>Non-correspondance à la configuration de l&apos;asset personnalisé %1</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="243"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="263"/>
         <source>Application needs to be restarted for %1 custom asset.</source>
         <comment>TICKER</comment>
         <translation>L&apos;application doit être redémarrée pour l&apos;asset personnalisé %1.</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="250"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="270"/>
         <source>Batch %1 failed. Reason: %2</source>
         <translation>Le lot %1 a échoué. Raison :%2</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="299"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="319"/>
         <source>Show</source>
         <translation>Montrer</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="304"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="324"/>
         <source>Restart</source>
         <translation>Redémarrer</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="309"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="329"/>
         <source>Quit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="354"/>
+        <location filename="../../qml/Dashboard/NotificationsModal.qml" line="374"/>
         <source>There isn&apos;t any notification</source>
         <translation>Il n&apos;y a aucune notification</translation>
     </message>
@@ -2413,37 +3012,37 @@ Curseur droit : définit le volume que vous souhaitez trader.</translation>
 <context>
     <name>PasswordField</name>
     <message>
-        <location filename="../../qml/Components/PasswordField.qml" line="57"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="58"/>
         <source>Password</source>
         <translation>Mot de passe</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/PasswordField.qml" line="58"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="59"/>
         <source>Enter your wallet password</source>
         <translation>Entrez le mot de passe de votre portefeuille</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/PasswordField.qml" line="71"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="72"/>
         <source>At least 1 lowercase alphabetical character</source>
         <translation>Au moins 1 caractère alphabétique en minuscule</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/PasswordField.qml" line="77"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="78"/>
         <source>At least 1 uppercase alphabetical character</source>
         <translation>Au moins 1 caractère alphabétique en majuscule</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/PasswordField.qml" line="83"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="84"/>
         <source>At least 1 numeric character</source>
         <translation>Au moins 1 caractère numérique</translation>
     </message>
     <message>
-        <location filename="../../qml/Components/PasswordField.qml" line="89"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="90"/>
         <source>At least 1 special character (eg. !@#$%)</source>
         <translation>Au moins 1 caractère spécial (ex:  ! @ # $%)</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../qml/Components/PasswordField.qml" line="94"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="95"/>
         <source>At least %n character(s)</source>
         <translation>
             <numerusform>Au moins %n caractère</numerusform>
@@ -2451,7 +3050,7 @@ Curseur droit : définit le volume que vous souhaitez trader.</translation>
         </translation>
     </message>
     <message>
-        <location filename="../../qml/Components/PasswordField.qml" line="99"/>
+        <location filename="../../qml/Components/PasswordField.qml" line="100"/>
         <source>Password and Confirm Password have to be same</source>
         <translation>Le mot de passe et la confirmation du mot de passe doivent être identiques</translation>
     </message>
@@ -2472,27 +3071,27 @@ Curseur droit : définit le volume que vous souhaitez trader.</translation>
 <context>
     <name>Portfolio</name>
     <message>
-        <location filename="../../qml/Portfolio/Portfolio.qml" line="184"/>
+        <location filename="../../qml/Portfolio/Portfolio.qml" line="183"/>
         <source>Search</source>
         <translation>Rechercher</translation>
     </message>
     <message>
-        <location filename="../../qml/Portfolio/Portfolio.qml" line="199"/>
+        <location filename="../../qml/Portfolio/Portfolio.qml" line="198"/>
         <source>Show only coins with balance</source>
         <translation>Afficher uniquement les assets avec solde</translation>
     </message>
     <message>
-        <location filename="../../qml/Portfolio/Portfolio.qml" line="199"/>
+        <location filename="../../qml/Portfolio/Portfolio.qml" line="198"/>
         <source>(%1/%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qml/Portfolio/Portfolio.qml" line="235"/>
+        <location filename="../../qml/Portfolio/Portfolio.qml" line="238"/>
         <source>Dashboard</source>
         <translation type="unfinished">Tableau de bord</translation>
     </message>
     <message>
-        <location filename="../../qml/Portfolio/Portfolio.qml" line="252"/>
+        <location filename="../../qml/Portfolio/Portfolio.qml" line="255"/>
         <source>Add asset</source>
         <translation>Ajouter un actif</translation>
     </message>
@@ -3180,72 +3779,72 @@ Curseur droit : définit le volume que vous souhaitez trader.</translation>
         <translation>Police actuelle</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="312"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="313"/>
         <source>Theme</source>
         <translation>Thème</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="329"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="331"/>
         <source>Apply Changes</source>
         <translation>Appliquer les changements</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="374"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="376"/>
         <source>Ask system&apos;s password before sending coins ? (2FA)</source>
         <translation>Demander le mot de passe du système avant d&apos;envoyer des actifs ? (2FA)</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="433"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="435"/>
         <source>Application version</source>
         <translation>Version de l&apos;application</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="439"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="441"/>
         <source>DEX Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="440"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="442"/>
         <source>DEX Version copied to clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="450"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="452"/>
         <source>MM2 version</source>
         <translation>Version de MM2</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="456"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="458"/>
         <source>MM2 Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="457"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="459"/>
         <source>MM2 Version copied to clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="468"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="470"/>
         <source>Qt version</source>
         <translation>Version de Qt</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="474"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="476"/>
         <source>Qt Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="475"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="477"/>
         <source>Qt Version copied to clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="496"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="498"/>
         <source>Search Update</source>
         <translation>Rechercher une mise à jour</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="511"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="513"/>
         <source>Logout</source>
         <translation>Se déconnecter</translation>
     </message>
@@ -3255,28 +3854,28 @@ Curseur droit : définit le volume que vous souhaitez trader.</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="391"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="393"/>
         <source>View seed and private keys</source>
         <translation>Afficher la phrase de récupération et les clefs privées</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="392"/>
-        <location filename="../../qml/Settings/SettingModal.qml" line="421"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="394"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="423"/>
         <source>Show</source>
         <translation>Montrer</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="399"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="401"/>
         <source>Setup Camouflage Password</source>
         <translation>Configurer le mot de passe de camouflage</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="400"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="402"/>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../../qml/Settings/SettingModal.qml" line="420"/>
+        <location filename="../../qml/Settings/SettingModal.qml" line="422"/>
         <source>Disclaimer and ToS</source>
         <translation>Clause de non-responsabilité et conditions d&apos;utilisation</translation>
     </message>
@@ -4178,7 +4777,7 @@ Les frais de réseau peuvent varier considérablement en fonction de votre paire
     </message>
     <message>
         <location filename="../../../src/core/atomicdex/pages/qt.wallet.page.cpp" line="362"/>
-        <source>Unknown error.</source>
+        <source>Backend error: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
