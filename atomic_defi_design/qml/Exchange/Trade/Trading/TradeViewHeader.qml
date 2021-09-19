@@ -134,11 +134,11 @@ Item {
         anchors.fill: parent
         spacing: 5
         Item {
-            Layout.preferredWidth: 200
+            Layout.preferredWidth: 140
             Layout.fillHeight: true
             Rectangle {
                 id: background_rect
-                width: 100
+                width: 70
                 height: 30
                 radius: 10
                 anchors.verticalCenter: parent.verticalCenter
@@ -148,14 +148,14 @@ Item {
                         duration: 200
                     }
                 }
-                x: API.app.trading_pg.current_trading_mode != TradingMode.Pro ? 0 : 100
+                x: API.app.trading_pg.current_trading_mode != TradingMode.Pro ? 0 : 70
             }
             RowLayout {
                 anchors.fill: parent
                 spacing: 0
                 DexLabel {
-                    text: "SmartSwap"
-                    Layout.preferredWidth: 100
+                    text: "Simple"
+                    Layout.preferredWidth: 70
                     Layout.fillHeight: true
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -172,8 +172,8 @@ Item {
                     }
                 }
                 DexLabel {
-                    text: "SmartDEX"
-                    Layout.preferredWidth: 100
+                    text: "Pro"
+                    Layout.preferredWidth: 70
                     Layout.fillHeight: true
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -184,7 +184,7 @@ Item {
                         hoverEnabled: true
                         anchors.fill: parent
                         onClicked: {
-                            background_rect.x = 100
+                            background_rect.x = 70
                             API.app.trading_pg.current_trading_mode = TradingMode.Pro
                         }
                     }

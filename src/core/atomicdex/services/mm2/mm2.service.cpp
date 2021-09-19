@@ -28,9 +28,9 @@
 #include "atomicdex/api/mm2/rpc.enable.hpp"
 #include "atomicdex/api/mm2/rpc.min.volume.hpp"
 #include "atomicdex/api/mm2/rpc.tx.history.hpp"
+#include "atomicdex/pages/qt.portfolio.page.hpp"
 #include "atomicdex/config/mm2.cfg.hpp"
 #include "atomicdex/managers/qt.wallet.manager.hpp"
-#include "atomicdex/pages/qt.portfolio.page.hpp"
 #include "atomicdex/services/internet/internet.checker.service.hpp"
 #include "atomicdex/services/mm2/mm2.service.hpp"
 #include "atomicdex/utilities/kill.hpp" ///< no delete
@@ -592,35 +592,19 @@ namespace atomic_dex
         nlohmann::json btc_kmd_batch = nlohmann::json::array();
         if (first_time)
         {
-            coin_config coin_info = get_coin_info(g_second_primary_dex_coin);
-            if (coin_info.coin_type != CoinType::ERC20 && coin_info.coin_type != CoinType::BEP20)
+            coin_config        coin_info = get_coin_info(g_second_primary_dex_coin);
+            t_electrum_request request{.coin_name = coin_info.ticker, .servers = coin_info.electrum_urls.value(), .with_tx_history = true};
+            if (coin_info.segwit && coin_info.is_segwit_on)
             {
-                t_electrum_request request{.coin_name = coin_info.ticker, .servers = coin_info.electrum_urls.value(), .with_tx_history = true};
-                if (coin_info.segwit && coin_info.is_segwit_on)
-                {
-                    request.address_format                   = nlohmann::json::object();
-                    request.address_format.value()["format"] = "segwit";
-                }
-                nlohmann::json j = ::mm2::api::template_request("electrum");
-                ::mm2::api::to_json(j, request);
-                btc_kmd_batch.push_back(j);
+                request.address_format                   = nlohmann::json::object();
+                request.address_format.value()["format"] = "segwit";
             }
-            else
-            {
-                t_enable_request request{
-                    .coin_name       = coin_info.ticker,
-                    .urls            = coin_info.urls.value_or(std::vector<std::string>{}),
-                    .coin_type       = coin_info.coin_type,
-                    .is_testnet      = coin_info.is_testnet.value_or(false),
-                    .with_tx_history = false};
-                nlohmann::json j = ::mm2::api::template_request("enable");
-                ::mm2::api::to_json(j, request);
-                // SPDLOG_INFO("enable request: {}", j.dump(4));
-                btc_kmd_batch.push_back(j);
-            }
+            nlohmann::json j = ::mm2::api::template_request("electrum");
+            ::mm2::api::to_json(j, request);
+            btc_kmd_batch.push_back(j);
             coin_info = get_coin_info(g_primary_dex_coin);
             t_electrum_request request_kmd{.coin_name = coin_info.ticker, .servers = coin_info.electrum_urls.value(), .with_tx_history = true};
-            nlohmann::json j = ::mm2::api::template_request("electrum");
+            j = ::mm2::api::template_request("electrum");
             ::mm2::api::to_json(j, request_kmd);
             btc_kmd_batch.push_back(j);
         }
@@ -745,16 +729,15 @@ namespace atomic_dex
                         catch (const std::exception& error)
                         {
                             SPDLOG_ERROR("exception caught in batch_enable_coins: {}", error.what());
-                            // update_coin_status(this->m_current_wallet_name, tickers, false, m_coins_informations, m_coin_cfg_mutex);
+                            //update_coin_status(this->m_current_wallet_name, tickers, false, m_coins_informations, m_coin_cfg_mutex);
                             //! Emit event here
                         }
                     })
-                .then(
-                    [this, tickers, batch_array](pplx::task<void> previous_task)
-                    {
-                        this->handle_exception_pplx_task(previous_task, "batch_enable_coins", batch_array);
-                        // update_coin_status(this->m_current_wallet_name, tickers, false, m_coins_informations, m_coin_cfg_mutex);
-                    });
+                .then([this, tickers, batch_array](pplx::task<void> previous_task)
+                      {
+                          this->handle_exception_pplx_task(previous_task, "batch_enable_coins", batch_array);
+                          //update_coin_status(this->m_current_wallet_name, tickers, false, m_coins_informations, m_coin_cfg_mutex);
+                      });
         };
 
         SPDLOG_DEBUG("starting async enabling coin");
@@ -1542,12 +1525,12 @@ namespace atomic_dex
 
         t_float_50 result = t_float_50(answer_r.balance) * m_balance_factor;
         answer_r.balance  = result.str(8, std::ios_base::fixed);
-        // auto copy_coin = answer_r.coin;
+        //auto copy_coin = answer_r.coin;
         {
             std::unique_lock lock(m_balance_mutex);
             m_balance_informations[answer_r.coin] = std::move(answer_r);
         }
-        // m_system_manager.get_system<portfolio_page>().get_portfolio()->update_balance_values({copy_coin});
+        //m_system_manager.get_system<portfolio_page>().get_portfolio()->update_balance_values({copy_coin});
     }
 
     mm2_client&
@@ -1767,11 +1750,11 @@ namespace atomic_dex
             }
             for (auto&& cur: request) cur["userpass"] = "";
             SPDLOG_ERROR("pplx task error: {} from: {}, request: {}", e.what(), from, request.dump(4));
-            // this->dispatcher_.trigger<batch_failed>(from, e.what());
+            //this->dispatcher_.trigger<batch_failed>(from, e.what());
 
-            //#if defined(linux) || defined(__APPLE__)
-            // SPDLOG_ERROR("stacktrace: {}", boost::stacktrace::to_string(boost::stacktrace::stacktrace()));
-            //#endif
+//#if defined(linux) || defined(__APPLE__)
+            //SPDLOG_ERROR("stacktrace: {}", boost::stacktrace::to_string(boost::stacktrace::stacktrace()));
+//#endif
             if (std::string(e.what()).find("Failed to read HTTP status line") != std::string::npos ||
                 std::string(e.what()).find("WinHttpReceiveResponse: 12002: The operation timed out") != std::string::npos)
             {

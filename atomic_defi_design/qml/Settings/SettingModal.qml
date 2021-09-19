@@ -304,7 +304,6 @@ Qaterial.Dialog
                                 width: parent.width-30
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 height: 30
-                                visible: false
 
                                 DexLabel {
                                     Layout.alignment: Qt.AlignVCenter
@@ -315,7 +314,6 @@ Qaterial.Dialog
                             }
                             DexComboBox {
                                 id: dexTheme
-                                visible: false
                                 width: parent.width - 200
                                 displayText: currentText.replace(".json","")
                                 model: API.qt_utilities.get_themes_list()

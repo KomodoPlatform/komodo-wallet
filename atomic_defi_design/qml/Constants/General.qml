@@ -351,7 +351,7 @@ QtObject {
     function getParentCoin(type) {
         if(type === "ERC-20") return "ETH"
         else if(type === "QRC-20") return "QTUM"
-        else if(type === "Komodo Chain") return "KMD"
+        else if(type === "Smart Chain") return "KMD"
         return "?"
     }
 
