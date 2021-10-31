@@ -6751,6 +6751,21 @@
     "active": false,
     "currently_enabled": false
   },
+  "SBCH": {
+    "coin": "SBCH",
+    "name": "SmartBCH",
+    "coinpaprika_id": "bch-bitcoin-cash",
+    "coingecko_id": "bitcoin-cash",
+    "nodes": [
+      "https://smartbch.fountainhead.cash/mainnet"
+    ],
+    "explorer_url": [
+      "https://www.smartscan.cash/"
+    ],
+    "type": "SEP-20",
+    "active": false,
+    "currently_enabled": false
+  },
   "SHR": {
     "coin": "SHR",
     "name": "ShareToken",
