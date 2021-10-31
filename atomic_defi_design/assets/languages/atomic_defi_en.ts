@@ -2,19 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
-    <name>QPlatformTheme</name>
-    <message>
-        <source>&amp;Yes</source>
-        <translation>Yes</translation>
-    </message>
-    <message>
-        <source>&amp;No</source>
-        <translation>No</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancel</translation>
-    </message>
     <name>AddCustomCoinModal</name>
     <message>
         <location filename="../../Dex/Settings/AddCustomCoinModal.qml" line="82"/>
@@ -1272,7 +1259,7 @@
 <context>
     <name>DexPaginator</name>
     <message>
-        <location filename="../../Dex/Components/DexPaginator.qml" line="83"/>
+        <location filename="../../Dex/Components/DexPaginator.qml" line="90"/>
         <source>items per page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1298,7 +1285,7 @@
 <context>
     <name>DexSweetComboBox</name>
     <message>
-        <location filename="../../Dex/Components/DexSweetComboBox.qml" line="75"/>
+        <location filename="../../Dex/Components/DexSweetComboBox.qml" line="79"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1418,69 +1405,69 @@
 <context>
     <name>FirstLaunch</name>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="305"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="306"/>
         <source>Type password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="115"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="116"/>
         <source>connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="152"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="153"/>
         <source>Welcome</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="171"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="172"/>
         <source>New Wallet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="179"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="180"/>
         <source>Import wallet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="196"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="197"/>
         <source>My Wallets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="298"/>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="306"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="299"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="307"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="299"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="300"/>
         <source>Enter password to confirm deletion of</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="299"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="300"/>
         <source>wallet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="307"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="308"/>
         <source>Cancel</source>
         <translation type="unfinished">Cancel</translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="312"/>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="319"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="313"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="320"/>
         <source>Wallet status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="313"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="314"/>
         <source>wallet deleted successfully</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/FirstLaunch.qml" line="320"/>
+        <location filename="../../Dex/Screens/FirstLaunch.qml" line="321"/>
         <source>wallet password entered is incorrect</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1488,7 +1475,7 @@
 <context>
     <name>General</name>
     <message numerus="yes">
-        <location filename="../../Dex/Constants/General.qml" line="139"/>
+        <location filename="../../Dex/Constants/General.qml" line="136"/>
         <source>%n day(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -1496,7 +1483,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../Dex/Constants/General.qml" line="149"/>
+        <location filename="../../Dex/Constants/General.qml" line="146"/>
         <source>%nd</source>
         <comment>day</comment>
         <translation type="unfinished">
@@ -1505,7 +1492,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../Dex/Constants/General.qml" line="150"/>
+        <location filename="../../Dex/Constants/General.qml" line="147"/>
         <source>%nh</source>
         <comment>hours</comment>
         <translation type="unfinished">
@@ -1514,7 +1501,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../Dex/Constants/General.qml" line="151"/>
+        <location filename="../../Dex/Constants/General.qml" line="148"/>
         <source>%nm</source>
         <comment>minutes</comment>
         <translation type="unfinished">
@@ -1523,7 +1510,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../Dex/Constants/General.qml" line="152"/>
+        <location filename="../../Dex/Constants/General.qml" line="149"/>
         <source>%ns</source>
         <comment>seconds</comment>
         <translation type="unfinished">
@@ -1532,7 +1519,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../Dex/Constants/General.qml" line="153"/>
+        <location filename="../../Dex/Constants/General.qml" line="150"/>
         <source>%nms</source>
         <comment>milliseconds</comment>
         <translation type="unfinished">
@@ -1541,66 +1528,66 @@
         </translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="154"/>
+        <location filename="../../Dex/Constants/General.qml" line="151"/>
         <source>-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="437"/>
+        <location filename="../../Dex/Constants/General.qml" line="434"/>
         <source>Trading Fee</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="447"/>
+        <location filename="../../Dex/Constants/General.qml" line="444"/>
         <source>Minimum Trading Amount</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="457"/>
+        <location filename="../../Dex/Constants/General.qml" line="454"/>
         <source>Wallet %1 already exists</source>
         <comment>WALLETNAME</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="466"/>
+        <location filename="../../Dex/Constants/General.qml" line="463"/>
         <source>%1 balance is lower than the fees amount: %2 %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="468"/>
+        <location filename="../../Dex/Constants/General.qml" line="465"/>
         <source>Tradable (after fees) %1 balance is lower than minimum trade amount</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="470"/>
+        <location filename="../../Dex/Constants/General.qml" line="467"/>
         <source>Please fill the price field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="472"/>
+        <location filename="../../Dex/Constants/General.qml" line="469"/>
         <source>Please fill the volume field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="474"/>
-        <location filename="../../Dex/Constants/General.qml" line="476"/>
+        <location filename="../../Dex/Constants/General.qml" line="471"/>
+        <location filename="../../Dex/Constants/General.qml" line="473"/>
         <source>%1 volume is lower than minimum trade amount</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="478"/>
-        <location filename="../../Dex/Constants/General.qml" line="482"/>
+        <location filename="../../Dex/Constants/General.qml" line="475"/>
+        <location filename="../../Dex/Constants/General.qml" line="479"/>
         <source>%1 needs to be enabled in order to use %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="480"/>
-        <location filename="../../Dex/Constants/General.qml" line="484"/>
+        <location filename="../../Dex/Constants/General.qml" line="477"/>
+        <location filename="../../Dex/Constants/General.qml" line="481"/>
         <source>%1 balance needs to be funded, a non-zero balance is required to pay the gas of %2 transactions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Constants/General.qml" line="486"/>
+        <location filename="../../Dex/Constants/General.qml" line="483"/>
         <source>Unknown Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1608,27 +1595,27 @@
 <context>
     <name>Header</name>
     <message>
-        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="29"/>
+        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="26"/>
         <source>You get</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="29"/>
+        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="26"/>
         <source>You send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="39"/>
+        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="37"/>
         <source>Fiat Price</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="49"/>
+        <location filename="../../Dex/Exchange/Trade/BestOrder/Header.qml" line="48"/>
         <source>CEX rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/OrderBook/Header.qml" line="29"/>
+        <location filename="../../Dex/Exchange/Trade/OrderBook/Header.qml" line="28"/>
         <source>Price</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1638,7 +1625,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/OrderBook/Header.qml" line="51"/>
+        <location filename="../../Dex/Exchange/Trade/OrderBook/Header.qml" line="52"/>
         <source>Total</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1654,22 +1641,22 @@
 <context>
     <name>InitialLoading</name>
     <message>
-        <location filename="../../Dex/Screens/InitialLoading.qml" line="40"/>
+        <location filename="../../Dex/Screens/InitialLoading.qml" line="41"/>
         <source>Loading, please wait</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/InitialLoading.qml" line="46"/>
+        <location filename="../../Dex/Screens/InitialLoading.qml" line="47"/>
         <source>Initializing MM2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/InitialLoading.qml" line="47"/>
+        <location filename="../../Dex/Screens/InitialLoading.qml" line="48"/>
         <source>Enabling assets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Screens/InitialLoading.qml" line="47"/>
+        <location filename="../../Dex/Screens/InitialLoading.qml" line="48"/>
         <source>Getting ready</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2334,7 +2321,7 @@ Right slider: Sets the volume you want to trade.</source>
 <context>
     <name>OrderList</name>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrderList.qml" line="88"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrderList.qml" line="89"/>
         <source>No results found</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2466,38 +2453,38 @@ Right slider: Sets the volume you want to trade.</source>
 <context>
     <name>OrdersPage</name>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="123"/>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="134"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="136"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="148"/>
         <source>Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="137"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="151"/>
         <source>Date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="147"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="162"/>
         <source>Export CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="163"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="181"/>
         <source>Apply Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="222"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="249"/>
         <source>From</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="237"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="265"/>
         <source>To</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="275"/>
+        <location filename="../../Dex/Exchange/Trade/Orders/OrdersPage.qml" line="307"/>
         <source>Please choose the CSV export name and location</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2577,22 +2564,22 @@ Right slider: Sets the volume you want to trade.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Portfolio/Portfolio.qml" line="175"/>
+        <location filename="../../Dex/Portfolio/Portfolio.qml" line="176"/>
         <source>Show only coins with balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Portfolio/Portfolio.qml" line="175"/>
+        <location filename="../../Dex/Portfolio/Portfolio.qml" line="176"/>
         <source>(%1/%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Portfolio/Portfolio.qml" line="220"/>
+        <location filename="../../Dex/Portfolio/Portfolio.qml" line="221"/>
         <source>Portfolio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Portfolio/Portfolio.qml" line="239"/>
+        <location filename="../../Dex/Portfolio/Portfolio.qml" line="240"/>
         <source>Add asset</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2600,38 +2587,38 @@ Right slider: Sets the volume you want to trade.</source>
 <context>
     <name>PriceLine</name>
     <message>
-        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="34"/>
+        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="36"/>
         <source>Set swap price for evaluation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="44"/>
+        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="48"/>
         <source>Exchange rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="44"/>
+        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="48"/>
         <source>Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="75"/>
+        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="83"/>
         <source>Expensive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="75"/>
+        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="83"/>
         <source>Expedient</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="75"/>
+        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="83"/>
         <source>%1 compared to CEX</source>
         <comment>PRICE_DIFF%</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="116"/>
+        <location filename="../../Dex/Exchange/Trade/PriceLine.qml" line="129"/>
         <source>CEXchange rate</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2678,17 +2665,17 @@ Right slider: Sets the volume you want to trade.</source>
 <context>
     <name>ProView</name>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="71"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="72"/>
         <source>Failed to place the order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="80"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="81"/>
         <source>Placed the order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="143"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="144"/>
         <source>Chart</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2698,52 +2685,52 @@ Right slider: Sets the volume you want to trade.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="280"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="294"/>
         <source>Exchange Rates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="288"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="303"/>
         <source>Orders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="296"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="312"/>
         <source>History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="369"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="380"/>
         <source>Order Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="388"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="403"/>
         <source>Best Orders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="414"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="431"/>
         <source>Place Order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="469"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="486"/>
         <source>Buy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="491"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="508"/>
         <source>Sell</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="527"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="544"/>
         <source>Order Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="581"/>
+        <location filename="../../Dex/Exchange/Trade/ProView.qml" line="598"/>
         <source>Start Swap</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2850,58 +2837,58 @@ Right slider: Sets the volume you want to trade.</source>
 <context>
     <name>RecoverSeedModal</name>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="47"/>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="91"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="48"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="92"/>
         <source>View seed and private keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="55"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="56"/>
         <source>Please enter your password to view the seed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="66"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="67"/>
         <source>Wrong Password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="75"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="76"/>
         <source>Cancel</source>
         <translation type="unfinished">Cancel</translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="82"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="83"/>
         <source>View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="189"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="190"/>
         <source>Backup seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="202"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="203"/>
         <source>RPC Password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="218"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="219"/>
         <source>Search a coin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="305"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="306"/>
         <source>Public Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="317"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="318"/>
         <source>Private Key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="334"/>
+        <location filename="../../Dex/Settings/RecoverSeedModal.qml" line="335"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3265,7 +3252,7 @@ Right slider: Sets the volume you want to trade.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="337"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="341"/>
         <source>Changing theme to %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3296,88 +3283,88 @@ Right slider: Sets the volume you want to trade.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="385"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="389"/>
         <source>Ask system&apos;s password before sending coins ? (2FA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="402"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="406"/>
         <source>View seed and private keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="403"/>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="432"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="407"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="436"/>
         <source>Show</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="410"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="414"/>
         <source>Setup Camouflage Password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="411"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="415"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="431"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="435"/>
         <source>Disclaimer and ToS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="444"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="448"/>
         <source>Application version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="450"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="454"/>
         <source>DEX Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="451"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="455"/>
         <source>DEX Version copied to clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="461"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="465"/>
         <source>MM2 version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="467"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="471"/>
         <source>MM2 Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="468"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="472"/>
         <source>MM2 Version copied to clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="479"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="483"/>
         <source>Qt version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="485"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="489"/>
         <source>Qt Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="486"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="490"/>
         <source>Qt Version copied to clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="507"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="511"/>
         <source>Search Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Settings/SettingModal.qml" line="522"/>
+        <location filename="../../Dex/Settings/SettingModal.qml" line="526"/>
         <source>Logout</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3474,32 +3461,32 @@ Right slider: Sets the volume you want to trade.</source>
 <context>
     <name>SubBestOrder</name>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="63"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="64"/>
         <source>Token</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="72"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="73"/>
         <source>Available Quantity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="81"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="82"/>
         <source>Available Quantity (in %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="90"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="91"/>
         <source>Fiat Volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="99"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="100"/>
         <source>CEX Rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="181"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/SubBestOrder.qml" line="182"/>
         <source> %1 is not enabled - Do you want to enable it to be able to select %2 best orders ?&lt;br&gt;&lt;a href=&apos;#&apos;&gt;Yes&lt;/a&gt; - &lt;a href=&apos;#no&apos;&gt;No&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3816,7 +3803,7 @@ Network fees can vary greatly depending on your selected trading pair.</source>
 <context>
     <name>SweetDexComboBox</name>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SweetDexComboBox.qml" line="110"/>
+        <location filename="../../Dex/Exchange/Trade/SweetDexComboBox.qml" line="109"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3886,22 +3873,22 @@ Network fees can vary greatly depending on your selected trading pair.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="430"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="423"/>
         <source>MAX</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="450"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="445"/>
         <source>To</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="525"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="520"/>
         <source>Pick an order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="610"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="605"/>
         <source>Price</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3941,70 +3928,70 @@ Network fees can vary greatly depending on your selected trading pair.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="638"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="633"/>
         <source>Swap Now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="661"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="656"/>
         <source>Failed to place the order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="676"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="671"/>
         <source>Placed the order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="694"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="689"/>
         <source>Entered amount must be superior than 0.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="696"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="691"/>
         <source>You must select an order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="698"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="693"/>
         <source>Entered amount is below the minimum required by this order: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="700"/>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="704"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="695"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="699"/>
         <source>%1 needs to be enabled in order to use %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="702"/>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="706"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="697"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="701"/>
         <source>%1 balance needs to be funded, a non-zero balance is required to pay the gas of %2 transactions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="762"/>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="824"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="757"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="819"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="881"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="876"/>
         <source>No buy orders found for %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="888"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="883"/>
         <source>You can check later or try to sell a different coin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="934"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="929"/>
         <source>Total %1 fees: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="941"/>
+        <location filename="../../Dex/Exchange/Trade/SimpleView/Trade.qml" line="936"/>
         <source>%2 (%3)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4195,32 +4182,32 @@ Network fees can vary greatly depending on your selected trading pair.</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../../Dex/main.qml" line="102"/>
+        <location filename="../../Dex/main.qml" line="106"/>
         <source>Logout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/main.qml" line="111"/>
+        <location filename="../../Dex/main.qml" line="118"/>
         <source>Confirm Logout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/main.qml" line="112"/>
+        <location filename="../../Dex/main.qml" line="119"/>
         <source>Are you sure you want to log out?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../Dex/main.qml" line="118"/>
+        <location filename="../../Dex/main.qml" line="125"/>
         <source>Yes</source>
         <translation>Yes</translation>
     </message>
     <message>
-        <location filename="../../Dex/main.qml" line="119"/>
+        <location filename="../../Dex/main.qml" line="126"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../Dex/main.qml" line="260"/>
+        <location filename="../../Dex/main.qml" line="286"/>
         <source>Balance</source>
         <translation type="unfinished"></translation>
     </message>
