@@ -169,7 +169,7 @@ jobs:
           echo "CXX=/usr/local/opt/llvm/bin/clang++" >> $GITHUB_ENV
           echo "CC=/usr/local/opt/llvm/bin/clang" >> $GITHUB_ENV
 
-      - name: Build AtomicDEX (Linux)
+      - name: Build SmartDEX (Linux)
         if: runner.os == 'Linux'
         run: |
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/gcc_64/lib/cmake
@@ -205,7 +205,7 @@ jobs:
           p12-file-base64: ${{ secrets.CERTIFICATES_INSTALLER_P12 }}
           p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
 
-      - name: Build AtomicDEX (MacOS)
+      - name: Build SmartDEX (MacOS)
         if: runner.os == 'macOS'
         run: |
           export MAC_SIGN_IDENTITY="${{ secrets.MAC_SIGN_IDENTITY }}"
@@ -221,7 +221,7 @@ jobs:
           nimble build -y
           ./ci_tools_atomic_dex bundle ${{ matrix.type }} --osx_sdk=$HOME/sdk/MacOSX10.14.sdk --compiler=clang++
 
-      - name: Build AtomicDEX (Windows)
+      - name: Build SmartDEX (Windows)
         if: runner.os == 'Windows'
         shell: powershell
         run: |
