@@ -212,6 +212,7 @@ jobs:
       - name: Build AtomicDEX (MacOS)
         if: runner.os == 'macOS'
         run: |
+          mdutil -a -i off
           export MAC_SIGN_IDENTITY="${{ secrets.MAC_SIGN_IDENTITY }}"
           export INSTALLER_MAC_SIGN_IDENTITY="${{ secrets.INSTALLER_MAC_SIGN_IDENTITY }}"
           export APPLE_ATOMICDEX_PASSWORD="${{ secrets.APPLE_ATOMICDEX_PASSWORD }}"
