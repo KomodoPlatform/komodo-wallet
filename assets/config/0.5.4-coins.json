@@ -2151,6 +2151,34 @@
     "active": false,
     "currently_enabled": false
   },
+  "DOI": {
+    "coin": "DOI",
+    "name": "Doichain",
+    "coinpaprika_id": "doi-doicoin",
+    "coingecko_id": "doichain",
+    "electrum": [
+      {
+        "url": "itchy-jellyfish-89.doi.works:50002",
+        "ws-url": "itchy-jellyfish-89.doi.works:50002",
+      },
+      {
+        "url": "big-parrot-60.doi.works:50002",
+        "ws-url": "big-parrot-60.doi.works:50002",
+      },
+      {
+        "url": "ugly-bird-70.doi.works:50002",
+        "ws-url": "ugly-bird-70.doi.works:50002",
+      },
+      {
+        "url" "pink-deer-69.doi.works:50002",
+        "ws-url": "pink-deer-69.doi.works:50002",
+      },
+    ],
+    "explorer_url": [
+      "https://explorer.doichain.org/"
+    ],
+    "type": "UTXO",
+  },
   "DOGE-BEP20": {
     "coin": "DOGE-BEP20",
     "name": "Dogecoin",
