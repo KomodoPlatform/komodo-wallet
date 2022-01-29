@@ -319,7 +319,6 @@ QtObject {
                                           "IOTA": "#404040",
                                           "JSTR": "#627EEA",
                                           "DOGE": "#C3A634",
-                                          "DOI": "#C3A634",
                                           "ETC": "#328432",
                                           "ETH": "#687DE3",
                                           "ETHR": "#627EEA",
