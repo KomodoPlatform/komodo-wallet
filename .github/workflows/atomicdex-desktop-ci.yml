@@ -108,6 +108,7 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
+          setup-python: false
           #mirror: 'http://mirrors.ocf.berkeley.edu/qt'
           mirror: https://qt-mirror.dannhauer.de
           #mirror: https://www.funet.fi/pub/mirrors/download.qt-project.org
