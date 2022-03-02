@@ -9604,5 +9604,26 @@
     "type": "BEP-20",
     "active": false,
     "currently_enabled": false
+  },
+  "IC": {
+    "coin": "IC",
+    "name": "Ignition",
+    "coingecko_id": "ignition",
+    "electrum": [
+      {
+        "url": "america.ignitioncoin.org:10001",
+        "protocol": "TCP"
+      },
+      {
+        "url": "explorer.ignitioncoin.org:10001",
+        "protocol": "TCP",
+      }
+    ],
+    "explorer_url": [
+      "https://chainz.cryptoid.info/ic/"
+    ],
+    "type": "UTXO",
+    "active": false,
+    "currently_enabled": false
   }
 }
