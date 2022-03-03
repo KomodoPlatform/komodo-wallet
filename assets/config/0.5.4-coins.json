@@ -9616,7 +9616,7 @@
       },
       {
         "url": "electrum2.ignitioncoin.org:10001",
-        "protocol": "TCP",
+        "protocol": "TCP"
       }
     ],
     "explorer_url": [
