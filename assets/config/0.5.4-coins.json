@@ -9611,11 +9611,11 @@
     "coingecko_id": "ignition",
     "electrum": [
       {
-        "url": "america.ignitioncoin.org:10001",
+        "url": "electrum1.ignitioncoin.org:10001",
         "protocol": "TCP"
       },
       {
-        "url": "explorer.ignitioncoin.org:10001",
+        "url": "electrum2.ignitioncoin.org:10001",
         "protocol": "TCP",
       }
     ],
