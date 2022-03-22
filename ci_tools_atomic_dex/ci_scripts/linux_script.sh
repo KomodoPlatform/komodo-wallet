@@ -54,7 +54,7 @@ sudo cp -r * /usr/local/
 cmake --version
 
 # get libwally
-git clone https://github.com/KomodoPlatform/libwally-core.git
+git clone https://github.com/ElementsProject/libwally-core.git
 cd libwally-core
 ./tools/autogen.sh
 ./configure --disable-shared
