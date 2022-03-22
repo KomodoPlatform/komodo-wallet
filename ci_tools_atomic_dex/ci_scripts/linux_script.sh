@@ -57,7 +57,7 @@ cmake --version
 git clone https://github.com/ElementsProject/libwally-core.git
 cd libwally-core
 ./tools/autogen.sh
-./configure --disable-shared
+./configure --enable-debug --enable-export-all --enable-swig-python --enable-swig-java --enable-coverage  --disable-shared
 sudo make -j3 install
 cd ..
 
