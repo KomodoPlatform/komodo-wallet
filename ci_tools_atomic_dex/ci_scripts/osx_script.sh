@@ -5,9 +5,16 @@ brew update
 brew tap-new $USER/local-nim
 brew extract --version=1.4.8 nim $USER/local-nim
 
+brew search libtool@
+
+brew tap-new $USER/local-libtool
+brew extract --version=2.4.6 libtool $USER/local-libtool
+
+brew search libtool@
+
 brew install autoconf \
             automake \
-            libtool@2.4.6_4 \
+            libtool \
             pkgconfig \
             wget \
             nim@1.4.8 \
