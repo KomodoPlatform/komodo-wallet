@@ -24,6 +24,11 @@ brew install autoconf \
             llvm \
             gnu-getopt
 
+brew link --overwrite libtool@2.4.6
+brew link --overwrite libtool
+
+
+
 pip3 install yq
 export CC=clang
 export CXX=clang++
