@@ -12,16 +12,18 @@ brew install autoconf \
             wget \
             nim@1.4.8 \
             ninja \
+            libtool \
             gnu-sed \
             coreutils \
             llvm \
             gnu-getopt
 
+PATH="/usr/local/opt/libtool/libexec/gnubin:$PATH"
 
 pip3 install yq
 export CC=clang
 export CXX=clang++
-export MACOSX_DEPLOYMENT_TARGET=10.14
+export MACOSX_DEPLOYMENT_TARGET=10.15
 
 # get curl
 #git clone https://github.com/KomodoPlatform/curl.git
