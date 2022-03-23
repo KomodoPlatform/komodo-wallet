@@ -14,7 +14,7 @@ brew search libtool@
 
 brew install autoconf \
             automake \
-            libtool \
+            libtool@2.4.6 \
             pkgconfig \
             wget \
             nim@1.4.8 \
