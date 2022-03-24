@@ -5,8 +5,8 @@ brew update
 brew tap-new $USER/local-nim
 brew extract --version=1.4.8 nim $USER/local-nim
 
-brew tap-new $USER/local-libtool
-brew extract --version=2.4.6 libtool $USER/local-libtool
+#brew tap-new $USER/local-libtool
+#brew extract --version=2.4.6 libtool $USER/local-libtool
 
 
 brew install autoconf \
@@ -18,9 +18,8 @@ brew install autoconf \
             gnu-sed \
             coreutils \
             llvm \
-            gnu-getopt
-
-brew install libtool@2.4.6
+            gnu-getopt \
+            libtool
 
 PATH="/usr/local/opt/libtool/libexec/gnubin:$PATH"
 
