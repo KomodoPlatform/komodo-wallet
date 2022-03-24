@@ -9,6 +9,39 @@ brew extract --version=1.4.8 nim $USER/local-nim
 #brew extract --version=2.4.6 libtool $USER/local-libtool
 
 
+# Install libtool from source
+
+# prepare workspace
+mkdir -p ~/code/build-from-src/ && cd $_
+
+# download source code
+curl -LO https://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.xz
+
+# expand
+tar -xf libtool-2.4.6.tar.xz
+cd libtool-2.4.6.tar.xz
+
+# prevent libtool from hardcoding sed path from superenv
+export SED="sed"
+
+# configure, make, install
+./configure --prefix=/usr/local --disable-dependency-tracking --disable-silent-rules --enable-ltdl-install
+make
+sudo make install
+
+# verify
+# It's not easy, you can see how homebrew does it https://github.com/Homebrew/homebrew-core/blob/master/Formula/libtool.rb#L35
+which -a libtool
+
+# clean up
+unset SED
+make clean
+make distclean
+cd ..
+rm -fr libtool-2.4.6
+rm libtool-2.4.6.tar.xz
+
+
 brew install autoconf \
             automake \
             pkgconfig \
@@ -19,7 +52,6 @@ brew install autoconf \
             coreutils \
             llvm \
             gnu-getopt \
-            libtool
 
 PATH="/usr/local/opt/libtool/libexec/gnubin:$PATH"
 
