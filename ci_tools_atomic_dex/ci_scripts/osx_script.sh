@@ -15,11 +15,12 @@ brew install autoconf \
             wget \
             nim@1.4.8 \
             ninja \
-            libtool@2.4.6 \
             gnu-sed \
             coreutils \
             llvm \
             gnu-getopt
+
+brew install libtool@2.4.6
 
 PATH="/usr/local/opt/libtool/libexec/gnubin:$PATH"
 
