@@ -19,7 +19,7 @@ curl -LO https://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.xz
 
 # expand
 tar -xf libtool-2.4.6.tar.xz
-cd libtool-2.4.6.tar.xz
+cd libtool-2.4.6
 
 # prevent libtool from hardcoding sed path from superenv
 export SED="sed"
