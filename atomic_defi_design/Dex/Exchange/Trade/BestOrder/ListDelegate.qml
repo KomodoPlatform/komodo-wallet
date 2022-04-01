@@ -2,8 +2,9 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-
 import Qaterial 1.0 as Qaterial
+
+import AtomicDEX.MarketMode 1.0
 
 import "../../../Components"
 import "../../../Constants" as Constants
@@ -133,12 +134,9 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         onClicked: {
-            console.log(order_form.visible)
             if(!Constants.API.app.portfolio_pg.global_cfg_mdl.get_coin_info(coin).is_enabled){
                 _tooltip.open()
             }else {
-                app.pairChanged(base_ticker, coin)
-                Constants.API.app.trading_pg.orderbook.select_best_order(uuid)
                 if(order_form.visible === false) {
                     order_form.visible = true
                 }
@@ -148,6 +146,14 @@ Item {
                         order_form.contentVisible = true
                     }
                 }
+                if (Constants.API.app.trading_pg.market_mode == MarketMode.Buy) {
+                    console.log("Loading "+coin+"/"+Constants.API.app.trading_pg.market_pairs_mdl.rel_selected_coin+" chart")
+                    app.pairChanged(Constants.API.app.trading_pg.market_pairs_mdl.rel_selected_coin, coin)
+                } else {
+                    console.log("Loading "+coin+"/"+Constants.API.app.trading_pg.market_pairs_mdl.base_selected_coin+" chart")
+                    app.pairChanged(Constants.API.app.trading_pg.market_pairs_mdl.base_selected_coin, coin)
+                }
+                Constants.API.app.trading_pg.orderbook.select_best_order(uuid)
             }
             
             //if(is_mine) return
