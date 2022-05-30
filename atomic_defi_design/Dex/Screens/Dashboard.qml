@@ -30,11 +30,12 @@ Item {
         Portfolio,
         Wallet,
         DEX,            // DEX == Trading page
-        Addressbook
+        Addressbook,
+        Support
     }
 
     property var currentPage: Dashboard.PageType.Portfolio
-    property var availablePages: [portfolio, wallet, exchange, addressbook]
+    property var availablePages: [portfolio, wallet, exchange, addressbook, support]
 
     property alias webEngineView: webEngineView
 
@@ -155,6 +156,16 @@ Item {
             id: settings
 
             Settings
+            {
+                Layout.alignment: Qt.AlignCenter
+            }
+        }
+
+        Component
+        {
+            id: support
+
+            Support
             {
                 Layout.alignment: Qt.AlignCenter
             }

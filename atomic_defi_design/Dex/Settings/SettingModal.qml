@@ -632,7 +632,7 @@ Qaterial.Dialog
                     family: DexTypo.fontFamily,
                     weight: Font.Normal
                 })
-                onClicked: newUpdateModal.open()
+                onClicked: new_update_modal.open()
             }
 
             DexAppButton

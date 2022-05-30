@@ -21,7 +21,7 @@ import Dex.Themes 1.0 as Dex
 Qaterial.Dialog
 {
     id: support_modal
-    //readonly property bool update_needed: API.app.self_update_service.update_needed
+    readonly property bool update_needed: API.app.self_update_service.update_needed
 
     width: 950
     height: 650
@@ -207,13 +207,13 @@ Network fees can vary greatly depending on your selected trading pair.").arg(API
                         Circle
                         {
                             Layout.alignment: Qt.AlignVCenter
-                            //color: Qt.lighter(update_needed ? Style.colorOrange : Style.colorGreen, changelog_button.containsMouse ? Style.hoverLightMultiplier : 1.0)
+                            color: Qt.lighter(update_needed ? Style.colorOrange : Style.colorGreen, changelog_button.containsMouse ? Style.hoverLightMultiplier : 1.0)
                         }
 
                         DexLabel
                         {
                             Layout.alignment: Qt.AlignVCenter
-                            //text_value: //update_needed ? qsTr("Update available") : qsTr("Up to date")
+                            text_value: update_needed ? qsTr("Update available") : qsTr("Up to date")
                             color: changelog_text.color
                         }
                     }

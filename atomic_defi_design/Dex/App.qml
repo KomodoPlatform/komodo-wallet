@@ -146,7 +146,7 @@ DexRectangle
     // Update Modal
     NewUpdateModal
     {
-        id: newUpdateModal
+        id: new_update_modal
         visible: false
     }
 

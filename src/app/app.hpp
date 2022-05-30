@@ -48,7 +48,7 @@
 #include "atomicdex/services/ip/ip.checker.service.hpp"
 #include "atomicdex/services/mm2/mm2.service.hpp"
 #include "atomicdex/services/price/global.provider.hpp"
-#include "atomicdex/services/update/update.checker.service.hpp"
+#include "atomicdex/services/update/self.update.service.hpp"
 
 namespace ag = antara::gaming;
 
@@ -73,7 +73,7 @@ namespace atomic_dex
         Q_PROPERTY(wallet_page* wallet_pg READ get_wallet_page NOTIFY walletPageChanged)
         Q_PROPERTY(settings_page* settings_pg READ get_settings_page NOTIFY settingsPageChanged)
         Q_PROPERTY(qt_wallet_manager* wallet_mgr READ get_wallet_mgr NOTIFY walletMgrChanged)
-        Q_PROPERTY(update_checker_service* updateCheckerService READ get_update_checker_service NOTIFY updateCheckerServiceChanged)
+        Q_PROPERTY(self_update_service* self_update_service READ get_self_update_service NOTIFY selfUpdateServiceChanged)
 
         //! Private function
         void connect_signals();
@@ -102,55 +102,65 @@ namespace atomic_dex
         std::atomic_bool                      m_primary_coin_fully_enabled{false};
 
       public:
+        //! Deleted operation
         application(application& other)  = delete;
         application(application&& other) = delete;
         application& operator=(application& other) = delete;
         application& operator=(application&& other) = delete;
 
+        //! Constructor
         explicit application(QObject* pParent = nullptr) ;
-        ~application() final = default;
+        ~application()  final = default;
 
+        //! Post constructor
         void post_handle_settings();
 
-        void on_ticker_balance_updated_event(const ticker_balance_updated&);
-        void on_fiat_rate_updated(const fiat_rate_updated&);
-        void on_coin_fully_initialized_event(const coin_fully_initialized&);
-        void on_mm2_initialized_event(const mm2_initialized&);
-        void on_process_orders_and_swaps_finished_event(const process_swaps_and_orders_finished&);
+        //! entt::dispatcher events
+        void on_ticker_balance_updated_event(const ticker_balance_updated&) ;
+        void on_fiat_rate_updated(const fiat_rate_updated&) ;
+        void on_coin_fully_initialized_event(const coin_fully_initialized&) ;
+        void on_mm2_initialized_event(const mm2_initialized&) ;
+        void on_process_orders_and_swaps_finished_event(const process_swaps_and_orders_finished&) ;
 
-        mm2_service&                     get_mm2();
-        [[nodiscard]] const mm2_service& get_mm2() const;
-        entt::dispatcher&                get_dispatcher();
-        const entt::registry&            get_registry() const;
-        entt::registry&                  get_registry();
-        [[nodiscard]] addressbook_page*  get_addressbook_page() const;
-        [[nodiscard]] portfolio_page*    get_portfolio_page() const;
-        [[nodiscard]] wallet_page*       get_wallet_page() const;
-        orders_model*                    get_orders() const;
-        notification_manager*            get_notification_manager() const;
-        trading_page*                    get_trading_page() const;
-        settings_page*                   get_settings_page() const;
-        qt_wallet_manager*               get_wallet_mgr() const;
-        internet_service_checker*        get_internet_checker() const;
-        ip_service_checker*              get_ip_checker() const;
-        update_checker_service*          get_update_checker_service() const;
-        exporter_service*                get_exporter_service() const;
+        //! Properties Getter
+        mm2_service&                     get_mm2() ;
+        [[nodiscard]] const mm2_service& get_mm2() const ;
+        entt::dispatcher&                get_dispatcher() ;
+        const entt::registry&            get_registry() const ;
+        entt::registry&                  get_registry() ;
+        [[nodiscard]] addressbook_page*  get_addressbook_page() const ;
+        [[nodiscard]] portfolio_page*    get_portfolio_page() const ;
+        [[nodiscard]] wallet_page*       get_wallet_page() const ;
+        orders_model*                    get_orders() const ;
+        notification_manager*            get_notification_manager() const ;
+        trading_page*                    get_trading_page() const ;
+        settings_page*                   get_settings_page() const ;
+        qt_wallet_manager*               get_wallet_mgr() const ;
+        internet_service_checker*        get_internet_checker() const ;
+        ip_service_checker*              get_ip_checker() const ;
+        self_update_service*             get_self_update_service() const;
+        exporter_service*                get_exporter_service() const ;
 
-        void set_qt_app(std::shared_ptr<QApplication> app, QQmlApplicationEngine* qml_engine);
+        //! Properties Setter
+        void set_qt_app(std::shared_ptr<QApplication> app, QQmlApplicationEngine* qml_engine) ;
 
+        //! Launch the internal loop for the SDK.
         void launch();
 
+        //! Bind to the QML Worlds
         Q_INVOKABLE static void restart();
 
-        // Wallet Manager QML API Bindings, this internally call the `atomic_dex::qt_wallet_manager`
+        //! Wallet Manager QML API Bindings, this internally call the `atomic_dex::qt_wallet_manager`
         Q_INVOKABLE bool is_pin_cfg_enabled() const ;
 
+        //! Misc
         Q_INVOKABLE static QString to_eth_checksum_qt(const QString& eth_lowercase_address);
         Q_INVOKABLE static void    change_state(int visibility);
 
         //! Portfolio QML API Bindings
         Q_INVOKABLE QString recover_fund(const QString& uuid);
 
+        //! Others
         Q_INVOKABLE void               refresh_orders_and_swaps();
         Q_INVOKABLE static QString     get_mnemonic();
         Q_INVOKABLE static bool        first_run();
@@ -165,6 +175,7 @@ namespace atomic_dex
         Q_INVOKABLE QString            get_fiat_from_amount(const QString& ticker, const QString& amount);
 
       signals:
+        //! Signals to the QML Worlds
         void walletMgrChanged();
         void coinInfoChanged();
         void onWalletDefaultNameChanged();
@@ -173,7 +184,7 @@ namespace atomic_dex
         void portfolioPageChanged();
         void walletPageChanged();
         void ordersChanged();
-        void updateCheckerServiceChanged();
+        void selfUpdateServiceChanged();
         void tradingPageChanged();
         void settingsPageChanged();
         void internetCheckerChanged();

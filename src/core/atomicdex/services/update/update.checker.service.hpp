@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2013-2022 The Komodo Platform Developers.                      *
+ * Copyright © 2013-2021 The Komodo Platform Developers.                      *
  *                                                                            *
  * See the AUTHORS, DEVELOPER-AGREEMENT and LICENSE files at                  *
  * the top-level directory of this distribution for the individual copyright  *
@@ -16,45 +16,53 @@
 
 #pragma once
 
+//! Qt
 #include <QObject>
 #include <QVariant>
 
+//! Deps
 #include <boost/thread/synchronized_value.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+//! Project Headers
 #include <antara/gaming/ecs/system.hpp>
 
 namespace atomic_dex
 {
-    class update_checker_service final : public QObject, public ag::ecs::pre_update_system<update_checker_service>
+    class update_service_checker final : public QObject, public ag::ecs::pre_update_system<update_service_checker>
     {
         Q_OBJECT
 
-        Q_PROPERTY(QVariant updateInfo READ get_update_info NOTIFY updateInfoChanged)
-        Q_PROPERTY(bool isFetching READ get_is_fetching NOTIFY isFetchingChanged)
+        Q_PROPERTY(QVariant update_status READ get_update_status NOTIFY updateStatusChanged)
 
+        //! Private typedefs
         using t_update_time_point = std::chrono::high_resolution_clock::time_point;
         using t_json_synchronized = boost::synchronized_value<nlohmann::json>;
 
-        t_json_synchronized             m_update_info;
-        t_update_time_point             m_update_clock;
-        boost::synchronized_value<bool> is_fetching;
+        //! Private members
+        t_json_synchronized m_update_status;
+        t_update_time_point m_update_clock;
 
-        void fetch_update_info();
-
-      public:
-        explicit update_checker_service(entt::registry& registry, QObject* parent = nullptr);
-        ~update_checker_service() final = default;
-
-        void update() final;
-
-        [[nodiscard]] QVariant get_update_info() const;
-        [[nodiscard]] bool     get_is_fetching() const noexcept { return *is_fetching; }
+        //! Private API
+        void fetch_update_status() ;
 
       signals:
-        void updateInfoChanged();
-        void isFetchingChanged();
+        void updateStatusChanged();
+
+      public:
+        [[deprecated("Use self_update_service instead.")]]
+        //! Constructor
+        explicit update_service_checker(entt::registry& registry, QObject* parent = nullptr);
+
+        //! Destructor
+        ~update_service_checker()  final = default;
+
+        //! Public override
+        void update()  final;
+
+        //! Properties
+        [[nodiscard]] QVariant get_update_status() const ;
     };
 } // namespace atomic_dex
 
-REFL_AUTO(type(atomic_dex::update_checker_service))
+REFL_AUTO(type(atomic_dex::update_service_checker))
