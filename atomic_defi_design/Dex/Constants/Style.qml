@@ -226,6 +226,7 @@ QtObject {
 
     readonly property var colorCoin: ({
                                           "ABY": "#8B0D10",
+                                          "ACTN": "#E84142",
                                           "ADA": "#214D78",
                                           "ADX": "#1B75BC",
                                           "ANKR": "#2075E8",
