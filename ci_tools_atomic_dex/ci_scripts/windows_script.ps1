@@ -1,7 +1,7 @@
 Set-ExecutionPolicy RemoteSigned -scope CurrentUser
 
-$Env:build_type=$args[0]
-echo "build type is $Env:build_type"
+$Env:BUILD_TYPE=$args[0]
+echo "BUILD_TYPE type is $Env:BUILD_TYPE" 
 
 iwr -useb 'https://raw.githubusercontent.com/scoopinstaller/install/master/install.ps1' -outfile 'install.ps1'
 .\install.ps1 -RunAsAdmin
@@ -22,5 +22,5 @@ $Env:QT_ROOT = "C:\Qt"
 mkdir b
 cd b
 cmake --version
-cmake -DCMAKE_BUILD_TYPE=$Env:build_type -GNinja ../
+invoke-expression "cmake -DCMAKE_BUILD_TYPE=$Env:BUILD_TYPE -GNinja ../"
 ninja install

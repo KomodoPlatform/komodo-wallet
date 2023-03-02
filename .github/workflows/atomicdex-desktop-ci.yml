@@ -256,7 +256,7 @@ jobs:
         shell: powershell
         run: |
           $Env:QT_VERSION = "${{ matrix.qt }}"
-          .\ci_tools_atomic_dex\ci_scripts\windows_script.ps1
+          .\ci_tools_atomic_dex\ci_scripts\windows_script.ps1 "${{ matrix.type }}"
 
       - name: Upload env variable for artifacts (Linux)
         if: runner.os == 'Linux'
