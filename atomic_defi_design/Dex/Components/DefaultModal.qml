@@ -12,8 +12,8 @@ Popup
     property int radius: 18
 
     anchors.centerIn: Overlay.overlay
-    horizontalPadding: 88
-    verticalPadding: 52
+    horizontalPadding: 40
+    verticalPadding: 25
 
     modal: true
     focus: true
