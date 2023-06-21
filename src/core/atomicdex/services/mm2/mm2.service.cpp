@@ -662,10 +662,11 @@ namespace atomic_dex
         
         for (const auto& coin_config : coins)
         {
+            using nodes = std::vector<node>;
             t_enable_request request
             {
                 .coin_name                       = coin_config.ticker,
-                .urls                            = coin_config.eth_family_urls.value_or(std::vector<std::string>{}),
+                .urls                            = coin_config.eth_family_urls.value_or(std::vector<node>{}),
                 .coin_type                       = coin_config.coin_type,
                 .is_testnet                      = coin_config.is_testnet.value_or(false),
                 .swap_contract_address           = coin_config.swap_contract_address.value_or(""),
@@ -677,6 +678,7 @@ namespace atomic_dex
             }
             nlohmann::json j = mm2::template_request("enable");
             mm2::to_json(j, request);
+            // SPDLOG_INFO("enable coin: {}", j.dump());
             batch_array.push_back(j);
         }
         m_mm2_client.async_rpc_batch_standalone(batch_array)

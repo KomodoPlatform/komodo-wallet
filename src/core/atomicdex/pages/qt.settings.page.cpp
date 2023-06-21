@@ -527,7 +527,7 @@ namespace atomic_dex
                     out["adex_cfg"][ticker]["name"]              = name_lowercase;
                     out["adex_cfg"][ticker]["coingecko_id"]      = coingecko_id.toStdString();
                     const auto& coin_info                        = mm2.get_coin_info(parent_chain);
-                    out["adex_cfg"][ticker]["nodes"]             = coin_info.urls.value_or(std::vector<node>());
+                    out["adex_cfg"][ticker]["nodes"]             = coin_info.eth_family_urls.value_or(std::vector<node>());
                     out["adex_cfg"][ticker]["explorer_url"]      = coin_info.explorer_url;
                     out["adex_cfg"][ticker]["type"]              = adex_platform;
                     out["adex_cfg"][ticker]["active"]            = true;

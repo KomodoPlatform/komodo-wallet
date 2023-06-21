@@ -22,6 +22,7 @@
 
 //! Project Headers
 #include "atomicdex/constants/qt.coins.enums.hpp"
+#include "atomicdex/config/enable.cfg.hpp"
 
 namespace atomic_dex::mm2
 {
@@ -29,7 +30,7 @@ namespace atomic_dex::mm2
     struct enable_request
     {
         std::string                 coin_name;
-        std::vector<std::string>    urls;
+        std::vector<node>           urls;
         CoinType                    coin_type;
         bool                        is_testnet{false};
         const std::string           swap_contract_address;
