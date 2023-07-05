@@ -123,9 +123,9 @@ namespace atomic_dex
 
         auto path = QString{":/assets/languages/atomic_defi_" + new_lang};
 
-        SPDLOG_INFO("Locale before parsing AtomicDEX settings: {}", QLocale().name().toStdString());
+        SPDLOG_INFO("Locale before parsing Komodo Wallet settings: {}", QLocale().name().toStdString());
         QLocale::setDefault(get_locale(new_lang.toStdString()));
-        SPDLOG_INFO("Locale after parsing AtomicDEX settings: {}", QLocale().name().toStdString());
+        SPDLOG_INFO("Locale after parsing Komodo Wallet settings: {}", QLocale().name().toStdString());
         if (!this->m_translator.load(path))
         {
             SPDLOG_ERROR("Failed to load {} translation in {}.qm", new_lang.toStdString(), path.toStdString());

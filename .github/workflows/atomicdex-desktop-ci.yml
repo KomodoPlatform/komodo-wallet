@@ -215,7 +215,7 @@ jobs:
 
 
 
-      - name: Build AtomicDEX (MacOS)
+      - name: Build Komodo Wallet (MacOS)
         if: runner.os == 'macOS'
         run: |
           xcrun --sdk macosx --show-sdk-path
@@ -239,7 +239,7 @@ jobs:
 
 
 
-      - name: Build AtomicDEX (Linux)
+      - name: Build Komodo Wallet (Linux)
         if: runner.os == 'Linux'
         run: |
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/gcc_64/lib/cmake
@@ -257,7 +257,7 @@ jobs:
           ./ci_tools_atomic_dex bundle ${{ matrix.type }}
 
 
-      - name: Build AtomicDEX (Windows)
+      - name: Build Komodo Wallet (Windows)
         if: runner.os == 'Windows'
         shell: powershell
         run: |

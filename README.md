@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://atomicdex.io" alt="AtomicDEX">
+    <a href="https://atomicdex.io" alt="Komodo Wallet">
         <img src="https://user-images.githubusercontent.com/35845239/147651230-827e8c0f-baf0-4f28-8be0-e08624baad37.png" />
     </a>
 </p>
@@ -47,9 +47,9 @@
 </p>
 
 
-## What is AtomicDEX?
+## What is Komodo Wallet?
 
-AtomicDEX is a secure wallet and non-custodial decentralized exchange rolled into one application. Store your coins,
+Komodo Wallet is a secure wallet and non-custodial decentralized exchange rolled into one application. Store your coins,
 trade peer-to-peer with minimal fees and never give up control over your digital assets.
 
 Komodo Wallet has been tested on the following platforms:
@@ -72,16 +72,16 @@ feedback.
 
 ## Useful links
 
-- :book: [AtomicDEX Documentation](https://developers.komodoplatform.com/basic-docs/atomicdex/atomicdex-tutorials/introduction-to-atomicdex.html)
-- :link: [AtomicDEX Website](https://atomicdex.io/)
-- :speech_balloon: [AtomicDEX Discord](https://discord.gg/tvp96Gf)
-- :hammer_and_wrench: [AtomicDEX Development Boards](https://github.com/KomodoPlatform/atomicDEX-Desktop/projects)
-- :notebook_with_decorative_cover: [AtomicDex Wiki](https://github.com/KomodoPlatform/atomicDEX-Desktop/wiki/)
+- :book: [Komodo Wallet Documentation](https://developers.komodoplatform.com/basic-docs/atomicdex/atomicdex-tutorials/introduction-to-atomicdex.html)
+- :link: [Komodo Wallet Website](https://atomicdex.io/)
+- :speech_balloon: [Komodo Wallet Discord](https://discord.gg/tvp96Gf)
+- :hammer_and_wrench: [Komodo Wallet Development Boards](https://github.com/KomodoPlatform/atomicDEX-Desktop/projects)
+- :notebook_with_decorative_cover: [Komodo Wallet Wiki](https://github.com/KomodoPlatform/atomicDEX-Desktop/wiki/)
 
 
-## AtomicDEX mobile
+## Komodo Wallet mobile
 
-Check out AtomicDEX mobile, available for [Android and iOS](https://atomicdex.io) 
+Check out Komodo Wallet mobile, available for [Android and iOS](https://atomicdex.io) 
 
 
 ## Self-Hosted Dependencies
