@@ -14,7 +14,7 @@ env:
   DEX_RPCPORT: 7762
   DEX_RPC: "http://127.0.0.1:7762"
   DEX_PROJECT_NAME: "atomicdex-desktop"
-  DEX_DISPLAY_NAME: "AtomicDex Desktop"
+  DEX_DISPLAY_NAME: "Komodo Wallet"
   DEX_COMPANY: "KomodoPlatform"
   DEX_VERSION: "0.5.8"
   DEX_WEBSITE: "https://atomicdex.io/"

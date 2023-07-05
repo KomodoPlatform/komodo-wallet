@@ -52,7 +52,7 @@
 AtomicDEX is a secure wallet and non-custodial decentralized exchange rolled into one application. Store your coins,
 trade peer-to-peer with minimal fees and never give up control over your digital assets.
 
-AtomicDEX Desktop has been tested on the following platforms:
+Komodo Wallet has been tested on the following platforms:
 
 - Windows 10
 - Linux (Ubuntu 18.04+)
