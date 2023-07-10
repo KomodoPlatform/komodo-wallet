@@ -1,6 +1,6 @@
-<p align="center">
+<p align="center" media="(prefers-color-scheme: dark)">
     <a href="https://atomicdex.io" alt="Komodo Wallet">
-        <img src="https://user-images.githubusercontent.com/24797699/252289816-fa7d298a-3b7e-4003-956b-bef17f042f9c.png" />
+<img width="420" alt="komodo-wallet-logo_dark-theme" src="https://user-images.githubusercontent.com/24797699/252409662-eb03b0b1-5f6e-4494-9267-132eba827718.png" >
     </a>
 </p>
 
