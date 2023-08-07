@@ -32,11 +32,10 @@ namespace atomic_dex
     struct mm2_config
     {
         std::string              gui{std::string(DEX_NAME) + " "s + atomic_dex::get_version()};
-        int64_t                  netid{7777};
+        int64_t                  netid{8762};
         int64_t                  rpcport{atomic_dex::g_dex_rpcport};
-        std::vector<std::string> seednodes{};
-        //std::vector<std::string> seednodes{"195.201.91.96", "195.201.91.53", "168.119.174.126", "46.4.78.11", "46.4.87.18"};
-        //std::vector<std::string> seednodes{"46.4.78.11", "46.4.87.18"};
+        // TODO: Using test seednodes, remove before release to use those hardcode in the KomoDeFi SDK
+        std::vector<std::string> seednodes{"168.119.237.13", "168.119.237.8"};
 #ifdef _WIN32
         std::string userhome{utils::u8string(std::filesystem::path(_wgetenv(L"HOMEPATH")))};
 #else
