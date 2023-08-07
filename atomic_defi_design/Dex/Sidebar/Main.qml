@@ -17,7 +17,7 @@ Item
         Support
     }
 
-    property bool   isExpanded: containsMouse
+    property bool   isExpanded: true
     property real   lineHeight: 44
     property var    currentLineType: Main.LineType.Portfolio
     property alias  _selectionCursor: _selectionCursor
