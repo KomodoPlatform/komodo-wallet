@@ -60,13 +60,13 @@ endif ()
 ##! We fetch our dependencies
 if (APPLE)
     FetchContent_Declare(mm2
-            URL http://54.170.62.22:8000/ref-network-stack/mm2_a78e6bc-mac-x86-64.zip)
+            URL http://54.170.62.22:8000/ref-network-stack/mm2_2dc9bcf-mac-x86-64.zip)
 elseif (UNIX AND NOT APPLE)
     FetchContent_Declare(mm2
-            URL http://54.170.62.22:8000/ref-network-stack/mm2_a78e6bc-linux-x86-64.zip)
+            URL http://54.170.62.22:8000/ref-network-stack/mm2_2dc9bcf-linux-x86-64.zip)
 else ()
     FetchContent_Declare(mm2
-            URL http://54.170.62.22:8000/ref-network-stack/mm2_a78e6bc-win-x86-64.zip)
+            URL http://54.170.62.22:8000/ref-network-stack/mm2_2dc9bcf-win-x86-64.zip)
 endif ()
 
 
