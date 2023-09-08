@@ -59,14 +59,14 @@ endif ()
 
 ##! We fetch our dependencies
 if (APPLE)
-    FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/komodo-defi-framework/releases/download/v1.0.5-beta/mm2-1d8bebd15-Darwin-Release.zip)
+FetchContent_Declare(mm2
+        URL https://sdk.devbuilds.komodo.earth/support-pirate-litewallets/mm2_3738eae-mac-x86-64.zip)
 elseif (UNIX AND NOT APPLE)
-    FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/komodo-defi-framework/releases/download/v1.0.5-beta/mm2-1d8bebd15-Linux-Release.zip)
+FetchContent_Declare(mm2
+        URL https://sdk.devbuilds.komodo.earth/support-pirate-litewallets/mm2_3738eae-linux-x86-64.zip)
 else ()
-    FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/komodo-defi-framework/releases/download/v1.0.5-beta/mm2-1d8bebd15-Win64.zip)
+FetchContent_Declare(mm2
+        URL https://sdk.devbuilds.komodo.earth/support-pirate-litewallets/mm2_3738eae-win-x86-64.zip)
 endif ()
 
 #FetchContent_Declare(qmaterial URL https://github.com/KomodoPlatform/Qaterial/archive/last-clang-working-2.zip)
