@@ -158,6 +158,7 @@ DexWindow
     {
         width: _row.width
         height: 30
+        clip: true
         Behavior on x
         {
             NumberAnimation
@@ -354,10 +355,14 @@ DexWindow
                 iconSize: 24
                 icon:
                 {
-                    if (Dex.CurrentTheme.getColorMode() === Dex.CurrentTheme.ColorMode.Light)
-                        return Qaterial.Icons.moonWaningCrescent;
-                    else if (Dex.CurrentTheme.getColorMode() === Dex.CurrentTheme.ColorMode.Dark)
-                        return Qaterial.Icons.whiteBalanceSunny;
+                    if (Dex.CurrentTheme.getColorMode() !== Dex.CurrentTheme.ColorMode.None)
+                    {
+                        if (Dex.CurrentTheme.getColorMode() === Dex.CurrentTheme.ColorMode.Light)
+                            return Qaterial.Icons.moonWaningCrescent;
+                        else if (Dex.CurrentTheme.getColorMode() === Dex.CurrentTheme.ColorMode.Dark)
+                            return Qaterial.Icons.whiteBalanceSunny;
+                    }
+                    return Qaterial.Icons.moonWaningCrescent;
                 }
 
                 onClicked: {

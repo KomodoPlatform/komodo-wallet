@@ -18,6 +18,14 @@ namespace atomic_dex::mm2
         j.at("total_fee").get_to(cfg.total_fee);
     }
 
+    void from_json(const nlohmann::json& j, fee_tendermint_coin& cfg)
+    {
+        j.at("coin").get_to(cfg.coin);
+        j.at("type").get_to(cfg.type);
+        j.at("amount").get_to(cfg.amount);
+        j.at("gas_limit").get_to(cfg.gas_limit);
+    }
+
     void from_json(const nlohmann::json& j, fee_qrc_coin& cfg)
     {
         j.at("coin").get_to(cfg.coin);
@@ -78,6 +86,20 @@ namespace atomic_dex::mm2
             cfg.confirmations = j.at("confirmations").get<std::size_t>();
         }
 
+        // API returns null if no memo
+        if (j.contains("memo"))
+        {
+            try
+            {
+                cfg.memo = j.at("memo").get<std::string>();
+            }
+            catch (const std::exception& ex)
+            {
+                cfg.memo = "";
+                //SPDLOG_ERROR("Error parsing memo: {}", ex.what());
+            }
+        }
+
         if (cfg.from.empty())
         {
             if (cfg.coin == "FIRO")
@@ -88,6 +110,11 @@ namespace atomic_dex::mm2
             {
                 cfg.from.emplace_back("Shielded");
             }
+        }
+
+        if (j.contains("transaction_type"))
+        {
+            cfg.transaction_type = j.at("transaction_type").get<std::string>();
         }
 
         // transaction_fee only in ZHTLC response

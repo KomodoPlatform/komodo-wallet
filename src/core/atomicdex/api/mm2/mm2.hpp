@@ -34,7 +34,7 @@ namespace ag = antara::gaming;
 
 namespace atomic_dex::mm2
 {
-    inline constexpr const char*                           g_etherscan_proxy_endpoint = "https://komodo.live:3334";
+    inline constexpr const char*                           g_etherscan_proxy_endpoint = "https://komodo.earth:3334";
     inline std::unique_ptr<web::http::client::http_client> g_etherscan_proxy_http_client{
         std::make_unique<web::http::client::http_client>(FROM_STD_STR(g_etherscan_proxy_endpoint))};
     inline std::unique_ptr<web::http::client::http_client> g_qtum_proxy_http_client{

@@ -32,6 +32,7 @@
 #include "atomicdex/models/qt.global.coins.cfg.model.hpp"
 #include "atomicdex/pages/qt.portfolio.page.hpp"
 #include "atomicdex/pages/qt.settings.page.hpp"
+#include "atomicdex/pages/qt.wallet.page.hpp"
 #include "atomicdex/services/mm2/mm2.service.hpp"
 #include "atomicdex/services/price/coingecko/coingecko.wallet.charts.hpp"
 #include "atomicdex/services/price/global.provider.hpp"
@@ -78,6 +79,42 @@ namespace atomic_dex { void settings_page::update() {} }
 // Getters|Setters
 namespace atomic_dex
 {
+    int settings_page::get_pirate_sync_date() const
+    {
+        QSettings& settings = entity_registry_.ctx<QSettings>();
+        return settings.value("PirateSyncDate").toInt();
+    }
+    int settings_page::get_pirate_sync_height(int sync_date, int checkpoint_height, int checkpoint_blocktime) const
+    {
+        if (checkpoint_height == 0)
+        {
+            return 0;
+        }
+        int blocktime_estimate = 65; // Based on average block time between checkpoint block and block 2575600 + margin of error
+        SPDLOG_INFO("sync_date: {}", sync_date);
+        SPDLOG_INFO("checkpoint_height: {}", checkpoint_height);
+        SPDLOG_INFO("checkpoint_blocktime: {}", checkpoint_blocktime);
+        int time_delta = sync_date - checkpoint_blocktime;
+        SPDLOG_INFO("time_delta: {}", time_delta);
+        int block_delta =  static_cast<int>(time_delta / blocktime_estimate);
+        SPDLOG_INFO("block_delta: {}", block_delta);
+        // As block time is variable, we round height to the nearest 1000 blocks
+        int height = checkpoint_height + static_cast<int>(block_delta / 1000) * 1000;
+        if (height < 0)
+        {
+            height = 0;
+        }
+        SPDLOG_INFO("height: {}", height);
+        return height;
+    }
+
+    void settings_page::set_pirate_sync_date(int new_timestamp)
+    {
+        QSettings&        settings     = entity_registry_.ctx<QSettings>();
+        settings.setValue("PirateSyncDate", new_timestamp);
+        settings.sync();
+    }
+
     QString settings_page::get_current_lang() const
     {
         QSettings& settings = entity_registry_.ctx<QSettings>();
@@ -122,9 +159,9 @@ namespace atomic_dex
 
         auto path = QString{":/assets/languages/atomic_defi_" + new_lang};
 
-        SPDLOG_INFO("Locale before parsing AtomicDEX settings: {}", QLocale().name().toStdString());
+        SPDLOG_INFO("Locale before parsing Komodo Wallet settings: {}", QLocale().name().toStdString());
         QLocale::setDefault(get_locale(new_lang.toStdString()));
-        SPDLOG_INFO("Locale after parsing AtomicDEX settings: {}", QLocale().name().toStdString());
+        SPDLOG_INFO("Locale after parsing Komodo Wallet settings: {}", QLocale().name().toStdString());
         if (!this->m_translator.load(path))
         {
             SPDLOG_ERROR("Failed to load {} translation in {}.qm", new_lang.toStdString(), path.toStdString());
@@ -134,6 +171,25 @@ namespace atomic_dex
         this->m_qml_engine->retranslate();
         SPDLOG_INFO("Successfully loaded {} translation in {}.qm", new_lang.toStdString(), path.toStdString());
         emit onLangChanged();
+    }
+
+    bool atomic_dex::settings_page::is_spamfilter_enabled() const
+    {
+        return m_config.spamfilter_enabled;
+    }
+
+    void settings_page::set_spamfilter_enabled(bool is_enabled)
+    {
+        if (m_config.spamfilter_enabled != is_enabled)
+        {
+            
+            auto& mm2       = m_system_manager.get_system<mm2_service>();
+            auto& wallet_pg = m_system_manager.get_system<wallet_page>();
+            QString ticker  = QString::fromStdString(mm2.get_current_ticker());
+            change_spamfilter_status(m_config, is_enabled);
+            emit onSpamFilterEnabledChanged();
+            wallet_pg.set_current_ticker(ticker, true);
+        }
     }
 
     bool atomic_dex::settings_page::is_notification_enabled() const
@@ -310,12 +366,12 @@ namespace atomic_dex
         return out;
     }
 
-    QStringList settings_page::get_recommended_fiats() const
+    QStringList settings_page::get_recommended_fiats()
     {
         static const auto nb_recommended = 6;
         QStringList       out;
         out.reserve(nb_recommended);
-        for (auto&& it = m_config.available_fiat.begin(); it != m_config.available_fiat.end() && it < m_config.available_fiat.begin() + nb_recommended; it++)
+        for (auto&& it = m_config.recommended_fiat.begin(); it != m_config.recommended_fiat.end() && it < m_config.recommended_fiat.begin() + nb_recommended; it++)
         {
             out.push_back(QString::fromStdString(*it));
         }

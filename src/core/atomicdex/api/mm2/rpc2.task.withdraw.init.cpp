@@ -18,23 +18,41 @@
 #include <nlohmann/json.hpp>
 
 //! Project Headers
-#include "atomicdex/api/mm2/rpc2.init_z_coin.hpp"
+#include "atomicdex/api/mm2/rpc2.task.withdraw.init.hpp"
 
-//! Implementation 2.0 RPC [init_z_coin]
+//! Implementation 2.0 RPC [withdraw_init]
 namespace atomic_dex::mm2
 {
-    //! Serialization
-    void to_json(nlohmann::json& j, const init_z_coin_request& request)
+    void
+    to_json(nlohmann::json& j, const withdraw_init_fees& request)
     {
-        j["params"]["ticker"]                                                          = request.coin_name;
-        j["params"]["activation_params"]["mode"]["rpc"]                                = "Light";
-        j["params"]["activation_params"]["mode"]["rpc_data"]["electrum_servers"]       = request.servers;
-        j["params"]["activation_params"]["mode"]["rpc_data"]["light_wallet_d_servers"] = request.z_urls;
-        j["params"]["tx_history"]                                                      = request.with_tx_history;
+        j["type"]   = request.type;
+        j["amount"] = request.amount.value();
+    }
+
+    //! Serialization
+    void to_json(nlohmann::json& j, const withdraw_init_request& request)
+    {
+        nlohmann::json obj = nlohmann::json::object();
+
+        obj["params"]["coin"]        = request.coin;
+        obj["params"]["to"]          = request.to;
+        obj["params"]["amount"]      = request.amount;
+        obj["params"]["max"]         = request.max;
+
+        if (request.memo.has_value())
+        {
+            obj["params"]["memo"] = request.memo.value();
+        }
+        if (request.fees.has_value())
+        {
+            obj["params"]["fee"] = request.fees.value();
+        }
+        j.update(obj);
     }
 
     //! Deserialization
-    void from_json(const nlohmann::json& j, init_z_coin_answer& answer)
+    void from_json(const nlohmann::json& j, withdraw_init_answer& answer)
     {
         j.at("task_id").get_to(answer.task_id);
     }

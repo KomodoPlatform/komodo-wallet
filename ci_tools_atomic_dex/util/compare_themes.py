@@ -10,7 +10,7 @@ Purpose: Scans the light and dark theme json files for a list of whitelabel
 Usage:   `./compare_themes.py`
 '''
 
-REPO_URL = "https://raw.githubusercontent.com/KomodoPlatform/atomicDEX-Desktop"
+REPO_URL = "https://raw.githubusercontent.com/KomodoPlatform/komodo-wallet-desktop"
 BRANCHES = ['smartdex', 'GleecDEX', 'shibadex']
 
 

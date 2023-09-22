@@ -302,7 +302,7 @@ DexListView
                     Layout.fillHeight: true 
                     bottomInset: 0
                     topInset: 0
-                    outlinedColor: DexTheme.redColor
+                    outlinedColor: DexTheme.warningColor
                     visible: !main_order.is_history && details.cancellable
                     onClicked: { if(details) cancelOrder(details.order_id) }
                     Row {
@@ -312,12 +312,12 @@ DexListView
                             anchors.verticalCenter: parent.verticalCenter
                             source: Qaterial.Icons.close
                             iconSize: 17
-                            color: DexTheme.redColor
+                            color: DexTheme.warningColor
                         }
                         DexLabel {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "Cancel "
-                            color: DexTheme.redColor
+                            color: DexTheme.warningColor
                         }
                     }
                 }

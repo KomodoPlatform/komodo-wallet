@@ -22,7 +22,7 @@ Item {
         id: _background
         anchors.fill: parent
         radius: 4
-        color: DexTheme.surfaceColor
+        color: DexTheme.backgroundDarkColor2
         border.color: DexTheme.accentColor
         border.width: input_field.focus ? 1 : 0
     }
@@ -56,7 +56,7 @@ Item {
                 anchors.topMargin: 1
                 anchors.bottomMargin: 1
                 radius: 0
-                color: DexTheme.surfaceColor
+                color: DexTheme.backgroundDarkColor2
                 DexTextField {
                     id: input_field
                     validator: RegExpValidator {

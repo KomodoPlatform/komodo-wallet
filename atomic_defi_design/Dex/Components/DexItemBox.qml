@@ -64,7 +64,7 @@ InnerBackground {
     }
 
     //shadowOff: true
-    color: DexTheme.portfolioPieGradient ? 'transparent' : DexTheme.dexBoxBackgroundColor
+    color: DexTheme.portfolioPieGradient ? 'transparent' : DexTheme.backgroundDarkColor6
     property alias titleLabel: _texto
 
     onExpandedVertChanged: {
@@ -139,7 +139,7 @@ InnerBackground {
             width: parent.width
             height: 40
             radius: parent.parent.height < 41 ? parent.parent.radius : 0
-            color: DexTheme.portfolioPieGradient ? 'transparent' : DexTheme.dexBoxBackgroundColor
+            color: DexTheme.portfolioPieGradient ? 'transparent' : DexTheme.backgroundDarkColor6
             visible: visibility && !_control.hideHeader
             RowLayout {
                 anchors.fill: parent
@@ -237,7 +237,7 @@ InnerBackground {
             height: parent.height
             anchors.right: parent.right
             radius: parent.parent.height < 41 ? parent.parent.radius : 0
-            color: DexTheme.dexBoxBackgroundColor
+            color: DexTheme.backgroundDarkColor6
             visible: !isVertical && hidden
             DefaultText {
                 id: _texto2

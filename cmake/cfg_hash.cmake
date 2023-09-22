@@ -1,5 +1,5 @@
 #if (UNIX)
-#    execute_process(COMMAND bash -c "git ls-remote https://github.com/KomodoPlatform/atomicdex-desktop-generics refs/heads/main | cut -f 1 | tr -d '\n'"
+#    execute_process(COMMAND bash -c "git ls-remote https://github.com/KomodoPlatform/komodo-wallet-desktop-generics refs/heads/main | cut -f 1 | tr -d '\n'"
 #            OUTPUT_VARIABLE GENERICS_VERSION_ID
 #            )
 #    if (NOT EXISTS ${GENERICS_VERSION_ID}.cfg_hash)

@@ -2,11 +2,14 @@
 <Package>
     <DisplayName>${DEX_DISPLAY_NAME}</DisplayName>
     <Description>Install ${DEX_DISPLAY_NAME}.</Description>
-    <Version>0.5.7</Version>
-    <ReleaseDate>2022-10-24</ReleaseDate>
+    <Version>${DEX_VERSION}</Version>
+    <ReleaseDate>2023-11-06</ReleaseDate>
     <Licenses>
         <License name="GNU General Public License v2.0" file="license.txt" />
     </Licenses>
 	<Default>true</Default>
 	<Script>installscript.qs</Script>
+    <UserInterfaces>
+        <UserInterface>targetwidget.ui</UserInterface>
+    </UserInterfaces>
 </Package>

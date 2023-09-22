@@ -1,6 +1,6 @@
 import "../Components"
 
-DexButton
+DexAppButton
 {
     font.pixelSize: 12
 }

@@ -14,41 +14,32 @@
  *                                                                            *
  ******************************************************************************/
 
-#pragma once
-
-// Std Headers
-#include <string>
-
-// Deps Headers
-#include <nlohmann/json_fwd.hpp>
+//! Deps
+#include <nlohmann/json.hpp>
 
 //! Project Headers
-#include "atomicdex/config/electrum.cfg.hpp"
-#include "atomicdex/constants/qt.coins.enums.hpp"
+#include "atomicdex/api/mm2/rpc2.task.withdraw.status.hpp"
 
+//! Implementation 2.0 RPC [withdraw_status]
 namespace atomic_dex::mm2
 {
-    struct init_z_coin_request
+    //! Serialization
+    void to_json(nlohmann::json& j, const withdraw_status_request& request)
     {
-        std::string                               coin_name;
-        std::vector<atomic_dex::electrum_server>  servers;
-        std::vector<std::string>                  z_urls;
-        CoinType                                  coin_type;
-        bool                                      is_testnet{false};
-        bool                                      with_tx_history{false};  // Not yet in API
-    };
+        j["params"]["task_id"] = request.task_id;
+        j["params"]["forget_if_finished"] = false;
+    }
 
-    struct init_z_coin_answer
+    //! Deserialization
+    void from_json(const nlohmann::json& j, withdraw_status_answer& answer)
     {
-        int         task_id;
-    };
-
-    void to_json(nlohmann::json& j, const init_z_coin_request& request);
-    void from_json(const nlohmann::json& j, init_z_coin_answer& answer);
-}
-
-namespace atomic_dex
-{
-    using t_init_z_coin_request = mm2::init_z_coin_request;
-    using t_init_z_coin_answer = mm2::init_z_coin_answer;
-} // namespace atomic_dex
+        if (j.count("error") >= 1)
+        {
+            answer.error = j;
+        }
+        else
+        {
+            answer.result = j.at("result").at("details").get<transaction_data>();
+        }
+    }
+} // namespace atomic_dex::mm2

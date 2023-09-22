@@ -14,42 +14,42 @@
  *                                                                            *
  ******************************************************************************/
 
-//! Deps
-#include <nlohmann/json.hpp>
+#pragma once
+
+// Std Headers
+#include <string>
+
+// Deps Headers
+#include <nlohmann/json_fwd.hpp>
 
 //! Project Headers
-#include "atomicdex/api/mm2/rpc2.init_withdraw.hpp"
+#include "atomicdex/config/electrum.cfg.hpp"
+#include "atomicdex/constants/qt.coins.enums.hpp"
 
-//! Implementation 2.0 RPC [init_withdraw]
 namespace atomic_dex::mm2
 {
-    void
-    to_json(nlohmann::json& j, const init_withdraw_fees& request)
+    struct enable_z_coin_request
     {
-        j["type"]   = request.type;
-        j["amount"] = request.amount.value();
-    }
+        std::string                               coin_name;
+        std::vector<atomic_dex::electrum_server>  servers;
+        std::vector<std::string>                  z_urls;
+        CoinType                                  coin_type;
+        int                                       sync_height{0};
+        bool                                      is_testnet{false};
+        bool                                      with_tx_history{false};  // Not yet in API
+    };
 
-    //! Serialization
-    void to_json(nlohmann::json& j, const init_withdraw_request& request)
+    struct enable_z_coin_answer
     {
-        nlohmann::json obj = nlohmann::json::object();
+        int         task_id;
+    };
 
-        obj["params"]["coin"]        = request.coin;
-        obj["params"]["to"]          = request.to;
-        obj["params"]["amount"]      = request.amount;
-        obj["params"]["max"]         = request.max;
+    void to_json(nlohmann::json& j, const enable_z_coin_request& request);
+    void from_json(const nlohmann::json& j, enable_z_coin_answer& answer);
+}
 
-        if (request.fees.has_value())
-        {
-            obj["params"]["fee"] = request.fees.value();
-        }
-        j.update(obj);
-    }
-
-    //! Deserialization
-    void from_json(const nlohmann::json& j, init_withdraw_answer& answer)
-    {
-        j.at("task_id").get_to(answer.task_id);
-    }
-} // namespace atomic_dex::mm2
+namespace atomic_dex
+{
+    using t_enable_z_coin_request = mm2::enable_z_coin_request;
+    using t_enable_z_coin_answer = mm2::enable_z_coin_answer;
+} // namespace atomic_dex

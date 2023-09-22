@@ -67,7 +67,6 @@ SetupPage
             max_length: General.max_pw_length
             height: 50
             width: 300
-            background.color: Dex.CurrentTheme.floatingBackgroundColor
             forceFocus: true
             field.onTextChanged: { _isPasswordWrong = false }
             field.onAccepted:
@@ -88,9 +87,6 @@ SetupPage
                     return false;
                 }
             }
-
-            leftIconColor: Dex.CurrentTheme.foregroundColor
-            hideFieldButton.icon.color: Dex.CurrentTheme.foregroundColor
         }
 
         DexLabel
@@ -98,7 +94,7 @@ SetupPage
             Layout.alignment: Qt.AlignHCenter
             height: 14
             text: _isPasswordWrong ? qsTr("Incorrect Password") : ""
-            color: Dex.CurrentTheme.noColor
+            color: Dex.CurrentTheme.warningColor
         }
 
         GradientButton
@@ -119,14 +115,12 @@ SetupPage
             visible: false
         }
 
-        DexAppButton
+        CancelButton
         {
             text: qsTr("Cancel")
-            color: containsMouse ? Dex.CurrentTheme.buttonColorHovered : 'transparent'
             height: 25
             radius: 20
             width: 100
-            border.color: 'transparent'
             Layout.alignment: Qt.AlignHCenter
             font: Qt.font(
             {

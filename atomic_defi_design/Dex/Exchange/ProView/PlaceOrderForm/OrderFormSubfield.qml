@@ -33,13 +33,12 @@ RowLayout
         width: btn_width
         height: parent.height
 
-        // Background when market mode is different
         DefaultRectangle
         {
             anchors.centerIn: parent
             width: parent.width
             height: parent.height
-            color: Dex.CurrentTheme.tradeMarketModeSelectorNotSelectedBackgroundColor
+            color: Dex.CurrentTheme.inputModifierBackgroundColor
         }
 
         DefaultText
@@ -94,13 +93,12 @@ RowLayout
         width: btn_width
         height: parent.height
 
-        // Background when market mode is different
         DefaultRectangle
         {
             anchors.centerIn: parent
             width: parent.width
             height: parent.height
-            color: Dex.CurrentTheme.tradeMarketModeSelectorNotSelectedBackgroundColor
+            color: Dex.CurrentTheme.inputModifierBackgroundColor
 
             DefaultMouseArea
             {
@@ -155,14 +153,13 @@ RowLayout
         width: btn_width
         height: parent.height
 
-        // Background when market mode is different
         DefaultRectangle
         {
             id: right_rect
             anchors.centerIn: parent
             width: parent.width
             height: parent.height
-            color: Dex.CurrentTheme.tradeMarketModeSelectorNotSelectedBackgroundColor
+            color: Dex.CurrentTheme.inputModifierBackgroundColor
         }
 
         DefaultText

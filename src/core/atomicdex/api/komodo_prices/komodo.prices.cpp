@@ -10,7 +10,7 @@
 
 namespace
 {
-    constexpr const char*                 g_komodo_prices_endpoint = "https://prices.komodo.live:1313";
+    constexpr const char*                 g_komodo_prices_endpoint = "https://prices.komodo.earth";
     constexpr const char*                 g_komodo_prices_endpoint_fallback = "https://prices.cipig.net:1717";
 
     web::http::client::http_client_config g_komodo_prices_cfg{[]()
@@ -60,10 +60,6 @@ namespace atomic_dex::komodo_prices::api
         else if (j == "forex")
         {
             x = provider::forex;
-        }
-        else if (j == "nomics")
-        {
-            x = provider::nomics;
         }
         else
         {

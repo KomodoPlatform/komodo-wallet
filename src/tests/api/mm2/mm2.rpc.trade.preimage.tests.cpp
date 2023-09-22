@@ -58,7 +58,7 @@ namespace
                                             "numer":"1"
                                           },
                                           "amount_rat":[[1,[1]],[1,[10000]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         },
                                          "taker_fee": {
                                            "coin": "MYCOIN1",
@@ -72,7 +72,7 @@ namespace
                                             "numer":"1"
                                           },
                                           "amount_rat":[[1,[1]],[1,[10000]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         }
                                     }
                                     )"_json;
@@ -95,7 +95,7 @@ namespace
                                                 "numer":"0"
                                               },
                                               "amount_rat":[[0,[]],[1,[1]]],
-                                              "coin":"RICK"
+                                              "coin":"DOC"
                                             }
                                           }
                                     }
@@ -119,7 +119,7 @@ namespace
                                             "numer":"1"
                                           },
                                           "amount_rat":[[1,[1]],[1,[10000]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         },
                                         "taker_fee": {
                                           "amount":"0.0001",
@@ -128,7 +128,7 @@ namespace
                                             "numer":"1"
                                           },
                                           "amount_rat":[[1,[1]],[1,[10000]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         },
 
                                         "fee_to_send_taker_fee":{
@@ -138,7 +138,7 @@ namespace
                                             "numer":"1"
                                           },
                                           "amount_rat":[[1,[1]],[1,[10000]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         }
                                       }
                                     }
@@ -162,7 +162,7 @@ namespace
                                             "numer":"0"
                                           },
                                           "amount_rat":[[0,[]],[1,[1]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         },
                                         "volume":"2.21363478",
                                         "volume_fraction":{
@@ -176,7 +176,7 @@ namespace
                                             "numer":"0"
                                           },
                                           "amount_rat":[[0,[]],[1,[1]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         },
                                         "fee_to_send_taker_fee":{
                                           "amount":"0.00033219",
@@ -209,23 +209,23 @@ namespace
                                             "numer":"0"
                                           },
                                           "amount_rat":[[0,[]],[1,[1]]],
-                                          "coin":"RICK"
+                                          "coin":"DOC"
                                         }
                                       }
                                     })"_json;
-    const nlohmann::json g_preimage_request_buy_rick_morty_real       = R"(
+    const nlohmann::json g_preimage_request_buy_DOC_MARTY_real       = R"(
                                     {
-                                      "base": "RICK",
+                                      "base": "DOC",
                                       "method": "trade_preimage",
-                                      "rel": "MORTY",
+                                      "rel": "MARTY",
                                       "swap_method": "buy",
                                       "userpass": "",
                                       "volume": "1",
                                       "price": "1"
                                     })"_json;
-    const nlohmann::json g_preimage_request_buy_rick_nonexistent_real = R"(
+    const nlohmann::json g_preimage_request_buy_DOC_nonexistent_real = R"(
                                     {
-                                      "base": "RICK",
+                                      "base": "DOC",
                                       "method": "trade_preimage",
                                       "rel": "NONEXISTENT",
                                       "swap_method": "buy",
@@ -261,7 +261,7 @@ TEST_CASE("atomic_dex::mm2::preimage_answer_success deserialization from buy")
 
 TEST_SUITE("atomic_dex::mm2::preimage_answer deserialization test suites")
 {
-    TEST_CASE("setprice BTC/RICK")
+    TEST_CASE("setprice BTC/DOC")
     {
         atomic_dex::t_trade_preimage_answer answer;
         atomic_dex::mm2::from_json(g_preimage_answer_setprice, answer);
@@ -270,7 +270,7 @@ TEST_SUITE("atomic_dex::mm2::preimage_answer deserialization test suites")
         CHECK_FALSE(answer.result.value().fee_to_send_taker_fee.has_value());
     }
 
-    TEST_CASE("buy BTC/RICK")
+    TEST_CASE("buy BTC/DOC")
     {
         atomic_dex::t_trade_preimage_answer answer;
         atomic_dex::mm2::from_json(g_preimage_answer_buy, answer);
@@ -279,7 +279,7 @@ TEST_SUITE("atomic_dex::mm2::preimage_answer deserialization test suites")
         CHECK(answer.result.value().fee_to_send_taker_fee.has_value());
     }
 
-    TEST_CASE("sell max BTC/RICK")
+    TEST_CASE("sell max BTC/DOC")
     {
         atomic_dex::t_trade_preimage_answer answer;
         atomic_dex::mm2::from_json(g_preimage_answer_sell_max, answer);
@@ -288,7 +288,7 @@ TEST_SUITE("atomic_dex::mm2::preimage_answer deserialization test suites")
         CHECK(answer.result.value().fee_to_send_taker_fee.has_value());
     }
 
-    TEST_CASE("setprice ERC20 BAT/RICK")
+    TEST_CASE("setprice ERC20 BAT/DOC")
     {
         atomic_dex::t_trade_preimage_answer answer;
         atomic_dex::mm2::from_json(g_preimage_answer_setprice_erc, answer);
@@ -371,11 +371,11 @@ SCENARIO("atomic_dex::mm2::preimage scenario")
         return atomic_dex::mm2::rpc_process_answer_batch<atomic_dex::t_trade_preimage_answer>(answers[0], "trade_preimage");
     };
 
-    //! A test with RICK/MORTY
-    GIVEN("Preparing a simple buy request RICK/MORTY")
+    //! A test with DOC/MARTY
+    GIVEN("Preparing a simple buy request DOC/MARTY")
     {
         //! Request values
-        atomic_dex::t_trade_preimage_request request{.base_coin = "RICK", .rel_coin = "MORTY", .swap_method = "buy", .volume = "1", .price = "1"};
+        atomic_dex::t_trade_preimage_request request{.base_coin = "DOC", .rel_coin = "MARTY", .swap_method = "buy", .volume = "1", .price = "1"};
 
         //! Transform request into json
         atomic_dex::mm2::to_json(request_json, request);
@@ -386,7 +386,7 @@ SCENARIO("atomic_dex::mm2::preimage scenario")
         //! Check request without userpass against a constants at the top of the file
         auto copy_request        = request_json;
         copy_request["userpass"] = "";
-        CHECK_EQ(copy_request, g_preimage_request_buy_rick_morty_real);
+        CHECK_EQ(copy_request, g_preimage_request_buy_DOC_MARTY_real);
 
         //! A Test Case
         WHEN("I execute the request")
@@ -403,14 +403,14 @@ SCENARIO("atomic_dex::mm2::preimage scenario")
     }
 
     //! See above
-    GIVEN("Preparing a wrong request RICK/NONEXISTENT coin")
+    GIVEN("Preparing a wrong request DOC/NONEXISTENT coin")
     {
-        atomic_dex::t_trade_preimage_request request{.base_coin = "RICK", .rel_coin = "NONEXISTENT", .swap_method = "buy", .volume = "1"};
+        atomic_dex::t_trade_preimage_request request{.base_coin = "DOC", .rel_coin = "NONEXISTENT", .swap_method = "buy", .volume = "1"};
         atomic_dex::mm2::to_json(request_json, request);
         batch.push_back(request_json);
         auto copy_request        = request_json;
         copy_request["userpass"] = "";
-        CHECK_EQ(copy_request, g_preimage_request_buy_rick_nonexistent_real);
+        CHECK_EQ(copy_request, g_preimage_request_buy_DOC_nonexistent_real);
         WHEN("I execute the request")
         {
             const atomic_dex::t_trade_preimage_answer answer = generic_resp_process();

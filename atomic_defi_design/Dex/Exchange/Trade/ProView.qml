@@ -54,7 +54,7 @@ RowLayout
     {
         setMarketMode(!is_asks ? MarketMode.Sell : MarketMode.Buy)
 
-        API.app.trading_pg.preffered_order = {
+        let selected_order = {
             "coin": coin,
             "price": price,
             "price_denom": price_denom,
@@ -68,6 +68,8 @@ RowLayout
             "base_max_volume_numer": base_max_volume_numer,
             "uuid": uuid
         }
+
+        API.app.trading_pg.preffered_order = selected_order
 
         // Shows place order form in case it has been hidden in the settings.
         placeOrderForm.visible = true
@@ -111,8 +113,8 @@ RowLayout
     {
         Layout.alignment: Qt.AlignTop
 
-        Layout.minimumWidth: selectors.visible || tradingInfo.visible ? 480 : -1
-        Layout.maximumWidth: (!orderBook.visible && !bestOrders.visible) || (!placeOrderForm.visible) ? -1 : 735
+        Layout.minimumWidth: selectors.visible || tradingInfo.visible ? 450 : -1
+        Layout.maximumWidth: (!orderBook.visible && !bestOrders.visible) || (!placeOrderForm.visible) ? -1 : 450
         Layout.fillWidth: true
 
         Layout.fillHeight: true
@@ -145,7 +147,7 @@ RowLayout
         property real _orderBookHeightRatio: 0.65
         property real _bestOrdersHeightRatio: 0.35
 
-        Layout.minimumWidth: orderBook.visible || bestOrders.visible ? 353 : -1
+        Layout.minimumWidth: orderBook.visible || bestOrders.visible ? 350 : -1
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.alignment: Qt.AlignTop
@@ -180,8 +182,8 @@ RowLayout
     {
         id: placeOrderForm
 
-        Layout.minimumWidth: visible ? 302 : -1
-        Layout.maximumWidth: 350
+        Layout.minimumWidth: visible ? 305 : -1
+        Layout.maximumWidth: 305
         Layout.fillWidth: true
         Layout.fillHeight: true
 

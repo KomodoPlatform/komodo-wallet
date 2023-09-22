@@ -101,7 +101,7 @@ MultipageModal {
 
         // Buttons
         footer: [
-            DefaultButton {
+            CancelButton {
                 text: qsTr("Cancel")
                 Layout.fillWidth: true
                 onClicked: root.close()

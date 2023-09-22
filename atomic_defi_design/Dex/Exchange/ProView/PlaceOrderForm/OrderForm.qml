@@ -18,7 +18,7 @@ ColumnLayout
     }
 
     readonly property string total_amount: API.app.trading_pg.total_amount
-    readonly property int input_height: 70
+    readonly property int input_height: 65
     readonly property int subfield_margin: 5
 
 
@@ -68,7 +68,7 @@ ColumnLayout
             color: enabled ? Dex.CurrentTheme.foregroundColor : Dex.CurrentTheme.foregroundColor2
             text: backend_price ? backend_price : General.formatDouble(API.app.trading_pg.cex_price)
             width: parent.width
-            height: 41
+            height: 36
             radius: 18
 
             onTextChanged: setPrice(text)
@@ -118,11 +118,11 @@ ColumnLayout
         {
             id: input_volume
             width: parent.width
-            height: 41
+            height: 36
             radius: 18
-            left_text: qsTr("Volume")
+            left_text: sell_mode ? qsTr("Send") : qsTr("Receive") 
             right_text: left_ticker
-            placeholderText: sell_mode ? qsTr("Amount to sell") : qsTr("Amount to receive")
+            placeholderText: "0" 
             text: API.app.trading_pg.volume
             onTextChanged: setVolume(text)
         }
@@ -168,7 +168,7 @@ ColumnLayout
         {
             id: input_minvolume
             width: parent.width
-            height: 41
+            height: 36
             radius: 18
             left_text: qsTr("Min Volume")
             right_text: left_ticker
@@ -211,7 +211,7 @@ ColumnLayout
     Item
     {
         Layout.preferredWidth: parent.width
-        Layout.preferredHeight: 30
+        Layout.preferredHeight: 24
         visible: !_useCustomMinTradeAmountCheckbox.checked
 
         DefaultText
@@ -228,7 +228,7 @@ ColumnLayout
         Layout.rightMargin: 2
         Layout.leftMargin: 2
         Layout.preferredWidth: parent.width
-        Layout.preferredHeight: 30
+        Layout.preferredHeight: 28
         spacing: 5
 
         DefaultCheckBox

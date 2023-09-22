@@ -18,6 +18,7 @@ MultipageModal
     function reset() { }
 
     property var details
+    property bool is_spam: !details ? false : details.amount == 0
 
     onClosed:
     {
@@ -28,6 +29,30 @@ MultipageModal
     MultipageModalContent
     {
         titleText: qsTr("Transaction Details")
+
+        // Warning for spam/poison transactions
+        DefaultText
+        {
+            id: warning_text
+            visible: is_spam
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: true
+            wrapMode: Label.Wrap
+            color: Style.colorOrange
+            text_value: qsTr("This transaction has been identified as a potential address poisoning attack.")
+        }
+
+        // Warning for spam/poison transactions
+        DefaultText
+        {
+            id: warning_text2
+            visible: is_spam
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: true
+            wrapMode: Label.Wrap
+            color: Style.colorOrange
+            text_value: qsTr("Please see the Support FAQ for more information.")
+        }
 
         // Transaction Hash
         TitleText
@@ -46,7 +71,7 @@ MultipageModal
             text_box_width: 600
             text_value: !details ? "" : details.tx_hash
             linkURL: !details ? "" :General.getTxExplorerURL(api_wallet_page.ticker, details.tx_hash, false)
-            onCopyNotificationTitle: qsTr("%1 txid", "TICKER").arg(api_wallet_page.ticker)
+            onCopyNotificationTitle:  qsTr("%1 txid", "TICKER").arg(api_wallet_page.ticker)
             onCopyNotificationMsg: qsTr("copied to clipboard.")
             privacy: true
         }
@@ -56,7 +81,7 @@ MultipageModal
         {
             title: qsTr("Amount")
             text: !details ? "" : General.formatCrypto(!details.am_i_sender, details.amount, api_wallet_page.ticker, details.amount_fiat, API.app.settings_pg.current_currency)
-            value_color: !details ? "white" : details.am_i_sender ?  Dex.CurrentTheme.noColor : Dex.CurrentTheme.okColor
+            value_color: !details ? "white" : details.am_i_sender ?  Dex.CurrentTheme.warningColor : Dex.CurrentTheme.okColor
             privacy: true
             label.font.pixelSize: 13
         }
@@ -66,7 +91,7 @@ MultipageModal
         {
             title: qsTr("Fees")
             text: !details ? "" : General.formatCrypto(parseFloat(details.fees) < 0, Math.abs(parseFloat(details.fees)), current_ticker_infos.fee_ticker, details.fees_amount_fiat, API.app.settings_pg.current_currency)
-            value_color: !details ? "white" : parseFloat(details.fees) > 0 ? Dex.CurrentTheme.noColor : Dex.CurrentTheme.okColor
+            value_color: !details ? "white" : parseFloat(details.fees) > 0 ? Dex.CurrentTheme.warningColor : Dex.CurrentTheme.okColor
             privacy: true
             label.font.pixelSize: 13
         }
@@ -78,7 +103,7 @@ MultipageModal
             model: !details ? [] :
                     details.from
             linkURL: !details ? "" :General.getAddressExplorerURL(api_wallet_page.ticker, details.from)
-            onCopyNotificationTitle: qsTr("From address")
+            onCopyNotificationTitle: is_spam ? "" : qsTr("From address")
         }
 
         AddressList
@@ -92,7 +117,7 @@ MultipageModal
                     :  details.to.length > 1
                     ? General.getAddressExplorerURL(api_wallet_page.ticker, General.arrayExclude(details.to, details.from[0]))
                     : General.getAddressExplorerURL(api_wallet_page.ticker, details.to)
-            onCopyNotificationTitle: qsTr("To address")
+            onCopyNotificationTitle: is_spam ? "" : qsTr("To address")
         }
 
         // Date
@@ -147,7 +172,7 @@ MultipageModal
         // Buttons
         footer:
         [
-            DefaultButton
+            CancelButton
             {
                 Layout.fillWidth: true
                 text: qsTr("Close")

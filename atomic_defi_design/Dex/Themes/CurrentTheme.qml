@@ -105,6 +105,16 @@ ThemeData
         buttonTextHoveredColor              = Dex.Color.argbStrFromRgbaStr(themeData.buttonTextHoveredColor || defaultTheme.buttonTextHoveredColor);
         buttonTextPressedColor              = Dex.Color.argbStrFromRgbaStr(themeData.buttonTextPressedColor || defaultTheme.buttonTextPressedColor);
 
+        buttonSecondaryColorDisabled        = Dex.Color.argbStrFromRgbaStr(themeData.buttonSecondaryColorDisabled || defaultTheme.buttonSecondaryColorDisabled);
+        buttonSecondaryColorEnabled         = Dex.Color.argbStrFromRgbaStr(themeData.buttonSecondaryColorEnabled || defaultTheme.buttonSecondaryColorEnabled);
+        buttonSecondaryColorHovered         = Dex.Color.argbStrFromRgbaStr(themeData.buttonSecondaryColorHovered || defaultTheme.buttonSecondaryColorHovered);
+        buttonSecondaryColorPressed         = Dex.Color.argbStrFromRgbaStr(themeData.buttonSecondaryColorPressed || defaultTheme.buttonSecondaryColorPressed);
+
+        buttonCancelColorDisabled           = Dex.Color.argbStrFromRgbaStr(themeData.buttonCancelColorDisabled || defaultTheme.buttonCancelColorDisabled);
+        buttonCancelColorEnabled            = Dex.Color.argbStrFromRgbaStr(themeData.buttonCancelColorEnabled || defaultTheme.buttonCancelColorEnabled);
+        buttonCancelColorHovered            = Dex.Color.argbStrFromRgbaStr(themeData.buttonCancelColorHovered || defaultTheme.buttonCancelColorHovered);
+        buttonCancelColorPressed            = Dex.Color.argbStrFromRgbaStr(themeData.buttonCancelColorPressed || defaultTheme.buttonCancelColorPressed);
+
         gradientButtonStartColor            = Dex.Color.argbStrFromRgbaStr(themeData.gradientButtonStartColor || defaultTheme.gradientButtonStartColor);
         gradientButtonEndColor              = Dex.Color.argbStrFromRgbaStr(themeData.gradientButtonEndColor || defaultTheme.gradientButtonEndColor);
         gradientButtonDisabledStartColor    = Dex.Color.argbStrFromRgbaStr(themeData.gradientButtonDisabledStartColor || defaultTheme.gradientButtonDisabledStartColor);
@@ -156,6 +166,8 @@ ThemeData
         textFieldPrefixColor                = Dex.Color.argbStrFromRgbaStr(themeData.textFieldPrefixColor || defaultTheme.textFieldPrefixColor);
         textFieldSuffixColor                = Dex.Color.argbStrFromRgbaStr(themeData.textFieldSuffixColor || defaultTheme.textFieldSuffixColor);
 
+        tickerBadgeBackgroundColor                = Dex.Color.argbStrFromRgbaStr(themeData.tickerBadgeBackgroundColor || defaultTheme.tickerBadgeBackgroundColor);
+
         chartTradingLineBackgroundColor     = Dex.Color.argbStrFromRgbaStr(themeData.chartTradingLineBackgroundColor || defaultTheme.chartTradingLineBackgroundColor);
         chartTradingLineColor               = Dex.Color.argbStrFromRgbaStr(themeData.chartTradingLineColor || defaultTheme.chartTradingLineColor);
 
@@ -182,7 +194,18 @@ ThemeData
         tradeBuyModeSelectorBackgroundColorEnd              = Dex.Color.argbStrFromRgbaStr(themeData.tradeBuyModeSelectorBackgroundColorEnd || defaultTheme.tradeBuyModeSelectorBackgroundColorEnd);
         tradeSellModeSelectorBackgroundColorStart           = Dex.Color.argbStrFromRgbaStr(themeData.tradeSellModeSelectorBackgroundColorStart || defaultTheme.tradeSellModeSelectorBackgroundColorStart);
         tradeSellModeSelectorBackgroundColorEnd             = Dex.Color.argbStrFromRgbaStr(themeData.tradeSellModeSelectorBackgroundColorEnd || defaultTheme.tradeSellModeSelectorBackgroundColorEnd);
-        tradeMarketModeSelectorNotSelectedBackgroundColor   = Dex.Color.argbStrFromRgbaStr(themeData.tradeMarketModeSelectorNotSelectedBackgroundColor || defaultTheme.tradeMarketModeSelectorNotSelectedBackgroundColor);
+
+        inputModifierBackgroundColor   = Dex.Color.argbStrFromRgbaStr(themeData.inputModifierBackgroundColor || defaultTheme.inputModifierBackgroundColor);
+        inputFieldBackgroundColor      = Dex.Color.argbStrFromRgbaStr(themeData.inputFieldBackgroundColor || defaultTheme.inputFieldBackgroundColor);
+        inputFieldBorderColor          = Dex.Color.argbStrFromRgbaStr(themeData.inputFieldBorderColor || defaultTheme.inputFieldBorderColor);
+        inputPlaceholderTextColor      = Dex.Color.argbStrFromRgbaStr(themeData.inputPlaceholderTextColor || defaultTheme.inputPlaceholderTextColor);
+        inputRightIconColor            = Dex.Color.argbStrFromRgbaStr(themeData.inputRightIconColor || defaultTheme.inputRightIconColor);
+        inputLeftIconColor             = Dex.Color.argbStrFromRgbaStr(themeData.inputLeftIconColor || defaultTheme.inputLeftIconColor);
+        inputLeftIconBackgroundColor   = Dex.Color.argbStrFromRgbaStr(themeData.inputLeftIconBackgroundColor || defaultTheme.inputLeftIconBackgroundColor);
+
+        listItemOddBackground       = Dex.Color.argbStrFromRgbaStr(themeData.listItemOddBackground || defaultTheme.listItemOddBackground);
+        listItemEvenBackground      = Dex.Color.argbStrFromRgbaStr(themeData.listItemEvenBackground || defaultTheme.listItemEvenBackground);
+        listItemHoveredBackground   = Dex.Color.argbStrFromRgbaStr(themeData.listItemHoveredBackground || defaultTheme.listItemHoveredBackground);
 
         addressBookTagColors = themeData.addressBookTagColors || defaultTheme.addressBookTagColors
         for (var i = 0; i < addressBookTagColors.length; i++)
@@ -190,13 +213,14 @@ ThemeData
             addressBookTagColors[i] = Dex.Color.argbStrFromRgbaStr(addressBookTagColors[i])
         }
 
-        okColor                             = Dex.Color.argbStrFromRgbaStr(themeData.okColor || defaultTheme.okColor);
-        noColor                             = Dex.Color.argbStrFromRgbaStr(themeData.noColor || defaultTheme.noColor);
+        okColor                     = Dex.Color.argbStrFromRgbaStr(themeData.okColor || defaultTheme.okColor);
+        warningColor                = Dex.Color.argbStrFromRgbaStr(themeData.warningColor || defaultTheme.warningColor);
+        swapIconColor               = Dex.Color.argbStrFromRgbaStr(themeData.swapIconColor || defaultTheme.swapIconColor);
 
-        senderColorStart                        = Dex.Color.argbStrFromRgbaStr(themeData.senderColorStart || defaultTheme.senderColorStart);
-        receiverColorStart                      = Dex.Color.argbStrFromRgbaStr(themeData.receiverColorStart || defaultTheme.receiverColorStart);
+        senderColorStart            = Dex.Color.argbStrFromRgbaStr(themeData.senderColorStart || defaultTheme.senderColorStart);
+        receiverColorStart          = Dex.Color.argbStrFromRgbaStr(themeData.receiverColorStart || defaultTheme.receiverColorStart);
 
-        lineSeparatorColor                  = Dex.Color.argbStrFromRgbaStr(themeData.lineSeparatorColor || defaultTheme.lineSeparatorColor);
+        lineSeparatorColor          = Dex.Color.argbStrFromRgbaStr(themeData.lineSeparatorColor || defaultTheme.lineSeparatorColor);
     }
 
     function loadLogo(themeName)
@@ -278,6 +302,8 @@ ThemeData
         console.info("Dex.Themes.CurrentTheme.printValues.textFieldPrefixColor : %1".arg(textFieldPrefixColor));
         console.info("Dex.Themes.CurrentTheme.printValues.textFieldSuffixColor : %1".arg(textFieldSuffixColor));
 
+        console.info("Dex.Themes.CurrentTheme.printValues.tickerBadgeBackgroundColor : %1".arg(tickerBadgeBackgroundColor));
+
         console.info("Dex.Themes.CurrentTheme.printValues.chartTradingLineBackgroundColor : %1".arg(chartTradingLineBackgroundColor));
         console.info("Dex.Themes.CurrentTheme.printValues.chartTradingLineColor : %1".arg(chartTradingLineColor));
 
@@ -304,12 +330,12 @@ ThemeData
         console.info("Dex.Themes.CurrentTheme.printValues.tradeBuyModeSelectorBackgroundColorEnd : %1".arg(tradeBuyModeSelectorBackgroundColorEnd));
         console.info("Dex.Themes.CurrentTheme.printValues.tradeSellModeSelectorBackgroundColorStart : %1".arg(tradeSellModeSelectorBackgroundColorStart));
         console.info("Dex.Themes.CurrentTheme.printValues.tradeSellModeSelectorBackgroundColorEnd : %1".arg(tradeSellModeSelectorBackgroundColorEnd));
-        console.info("Dex.Themes.CurrentTheme.printValues.tradeMarketModeSelectorNotSelectedBackgroundColor : %1".arg(tradeMarketModeSelectorNotSelectedBackgroundColor));
+        console.info("Dex.Themes.CurrentTheme.printValues.inputModifierBackgroundColor : %1".arg(inputModifierBackgroundColor));
 
         console.info("Dex.Themes.CurrentTheme.printValues.addressBookTagColors : %1".arg(addressBookTagColors));
 
         console.info("Dex.Themes.CurrentTheme.printValues.okColor : %1".arg(okColor));
-        console.info("Dex.Themes.CurrentTheme.printValues.noColor : %1".arg(noColor));
+        console.info("Dex.Themes.CurrentTheme.printValues.warningColor : %1".arg(warningColor));
 
         console.info("Dex.Themes.CurrentTheme.printValues.senderColorStart : %1".arg(senderColorStart));
         console.info("Dex.Themes.CurrentTheme.printValues.receiverColorStart : %1".arg(receiverColorStart));

@@ -17,8 +17,8 @@ Item
         Support
     }
 
-    property bool   isExpanded: containsMouse
-    property real   lineHeight: 44
+    property bool   isExpanded: true
+    property real   lineHeight: 36
     property var    currentLineType: Main.LineType.Portfolio
     property alias  _selectionCursor: _selectionCursor
     property bool   containsMouse: mouseArea.containsMouse
@@ -26,25 +26,32 @@ Item
     signal lineSelected(var lineType)
     signal settingsClicked()
     signal supportClicked()
+    signal addCryptoClicked()
     signal privacySwitched(var checked)
     signal expanded(var isExpanded)
     signal expandStarted(var isExpanding)
 
-    width: isExpanded ? 200 : 80
+    width: 150
     height: parent.height
 
     // Background Rectangle
-    Rectangle
+    DefaultRectangle
     {
+        radius: 0
         anchors.fill: parent
+        anchors.rightMargin : - border.width
+        anchors.bottomMargin:  - border.width
+        anchors.leftMargin: - border.width
+        border.width: 1
+        border.color: Dex.CurrentTheme.lineSeparatorColor
         color: Dex.CurrentTheme.sidebarBgColor
     }
 
     // Animation when changing width.
-    Behavior on width
-    {
-        NumberAnimation { duration: 300; targets: [width, _selectionCursor.width]; properties: "width"; onRunningChanged: { if (!running) expanded(isExpanded); else expandStarted(isExpanded); } }
-    }
+    // Behavior on width
+    // {
+    //    NumberAnimation { duration: 300; targets: [width, _selectionCursor.width]; properties: "width"; onRunningChanged: { if (!running) expanded(isExpanded); else expandStarted(isExpanded); } }
+    // }
 
     // Selection Cursor
     AnimatedRectangle
@@ -59,8 +66,8 @@ Item
 
         anchors.left: parent.left
         anchors.leftMargin: 12
-        radius: 18
-        width: parent.width - 14
+        radius: 12
+        width: parent.width - 20
         height: lineHeight
 
         opacity: .7
@@ -98,7 +105,7 @@ Item
             id: center
             width: parent.width
             anchors.top: top.bottom
-            anchors.topMargin: 69.5
+            anchors.topMargin: 70
             onLineSelected:
             {
                 if (currentLineType === lineType)
@@ -113,16 +120,11 @@ Item
             id: bottom
             width: parent.width
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 62
+            anchors.bottomMargin: 60
 
+            onAddCryptoClicked: root.addCryptoClicked()
             onSettingsClicked: root.settingsClicked()
             onSupportClicked: root.supportClicked()
-        }
-
-        VerticalLine
-        {
-            height: parent.height
-            anchors.right: parent.right
         }
     }
 }

@@ -18,7 +18,7 @@ Dex.ComboBoxWithSearchBar
     property string ticker
     property bool   index_changed: false
     
-    height: 60
+    height: 70
     enabled: !block_everything
 
     textRole: "ticker"
@@ -34,7 +34,7 @@ Dex.ComboBoxWithSearchBar
     {
         id: _delegate
         width: control.width
-        height: visible ? 60 : 0
+        height: visible ? 70 : 0
         highlighted: control.highlightedIndex === index
 
         contentItem: DexComboBoxLine { details: model }

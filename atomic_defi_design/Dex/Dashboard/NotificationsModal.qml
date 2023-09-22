@@ -32,10 +32,11 @@ DexPopup
 
     readonly property string check_internet_connection_text: qsTr("Please check your internet connection (e.g. VPN service or firewall might block it).")
 
-    function reset()
+    function reset(close_after_reset = false)
     {
         notifications_list = []
-        root.close()
+        if (close_after_reset)
+            root.close()
     }
 
     enum NotificationKind
@@ -80,7 +81,7 @@ DexPopup
                 app.pageLoader.item.switchPage(Dashboard.PageType.DEX)
                 break
             case "open_log_modal":
-                showError(notification.getTitle(), notification.long_message)
+                showError(getNotificationTitle(notification), notification.long_message)
                 break
             default:
                 console.warn("Unknown notification click action", notification.click_action)
@@ -234,28 +235,20 @@ DexPopup
 
     function onBalanceUpdateStatus(am_i_sender, amount, ticker, human_date, timestamp)
     {
-        
-        if (!app.segwit_on)
+        if (amount != 0)
         {
-            if (amount != 0)
-            {
-                newNotification(
-                    balanceUpdateStatusNotification,
-                    {
-                        am_i_sender,
-                        amount,
-                        ticker,
-                        human_date,
-                        timestamp
-                    },
-                    timestamp,
+            newNotification(
+                balanceUpdateStatusNotification,
+                {
+                    am_i_sender,
+                    amount,
+                    ticker,
                     human_date,
-                    "open_wallet_page")
-            }
-        }
-        else
-        {
-            app.segwit_on = false
+                    timestamp
+                },
+                timestamp,
+                human_date,
+                "open_wallet_page")
         }
     }
 
@@ -622,12 +615,12 @@ DexPopup
         }
 
         OutlineButton
-        {
-            text: qsTr('Mark all as read')
+        {            
+            text: notifications_list.length !== 0 ? qsTr('Mark all as read') : qsTr('Close')
             height: 40
             width: 260
             Layout.alignment: Qt.AlignHCenter
-            onClicked: root.reset()
+            onClicked: notifications_list.length !== 0 ? root.reset(false) : root.reset(true)
         }
     }
 }

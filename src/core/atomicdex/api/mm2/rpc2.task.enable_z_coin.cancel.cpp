@@ -14,43 +14,40 @@
  *                                                                            *
  ******************************************************************************/
 
-#pragma once
-
-#include <optional>
-#include <string>
-
 //! Deps
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 
+//! Project Headers
+#include "atomicdex/api/mm2/rpc2.task.enable_z_coin.cancel.hpp"
+
+//! Implementation 2.0 RPC [enable_z_coin_cancel]
 namespace atomic_dex::mm2
 {
-    struct init_withdraw_fees
+    //! Serialization
+    void to_json(nlohmann::json& j, const enable_z_coin_cancel_request& request)
     {
-        std::string                type;      ///< UtxoFixed, UtxoPerKbyte, EthGas, Qrc20Gas
-        std::optional<std::string> amount;    ///< Utxo only
-    };
+        j["params"]["task_id"] = request.task_id;
+    }
 
-    struct init_withdraw_request
+    //! Deserialization
+    void from_json(const nlohmann::json& j, enable_z_coin_cancel_answer_success& answer)
     {
-        std::string                               coin;
-        std::string                               to;
-        std::string                               amount;
-        std::optional<init_withdraw_fees>         fees{std::nullopt}; ///< ignored if std::nullopt
-        bool                                      max{false};
-    };
+        answer.result = j.at("result").get<std::string>();
+    }
 
-    struct init_withdraw_answer
+    void
+    from_json(const nlohmann::json& j, enable_z_coin_cancel_answer& answer)
     {
-        int         task_id;
-    };
-
-    void to_json(nlohmann::json& j, const init_withdraw_request& request);
-    void from_json(const nlohmann::json& j, init_withdraw_answer& answer);
-}
-
-namespace atomic_dex
-{
-    using t_init_withdraw_request = mm2::init_withdraw_request;
-    using t_init_withdraw_fees    = mm2::init_withdraw_fees;
-    using t_init_withdraw_answer  = mm2::init_withdraw_answer;
-} // namespace atomic_dex
+        if (j.count("error") >= 1)
+        {
+            answer.error = j;
+        }
+        else
+        {
+            if (j.contains("result") && j.contains("mmrpc") && j.at("mmrpc").get<std::string>() == "2.0")
+            {
+                answer.result = j.get<enable_z_coin_cancel_answer_success>();
+            }
+        }
+    }
+} // namespace atomic_dex::mm2

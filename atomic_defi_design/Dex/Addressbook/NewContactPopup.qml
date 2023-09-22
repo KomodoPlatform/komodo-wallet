@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.15
 import "../Components"
 import "../Constants"
 import Dex.Components 1.0 as Dex
+import Dex.Themes 1.0 as Dex
 
 Dex.Popup
 {
@@ -14,6 +15,7 @@ Dex.Popup
     height: 88
     onOpened: nameField.forceActiveFocus()
     onClosed: nameField.text = ""
+    bgColor: Dex.CurrentTheme.innerBackgroundColor 
 
     contentItem: Column
     {
@@ -47,7 +49,7 @@ Dex.Popup
         {
             id: add_contact_btn
             font: DexTypo.body2
-            text: qsTr("+ ADD")
+            text: qsTr("Save")
             height: 30
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked:

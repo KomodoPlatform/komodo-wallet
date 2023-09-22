@@ -6,7 +6,7 @@ import QtGraphicalEffects 1.0
 import Qaterial 1.0 as Qaterial
 
 import "../Components"
-import "../Constants" as Constants
+import "../Constants"
 import App 1.0
 import Dex.Themes 1.0 as Dex
 import Dex.Components 1.0 as Dex
@@ -28,10 +28,16 @@ Item
     DefaultRectangle
     {
         id: background
-        anchors.right: parent.right
+        radius: 0
         width: parent.width
-
         height: parent.height
+        anchors.right: parent.right
+        anchors.rightMargin : - border.width
+        anchors.topMargin : - border.width
+        anchors.bottomMargin:  - border.width
+        anchors.leftMargin: - border.width
+        border.width: 0
+        color: 'transparent'
 
         // Panel contents
         Item
@@ -44,11 +50,11 @@ Item
             ColumnLayout
             {
                 anchors.fill: parent
-                anchors.topMargin: 30
-                anchors.bottomMargin: 30
+                anchors.topMargin: 20
+                anchors.bottomMargin: 10
                 anchors.leftMargin: 10
-                anchors.rightMargin: 20
-                spacing: 20
+                anchors.rightMargin: 10
+                spacing: 10
 
                 // Searchbar
                 SearchField
@@ -57,7 +63,8 @@ Item
 
                     Layout.alignment: Qt.AlignHCenter
                     Layout.preferredWidth: 150
-                    Layout.preferredHeight: 38
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
 
                     textField.placeholderText: qsTr("Search")
                     forceFocus: true
@@ -77,68 +84,13 @@ Item
                         id: list
                         height: list_bg.height
                         model: portfolio_coins
-                        topMargin: 5
-                        bottomMargin: 5
                         scrollbar_visible: false
 
                         reuseItems: true
 
                         delegate: SidebarItemDelegate { }
 
-                        Dex.Rectangle
-                        {
-                            anchors.bottom: parent.bottom
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: parent.width + 4
-                            height: 30
-                            radius: 8
-                            opacity: .5
-                            visible: list.position < (.98 - list.scrollVert.visualSize) ? true : false
-                            Qaterial.Icon
-                            {
-                                anchors.centerIn: parent
-                                color: Dex.CurrentTheme.foregroundColor
-                                icon: Qaterial.Icons.arrowDownCircleOutline
-                            }
-                        }
-
-                        Dex.Rectangle
-                        {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: parent.width + 4
-                            height: 30
-                            radius: 8
-                            opacity: .5
-                            visible: list.position > 0 ? true : false
-                            Qaterial.Icon
-                            {
-                                anchors.centerIn: parent
-                                color: Dex.CurrentTheme.foregroundColor
-                                icon: Qaterial.Icons.arrowUpCircleOutline
-                            }
-                        }
                     }
-                }
-
-                DexAppButton {
-                    id: add_coin_button
-                    onClicked: enable_coin_modal.open()
-                    Layout.alignment:  Qt.AlignHCenter
-                    Layout.preferredWidth: 140
-                    radius: 18
-                    spacing: 2
-                    font: Qt.font({
-                        pixelSize: 9 * DexTypo.fontDensity,
-                        letterSpacing: 1.25,
-                        capitalization: Font.AllUppercase,
-                        family: DexTypo.fontFamily,
-                        weight: Font.Normal
-                    })
-                    text: qsTr("Add asset")
-                    iconSource: Qaterial.Icons.plus
-                    leftPadding: 3
-                    rightPadding: 3
-
                 }
             }
         }

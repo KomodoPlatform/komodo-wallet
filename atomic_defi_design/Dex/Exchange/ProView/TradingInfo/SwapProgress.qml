@@ -248,10 +248,10 @@ ColumnLayout
                     if (event)
                     {
                         // Red for the Finished if swap failed
-                        if (event.state === "Finished" && details.order_status === "failed") return Dex.CurrentTheme.noColor
+                        if (event.state === "Finished" && details.order_status === "failed") return Dex.CurrentTheme.warningColor
 
                         // Red for error event, green for the others
-                        return details.error_events.indexOf(event.state) === -1 ? Dex.CurrentTheme.okColor : Dex.CurrentTheme.noColor
+                        return details.error_events.indexOf(event.state) === -1 ? Dex.CurrentTheme.okColor : Dex.CurrentTheme.warningColor
                     }
 
                     // In progress one is orange

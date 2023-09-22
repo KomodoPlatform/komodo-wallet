@@ -130,7 +130,7 @@ DexListView
         radius: 0
         border.width: 0
         colorAnimation: false
-        color: mouse_area.containsMouse ? Dex.CurrentTheme.buttonColorHovered : 'transparent'
+        color: mouse_area.containsMouse ? Dex.CurrentTheme.listItemHoveredBackground : 'transparent'
 
         DexMouseArea
         {

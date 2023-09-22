@@ -80,6 +80,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: 'true'
 
+      - name: Expose GitHub Runtime Env
+        uses: crazy-max/ghaction-github-runtime@v2
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -108,7 +111,7 @@ jobs:
 
       - name: Install QT (macOS)
         if: runner.os == 'macOS'
-        uses: jurplel/install-qt-action@v3.0.0
+        uses: jurplel/install-qt-action@v3.3.0
         with:
           version: ${{ matrix.qt }}
           host: ${{ matrix.host }}
@@ -121,7 +124,7 @@ jobs:
 
       - name: Install QT (Linux)
         if: runner.os == 'Linux'
-        uses: jurplel/install-qt-action@v3.0.0
+        uses: jurplel/install-qt-action@v3.3.0
         with:
           version: ${{ matrix.qt }}
           host: ${{ matrix.host }}
@@ -133,7 +136,7 @@ jobs:
 
       - name: Install QT (Windows)
         if: runner.os == 'Windows'
-        uses: jurplel/install-qt-action@v3.0.0
+        uses: jurplel/install-qt-action@v3.3.0
         with:
           version: ${{ matrix.qt }}
           host: ${{ matrix.host }}
@@ -149,13 +152,24 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           export SHELL=/bin/bash
-          echo "CHOOSENIM_CHOOSE_VERSION=1.6.10" >> $GITHUB_ENV
-          export CHOOSENIM_CHOOSE_VERSION=1.6.10
+          echo "CHOOSENIM_CHOOSE_VERSION=1.6.20" >> $GITHUB_ENV
+          export CHOOSENIM_CHOOSE_VERSION=1.6.20
           curl https://nim-lang.org/choosenim/init.sh > choosenim.sh
           chmod +x choosenim.sh
           ./choosenim.sh -y
           export PATH=/home/runner/.nimble/bin:$PATH
-          chmod +x /home/runner/.choosenim/toolchains/nim-1.6.10/bin/*
+          chmod +x /home/runner/.choosenim/toolchains/nim-1.6.20/bin/*
+
+      - name: Install nim (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          echo "CHOOSENIM_CHOOSE_VERSION=1.6.20" >> $GITHUB_ENV
+          export CHOOSENIM_CHOOSE_VERSION=1.6.20
+          curl https://nim-lang.org/choosenim/init.sh > choosenim.sh
+          chmod +x choosenim.sh
+          ./choosenim.sh -y
+          export PATH=/Users/runner/.nimble/bin:$PATH
+          chmod +x /Users/runner/.choosenim/toolchains/nim-1.6.20/bin/*
 
       - name: Install deps (Linux)
         if: runner.os == 'Linux'
@@ -182,12 +196,10 @@ jobs:
           echo "CC=clang-12" >> $GITHUB_ENV
 
       - name: vcpkg deps (All)
-        uses: lukka/run-vcpkg@v10
+        uses: lukka/run-vcpkg@v11
         with:
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
-          appendedCacheKey: ${{ hashFiles('vcpkg.json') }}
           vcpkgJsonGlob: 'vcpkg.json'
-
 
       # - name: import code signing certificates (macos)
       #   if: runner.os == 'macOS'  && 'firoorg/FiroDEX-Desktop' == github.repository
@@ -209,8 +221,7 @@ jobs:
       #     p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
 
 
-
-      - name: Build AtomicDEX (MacOS)
+      - name: Build Komodo Wallet (MacOS)
         if: runner.os == 'macOS'
         run: |
           xcrun --sdk macosx --show-sdk-path
@@ -225,6 +236,7 @@ jobs:
           export ASC_PUBLIC_ID="${{ secrets.ASC_PUBLIC_ID }}"
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/clang_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
+          export PATH=/Users/runner/.nimble/bin:$PATH
           export MACOSX_DEPLOYMENT_TARGET=10.15
           export CC=clang
           export CXX=clang++
@@ -234,7 +246,7 @@ jobs:
 
 
 
-      - name: Build AtomicDEX (Linux)
+      - name: Build Komodo Wallet (Linux)
         if: runner.os == 'Linux'
         run: |
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/gcc_64/lib/cmake
@@ -250,7 +262,6 @@ jobs:
 
           ./ci_tools_atomic_dex build ${{ matrix.type }}
           ./ci_tools_atomic_dex bundle ${{ matrix.type }}
-
 
       - name: Build FiroDEX (Windows)
         if: runner.os == 'Windows'
@@ -377,6 +388,7 @@ jobs:
           export ATOMICDEX_PASSWORD=${{ secrets.ATOMICDEX_PASSWORD }}
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/clang_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
+          export PATH=/Users/runner/.nimble/bin:$PATH
           export CC=clang
           export CXX=clang++
           #echo "Running tests"

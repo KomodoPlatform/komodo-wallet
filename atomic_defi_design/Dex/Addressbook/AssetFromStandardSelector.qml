@@ -90,7 +90,7 @@ Dex.MultipageModal
                     anchors.leftMargin: 6
                     anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("Disabled")
-                    color: Dex.CurrentTheme.noColor
+                    color: Dex.CurrentTheme.warningColor
                     font: Dex.DexTypo.caption
                 }
 

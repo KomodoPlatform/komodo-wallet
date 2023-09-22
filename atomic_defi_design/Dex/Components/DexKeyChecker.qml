@@ -49,7 +49,7 @@ ColumnLayout {
     }
 
     function hintColor(valid) {
-        return valid ? DexTheme.greenColor : DexTheme.redColor
+        return valid ? DexTheme.okColor : DexTheme.warningColor
     }
 
     function hintPrefix(valid) {

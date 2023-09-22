@@ -28,6 +28,7 @@ namespace atomic_dex::mm2
         std::string                  to;                 ///< coins will be withdraw to this address
         std::string                  amount;             ///< ignored if max is true
         std::optional<withdraw_fees> fees{std::nullopt}; ///< ignored if std::nullopt
+        std::optional<std::string>   memo;               ///< memo for tendermint
         bool                         max{false};
     };
 

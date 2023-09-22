@@ -170,7 +170,7 @@ namespace atomic_dex
             auto& mm2 = this->m_system_manager.get_system<mm2_service>();
             if (mm2.is_mm2_running())
             {
-                SPDLOG_INFO("mm2 is alive, checking if ware able to fetch a simple orderbook");
+                SPDLOG_INFO("mm2 is alive, checking if we are able to fetch a simple orderbook");
                 nlohmann::json      batch           = nlohmann::json::array();
                 nlohmann::json      current_request = mm2::template_request("orderbook", true);
                 t_orderbook_request req_orderbook{.base = g_primary_dex_coin, .rel = g_second_primary_dex_coin};

@@ -18,7 +18,7 @@ Popup {
     Overlay.modal: Item {
         DexRectangle {
             anchors.fill: parent
-            color: Qt.darker(DexTheme.dexBoxBackgroundColor)
+            color: Qt.darker(DexTheme.backgroundDarkColor6)
             opacity: .8
         }
     }
@@ -56,7 +56,7 @@ Popup {
         DexRectangle {
             anchors.fill: parent
             radius: 4
-            color: DexTheme.surfaceColor
+            color: DexTheme.backgroundDarkColor2
         }
     }
 
@@ -128,7 +128,7 @@ Popup {
                         height: 45
                         error: false
                         visible: dialog.getText
-                        defaultBorderColor: DexTheme.dexBoxBackgroundColor
+                        defaultBorderColor: DexTheme.backgroundDarkColor6
                         background.border.width: 1
                         field.font: DexTypo.body2
                         placeholderText: dialog.placeholderText
@@ -155,7 +155,7 @@ Popup {
                                 anchors.centerIn: parent
                                 iconSize: 19
                                 source: Qaterial.Icons.keyVariant
-                                color: DexTheme.surfaceColor
+                                color: DexTheme.backgroundDarkColor2
                             }
 
                         }
@@ -215,7 +215,7 @@ Popup {
                 onReset: dialog.reset()
                 topPadding: 25
                 background: Rectangle {
-                    color: DexTheme.dexBoxBackgroundColor
+                    color: DexTheme.backgroundDarkColor6
                 }
                 delegate: Qaterial.Button {
                     id: _dialogManagerButton
@@ -224,7 +224,7 @@ Popup {
                     topInset: 0
                     opacity: enabled ? 1 : .6
                     enabled: DialogButtonBox.buttonRole === DialogButtonBox.RejectRole ? true : dialog.enableAcceptButton
-                    backgroundColor: DialogButtonBox.buttonRole === DialogButtonBox.RejectRole ? 'transparent' : dialog.warning ? DexTheme.redColor : DexTheme.accentColor
+                    backgroundColor: DialogButtonBox.buttonRole === DialogButtonBox.RejectRole ? 'transparent' : dialog.warning ? DexTheme.warningColor : DexTheme.accentColor
                     property alias cursorShape: mouseArea.cursorShape
                     Component.onCompleted: {
                         if (text === "Yes" && dialog.yesButtonText !== "") {

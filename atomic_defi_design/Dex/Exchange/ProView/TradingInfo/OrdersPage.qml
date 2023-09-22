@@ -84,13 +84,13 @@ Item {
     {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        anchors.margins: 28
+        anchors.margins: 20
         anchors.bottomMargin: is_history ? 0 : 10
-        spacing: 15
+        spacing: 8
 
         RowLayout
         {
-            spacing: 10
+            spacing: 8
             DefaultButton
             {
                 Layout.preferredHeight: 29
@@ -99,6 +99,30 @@ Item {
                 text: qsTr("Filter")
                 iconSource: Qaterial.Icons.filter
                 onClicked: settings.visible = !settings.visible
+            }
+
+            DefaultButton
+            {
+                visible: settings.visible && root.is_history
+                Layout.preferredHeight: 29
+                enabled: list_model_proxy.can_i_apply_filtering
+                radius: 7
+                label.font: DexTypo.body2
+                text: qsTr("Apply Filter")
+                onClicked: list_model_proxy.apply_all_filtering()
+            }
+
+            DefaultText
+            {
+                color: Dex.CurrentTheme.foregroundColor2
+                font: DexTypo.caption
+                visible: !settings.visible
+                text: qsTr("Filter") + ": %1 / %2 <br> %3: %4 - %5".arg(combo_base.currentTicker).arg(combo_rel.currentTicker).arg(qsTr("Date")).arg(min_date.selectedDate.toLocaleDateString(Locale.ShortFormat, "yyyy-MM-dd")).arg(max_date.selectedDate.toLocaleDateString(Locale.ShortFormat, "yyyy-MM-dd"))
+            }
+
+            Item
+            {
+                Layout.fillWidth: true
             }
 
             DefaultButton
@@ -115,12 +139,16 @@ Item {
                 }
             }
 
-            DefaultText
+            DefaultButton
             {
-                color: Dex.CurrentTheme.foregroundColor2
-                font: DexTypo.caption
-                visible: !settings.visible
-                text: qsTr("Filter") + ": %1 / %2 <br> %3: %4 - %5".arg(combo_base.currentTicker).arg(combo_rel.currentTicker).arg(qsTr("Date")).arg(min_date.selectedDate.toLocaleDateString(Locale.ShortFormat, "yyyy-MM-dd")).arg(max_date.selectedDate.toLocaleDateString(Locale.ShortFormat, "yyyy-MM-dd"))
+                visible: !root.is_history && list_model.length > 0
+                enabled: list_model.length > 0
+                Layout.preferredHeight: 29
+                radius: 7
+                label.font: DexTypo.body2
+                text: qsTr("Cancel All")
+                iconSource: Qaterial.Icons.close
+                onClicked: API.app.trading_pg.orders.cancel_order(list_model_proxy.get_filtered_ids())
             }
         }
 
@@ -130,33 +158,7 @@ Item {
             visible: false
             spacing: 8
 
-            RowLayout
-            {
-                spacing: 10
-                DefaultButton
-                {
-                    visible: root.is_history
-                    enabled: list_model_proxy.can_i_apply_filtering
-                    Layout.preferredHeight: 29
-                    radius: 7
-                    label.font: DexTypo.body2
-                    text: qsTr("Apply Filter")
-                    onClicked: list_model_proxy.apply_all_filtering()
-                }
-
-                DefaultButton
-                {
-                    visible: !root.is_history
-                    enabled: API.app.orders_mdl.length > 0
-                    Layout.preferredHeight: 29
-                    radius: 7
-                    label.font: DexTypo.body2
-                    text: qsTr("Cancel All")
-                    iconSource: Qaterial.Icons.close
-                    onClicked: API.app.trading_pg.orders.cancel_order(list_model_proxy.get_filtered_ids())
-                }
-            }
-
+            // Coin Selection comboboxes
             RowLayout
             {
                 Layout.alignment: Qt.AlignHCenter

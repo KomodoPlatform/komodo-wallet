@@ -15,6 +15,7 @@ CheckBox
     property alias label: _label
     property alias boxWidth: _indicator.implicitWidth
     property alias boxHeight: _indicator.implicitHeight
+    property alias boxRadius: _indicator.radius
     property alias mouseArea: mouseArea
     property color textColor: Dex.CurrentTheme.foregroundColor
     property int labelWidth: 0

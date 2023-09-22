@@ -32,7 +32,7 @@ MultipageModal
                     close()
                 }
             }
-            DefaultButton
+            CancelButton
             {
                 Layout.fillWidth: true
                 text: qsTr("Cancel")

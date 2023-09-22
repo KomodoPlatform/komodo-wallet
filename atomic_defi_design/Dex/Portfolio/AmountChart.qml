@@ -217,7 +217,7 @@ InnerBackground {
         Rectangle {
             anchors.fill: parent
             opacity: .6
-            color: DexTheme.dexBoxBackgroundColor
+            color: DexTheme.backgroundDarkColor6
             visible: portfolio_asset_chart.isProgress
             radius: parent.radius
             DefaultBusyIndicator {

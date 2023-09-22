@@ -273,7 +273,7 @@ FloatingBackground
 
                 visible: (!is_history ? details.cancellable ?? false : false) === true ? (mouseArea.containsMouse || hovered) ? true : false : false
 
-                outlinedColor: Dex.CurrentTheme.noColor
+                outlinedColor: Dex.CurrentTheme.warningColor
                 hoverEnabled: true
 
                 onClicked: if (details) cancelOrder(details.order_id)
@@ -289,7 +289,7 @@ FloatingBackground
                 {
                     anchors.centerIn: parent
                     iconSize: 16
-                    color: Dex.CurrentTheme.noColor
+                    color: Dex.CurrentTheme.warningColor
                     source: Qaterial.Icons.close
                     scale: parent.visible ? 1 : 0
                 }

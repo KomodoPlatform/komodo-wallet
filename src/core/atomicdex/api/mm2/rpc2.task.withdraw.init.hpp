@@ -14,31 +14,44 @@
  *                                                                            *
  ******************************************************************************/
 
+#pragma once
+
+#include <optional>
+#include <string>
+
 //! Deps
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
-//! Project Headers
-#include "atomicdex/api/mm2/rpc2.withdraw_status.hpp"
-
-//! Implementation 2.0 RPC [withdraw_status]
 namespace atomic_dex::mm2
 {
-    //! Serialization
-    void to_json(nlohmann::json& j, const withdraw_status_request& request)
+    struct withdraw_init_fees
     {
-        j["params"]["task_id"] = request.task_id;
-    }
+        std::string                type;      ///< UtxoFixed, UtxoPerKbyte, EthGas, Qrc20Gas
+        std::optional<std::string> amount;    ///< Utxo only
+    };
 
-    //! Deserialization
-    void from_json(const nlohmann::json& j, withdraw_status_answer& answer)
+    struct withdraw_init_request
     {
-        if (j.count("error") >= 1)
-        {
-            answer.error = j;
-        }
-        else
-        {
-            answer.result = j.at("result").at("details").at("result").get<transaction_data>();
-        }
-    }
-} // namespace atomic_dex::mm2
+        std::string                               coin;
+        std::string                               to;
+        std::string                               amount;
+        std::optional<withdraw_init_fees>         fees{std::nullopt}; ///< ignored if std::nullopt
+        std::optional<std::string>                memo;               ///< memo for zhtlc
+        bool                                      max{false};
+    };
+
+    struct withdraw_init_answer
+    {
+        int         task_id;
+    };
+
+    void to_json(nlohmann::json& j, const withdraw_init_request& request);
+    void from_json(const nlohmann::json& j, withdraw_init_answer& answer);
+}
+
+namespace atomic_dex
+{
+    using t_withdraw_init_request = mm2::withdraw_init_request;
+    using t_withdraw_init_fees    = mm2::withdraw_init_fees;
+    using t_withdraw_init_answer  = mm2::withdraw_init_answer;
+} // namespace atomic_dex

@@ -13,7 +13,7 @@ RowLayout
     id: root
     property double   label_width: 175
     property double   bar_width_pct: 0
-    property color    bar_color: Dex.DexTheme.greenColor
+    property color    bar_color: Dex.DexTheme.okColor
     property alias    label: _label
     property alias    pct_bar: _pct_bar
     property alias    pct_value: _pct_value

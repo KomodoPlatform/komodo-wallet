@@ -44,7 +44,6 @@
 #include "atomicdex/services/price/komodo_prices/komodo.prices.provider.hpp"
 #include "atomicdex/services/price/coingecko/coingecko.wallet.charts.hpp"
 #include "atomicdex/services/price/coinpaprika/coinpaprika.provider.hpp"
-#include "atomicdex/services/price/oracle/band.provider.hpp"
 #include "atomicdex/services/price/orderbook.scanner.service.hpp"
 
 namespace
@@ -181,6 +180,8 @@ namespace atomic_dex
 
     bool application::has_coins_with_balance()
     {
+        // TODO: Does this ignore test coins?
+        // Simple view on fresh wallet with only test coins from faucet returns `no tradable assets`
         auto* portfolio_page = get_portfolio_page();
         auto* portfolio_mdl = portfolio_page->get_portfolio();
         auto portfolio_data = portfolio_mdl->get_underlying_data();
@@ -371,11 +372,8 @@ namespace atomic_dex
                 }
                 //! TODO: figure out why sometimes ZHTLC coins end up in here twice. When they do, without this check it crashes.
                 if (std::find(to_init.begin(), to_init.end(), ticker) != to_init.end()) {
-                    SPDLOG_DEBUG("Ticker {} is already in vector", ticker);
+                    // SPDLOG_DEBUG("Ticker {} is already in vector", ticker);
                     add_to_init = false;
-                }
-                else {
-                    SPDLOG_DEBUG("Ticker {} is not already in vector", ticker);
                 }
                 if (add_to_init) {
                     to_init.push_back(ticker);
@@ -502,8 +500,7 @@ namespace atomic_dex
         system_manager_.create_system<wallet_page>(system_manager_, this);
         system_manager_.create_system<global_price_service>(system_manager_, settings_page_system.get_cfg());
         system_manager_.create_system<orderbook_scanner_service>(system_manager_);
-        system_manager_.create_system<band_oracle_price_service>();
-        // system_manager_.create_system<coinpaprika_provider>(system_manager_);
+        //system_manager_.create_system<coinpaprika_provider>(system_manager_);
         //system_manager_.create_system<coingecko_provider>(system_manager_);
         system_manager_.create_system<komodo_prices_provider>();
         system_manager_.create_system<update_checker_service>();

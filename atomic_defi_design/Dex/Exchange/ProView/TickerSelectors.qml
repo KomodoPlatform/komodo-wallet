@@ -22,7 +22,7 @@ Row
     {
         id: selectorLeft
 
-        width: parent.width * 0.45
+        width: 210
         height: parent.height
 
         left_side: true
@@ -40,7 +40,7 @@ Row
 
     SwapIcon
     {
-        width: parent.width * 0.1
+        width: 25
         anchors.verticalCenter: parent.verticalCenter
         top_arrow_ticker: selectorLeft.ticker
         bottom_arrow_ticker: selectorRight.ticker
@@ -63,7 +63,7 @@ Row
     {
         id: selectorRight
 
-        width: parent.width * 0.45
+        width: 210
         height: parent.height
 
         left_side: false

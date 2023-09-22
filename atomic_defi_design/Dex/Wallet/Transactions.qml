@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import Qaterial 1.0 as Qaterial
 
 import "../Components"
 import "../Constants"
@@ -21,16 +22,17 @@ Dex.ListView
 
     model: transactions_mdl.proxy_mdl
 
-    // Row
+    // Transaction Row
     delegate: Dex.Rectangle
     {
         id: rectangle
+        property bool is_spam: amount == 0 
         width: list.width
         height: row_height
         radius: 0
         border.width: 0
         colorAnimation: false
-        color: mouse_area.containsMouse ? Dex.CurrentTheme.buttonColorHovered : 'transparent'
+        color: mouse_area.containsMouse ? Dex.CurrentTheme.listItemHoveredBackground : 'transparent'
 
         Dex.MouseArea
         {
@@ -63,10 +65,13 @@ Dex.ListView
                     visible: transaction_note !== ""
                 }
 
-                TransactionArrow
+                // When a spam / poison tx, we show a warning icon
+                Qaterial.Icon
                 {
                     id: received_icon
-                    amISender: am_i_sender ? true : false
+                    size: 16
+                    icon: is_spam ? Qaterial.Icons.radioactive : am_i_sender ? Qaterial.Icons.arrowTopRight : Qaterial.Icons.arrowBottomRight
+                    color: is_spam ? Style.colorOrange : am_i_sender ? Dex.CurrentTheme.warningColor : Dex.CurrentTheme.okColor
                 }
 
                 // Description
@@ -74,8 +79,9 @@ Dex.ListView
                 {
                     id: description
                     horizontalAlignment: Qt.AlignLeft
-                    text_value: am_i_sender ? qsTr("Sent") : qsTr("Received")
+                    text_value: is_spam ? qsTr("Poison") : am_i_sender ? qsTr("Sent") : qsTr("Received")
                     font.pixelSize: Style.textSizeSmall3
+                    color: is_spam ? Style.colorOrange : am_i_sender ? Dex.CurrentTheme.warningColor : Dex.CurrentTheme.okColor
                 }
             }
 
@@ -93,7 +99,7 @@ Dex.ListView
 
                 }
                 font.pixelSize: description.font.pixelSize
-                color: am_i_sender ? Dex.CurrentTheme.noColor : Dex.CurrentTheme.okColor
+                color: is_spam ? Style.colorWhite7 : am_i_sender ? Dex.CurrentTheme.warningColor : Dex.CurrentTheme.okColor
                 privacy: true
             }
 
@@ -104,8 +110,9 @@ Dex.ListView
                 horizontalAlignment: Text.AlignRight
                 text_value: General.formatFiat(!am_i_sender, amount_fiat, API.app.settings_pg.current_currency)
                 font.pixelSize: description.font.pixelSize
-                color: crypto_amount.color
+                color: is_spam ? Style.colorWhite7 : crypto_amount.color
                 privacy: true
+                
             }
 
             // Fee
@@ -117,6 +124,7 @@ Dex.ListView
                                                                            current_ticker_infos.fee_ticker + " " + qsTr("fees"))
                 font.pixelSize: description.font.pixelSize
                 privacy: true
+                color: is_spam ? Style.colorWhite7 : crypto_amount.color
             }
 
             // Date
@@ -127,6 +135,7 @@ Dex.ListView
                 font.pixelSize: description.font.pixelSize
                 text_value: !date || unconfirmed ? qsTr("Unconfirmed") : date
                 privacy: true
+                color: is_spam ? Style.colorWhite7 : crypto_amount.color
             }
         }
     }

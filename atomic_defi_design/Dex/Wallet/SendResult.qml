@@ -76,6 +76,18 @@ MultipageModalContent
         }
     }
 
+    // Memo
+    TextEditWithTitle
+    {
+        title: qsTr("Memo")
+        visible: result.withdraw_answer.memo
+
+        text:
+        {
+            result.withdraw_answer.memo
+        }
+    }
+
     // Fees
     TextEditWithTitle
     {
@@ -105,7 +117,7 @@ MultipageModalContent
     // Buttons
     footer:
     [
-        DexButton
+        CancelButton
         {
             Layout.fillWidth: true
             text: qsTr("Close")

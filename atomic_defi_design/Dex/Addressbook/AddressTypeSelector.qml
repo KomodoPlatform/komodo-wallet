@@ -38,9 +38,9 @@ Dex.ComboBoxWithSearchBar
         }
         else
         {
-            _contentRow.ticker = model.data(model.index(index, 0), Qt.UserRole + 1)
-            _contentRow.name = model.data(model.index(index, 0), Qt.UserRole + 3)
-            _contentRow.type = model.data(model.index(index, 0), Qt.UserRole + 9)
+            _contentRow.ticker = model.data ? model.data(model.index(index, 0), Qt.UserRole + 1) : ""
+            _contentRow.name = model.data ? model.data(model.index(index, 0), Qt.UserRole + 3) : ""
+            _contentRow.type = model.data ? model.data(model.index(index, 0), Qt.UserRole + 9) : ""
         }
     }
 
@@ -77,16 +77,13 @@ Dex.ComboBoxWithSearchBar
         }
     }
 
-    contentItem: Item
+    contentItem: AssetRow
     {
-        AssetRow
-        {
-            id: _contentRow
+        id: _contentRow
 
-            anchors.left: parent.left
-            anchors.leftMargin: 13
-            anchors.verticalCenter: parent.verticalCenter
-        }
+        anchors.left: parent.left
+        anchors.leftMargin: 13
+        anchors.verticalCenter: parent.verticalCenter
     }
 
     onCurrentIndexChanged:

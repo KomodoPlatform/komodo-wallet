@@ -362,8 +362,9 @@ namespace atomic_dex
     }
 
     void
-    orderbook_model::reset_orderbook(const t_orders_contents& orderbook)
+    orderbook_model::reset_orderbook(const t_orders_contents& orderbook, bool is_bestorders)
     {
+        SPDLOG_DEBUG("[orderbook_model::reset_orderbook]");
         if (!orderbook.empty())
         {
             SPDLOG_INFO(
@@ -381,6 +382,8 @@ namespace atomic_dex
         }
         this->endResetModel();
         emit lengthChanged();
+        // This assert was causing a crash due to duplicated UUIDs being filtered out for orders that exist for both segwit and non-segwit of a coin,
+        // because bestorders response will add duplicate entries (one for each address format) to the response.
         assert(m_model_data.size() == m_orders_id_registry.size());
     }
 
@@ -399,7 +402,6 @@ namespace atomic_dex
             SPDLOG_WARN("Order with uuid: {} already present...skipping.", order.uuid);
             return;
         }
-
         assert(m_model_data.size() == m_orders_id_registry.size());
         beginInsertRows(QModelIndex(), m_model_data.size(), m_model_data.size());
         m_model_data.push_back(order);
@@ -437,7 +439,6 @@ namespace atomic_dex
         {
             //! ID Found, update !
             const QModelIndex& idx                  = res.at(0);
-            const auto         uuid_to_be_updated   = this->data(idx, OrderbookRoles::UUIDRole).toString().toStdString();
             auto&& [_, new_price, is_price_changed] = update_value(OrderbookRoles::PriceRole, QString::fromStdString(order.price), idx, *this);
             update_value(OrderbookRoles::PriceNumerRole, QString::fromStdString(order.price_fraction_numer), idx, *this);
             update_value(OrderbookRoles::PriceDenomRole, QString::fromStdString(order.price_fraction_denom), idx, *this);
@@ -518,19 +519,19 @@ namespace atomic_dex
     }
 
     void
-    orderbook_model::refresh_orderbook(const t_orders_contents& orderbook)
+    orderbook_model::refresh_orderbook(const t_orders_contents& orderbook, bool is_bestorders)
     {
         auto refresh_functor = [this](const std::vector<mm2::order_contents>& contents)
         {
-            for (auto&& current_order: contents)
+            for (auto&& order: contents)
             {
-                if (this->m_orders_id_registry.find(current_order.uuid) != this->m_orders_id_registry.end())
+                if (this->m_orders_id_registry.find(order.uuid) != this->m_orders_id_registry.end())
                 {
-                    this->update_order(current_order);
+                    this->update_order(order);
                 }
                 else
                 {
-                    this->initialize_order(current_order);
+                    this->initialize_order(order);
                 }
             }
 
@@ -539,7 +540,8 @@ namespace atomic_dex
             for (auto&& id: this->m_orders_id_registry)
             {
                 bool res = std::none_of(begin(contents), end(contents), [id](auto&& contents) { return contents.uuid == id; });
-                //! Need to remove the row
+                // Need to remove the row
+                // segwits are deleted here when they shouldnt be
                 if (res)
                 {
                     auto res_list = this->match(index(0, 0), UUIDRole, QString::fromStdString(id));
@@ -617,6 +619,7 @@ namespace atomic_dex
         return m_current_orderbook_kind;
     }
 
+    // This is used when betterOrderDetected
     QVariantMap
     orderbook_model::get_order_from_uuid([[maybe_unused]] QString uuid)
     {

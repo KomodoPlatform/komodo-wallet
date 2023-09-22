@@ -53,7 +53,7 @@ Dex.MultipageModal
         footer:
         [
             Item { Layout.fillWidth: true },
-            Dex.DefaultButton
+            Dex.CancelButton
             {
                 text: qsTr("Close")
                 onClicked: close()
@@ -75,7 +75,7 @@ Dex.MultipageModal
         footer:
         [
             Item { Layout.fillWidth: true },
-            Dex.DefaultButton
+            Dex.CancelButton
             {
                 text: qsTr("Close")
                 onClicked: close()
@@ -134,7 +134,7 @@ Dex.MultipageModal
         footer:
         [
             Item { Layout.fillWidth: true },
-            Dex.DefaultButton
+            Dex.CancelButton
             {
                 text: qsTr("Close")
                 onClicked: close()

@@ -23,7 +23,6 @@
 #include "atomicdex/pages/qt.wallet.page.hpp"
 #include "atomicdex/services/price/coingecko/coingecko.wallet.charts.hpp"
 #include "atomicdex/services/price/global.provider.hpp"
-#include "atomicdex/services/price/oracle/band.provider.hpp"
 
 namespace atomic_dex
 {
@@ -33,7 +32,6 @@ namespace atomic_dex
     {
         emit portfolioChanged();
         this->dispatcher_.sink<update_portfolio_values>().connect<&portfolio_page::on_update_portfolio_values_event>(*this);
-        this->dispatcher_.sink<band_oracle_refreshed>().connect<&portfolio_page::on_band_oracle_refreshed>(*this);
         this->dispatcher_.sink<coin_cfg_parsed>().connect<&portfolio_page::on_coin_cfg_parsed>(*this);
         SPDLOG_INFO("portfolio_page created");
     }
@@ -50,28 +48,6 @@ namespace atomic_dex
     }
 
     portfolio_page::~portfolio_page() {}
-
-    QStringList
-    portfolio_page::get_oracle_price_supported_pairs() const
-    {
-        auto        result = m_system_manager.get_system<band_oracle_price_service>().supported_pair();
-        QStringList out;
-        out.reserve(result.size());
-        for (auto&& cur: result) { out.push_back(QString::fromStdString(cur)); }
-        return out;
-    }
-
-    QString
-    portfolio_page::get_oracle_last_price_reference() const
-    {
-        return QString::fromStdString(m_system_manager.get_system<band_oracle_price_service>().last_oracle_reference());
-    }
-
-    void
-    portfolio_page::on_band_oracle_refreshed(const band_oracle_refreshed&)
-    {
-        emit oraclePriceUpdated();
-    }
 
     void
     portfolio_page::set_current_balance_fiat_all(QString current_fiat_all_balance)

@@ -21,6 +21,16 @@ function getHardcoded()
         buttonTextHoveredColor: "#000000FF",
         buttonTextPressedColor: "#000000FF",
 
+        buttonSecondaryColorDisabled: "#D8E3F8FF",
+        buttonSecondaryColorEnabled: "#F0F6FFFF",
+        buttonSecondaryColorHovered: "#D7E7FFFF",
+        buttonSecondaryColorPressed: "#B8D2F9FF",
+
+        buttonCancelColorDisabled: "#D8E3F8FF",
+        buttonCancelColorEnabled: "#F0F6FFFF",
+        buttonCancelColorHovered: "#D7E7FFFF",
+        buttonCancelColorPressed: "#B8D2F9FF",
+
         gradientButtonStartColor: "#5A68E6FF",
         gradientButtonEndColor: "#4986EAAB",
         gradientButtonDisabledStartColor: "#CDD0F6FF",
@@ -72,6 +82,8 @@ function getHardcoded()
         textFieldPrefixColor: "#45607894",
         textFieldSuffixColor: "#456078FF",
 
+        tickerBadgeBackgroundColor: "#D5DCF8FF",
+
         chartTradingLineBackgroundColor: "#C5F2EFFF",
         chartTradingLineColor: "#53EBD7FF",
 
@@ -94,16 +106,27 @@ function getHardcoded()
         sidebarLineTextHovered: "#2C87B9FF",
         sidebarLineTextSelected: "#FFFFFFFF",
 
-        tradeBuyModeSelectorBackgroundColorStart: "#6A4DE3FF",
-        tradeBuyModeSelectorBackgroundColorEnd: "#2279F1FF",
+        tradeBuyModeSelectorBackgroundColorStart:  "#6A4DE3FF",
+        tradeBuyModeSelectorBackgroundColorEnd:    "#2279F1FF",
         tradeSellModeSelectorBackgroundColorStart: "#E52167FF",
-        tradeSellModeSelectorBackgroundColorEnd: "#E216A9FF",
-        tradeMarketModeSelectorNotSelectedBackgroundColor: "#89B6FF21",
+        tradeSellModeSelectorBackgroundColorEnd:   "#E216A9FF",
 
-        addressBookTagColors: ["#627EEAFF", "#FFD87AFF", "#F7931AFF"],
+        inputModifierBackgroundColor: "#89B6FF21",
+        inputFieldBackgroundColor:    "#313555FF",
+        inputFieldBorderColor:        "#20233788",
+        inputPlaceholderTextColor:    "#FFFFFFFF",
+        inputRightIconColor:          "#FFFFFFFF",
+        inputLeftIconColor:           "#FFFFFFFF",
+        inputLeftIconBackgroundColor: "#202337FF",
+
+        listItemOddBackground:     "#202337FF",
+        listItemEvenBackground:    "#24273DFF",
+        listItemHoveredBackground: "#4068B9FF",
+
+        addressBookTagColors: ["#003bbbFF", "#006133FF", "#612600FF", "#430061FF", "#004d61FF"],
 
         okColor: "#00C058FF",
-        noColor: "#E52167FF",
+        warningColor: "#E52167FF",
       
         senderColorStart: "#F85757FF",
         receiverColorStart: "#845FEFFF",

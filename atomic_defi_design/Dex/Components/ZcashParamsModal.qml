@@ -78,7 +78,7 @@ Dex.MultipageModal
                 onClicked: Qt.openUrlExternally("https://www.coinbureau.com/education/zcash-ceremony/")
             },
             Item { Layout.fillWidth: true },
-            Dex.DefaultButton
+            Dex.CancelButton
             {
                 text: qsTr("Close")
                 onClicked: close()

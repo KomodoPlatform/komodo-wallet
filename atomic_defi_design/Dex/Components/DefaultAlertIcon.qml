@@ -4,20 +4,20 @@ import Qaterial 1.0 as Qaterial
 import "../Constants" as Constants
 import App 1.0
 
-Qaterial.Icon
+
+DefaultImage
 {
     property int iconSize: 24
     property string tooltipText: ""
-    property var iconColor: "gold"
-    property var iconColorHover: "yellow"
 
-    icon: Qaterial.Icons.alert
-    size: iconSize
+    source: General.image_path + "warning.svg"
+    height: iconSize
+    width: iconSize
+    opacity: alertArea.containsMouse ? 0.9 : 1
     anchors.left: parent.left
     anchors.leftMargin: iconSize / 2
     anchors.rightMargin: iconSize / 2
     anchors.verticalCenter: parent.verticalCenter
-    color: alertArea.containsMouse ? iconColorHover : iconColor
 
     DexMouseArea
     {

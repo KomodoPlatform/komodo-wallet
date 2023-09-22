@@ -11,7 +11,7 @@ ComboBox
 {
     id: control
 
-    property int    radius: 20
+    property int    radius: 10
     property int    popupWidth: width
     property int    popupMaxHeight: 450
     property bool   popupForceMaxHeight: false
@@ -24,8 +24,7 @@ ComboBox
     background: Rectangle
     {
         id: bg
-        implicitWidth: control.width
-        implicitHeight: control.height
+        anchors.fill: parent
         color: control.backgroundColor
         radius: control.radius
     }

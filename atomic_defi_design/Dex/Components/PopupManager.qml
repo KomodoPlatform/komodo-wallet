@@ -12,7 +12,8 @@ Popup
 
     id: dialog
     width: 420
-    height: _insideColumn.height > dialog.height ? _insideColumn.height + 82 : dialog.height
+    // There is a binding loop issue if this line is active
+    // height: _insideColumn.height > dialog.height ? _insideColumn.height + 82 : dialog.height
     dim: true
     modal: true
     anchors.centerIn: Overlay.overlay
@@ -80,7 +81,8 @@ Popup
     contentItem: Qaterial.ClipRRect
     {
         width: dialog.width
-        height: _insideColumn.height >  dialog.height ? _insideColumn.height + 92 : dialog.height
+        // There is a binding loop issue if this line is active
+        // height: _insideColumn.height >  dialog.height ? _insideColumn.height + 92 : dialog.height
         radius: 18
         focus: true
         Column
@@ -254,7 +256,7 @@ Popup
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - 80
-                    DexAppButton
+                    CancelButton
                     {
                         id: cancelBtn
                         visible: showCancelBtn
@@ -338,7 +340,7 @@ Popup
                 topPadding: 25
                 background: Rectangle
                 {
-                    color: DexTheme.dexBoxBackgroundColor
+                    color: DexTheme.backgroundDarkColor6
                 }
                 delegate: Qaterial.Button
                 {
@@ -348,7 +350,7 @@ Popup
                     topInset: 0
                     opacity: enabled ? 1 : .6
                     enabled: DialogButtonBox.buttonRole === DialogButtonBox.RejectRole ? true : dialog.enableAcceptButton
-                    backgroundColor: DialogButtonBox.buttonRole === DialogButtonBox.RejectRole ? 'transparent' : dialog.warning ? DexTheme.redColor : DexTheme.accentColor
+                    backgroundColor: DialogButtonBox.buttonRole === DialogButtonBox.RejectRole ? 'transparent' : dialog.warning ? DexTheme.warningColor : DexTheme.accentColor
                     property alias cursorShape: mouseArea.cursorShape
                     Component.onCompleted:
                     {

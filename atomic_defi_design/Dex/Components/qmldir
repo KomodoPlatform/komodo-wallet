@@ -20,3 +20,4 @@ TextField 1.0 DefaultTextField.qml
 TextFieldWithTitle 1.0 TextFieldWithTitle.qml
 ToolTip 1.0 DefaultTooltip.qml
 UserIcon 1.0 UserIcon.qml
+CancelButton 1.0 CancelButton.qml

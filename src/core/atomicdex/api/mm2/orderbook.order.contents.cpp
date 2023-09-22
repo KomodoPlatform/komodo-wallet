@@ -32,6 +32,15 @@ namespace atomic_dex::mm2
     {
 
         j.at("coin").get_to(contents.coin);
+        if (contents.coin.find("-segwit") != std::string::npos)
+        {
+            std::string uuid = j["uuid"];
+            contents.uuid = uuid + "-segwit";
+        }
+        else
+        {
+            j.at("uuid").get_to(contents.uuid);
+        }
         if (j.at("address").contains("address_data"))
         {
             j.at("address").at("address_data").get_to(contents.address);
@@ -40,9 +49,7 @@ namespace atomic_dex::mm2
         {
             contents.address = "Shielded";
         }
-
         j.at("pubkey").get_to(contents.pubkey);
-        j.at("uuid").get_to(contents.uuid);
         j.at("is_mine").get_to(contents.is_mine);
 
         j.at("price").at("decimal").get_to(contents.price);

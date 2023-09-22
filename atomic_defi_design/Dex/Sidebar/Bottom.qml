@@ -11,6 +11,7 @@ MouseArea
 {
     id: root
 
+    signal addCryptoClicked()
     signal supportClicked()
     signal settingsClicked()
 
@@ -27,6 +28,7 @@ MouseArea
             if (isExpanded) waitForSidebarExpansionAnimation.start();
             else
             {
+                addCryptoLine.label.opacity = 0;
                 settingsLine.label.opacity = 0;
                 supportLine.label.opacity = 0;
                 privacyLine.label.opacity = 0;
@@ -37,7 +39,7 @@ MouseArea
     NumberAnimation
     {
         id: waitForSidebarExpansionAnimation
-        targets: [settingsLine.label, supportLine.label, privacyLine.label]
+        targets: [addCryptoLine.label, settingsLine.label, supportLine.label, privacyLine.label]
         properties: "opacity"
         duration: 200
         from: 0
@@ -48,7 +50,7 @@ MouseArea
     NumberAnimation
     {
         id: labelsOpacityAnimation
-        targets: [settingsLine.label, supportLine.label, privacyLine.label]
+        targets: [addCryptoLine.label, settingsLine.label, supportLine.label, privacyLine.label]
         properties: "opacity"
         duration: 350
         from: 0.0
@@ -60,20 +62,28 @@ MouseArea
         anchors.fill: parent
         FigurativeLine
         {
+            id: addCryptoLine
+
+            Layout.fillWidth: true
+            label.text: qsTr("Add Crypto") // isExpanded ? qsTr("Add Crypto") : ""
+            icon.source: General.image_path + "bank-plus.svg"
+            onClicked: addCryptoClicked()
+        }
+        FigurativeLine
+        {
             id: settingsLine
 
             Layout.fillWidth: true
-            label.text: isExpanded ? qsTr("Settings") : ""
+            label.text: qsTr("Settings") // isExpanded ? qsTr("Settings") : ""
             icon.source: General.image_path + "menu-settings-white.svg"
             onClicked: settingsClicked()
         }
-
         FigurativeLine
         {
             id: supportLine
 
             Layout.fillWidth: true
-            label.text: isExpanded ? qsTr("Support") : ""
+            label.text: qsTr("Support") // isExpanded ? qsTr("Support") : ""
             icon.source: General.image_path + "menu-support-white.png"
             onClicked: supportClicked(type)
         }
@@ -85,6 +95,7 @@ MouseArea
             Layout.fillWidth: true
             label.text: qsTr("Privacy")
             label.visible: isExpanded
+            anchors.leftMargin: 60
 
             onClicked:
             {
@@ -99,7 +110,7 @@ MouseArea
                         standardButtons: Dialog.Yes | Dialog.Cancel,
                         closePolicy: Popup.NoAutoClose,
                         warning: true,
-                        iconColor: Dex.CurrentTheme.noColor,
+                        iconColor: Dex.CurrentTheme.warningColor,
                         isPassword: true,
                         placeholderText: qsTr("Type password"),
                         yesButtonText: qsTr("Confirm"),
@@ -148,9 +159,9 @@ MouseArea
                 id: privacySwitch
 
                 anchors.left: parent.left
-                anchors.leftMargin: 10
+                anchors.leftMargin: -5
                 anchors.verticalCenter: parent.verticalCenter
-                scale: 0.75
+                scale: 0.5
                 mouseArea.hoverEnabled: true
                 onClicked: parent.clicked()
             }

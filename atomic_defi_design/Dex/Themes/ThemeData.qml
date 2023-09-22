@@ -20,6 +20,16 @@ QtObject
     property color  buttonTextHoveredColor
     property color  buttonTextPressedColor
 
+    property color  buttonSecondaryColorDisabled
+    property color  buttonSecondaryColorEnabled
+    property color  buttonSecondaryColorHovered
+    property color  buttonSecondaryColorPressed
+
+    property color  buttonCancelColorDisabled
+    property color  buttonCancelColorEnabled
+    property color  buttonCancelColorHovered
+    property color  buttonCancelColorPressed
+
     property color  gradientButtonStartColor
     property color  gradientButtonEndColor
     property color  gradientButtonDisabledStartColor
@@ -71,6 +81,8 @@ QtObject
     property color  textFieldPrefixColor
     property color  textFieldSuffixColor
 
+    property color  tickerBadgeBackgroundColor
+
     property color  chartTradingLineBackgroundColor
     property color  chartTradingLineColor
 
@@ -100,14 +112,27 @@ QtObject
     property color  tradeBuyModeSelectorBackgroundColorEnd
     property color  tradeSellModeSelectorBackgroundColorStart
     property color  tradeSellModeSelectorBackgroundColorEnd
-    property color  tradeMarketModeSelectorNotSelectedBackgroundColor
+
+    // Inputs styling
+    property color  inputModifierBackgroundColor
+    property color  inputFieldBackgroundColor
+    property color  inputFieldBorderColor
+    property color  inputPlaceholderTextColor
+    property color  inputRightIconColor
+    property color  inputLeftIconColor
+    property color  inputLeftIconBackgroundColor
+
+    property color  listItemOddBackground
+    property color  listItemEvenBackground
+    property color  listItemHoveredBackground
 
     // Address book page related
     property var    addressBookTagColors
 
     // Colors used to tell when something is good or wrong.
     property color  okColor
-    property color  noColor
+    property color  warningColor
+    property color  swapIconColor
 
     property color  senderColorStart
     property color  receiverColorStart

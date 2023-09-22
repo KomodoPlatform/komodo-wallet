@@ -128,10 +128,10 @@ DexListView
 
         width: _rowWidth
         height: _rowHeight
-        radius: 0
+        radius: mouse_area.containsMouse ? 3 : 0
         border.width: 0
         colorAnimation: false
-        color: mouse_area.containsMouse ? Dex.CurrentTheme.buttonColorHovered : 'transparent'
+        color: mouse_area.containsMouse ? Dex.CurrentTheme.listItemHoveredBackground : 'transparent'
 
         DexMouseArea
         {
@@ -162,6 +162,7 @@ DexListView
             {
                 property int _iconWidth: 24
                 Layout.preferredWidth: _tokenColumnSize
+                Layout.leftMargin: 3
 
                 DexImage                         // Order Token Icon
                 {
@@ -206,7 +207,7 @@ DexListView
             {
                 Layout.preferredWidth: _cexRateColumnSize
                 horizontalAlignment: Text.AlignRight
-                color: cex_rates=== "0" ? Qt.darker(DexTheme.foregroundColor) : parseFloat(cex_rates)>0? DexTheme.redColor : DexTheme.greenColor
+                color: cex_rates=== "0" ? Qt.darker(DexTheme.foregroundColor) : parseFloat(cex_rates)>0? DexTheme.warningColor : DexTheme.okColor
                 text_value: cex_rates=== "0" ? "N/A" : parseFloat(cex_rates)>0? "+"+parseFloat(cex_rates).toFixed(2)+"%" : parseFloat(cex_rates).toFixed(2)+"%"
             }
 

@@ -18,19 +18,20 @@
 #include <nlohmann/json.hpp>
 
 //! Project Headers
-#include "atomicdex/api/mm2/rpc2.init_z_coin_status.hpp"
+#include "atomicdex/api/mm2/rpc2.task.enable_z_coin.status.hpp"
 
-//! Implementation 2.0 RPC [init_z_coin_status]
+//! Implementation 2.0 RPC [enable_z_coin_status]
 namespace atomic_dex::mm2
 {
     //! Serialization
-    void to_json(nlohmann::json& j, const init_z_coin_status_request& request)
+    void to_json(nlohmann::json& j, const enable_z_coin_status_request& request)
     {
         j["params"]["task_id"] = request.task_id;
+        j["params"]["forget_if_finished"] = false;
     }
 
     //! Deserialization
-    void from_json(const nlohmann::json& j, init_z_coin_status_answer_success& answer)
+    void from_json(const nlohmann::json& j, enable_z_coin_status_answer_success& answer)
     {
         j.at("result").at("status").get_to(answer.status);     // [InProgress, Ready]
         j.at("result").at("details").get_to(answer.details);
@@ -48,21 +49,21 @@ namespace atomic_dex::mm2
 
         if (j.at("result").at("details").contains("result"))
         {
-            answer.coin = j.at("result").at("details").at("result").at("ticker").get<std::string>();
-            answer.current_block = j.at("result").at("details").at("result").at("current_block").get<std::string>();
+            answer.coin = j.at("result").at("details").at("ticker").get<std::string>();
+            answer.current_block = j.at("result").at("details").at("current_block").get<std::string>();
 
-            if (j.at("result").at("details").at("result").contains("wallet_balance"))
+            if (j.at("result").at("details").contains("wallet_balance"))
             {
-                answer.wallet_type = j.at("result").at("details").at("result").at("wallet_balance").at("wallet_type").get<std::string>();
-                answer.address = j.at("result").at("details").at("result").at("wallet_balance").at("address").get<std::string>();
-                answer.spendable_balance = j.at("result").at("details").at("result").at("wallet_balance").at("balance").at("spendable").get<std::string>();
-                answer.unspendable_balance = j.at("result").at("details").at("result").at("wallet_balance").at("balance").at("unspendable").get<std::string>();
+                answer.wallet_type = j.at("result").at("details").at("wallet_balance").at("wallet_type").get<std::string>();
+                answer.address = j.at("result").at("details").at("wallet_balance").at("address").get<std::string>();
+                answer.spendable_balance = j.at("result").at("details").at("wallet_balance").at("balance").at("spendable").get<std::string>();
+                answer.unspendable_balance = j.at("result").at("details").at("wallet_balance").at("balance").at("unspendable").get<std::string>();
             }
         }
     }
 
     void
-    from_json(const nlohmann::json& j, init_z_coin_status_answer& answer)
+    from_json(const nlohmann::json& j, enable_z_coin_status_answer& answer)
     {
         if (j.count("error") >= 1)
         {
@@ -72,7 +73,7 @@ namespace atomic_dex::mm2
         {
             if (j.contains("result") && j.contains("mmrpc") && j.at("mmrpc").get<std::string>() == "2.0")
             {
-                answer.result = j.at("result").get<init_z_coin_status_answer_success>();
+                answer.result = j.at("result").get<enable_z_coin_status_answer_success>();
             }
         }
     }

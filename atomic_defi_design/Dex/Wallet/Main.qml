@@ -42,6 +42,7 @@ Item
     Layout.fillHeight: true
     Layout.fillWidth: true
 
+    // TODO: Move this section for the coin summary bar at the top to its own component
     ColumnLayout
     {
         id: wallet_layout
@@ -112,7 +113,7 @@ Item
                                 verticalAlignment: Text.AlignVCenter
                                 text: activation_progress + "%"
                                 font: DexTypo.head8
-                                color: DexTheme.greenColor
+                                color: DexTheme.okColor
                             }
                         }
 
@@ -165,77 +166,6 @@ Item
                     }
 
                     Item { Layout.fillWidth: true }
-
-                    ColumnLayout
-                    {
-                        visible: false //current_ticker_infos.segwit_supported
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        spacing: 2
-
-                        DefaultText
-                        {
-                            text_value: qsTr("Segwit")
-                            Layout.alignment: Qt.AlignLeft
-                            font.pixelSize: headerTitleFont
-                            color: headerTitleColor
-                        }
-
-                        DefaultSwitch
-                        {
-                            id: segwitSwitch
-                            Layout.alignment: Qt.AlignVCenter
-
-                            onToggled:
-                            {
-                                if(parseFloat(current_ticker_infos.balance) > 0) {
-                                     Qaterial.DialogManager.showDialog({
-                                        title: qsTr("Confirmation"),
-                                        text:  qsTr("Do you want to send your %1 funds to %2 wallet first?").arg(current_ticker_infos.is_segwit_on ? "segwit" : "legacy").arg(!current_ticker_infos.is_segwit_on ? "segwit" : "legacy"),
-                                        standardButtons: Dialog.Yes | Dialog.No,
-                                        onAccepted: function() {
-                                            var address = API.app.wallet_pg.switch_address_mode(!current_ticker_infos.is_segwit_on);
-                                            if (address != current_ticker_infos.address && address != "") {
-                                                send_modal.open()
-                                                send_modal.item.address_field.text = address
-                                                send_modal.item.max_mount.checked = true
-                                                send_modal.item.segwit = true
-                                                send_modal.item.segwit_callback = function () {
-                                                    if(send_modal.item.segwit_success) {
-                                                        API.app.wallet_pg.post_switch_address_mode(!current_ticker_infos.is_segwit_on)
-                                                        Qaterial.DialogManager.showDialog({
-                                                            title: qsTr("Success"),
-                                                            text: qsTr("Your transaction is send, may take some time to arrive")
-                                                        })
-                                                    } else {
-                                                        segwitSwitch.checked = current_ticker_infos.is_segwit_on
-                                                    }
-                                                }
-                                            }
-                                        },
-
-                                        onRejected: function () {
-                                            app.segwit_on = true
-                                            API.app.wallet_pg.post_switch_address_mode(!current_ticker_infos.is_segwit_on)
-                                        }
-                                    })
-
-                                } else {
-                                    app.segwit_on = true
-                                    API.app.wallet_pg.post_switch_address_mode(!current_ticker_infos.is_segwit_on)
-                                }
-                            }
-                        }
-                    }
-
-                    Connections
-                    {
-                        target: API.app.wallet_pg
-                        function onTickerInfosChanged() {
-                            if (segwitSwitch.checked != current_ticker_infos.is_segwit_on) {
-                                segwitSwitch.checked = current_ticker_infos.is_segwit_on
-                            }
-                        }
-                    }
 
                     // Price
                     ColumnLayout
@@ -309,7 +239,7 @@ Item
                         DefaultText
                         {
                             id: portfolio_title
-                            text_value: qsTr("Porfolio")
+                            text_value: qsTr("Portfolio")
                             Layout.alignment: Qt.AlignHCenter
                             color: headerTitleColor
                             font.pixelSize: headerTitleFont
@@ -432,11 +362,11 @@ Item
                     enabled: General.canSend(api_wallet_page.ticker, activation_progress)
                     anchors.fill: parent
                     radius: 18
-
                     label.text: qsTr("Send")
                     label.font.pixelSize: 16
                     content.anchors.left: content.parent.left
                     content.anchors.leftMargin: enabled ? 23 : 48
+                    content.anchors.rightMargin: 23
 
                     onClicked:
                     {
@@ -444,13 +374,19 @@ Item
                         else enable_fees_coin_modal.open()
                     }
 
-                    TransactionArrow
+                    Row
                     {
-                        id: arrow_send
-                        amISender: true
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
-                        anchors.rightMargin: 19
+                        anchors.rightMargin: 23
+
+                        Qaterial.Icon
+                        {
+                            icon: Qaterial.Icons.arrowTopRight
+                            size: 24
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: Dex.CurrentTheme.warningColor
+                        }
                     }
                 }
 
@@ -544,12 +480,19 @@ Item
 
                     onClicked: receive_modal.open()
 
-                    TransactionArrow
+                    Row
                     {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
-                        anchors.rightMargin: 19
-                        amISender: false
+                        anchors.rightMargin: 23
+
+                        Qaterial.Icon
+                        {
+                            icon: Qaterial.Icons.arrowBottomRight
+                            size: 24
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: Dex.CurrentTheme.okColor
+                        }
                     }
                 }
 
@@ -592,21 +535,17 @@ Item
                     {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
-                        anchors.rightMargin: arrow_send.anchors.rightMargin
-                        spacing: 2
+                        anchors.rightMargin: 23
 
-                        TransactionArrow
+                        Qaterial.Icon
                         {
-                            amISender: true
+                            icon: Qaterial.Icons.swapHorizontal
+                            size: 28
                             anchors.verticalCenter: parent.verticalCenter
-                        }
-
-                        TransactionArrow
-                        {
-                            amISender: false
-                            anchors.verticalCenter: parent.verticalCenter
+                            color: Dex.CurrentTheme.swapIconColor
                         }
                     }
+
                 }
 
                 // Swap button error icon
@@ -656,7 +595,7 @@ Item
             {
                 Layout.preferredWidth: 180
                 Layout.preferredHeight: 48
-                visible:  current_ticker_infos.is_smartchain_test_coin
+                visible:  current_ticker_infos.is_faucet_coin
 
                 DefaultButton
                 {
@@ -675,23 +614,14 @@ Item
                     {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
-                        anchors.rightMargin: arrow_send.anchors.rightMargin
+                        anchors.rightMargin: 23
 
                         Qaterial.Icon
                         {
                             icon: Qaterial.Icons.water
                             size: 24
-                            anchors.right: parent.right
-                            anchors.leftMargin: iconSize / 2
-                            anchors.rightMargin: iconSize / 2
                             anchors.verticalCenter: parent.verticalCenter
                             color: "cyan"
-
-                            DefaultTooltip
-                            {
-                                visible: alertArea.containsMouse && tooltipText != ""
-                                text: ""
-                            }
                         }
                     }
                 }
@@ -970,13 +900,15 @@ Item
                         GradientStop { position: 1; color: Dex.CurrentTheme.backgroundColor }
                     }
                 }
-
+                
+                // Transactions history table
                 Transactions
                 {
                     width: parent.width
                     height: parent.height
                 }
 
+                // Placeholder if no tx history available, or being fetched.
                 ColumnLayout
                 {
                     visible: current_ticker_infos.tx_state !== "InProgress" && transactions_mdl.length === 0
@@ -1011,6 +943,7 @@ Item
                         visible: api_wallet_page.tx_fetching_busy
                     }
 
+                    // When no tx history available, or being fetched, show a button to open the explorer.
                     DefaultText
                     {
                         id: explorerLink

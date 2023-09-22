@@ -25,7 +25,7 @@ MultipageModal {
             Layout.alignment: Qt.AlignHCenter
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
-            color: Dex.CurrentTheme.noColor
+            color: Dex.CurrentTheme.warningColor
             text_value:
             {
                 for (let i = 0; i < orders.count; i++)

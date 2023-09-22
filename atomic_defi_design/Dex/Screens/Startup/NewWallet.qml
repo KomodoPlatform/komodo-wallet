@@ -318,14 +318,15 @@ SetupPage
                         height: 40
                         width: 60
                         radius: 20
-                        color: Dex.CurrentTheme.accentColor
                         anchors.verticalCenter: parent.verticalCenter
+                        color: Dex.CurrentTheme.inputLeftIconBackgroundColor
+
                         Qaterial.ColorIcon
                         {
                             anchors.centerIn: parent
                             iconSize: 19
                             source: Qaterial.Icons.wallet
-                            color: Dex.CurrentTheme.foregroundColor
+                            color: Dex.CurrentTheme.inputLeftIconColor
                         }
                     }
                 }
@@ -335,7 +336,7 @@ SetupPage
                     Layout.topMargin: 10
                     Layout.bottomMargin: Layout.topMargin
                     Layout.fillWidth: true
-                    color: Dex.CurrentTheme.noColor
+                    color: Dex.CurrentTheme.warningColor
                     height: warning_texts.height + 20
                     radius: 20
 
@@ -457,7 +458,7 @@ SetupPage
                     DefaultText
                     {
                         text_value: text_error
-                        color: Dex.CurrentTheme.noColor
+                        color: Dex.CurrentTheme.warningColor
                         visible: text !== ''
                     }
 
@@ -568,7 +569,8 @@ SetupPage
                                     width: (_insideFlow2.width - 30) / 4
                                     text: modelData ?? ""
                                     radius: 20
-                                    color: Dex.CurrentTheme.accentColor
+                                    btnEnabledColor: Dex.CurrentTheme.buttonColorEnabled
+                                    btnHoveredColor: Dex.CurrentTheme.accentColor
                                     font: DexTypo.body2
 
                                     onClicked:
@@ -609,9 +611,9 @@ SetupPage
                     {
                         x: 5
                         height: 40
-                        width: 60
+                        width: 50
                         radius: 20
-                        color: Dex.CurrentTheme.accentColor
+                        color: Dex.CurrentTheme.inputLeftIconBackgroundColor
                         anchors.verticalCenter: parent.verticalCenter
 
                         DefaultText
@@ -664,7 +666,7 @@ SetupPage
                     DefaultText
                     {
                         text_value: guess_text_error
-                        color: Dex.CurrentTheme.noColor
+                        color: Dex.CurrentTheme.warningColor
                         visible: input_seed_word.error
                         DexVisibleBehavior on visible
                         {}
@@ -685,6 +687,7 @@ SetupPage
                     id: _inputPassword
                     Layout.fillWidth: true
                     Layout.preferredHeight: 50
+                    field.placeholderText: qsTr("Enter password")
                     field.onAccepted: _keyChecker.isValid() ? eula_modal.open() : undefined
                 }
 
@@ -742,7 +745,7 @@ SetupPage
                 DefaultText
                 {
                     text_value: text_error
-                    color: Dex.CurrentTheme.noColor
+                    color: Dex.CurrentTheme.warningColor
                     visible: text !== ''
                 }
             }

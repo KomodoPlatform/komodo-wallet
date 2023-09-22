@@ -11,6 +11,7 @@ Rectangle
     property string ticker: ""
 
     radius: 18
+    opacity: marketMode != API.app.trading_pg.market_mode ? 0.1 : 1
 
     gradient: Gradient
     {
@@ -30,28 +31,6 @@ Rectangle
                        Dex.CurrentTheme.tradeBuyModeSelectorBackgroundColorEnd
             position: 1
         }
-    }
-
-    // Background on topover of gradient to hide it when the market mode is different
-    DefaultRectangle
-    {
-        anchors.centerIn: parent
-        width: parent.width - 2
-        height: parent.height - 2
-        radius: parent.radius - 1
-        color: Dex.CurrentTheme.backgroundColor
-        visible: marketMode != API.app.trading_pg.market_mode
-    }
-
-    // Background when market mode is different
-    DefaultRectangle
-    {
-        anchors.centerIn: parent
-        width: parent.width - 2
-        height: parent.height - 2
-        radius: parent.radius - 1
-        color: Dex.CurrentTheme.tradeMarketModeSelectorNotSelectedBackgroundColor
-        visible: marketMode != API.app.trading_pg.market_mode
     }
 
     DefaultText

@@ -77,6 +77,7 @@ Item
                         const new_fiat = fiats[currentIndex]
                         API.app.settings_pg.current_fiat = new_fiat
                         API.app.settings_pg.current_currency = new_fiat
+                        setting_modal.recommended_fiats = API.app.settings_pg.get_recommended_fiats()
                     }
                 }
 
@@ -123,7 +124,7 @@ Item
                     {
                         text: modelData
                         color: DexTheme.foregroundColor
-                        opacity: fiats_mouse_area.containsMouse ? .7 : 1
+                        opacity: text == API.app.settings_pg.current_fiat ? 1 : fiats_mouse_area.containsMouse ? .8 : .6
 
                         DexMouseArea
                         {

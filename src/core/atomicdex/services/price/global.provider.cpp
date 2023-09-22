@@ -19,7 +19,6 @@
 #include "atomicdex/api/coinpaprika/coinpaprika.hpp"
 #include "atomicdex/pages/qt.settings.page.hpp"
 #include "atomicdex/services/price/komodo_prices/komodo.prices.provider.hpp"
-#include "atomicdex/services/price/oracle/band.provider.hpp"
 
 namespace
 {
@@ -30,7 +29,7 @@ namespace
                                                               cfg.set_timeout(std::chrono::seconds(5));
                                                               return cfg;
                                                           }()};
-    t_http_client_ptr g_openrates_client = std::make_unique<web::http::client::http_client>(FROM_STD_STR("https://rates.komodo.live"), g_openrates_cfg);
+    t_http_client_ptr g_openrates_client = std::make_unique<web::http::client::http_client>(FROM_STD_STR("https://rates.komodo.earth"), g_openrates_cfg);
     pplx::cancellation_token_source g_token_source;
 
     pplx::task<web::http::http_response>
@@ -177,9 +176,9 @@ namespace atomic_dex
 
         const auto now = std::chrono::high_resolution_clock::now();
         const auto s   = std::chrono::duration_cast<std::chrono::seconds>(now - m_update_clock);
-        if (s >= 2min)
+        if (s >= 5min)
         {
-            SPDLOG_INFO("2min spend - refreshing provider");
+            SPDLOG_INFO("[global_price_service::update()] - 5min elapsed, updating providers");
             this->on_force_update_providers({});
             m_update_clock = std::chrono::high_resolution_clock::now();
         }
@@ -198,51 +197,27 @@ namespace atomic_dex
             //! FIXME: fix zatJum crash report, frontend QML try to retrieve price before program is even launched
             if (ticker.empty())
                 return "0";
-            auto&       provider       = m_system_manager.get_system<komodo_prices_provider>();
-            auto&       band_service    = m_system_manager.get_system<band_oracle_price_service>();
-            std::string current_price   = band_service.retrieve_if_this_ticker_supported(ticker);
-            const bool  is_oracle_ready = band_service.is_oracle_ready();
+            auto&       provider        = m_system_manager.get_system<komodo_prices_provider>();
+            std::string current_price   = provider.get_rate_conversion(ticker);
 
-            if (current_price.empty())
+            if (!is_this_currency_a_fiat(m_cfg, fiat))
             {
-                current_price = provider.get_rate_conversion(ticker);
-                if (!is_this_currency_a_fiat(m_cfg, fiat))
+                t_float_50 rate(1);
                 {
-                    t_float_50 rate(1);
+                    if (m_coin_rate_providers.contains(fiat))
                     {
-                        if (m_coin_rate_providers.contains(fiat))
-                        {
-                            std::shared_lock lock(m_coin_rate_mutex);
-                            rate = t_float_50(m_coin_rate_providers.at(fiat)); ///< Retrieve BTC or KMD rate let's say for USD
-                        }
-                    }
-                    t_float_50 tmp_current_price = t_float_50(current_price) * rate;
-                    current_price                = tmp_current_price.str();
-                }
-                else if (fiat != "USD")
-                {
-                    if (m_other_fiats_rates->contains("rates"))
-                    {
-                        t_float_50 tmp_current_price = t_float_50(current_price) * m_other_fiats_rates->at("rates").at(fiat).get<double>();
-                        current_price                = tmp_current_price.str();
+                        std::shared_lock lock(m_coin_rate_mutex);
+                        rate = t_float_50(m_coin_rate_providers.at(fiat)); ///< Retrieve BTC or KMD rate let's say for USD
                     }
                 }
+                t_float_50 tmp_current_price = t_float_50(current_price) * rate;
+                current_price                = tmp_current_price.str();
             }
-            else
+            else if (fiat != "USD")
             {
-                //! We use oracle
-                if (is_this_currency_a_fiat(m_cfg, fiat) && fiat != "USD")
+                if (m_other_fiats_rates->contains("rates"))
                 {
-                    if (m_other_fiats_rates->contains("rates"))
-                    {
-                        t_float_50 tmp_current_price = t_float_50(current_price) * m_other_fiats_rates->at("rates").at(fiat).get<double>();
-                        current_price                = tmp_current_price.str();
-                    }
-                }
-
-                else if (!is_this_currency_a_fiat(m_cfg, fiat) && is_oracle_ready)
-                {
-                    t_float_50 tmp_current_price = (t_float_50(current_price)) * band_service.retrieve_rates(fiat);
+                    t_float_50 tmp_current_price = t_float_50(current_price) * m_other_fiats_rates->at("rates").at(fiat).get<double>();
                     current_price                = tmp_current_price.str();
                 }
             }

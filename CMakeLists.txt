@@ -11,7 +11,7 @@ include(vcpkg_prerequisites)
 include(qt_prerequisites)
 include(cfg_hash)
 
-project(${DEX_PROJECT_NAME} LANGUAGES CXX VERSION 0.5.7)
+project(${DEX_PROJECT_NAME} LANGUAGES CXX VERSION 0.6.1)
 message(STATUS "${PROJECT_NAME} is version ${PROJECT_VERSION}")
 
 include(cmake_default_options)
@@ -60,13 +60,13 @@ endif ()
 ##! We fetch our dependencies
 if (APPLE)
     FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.1.8741/mm2-6e4de5d21-Darwin-Release.zip)
+            URL https://github.com/KomodoPlatform/komodo-defi-framework/releases/download/v1.0.7-beta/mm2-79f620559-Darwin-Release.zip)
 elseif (UNIX AND NOT APPLE)
     FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.1.8741/mm2-6e4de5d21-Linux-Release.zip)
+            URL https://github.com/KomodoPlatform/komodo-defi-framework/releases/download/v1.0.7-beta/mm2-79f620559-Linux-Release.zip)
 else ()
     FetchContent_Declare(mm2
-            URL https://github.com/KomodoPlatform/atomicDEX-API/releases/download/beta-2.1.8741/mm2-6e4de5d21-Windows_NT-Release.zip)
+            URL https://github.com/KomodoPlatform/komodo-defi-framework/releases/download/v1.0.7-beta/mm2-79f620559-Win64.zip)
 endif ()
 
 #FetchContent_Declare(qmaterial URL https://github.com/KomodoPlatform/Qaterial/archive/last-clang-working-2.zip)
@@ -78,10 +78,10 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(jl777-coins
-        URL https://github.com/KomodoPlatform/coins/archive/master.zip)
+        URL https://github.com/KomodoPlatform/coins/archive/ssl-only-coins-config.zip)
 
 #FetchContent_Declare(adex-generics-coins
-#        URL https://github.com/KomodoPlatform/atomicdex-desktop-generics/archive/main.zip)
+#        URL https://github.com/KomodoPlatform/komodo-wallet-desktop/archive/main.zip)
 
 FetchContent_MakeAvailable(mm2 jl777-coins qmaterial)
 

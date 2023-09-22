@@ -2,8 +2,8 @@
 
 sudo apt-get update  # prevents repo404 errors on apt-remove below
 sudo apt-get remove php* msodbcsql17 mysql*
-sudo apt-get update
-sudo ACCEPT_EULA=Y apt-get upgrade -y
+#sudo apt-get update
+#sudo ACCEPT_EULA=Y apt-get upgrade -y
 # base deps
 sudo apt-get install build-essential \
                     libgl1-mesa-dev \
@@ -54,7 +54,7 @@ sudo cp -r * /usr/local/
 cmake --version
 
 # get libwally
-git clone https://github.com/KomodoPlatform/libwally-core.git
+git clone https://github.com/KomodoPlatform/libwally-core.git --recurse-submodules
 cd libwally-core
 ./tools/autogen.sh
 ./configure --disable-shared

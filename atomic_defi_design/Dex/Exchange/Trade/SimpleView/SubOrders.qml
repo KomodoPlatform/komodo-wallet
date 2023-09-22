@@ -245,7 +245,7 @@ Item
                     {
                         anchors.fill: parent
                         spacing: 15
-                        DefaultButton
+                        CancelButton
                         {
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignVCenter
@@ -253,6 +253,7 @@ Item
                             text: qsTr("Cancel")
                             onClicked: _subOrdersRoot.displayFilter = false
                         }
+
                         DefaultButton
                         {
                             Layout.fillWidth: true

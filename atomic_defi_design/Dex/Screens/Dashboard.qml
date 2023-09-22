@@ -20,6 +20,7 @@ import "../Support" as SupportPage
 import "../Screens"
 import "../Addressbook" as Addressbook
 import Dex.Themes 1.0 as Dex
+import AtomicDEX.TradingMode 1.0
 
 Item
 {
@@ -86,14 +87,7 @@ Item
         sidebar.currentLineType = currentPage
         if (currentPage == Dashboard.PageType.DEX)
         {
-            if (API.app.trading_pg.current_trading_mode == TradingMode.Pro)
-            {
-                API.app.trading_pg.set_pair(false, api_wallet_page.ticker)
-            }
-            else
-            {
-                API.app.trading_pg.set_pair(true, api_wallet_page.ticker)
-            }
+            API.app.trading_pg.set_pair(true, api_wallet_page.ticker)
         }
     }
 
@@ -115,6 +109,7 @@ Item
         }
     }
 
+
     // Right side
     AnimatedRectangle
     {
@@ -122,6 +117,18 @@ Item
         height: parent.height
         x: sidebar.width
         border.color: 'transparent'
+
+        Rectangle
+        {
+            radius: 0
+            anchors.fill: parent
+            anchors.rightMargin : - border.width
+            anchors.bottomMargin:  - border.width
+            anchors.leftMargin: - border.width
+            border.width: 1
+            border.color: Dex.CurrentTheme.lineSeparatorColor
+            color: 'transparent'
+        }
 
         // Modals
         ModalLoader
@@ -272,6 +279,7 @@ Item
         enabled: loader.status === Loader.Ready
 
         onLineSelected: currentPage = lineType;
+        onAddCryptoClicked: enable_coin_modal.open()
         onSettingsClicked: setting_modal.open()
         onSupportClicked: support_modal.open()
     }
@@ -366,7 +374,7 @@ Item
                 return Dex.CurrentTheme.sidebarLineTextHovered
             case "failed":
             default:
-                return DexTheme.redColor
+                return DexTheme.warningColor
         }
     }
 

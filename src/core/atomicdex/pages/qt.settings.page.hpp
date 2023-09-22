@@ -45,6 +45,7 @@ namespace atomic_dex
         Q_PROPERTY(QString  current_fiat_sign               READ get_current_fiat_sign                                                          NOTIFY onFiatSignChanged)
         Q_PROPERTY(QString  current_fiat                    READ get_current_fiat                   WRITE set_current_fiat                      NOTIFY onFiatChanged)
         Q_PROPERTY(bool     notification_enabled            READ is_notification_enabled            WRITE set_notification_enabled              NOTIFY onNotificationEnabledChanged)
+        Q_PROPERTY(bool     spamfilter_enabled              READ is_spamfilter_enabled              WRITE set_spamfilter_enabled                NOTIFY onSpamFilterEnabledChanged)
         Q_PROPERTY(QVariant custom_token_data               READ get_custom_token_data              WRITE set_custom_token_data                 NOTIFY customTokenDataChanged)
         Q_PROPERTY(bool     fetching_custom_token_data_busy READ is_fetching_custom_token_data_busy WRITE set_fetching_custom_token_data_busy   NOTIFY customTokenDataStatusChanged)
         Q_PROPERTY(bool     fetching_priv_keys_busy         READ is_fetching_priv_key_busy          WRITE set_fetching_priv_key_busy            NOTIFY privKeyStatusChanged)
@@ -80,8 +81,11 @@ namespace atomic_dex
         [[nodiscard]] QString                   get_current_currency_sign() const;
         [[nodiscard]] QString                   get_current_fiat_sign() const;
         [[nodiscard]] QString                   get_current_fiat() const;
+        void                                    set_pirate_sync_date(int new_timestamp);
         [[nodiscard]] bool                      is_notification_enabled() const;
         void                                    set_notification_enabled(bool is_enabled);
+        [[nodiscard]] bool                      is_spamfilter_enabled() const;
+        void                                    set_spamfilter_enabled(bool is_enabled);
         void                                    set_current_currency(const QString& current_currency);
         void                                    set_current_fiat(const QString& current_fiat);
         [[nodiscard]] bool                      is_fetching_custom_token_data_busy() const;
@@ -100,11 +104,13 @@ namespace atomic_dex
         Q_INVOKABLE void                        remove_custom_coin(const QString& ticker);
         Q_INVOKABLE [[nodiscard]] QStringList   get_available_langs() const;
         Q_INVOKABLE [[nodiscard]] QStringList   get_available_fiats() const;
-        Q_INVOKABLE [[nodiscard]] QStringList   get_recommended_fiats() const; // Returns 6 recommended fiats. Basically, the first 6 values in cfg.json.
+        Q_INVOKABLE [[nodiscard]] QStringList   get_recommended_fiats();
         Q_INVOKABLE [[nodiscard]] QStringList   get_available_currencies() const;
         Q_INVOKABLE [[nodiscard]] bool          is_this_ticker_present_in_raw_cfg(const QString& ticker) const;
         Q_INVOKABLE [[nodiscard]] bool          is_this_ticker_present_in_normal_cfg(const QString& ticker) const;
         Q_INVOKABLE [[nodiscard]] QString       get_custom_coins_icons_path() const;
+        Q_INVOKABLE [[nodiscard]] int           get_pirate_sync_date() const;
+        Q_INVOKABLE [[nodiscard]] int           get_pirate_sync_height(int sync_date, int checkpoint_height, int checkpoint_blocktime) const;
         Q_INVOKABLE void                        process_token_add(const QString& contract_address, const QString& coingecko_id, const QString& icon_filepath, CoinType coin_type);
         Q_INVOKABLE void                        process_qrc_20_token_add(const QString& contract_address, const QString& coingecko_id, const QString& icon_filepath);
         Q_INVOKABLE void                        submit();
@@ -124,6 +130,7 @@ namespace atomic_dex
         void onFiatSignChanged();
         void onFiatChanged();
         void onNotificationEnabledChanged();
+        void onSpamFilterEnabledChanged();
         void customTokenDataChanged();
         void customTokenDataStatusChanged();
         void privKeyStatusChanged();

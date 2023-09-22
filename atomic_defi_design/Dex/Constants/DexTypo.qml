@@ -3,8 +3,7 @@ pragma Singleton
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-
-import App 1.0 as App 
+import QtQuick.Window 2.15
 
 QtObject {
     id: _font
@@ -12,7 +11,7 @@ QtObject {
     property real fontDensity: 1.0
 
     property real languageDensity: {
-        switch (App.API.app.settings_pg.lang) {
+        switch (General.getLanguage()) {
             case "en":
                 return 0.99999
             case "fr":
@@ -154,5 +153,17 @@ QtObject {
         letterSpacing: 0.4,
         family: "Courier",
         weight: Font.Normal
+    })
+    property font inputFieldFont: Qt.font({
+        pixelSize: (16 * DexTypo.fontDensity) * (Screen.pixelDensity / 160),
+        letterSpacing: 0.5,
+        family: DexTypo.fontFamily,
+        weight: Font.Normal
+    })
+    property font inputFieldSuffixFont: Qt.font({
+        pixelSize: (14 * DexTypo.fontDensity) * (Screen.pixelDensity / 140),
+        letterSpacing: 0.1,
+        family: fontFamily,
+        weight: Font.Medium
     })
 }

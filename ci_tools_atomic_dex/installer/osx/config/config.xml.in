@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>${DEX_DISPLAY_NAME}</Name>
-    <Version>0.5.7</Version>
+    <Version>@DEX_VERSION@</Version>
     <Title>${DEX_DISPLAY_NAME} Installer</Title>
     <ProductUrl>${DEX_WEBSITE}</ProductUrl>
     <Publisher>${DEX_COMPANY}</Publisher>

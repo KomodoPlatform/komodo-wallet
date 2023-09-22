@@ -146,7 +146,7 @@ MultipageModal
         // Buttons
         footer:
         [
-            DefaultButton
+            CancelButton
             {
                 text: qsTr("Cancel")
                 Layout.preferredWidth: 220

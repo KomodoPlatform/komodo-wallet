@@ -3,7 +3,6 @@
     "foregroundColor": "#110202",
     "backgroundColor": "#F9F5F5FF",
     "backgroundColorDeep": "#F9F5F5FF",
-
     "busyIndicatorColor": "#CB1C2EAF",
 
     "buttonColorDisabled": "#D8E3F8",
@@ -68,7 +67,6 @@
 
     "chartTradingLineBackgroundColor": "#24283d",
     "chartTradingLineColor": "#74fbee",
-
     "innerBackgroundColor": "#F9F5F5FF",
 
     "floatingBackgroundColor": "#F9F5F5FF",
@@ -94,13 +92,27 @@
     "tradeSellModeSelectorBackgroundColorEnd": "#F48EA1FF",
     "tradeMarketModeSelectorNotSelectedBackgroundColor": "#89B6FF21",
 
-    "addressBookTagColors": ["#627EEAFF", "#FFD87AFF", "#F7931AFF"],
+    "inputModifierBackgroundColor": "#89B6FF21",
+    "inputFieldBackgroundColor":    "#F3F5F6FF",
+
+    "inputFieldBorderColor":        "#DCE8FD88",
+    "inputPlaceholderTextColor":    "#456078FF",
+    "inputRightIconColor":          "#456078FF",
+    "inputLeftIconColor":           "#456078FF",
+    "inputLeftIconBackgroundColor": "#DCE8FDFF",
+
+    "listItemOddBackground": "#FCFCFCFF",
+    "listItemEvenBackground": "#EDF4FFFF",
+    "listItemHoveredBackground": "#D7E7FFFF",
+
+    "addressBookTagColors": ["#003bbbFF", "#006133FF", "#612600FF", "#430061FF", "#004d61FF"],
 
     "okColor": "#00C058FF",
-    "noColor": "#E52167FF",
+    "warningColor": "#E52167FF",
+    "swapIconColor": "#005FBEFF",
 
-    "senderColorStart": "#F85757",
-    "receiverColorStart": "#845FEF",
+    "senderColorStart": "#F85757FF",
+    "receiverColorStart": "#845FEFFF",
 
     "arrowUpColor": "#F85757FF",
     "arrowDownColor": "#845FEFFF",

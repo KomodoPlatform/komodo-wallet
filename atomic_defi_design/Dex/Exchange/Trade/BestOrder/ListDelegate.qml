@@ -100,7 +100,7 @@ Item
                                                                   parseFloat(cex_rates).toFixed(2) + "%"
             color: cex_rates === "0" ? Qt.darker(Dex.CurrentTheme.foregroundColor) :
                                        parseFloat(cex_rates) < 0 ? Dex.CurrentTheme.okColor :
-                                                                   Dex.CurrentTheme.noColor
+                                                                   Dex.CurrentTheme.warningColor
 
             Behavior on rightPadding
             {

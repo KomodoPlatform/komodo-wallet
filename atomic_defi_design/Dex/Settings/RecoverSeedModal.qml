@@ -69,10 +69,7 @@ MultipageModal
             Layout.margins: 20
             Layout.alignment: Qt.AlignHCenter
             field.onAccepted: tryViewKeysAndSeed()
-            leftIconColor: Dex.CurrentTheme.foregroundColor
             field.onTextChanged: { _isPasswordWrong = false }
-            background.color: Dex.CurrentTheme.accentColor            
-            hideFieldButton.icon.color: Dex.CurrentTheme.foregroundColor
         }
 
         DexLabel
@@ -80,7 +77,7 @@ MultipageModal
             Layout.alignment: Qt.AlignHCenter
             height: 14
             text: _isPasswordWrong ? qsTr("Incorrect Password") : ""
-            color: Dex.CurrentTheme.noColor
+            color: Dex.CurrentTheme.warningColor
         }
 
         // Footer
@@ -88,7 +85,7 @@ MultipageModal
         {
             Layout.preferredWidth: parent.width
             Layout.topMargin: 30
-            DefaultButton
+            CancelButton
             {
                 text: qsTr("Cancel")
                 Layout.preferredWidth: parent.width / 100 * 48

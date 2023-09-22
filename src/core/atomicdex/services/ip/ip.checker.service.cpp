@@ -33,7 +33,7 @@ namespace
         return cfg;
     }()};
 
-    t_http_client_ptr g_ip_proxy_client{std::make_unique<web::http::client::http_client>(FROM_STD_STR("https://komodo.live:3335"), g_ip_cfg)};
+    t_http_client_ptr g_ip_proxy_client{std::make_unique<web::http::client::http_client>(FROM_STD_STR("https://komodo.earth:3335"), g_ip_cfg)};
     t_http_client_ptr g_ipify_client{std::make_unique<web::http::client::http_client>(FROM_STD_STR("https://api.ipify.org"), g_ip_cfg)};
 
     pplx::task<web::http::http_response>

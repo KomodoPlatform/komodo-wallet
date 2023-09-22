@@ -14,25 +14,22 @@ DexAppTextField
 
     property bool forceFocus: false
     property string leftIcon: Qaterial.Icons.keyVariant
-    property color leftIconColor: Dex.CurrentTheme.foregroundColor
+    property color leftIconColor: Dex.CurrentTheme.inputLeftIconColor
+    property color rightIconColor: Dex.CurrentTheme.inputRightIconColor
     property alias hideFieldButton: _hideFieldButton
 
     height: 50
     width: 300
     background.radius: 25
     max_length: General.max_std_pw_length
+
     field.echoMode: TextField.Password
-    field.font: Qt.font(
-    {
-        pixelSize: (16 * DexTypo.fontDensity) * (Screen.pixelDensity / 160),
-        letterSpacing: 0.5,
-        family: DexTypo.fontFamily,
-        weight: Font.Normal
-    })
+    field.font: DexTypo.inputFieldFont
     field.horizontalAlignment: Qt.AlignLeft
     field.leftPadding: 75
     field.rightPadding: 60
     field.placeholderText: qsTr("Type password")
+
     Component.onCompleted:
     {
         if (forceFocus) field.forceActiveFocus()
@@ -44,8 +41,7 @@ DexAppTextField
         height: 40
         width: 60
         radius: 20
-        color: Dex.CurrentTheme.accentColor
-        border.color: Dex.CurrentTheme.accentColor
+        color: Dex.CurrentTheme.inputLeftIconBackgroundColor
         border.width: _inputPassword.focus ? 2 : 0
 
         anchors.verticalCenter: parent.verticalCenter
@@ -66,7 +62,7 @@ DexAppTextField
         icon
         {
             source: _inputPassword.field.echoMode === TextField.Password ? Qaterial.Icons.eyeOffOutline : Qaterial.Icons.eyeOutline
-            color: Dex.CurrentTheme.foregroundColor
+            color: rightIconColor
         }
         anchors
         {

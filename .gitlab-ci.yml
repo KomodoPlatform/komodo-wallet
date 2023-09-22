@@ -18,9 +18,9 @@ variables:
 cache:
   - key: $CI_COMMIT_REF_SLUG
     paths:
-      - atomicdex-desktop-linux-${CI_COMMIT_SHA::9}.zip
-      - atomicdex-desktop-linux-${CI_COMMIT_SHA::9}.tar.zst
-      - atomicdex-desktop-${CI_COMMIT_SHA::9}-x86_64.AppImage
+      - komodo-wallet-linux-${CI_COMMIT_SHA::9}.zip
+      - komodo-wallet-linux-${CI_COMMIT_SHA::9}.tar.zst
+      - komodo-wallet-${CI_COMMIT_SHA::9}-x86_64.AppImage
   - key: $CI_PROJECT_NAME
     paths:
       - "$CI_PROJECT_DIR/.cache/vcpkg"
@@ -68,12 +68,12 @@ linux:build:
     - rm -rf build_ninja || echo "no build_ninja folder to rm"
     - mkdir build_ninja && cd $_
     - cmake -DCMAKE_BUILD_TYPE=Release -GNinja ../
-    - ninja atomicdex-desktop 
     - ninja install  
+    - ninja komodo-wallet
     - cd $CI_PROJECT_DIR
-    - cp $CI_PROJECT_DIR/bundled/linux/atomicdex-desktop-linux-${CI_COMMIT_SHA::9}.zip .
-    - cp $CI_PROJECT_DIR/bundled/linux/atomicdex-desktop-linux-${CI_COMMIT_SHA::9}.tar.zst .
-    - cp $CI_PROJECT_DIR/bundled/linux/atomicdex-desktop-${CI_COMMIT_SHA::9}-x86_64.AppImage .
+    - cp $CI_PROJECT_DIR/bundled/linux/komodo-wallet-linux-${CI_COMMIT_SHA::9}.zip .
+    - cp $CI_PROJECT_DIR/bundled/linux/komodo-wallet-linux-${CI_COMMIT_SHA::9}.tar.zst .
+    - cp $CI_PROJECT_DIR/bundled/linux/komodo-wallet-${CI_COMMIT_SHA::9}-x86_64.AppImage .
 
 AtomicDex-linux-zip:
   stage: upload_linux_zip
@@ -83,7 +83,7 @@ AtomicDex-linux-zip:
   artifacts:
     name: "AtomicDex-linux-${CI_COMMIT_SHA::9}.zip"
     paths:
-      - $CI_PROJECT_DIR/atomicdex-desktop-linux-${CI_COMMIT_SHA::9}.zip
+      - $CI_PROJECT_DIR/komodo-wallet-linux-${CI_COMMIT_SHA::9}.zip
     when: always
     expire_in: 3 days
 
@@ -95,7 +95,7 @@ AtomicDex-linux-AppImage:
   artifacts:
     name: "AtomicDex-linux-${CI_COMMIT_SHA::9}-AppImage"
     paths:
-      - $CI_PROJECT_DIR/atomicdex-desktop-${CI_COMMIT_SHA::9}-x86_64.AppImage
+      - $CI_PROJECT_DIR/komodo-wallet-${CI_COMMIT_SHA::9}-x86_64.AppImage
     when: always
     expire_in: 3 days
 
@@ -107,6 +107,6 @@ AtomicDex-linux-tar:
   artifacts:
     name: "AtomicDex-linux-${CI_COMMIT_SHA::9}.tar.zst"
     paths:
-      - $CI_PROJECT_DIR/atomicdex-desktop-linux-${CI_COMMIT_SHA::9}.tar.zst
+      - $CI_PROJECT_DIR/komodo-wallet-linux-${CI_COMMIT_SHA::9}.tar.zst
     when: always
     expire_in: 3 days

@@ -34,7 +34,7 @@ Dex.MultipageModal
             },
 
             // Cancel button
-            Dex.Button
+            Dex.CancelButton
             {
                 Layout.rightMargin: 5
                 text: qsTr("Cancel")

@@ -35,8 +35,6 @@ namespace atomic_dex
 
         //! Properties
         Q_PROPERTY(portfolio_model* portfolio_mdl READ get_portfolio NOTIFY portfolioChanged)
-        Q_PROPERTY(QString oracle_last_price_reference READ get_oracle_last_price_reference NOTIFY oraclePriceUpdated)
-        Q_PROPERTY(QStringList oracle_price_supported_pairs READ get_oracle_price_supported_pairs NOTIFY oraclePriceUpdated)
         Q_PROPERTY(QString balance_fiat_all READ get_balance_fiat_all WRITE set_current_balance_fiat_all NOTIFY onFiatBalanceAllChanged)
         Q_PROPERTY(QString main_balance_fiat_all READ get_main_balance_fiat_all NOTIFY onMainFiatBalanceAllChanged)
         Q_PROPERTY(global_coins_cfg_model* global_cfg_mdl READ get_global_cfg NOTIFY globalCfgMdlChanged)
@@ -69,8 +67,6 @@ namespace atomic_dex
 
         [[nodiscard]] portfolio_model*        get_portfolio() const;
         [[nodiscard]] global_coins_cfg_model* get_global_cfg() const;
-        [[nodiscard]] QString                 get_oracle_last_price_reference() const;
-        [[nodiscard]] QStringList             get_oracle_price_supported_pairs() const;
         [[nodiscard]] Q_INVOKABLE QStringList get_all_enabled_coins() const;
         [[nodiscard]] Q_INVOKABLE QStringList get_all_coins_by_type(const QString& coin_type) const;
         [[nodiscard]] Q_INVOKABLE bool        is_coin_enabled(const QString& coin_name) const;
@@ -89,13 +85,11 @@ namespace atomic_dex
         [[nodiscard]] QString get_max_total_chart() const;
 
         //! Events
-        void on_band_oracle_refreshed([[maybe_unused]] const band_oracle_refreshed& evt);
         void on_update_portfolio_values_event(const update_portfolio_values&);
         void on_coin_cfg_parsed(const coin_cfg_parsed& evt);
 
       signals:
         void portfolioChanged();
-        void oraclePriceUpdated();
         void onFiatBalanceAllChanged();
         void onMainFiatBalanceAllChanged();
         void globalCfgMdlChanged();

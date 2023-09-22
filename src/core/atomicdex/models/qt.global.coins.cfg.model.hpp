@@ -83,6 +83,7 @@ namespace atomic_dex
         [[nodiscard]] global_coins_cfg_proxy_model*   get_all_proxy() const;
         [[nodiscard]] global_coins_cfg_proxy_model*   get_all_qrc20_proxy() const;
         [[nodiscard]] global_coins_cfg_proxy_model*   get_all_erc20_proxy() const;
+        [[nodiscard]] global_coins_cfg_proxy_model*   get_all_ewt_proxy() const;
         [[nodiscard]] global_coins_cfg_proxy_model*   get_all_bep20_proxy() const;
         [[nodiscard]] global_coins_cfg_proxy_model*   get_all_smartchains_proxy() const;
         [[nodiscard]] global_coins_cfg_proxy_model*   get_all_utxo_proxy() const;
@@ -104,6 +105,7 @@ namespace atomic_dex
         Q_PROPERTY(global_coins_cfg_proxy_model* all_proxy             READ get_all_proxy             NOTIFY all_proxyChanged)
         Q_PROPERTY(global_coins_cfg_proxy_model* all_qrc20_proxy       READ get_all_qrc20_proxy       NOTIFY all_qrc20_proxyChanged)
         Q_PROPERTY(global_coins_cfg_proxy_model* all_erc20_proxy       READ get_all_erc20_proxy       NOTIFY all_erc20_proxyChanged)
+        Q_PROPERTY(global_coins_cfg_proxy_model* all_ewt_proxy         READ get_all_ewt_proxy         NOTIFY all_ewt_proxyChanged)
         Q_PROPERTY(global_coins_cfg_proxy_model* all_bep20_proxy       READ get_all_bep20_proxy       NOTIFY all_bep20_proxyChanged)
         Q_PROPERTY(global_coins_cfg_proxy_model* all_smartchains_proxy READ get_all_smartchains_proxy NOTIFY all_smartchains_proxyChanged)
         Q_PROPERTY(global_coins_cfg_proxy_model* all_utxo_proxy        READ get_all_utxo_proxy        NOTIFY all_utxo_proxyChanged)
@@ -119,6 +121,7 @@ namespace atomic_dex
         void all_proxyChanged();
         void all_qrc20_proxyChanged();
         void all_erc20_proxyChanged();
+        void all_ewt_proxyChanged();
         void all_bep20_proxyChanged();
         void all_smartchains_proxyChanged();
         void all_utxo_proxyChanged();

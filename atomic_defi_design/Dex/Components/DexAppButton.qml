@@ -22,6 +22,12 @@ DexRectangle
     property int    verticalPadding: 2
     property int    horizontalPadding: 2
     property int    iconSize: _label.font.pixelSize + 2
+    property color  iconColor: _label.color
+
+    property color btnPressedColor:  Dex.CurrentTheme.buttonColorPressed
+    property color btnHoveredColor:  Dex.CurrentTheme.buttonColorHovered
+    property color btnEnabledColor:  Dex.CurrentTheme.buttonColorEnabled
+    property color btnDisabledColor: Dex.CurrentTheme.buttonColorDisabled
 
     property alias label: _label
     property alias font: _label.font
@@ -41,10 +47,7 @@ DexRectangle
 
     colorAnimation: false
     color: enabled ? _controlMouseArea.containsMouse ? _controlMouseArea.containsPress ?
-               Dex.CurrentTheme.buttonColorPressed :
-               Dex.CurrentTheme.buttonColorHovered :
-               Dex.CurrentTheme.buttonColorEnabled :
-               Dex.CurrentTheme.buttonColorDisabled
+               btnPressedColor : btnHoveredColor : btnEnabledColor : btnDisabledColor
     opacity: _controlMouseArea.containsMouse ? 1 : .8
 
     Row

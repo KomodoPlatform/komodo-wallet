@@ -37,6 +37,7 @@ namespace atomic_dex
         "REVS",
         "SUPERNET",
         "XPM",
+        "VOTE2023",
         "ATOM"
     };
 }

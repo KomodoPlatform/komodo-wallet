@@ -399,6 +399,17 @@ namespace atomic_dex
         return true;
     }
 
+    QString
+    portfolio_model::coin_balance(QString coin)
+    {
+        auto res = this->match(this->index(0, 0), TickerRole, coin, 1, Qt::MatchFlag::MatchExactly);
+        // assert(not res.empty());
+        if (not res.empty())
+        {
+            return QString(this->data(res.at(0), BalanceRole).toString());
+        }
+    }
+
     void
     portfolio_model::disable_coins(const QStringList& coins)
     {
@@ -522,7 +533,12 @@ namespace atomic_dex
         QString    amount     = QString::fromStdString(amount_f.str(8, std::ios_base::fixed));
         qint64     timestamp  = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
         QString    human_date = QString::fromStdString(utils::to_human_date<std::chrono::seconds>(timestamp, "%e %b %Y, %H:%M"));
-        this->m_dispatcher.trigger<balance_update_notification>(am_i_sender, amount, ticker, human_date, timestamp);
+        // Logs showed `balance update notification: am_i_sender: false amount: 0.00000000 ticker: USDT-SLP` sometimes, just before a crash.
+        // This is a temporary fix to see if it prevents the crash.
+        if (amount_f > 0.0)
+        {
+            this->m_dispatcher.trigger<balance_update_notification>(am_i_sender, amount, ticker, human_date, timestamp);
+        }
         emit portfolioItemDataChanged();
     }
 

@@ -47,6 +47,7 @@ Item
             id: _simpleLabel
             text: "Simple"
             color: API.app.trading_pg.current_trading_mode == TradingMode.Simple ? Dex.CurrentTheme.foregroundColor : Dex.CurrentTheme.foregroundColor2
+            anchors.leftMargin: 16
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
             font.pixelSize: 14

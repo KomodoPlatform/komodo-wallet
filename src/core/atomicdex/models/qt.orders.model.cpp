@@ -716,7 +716,8 @@ namespace atomic_dex
         mm2::to_json(json_data, req);
         batch.push_back(json_data);
 
-        SPDLOG_DEBUG("recover_funds_of_swap request: {}", json_data.dump(-1));
+        // json_data["userpass"] = "*****";
+        // SPDLOG_DEBUG("recover_funds_of_swap request: {}", json_data.dump(-1));
 
         auto answer_functor = [this](web::http::http_response resp)
         {

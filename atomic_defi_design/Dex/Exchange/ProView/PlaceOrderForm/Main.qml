@@ -23,7 +23,7 @@ Widget
     readonly property bool trade_preimage_ready: fees.hasOwnProperty('base_transaction_fees_ticker')
     readonly property bool can_submit_trade: last_trading_error === TradingError.None
 
-    margins: 15
+    margins: 10
     collapsable: false
 
     Connections {
@@ -75,13 +75,13 @@ Widget
         Layout.bottomMargin: 2
         Layout.alignment: Qt.AlignHCenter
         Layout.preferredWidth: parent.width
-        height: 40
+        height: 32
 
         MarketModeSelector
         {
             Layout.alignment: Qt.AlignLeft
             Layout.preferredWidth: (parent.width / 100) * 46
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: 32
             marketMode: MarketMode.Buy
             ticker: atomic_qt_utilities.retrieve_main_ticker(left_ticker)
         }
@@ -92,7 +92,7 @@ Widget
         {
             Layout.alignment: Qt.AlignRight
             Layout.preferredWidth: (parent.width / 100) * 46
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: 32
             ticker: atomic_qt_utilities.retrieve_main_ticker(left_ticker)
         }
     }
@@ -100,7 +100,7 @@ Widget
     // Protocol text for platform tokens
     Item
     {
-        height: 40
+        height: 32
         Layout.alignment: Qt.AlignHCenter
         Layout.preferredWidth: parent.width
         visible: protocolIcon != ""
@@ -151,7 +151,7 @@ Widget
     {
         Layout.alignment: Qt.AlignHCenter
         Layout.preferredWidth: parent.width
-        height: 40
+        height: 32
 
         RowLayout
         {
@@ -163,7 +163,7 @@ Widget
             DefaultText
             {
                 Layout.leftMargin: 15
-                color: Dex.CurrentTheme.noColor
+                color: Dex.CurrentTheme.warningColor
                 text: qsTr("Order Selected")
             }
 
@@ -174,7 +174,7 @@ Widget
                 Layout.preferredHeight: parent.height
                 Layout.preferredWidth: 30
                 Layout.rightMargin: 5
-                foregroundColor: Dex.CurrentTheme.noColor
+                foregroundColor: Dex.CurrentTheme.warningColor
                 onClicked: {
                     API.app.trading_pg.reset_order()
                     reset_fees_state()
@@ -184,7 +184,7 @@ Widget
                 {
                     anchors.centerIn: parent
                     iconSize: 16
-                    color: Dex.CurrentTheme.noColor
+                    color: Dex.CurrentTheme.warningColor
                     source: Qaterial.Icons.close
                 }
             }
@@ -196,7 +196,7 @@ Widget
             anchors.fill: parent
             radius: 8
             color: 'transparent'
-            border.color: Dex.CurrentTheme.noColor
+            border.color: Dex.CurrentTheme.warningColor
         }
     }
 
@@ -204,7 +204,7 @@ Widget
     {
         id: formBase
         width: parent.width
-        height: 340
+        height: 330
         Layout.alignment: Qt.AlignHCenter
     }
 
@@ -213,7 +213,7 @@ Widget
     // Error messages
     Item
     {
-        height: 60
+        height: 55
         Layout.preferredWidth: parent.width
 
         // Show errors
@@ -225,7 +225,7 @@ Widget
             anchors.centerIn: parent
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: Style.textSizeSmall4
-            color: Dex.CurrentTheme.noColor
+            color: Dex.CurrentTheme.warningColor
             text_value: General.getTradingError(
                             last_trading_error,
                             curr_fee_info,
@@ -237,7 +237,7 @@ Widget
 
     TotalView
     {
-        height: 80
+        height: 70
         Layout.preferredWidth: parent.width
         Layout.alignment: Qt.AlignHCenter
     }
@@ -245,11 +245,11 @@ Widget
     DexGradientAppButton
     {
         id: swap_btn
-        height: 40
-        Layout.preferredWidth: parent.width - 20
+        height: 32
+        Layout.preferredWidth: parent.width - 30
         Layout.alignment: Qt.AlignHCenter
 
-        radius: 18
+        radius: 16
         text: qsTr("START SWAP")
         font.weight: Font.Medium
         enabled: can_submit_trade && !show_waiting_for_trade_preimage && errors.text_value == ""

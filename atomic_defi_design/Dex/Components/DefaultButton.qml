@@ -3,6 +3,5 @@ import "../Constants"
 import App 1.0
 
 // Add button
-DexButton {
-
-}
+DexAppButton {}
+ 

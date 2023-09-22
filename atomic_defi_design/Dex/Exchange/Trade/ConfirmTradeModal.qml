@@ -17,8 +17,8 @@ MultipageModal
     id: root
     readonly property var fees: API.app.trading_pg.fees
     width: 720
-    horizontalPadding: 30
-    verticalPadding: 30
+    horizontalPadding: 20
+    verticalPadding: 20
     closePolicy: Popup.NoAutoClose
 
     MultipageModalContent
@@ -34,29 +34,41 @@ MultipageModal
             RowLayout
             {
                 id: dex_pair_badges
+                Layout.fillWidth: true
+                Layout.preferredHeight: 70
+                Layout.preferredWidth: 480
+
+                Item { Layout.fillWidth: true }
 
                 PairItemBadge
                 {
                     ticker: base_ticker
                     fullname: General.coinName(base_ticker)
                     amount: base_amount
+                    Layout.fillHeight: true
                 }
+
+                Item { Layout.fillWidth: true }
 
                 Qaterial.Icon
                 {
-                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
-
                     color: Dex.CurrentTheme.foregroundColor
                     icon: Qaterial.Icons.swapHorizontal
+                    Layout.fillHeight: true
                 }
+
+                Item { Layout.fillWidth: true }
 
                 PairItemBadge
                 {
                     ticker: rel_ticker
                     fullname: General.coinName(rel_ticker)
                     amount: rel_amount
+                    Layout.fillHeight: true
                 }
+
+                Item { Layout.fillWidth: true }
             },
 
             PriceLineSimplified
@@ -95,6 +107,7 @@ MultipageModal
                             spacing: 2
                             boxWidth: 16
                             boxHeight: 16
+                            boxRadius: 8
                             label.wrapMode: Label.NoWrap
                             text: qsTr("Trade price is more than 50% different to CEX! Confirm?")
                             font: DexTypo.caption
@@ -215,7 +228,7 @@ MultipageModal
                         width: parent.width
                         horizontalAlignment: DefaultText.AlignHCenter
                         font: DexTypo.caption
-                        color: Dex.CurrentTheme.noColor
+                        color: Dex.CurrentTheme.warningColor
                         text_value: General.getTradingError(
                                         last_trading_error,
                                         curr_fee_info,
@@ -396,7 +409,7 @@ MultipageModal
         [
             Item { Layout.fillWidth: true },
 
-            DefaultButton
+            CancelButton
             {
                 text: qsTr("Cancel")
                 padding: 10

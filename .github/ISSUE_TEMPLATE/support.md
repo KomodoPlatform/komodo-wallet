@@ -8,5 +8,5 @@ assignees: ''
 ---
 
 [Komodo Platform Discord Support Channel](https://discord.gg/RRZ8hzc)
-[Komodo Platform Forum](https://forum.komodoplatform.com/t/atomicdex-desktop-collection/541)
+[Komodo Platform Forum](https://forum.komodoplatform.com/t/komodo-wallet-desktop-collection/541)
 [Develper Documentation](https://developers.komodoplatform.com/)

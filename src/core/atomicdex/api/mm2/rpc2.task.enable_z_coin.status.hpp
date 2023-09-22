@@ -27,14 +27,14 @@
 
 namespace atomic_dex::mm2
 {
-    struct init_z_coin_status_request
+    struct enable_z_coin_status_request
     {
         int         task_id;
     };
 
-    void to_json(nlohmann::json& j, const init_z_coin_status_request& request);
+    void to_json(nlohmann::json& j, const enable_z_coin_status_request& request);
 
-    struct init_z_coin_status_answer_success
+    struct enable_z_coin_status_answer_success
     {
         std::string status{"disabled"};
         std::string details{"N/A"};
@@ -48,22 +48,22 @@ namespace atomic_dex::mm2
         std::optional<std::string> unspendable_balance;
     };
 
-    void from_json(const nlohmann::json& j, init_z_coin_status_answer_success& answer);
+    void from_json(const nlohmann::json& j, enable_z_coin_status_answer_success& answer);
 
-    struct init_z_coin_status_answer
+    struct enable_z_coin_status_answer
     {
-        std::optional<init_z_coin_status_answer_success> result;
+        std::optional<enable_z_coin_status_answer_success> result;
         std::optional<generic_answer_error>              error;
         std::string                                      raw_result;      ///< internal
         int                                              rpc_result_code; ///< internal
     };
 
-    void from_json(const nlohmann::json& j, init_z_coin_status_answer& answer);
+    void from_json(const nlohmann::json& j, enable_z_coin_status_answer& answer);
 }
 
 namespace atomic_dex
 {
-    using t_init_z_coin_status_request         = mm2::init_z_coin_status_request;
-    using t_init_z_coin_status_answer          = mm2::init_z_coin_status_answer;
-    using t_init_z_coin_status_answer_success  = mm2::init_z_coin_status_answer_success;
+    using t_enable_z_coin_status_request         = mm2::enable_z_coin_status_request;
+    using t_enable_z_coin_status_answer          = mm2::enable_z_coin_status_answer;
+    using t_enable_z_coin_status_answer_success  = mm2::enable_z_coin_status_answer_success;
 } // namespace atomic_dex

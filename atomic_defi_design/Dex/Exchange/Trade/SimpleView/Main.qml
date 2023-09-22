@@ -40,76 +40,87 @@ Item
         spacing: 30
         anchors.horizontalCenter: parent.horizontalCenter
 
-        Item // Sub-pages Tabs Selector
+        Rectangle // Tabs Border
         {
             anchors.horizontalCenter: parent.horizontalCenter
-            width: _selectedTabMarker.width * 3
-            height: 30
+            width: _selectedTabMarker.width * 3 + 8
+            height: 38
+            border.color: Dex.CurrentTheme.gradientButtonStartColor
+            border.width: 1
+            color: Dex.CurrentTheme.floatingBackgroundColor
+            radius: 19
 
-            Rectangle // Selected Tab Rectangle
+            Item // Sub-pages Tabs Selector
             {
-                id: _selectedTabMarker
+                anchors.centerIn: parent
+                width: _selectedTabMarker.width * 3
+                height: 30
 
-                function update() // Updates transform according to selected sub-page.
+                Rectangle // Selected Tab Rectangle
                 {
-                    switch (currentSubPage)
+                    id: _selectedTabMarker
+
+                    function update() // Updates transform according to selected sub-page.
                     {
-                    case subPages.Trade:
-                        x = 0
-                        break;
-                    case subPages.Orders:
-                        x = (parent.width / 3) 
-                        orders_view.update()
-                        break;
-                    case subPages.History:
-                        x = (parent.width / 3) *2
-                        history_view.update()
-                        break;
+                        switch (currentSubPage)
+                        {
+                        case subPages.Trade:
+                            x = 0
+                            break;
+                        case subPages.Orders:
+                            x = (parent.width / 3) 
+                            orders_view.update()
+                            break;
+                        case subPages.History:
+                            x = (parent.width / 3) * 2
+                            history_view.update()
+                            break;
+                        }
                     }
+
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: parent.height
+                    width: 108
+                    radius: 15
+                    color: Dex.CurrentTheme.tabSelectedColor
+
+                    Behavior on x { NumberAnimation { duration: 150 } }
                 }
 
-                anchors.verticalCenter: parent.verticalCenter
-                height: parent.height
-                width: 108
-                radius: 15
-                color: Dex.CurrentTheme.tabSelectedColor
-
-                Behavior on x { NumberAnimation { duration: 150 } }
-            }
-
-            RowLayout
-            {
-                anchors.fill: parent
-                spacing: 0
-
-                ClickableText
+                RowLayout
                 {
-                    id: _tradeText
-                    Layout.preferredWidth: parent.width / 3
-                    Layout.fillHeight: true
-                    text: qsTr("Trade")
-                    font.pixelSize: Constants.Style.textSize
-                    onClicked: if (currentSubPage !== subPages.Trade) currentSubPage = subPages.Trade
-                }
+                    anchors.fill: parent
+                    spacing: 0
 
-                ClickableText
-                {
-                    id: _ordersText
-                    Layout.preferredWidth: parent.width / 3
-                    Layout.fillHeight: true
-                    text: qsTr("Orders")
-                    font.pixelSize: Constants.Style.textSize
-                    onClicked: if (currentSubPage !== subPages.Orders) currentSubPage = subPages.Orders
-                }
+                    ClickableText
+                    {
+                        id: _tradeText
+                        Layout.preferredWidth: parent.width / 3
+                        Layout.fillHeight: true
+                        text: qsTr("Swap")
+                        font.pixelSize: Constants.Style.textSize
+                        onClicked: if (currentSubPage !== subPages.Trade) currentSubPage = subPages.Trade
+                    }
 
-                ClickableText
-                {
-                    id: _historyText
-                    Layout.preferredWidth: parent.width / 3
-                    Layout.fillHeight: true
-                    text: qsTr("History")
-                    font.pixelSize: Constants.Style.textSize
-                    onClicked: if (currentSubPage !== subPages.History) currentSubPage = subPages.History
+                    ClickableText
+                    {
+                        id: _ordersText
+                        Layout.preferredWidth: parent.width / 3
+                        Layout.fillHeight: true
+                        text: qsTr("Orders")
+                        font.pixelSize: Constants.Style.textSize
+                        onClicked: if (currentSubPage !== subPages.Orders) currentSubPage = subPages.Orders
+                    }
+
+                    ClickableText
+                    {
+                        id: _historyText
+                        Layout.preferredWidth: parent.width / 3
+                        Layout.fillHeight: true
+                        text: qsTr("History")
+                        font.pixelSize: Constants.Style.textSize
+                        onClicked: if (currentSubPage !== subPages.History) currentSubPage = subPages.History
+                    }
                 }
             }
         }

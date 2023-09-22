@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.5
 
 import App 1.0
 import Dex.Themes 1.0 as Dex
+import "../Constants"
 
 Item
 {
@@ -75,8 +76,8 @@ Item
         width: parent.width
         height: parent.height
         radius: 4
-        color: Dex.CurrentTheme.backgroundColor
-        border.color: control.error ? Dex.CurrentTheme.noColor : input_field.focus ? Dex.CurrentTheme.accentColor : color
+        color: Dex.CurrentTheme.inputFieldBackgroundColor
+        border.color: control.error ? Dex.CurrentTheme.warningColor : input_field.focus ? Dex.CurrentTheme.inputFieldBorderColor : color
         border.width: input_field.focus ? 1 : 0
 
         Behavior on x
@@ -126,7 +127,7 @@ Item
                 anchors.topMargin: 1
                 anchors.bottomMargin: 1
                 radius: _background.radius
-                color: background.color
+                color: Dex.CurrentTheme.inputFieldBackgroundColor
 
                 DexTextField
                 {
@@ -157,13 +158,12 @@ Item
                     text: control.placeholderText
                     anchors.verticalCenter: parent.verticalCenter
                     leftPadding: input_field.leftPadding
-                    color: Dex.CurrentTheme.foregroundColor
-                    font: DexTypo.body1
+                    color: Dex.CurrentTheme.inputPlaceholderTextColor
+                    font: DexTypo.inputFieldFont
                     elide: DexLabel.ElideRight
                     width: parent.width - 10
                     wrapMode: DexLabel.NoWrap
                     visible: input_field.text === ""
-                    opacity: .2
                 }
             }
         }
@@ -182,8 +182,7 @@ Item
                 text: rightText
                 color: Dex.CurrentTheme.foregroundColor
                 opacity: .4
-                font.pixelSize: 14
-                font.weight: Font.Medium
+                font: DexTypo.inputFieldSuffixFont
             }
         }
     }

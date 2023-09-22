@@ -16,7 +16,7 @@ Popup {
     modal: true
     padding: 0
     Overlay.modeless: DefaultRectangle {
-        color: Dex.CurrentTheme.dexBoxBackgroundColor
+        color: Dex.CurrentTheme.backgroundDarkColor6
         opacity: .3
     }
 
@@ -27,7 +27,7 @@ Popup {
             anchors.fill: parent
             border.width: 2
             radius: parent.radius
-            color: Dex.CurrentTheme.dexBoxBackgroundColor
+            color: Dex.CurrentTheme.backgroundDarkColor6
             Container {
                 id: _header
                 width: parent.width
