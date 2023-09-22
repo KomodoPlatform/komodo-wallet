@@ -78,7 +78,7 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(jl777-coins
-        URL https://github.com/KomodoPlatform/coins/archive/master.zip)
+        URL https://github.com/Ektisad25/coins/archive/master.zip)
 
 #FetchContent_Declare(adex-generics-coins
 #        URL https://github.com/KomodoPlatform/komodo-wallet-desktop/archive/main.zip)
