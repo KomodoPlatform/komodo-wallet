@@ -26,7 +26,7 @@ ClipRRect // Trade Card
     readonly property bool coin_tradable: selectedTicker !== "" && sell_ticker_balance > 0
     readonly property bool waiting_for_sell_coin_info: (max_trade_volume == 0 || !Constants.General.isZhtlcReady(left_ticker)) && sell_ticker_balance != 0
 
-    property string selectedTicker: sell_ticker_balance > 0 ? left_ticker : ""
+    property string selectedTicker: left_ticker
     property var    selectedOrder:  undefined
     property bool   best: false
     property bool   coinSelection: false
@@ -269,6 +269,7 @@ ClipRRect // Trade Card
                         opacity: .6
                     }
 
+                    // Tooltip
                     MouseArea
                     {
                         anchors.left: _fromBalanceIcon.left
@@ -279,7 +280,11 @@ ClipRRect // Trade Card
                         DefaultTooltip
                         {
                             visible: parent.containsMouse
-                            text: qsTr("Tradable: ") + parent.parent.text
+                            text:
+                            {
+                                let balance = Constants.API.app.portfolio_pg.portfolio_mdl.coin_balance(selectedTicker);
+                                return qsTr("Balance: ") + Constants.API.app.portfolio_pg.portfolio_mdl.coin_balance(selectedTicker) + ' (' + parent.parent.text + ' tradable)'
+                            } 
                         }
                     }
 

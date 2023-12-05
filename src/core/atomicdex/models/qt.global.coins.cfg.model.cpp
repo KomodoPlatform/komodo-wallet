@@ -36,7 +36,7 @@ namespace
             {"ticker", QString::fromStdString(coin.ticker)},
             {"name", QString::fromStdString(coin.name)},
             {"type", QString::fromStdString(coin.type)},
-            {"nomics_id", QString::fromStdString(coin.nomics_id)},
+            {"livecoinwatch_id", QString::fromStdString(coin.livecoinwatch_id)},
             {"explorer_url", QString::fromStdString(coin.explorer_url)},
             {"tx_uri", QString::fromStdString(coin.tx_uri)},
             {"address_uri", QString::fromStdString(coin.address_url)},
@@ -47,6 +47,8 @@ namespace
             {"is_erc_family", coin.is_erc_family},
             {"is_zhtlc_family", coin.is_zhtlc_family},
             {"is_wallet_only", coin.wallet_only},
+            {"checkpoint_height", coin.checkpoint_height},
+            {"checkpoint_blocktime", coin.checkpoint_blocktime},
             {"has_memos", coin.has_memos},
             {"fees_ticker", QString::fromStdString(coin.fees_ticker)}};
         return j;
@@ -307,6 +309,12 @@ namespace atomic_dex
     global_coins_cfg_model::get_all_erc20_proxy() const 
     {
         return m_proxies[CoinType::ERC20];
+    }
+
+    global_coins_cfg_proxy_model*
+    global_coins_cfg_model::get_all_ewt_proxy() const
+    {
+        return m_proxies[CoinType::EWT];
     }
 
     global_coins_cfg_proxy_model*

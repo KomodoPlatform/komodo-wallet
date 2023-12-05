@@ -2,13 +2,14 @@
     "accentColor": "#F0F2FFFF",
     "foregroundColor": "#456078FF",
     "backgroundColor": "#FCFCFCFF",
-    "backgroundColorDeep": "#FCFCFCFF",
+    "secondBackgroundColor": "#ECECECFF",
+    "backgroundColorDeep": "#ECECECFF",
 
     "busyIndicatorColor": "#5A68E6FF",
 
     "buttonColorDisabled": "#D8E3F8FF",
-    "buttonColorEnabled": "#F0F6FFFF",
-    "buttonColorHovered": "#D7E7FFFF",
+    "buttonColorEnabled": "#DDE6F2FF",
+    "buttonColorHovered": "#CDE1FFFF",
     "buttonColorPressed": "#B8D2F9FF",
     "buttonTextDisabledColor": "#D1D4DCFF",
     "buttonTextEnabledColor": "#456078FF",
@@ -21,8 +22,8 @@
     "buttonSecondaryColorPressed":  "#B8D2F9FF",
 
     "buttonCancelColorDisabled": "#D8E3F8FF",
-    "buttonCancelColorEnabled":  "#F0F6FFFF",
-    "buttonCancelColorHovered":  "#D7E7FFFF",
+    "buttonCancelColorEnabled":  "#DDE6F2FF",
+    "buttonCancelColorHovered":  "#CDE1FFFF",
     "buttonCancelColorPressed":  "#B8D2F9FF",
 
     "gradientButtonStartColor": "#5A68E6FF",
@@ -47,7 +48,7 @@
     "switchGradientStartColor2": "#FFFFFFFF",
     "switchGradientEndColor2": "#FFFFFFFF",
 
-    "comboBoxBackgroundColor": "#FFFFFFFF",
+    "comboBoxBackgroundColor": "#DDE6F2FF",
     "comboBoxArrowsColor": "#456078FF",
     "comboBoxDropdownItemHighlightedColor": "#CDE1FFFF",
 
@@ -118,7 +119,7 @@
     "listItemEvenBackground": "#EDF4FFFF",
     "listItemHoveredBackground": "#D7E7FFFF",
 
-    "addressBookTagColors": ["#627EEAFF", "#FFD87AFF", "#F7931AFF"],
+    "addressBookTagColors": ["#003bbbFF", "#006133FF", "#612600FF", "#430061FF", "#004d61FF"],
 
     "okColor": "#00C058FF",
     "warningColor": "#E52167FF",

@@ -12,7 +12,8 @@ Popup
 
     id: dialog
     width: 420
-    height: _insideColumn.height > dialog.height ? _insideColumn.height + 82 : dialog.height
+    // There is a binding loop issue if this line is active
+    // height: _insideColumn.height > dialog.height ? _insideColumn.height + 82 : dialog.height
     dim: true
     modal: true
     anchors.centerIn: Overlay.overlay
@@ -80,7 +81,8 @@ Popup
     contentItem: Qaterial.ClipRRect
     {
         width: dialog.width
-        height: _insideColumn.height >  dialog.height ? _insideColumn.height + 92 : dialog.height
+        // There is a binding loop issue if this line is active
+        // height: _insideColumn.height >  dialog.height ? _insideColumn.height + 92 : dialog.height
         radius: 18
         focus: true
         Column

@@ -126,7 +126,7 @@ Dex.DexListView
                         anchors.centerIn: parent
                         anchors.fill: parent
                         radius: 15
-                        enabled: Dex.General.isZhtlc(ticker) ? activation_progress != 100 : false
+                        enabled: Dex.General.isZhtlc(ticker) ? activation_progress < 100 : false
                         visible: enabled
                         opacity: .9
                         color: Dex.DexTheme.backgroundColor
@@ -136,7 +136,7 @@ Dex.DexListView
                     {
                         anchors.centerIn: parent
                         anchors.fill: parent
-                        enabled: Dex.General.isZhtlc(ticker) ? activation_progress != 100 : false
+                        enabled: Dex.General.isZhtlc(ticker) ? activation_progress < 100 : false
                         visible: enabled
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -165,7 +165,7 @@ Dex.DexListView
                     text: model.type
                     font: Dex.DexTypo.overLine
                     opacity: .7
-                    color: Dex.Style.getCoinTypeColor(model.type)
+                    color: Dex.Style.getCoinColor(ticker)
 
                     Dex.DexLabel
                     {
@@ -248,7 +248,7 @@ Dex.DexListView
                 verticalAlignment: Text.AlignVCenter
 
                 text_value: Dex.General.formatFiat('', main_currency_price_for_one_unit,
-                                                   Dex.API.app.settings_pg.current_currency, 6)
+                                                   Dex.API.app.settings_pg.current_currency, 8)
             }
 
             Item // Price Provider

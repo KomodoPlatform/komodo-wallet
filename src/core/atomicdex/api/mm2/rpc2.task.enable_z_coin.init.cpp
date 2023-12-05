@@ -28,8 +28,14 @@ namespace atomic_dex::mm2
     {
         j["params"]["ticker"]                                                          = request.coin_name;
         j["params"]["activation_params"]["mode"]["rpc"]                                = "Light";
+        if (request.sync_height.has_value())
+        {
+            j["params"]["activation_params"]["mode"]["rpc_data"]["sync_params"]["height"]  = request.sync_height.value();
+        }
         j["params"]["activation_params"]["mode"]["rpc_data"]["electrum_servers"]       = request.servers;
         j["params"]["activation_params"]["mode"]["rpc_data"]["light_wallet_d_servers"] = request.z_urls;
+        j["params"]["activation_params"]["scan_blocks_per_iteration"]                  = 5000;
+        j["params"]["activation_params"]["scan_interval"]                              = 0;
         j["params"]["tx_history"]                                                      = request.with_tx_history;
     }
 

@@ -13,7 +13,7 @@ Line
         id: _icon
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: 30
+        anchors.leftMargin: 18
         height: 16
     }
 

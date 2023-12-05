@@ -101,7 +101,7 @@ set(EXPECTED_ENABLE_TESTS OFF CACHE BOOL "Override option" FORCE)
 
 FetchContent_Declare(
         expected
-        URL https://github.com/Milerius/expected/archive/patch-1.zip
+        URL https://github.com/KomodoPlatform/expected/archive/patch-1.zip
 )
 
 FetchContent_Declare(

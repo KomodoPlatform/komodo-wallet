@@ -24,7 +24,7 @@ Item
         id: _label
 
         anchors.left: parent.left
-        anchors.leftMargin: 70
+        anchors.leftMargin: 45
         anchors.verticalCenter: parent.verticalCenter
 
         font: Qt.font

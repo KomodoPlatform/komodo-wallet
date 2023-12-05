@@ -9,7 +9,8 @@ import App 1.0
 Item
 {
     id: exchange
-    readonly property int layout_margin: 15
+    readonly property int layout_margin: 12
+    width: 450
 
     property int current_page: idx_exchange_trade
 

@@ -24,7 +24,7 @@ Item
         HorizontalLine
         {
             Layout.fillWidth: true
-            Layout.maximumWidth: 511
+            Layout.maximumWidth: 450
         }
 
         DefaultListView

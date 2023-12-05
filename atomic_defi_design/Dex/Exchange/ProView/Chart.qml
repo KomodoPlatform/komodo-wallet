@@ -15,43 +15,62 @@ Item
     readonly property string theme: Dex.CurrentTheme.getColorMode() === Dex.CurrentTheme.ColorMode.Dark ? "dark" : "light"
     property string loaded_symbol
     property bool pair_supported: false
+    property string selected_testcoin
     onPair_supportedChanged: if (!pair_supported) webEngineViewPlaceHolder.visible = false
 
-    function loadChart(right_ticker, left_ticker, force = false, source="nomics")
+    function loadChart(right_ticker, left_ticker, force = false, source="livecoinwatch")
     {
+
+        // <script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script> <div class="livecoinwatch-widget-1" lcw-coin="BTC" lcw-base="USD" lcw-secondary="BTC" lcw-period="w" lcw-color-tx="#ffffff" lcw-color-pr="#58c7c5" lcw-color-bg="#1f2434" lcw-border-w="1" lcw-digits="8" ></div>
+
         let chart_html = ""
         let symbol = ""
+        let widget_x = 385
+        let widget_y = 150
+        let scale_x = root.width / widget_x
+        let scale_y = root.height / widget_y
 
-        if (source == "nomics")
+        if (source == "livecoinwatch")
         {
-            let right_ticker_full = General.coinName(right_ticker)
-            let right_ticker_id = General.getNomicsId(right_ticker)
-            let left_ticker_id = General.getNomicsId(left_ticker)
-
-            if (right_ticker_id != "" && left_ticker_id != "")
+            selected_testcoin = ""
+            if (General.is_testcoin(left_ticker))
             {
-                symbol = right_ticker_id+"-"+left_ticker_id
+                pair_supported = false
+                selected_testcoin = left_ticker
+                return
+            }
+            if (General.is_testcoin(right_ticker))
+            {
+                pair_supported = false
+                selected_testcoin = right_ticker
+                return
+            }
 
+            let rel_ticker = General.getChartTicker(right_ticker)
+            let base_ticker = General.getChartTicker(left_ticker)
+            if (rel_ticker != "" && base_ticker != "")
+            {
                 pair_supported = true
+                symbol = rel_ticker+"-"+base_ticker
                 if (symbol === loaded_symbol && !force)
                 {
                     webEngineViewPlaceHolder.visible = true
                     return
                 }
-
-                loaded_symbol = symbol
-
                 chart_html = `
                 <style>
-                body { margin: 0; }
+                    body { margin: auto; }
+                    .livecoinwatch-widget-1 {
+                        transform: scale(${Math.min(scale_x, scale_y)});
+                        transform-origin: top left;
+                    }
                 </style>
-
-                <!-- Nomics Widget BEGIN -->
-                <div class="nomics-ticker-widget" data-name="${right_ticker_full}" data-base="${right_ticker_id}" data-quote="${left_ticker_id}"></div>
-                <script src="https://widget.nomics.com/embed.js"></script>
-                <!-- Nomics Widget END -->`
+                <script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
+                <div class="livecoinwatch-widget-1" lcw-coin="${rel_ticker}" lcw-base="${base_ticker}" lcw-secondary="USDC" lcw-period="w" lcw-color-tx="${Dex.CurrentTheme.foregroundColor}" lcw-color-pr="#58c7c5" lcw-color-bg="${Dex.CurrentTheme.comboBoxBackgroundColor}" lcw-border-w="0" lcw-digits="8" ></div>
+                `
             }
         }
+        // console.log(chart_html)
 
         if (chart_html == "")
         {
@@ -78,7 +97,7 @@ Item
 
             loaded_symbol = symbol
 
-            let chart_html = `
+            chart_html = `
             <style>
             body { margin: 0; }
             </style>
@@ -118,6 +137,17 @@ Item
         catch (e) { console.error(e) }
     }
 
+// Currently chart should not resize, but in future it might be needed
+
+//    onWidthChanged: {
+//        try
+//        {
+//            loadChart(left_ticker?? atomic_app_primary_coin,
+//                      right_ticker?? atomic_app_secondary_coin)
+//        }
+//        catch (e) { console.error(e) }
+//    }
+
     RowLayout
     {
         anchors.fill: parent
@@ -140,8 +170,16 @@ Item
 
         DefaultText
         {
-            visible: !pair_supported
-            text_value: qsTr("There is no chart data for this pair yet")
+            visible: !pair_supported && selected_testcoin == ""
+            text_value: qsTr("There is no chart data for this pair")
+            Layout.topMargin: 30
+            Layout.alignment: Qt.AlignCenter
+        }
+
+        DefaultText
+        {
+            visible: !pair_supported && selected_testcoin != ""
+            text_value: qsTr("There is no chart data for %1 (testcoin) pairs").arg(selected_testcoin)
             Layout.topMargin: 30
             Layout.alignment: Qt.AlignCenter
         }
@@ -151,6 +189,7 @@ Item
     {
         id: webEngineViewPlaceHolder
         anchors.fill: parent
+        anchors.centerIn: parent
         visible: false
 
         Component.onCompleted:

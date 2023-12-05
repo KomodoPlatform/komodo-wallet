@@ -192,7 +192,7 @@ Dex.MultipageModal
             {
                 visible: !addressList.contactAddAddressMode
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("+ Add")
+                text: qsTr("+ Add Address")
                 width: 211
                 height: 38
                 radius: 18
@@ -224,7 +224,7 @@ Dex.MultipageModal
                 width: parent.width
                 model: contactModel.categories
                 orientation: Qt.Horizontal
-                spacing: 6
+                spacing: 4
                 delegate: Dex.MouseArea
                 {
                     width: tagBg.width + tagRemoveBut.width + 2
@@ -234,17 +234,19 @@ Dex.MultipageModal
                     Dex.Rectangle
                     {
                         id: tagBg
+                        property int _currentColorIndex: contactTable._getCurrentTagColorId()
                         anchors.verticalCenter: parent.verticalCenter
                         width: tagLabel.width + 12
                         height: 21
                         radius: 20
-                        color: Dex.CurrentTheme.accentColor
+                        color: Dex.CurrentTheme.addressBookTagColors[_currentColorIndex]
 
                         Dex.Text
                         {
                             id: tagLabel
                             anchors.centerIn: parent
                             text: modelData
+                            color: "white"
                         }
                     }
 
@@ -255,8 +257,8 @@ Dex.MultipageModal
                         anchors.left: tagBg.right
                         anchors.leftMargin: 2
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 18
-                        height: 18
+                        width: 16
+                        height: 16
                         color: "transparent"
                         iconSource: Qaterial.Icons.close
                         onClicked: contactModel.removeCategory(modelData)
@@ -288,7 +290,7 @@ Dex.MultipageModal
                 Layout.preferredWidth: 199
                 Layout.preferredHeight: 48
                 radius: 18
-                text: qsTr("Cancel")
+                text: qsTr("Cancel Updates")
                 onClicked: root.close()
             },
 
@@ -299,7 +301,7 @@ Dex.MultipageModal
                 Layout.preferredWidth: 199
                 Layout.preferredHeight: 48
                 radius: 18
-                text: qsTr("Confirm")
+                text: qsTr("Save Updates")
                 onClicked:
                 {
                     contactModel.name = contactNameInput.field.text

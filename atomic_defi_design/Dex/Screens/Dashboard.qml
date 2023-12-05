@@ -53,7 +53,6 @@ Item
     readonly property var   api_wallet_page: API.app.wallet_pg
     readonly property var   current_ticker_infos: api_wallet_page.ticker_infos
     readonly property bool  can_change_ticker: !api_wallet_page.tx_fetching_busy
-    readonly property bool  is_dex_banned: !API.app.ip_checker.ip_authorized
 
     readonly property alias loader: loader
     readonly property alias current_component: loader.item
@@ -87,14 +86,7 @@ Item
         sidebar.currentLineType = currentPage
         if (currentPage == Dashboard.PageType.DEX)
         {
-            if (API.app.trading_pg.current_trading_mode == TradingMode.Pro)
-            {
-                API.app.trading_pg.set_pair(false, api_wallet_page.ticker)
-            }
-            else
-            {
-                API.app.trading_pg.set_pair(true, api_wallet_page.ticker)
-            }
+            API.app.trading_pg.set_pair(true, api_wallet_page.ticker)
         }
     }
 
@@ -286,6 +278,7 @@ Item
         enabled: loader.status === Loader.Ready
 
         onLineSelected: currentPage = lineType;
+        onAddCryptoClicked: enable_coin_modal.open()
         onSettingsClicked: setting_modal.open()
         onSupportClicked: support_modal.open()
     }

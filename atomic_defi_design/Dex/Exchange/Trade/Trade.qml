@@ -158,9 +158,9 @@ Item
     Column
     {
         anchors.fill: parent
-        spacing: 15
-        anchors.leftMargin: 20
-        anchors.rightMargin: 20
+        spacing: 8
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
 
         TradeViewHeader
         {
@@ -179,7 +179,7 @@ Item
         {
             id: proView
             width: parent.width
-            height: parent.height * 0.90
+            height: parent.height * 0.91
             visible: API.app.trading_pg.current_trading_mode == TradingMode.Pro
             enabled: visible
         }

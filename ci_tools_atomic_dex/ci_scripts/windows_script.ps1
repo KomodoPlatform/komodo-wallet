@@ -6,7 +6,7 @@ iwr -useb 'https://raw.githubusercontent.com/scoopinstaller/install/master/insta
 #Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh') -RunAsAdmin
 scoop install llvm --global
 scoop install ninja --global
-scoop install cmake@3.22.0 --global
+scoop install cmake@3.26.3 --global
 scoop install git --global
 scoop install 7zip  --global
 scoop cache rm 7zip

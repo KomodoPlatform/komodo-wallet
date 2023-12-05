@@ -16,9 +16,9 @@ A clear and concise description of how your solution could be implemented.
 
 
 **Describe alternatives you've considered**
-Have you considered any alternative approaches to solving to the problem?
+Have you considered any alternative approaches to solving the problem?
 
 
 **Additional context**
 For visual features, screenshots are great to include.
-If your request is similar to a feature frm a different app, please include a link.
+If your request is similar to a feature from a different app, please include a link.

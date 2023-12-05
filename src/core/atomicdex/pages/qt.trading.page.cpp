@@ -26,6 +26,7 @@
 #include "atomicdex/pages/qt.trading.page.hpp"
 #include "atomicdex/services/mm2/auto.update.maker.order.service.hpp"
 #include "atomicdex/services/mm2/mm2.service.hpp"
+#include "atomicdex/services/price/defi.stats.hpp"
 #include "atomicdex/services/price/global.provider.hpp"
 #include "atomicdex/utilities/qt.utilities.hpp"
 #include "atomicdex/utilities/qt.download.manager.hpp"
@@ -702,6 +703,7 @@ namespace atomic_dex
         this->m_preferred_order  = std::nullopt;
         this->m_fees             = QVariantMap();
         this->m_cex_price        = "0";
+        this->m_pair_volume_24hr = "0";
         this->m_post_clear_forms = true;
         this->set_selected_order_status(SelectedOrderStatus::None);
         this->reset_fees();
@@ -981,7 +983,7 @@ namespace atomic_dex
     bool
     trading_page::set_pair(bool is_left_side, const QString& changed_ticker)
     {
-        SPDLOG_INFO("Changed ticker: {}", changed_ticker.toStdString());
+        // SPDLOG_DEBUG("Changed ticker: {}", changed_ticker.toStdString());
         const auto* market_pair = get_market_pairs_mdl();
         auto        base        = market_pair->get_left_selected_coin();
         auto        rel         = market_pair->get_right_selected_coin();
@@ -1039,6 +1041,7 @@ namespace atomic_dex
             }
         }
         this->determine_cex_rates();
+        this->determine_pair_volume_24hr();
         emit priceChanged();
         emit priceReversedChanged();
         return true;
@@ -1352,10 +1355,11 @@ namespace atomic_dex
     {
         const auto& price_service   = m_system_manager.get_system<global_price_service>();
         const auto* market_selector = get_market_pairs_mdl();
-        const auto& base            = market_selector->get_left_selected_coin();
-        const auto& rel             = market_selector->get_right_selected_coin();
-        
-        if (auto cex_price = QString::fromStdString(price_service.get_cex_rates(base.toStdString(), rel.toStdString())); cex_price != m_cex_price)
+        const auto& base            = market_selector->get_left_selected_coin().toStdString();
+        const auto& rel             = market_selector->get_right_selected_coin().toStdString();
+        auto cex_price              = QString::fromStdString(price_service.get_cex_rates(base, rel));
+
+        if (cex_price != m_cex_price)
         {
             m_cex_price = std::move(cex_price);
             emit cexPriceChanged();
@@ -1363,6 +1367,28 @@ namespace atomic_dex
             emit cexPriceReversedChanged();
         }
         emit cexPriceDiffChanged();
+    }
+
+    void
+    trading_page::determine_pair_volume_24hr()
+    {
+        const auto& defi_stats_service  = m_system_manager.get_system<global_defi_stats_service>();
+        const auto* market_selector     = get_market_pairs_mdl();
+        const auto& base                = utils::retrieve_main_ticker(market_selector->get_left_selected_coin().toStdString(), true);
+        const auto& rel                 = utils::retrieve_main_ticker(market_selector->get_right_selected_coin().toStdString(), true);
+        QString vol                     = QString::fromStdString(defi_stats_service.get_volume_24h_usd(base, rel));
+
+        if (vol != m_pair_volume_24hr)
+        {
+            m_pair_volume_24hr = vol;
+            emit pairVolume24hrChanged();
+        }        
+    }
+
+    QString
+    trading_page::get_pair_volume_24hr() const
+    {
+        return m_pair_volume_24hr;
     }
 
     QString

@@ -58,6 +58,7 @@ namespace atomic_dex
         std::string get_price_as_currency_from_amount(const std::string& currency, const std::string& ticker, const std::string& amount) const ;
         std::string get_cex_rates(const std::string& base, const std::string& rel) const;
         std::string get_fiat_rates(const std::string& fiat) const;
+        std::string get_currency_rates(const std::string& currency) const;
 
         bool is_fiat_available(const std::string& fiat) const;
         bool is_currency_available(const std::string& currency) const;

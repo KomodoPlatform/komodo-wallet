@@ -14,8 +14,9 @@ MultipageModal
     id: root
 
     property var details
-    horizontalPadding: 60
-    verticalPadding: 40
+    width: 720
+    horizontalPadding: 40
+    verticalPadding: 30
 
     onDetailsChanged: { if (!details) root.close() }
     onOpened:
@@ -27,11 +28,11 @@ MultipageModal
 
     MultipageModalContent
     {
-        titleText: !details ? "" : details.is_swap ? qsTr("Swap Details") : qsTr("Order Details")
+        titleText: !details ? "" : visible ? getStatusText(details.order_status) : ''
         title.font.pixelSize: Style.textSize2
         titleAlignment: Qt.AlignHCenter
-        titleTopMargin: 10
-        topMarginAfterTitle: 10
+        titleTopMargin: 0
+        topMarginAfterTitle: 8
         flickMax: window.height - 450
 
         header: [
@@ -41,7 +42,8 @@ MultipageModal
                 visible: !details ? false : details.is_swap && details.order_status === "successful"
                 Layout.alignment: Qt.AlignHCenter
                 source: General.image_path + "exchange-trade-complete.png"
-                height: 100
+                Layout.preferredHeight: 60
+                Layout.preferredWidth: 60
             },
 
             // Loading symbol
@@ -51,49 +53,45 @@ MultipageModal
                             details.is_swap && !["successful", "failed"].includes(details.order_status)
                 running: visible && Qt.platform.os != "osx"
                 Layout.alignment: Qt.AlignHCenter
-                height: 100
+                Layout.preferredHeight: 60
+                Layout.preferredWidth: 60
             },
-
+            
             RowLayout
             {
-                Layout.topMargin: 10
-                height: 70
+                id: dex_pair_badges
+                Layout.preferredHeight: 70
+                Layout.fillWidth: true
+
 
                 PairItemBadge
                 {
                     ticker: details ? details.base_coin : ""
                     fullname: details ? General.coinName(details.base_coin) : ""
                     amount: details ? details.base_amount : ""
+                    Layout.preferredHeight: 70
                 }
+
+                Item { Layout.fillWidth: true }
 
                 Qaterial.Icon
                 {
-                    Layout.fillWidth: true
+                    Layout.preferredHeight: 70
                     Layout.alignment: Qt.AlignVCenter
-
                     color: Dex.CurrentTheme.foregroundColor
                     icon: Qaterial.Icons.swapHorizontal
                 }
+
+                Item { Layout.fillWidth: true }
 
                 PairItemBadge
                 {
                     ticker: details ? details.rel_coin : ""
                     fullname: details ? General.coinName(details.rel_coin) : ""
                     amount: details ? details.rel_amount : ""
+                    Layout.preferredHeight: 70
                 }
-            },
 
-            // Status Text
-            DefaultText
-            {
-                id: statusText
-                Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 5
-                font.pixelSize: Style.textSizeMid1
-                font.bold: true
-                visible: !details ? false : details.is_swap || !details.is_maker
-                text_value: !details ? "" : visible ? getStatusText(details.order_status) : ''
-                height: 25
             },
 
             DefaultText

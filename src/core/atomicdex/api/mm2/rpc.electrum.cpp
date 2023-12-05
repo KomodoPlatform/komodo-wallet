@@ -37,8 +37,14 @@ namespace atomic_dex::mm2
 
         if (cfg.coin_type == CoinType::QRC20)
         {
-            j["swap_contract_address"] = cfg.is_testnet ? cfg.testnet_qrc_swap_contract_address : cfg.mainnet_qrc_swap_contract_address;
-            j["fallback_swap_contract"] = cfg.is_testnet ? cfg.testnet_fallback_qrc_swap_contract_address : cfg.mainnet_fallback_qrc_swap_contract_address;
+            if (cfg.swap_contract_address.has_value())
+            {
+                j["swap_contract_address"] = cfg.swap_contract_address.value();
+            }
+            if (cfg.fallback_swap_contract_address.has_value())
+            {
+                j["fallback_swap_contract_address"] = cfg.fallback_swap_contract_address.value();
+            }
         }
 
         if (cfg.bchd_urls.has_value()) {

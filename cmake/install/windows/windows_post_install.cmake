@@ -70,16 +70,59 @@ execute_process(COMMAND powershell.exe -File ${PROJECT_ROOT_DIR}/ci_tools_atomic
 		ERROR_VARIABLE MANIFEST_ERROR)
 message(STATUS "manifest output: ${MANIFEST_RESULT} ${MANIFEST_OUTPUT} ${MANIFEST_ERROR}")
 
+# Set the path to the ifw root directory
+set(IFW_ROOT "$ENV{QT_ROOT}/Tools/QtInstallerFramework")
+message(STATUS "IFW_ROOT PATH IS ${IFW_ROOT}")
+execute_process(COMMAND ls "${IFW_ROOT}")
+# Find all subdirectories
+file(GLOB subdirs "${IFW_ROOT}/*")
+# Initialize variables to track the highest version and folder
+set(IFW_VERSION "")
+# Loop through the subdirectories
+foreach(subdir ${subdirs})
+    get_filename_component(folder_name ${subdir} NAME)
+	message(STATUS "scanning: ${subdir} [${folder_name}]")
+    # Use string manipulation to extract version from folder name
+    string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" version ${folder_name})
+    # Check if the extracted version is higher than the current highest
+	# TODO: For some reason this var fails to populate in windows
+    if(version STREQUAL "")
+        continue()
+    elseif(version STRGREATER IFW_VERSION)
+        set(IFW_VERSION ${version})
+    endif()
+endforeach()
+# Fallback to last scanned subfolder if variable empty. Usually there is only one folder.
+if(version STREQUAL "")
+	set(IFW_VERSION ${folder_name})
+endif()
+
+message(STATUS "===========================================")
 message(STATUS "Creating Installer")
-set(IFW_BINDIR $ENV{QT_ROOT}/Tools/QtInstallerFramework/4.5/bin)
+set(IFW_BINDIR ${IFW_ROOT}/${IFW_VERSION}/bin)
+message(STATUS ">>>> IFW_BIN PATH IS ${IFW_BINDIR}")
+execute_process(COMMAND ls "${IFW_BINDIR}")
+message(STATUS ">>>> IFW_BIN PATH IS ${PROJECT_APP_PATH}")
+execute_process(COMMAND ls "${PROJECT_APP_PATH}")
+message(STATUS ">>>> IFW_BIN PATH IS ${CMAKE_SOURCE_DIR}")
+execute_process(COMMAND ls "${CMAKE_SOURCE_DIR}")
+message(STATUS ">>>> IFW_BIN PATH IS ${TARGET_APP_PATH}")
+execute_process(COMMAND ls "${TARGET_APP_PATH}")
+message(STATUS ">>>> IFW_BIN PATH IS ${CMAKE_CURRENT_SOURCE_DIR}")
+execute_process(COMMAND ls "${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS ">>>> IFW_BIN PATH IS ${CMAKE_CURRENT_SOURCE_DIR}/bin")
+execute_process(COMMAND ls "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+message(STATUS "===========================================")
+set(IFW_BINDIR ${IFW_ROOT}/${IFW_VERSION}/bin)
 message(STATUS "IFW_BIN PATH IS ${IFW_BINDIR}")
+execute_process(COMMAND ls "${IFW_BINDIR}")
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${DEX_PROJECT_NAME}.7z)
 	message(STATUS "Contents of folder: ls ${CMAKE_CURRENT_SOURCE_DIR}")
 	execute_process(COMMAND ls "${CMAKE_CURRENT_SOURCE_DIR}")
 	message(STATUS "Contents of folder: ls ${CMAKE_CURRENT_SOURCE_DIR}/bin")
 	execute_process(COMMAND ls "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 	message(STATUS "Contents of folder: ls ${CMAKE_CURRENT_SOURCE_DIR}/bundled")
-	execute_process(COMMAND ls "${CMAKE_CURRENT_SOURCE_DIR}/bundled")
+	execute_process(COMMAND ls "${PROJECT_ROOT_DIR}/bundled")
 	message(STATUS "command is: [${IFW_BINDIR}/archivegen.exe ${DEX_PROJECT_NAME}.7z ${PROJECT_APP_PATH} WORKING_DIRECTORY ${PROJECT_ROOT_DIR}/bundled]")
 	execute_process(COMMAND
 		${IFW_BINDIR}/archivegen.exe ${DEX_PROJECT_NAME}.7z ${PROJECT_APP_PATH}

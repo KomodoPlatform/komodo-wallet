@@ -1,4 +1,4 @@
-// atomicdex-desktop
+// komodo-wallet
 // Author(s): syl
 
 #include <nlohmann/json.hpp>

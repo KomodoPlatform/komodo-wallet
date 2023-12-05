@@ -1,4 +1,4 @@
-name: AtomicDex-Desktop CI
+name: komodo-wallet-desktop CI
 
 on:
   pull_request:
@@ -13,10 +13,15 @@ env:
   DEX_API: "mm2"
   DEX_RPCPORT: 7762
   DEX_RPC: "http://127.0.0.1:7762"
-  DEX_PROJECT_NAME: "atomicdex-desktop"
-  DEX_DISPLAY_NAME: "AtomicDex Desktop"
+  DEX_PROJECT_NAME: "komodo-wallet"
+  DEX_DISPLAY_NAME: "Komodo Wallet"
   DEX_COMPANY: "KomodoPlatform"
+  DEX_VERSION: "0.6.1"
   DEX_WEBSITE: "https://atomicdex.io/"
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/b/vcpkg_cache
+  VCPKG_BINARY_SOURCES: clear;x-gha,readwrite
+  RUNVCPKG_VCPKG_ROOT: ${{ github.workspace }}\komodo-wallet-desktop\ci_tools_atomic_dex\vcpkg-repo
+  VCPKG_ROOT: ${{ github.workspace }}\komodo-wallet-desktop\ci_tools_atomic_dex\vcpkg-repo
 
 jobs:
 
@@ -50,13 +55,13 @@ jobs:
             host: 'linux'
 
           - name: osx-release
-            os: macos-11
+            os: macos-12
             qt: '5.15.2'
             type: 'Release'
             host: 'mac'
 
           - name: osx-debug
-            os: macos-11
+            os: macos-12
             qt: '5.15.2'
             type: 'Debug'
             host: 'mac'
@@ -78,6 +83,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: 'true'
+
+      - name: Expose GitHub Runtime Env
+        uses: crazy-max/ghaction-github-runtime@v2
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -107,7 +115,7 @@ jobs:
 
       - name: Install QT (macOS)
         if: runner.os == 'macOS'
-        uses: jurplel/install-qt-action@v3.0.0
+        uses: jurplel/install-qt-action@v3.3.0
         with:
           version: ${{ matrix.qt }}
           host: ${{ matrix.host }}
@@ -120,7 +128,7 @@ jobs:
 
       - name: Install QT (Linux)
         if: runner.os == 'Linux'
-        uses: jurplel/install-qt-action@v3.0.0
+        uses: jurplel/install-qt-action@v3.3.0
         with:
           version: ${{ matrix.qt }}
           host: ${{ matrix.host }}
@@ -132,7 +140,7 @@ jobs:
 
       - name: Install QT (Windows)
         if: runner.os == 'Windows'
-        uses: jurplel/install-qt-action@v3.0.0
+        uses: jurplel/install-qt-action@v3.3.0
         with:
           version: ${{ matrix.qt }}
           host: ${{ matrix.host }}
@@ -148,13 +156,24 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           export SHELL=/bin/bash
-          echo "CHOOSENIM_CHOOSE_VERSION=1.6.10" >> $GITHUB_ENV
-          export CHOOSENIM_CHOOSE_VERSION=1.6.10
+          echo "CHOOSENIM_CHOOSE_VERSION=1.6.2" >> $GITHUB_ENV
+          export CHOOSENIM_CHOOSE_VERSION=1.6.2
           curl https://nim-lang.org/choosenim/init.sh > choosenim.sh
           chmod +x choosenim.sh
           ./choosenim.sh -y
           export PATH=/home/runner/.nimble/bin:$PATH
-          chmod +x /home/runner/.choosenim/toolchains/nim-1.6.10/bin/*
+          chmod +x /home/runner/.choosenim/toolchains/nim-1.6.2/bin/*
+
+      - name: Install nim (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          echo "CHOOSENIM_CHOOSE_VERSION=1.6.2" >> $GITHUB_ENV
+          export CHOOSENIM_CHOOSE_VERSION=1.6.2
+          curl https://nim-lang.org/choosenim/init.sh > choosenim.sh
+          chmod +x choosenim.sh
+          ./choosenim.sh -y
+          export PATH=/Users/runner/.nimble/bin:$PATH
+          chmod +x /Users/runner/.choosenim/toolchains/nim-1.6.2/bin/*
 
       - name: Install deps (Linux)
         if: runner.os == 'Linux'
@@ -181,15 +200,13 @@ jobs:
           echo "CC=clang-12" >> $GITHUB_ENV
 
       - name: vcpkg deps (All)
-        uses: lukka/run-vcpkg@v10
+        uses: lukka/run-vcpkg@v11
         with:
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
-          appendedCacheKey: ${{ hashFiles('vcpkg.json') }}
           vcpkgJsonGlob: 'vcpkg.json'
 
-
       - name: import code signing certificates (macos)
-        if: runner.os == 'macOS'  && 'KomodoPlatform/atomicDEX-Desktop' == github.repository
+        if: runner.os == 'macOS'  && 'KomodoPlatform/komodo-wallet-desktop' == github.repository
         uses: Apple-Actions/import-codesign-certs@v1
         with:
           keychain: ${{ github.run_id }}
@@ -198,7 +215,7 @@ jobs:
           p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
 
       - name: import installer code signing certificates (macos)
-        if: runner.os == 'macOS'  && 'KomodoPlatform/atomicDEX-Desktop' == github.repository
+        if: runner.os == 'macOS'  && 'KomodoPlatform/komodo-wallet-desktop' == github.repository
         uses: apple-actions/import-codesign-certs@v1
         with:
           keychain: ${{ github.run_id }}
@@ -209,7 +226,7 @@ jobs:
 
 
 
-      - name: Build AtomicDEX (MacOS)
+      - name: Build Komodo Wallet (MacOS)
         if: runner.os == 'macOS'
         run: |
           xcrun --sdk macosx --show-sdk-path
@@ -224,6 +241,7 @@ jobs:
           export ASC_PUBLIC_ID="${{ secrets.ASC_PUBLIC_ID }}"
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/clang_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
+          export PATH=/Users/runner/.nimble/bin:$PATH
           export MACOSX_DEPLOYMENT_TARGET=10.15
           export CC=clang
           export CXX=clang++
@@ -233,7 +251,7 @@ jobs:
 
 
 
-      - name: Build AtomicDEX (Linux)
+      - name: Build Komodo Wallet (Linux)
         if: runner.os == 'Linux'
         run: |
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/gcc_64/lib/cmake
@@ -251,7 +269,7 @@ jobs:
           ./ci_tools_atomic_dex bundle ${{ matrix.type }}
 
 
-      - name: Build AtomicDEX (Windows)
+      - name: Build Komodo Wallet (Windows)
         if: runner.os == 'Windows'
         shell: powershell
         run: |
@@ -345,7 +363,7 @@ jobs:
       - name: Running Tests (Linux)
         working-directory: ci_tools_atomic_dex
         continue-on-error: true
-        if: runner.os == 'Linux' && 'KomodoPlatform/atomicDEX-Desktop' == github.repository
+        if: runner.os == 'Linux' && 'KomodoPlatform/komodo-wallet-desktop' == github.repository
         run: |
           export REPORT_CI_TOKEN=${{ secrets.REPORT_CI_TOKEN_SECRET }}
           export ATOMICDEX_TEST_SEED=${{ secrets.ATOMICDEX_TEST_SEED }}
@@ -364,7 +382,7 @@ jobs:
       - name: Running Tests (MacOS)
         working-directory: ci_tools_atomic_dex
         continue-on-error: true
-        if: runner.os == 'macOS' &&  'KomodoPlatform/atomicDEX-Desktop' == github.repository
+        if: runner.os == 'macOS' &&  'KomodoPlatform/komodo-wallet-desktop' == github.repository
         run: |
           export MAC_SIGN_IDENTITY="${{ secrets.MAC_SIGN_IDENTITY }}"
           export INSTALLER_MAC_SIGN_IDENTITY="${{ secrets.INSTALLER_MAC_SIGN_IDENTITY }}"
@@ -377,6 +395,7 @@ jobs:
           export ATOMICDEX_PASSWORD=${{ secrets.ATOMICDEX_PASSWORD }}
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/clang_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
+          export PATH=/Users/runner/.nimble/bin:$PATH
           export CC=clang
           export CXX=clang++
           #echo "Running tests"
@@ -388,7 +407,7 @@ jobs:
       - name: Running Tests (Windows)
         shell: powershell
         continue-on-error: true
-        if: runner.os == 'Windows' && 'KomodoPlatform/atomicDEX-Desktop' == github.repository
+        if: runner.os == 'Windows' && 'KomodoPlatform/komodo-wallet-desktop' == github.repository
         run: |
           #echo "Running tests"
           $Env:REPORT_CI_TOKEN = "${{ secrets.REPORT_CI_TOKEN_SECRET }}"

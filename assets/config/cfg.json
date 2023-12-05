@@ -1,5 +1,6 @@
 {
   "notification_enabled": true,
+  "spamfilter_enabled": false,
   "current_currency": "USD",
   "current_fiat": "USD",
   "current_currency_sign": "$",
@@ -77,6 +78,14 @@
     "AUD",
     "HUF",
     "SEK"
+  ],
+  "recommended_fiat": [
+    "USD",
+    "EUR",
+    "GBP",
+    "HKD",
+    "IDR",
+    "ILS"
   ],
   "possible_currencies": [
     "USD",

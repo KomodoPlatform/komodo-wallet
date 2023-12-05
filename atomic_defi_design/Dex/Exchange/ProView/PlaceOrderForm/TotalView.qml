@@ -24,7 +24,7 @@ ColumnLayout
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignLeft
             color: Dex.CurrentTheme.foregroundColor3
-            text: "Total " + API.app.settings_pg.current_fiat + " " + General.cex_icon
+            text: "Trade Value " + API.app.settings_pg.current_fiat + " " + General.cex_icon
             font.pixelSize:  14
             font.weight: Font.Normal
             opacity: .6
@@ -60,7 +60,7 @@ ColumnLayout
             Layout.fillWidth: true
             color: Dex.CurrentTheme.foregroundColor3
             Layout.preferredWidth: parent.width * 0.3
-            text:  "Total " + right_ticker
+            text: sell_mode ? qsTr("Receive %1").arg(right_ticker) : qsTr("Send %1").arg(right_ticker)
             font.pixelSize:  14
             opacity: .6
             font.weight: Font.Normal

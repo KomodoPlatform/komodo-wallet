@@ -99,8 +99,49 @@ endif ()
 file(COPY ${CMAKE_SOURCE_DIR}/bin/${DEX_PROJECT_NAME}.dmg DESTINATION ${TARGET_APP_PATH})
 
 get_filename_component(QT_ROOT_DIR $ENV{QT_ROOT} DIRECTORY)
-set(IFW_BINDIR ${QT_ROOT_DIR}/Tools/QtInstallerFramework/4.5/bin)
-message(STATUS "IFW_BIN PATH IS ${IFW_BINDIR}")
+set(IFW_ROOT ${QT_ROOT_DIR}/Tools/QtInstallerFramework)
+message(STATUS "IFW_ROOT PATH IS ${IFW_ROOT}")
+execute_process(COMMAND ls ${IFW_ROOT})
+
+# Find all subdirectories
+file(GLOB subdirs "${IFW_ROOT}/*")
+# Initialize variables to track the highest version and folder
+set(IFW_VERSION "")
+# Loop through the subdirectories
+foreach(subdir ${subdirs})
+    get_filename_component(folder_name ${subdir} NAME)
+	message(STATUS "scanning: ${subdir} [${folder_name}]")
+    # Use string manipulation to extract version from folder name
+    string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" version ${folder_name})
+    # Check if the extracted version is higher than the current highest
+	# TODO: For some reason this var fails to populate in windows
+    if(version STREQUAL "")
+        continue()
+    elseif(version STRGREATER IFW_VERSION)
+        set(IFW_VERSION ${version})
+    endif()
+endforeach()
+# Fallback to last scanned subfolder if variable empty. Usually there is only one folder.
+if(version STREQUAL "")
+	set(IFW_VERSION ${folder_name})
+endif()
+
+message(STATUS "===========================================")
+message(STATUS "Creating Installer")
+set(IFW_BINDIR ${IFW_ROOT}/${IFW_VERSION}/bin)
+message(STATUS ">>>> IFW_BIN PATH IS ${IFW_BINDIR}")
+execute_process(COMMAND ls "${IFW_BINDIR}")
+message(STATUS ">>>> IFW_BIN PATH IS ${PROJECT_APP_PATH}")
+execute_process(COMMAND ls "${PROJECT_APP_PATH}")
+message(STATUS ">>>> IFW_BIN PATH IS ${CMAKE_SOURCE_DIR}")
+execute_process(COMMAND ls "${CMAKE_SOURCE_DIR}")
+message(STATUS ">>>> IFW_BIN PATH IS ${TARGET_APP_PATH}")
+execute_process(COMMAND ls "${TARGET_APP_PATH}")
+message(STATUS ">>>> IFW_BIN PATH IS ${CMAKE_CURRENT_SOURCE_DIR}")
+execute_process(COMMAND ls "${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS ">>>> IFW_BIN PATH IS ${CMAKE_CURRENT_SOURCE_DIR}/bin")
+execute_process(COMMAND ls "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+message(STATUS "===========================================")
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin/${DEX_PROJECT_NAME}.7z)
     message(STATUS "command is: [${IFW_BINDIR}/archivegen ${DEX_PROJECT_NAME}.7z ${PROJECT_APP_PATH} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin]")
     execute_process(COMMAND
@@ -111,7 +152,8 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin/${DEX_PROJECT_NAME}.7z)
 else()
     message(STATUS "${DEX_PROJECT_NAME}.7z already created - skipping")
 endif()
-
+message(STATUS "===========================================")
+execute_process(COMMAND ls ${CMAKE_CURRENT_SOURCE_DIR}/bin )
 message(STATUS "Copying ${CMAKE_CURRENT_SOURCE_DIR}/bin/${DEX_PROJECT_NAME}.7z TO ${PROJECT_ROOT_DIR}/ci_tools_atomic_dex/installer/osx/packages/com.komodoplatform.atomicdex/data")
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${DEX_PROJECT_NAME}.7z DESTINATION ${PROJECT_ROOT_DIR}/ci_tools_atomic_dex/installer/osx/packages/com.komodoplatform.atomicdex/data)

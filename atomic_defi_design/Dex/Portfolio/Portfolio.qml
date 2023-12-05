@@ -21,8 +21,7 @@ Item {
     id: portfolio
     Layout.fillWidth: true
     Layout.fillHeight: true
-    Layout.bottomMargin: 40
-    Layout.margins: 40
+    Layout.margins: 20
 
     readonly property int sort_by_name: 0
     readonly property int sort_by_value: 1
@@ -104,62 +103,10 @@ Item {
             chart.axes[i].visible = false
     }
 
-    Item
-    {
-        width: parent.width
-        height: 80
-        visible: true
-
-        RowLayout
-        {
-            anchors.fill: parent
-            anchors.leftMargin: 40
-            anchors.rightMargin: 40
-            anchors.topMargin: 30
-
-            Item
-            {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                DefaultText
-                {
-                    font: DexTypo.head6
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr("Portfolio")
-                }
-            }
-
-            Item
-            {
-                width: 120
-                Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: 200
-
-                Row
-                {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-
-                    DexGradientAppButton
-                    {
-                        height: 40
-                        iconSource: Qaterial.Icons.plus
-                        radius: 15
-                        padding: 25
-                        font: DexTypo.body2
-                        text: qsTr("ADD CRYPTO")
-                        onClicked: enable_coin_modal.open()
-                    }
-                }
-            }
-        }
-    }
-
     Flickable {
         id: flick
         anchors.fill: parent
-        anchors.topMargin: 80
+        anchors.topMargin: 20
         contentHeight: _column.height
         clip: true
 

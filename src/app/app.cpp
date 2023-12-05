@@ -44,7 +44,6 @@
 #include "atomicdex/services/price/komodo_prices/komodo.prices.provider.hpp"
 #include "atomicdex/services/price/coingecko/coingecko.wallet.charts.hpp"
 #include "atomicdex/services/price/coinpaprika/coinpaprika.provider.hpp"
-#include "atomicdex/services/price/oracle/band.provider.hpp"
 #include "atomicdex/services/price/orderbook.scanner.service.hpp"
 
 namespace
@@ -181,6 +180,8 @@ namespace atomic_dex
 
     bool application::has_coins_with_balance()
     {
+        // TODO: Does this ignore test coins?
+        // Simple view on fresh wallet with only test coins from faucet returns `no tradable assets`
         auto* portfolio_page = get_portfolio_page();
         auto* portfolio_mdl = portfolio_page->get_portfolio();
         auto portfolio_data = portfolio_mdl->get_underlying_data();
@@ -371,11 +372,8 @@ namespace atomic_dex
                 }
                 //! TODO: figure out why sometimes ZHTLC coins end up in here twice. When they do, without this check it crashes.
                 if (std::find(to_init.begin(), to_init.end(), ticker) != to_init.end()) {
-                    SPDLOG_DEBUG("Ticker {} is already in vector", ticker);
+                    // SPDLOG_DEBUG("Ticker {} is already in vector", ticker);
                     add_to_init = false;
-                }
-                else {
-                    SPDLOG_DEBUG("Ticker {} is not already in vector", ticker);
                 }
                 if (add_to_init) {
                     to_init.push_back(ticker);
@@ -493,7 +491,6 @@ namespace atomic_dex
 
         // get_dispatcher().sink<refresh_update_status>().connect<&application::on_refresh_update_status_event>(*this);
         //! MM2 system need to be created before the GUI and give the instance to the gui
-        system_manager_.create_system<ip_service_checker>();
         system_manager_.create_system<mm2_service>(system_manager_);
         auto& settings_page_system = system_manager_.create_system<settings_page>(system_manager_, m_app, this);
         auto& portfolio_system     = system_manager_.create_system<portfolio_page>(system_manager_, this);
@@ -501,9 +498,9 @@ namespace atomic_dex
 
         system_manager_.create_system<wallet_page>(system_manager_, this);
         system_manager_.create_system<global_price_service>(system_manager_, settings_page_system.get_cfg());
+        system_manager_.create_system<global_defi_stats_service>(system_manager_);
         system_manager_.create_system<orderbook_scanner_service>(system_manager_);
-        system_manager_.create_system<band_oracle_price_service>();
-        // system_manager_.create_system<coinpaprika_provider>(system_manager_);
+        //system_manager_.create_system<coinpaprika_provider>(system_manager_);
         //system_manager_.create_system<coingecko_provider>(system_manager_);
         system_manager_.create_system<komodo_prices_provider>();
         system_manager_.create_system<update_checker_service>();
@@ -688,6 +685,20 @@ namespace atomic_dex
 //! Trading functions
 namespace atomic_dex
 {
+    QString
+    application::get_rate_conversion(const QString& fiat, const QString& ticker, bool adjusted)
+    {
+        const auto&     price_service = system_manager_.get_system<global_price_service>();
+        return QString::fromStdString(price_service.get_rate_conversion(fiat.toStdString(), ticker.toStdString(), adjusted));
+    }
+
+    QString
+    application::get_fiat_rate(const QString& fiat)
+    {
+        const auto&     price_service = system_manager_.get_system<global_price_service>();
+        return QString::fromStdString(price_service.get_fiat_rates(fiat.toStdString()));
+    }
+
     QString
     application::get_fiat_from_amount(const QString& ticker, const QString& amount)
     {
@@ -903,18 +914,6 @@ namespace atomic_dex
     zcash_params_service* application::get_zcash_params_service() const
     {
         auto ptr = const_cast<zcash_params_service*>(std::addressof(system_manager_.get_system<zcash_params_service>()));
-        assert(ptr != nullptr);
-        return ptr;
-    }
-} // namespace atomic_dex
-
-//! IP checker
-namespace atomic_dex
-{
-    ip_service_checker*
-    application::get_ip_checker() const
-    {
-        auto ptr = const_cast<ip_service_checker*>(std::addressof(system_manager_.get_system<ip_service_checker>()));
         assert(ptr != nullptr);
         return ptr;
     }

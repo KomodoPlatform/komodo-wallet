@@ -3,10 +3,10 @@ name: GitlabSync
 on:
   push:
     branches:
-      - '*'
+      - 'none'
   pull_request:
     branches:
-      - dev
+      - none
   delete:
     branches:
       - '*'

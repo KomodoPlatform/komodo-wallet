@@ -174,7 +174,7 @@ ComboBox
                         highlighted: control.highlightedIndex === index
                         contentItem: DefaultText
                         {
-                            text_value: "<b><font color='" + DexTheme.getCoinColor(ticker) + "'>" + ticker + "</font></b>" + "    %1".arg(General.coinName(ticker)) 
+                            text_value: "<b><font color='" + Style.getCoinColor(ticker) + "'>" + ticker + "</font></b>" + "    %1".arg(General.coinName(ticker)) 
                         }
 
                         background: DefaultRectangle

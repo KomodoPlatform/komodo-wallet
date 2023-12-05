@@ -15,28 +15,28 @@ MouseArea
     {
         target: parent.parent
 
-        function onExpanded(isExpanded)
-        {
-            if (isExpanded)
-            {
-                fadeInTextVerAnimation.start();
-                dexLogo.scale = .8;
-                dexLogo.source = Dex.CurrentTheme.bigLogoPath;
-                dexLogo.sourceSize.width = 200;
-            }
-        }
+        // function onExpanded(isExpanded)
+        // {
+        //     if (isExpanded)
+        //     {
+        //         fadeInTextVerAnimation.start();
+        //         dexLogo.scale = .8;
+        //         dexLogo.source = Dex.CurrentTheme.bigLogoPath;
+        //         dexLogo.sourceSize.width = 200;
+        //     }
+        // }
 
-        function onExpandStarted(isExpanding)
-        {
-            if (!isExpanding)
-            {
-                versionLabel.opacity = 0;
-                dexLogo.scale = .5;
-                dexLogo.source = Dex.CurrentTheme.logoPath;
-                dexLogo.sourceSize.width = 80;
-                versionLabel.opacity = 0;
-            }
-        }
+        // function onExpandStarted(isExpanding)
+        // {
+        //     if (!isExpanding)
+        //     {
+        //         versionLabel.opacity = 0;
+        //         dexLogo.scale = .5;
+        //         dexLogo.source = Dex.CurrentTheme.logoPath;
+        //         dexLogo.sourceSize.width = 80;
+        //         versionLabel.opacity = 0;
+        //     }
+        // }
     }
 
     NumberAnimation
@@ -56,8 +56,8 @@ MouseArea
         Component.onCompleted:
         {
             sourceSize.width = parent.width
-            source = isExpanded ? Dex.CurrentTheme.bigLogoPath : Dex.CurrentTheme.logoPath;
-            scale = isExpanded ? .8 : .5
+            source = Dex.CurrentTheme.bigLogoPath // isExpanded ? Dex.CurrentTheme.bigLogoPath : Dex.CurrentTheme.logoPath;
+            scale = 1 // isExpanded ? .8 : .5
         }
 
         Connections
@@ -65,7 +65,7 @@ MouseArea
             target: Dex.CurrentTheme
             function onThemeChanged()
             {
-                dexLogo.source = isExpanded ? Dex.CurrentTheme.bigLogoPath : Dex.CurrentTheme.logoPath
+                dexLogo.source = Dex.CurrentTheme.bigLogoPath // isExpanded ? Dex.CurrentTheme.bigLogoPath : Dex.CurrentTheme.logoPath
             }
         }
     }
@@ -80,8 +80,8 @@ MouseArea
         text_value: General.version_string
         font: DexTypo.caption
         color: Dex.CurrentTheme.sidebarVersionTextColor
-        visible: root.width > 120
+        visible: true // root.width > 120
 
-        Component.onCompleted: opacity = isExpanded ? 1 : 0
+        Component.onCompleted: opacity = 1 // isExpanded ? 1 : 0
     }
 }

@@ -13,6 +13,7 @@ Dex.Popup
     width: 250
     height: 55
 
+    onOpened: tagNameField.forceActiveFocus()
     onClosed: tagNameField.text = ""
 
     contentItem: Row
@@ -22,9 +23,16 @@ Dex.Popup
         Dex.TextField
         {
             id: tagNameField
+            visible: contactModel.categories.length < 5
             width: parent.width * 0.6
             height: parent.height
             placeholderText: qsTr("Tag name")
+
+            onTextChanged: {
+                if(text.length > 10) {
+                    text = text.substring(0, 10)
+                }
+            }
 
             Dex.ToolTip
             {
@@ -40,6 +48,7 @@ Dex.Popup
 
         Dex.Button
         {
+            visible: contactModel.categories.length < 5
             width: parent.width * 0.36
             height: parent.height
             text: qsTr("+ ADD")
@@ -56,5 +65,16 @@ Dex.Popup
                 else root.close()
             }
         }
+
+        Dex.Text
+        {
+            id: tagLimitText
+            visible: contactModel.categories.length > 4
+            width: parent.width * 0.6
+            height: parent.height
+            color: Style.colorRed
+            text: qsTr("A contact can only have 5 tags.")
+        }
+        
     }
 }

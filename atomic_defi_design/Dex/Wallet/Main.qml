@@ -42,6 +42,7 @@ Item
     Layout.fillHeight: true
     Layout.fillWidth: true
 
+    // TODO: Move this section for the coin summary bar at the top to its own component
     ColumnLayout
     {
         id: wallet_layout
@@ -166,77 +167,6 @@ Item
 
                     Item { Layout.fillWidth: true }
 
-                    ColumnLayout
-                    {
-                        visible: false //current_ticker_infos.segwit_supported
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        spacing: 2
-
-                        DefaultText
-                        {
-                            text_value: qsTr("Segwit")
-                            Layout.alignment: Qt.AlignLeft
-                            font.pixelSize: headerTitleFont
-                            color: headerTitleColor
-                        }
-
-                        DefaultSwitch
-                        {
-                            id: segwitSwitch
-                            Layout.alignment: Qt.AlignVCenter
-
-                            onToggled:
-                            {
-                                if(parseFloat(current_ticker_infos.balance) > 0) {
-                                     Qaterial.DialogManager.showDialog({
-                                        title: qsTr("Confirmation"),
-                                        text:  qsTr("Do you want to send your %1 funds to %2 wallet first?").arg(current_ticker_infos.is_segwit_on ? "segwit" : "legacy").arg(!current_ticker_infos.is_segwit_on ? "segwit" : "legacy"),
-                                        standardButtons: Dialog.Yes | Dialog.No,
-                                        onAccepted: function() {
-                                            var address = API.app.wallet_pg.switch_address_mode(!current_ticker_infos.is_segwit_on);
-                                            if (address != current_ticker_infos.address && address != "") {
-                                                send_modal.open()
-                                                send_modal.item.address_field.text = address
-                                                send_modal.item.max_mount.checked = true
-                                                send_modal.item.segwit = true
-                                                send_modal.item.segwit_callback = function () {
-                                                    if(send_modal.item.segwit_success) {
-                                                        API.app.wallet_pg.post_switch_address_mode(!current_ticker_infos.is_segwit_on)
-                                                        Qaterial.DialogManager.showDialog({
-                                                            title: qsTr("Success"),
-                                                            text: qsTr("Your transaction is send, may take some time to arrive")
-                                                        })
-                                                    } else {
-                                                        segwitSwitch.checked = current_ticker_infos.is_segwit_on
-                                                    }
-                                                }
-                                            }
-                                        },
-
-                                        onRejected: function () {
-                                            app.segwit_on = true
-                                            API.app.wallet_pg.post_switch_address_mode(!current_ticker_infos.is_segwit_on)
-                                        }
-                                    })
-
-                                } else {
-                                    app.segwit_on = true
-                                    API.app.wallet_pg.post_switch_address_mode(!current_ticker_infos.is_segwit_on)
-                                }
-                            }
-                        }
-                    }
-
-                    Connections
-                    {
-                        target: API.app.wallet_pg
-                        function onTickerInfosChanged() {
-                            if (segwitSwitch.checked != current_ticker_infos.is_segwit_on) {
-                                segwitSwitch.checked = current_ticker_infos.is_segwit_on
-                            }
-                        }
-                    }
-
                     // Price
                     ColumnLayout
                     {
@@ -309,7 +239,7 @@ Item
                         DefaultText
                         {
                             id: portfolio_title
-                            text_value: qsTr("Porfolio")
+                            text_value: qsTr("Portfolio")
                             Layout.alignment: Qt.AlignHCenter
                             color: headerTitleColor
                             font.pixelSize: headerTitleFont
@@ -583,7 +513,6 @@ Item
             // Swap Button
             Item
             {
-                visible: !is_dex_banned
                 Layout.preferredWidth: 180
                 Layout.preferredHeight: 48
 
@@ -665,7 +594,7 @@ Item
             {
                 Layout.preferredWidth: 180
                 Layout.preferredHeight: 48
-                visible:  current_ticker_infos.is_smartchain_test_coin
+                visible:  current_ticker_infos.is_faucet_coin
 
                 DefaultButton
                 {
@@ -970,13 +899,15 @@ Item
                         GradientStop { position: 1; color: Dex.CurrentTheme.backgroundColor }
                     }
                 }
-
+                
+                // Transactions history table
                 Transactions
                 {
                     width: parent.width
                     height: parent.height
                 }
 
+                // Placeholder if no tx history available, or being fetched.
                 ColumnLayout
                 {
                     visible: current_ticker_infos.tx_state !== "InProgress" && transactions_mdl.length === 0
@@ -1011,6 +942,7 @@ Item
                         visible: api_wallet_page.tx_fetching_busy
                     }
 
+                    // When no tx history available, or being fetched, show a button to open the explorer.
                     DefaultText
                     {
                         id: explorerLink

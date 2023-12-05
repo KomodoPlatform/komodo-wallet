@@ -30,7 +30,7 @@ struct tests_context : public antara::gaming::world::app
   private:
     std::atomic_bool         m_test_context_ready{false};
     std::atomic_bool         m_extra_coins_ready{false};
-    std::vector<std::string> m_extra_coins{"RICK", "MORTY"};
+    std::vector<std::string> m_extra_coins{"DOC", "MARTY"};
 
   public:
     void
@@ -81,16 +81,16 @@ struct tests_context : public antara::gaming::world::app
             SPDLOG_INFO("Using default password from the application");
         }
 
-        if (not wallet_manager.get_wallets().contains("atomicdex-desktop_tests"))
+        if (not wallet_manager.get_wallets().contains("komodo-wallet_tests"))
         {
             wallet_manager.create(
-                test_password != nullptr ? test_password : "fakepasswordtemporary", test_seed != nullptr ? test_seed : "fake seed", "atomicdex-desktop_tests");
+                test_password != nullptr ? test_password : "fakepasswordtemporary", test_seed != nullptr ? test_seed : "fake seed", "komodo-wallet_tests");
         }
         else
         {
-            SPDLOG_INFO("atomicdex-desktop_tests already exists - skipping");
+            SPDLOG_INFO("komodo-wallet_tests already exists - skipping");
         }
-        wallet_manager.login(test_password != nullptr ? test_password : "fakepasswordtemporary", "atomicdex-desktop_tests");
+        wallet_manager.login(test_password != nullptr ? test_password : "fakepasswordtemporary", "komodo-wallet_tests");
 
         //! Waits for mm2 to be initialized before running tests
         while (!mm2.is_mm2_running() && !m_test_context_ready) { std::this_thread::sleep_for(std::chrono::milliseconds(100)); }

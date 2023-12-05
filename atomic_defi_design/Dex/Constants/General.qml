@@ -4,10 +4,10 @@ import AtomicDEX.TradingError 1.0
 import AtomicDEX.MarketMode 1.0
 
 QtObject {
-    readonly property int width: 1280
-    readonly property int height: 800
+    readonly property int width: 1280 // Set for maximum user compatibility 
+    readonly property int height: 720 // See https://gs.statcounter.com/screen-resolution-stats/desktop/worldwide
     readonly property int minimumWidth: 1280
-    readonly property int minimumHeight: 800
+    readonly property int minimumHeight: 720
     readonly property int max_camo_pw_length: 256
     readonly property int max_std_pw_length: 256
     readonly property int max_pw_length: max_std_pw_length + max_camo_pw_length
@@ -32,9 +32,38 @@ QtObject {
             {
                 return coin_icons_path + ticker.toString().toLowerCase().replace('-', '_') + ".png"
             }
+            if (['Smart Chain'].indexOf(ticker) >= 0)
+            {
+                return coin_icons_path + ticker.toString().toLowerCase().replace(' ', '_') + ".png"
+            }
             const coin_info = API.app.portfolio_pg.global_cfg_mdl.get_coin_info(ticker)
-            return (coin_info.is_custom_coin ? custom_coin_icons_path : coin_icons_path) + atomic_qt_utilities.retrieve_main_ticker(ticker.toString()).toLowerCase() + ".png"
+            let icon = atomic_qt_utilities.retrieve_main_ticker(ticker.toString()).toLowerCase() + ".png"
+            return (coin_info.is_custom_coin ? custom_coin_icons_path : coin_icons_path) + icon
         }
+    }
+
+    function getChartTicker(ticker)
+    {
+        let coin_info = API.app.portfolio_pg.global_cfg_mdl.get_coin_info(ticker)
+        return coin_info.livecoinwatch_id
+    }
+
+    function coinWithoutSuffix(ticker)
+    {
+        if (ticker.search("-") > -1)
+        {
+            return ticker.split("-")[0]
+        }
+        else
+        {
+            return ticker
+        }
+    }
+
+    function is_testcoin(ticker)
+    {
+        let coin_info = API.app.portfolio_pg.global_cfg_mdl.get_coin_info(ticker)
+        return coin_info.is_testnet
     }
 
     function coinName(ticker) {
@@ -56,6 +85,11 @@ QtObject {
     function isWalletOnly(ticker)
     {
         return API.app.portfolio_pg.global_cfg_mdl.get_coin_info(ticker).is_wallet_only
+    }
+
+    function isFaucetCoin(ticker)
+    {
+        return API.app.portfolio_pg.global_cfg_mdl.get_coin_info(ticker).is_faucet_coin
     }
 
     function isCoinWithMemo(ticker) {
@@ -87,13 +121,10 @@ QtObject {
     {
         let progress = 100
         if (!activation_status.hasOwnProperty("result")) return progress
-        // console.log("["+coin+"] [zhtlcActivationProgress]: " + JSON.stringify(activation_status))
+        const coin_info = API.app.portfolio_pg.global_cfg_mdl.get_coin_info(coin)
+        let block_offset = coin_info.checkpoint_height
         let status = activation_status.result.status
         let details = activation_status.result.details
-
-        let block_offset = 0
-        if (coin == 'ARRR') block_offset = 2000000
-
         // use range from checkpoint block to present
         if (!status)
         {
@@ -108,31 +139,32 @@ QtObject {
         {
             if (details.hasOwnProperty("UpdatingBlocksCache"))
             {
+                block_offset = details.UpdatingBlocksCache.first_sync_block.actual
                 let n = details.UpdatingBlocksCache.current_scanned_block - block_offset
                 let d = details.UpdatingBlocksCache.latest_block - block_offset
-                progress = 5 + parseInt(n/d*15)
+                progress = 5 + parseInt(n/d*20)
             }
             else if (details.hasOwnProperty("BuildingWalletDb"))
             {
+                block_offset = details.BuildingWalletDb.first_sync_block.actual
                 let n = details.BuildingWalletDb.current_scanned_block - block_offset
                 let d = details.BuildingWalletDb.latest_block - block_offset
-                progress = 20 + parseInt(n/d*80)
+                progress = 45 + parseInt(n/d*60)
+                if (progress > 95) {
+                    progress = 95
+                }
+                
             }
-            else if (details.hasOwnProperty("RequestingBalance")) progress = 98
+            else if (details.hasOwnProperty("RequestingBalance")) progress = 95
+            else if (details.hasOwnProperty("ActivatingCoin")) progress = 5
             else progress = 5
         }
         else console.log("["+coin+"] [zhtlcActivationProgress] Unexpected status: " + status)
-        return progress
-    }
-
-    function getNomicsId(ticker) {
-        if(ticker === "" || ticker === "All" || ticker===undefined) {
-            return ""
-        } else {
-            const nomics_id = API.app.portfolio_pg.global_cfg_mdl.get_coin_info(ticker).nomics_id
-            if (nomics_id == 'test-coin') return ""
-            return nomics_id
+        if (progress > 100) {
+            progress = 98
         }
+        
+        return progress
     }
 
     function coinContractAddress(ticker) {
@@ -510,7 +542,21 @@ QtObject {
       return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol
     }
 
+    function convertUsd(v) {
+        let rate = API.app.get_rate_conversion("USD", API.app.settings_pg.current_currency)
+        let value = parseFloat(v) / parseFloat(rate)
+
+        if (API.app.settings_pg.current_fiat == API.app.settings_pg.current_currency) {
+            let fiat_rate = API.app.get_fiat_rate(API.app.settings_pg.current_fiat)
+            value = parseFloat(v) * parseFloat(fiat_rate)
+        }
+        return formatFiat("", value, API.app.settings_pg.current_currency)
+    }
+
     function formatFiat(received, amount, fiat, precision=2) {
+        if (precision == 2 && fiat == "BTC") {
+            precision = 8
+        }
         return diffPrefix(received) +
                 (fiat === API.app.settings_pg.current_fiat ? API.app.settings_pg.current_fiat_sign : API.app.settings_pg.current_currency_sign)
                 + " " + (amount < 1E5 ? formatDouble(parseFloat(amount), precision, true) : nFormatter(parseFloat(amount), 2))
@@ -705,8 +751,10 @@ QtObject {
     }
 
     function getFiatText(v, ticker, has_info_icon=true) {
-        return General.formatFiat('', v === '' ? 0 : API.app.get_fiat_from_amount(ticker, v), API.app.settings_pg.current_fiat)
-                + (has_info_icon ? " " +  General.cex_icon : "")
+        let fiat_from_amount = API.app.get_fiat_from_amount(ticker, v)
+        let current_fiat = API.app.settings_pg.current_fiat
+        let formatted_fiat = General.formatFiat('', v === '' ? 0 : fiat_from_amount, current_fiat)
+        return formatted_fiat + (has_info_icon ? " " +  General.cex_icon : "")
     }
 
     function hasParentCoinFees(trade_info) {

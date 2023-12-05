@@ -34,29 +34,41 @@ MultipageModal
             RowLayout
             {
                 id: dex_pair_badges
+                Layout.fillWidth: true
+                Layout.preferredHeight: 70
+                Layout.preferredWidth: 480
+
+                Item { Layout.fillWidth: true }
 
                 PairItemBadge
                 {
                     ticker: base_ticker
                     fullname: General.coinName(base_ticker)
                     amount: base_amount
+                    Layout.fillHeight: true
                 }
+
+                Item { Layout.fillWidth: true }
 
                 Qaterial.Icon
                 {
-                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
-
                     color: Dex.CurrentTheme.foregroundColor
                     icon: Qaterial.Icons.swapHorizontal
+                    Layout.fillHeight: true
                 }
+
+                Item { Layout.fillWidth: true }
 
                 PairItemBadge
                 {
                     ticker: rel_ticker
                     fullname: General.coinName(rel_ticker)
                     amount: rel_amount
+                    Layout.fillHeight: true
                 }
+
+                Item { Layout.fillWidth: true }
             },
 
             PriceLineSimplified

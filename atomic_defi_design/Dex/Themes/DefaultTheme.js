@@ -123,7 +123,7 @@ function getHardcoded()
         listItemEvenBackground:    "#24273DFF",
         listItemHoveredBackground: "#4068B9FF",
 
-        addressBookTagColors: ["#627EEAFF", "#FFD87AFF", "#F7931AFF"],
+        addressBookTagColors: ["#003bbbFF", "#006133FF", "#612600FF", "#430061FF", "#004d61FF"],
 
         okColor: "#00C058FF",
         warningColor: "#E52167FF",

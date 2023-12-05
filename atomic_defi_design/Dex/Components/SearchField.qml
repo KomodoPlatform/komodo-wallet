@@ -51,8 +51,10 @@ Rectangle
         placeholderText: qsTr("Search")
         placeholderTextColor: Dex.CurrentTheme.textPlaceholderColor
 
-        onTextChanged: searchModel.setFilterFixedString(_textField.text)
-        Component.onDestruction: searchModel.setFilterFixedString("")
+        onTextChanged: Array.isArray(searchModel) ? "" : searchModel.setFilterFixedString(_textField.text)
+
+
+        Component.onDestruction: Array.isArray(searchModel) ? "" : searchModel.setFilterFixedString("")
     }
 
     DefaultRectangle

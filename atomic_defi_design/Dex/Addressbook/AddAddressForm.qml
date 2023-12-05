@@ -195,7 +195,7 @@ Dex.Rectangle
                 Layout.preferredWidth: 116
                 Layout.preferredHeight: 38
                 radius: 18
-                text: isConvertMode ? qsTr("Convert") : editionMode ? qsTr("Edit") : qsTr("Add")
+                text: isConvertMode ? qsTr("Convert") : editionMode ? qsTr("Update") : qsTr("Save")
                 onClicked:
                 {
                     let addressType = getTypeForAddressChecker(addressTypeComboBox.currentText)

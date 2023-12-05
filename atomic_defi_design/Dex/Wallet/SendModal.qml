@@ -18,9 +18,6 @@ MultipageModal
 
     property bool needFix: false
     property bool errorView: false
-    property bool segwit: false
-    property bool segwit_success: false
-    property var segwit_callback
     property var address_data
 
     readonly property var default_send_result: ({ has_error: false, error_message: "",
@@ -156,11 +153,6 @@ MultipageModal
 
     onClosed:
     {
-        if (segwit)
-        {
-            segwit_callback()
-        }
-        segwit = false
         reset()
     }
 
@@ -262,7 +254,7 @@ MultipageModal
 
         DefaultRectangle
         {
-            enabled: !root.segwit && !root.is_send_busy
+            enabled: !root.is_send_busy
 
             Layout.preferredWidth: 500
             Layout.preferredHeight: 44
@@ -566,7 +558,7 @@ MultipageModal
         DefaultRectangle
         {
             visible: General.isCoinWithMemo(api_wallet_page.ticker)
-            enabled: !root.segwit && !root.is_send_busy
+            enabled: !root.is_send_busy
 
             Layout.preferredWidth: 500
             Layout.preferredHeight: 44
@@ -949,7 +941,6 @@ MultipageModal
 
         function onClose()
         {
-            if (root.segwit) root.segwit_success = true
             root.close()
         }
     }

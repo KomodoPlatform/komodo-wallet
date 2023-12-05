@@ -107,11 +107,11 @@ namespace atomic_dex
         return QString::fromStdString(mm2_system.get_current_ticker());
     }
 
-    void wallet_page::set_current_ticker(const QString& ticker)
+    void wallet_page::set_current_ticker(const QString& ticker, bool force)
     {
         auto& mm2_system = m_system_manager.get_system<mm2_service>();
         auto  coin_info  = mm2_system.get_coin_info(ticker.toStdString());
-        if (mm2_system.set_current_ticker(ticker.toStdString()))
+        if (mm2_system.set_current_ticker(ticker.toStdString()) || force)
         {
             SPDLOG_INFO("new ticker: {}", ticker.toStdString());
             m_transactions_mdl->reset();
@@ -267,10 +267,9 @@ namespace atomic_dex
             {"blocks_left", 1},
             {"transactions_left", 0},
             {"current_block", 1},
-            {"is_smartchain_test_coin", false},
+            {"is_faucet_coin", false},
             {"qrcode_address", ""},
-            {"segwit_supported", false},
-            {"is_segwit_on", false}};
+            {"segwit_supported", false}};
         std::error_code ec;
         auto&           mm2_system = m_system_manager.get_system<mm2_service>();
         if (mm2_system.is_mm2_running())
@@ -285,7 +284,6 @@ namespace atomic_dex
             obj["name"]                               = QString::fromStdString(coin_info.name);
             obj["type"]                               = QString::fromStdString(coin_info.type);
             obj["segwit_supported"]                   = coin_info.segwit;
-            obj["is_segwit_on"]                       = coin_info.is_segwit_on;
             obj["has_parent_fees_ticker"]             = coin_info.has_parent_fees_ticker;
             obj["fees_ticker"]                        = QString::fromStdString(coin_info.fees_ticker);
             obj["is_claimable"]                       = coin_info.is_claimable;
@@ -302,7 +300,7 @@ namespace atomic_dex
             obj["blocks_left"]                        = static_cast<qint64>(tx_state.blocks_left);
             obj["transactions_left"]                  = static_cast<qint64>(tx_state.transactions_left);
             obj["current_block"]                      = static_cast<qint64>(tx_state.current_block);
-            obj["is_smartchain_test_coin"]            = coin_info.ticker == "RICK" || coin_info.ticker == "MORTY" || coin_info.ticker == "ZOMBIE";
+            obj["is_faucet_coin"]                     = coin_info.is_faucet_coin;
 
             std::error_code   ec;
             if (!mm2_system.is_zhtlc_coin_ready(coin_info.ticker))
@@ -993,16 +991,32 @@ namespace atomic_dex
         if (!evt.with_error && QString::fromStdString(evt.ticker) == get_current_ticker())
         {
             std::error_code ec;
+            const auto& settings         = m_system_manager.get_system<settings_page>();
             t_transactions  transactions = m_system_manager.get_system<mm2_service>().get_tx_history(ec);
+            t_transactions  to_init;
+            if (settings.is_spamfilter_enabled())
+            {
+                for (auto&& cur_tx: transactions)
+                {
+                    if (safe_float(cur_tx.total_amount) != 0)
+                    {
+                        to_init.push_back(cur_tx);
+                    }
+                }
+            }
+            else
+            {
+                to_init = transactions;
+            }
             if (m_transactions_mdl->rowCount() == 0)
             {
                 //! insert all transactions
-                m_transactions_mdl->init_transactions(transactions);
+                m_transactions_mdl->init_transactions(to_init);
             }
             else
             {
                 //! Update tx (only unconfirmed) or insert (new tx)
-                m_transactions_mdl->update_or_insert_transactions(transactions);
+                m_transactions_mdl->update_or_insert_transactions(to_init);
             }
             if (ec)
             {
@@ -1156,108 +1170,5 @@ namespace atomic_dex
     {
         m_converted_address = converted_address;
         emit convertedAddressChanged();
-    }
-
-    QString
-    wallet_page::switch_address_mode(bool checked)
-    {
-        auto&       mm2_system = m_system_manager.get_system<mm2_service>();
-        std::string address    = "";
-        if (mm2_system.is_mm2_running())
-        {
-            const auto ticker   = get_current_ticker().toStdString();
-            const auto coin_cfg = mm2_system.get_coin_info(ticker);
-            if (coin_cfg.segwit)
-            {
-                nlohmann::json address_format = nlohmann::json::object();
-                address_format                = {{"format", "segwit"}};
-                if (!checked)
-                {
-                    //! We go from segwit to legacy
-                    if (coin_cfg.ticker != "BCH")
-                    {
-                        address_format = {{"format", "standard"}};
-                    }
-                    else
-                    {
-                        address_format = {{"format", "bch"}};
-                    }
-                }
-
-
-                std::error_code ec;
-                address = mm2_system.address(ticker, ec);
-                t_convert_address_request req{.coin = ticker, .from = address, .to_address_format = address_format};
-                nlohmann::json            batch     = nlohmann::json::array();
-                nlohmann::json            json_data = mm2::template_request("convertaddress");
-                mm2::to_json(json_data, req);
-                batch.push_back(json_data);
-                json_data["userpass"] = "******";
-                SPDLOG_INFO("convertaddress request: {}", json_data.dump());
-                web::http::http_response resp = mm2_system.get_mm2_client().async_rpc_batch_standalone(batch).get();
-                std::string              body = TO_STD_STR(resp.extract_string(true).get());
-                SPDLOG_DEBUG("resp convertaddress: {}", body);
-                if (resp.status_code() == static_cast<web::http::status_code>(antara::app::http_code::ok))
-                {
-                    auto answers        = nlohmann::json::parse(body);
-                    auto convert_answer = mm2::rpc_process_answer_batch<t_convert_address_answer>(answers[0], "convertaddress");
-                    if (convert_answer.result.has_value())
-                    {
-                        return QString::fromStdString(convert_answer.result.value().address);
-                    }
-                }
-            }
-        }
-        return QString::fromStdString(address);
-    }
-
-    void
-    wallet_page::post_switch_address_mode(bool is_segwit)
-    {
-        SPDLOG_INFO("switching to : {}", is_segwit ? "segwit" : "legacy");
-        auto& mm2_system = m_system_manager.get_system<mm2_service>();
-        if (mm2_system.is_mm2_running())
-        {
-            //! Need disable + enable + refresh balance + refresh current coin info (address) + change segwit in cfg
-            const auto             ticker    = get_current_ticker().toStdString();
-            nlohmann::json         batch     = nlohmann::json::array();
-            nlohmann::json         json_data = mm2::template_request("disable_coin");
-            t_disable_coin_request req{.coin = ticker};
-            mm2::to_json(json_data, req);
-            batch.push_back(json_data);
-            //! Disable is in the batch
-
-            //! electrum
-            auto               coin_info = mm2_system.get_coin_info(ticker);
-            t_electrum_request electrum_req{
-                .coin_name = coin_info.ticker, .servers = coin_info.electrum_urls.value(), .coin_type = coin_info.coin_type, .with_tx_history = true};
-            if (is_segwit)
-            {
-                electrum_req.address_format                   = nlohmann::json::object();
-                electrum_req.address_format.value()["format"] = "segwit";
-            }
-            nlohmann::json electrum_data = mm2::template_request("electrum");
-            mm2::to_json(electrum_data, electrum_req);
-            batch.push_back(electrum_data);
-            electrum_data["userpass"] = "*******";
-            SPDLOG_INFO("electrum_req: {}", electrum_data.dump(-1));
-
-            //! Answer functor
-            auto answer_functor = [this, ticker, is_segwit](web::http::http_response resp)
-            {
-                std::string body = TO_STD_STR(resp.extract_string(true).get());
-                SPDLOG_DEBUG("resp disable/enable: {}", body);
-                if (resp.status_code() == static_cast<web::http::status_code>(antara::app::http_code::ok))
-                {
-                    auto& mm2_system = m_system_manager.get_system<mm2_service>();
-                    mm2_system.change_segwit_status(ticker, is_segwit);
-                    mm2_system.fetch_infos_thread(true, false);
-                    SPDLOG_INFO("Switching address mode success");
-                }
-            };
-
-            //! Rpc processing
-            mm2_system.get_mm2_client().async_rpc_batch_standalone(batch).then(answer_functor).then(&handle_exception_pplx_task);
-        }
     }
 } // namespace atomic_dex

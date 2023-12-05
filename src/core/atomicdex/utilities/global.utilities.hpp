@@ -94,7 +94,7 @@ namespace atomic_dex::utils
     ENTT_API std::filesystem::path get_themes_path();
     ENTT_API std::filesystem::path get_logo_path();
 
-    std::string retrieve_main_ticker(const std::string& ticker);
+    std::string retrieve_main_ticker(const std::string& ticker, const bool segwit_only = false);
 
     void to_eth_checksum(std::string& address);
 

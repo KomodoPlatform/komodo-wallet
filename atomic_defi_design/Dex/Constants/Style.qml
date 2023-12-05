@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick 2.15
 import Qaterial 1.0 as Qaterial
+import Dex.Themes 1.0 as Dex
 
 QtObject {
     function setQaterialStyle() {
@@ -65,7 +66,7 @@ QtObject {
     readonly property double hoverLightMultiplier: 1.5
     readonly property double hoverOpacity: 0.6
 
-    property bool dark_theme: true
+    property bool dark_theme: Dex.CurrentTheme.getColorMode() === Dex.CurrentTheme.ColorMode.Dark
 
 
     function applyOpacity(hex, opacity="00") {
@@ -184,30 +185,32 @@ QtObject {
     {
         switch (type)
         {
-            case 'ERC-20':      return getCoinColor("ETH")
-            case 'ZHTLC':       return getCoinColor("ARRR")
-            case 'QRC-20':      return getCoinColor("QTUM")
-            case 'Smart Chain': return getCoinColor("KMD")
-            case 'WALLET ONLY': return "#4D4D4D"
-            case 'UTXO':        return getCoinColor("BTC")
-            case 'BEP-20':      return getCoinColor("BNB")
-            case 'SLP':         return getCoinColor("BCH")
-            case 'IDO':         return getCoinColor("TKL")
-            case 'Matic':       return getCoinColor("MATIC")
-            case 'Optimism':    return "#BB2100"
-            case 'Arbitrum':    return getCoinColor("ETH")
-            case 'AVX-20':      return getCoinColor("AVAX")
-            case 'FTM-20':      return getCoinColor("FTM")
-            case 'HRC-20':      return getCoinColor("ONE")
-            case 'Ubiq':        return getCoinColor("UBQ")
-            case 'KRC-20':      return getCoinColor("KCS")
-            case 'Moonriver':   return getCoinColor("MOVR")
-            case 'Moonbeam':    return getCoinColor("GLMR")
-            case 'HecoChain':   return getCoinColor("HECO")
-            case 'SmartBCH':    return getCoinColor("SBCH")
-            case 'Ethereum Classic':  return getCoinColor("ETC")
-            case 'RSK Smart Bitcoin': return getCoinColor("BTC")
-            default:            return getCoinColor("BTC")
+            case 'IDO':               return dark_theme ? colorCoinDark["IDO"] : colorCoin["IDO"]
+            case 'AVX-20':            return dark_theme ? colorCoinDark["AVAX"] : colorCoin["AVAX"]
+            case 'ZHTLC':             return dark_theme ? colorCoinDark["ARRR"] : colorCoin["ARRR"]
+            case 'COSMOS':            return dark_theme ? colorCoinDark["ATOM"] : colorCoin["ATOM"]
+            case 'SLP':               return dark_theme ? colorCoinDark["BCH"] : colorCoin["BCH"]
+            case 'BEP-20':            return dark_theme ? colorCoinDark["BNB"] : colorCoin["BNB"]
+            case 'RSK Smart Bitcoin': return dark_theme ? colorCoinDark["UTXO"] : colorCoin["UTXO"]
+            case 'UTXO':              return dark_theme ? colorCoinDark["UTXO"] : colorCoin["UTXO"]
+            case 'Ethereum Classic':  return dark_theme ? colorCoinDark["ETC"] : colorCoin["ETC"]
+            case 'Arbitrum':          return dark_theme ? colorCoinDark["ETH"] : colorCoin["ETH"]
+            case 'ERC-20':            return dark_theme ? colorCoinDark["ETH"] : colorCoin["ETH"]
+            case 'EWT':               return dark_theme ? colorCoinDark["EWT"] : colorCoin["EWT"]
+            case 'FTM-20':            return dark_theme ? colorCoinDark["FTM"] : colorCoin["FTM"]
+            case 'Moonbeam':          return dark_theme ? colorCoinDark["GLMR"] : colorCoin["GLMR"]
+            case 'HecoChain':         return dark_theme ? colorCoinDark["HECO"] : colorCoin["HECO"]
+            case 'QRC-20':            return dark_theme ? colorCoinDark["QTUM"] : colorCoin["QTUM"]
+            case 'KRC-20':            return dark_theme ? colorCoinDark["KCS"] : colorCoin["KCS"]
+            case 'Smart Chain':       return dark_theme ? colorCoinDark["KMD"] : colorCoin["KMD"]
+            case 'Matic':             return dark_theme ? colorCoinDark["MATIC"] : colorCoin["MATIC"]
+            case 'Moonriver':         return dark_theme ? colorCoinDark["MOVR"] : colorCoin["MOVR"]
+            case 'HRC-20':            return dark_theme ? colorCoinDark["ONE"] : colorCoin["ONE"]
+            case 'SmartBCH':          return dark_theme ? colorCoinDark["SBCH"] : colorCoin["SBCH"]
+            case 'Ubiq':              return dark_theme ? colorCoinDark["UBQ"] : colorCoin["UBQ"]
+            case 'Optimism':          return "#BB2100"
+            case 'WALLET ONLY':       return dark_theme ? colorCoinDark["WALLET ONLY"] : colorCoin["WALLET ONLY"] 
+            default:                  return dark_theme ? colorCoinDark["default"] : colorCoin["default"] 
         }
     }
 
@@ -220,277 +223,104 @@ QtObject {
         }
     }
 
+    function getCoinGroupTextColor(type)
+    {
+        switch (type)
+        {
+            case 'IDO':               return dark_theme ? colorCoinDark["IDO"] : colorCoin["IDO"]
+            case 'AVX-20':            return dark_theme ? colorCoinDark["AVAX"] : colorCoin["AVAX"]
+            case 'ZHTLC':             return dark_theme ? colorCoinDark["ARRR"] : colorCoin["ARRR"]
+            case 'COSMOS':            return dark_theme ? colorCoinDark["ATOM"] : colorCoin["ATOM"]
+            case 'SLP':               return dark_theme ? colorCoinDark["BCH"] : colorCoin["BCH"]
+            case 'BEP-20':            return dark_theme ? colorCoinDark["BNB"] : colorCoin["BNB"]
+            case 'RSK Smart Bitcoin': return dark_theme ? colorCoinDark["UTXO"] : colorCoin["UTXO"]
+            case 'UTXO':              return dark_theme ? colorCoinDark["UTXO"] : colorCoin["UTXO"]
+            case 'Ethereum Classic':  return dark_theme ? colorCoinDark["ETC"] : colorCoin["ETC"]
+            case 'Arbitrum':          return dark_theme ? colorCoinDark["ETH"] : colorCoin["ETH"]
+            case 'ERC-20':            return dark_theme ? colorCoinDark["ETH"] : colorCoin["ETH"]
+            case 'EWT':               return dark_theme ? colorCoinDark["EWT"] : colorCoin["EWT"]
+            case 'FTM-20':            return dark_theme ? colorCoinDark["FTM"] : colorCoin["FTM"]
+            case 'Moonbeam':          return dark_theme ? colorCoinDark["GLMR"] : colorCoin["GLMR"]
+            case 'HecoChain':         return dark_theme ? colorCoinDark["HECO"] : colorCoin["HECO"]
+            case 'QRC-20':            return dark_theme ? colorCoinDark["QTUM"] : colorCoin["QTUM"]
+            case 'KRC-20':            return dark_theme ? colorCoinDark["KCS"] : colorCoin["KCS"]
+            case 'Smart Chain':       return dark_theme ? colorCoinDark["KMD"] : colorCoin["KMD"]
+            case 'Matic':             return dark_theme ? colorCoinDark["MATIC"] : colorCoin["MATIC"]
+            case 'Moonriver':         return dark_theme ? colorCoinDark["MOVR"] : colorCoin["MOVR"]
+            case 'HRC-20':            return dark_theme ? colorCoinDark["ONE"] : colorCoin["ONE"]
+            case 'SmartBCH':          return dark_theme ? colorCoinDark["SBCH"] : colorCoin["SBCH"]
+            case 'Ubiq':              return dark_theme ? colorCoinDark["UBQ"] : colorCoin["UBQ"]
+            case 'Optimism':          return "#BB2100"
+            case 'WALLET ONLY':       return dark_theme ? colorCoinDark["WALLET ONLY"] : colorCoin["WALLET ONLY"] 
+            default:                  return dark_theme ? colorCoinDark["default"] : colorCoin["default"] 
+        }
+    }
+
     function getCoinColor(ticker) {
-        const c = colorCoin[atomic_qt_utilities.retrieve_main_ticker(ticker)]
-        return c || Style.colorTheme2
+        let info = API.app.portfolio_pg.global_cfg_mdl.get_coin_info(ticker)
+        if (!info.type) { return colorWhite3 }
+        let color = getCoinGroupTextColor(info.type)
+        let base_ticker = atomic_qt_utilities.retrieve_main_ticker(ticker)
+        if (colorCoin.hasOwnProperty(base_ticker) && !dark_theme)
+        {
+            return colorCoin[base_ticker]
+        }
+        if (colorCoinDark.hasOwnProperty(base_ticker) && dark_theme)
+        {
+            return colorCoinDark[base_ticker]
+        }
+        return color
     }
 
     readonly property var colorCoin: ({
-                                          "ABY": "#8B0D10",
-                                          "ACTN": "#E84142",
-                                          "ADA": "#214D78",
-                                          "ADX": "#1B75BC",
-                                          "ANKR": "#2075E8",
-                                          "APE": "#0052F2",
-                                          "ARPA": "#CCD9E2",
                                           "ARRR": "#C7A34C",
-                                          "ATOM": "#474B6C",
-                                          "AUR": "#0A6C5E",
-                                          "AVA": "#5B567F",
+                                          "ATOM": "#963b9a",
                                           "AVAX": "#E84142",
-                                          "AVN": "#33E0CE",
-                                          "AXS": "#0055D5",
-                                          "BAL": "#4D4D4D",
-                                          "BNB": "#F9D987",
+                                          "BNB": "#b35900",
                                           "BCH": "#8DC351",
-                                          "BIDR": "#F0B90B",
-                                          "BRZ": "#B5DEC3",
-                                          "BSTY": "#78570D",
-                                          "BTC": "#E9983C",
-                                          "RBTC": "#E9983C",
-                                          "BTT": "#666666",
-                                          "BTTC": "#666666",
-                                          "BTE": "#FFE201",
-                                          "BTX": "#FB30A6",
-                                          "CAKE": "#D1884F",
-                                          "CASE": "#FFFF12",
-                                          "CDN": "#90191C",
-                                          "CLC": "#0970DC",
-                                          "CRV": "#517AB5",
-                                          "DGC": "#BC7600",
-                                          "DIMI": "#0BFBE2",
-                                          "DOI": "#120641",
-                                          "DUST": "#6A032F",
-                                          "EOS": "#4D4D4D",
-                                          "FET": "#202944",
-                                          "FLOW": "#00EF8B",
-                                          "FTC": "#FFFFFF",
-                                          "FTM": "#13B5EC",
-                                          "GALA": "#011B36",
-                                          "GLEEC": "#8C41FF",
-                                          "GRMS": "#12B690",
-                                          "GLM": "#0050E6",
-                                          "GMS": "#0BFBE2",
-                                          "GMT": "#E9CB7B",
-                                          "GMX": "#07A9E6",
-                                          "GRS": "#377E96",
-                                          "GRT": "#6E54DB",
-                                          "GST": "#D7D7D7",
-                                          "IOTA": "#404040",
-                                          "ILNF": "#28873b",
-                                          "IC": "#72009D",
-                                          "JST": "#B41514",
-                                          "JSTR": "#627EEA",
-                                          "DOGE": "#C3A634",
                                           "ETC": "#328432",
                                           "ETH": "#687DE3",
-                                          "ETHR": "#627EEA",
-                                          "KMD": "#7490AA",
-                                          "KCS": "#25AF90",
-                                          "KSM": "#595959",
-                                          "MORTY": "#A4764D",
-                                          "RICK": "#A5CBDD",
-                                          "EMC2": "#00CCFF",
-                                          "INJ": "#17EAE9",
-                                          "JPYC": "#16449A",
-                                          "DASH": "#008CE7",
-                                          "RVN": "#384182",
-                                          "SAND": "#05C1F4",
-                                          "CADC": "#FF6666",
-                                          "DGB": "#006AD2",
-                                          "DIA": "#B94897",
-                                          "DOT": "#E80082",
-                                          "FLUX": "#2B61D1",
-                                          "FIRO": "#BB2100",
-                                          "LBC": "#00775C",
-                                          "LDO": "#F69988",
-                                          "LOOM": "#48BEFF",
-                                          "LTC": "#BFBBBB",
-                                          "LUNA": "#FFD83D",
-                                          "LYNX": "#0071BA",
-                                          "LTFN": "#0099CC",  
-                                          "MIR": "#2C9FEF",
-                                          "XPM": "#A67522",
-                                          "XVC": "#B50126",
-                                          "ZEC": "#ECB244",
-                                          "ZER": "#FFFFFF",
-                                          "NAV": "#7D59B5",
-                                          "DP": "#E41D25",
-                                          "ECA": "#A915DC",
-                                          "QTUM": "#2E9AD0",
-                                          "UBQ": "#00EB90",
-                                          "CHIPS": "#598182",
-                                          "CIPHS": "#ECD900",
-                                          "AXE": "#C63877",
-                                          "PANGEA": "#D88245",
-                                          "JUMBLR": "#2B4649",
-                                          "DEX": "#43B7B6",
-                                          "CRYPTO": "#F58736",
-                                          "LABS": "#C1F6E1",
-                                          "LCC": "#068210",
-                                          "LNC": "#C3A635",
-                                          "MESH": "#0098DA",
-                                          "MGW": "#854F2F",
-                                          "MONA": "#DEC799",
-                                          "MOVR": "#52CCC9",
+                                          "EWT": "#A466FF",
+                                          "FTM": "#13B5EC",
+                                          "HECO": "#00953F",                             
                                           "GLMR": "#F6007C",
-                                          "NMC": "#186C9D",
-                                          "NZDS": "#1B3044",
-                                          "RFOX": "#D83331",
-                                          "BOTS": "#F69B57",
-                                          "MC": "#E16428",
-                                          "MCL": "#EA0000",
-                                          "ILNSW": "#28873B",
-                                          "MM": "#F5B700",
-                                          "CCL": "#FFE400",
-                                          "BET": "#F69B57",
-                                          "JCHF": "#D80027",
-                                          "JEUR": "#003399",
-                                          "JGBP": "#C8102E",
-                                          "JJPY": "#BC002D",
-                                          "JRT": "#5EFC84",
-                                          "SUPERNET": "#F69B57",
-                                          "REVS": "#F69B57",
-                                          "EILN": "#1ADEC9",
-                                          "ILN": "#814EB1",
-                                          "VRSC": "#3164D3",
-                                          "WCN": "#E49F00",
-                                          "WWCN": "#E49F00",
-                                          "TFT": "#80C7CF",
-                                          "THC": "#819F6F",
-                                          "1INCH": "#95A7C5",
-                                          "BABYDOGE": "#F3AA47",
-                                          "BAT": "#FF5000",
-                                          "BUSD": "#F0B90B",
-                                          "HUSD": "#0075FB",
-                                          "DAI": "#B68900",
-                                          "USDC": "#317BCB",
-                                          "USDI": "#C29E47",
-                                          "USDT": "#26A17B",
-                                          "PAX": "#408C69",
-                                          "PAXG": "#DABE37",
-                                          "REN": "#595959",
-                                          "SMTF": "#F75836",
-                                          "SUSHI": "#E25DA8",
-                                          "TRYB": "#0929AA",
-                                          "TUSD": "#2E3181",
-                                          "AWC": "#31A5F6",
-                                          "VRA": "#D70A41",
-                                          "SPACE": "#E44C65",
-                                          "QC": "#00D7B3",
-                                          "PBC": "#64A3CB",
-                                          "AAVE": "#9C64A6",
-                                          "ANT": "#33DAE6",
-                                          "AGIX": "#6815FF",
-                                          "BAND": "#526BFF",
-                                          "BLK": "#595959",
-                                          "IL8P": "#696969",
-                                          "BNT": "#0000FF",
-                                          "BTCZ": "#F5B036",
-                                          "CEL": "#4055A6",
-                                          "CELR": "#595959",
-                                          "CENNZ": "#2E87F1",
-                                          "CHTA": "#C3A634",
-                                          "COMP": "#00DBA3",
-                                          "CRO": "#243565",
-                                          "CVC": "#3AB03E",
-                                          "CVT": "#4B0082",
-                                          "PIC": "#04D9FF",
-                                          "DODO": "#FAF621",
-                                          "EFL": "#FF940B",
-                                          "EGLD": "#1D4CB5",
-                                          "ELF": "#2B5EBB",
-                                          "ENJ": "#6752C3",
-                                          "EURS": "#2F77ED",
-                                          "FIL": "#4CCAD2",
-                                          "FJC": "#00AFEC",
-                                          "FJCB": "#FFCC33",
-                                          "FUN": "#EF1C70",
-                                          "GNO": "#00B0CC",
-                                          "HOT": "#983EFF",
-                                          "HECO": "#00953F",
-                                          "IOTX": "#00CDCE",
-                                          "KNC": "#117980",
-                                          "LEO": "#F79B2C",
-                                          "LINK": "#356CE4",
-                                          "LRC": "#32C2F8",
-                                          "LSTR": "#7E3193",
-                                          "MANA": "#FF3C6C",
+                                          "QTUM": "#2E9AD0",
+                                          "KCS": "#25AF90",
+                                          "KMD": "#2d4f86",
+                                          "MOVR": "#52CCC9",
                                           "MATIC": "#804EE1",
-                                          "MKR": "#1BAF9F",
-                                          "MINDS": "#687DE3",
-                                          "NEAR": "#595959",
-                                          "NENG": "#BFBBBB",
-                                          "NEXO": "#A3B3D6",
-                                          "NVC": "#FCF96D",
-                                          "NYAN": "#008CE7",                                          
-                                          "OCEAN": "#595959",
-                                          "OMG": "#595959",
                                           "ONE": "#00BEEE",
-                                          "ONT": "#2692AF",
-                                          "PND": "#EBD430",
-                                          "POWR": "#05BCAA",
-                                          "PPC": "#46BC60",
-                                          "PRUX": "#FF8000",
-                                          "PRCY": "#012828",
-                                          "QI": "#FFFFFF",
-                                          "QIAIR": "#FEFEFE",
-                                          "QKC": "#2175B4",
-                                          "QNT": "#000000",
-                                          "REP": "#0E0E21",
-                                          "REV": "#78034D",
-                                          "RLC": "#FFE100",
-                                          "RTM": "#B74427",
                                           "SBCH": "#74dd54",
-                                          "SIBM": "#0C4855",
-                                          "SFUSD": "#9881B8",
-                                          "SNT": "#596BED",
-                                          "SNX": "#00D1FF",
-                                          "SOL": "#7BFBB5",
-                                          "SOULJA": "#8F734A",
-                                          "STFIRO": "#00D4F7",
-                                          "STORJ": "#2683FF",
-                                          "SXP": "#FD5F3B",
-                                          "SYS": "#0084C7",
-                                          "TEL": "#1BD8FF",
-                                          "TKL": "#536E93",
-                                          "TON": "#0088CC",
-                                          "TRC": "#096432",
-                                          "TRX": "#F30031",
-                                          "TSL": "#64B082",
-                                          "UIS": "#008DCD",
-                                          "UNO": "#2F87BB",
-                                          "UST": "#5493F7",
-                                          "VAL": "#1EEC84",
-                                          "VET": "#18C6FF",
-                                          "VITE": "#007AFF",
-                                          "VRM": "#586A7A",
-                                          "VTC": "#049161",
-                                          "WSB": "#FEBB84",
-                                          "WAVES": "#016BFF",
-                                          "WBTC": "#CCCCCC",
-                                          "WHIVE": "#FFCC00",
-                                          "WOO": "#595959",
-                                          "XEC": "#273498",
-                                          "XEP": "#0277E5",
-                                          "XLM": "#737373",
-                                          "XMY": "#F01385",
-                                          "XRP": "#2E353D",
-                                          "XRG": "#162D50",
-                                          "XSGD": "#1048E5",
-                                          "XTZ": "#A8E000",
-                                          "XVS": "#F4BC54",
-                                          "YFI": "#006BE6",
-                                          "YFII": "#FF2A79",
-                                          "ZET": "#155169",
-                                          "ZIL": "#42BBB9",
-                                          "ZOMBIE": "#72B001",
-                                          "ZRX": "#302C2C",
-                                          "UNI": "#FF007A",
-                                          "VOTE2022": "#7490AA",
-                                          "USBL": "#279553",
-                                          "RUNES": "#336699",
-                                          "SIX": "#ed0909",
-                                          "NATURE": "#04cf13"
+                                          "UBQ": "#00EB90",
+                                          "UTXO": "#349d5f",
+                                          "default": "#2f2f2f",
+                                          "IDO": "#536E93",
+                                          "WALLET ONLY": "#404040"
+                                      })
+
+    readonly property var colorCoinDark: ({
+                                          "ARRR": "#C7A34C",
+                                          "ATOM": "#963b9a",
+                                          "AVAX": "#E84142",
+                                          "BNB": "#ffc266",
+                                          "BCH": "#8DC351",
+                                          "ETC": "#328432",
+                                          "ETH": "#687DE3",
+                                          "EWT": "#A466FF",
+                                          "FTM": "#13B5EC",
+                                          "HECO": "#00953F",                             
+                                          "GLMR": "#F6007C",
+                                          "QTUM": "#2E9AD0",
+                                          "KCS": "#25AF90",
+                                          "KMD": "#799bd2",
+                                          "MOVR": "#52CCC9",
+                                          "MATIC": "#804EE1",
+                                          "ONE": "#00BEEE",
+                                          "SBCH": "#74dd54",
+                                          "UBQ": "#00EB90",
+                                          "UTXO": "#349d5f",
+                                          "default": "#c8c8c8",
+                                          "IDO": "#536E93",
+                                          "WALLET ONLY": "#cccccc"
                                       })
 }

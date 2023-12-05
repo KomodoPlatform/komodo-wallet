@@ -104,7 +104,7 @@ Calendar
         dayDelegate: DefaultRectangle
         {
             anchors.fill: parent
-            color: styleData.date !== undefined && styleData.selected ? selectedDateColor : styleData.hovered ? hoveredDateColor : "transparent"
+            color: styleData.hasOwnProperty('date') && styleData.selected ? selectedDateColor : styleData.hovered ? hoveredDateColor : "transparent"
 
             readonly property bool addExtraMargin: control.frameVisible && styleData.selected
             readonly property color sameMonthDateTextColor: Dex.CurrentTheme.foregroundColor
@@ -116,7 +116,7 @@ Calendar
             DefaultText
             {
                 id: dayDelegateText
-                text: styleData.date.getDate()
+                text: styleData.hasOwnProperty('date') ? styleData.date.getDate() : ""
                 anchors.centerIn: parent
                 horizontalAlignment: Text.AlignRight
                 font.pixelSize: Math.min(parent.height/3, parent.width/3)

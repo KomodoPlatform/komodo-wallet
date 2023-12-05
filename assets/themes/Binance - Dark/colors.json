@@ -122,7 +122,7 @@
   "listItemEvenBackground": "#161515",
   "listItemHoveredBackground": "#5B4704",
   
-  "addressBookTagColors": ["#627EEA", "#FFD87A", "#F7931A"],
+  "addressBookTagColors": ["#003bbbFF", "#006133FF", "#612600FF", "#430061FF", "#004d61FF"],
   
   "okColor": "#00C058",
   "warningColor": "#E52167",

@@ -62,7 +62,7 @@ GradientRectangle
             anchors.centerIn: parent
             anchors.fill: parent
             radius: 15
-            enabled: Dex.General.isZhtlc(ticker) ? activation_progress != 100 : false
+            enabled: Dex.General.isZhtlc(ticker) ? activation_progress < 100 : false
             visible: enabled
             opacity: .9
             color: Dex.DexTheme.backgroundColor
@@ -72,7 +72,7 @@ GradientRectangle
         {
             anchors.centerIn: parent
             anchors.fill: parent
-            enabled: Dex.General.isZhtlc(ticker) ? activation_progress != 100 : false
+            enabled: Dex.General.isZhtlc(ticker) ? activation_progress < 100 : false
             visible: enabled
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter

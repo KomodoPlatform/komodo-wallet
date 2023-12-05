@@ -24,5 +24,15 @@ MultipageModal {
             text_value: claiming_faucet_rpc_result && claiming_faucet_rpc_result.message ?
                             claiming_faucet_rpc_result.message : ""
         }
+
+        CancelButton
+        {
+            Layout.preferredWidth: 300
+            text: qsTr("Close")
+            Layout.topMargin: 20
+            Layout.alignment: Qt.AlignCenter
+            radius: 18
+            onClicked: close()
+        }
     }
 }

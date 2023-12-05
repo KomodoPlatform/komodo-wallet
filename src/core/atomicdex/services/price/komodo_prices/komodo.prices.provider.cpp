@@ -141,8 +141,8 @@ namespace atomic_dex
             return "coinpaprika";
         case komodo_prices::api::provider::forex:
             return "forex";
-        case komodo_prices::api::provider::nomics:
-            return "nomics";
+        case komodo_prices::api::provider::livecoinwatch:
+            return "livecoinwatch";
         default:
             return "unknown";
         }

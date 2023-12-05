@@ -20,7 +20,7 @@ ColumnLayout
     readonly property int fontSizeBigger: Style.textSizeSmall2
     readonly property int lineScale: General.getComparisonScale(cexPriceDiff)
 
-    spacing: 20
+    spacing: 10
 
     DefaultText
     {

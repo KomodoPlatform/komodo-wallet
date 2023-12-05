@@ -15,8 +15,8 @@ Widget
 {
     id: _control
     title: qsTr("Best Orders")
-    margins: 20
-    spacing: 20
+    margins: 10
+    spacing: 10
 
     Header
     {

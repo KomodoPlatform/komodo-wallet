@@ -10,14 +10,14 @@
 
 namespace
 {
-    constexpr const char*                 g_komodo_prices_endpoint = "https://prices.komodo.live:1313";
+    constexpr const char*                 g_komodo_prices_endpoint = "https://prices.komodo.earth";
     constexpr const char*                 g_komodo_prices_endpoint_fallback = "https://prices.cipig.net:1717";
 
     web::http::client::http_client_config g_komodo_prices_cfg{[]()
                                                               {
                                                                   web::http::client::http_client_config cfg;
                                                                   cfg.set_validate_certificates(false);
-                                                                  cfg.set_timeout(std::chrono::seconds(30));
+                                                                  cfg.set_timeout(std::chrono::seconds(60));
                                                                   return cfg;
                                                               }()};
     t_http_client_ptr g_komodo_prices_client = std::make_unique<web::http::client::http_client>(FROM_STD_STR(g_komodo_prices_endpoint), g_komodo_prices_cfg);
@@ -61,9 +61,9 @@ namespace atomic_dex::komodo_prices::api
         {
             x = provider::forex;
         }
-        else if (j == "nomics")
+        else if (j == "livecoinwatch")
         {
-            x = provider::nomics;
+            x = provider::livecoinwatch;
         }
         else
         {

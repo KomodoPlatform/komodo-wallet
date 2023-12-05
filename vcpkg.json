@@ -1,6 +1,6 @@
 {
-  "name": "atomicdex-desktop",
-  "version-string": "0.5.7.1",
+  "name": "komodo-wallet",
+  "version-string": "0.6.1",
   "dependencies": [
     "entt",
     "boost-multiprecision",

@@ -11,7 +11,8 @@ TextField
     property alias left_text: left_text.text_value
     property alias right_text: right_text.text_value
     property alias radius: background.radius
-    property alias backgroundColor: background.color
+    property color backgroundColor: Dex.CurrentTheme.textFieldBackgroundColor
+    property color backgroundColorActive: Dex.CurrentTheme.textFieldActiveBackgroundColor
     property bool forceFocus: false
 
     font: DexTypo.body2
@@ -30,7 +31,7 @@ TextField
     background: DefaultRectangle
     {
         id: background
-        color: text_field.focus ? Dex.CurrentTheme.textFieldActiveBackgroundColor : Dex.CurrentTheme.textFieldBackgroundColor
+        color: text_field.focus ? backgroundColorActive : backgroundColor
         radius: 18
         anchors.fill: parent
     }

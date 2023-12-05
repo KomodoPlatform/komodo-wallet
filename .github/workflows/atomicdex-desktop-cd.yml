@@ -1,4 +1,4 @@
-name: AtomicDex-Desktop CD releases
+name: komodo-wallet-desktop CD releases
 
 on:
   push:
@@ -6,9 +6,10 @@ on:
     - temporary_disabled
 
 env:
-  DEX_PROJECT_NAME: "atomicdex-desktop"
-  DEX_DISPLAY_NAME: "AtomicDex Desktop"
+  DEX_PROJECT_NAME: "komodo-wallet"
+  DEX_DISPLAY_NAME: "Komodo Wallet"
   DEX_COMPANY: "KomodoPlatform"
+  DEX_VERSION: "0.6.1"
   DEX_WEBSITE: "https://atomicdex.io/"
 
 jobs:

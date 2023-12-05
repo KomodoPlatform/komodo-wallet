@@ -1,4 +1,4 @@
-# AtomicDEX Pro alpha build instructions
+# Komodo Wallet Pro alpha build instructions
 
 ## Prerequisites
 
@@ -68,7 +68,7 @@ git checkout curl-7_70_0
 make install
 ```
 
-Installling libbitcoin:
+Installing libbitcoin:
 
 ```
 git clone --depth 1 --branch version5 --single-branch "https://github.com/KomodoPlatform/secp256k1"
@@ -140,7 +140,7 @@ mv packages_commandline.json packages_official.json
 cd -
 ```
 
-## Build AtomicDEX Pro 
+## Build Komodo Wallet Pro 
 
 Please clone with submodules initialization : `git clone --recurse-submodules --remote-submodules https://github.com/KomodoPlatform/atomicDEX-Pro.git`
 
@@ -176,7 +176,7 @@ nimble build
 ./ci_tools_atomic_dex build release
 ```
 
-## Bundle AtomicDEX Pro
+## Bundle Komodo Wallet Pro
 
 ### Windows
 
@@ -202,7 +202,7 @@ nimble build
 
 
 
-## Create AtomicDEX Pro Installer
+## Create Komodo Wallet Pro Installer
 
 ### Windows
 
@@ -229,7 +229,7 @@ chmod +x QtInstallerFramework-linux-x64.run
 
 e.g.: In `.bashrc` add: `export QT_IFW_PATH=~/Qt/QtIFW-3.2.2`
 
-- Build AtomicDex Pro `./ci_tools_atomic_dex build release`
+- Build Komodo Wallet Pro `./ci_tools_atomic_dex build release`
 
 - Run `ci_tools_atomic_dex\create_installer_linux.sh` script, pass build type as argument to script
 
