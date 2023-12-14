@@ -42,13 +42,14 @@ namespace atomic_dex
     void zcash_params_service::update() 
     {
         using namespace std::chrono_literals;
-
-        const auto now = std::chrono::high_resolution_clock::now();
-        const auto s   = std::chrono::duration_cast<std::chrono::seconds>(now - m_update_clock);
-        if (s >= 1s)
-        {
-            // TODO: We could use this for an ETA
-        }
+        // const auto now = std::chrono::high_resolution_clock::now();
+        // const auto s   = std::chrono::duration_cast<std::chrono::seconds>(now - m_update_clock);
+        // if (s >= 15s)
+        // {
+        //    TODO: We could use this for an ETA
+        //    m_update_clock = now;
+        // }
+        return;
     }
 
     std::filesystem::path zcash_params_service::get_zcash_params_folder()
