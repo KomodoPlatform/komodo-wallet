@@ -1,6 +1,6 @@
 #include <doctest/doctest.h>
 
-#include "atomicdex/api/mm2/enable_bch_with_tokens_rpc.hpp"
+#include "atomicdex/api/mm2/rpc2.enable_bch_with_tokens.hpp"
 
 TEST_CASE("enable_bch_with_tokens_request_rpc serialization")
 {

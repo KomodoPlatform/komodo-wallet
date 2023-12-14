@@ -25,7 +25,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 
 // Project Headers
-#include "atomicdex/api/mm2/get_public_key_rpc.hpp"
+#include "atomicdex/api/mm2/rpc2.get_public_key.hpp"
 #include "atomicdex/config/enable.cfg.hpp"
 #include "atomicdex/events/events.hpp"
 #include "atomicdex/managers/qt.wallet.manager.hpp"

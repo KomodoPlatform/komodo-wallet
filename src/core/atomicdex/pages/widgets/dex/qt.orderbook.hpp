@@ -37,6 +37,7 @@ namespace atomic_dex
         Q_PROPERTY(orderbook_model* best_orders READ get_best_orders MEMBER m_best_orders NOTIFY bestOrdersChanged)
         Q_PROPERTY(bool best_orders_busy READ is_best_orders_busy NOTIFY bestOrdersBusyChanged)
         Q_PROPERTY(QVariant base_max_taker_vol READ get_base_max_taker_vol NOTIFY baseMaxTakerVolChanged)
+        Q_PROPERTY(bool orderbook_busy READ is_orderbook_busy NOTIFY orderbookBusyChanged)
         Q_PROPERTY(QVariant rel_max_taker_vol READ get_rel_max_taker_vol NOTIFY relMaxTakerVolChanged)
         Q_PROPERTY(QString base_min_taker_vol READ get_base_min_taker_vol NOTIFY baseMinTakerVolChanged)
         Q_PROPERTY(QString rel_min_taker_vol READ get_rel_min_taker_vol NOTIFY relMinTakerVolChanged)
@@ -54,6 +55,7 @@ namespace atomic_dex
         [[nodiscard]] orderbook_model* get_bids() const;
         [[nodiscard]] orderbook_model* get_best_orders() const;
         [[nodiscard]] bool             is_best_orders_busy() const;
+        [[nodiscard]] bool             is_orderbook_busy() const;
         [[nodiscard]] QVariant         get_base_max_taker_vol() const;
         [[nodiscard]] QVariant         get_rel_max_taker_vol() const;
         [[nodiscard]] QString          get_base_min_taker_vol() const;
@@ -68,6 +70,7 @@ namespace atomic_dex
         void bidsChanged();
         void bestOrdersChanged();
         void bestOrdersBusyChanged();
+        void orderbookBusyChanged();
         void baseMaxTakerVolChanged();
         void relMaxTakerVolChanged();
         void baseMinTakerVolChanged();

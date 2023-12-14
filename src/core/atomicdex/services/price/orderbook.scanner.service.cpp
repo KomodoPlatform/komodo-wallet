@@ -137,6 +137,12 @@ namespace atomic_dex
         return m_bestorders_rpc_busy.load();
     }
 
+    bool
+    orderbook_scanner_service::is_orderbook_busy() const 
+    {
+        return m_orderbook_rpc_busy.load();
+    }
+
     t_orders_contents
     orderbook_scanner_service::get_data() const 
     {

@@ -39,6 +39,7 @@ namespace atomic_dex
         t_best_orders_synchronized m_best_orders_infos;
         t_update_time_point        m_update_clock;
         std::atomic_bool           m_bestorders_rpc_busy{false};
+        std::atomic_bool           m_orderbook_rpc_busy{false};
 
       public:
         //! Constructor
@@ -53,9 +54,10 @@ namespace atomic_dex
         //! Public functions
         void process_best_orders() ;
 
-        [[nodiscard]] bool is_best_orders_busy() const ;
+        [[nodiscard]] bool is_best_orders_busy() const;
+        [[nodiscard]] bool is_orderbook_busy() const;
 
-        [[nodiscard]] t_orders_contents get_data() const ;
+        [[nodiscard]] t_orders_contents get_data() const;
     };
 } // namespace atomic_dex
 

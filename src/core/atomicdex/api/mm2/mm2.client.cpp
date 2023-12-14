@@ -18,16 +18,17 @@
 
 #include <meta/detection/detection.hpp>
 
-#include "enable_slp_rpc.hpp"
-#include "get_public_key_rpc.hpp"
-#include "enable_bch_with_tokens_rpc.hpp"
-#include "my_tx_history_rpc.hpp"
-#include "my_tx_history_v1_rpc.hpp"
+#include "rpc2.get_public_key.hpp"
 #include "mm2.client.hpp"
 #include "mm2.hpp"
 #include "atomicdex/constants/dex.constants.hpp"
 #include "rpc.hpp"
 #include "rpc.tx.history.hpp"
+#include "rpc2.enable_slp.hpp"
+#include "rpc2.enable_erc20.hpp"
+#include "rpc.orderbook.hpp"
+#include "rpc2.enable_eth_with_tokens.hpp"
+#include "rpc2.enable_bch_with_tokens.hpp"
 #include "rpc2.enable_tendermint_token.hpp"
 #include "rpc2.enable_tendermint_with_assets.hpp"
 
@@ -165,9 +166,9 @@ namespace atomic_dex::mm2
     template void mm2_client::process_rpc_async<enable_bch_with_tokens_rpc>(const std::function<void(enable_bch_with_tokens_rpc)>&);
     template void mm2_client::process_rpc_async<enable_tendermint_token_rpc>(const std::function<void(enable_tendermint_token_rpc)>&);
     template void mm2_client::process_rpc_async<enable_tendermint_with_assets_rpc>(const std::function<void(enable_tendermint_with_assets_rpc)>&);
-    template void mm2_client::process_rpc_async<my_tx_history_rpc>(const std::function<void(my_tx_history_rpc)>&);
-    template void mm2_client::process_rpc_async<my_tx_history_v1_rpc>(const std::function<void(my_tx_history_v1_rpc)>&);
-    
+    template void mm2_client::process_rpc_async<enable_erc20_rpc>(const std::function<void(enable_erc20_rpc)>&);
+    template void mm2_client::process_rpc_async<enable_eth_with_tokens_rpc>(const std::function<void(enable_eth_with_tokens_rpc)>&);
+
     template <mm2::rpc Rpc>
     void mm2_client::process_rpc_async(typename Rpc::expected_request_type request, const std::function<void(Rpc)>& on_rpc_processed)
     {

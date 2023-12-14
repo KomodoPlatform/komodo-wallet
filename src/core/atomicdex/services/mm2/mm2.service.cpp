@@ -36,6 +36,7 @@
 #include "atomicdex/api/mm2/rpc2.task.enable_z_coin.status.hpp"
 #include "atomicdex/config/mm2.cfg.hpp"
 #include "atomicdex/config/coins.cfg.hpp"
+#include "atomicdex/config/enable.cfg.hpp"
 #include "atomicdex/constants/dex.constants.hpp"
 #include "atomicdex/managers/qt.wallet.manager.hpp"
 #include "atomicdex/pages/qt.settings.page.hpp"
@@ -505,6 +506,33 @@ namespace atomic_dex
         t_coins osmosis_coins;
         t_coins iris_coins;
         t_coins cosmos_coins;
+        t_coins erc20_coins;
+        t_coins bep20_coins;
+        t_coins matic_coins;
+        t_coins arbitrum_coins;
+        t_coins avax_coins;
+        t_coins ftm_coins;
+        t_coins hrc_coins;
+        t_coins ubiq_coins;
+        t_coins krc_coins;
+        t_coins movr_coins;
+        t_coins moonbeam_coins;
+        t_coins heco_coins;
+        t_coins etc_coins;
+        t_coins rsk_coins;
+        t_coins smartbch_coins;
+        t_coins other_testnet_coins;
+        t_coins erc20_testnet_coins;
+        t_coins bep20_testnet_coins;
+        t_coins matic_testnet_coins;
+        t_coins arbitrum_testnet_coins;
+        t_coins avax_testnet_coins;
+        t_coins ftm_testnet_coins;
+        t_coins movr_testnet_coins;
+        t_coins moonbeam_testnet_coins;
+        t_coins heco_testnet_coins;
+        t_coins etc_testnet_coins;
+        t_coins rsk_testnet_coins;
         
         for (const auto& coin_config : coins)
         {
@@ -549,7 +577,21 @@ namespace atomic_dex
             }
             else if (coin_config.is_erc_family)
             {
-                erc_family_coins.push_back(coin_config);
+                if (coin_config.coin_type == CoinType::BEP20)
+                {
+                    if (coin_config.is_testnet.value_or(false))
+                    {
+                        bep20_testnet_coins.push_back(coin_config);
+                    }
+                    else
+                    {
+                        bep20_coins.push_back(coin_config);
+                    }
+                }
+                else
+                {
+                    erc_family_coins.push_back(coin_config);
+                }
             }
             else
             {
@@ -560,6 +602,14 @@ namespace atomic_dex
         {
             enable_utxo_qrc20_coins(other_coins);
         }
+
+        if (bep20_coins.size() > 0)
+        {
+            // Use v2 method with tokens if BNB not active
+            // Use v2 method for tokens if BNB is active
+            enable_erc20_coins(bep20_coins, "BNB");
+        }
+
         if (erc_family_coins.size() > 0)
         {
             enable_erc_family_coins(erc_family_coins);
@@ -588,6 +638,122 @@ namespace atomic_dex
         {
             enable_tendermint_coins(osmosis_coins, "OSMO");
         }
+    }
+
+    void mm2_service::enable_erc20_coin(coin_config coin_config, std::string parent_ticker)
+    {
+        enable_erc20_coins(t_coins{coin_config}, parent_ticker);
+    }
+
+    void mm2_service::enable_erc20_coins(const t_coins& coins, const std::string& parent_ticker)
+    {
+        try
+        {
+            auto callback = [this]<typename RpcRequest>(RpcRequest rpc)
+            {
+                if (rpc.error)
+                {
+                    // When coin or a token is already enabled
+                    SPDLOG_ERROR("{} {}: ", rpc.request.ticker, rpc.error->error_type);
+                    if (rpc.error->error_type.find("PlatformIsAlreadyActivated") != std::string::npos)
+                    {
+                        // Marking platform coin as 'currently_enabled' in 'm_coins_informations'
+                        SPDLOG_ERROR("Platform coin already active. Marking {} as 'currently_enabled' in 'm_coins_informations'", rpc.request.ticker);
+                        fetch_single_balance(get_coin_info(rpc.request.ticker));
+                        m_coins_informations[rpc.request.ticker].currently_enabled = true;
+                        dispatcher_.trigger<coin_fully_initialized>(coin_fully_initialized{.tickers = {rpc.request.ticker}});
+
+                        if constexpr (std::is_same_v<RpcRequest, mm2::enable_eth_with_tokens_rpc>)
+                        {
+                            // Divert tokens to activate with 'enable_erc20' method
+                            for (const auto& erc20_coin : rpc.request.erc20_tokens_requests)
+                            {
+                                enable_erc20_coin(get_coin_info(erc20_coin.ticker), rpc.request.ticker);
+                            }
+                        }
+                    }
+                    else if (rpc.error->error_type.find("TokenIsAlreadyActivated") != std::string::npos)
+                    {
+                        SPDLOG_ERROR("Token already active. Marking {} as 'currently_enabled' in 'm_coins_informations'", rpc.request.ticker);
+                        fetch_single_balance(get_coin_info(rpc.request.ticker));
+                        m_coins_informations[rpc.request.ticker].currently_enabled = true;
+                        dispatcher_.trigger<coin_fully_initialized>(coin_fully_initialized{.tickers = {rpc.request.ticker}});
+                    }
+                    else
+                    {
+                        SPDLOG_ERROR("Marking {} as not 'currently_enabled' in 'm_coins_informations'", rpc.request.ticker);
+                        m_coins_informations[rpc.request.ticker].currently_enabled = false;
+                        update_coin_active({rpc.request.ticker}, false);
+                        this->dispatcher_.trigger<enabling_coin_failed>(rpc.request.ticker, rpc.error->error);
+                    }
+                }
+                else
+                {
+                    dispatcher_.trigger<coin_fully_initialized>(coin_fully_initialized{.tickers = {rpc.request.ticker}});
+                    fetch_single_balance(get_coin_info(rpc.request.ticker));
+                    m_coins_informations[rpc.request.ticker].currently_enabled = true;
+                    if constexpr (std::is_same_v<RpcRequest, mm2::enable_eth_with_tokens_rpc>)
+                    {
+                        for (const auto& erc20_coin : rpc.request.erc20_tokens_requests)
+                        {
+                            dispatcher_.trigger<coin_fully_initialized>(coin_fully_initialized{.tickers = {erc20_coin.ticker}});
+                            m_coins_informations[erc20_coin.ticker].currently_enabled = true;
+                        }
+                    }
+                }
+            };
+            if (!has_coin(parent_ticker))
+            {
+                static constexpr auto error = "{} is not present in the config. Cannot enable tokens.";
+                SPDLOG_ERROR(error);
+                this->dispatcher_.trigger<enabling_coin_failed>(parent_ticker, fmt::format(error, parent_ticker));
+                return;
+            }
+            
+            auto parent_ticker_info = get_coin_info(parent_ticker);
+            if (parent_ticker_info.currently_enabled)
+            {
+                SPDLOG_ERROR("{} is already enabled, using 'enable_erc20' method", parent_ticker);
+                for (const auto& coin_config : coins)
+                {
+                    mm2::enable_erc20_rpc rpc{.request={.ticker = coin_config.ticker}};
+
+                    if (coin_config.ticker == parent_ticker_info.ticker)
+                    {
+                        continue;
+                    }
+                    m_mm2_client.process_rpc_async<mm2::enable_erc20_rpc>(rpc.request, callback);
+                }
+            }
+            else
+            {
+                SPDLOG_ERROR("{} is not enabled, using 'enable_eth_with_tokens' method", parent_ticker);
+                mm2::enable_eth_with_tokens_rpc rpc;
+
+                rpc.request.ticker = parent_ticker_info.ticker;
+                rpc.request.nodes = parent_ticker_info.urls.value_or(std::vector<node>{});
+                rpc.request.coin_type = parent_ticker_info.coin_type;
+                for (const auto& coin_config : coins)
+                {
+                    if (coin_config.ticker == parent_ticker_info.ticker)
+                    {
+                        continue;
+                    }
+                    rpc.request.erc20_tokens_requests.push_back({.ticker = coin_config.ticker});
+                }
+                m_mm2_client.process_rpc_async<mm2::enable_eth_with_tokens_rpc>(rpc.request, callback);
+            }
+        }
+        catch (const std::exception& error)
+        {
+            SPDLOG_ERROR(error.what());
+        }
+
+
+
+
+        this->m_nb_update_required += 1;
+
     }
 
     void mm2_service::enable_erc_family_coin(const coin_config& coin_config)
@@ -801,7 +967,6 @@ namespace atomic_dex
             .then([this, batch_array](pplx::task<void> previous_task) { this->handle_exception_pplx_task(previous_task, "enable_qrc_family_coins", batch_array); });
     }
 
-
     void mm2_service::enable_tendermint_coin(coin_config coin_config, std::string parent_ticker)
     {
         enable_tendermint_coins(t_coins{std::move(coin_config)}, parent_ticker);
@@ -809,7 +974,6 @@ namespace atomic_dex
 
     void mm2_service::enable_tendermint_coins(const t_coins& coins, const std::string parent_ticker)
     {
-        SPDLOG_INFO("Parent ticker: {}", parent_ticker);
         auto callback = [this]<typename RpcRequest>(RpcRequest rpc)
         {
             if (rpc.error)
@@ -953,7 +1117,7 @@ namespace atomic_dex
 
     void mm2_service::enable_slp_coins(const t_coins& coins)
     {
-        constexpr auto bch_ticker = "BCH";
+        constexpr auto parent_ticker = "BCH";
         auto callback = [this]<typename RpcRequest>(RpcRequest rpc)
         {
             if (rpc.error)
@@ -1004,16 +1168,16 @@ namespace atomic_dex
             this->m_nb_update_required += 1;
         };
 
-        if (!has_coin(bch_ticker))
+        if (!has_coin(parent_ticker))
         {
             static constexpr auto error = "{} is not present in the config. Cannot enable SLP tokens.";
             
             SPDLOG_ERROR(error);
-            this->dispatcher_.trigger<enabling_coin_failed>(bch_ticker, fmt::format(error, bch_ticker));
+            this->dispatcher_.trigger<enabling_coin_failed>(parent_ticker, fmt::format(error, parent_ticker));
             return;
         }
         
-        auto bch_info = get_coin_info(bch_ticker);
+        auto bch_info = get_coin_info(parent_ticker);
         
         if (bch_info.currently_enabled)
         {
@@ -1056,7 +1220,7 @@ namespace atomic_dex
 
     void mm2_service::enable_slp_testnet_coins(const t_coins& coins)
     {
-        constexpr auto bch_ticker = "tBCH";
+        constexpr auto parent_ticker = "tBCH";
         auto callback = [this]<typename RpcRequest>(RpcRequest rpc)
         {
             if (rpc.error)
@@ -1107,16 +1271,16 @@ namespace atomic_dex
             this->m_nb_update_required += 1;
         };
         
-        if (!has_coin(bch_ticker))
+        if (!has_coin(parent_ticker))
         {
-            static constexpr auto error = "tBCH is not present in the config. Cannot enable SLP tokens.";
+            static constexpr auto error = "{} is not present in the config. Cannot enable SLP tokens.";
             
             SPDLOG_ERROR(error);
-            this->dispatcher_.trigger<enabling_coin_failed>("SLP tokens", error);
+            this->dispatcher_.trigger<enabling_coin_failed>("SLP tokens", fmt::format(error, parent_ticker));
             return;
         }
         
-        auto bch_info = get_coin_info(bch_ticker);
+        auto bch_info = get_coin_info(parent_ticker);
         
         if (bch_info.currently_enabled)
         {
@@ -1728,7 +1892,7 @@ namespace atomic_dex
         auto&& [base, rel]          = this->m_synchronized_ticker_pair.get();
         const std::string pair      = base + "/" + rel;
         auto              orderbook = m_orderbook.get();
-        if (orderbook.base.empty() && orderbook.rel.empty())
+        if (orderbook.base.empty() || orderbook.rel.empty() || orderbook.base == orderbook.rel)
         {
             ec = dextop_error::orderbook_empty;
             return {};
@@ -1743,10 +1907,12 @@ namespace atomic_dex
 
     nlohmann::json mm2_service::prepare_batch_orderbook(bool is_a_reset)
     {
-        // SPDLOG_DEBUG("[prepare_batch_orderbook] is_a_reset: {}", is_a_reset);
         auto&& [base, rel] = m_synchronized_ticker_pair.get();
-        if (rel.empty())
+        SPDLOG_DEBUG("[prepare_batch_orderbook] is_a_reset: {} [{}/{}]", is_a_reset, base, rel);
+        if (rel.empty() || base.empty() || base == rel)
+        {
             return nlohmann::json::array();
+        }
         nlohmann::json batch = nlohmann::json::array();
 
         auto generate_req = [&batch](std::string request_name, auto request, bool is_v2=false)
@@ -1785,7 +1951,8 @@ namespace atomic_dex
                     SPDLOG_ERROR("Answer array did not contain enough elements");
                     return;
                 }
-
+                
+                SPDLOG_DEBUG("orderbook_answer: {}", answer[0].dump(4));
                 auto orderbook_answer = mm2::rpc_process_answer_batch<t_orderbook_answer>(answer[0], "orderbook");
 
                 if (is_a_reset)
@@ -2296,9 +2463,11 @@ namespace atomic_dex
     void
     mm2_service::on_refresh_orderbook(const orderbook_refresh& evt)
     {
-        SPDLOG_DEBUG("on_refresh_orderbook");
-
-        // SPDLOG_INFO("refreshing orderbook pair: [{} / {}]", evt.base, evt.rel);
+        SPDLOG_INFO("refreshing orderbook pair: [{} / {}]", evt.base, evt.rel);
+        if (evt.base.empty() || evt.rel.empty() || evt.base == evt.rel)
+        {
+            SPDLOG_ERROR("Invalid ticker pair");
+        }
         this->m_synchronized_ticker_pair = std::make_pair(evt.base, evt.rel);
 
         if (this->m_mm2_running)

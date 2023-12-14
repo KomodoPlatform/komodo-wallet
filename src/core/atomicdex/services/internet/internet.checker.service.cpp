@@ -121,32 +121,41 @@ namespace atomic_dex
     internet_service_checker::generic_treat_answer(
         pplx::task<web::http::http_response>& answer, const std::string& base_uri, std::atomic_bool internet_service_checker::*p)
     {
-        answer
-            .then([this, p, base_uri](web::http::http_response resp) {
-                bool res = resp.status_code() == web::http::status_codes::OK;
-                this->*p = res;
-                if (res)
-                {
-                    SPDLOG_INFO("Connectivity is true for the endpoint: {}", base_uri);
-                    this->set_internet_alive(true);
-                }
-                else
-                {
-                    SPDLOG_WARN("Connectivity is false for: {}", base_uri);
-                }
-            })
-            .then([this, base_uri](pplx::task<void> previous_task) {
-                try
-                {
-                    previous_task.wait();
-                }
-                catch (const std::exception& e)
-                {
-                    SPDLOG_WARN("pplx task error: {}, setting internet to false\n Connectivity is false for: {}", e.what(), base_uri);
-                    this->dispatcher_.trigger<endpoint_nonreacheable>(base_uri);
-                    this->set_internet_alive(false);
-                }
-            });
+        SPDLOG_INFO("entering generic_treat_answer: {}", base_uri);
+        try
+        {
+            answer
+                .then([this, p, base_uri](web::http::http_response resp) {
+                    bool res = resp.status_code() == web::http::status_codes::OK;
+                    this->*p = res;
+                    if (res)
+                    {
+                        SPDLOG_INFO("Connectivity is true for the endpoint: {}", base_uri);
+                        this->set_internet_alive(true);
+                    }
+                    else
+                    {
+                        SPDLOG_WARN("Connectivity is false for: {}", base_uri);
+                    }
+                })
+                .then([this, base_uri](pplx::task<void> previous_task) {
+                    try
+                    {
+                        previous_task.wait();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        SPDLOG_WARN("pplx task error: {}, setting internet to false\n Connectivity is false for: {}", e.what(), base_uri);
+                        this->dispatcher_.trigger<endpoint_nonreacheable>(base_uri);
+                        this->set_internet_alive(false);
+                    }
+                });
+        }
+        catch(const std::exception& e)
+        {
+            SPDLOG_ERROR("error occured when treating_generic_answer: {}", e.what());
+        }
+        
     }
 
     void

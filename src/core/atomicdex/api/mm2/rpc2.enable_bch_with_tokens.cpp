@@ -1,6 +1,6 @@
 #include <nlohmann/json.hpp>
 
-#include "enable_bch_with_tokens_rpc.hpp"
+#include "rpc2.enable_bch_with_tokens.hpp"
 
 namespace atomic_dex::mm2
 {

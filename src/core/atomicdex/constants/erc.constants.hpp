@@ -1,0 +1,67 @@
+#pragma once
+
+namespace atomic_dex::mm2
+{
+    inline const std::string        erc_swap_contract_address{"0x24ABE4c71FC658C91313b6552cd40cD808b3Ea80"};
+    inline const std::string        erc_testnet_swap_contract_address{"0x6b5A52217006B965BB190864D62dc3d270F7AaFD"};
+    inline const std::string        erc_fallback_swap_contract_address{"0x8500AFc0bc5214728082163326C2FF0C73f4a871"};
+    inline const std::string        erc_testnet_fallback_swap_contract_address{"0x7Bc1bBDD6A0a722fC9bffC49c921B685ECB84b94"};
+    inline const std::string        etc_erc_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        etc_erc_testnet_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        etc_erc_fallback_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        etc_erc_testnet_fallback_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        ubiq_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        ubiq_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        ubiq_erc_testnet_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        ubiq_erc_testnet_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        krc_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        krc_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        krc_erc_testnet_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        krc_erc_testnet_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        movr_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        movr_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        movr_erc_testnet_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        movr_erc_testnet_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        glmr_erc_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        glmr_erc_fallback_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        glmr_erc_testnet_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        glmr_erc_testnet_fallback_swap_contract_address{"0x6d9ce4BD298DE38bAfEFD15f5C6f5c95313B1d94"};
+    inline const std::string        hco_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        hco_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        hco_erc_testnet_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        hco_erc_testnet_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        avax_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        avax_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        avax_erc_testnet_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        avax_erc_testnet_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        one_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        one_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        one_erc_testnet_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        one_erc_testnet_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        ftm_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        ftm_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        ftm_erc_testnet_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        ftm_erc_testnet_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        matic_erc_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        matic_erc_fallback_swap_contract_address{"0x9130b257D37A52E52F21054c4DA3450c72f595CE"};
+    inline const std::string        matic_erc_testnet_swap_contract_address{"0x73c1Dd989218c3A154C71Fc08Eb55A24Bd2B3A10"};
+    inline const std::string        matic_erc_testnet_fallback_swap_contract_address{"0x73c1Dd989218c3A154C71Fc08Eb55A24Bd2B3A10"};
+    inline const std::string        arbitrum_erc_swap_contract_address{"0x9130b257d37a52e52f21054c4da3450c72f595ce"};
+    inline const std::string        arbitrum_erc_fallback_swap_contract_address{"0x9130b257d37a52e52f21054c4da3450c72f595ce"};
+    inline const std::string        sbch_erc_swap_contract_address{"0x25bF2AAB8749AD2e4360b3e0B738f3Cd700C4D68"};
+    inline const std::string        sbch_erc_fallback_swap_contract_address{"0x25bF2AAB8749AD2e4360b3e0B738f3Cd700C4D68"};
+    inline const std::string        sbch_erc_testnet_swap_contract_address{"0x25bF2AAB8749AD2e4360b3e0B738f3Cd700C4D68"};
+    inline const std::string        sbch_erc_testnet_fallback_swap_contract_address{"0x25bF2AAB8749AD2e4360b3e0B738f3Cd700C4D68"};
+    inline const std::string        rsk_erc_swap_contract_address{"0x6D9CE4bD298de38Bafefd15F5C6F5c95313B1d94"};
+    inline const std::string        rsk_erc_fallback_swap_contract_address{"0x6D9CE4bD298de38Bafefd15F5C6F5c95313B1d94"};
+    inline const std::string        rsk_erc_testnet_swap_contract_address{"0x6D9CE4bD298de38Bafefd15F5C6F5c95313B1d94"};
+    inline const std::string        rsk_erc_testnet_fallback_swap_contract_address{"0x6D9CE4bD298de38Bafefd15F5C6F5c95313B1d94"};
+    inline const std::string        bnb_testnet_swap_contract_address{"0xcCD17C913aD7b772755Ad4F0BDFF7B34C6339150"};
+    inline const std::string        bnb_swap_contract_address{"0xeDc5b89Fe1f0382F9E4316069971D90a0951DB31"};
+    inline const std::string        bnb_fallback_swap_contract_address{bnb_swap_contract_address};
+    inline const std::string        bnb_testnet_fallback_swap_contract_address{bnb_testnet_swap_contract_address};
+    inline const std::size_t        matic_gas_station_decimals{9};
+    inline const std::string        eth_gas_station_url{"https://ethgasstation.info/json/ethgasAPI.json"};
+    inline const std::string        matic_gas_station_url{"https://gasstation-mainnet.matic.network/"};
+    inline const std::string        testnet_matic_gas_station_url{"https://gasstation-mumbai.matic.today/"};
+}

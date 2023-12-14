@@ -704,7 +704,6 @@ namespace atomic_dex::mm2
             answer.rpc_result_code = -1;
             answer.raw_result      = error.what();
         }
-
         return answer;
     }
 

@@ -31,7 +31,6 @@ namespace atomic_dex::mm2
     void
     to_json(nlohmann::json& j, const best_orders_request& req)
     {
-        SPDLOG_INFO("getting bestorders data...");
         j["params"]["coin"]   = req.coin;
         j["params"]["action"] = req.action;
         j["params"]["request_by"]["type"] = "volume";

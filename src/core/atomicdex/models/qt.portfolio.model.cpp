@@ -408,6 +408,7 @@ namespace atomic_dex
         {
             return QString(this->data(res.at(0), BalanceRole).toString());
         }
+        return "0";
     }
 
     void

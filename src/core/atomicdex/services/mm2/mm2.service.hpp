@@ -35,8 +35,10 @@
 #include "atomicdex/api/mm2/rpc.max.taker.vol.hpp"
 #include "atomicdex/api/mm2/rpc.min.volume.hpp"
 #include "atomicdex/api/mm2/rpc.orderbook.hpp"
-#include "atomicdex/api/mm2/enable_bch_with_tokens_rpc.hpp"
-#include "atomicdex/api/mm2/enable_slp_rpc.hpp"
+#include "atomicdex/api/mm2/rpc2.enable_bch_with_tokens.hpp"
+#include "atomicdex/api/mm2/rpc2.enable_slp.hpp"
+#include "atomicdex/api/mm2/rpc2.enable_erc20.hpp"
+#include "atomicdex/api/mm2/rpc2.enable_eth_with_tokens.hpp"
 #include "atomicdex/api/mm2/rpc2.enable_tendermint_with_assets.hpp"
 #include "atomicdex/api/mm2/rpc2.enable_tendermint_token.hpp"
 #include "atomicdex/config/raw.mm2.coins.cfg.hpp"
@@ -45,6 +47,7 @@
 #include "atomicdex/data/wallet/tx.data.hpp"
 #include "atomicdex/events/events.hpp"
 #include "atomicdex/utilities/global.utilities.hpp"
+
 
 namespace atomic_dex
 {
@@ -124,6 +127,7 @@ namespace atomic_dex
        auto batch_balance_and_tx(bool is_a_reset, std::vector<std::string> tickers = {}, bool is_during_enabling = false, bool only_tx = false);
        void process_balance_answer(const nlohmann::json& answer);
        void process_tx_answer(const nlohmann::json& answer_json, std::string ticker);
+       //! Crash has been observed when calling this function and getting an unexpected result.
        void process_tx_tokenscan(const std::string& ticker, bool is_a_refresh);
        void fetch_single_balance(const coin_config& cfg_infos);
 
@@ -169,6 +173,8 @@ namespace atomic_dex
        void enable_coin(const coin_config& coin_config);
      private:
        void update_coin_active(const std::vector<std::string>& tickers, bool status);
+       void enable_erc20_coin(coin_config coin_config, std::string parent_ticker);
+       void enable_erc20_coins(const t_coins& coins, const std::string& parent_ticker);
        void enable_erc_family_coin(const coin_config& coin_config);
        void enable_erc_family_coins(const t_coins& coins);
        void enable_utxo_qrc20_coin(coin_config coin_config);

@@ -524,6 +524,7 @@ namespace atomic_dex
     void
     orderbook_model::refresh_orderbook(const t_orders_contents& orderbook, bool is_bestorders)
     {
+        SPDLOG_DEBUG("[orderbook_model::refresh_orderbook], is_bestorders: {}, size: {}", is_bestorders, orderbook.size());
         auto refresh_functor = [this](const std::vector<mm2::order_contents>& contents)
         {
             for (auto&& order: contents)
@@ -557,7 +558,6 @@ namespace atomic_dex
             }
             for (auto&& cur_to_remove: to_remove) { m_orders_id_registry.erase(cur_to_remove); }
         };
-
         refresh_functor(orderbook);
     }
 

@@ -9,11 +9,11 @@
 
 namespace atomic_dex::mm2
 {
-    struct paging_options
+    struct paging_options_t
     {
         std::optional<std::string> from_id;
         std::optional<int>         page_number;
     };
     
-    void to_json(nlohmann::json& j, const paging_options& in);
+    void to_json(nlohmann::json& j, const paging_options_t& in);
 }

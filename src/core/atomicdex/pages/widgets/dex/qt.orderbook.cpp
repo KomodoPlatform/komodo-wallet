@@ -59,6 +59,12 @@ namespace atomic_dex
     {
         return this->m_system_manager.get_system<orderbook_scanner_service>().is_best_orders_busy();
     }
+    
+    bool
+    atomic_dex::qt_orderbook_wrapper::is_orderbook_busy() const
+    {
+        return this->m_system_manager.get_system<orderbook_scanner_service>().is_orderbook_busy();
+    }
 
     atomic_dex::orderbook_model*
     atomic_dex::qt_orderbook_wrapper::get_asks() const
