@@ -1909,8 +1909,11 @@ namespace atomic_dex
     {
         auto&& [base, rel] = m_synchronized_ticker_pair.get();
         SPDLOG_DEBUG("[prepare_batch_orderbook] is_a_reset: {} [{}/{}]", is_a_reset, base, rel);
-        if (rel.empty() || base.empty() || base == rel)
+        // Need to handle segwit self pairs
+        if (rel.empty() || base.empty()
+            || utils::retrieve_main_ticker(base, true) == utils::retrieve_main_ticker(rel, true))
         {
+            SPDLOG_DEBUG("Bad pair, returning empty");
             return nlohmann::json::array();
         }
         nlohmann::json batch = nlohmann::json::array();
@@ -1938,8 +1941,10 @@ namespace atomic_dex
     {
         auto batch = prepare_batch_orderbook(is_a_reset);
         if (batch.empty())
+        {
+            SPDLOG_ERROR("Batch is empty");
             return;
-
+        }
         auto answer_functor = [this, is_a_reset](web::http::http_response resp)
         {
             auto&& [base, rel] = m_synchronized_ticker_pair.get();
@@ -1953,6 +1958,11 @@ namespace atomic_dex
                 }
                 
                 SPDLOG_DEBUG("orderbook_answer: {}", answer[0].dump(4));
+                if (answer[0].contains("error"))
+                {
+                    SPDLOG_ERROR("error answer for orderbook: {}", answer[0].dump(4));
+                    return;
+                }
                 auto orderbook_answer = mm2::rpc_process_answer_batch<t_orderbook_answer>(answer[0], "orderbook");
 
                 if (is_a_reset)
@@ -2467,6 +2477,7 @@ namespace atomic_dex
         if (evt.base.empty() || evt.rel.empty() || evt.base == evt.rel)
         {
             SPDLOG_ERROR("Invalid ticker pair");
+            return;
         }
         this->m_synchronized_ticker_pair = std::make_pair(evt.base, evt.rel);
 

@@ -179,11 +179,9 @@ namespace atomic_dex
             auto& mm2 = this->m_system_manager.get_system<mm2_service>();
             if (mm2.is_mm2_running())
             {
-                SPDLOG_INFO("mm2 is alive, checking if we are able to fetch a simple orderbook");
+                SPDLOG_INFO("mm2 is alive, checking if we are able to fetch version");
                 nlohmann::json      batch           = nlohmann::json::array();
-                nlohmann::json      current_request = mm2::template_request("orderbook", true);
-                t_orderbook_request req_orderbook{.base = g_primary_dex_coin, .rel = g_second_primary_dex_coin};
-                mm2::to_json(current_request, req_orderbook);
+                nlohmann::json      current_request = mm2::template_request("version");
                 batch.push_back(current_request);
                 auto async_answer = mm2.get_mm2_client().async_rpc_batch_standalone(batch);
                 generic_treat_answer(async_answer, TO_STD_STR(atomic_dex::g_dex_rpc), &internet_service_checker::is_mm2_endpoint_alive);

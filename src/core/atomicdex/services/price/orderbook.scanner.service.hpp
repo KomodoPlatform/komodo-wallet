@@ -57,7 +57,7 @@ namespace atomic_dex
         [[nodiscard]] bool is_best_orders_busy() const;
         [[nodiscard]] bool is_orderbook_busy() const;
 
-        [[nodiscard]] t_orders_contents get_data() const;
+        [[nodiscard]] t_orders_contents get_bestorders_data() const;
     };
 } // namespace atomic_dex
 

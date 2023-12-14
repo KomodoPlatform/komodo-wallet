@@ -490,7 +490,7 @@ namespace atomic_dex
                 
                 if (!ec)
                 {
-                    // SPDLOG_DEBUG("[process_action::post_process_orderbook_finished]");
+                    SPDLOG_DEBUG("[process_action::post_process_orderbook_finished]");
                     auto* wrapper = get_orderbook_wrapper();
                     m_models_actions[orderbook_need_a_reset] ? wrapper->reset_orderbook(result) : wrapper->refresh_orderbook(result);
 

@@ -59,7 +59,7 @@ namespace atomic_dex
     {
         return this->m_system_manager.get_system<orderbook_scanner_service>().is_best_orders_busy();
     }
-    
+
     bool
     atomic_dex::qt_orderbook_wrapper::is_orderbook_busy() const
     {
@@ -89,19 +89,22 @@ namespace atomic_dex
     {
         this->m_asks->refresh_orderbook(answer.asks);
         this->m_bids->refresh_orderbook(answer.bids);
-        const auto data = this->m_system_manager.get_system<orderbook_scanner_service>().get_data();
+        const auto data = this->m_system_manager.get_system<orderbook_scanner_service>().get_bestorders_data();
         if (data.empty())
         {
+            SPDLOG_INFO("[qt_orderbook_wrapper::refresh_orderbook] : clear_orderbook");
             m_best_orders->clear_orderbook();
         }
         else if (m_best_orders->rowCount() == 0)
         {
-            // SPDLOG_INFO("[qt_orderbook_wrapper::refresh_orderbook] : reset_best_orders");
+
+            SPDLOG_INFO("[qt_orderbook_wrapper::refresh_orderbook] : reset_best_orders. data size: {}", data.size());
+            
             m_best_orders->reset_orderbook(data, true);
         }
         else
         {
-            // SPDLOG_INFO("[qt_orderbook_wrapper::refresh_orderbook] : refresh_best_orders");
+            SPDLOG_INFO("[qt_orderbook_wrapper::refresh_orderbook] : refresh_best_orders");
             m_best_orders->refresh_orderbook(data, true);
         }
         this->set_both_taker_vol();
@@ -110,6 +113,7 @@ namespace atomic_dex
     void
     qt_orderbook_wrapper::reset_orderbook(t_orderbook_answer answer)
     {
+        SPDLOG_INFO("reset_orderbook");
         this->m_asks->reset_orderbook(answer.asks);
         this->m_bids->reset_orderbook(answer.bids);
         this->set_both_taker_vol();

@@ -144,7 +144,7 @@ namespace atomic_dex
     }
 
     t_orders_contents
-    orderbook_scanner_service::get_data() const 
+    orderbook_scanner_service::get_bestorders_data() const 
     {
         return m_best_orders_infos.get().result;
     }
