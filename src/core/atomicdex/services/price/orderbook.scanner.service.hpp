@@ -38,7 +38,7 @@ namespace atomic_dex
         ag::ecs::system_manager&   m_system_manager;
         t_best_orders_synchronized m_best_orders_infos;
         t_update_time_point        m_update_clock;
-        std::atomic_bool           m_rpc_busy{false};
+        std::atomic_bool           m_bestorders_rpc_busy{false};
 
       public:
         //! Constructor
