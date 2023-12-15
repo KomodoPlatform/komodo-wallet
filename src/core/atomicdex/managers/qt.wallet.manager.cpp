@@ -15,6 +15,7 @@
  ******************************************************************************/
 
 //! Qt
+#include <QSettings>
 #include <QDebug>
 #include <QFile>
 
@@ -71,6 +72,7 @@ namespace atomic_dex
         {
             using namespace std::string_literals;
             const std::filesystem::path    seed_path          = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".seed"s);
+            const std::filesystem::path    rpcpass_path       = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".rpcpass"s);
             const std::filesystem::path    wallet_object_path = utils::get_atomic_dex_export_folder() / (wallet_name.toStdString() + ".wallet.json"s);
             const std::string wallet_cfg_file    = std::string(atomic_dex::get_raw_version()) + "-coins"s + "."s + wallet_name.toStdString() + ".json"s;
             const std::filesystem::path    wallet_cfg_path    = utils::get_atomic_dex_config_folder() / wallet_cfg_file;
@@ -85,6 +87,9 @@ namespace atomic_dex
 
             // Encrypt seed
             atomic_dex::encrypt(seed_path, seed.toStdString().data(), key.data());
+            // Encrypt rpcpass
+            std::string rpcpass = atomic_dex::gen_random_password();
+            atomic_dex::encrypt(rpcpass_path, rpcpass.data(), key.data());
             // sodium_memzero(&seed, seed.size());
             sodium_memzero(key.data(), key.size());
 
@@ -153,6 +158,7 @@ namespace atomic_dex
     {
         using namespace std::string_literals;
         return std::filesystem::remove(utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".seed"s));
+        return std::filesystem::remove(utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".rpcpass"s));
     }
 
     bool
@@ -171,6 +177,8 @@ namespace atomic_dex
         using namespace std::string_literals;
         const std::filesystem::path seed_path = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".seed"s);
         auto           seed      = atomic_dex::decrypt(seed_path, key.data(), ec);
+        const std::filesystem::path rpcpass_path = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".rpcpass"s);
+        auto           rpcpass   = atomic_dex::decrypt(rpcpass_path, key.data(), ec);
         if (ec == dextop_error::corrupted_file_or_wrong_password)
         {
             SPDLOG_WARN("{}", ec.message());
@@ -268,7 +276,7 @@ namespace atomic_dex
     }
 
     bool
-    qt_wallet_manager::login(const QString& password, const QString& wallet_name)
+    qt_wallet_manager::login(const QString& password, const QString& wallet_name, bool use_static_rpcpass)
     {
         SPDLOG_INFO("qt_wallet_manager::login");
         if (not load_wallet_cfg(wallet_name.toStdString()))
@@ -296,7 +304,6 @@ namespace atomic_dex
         else
         {
             using namespace std::string_literals;
-
             const std::string wallet_cfg_file = std::string(atomic_dex::get_raw_version()) + "-coins"s + "."s + wallet_name.toStdString() + ".json"s;
             const std::filesystem::path    wallet_cfg_path = utils::get_atomic_dex_config_folder() / wallet_cfg_file;
             bool  valid_json = false;
@@ -320,6 +327,21 @@ namespace atomic_dex
 
             const std::filesystem::path seed_path = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".seed"s);
             auto           seed      = atomic_dex::decrypt(seed_path, key.data(), ec);
+
+            const std::filesystem::path rpcpass_path = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".rpcpass"s);
+            //! We need to create a new rpcpass if it doesn't exist for existing logins
+            std::string rpcpass = atomic_dex::gen_random_password();
+            if (not std::filesystem::exists(rpcpass_path) || not use_static_rpcpass)
+            {
+                atomic_dex::encrypt(rpcpass_path, rpcpass.data(), key.data());
+                // sodium_memzero(&seed, seed.size());
+                sodium_memzero(key.data(), key.size());
+            }
+            else
+            {
+                rpcpass = atomic_dex::decrypt(rpcpass_path, key.data(), ec);
+            }
+            
             if (ec == dextop_error::corrupted_file_or_wrong_password)
             {
                 SPDLOG_WARN("{}", ec.message());
@@ -330,7 +352,7 @@ namespace atomic_dex
             this->set_wallet_default_name(wallet_name);
             this->set_status("initializing_mm2");
             auto& mm2_system = m_system_manager.get_system<mm2_service>();
-            mm2_system.spawn_mm2_instance(get_default_wallet_name().toStdString(), seed, with_pin_cfg);
+            mm2_system.spawn_mm2_instance(get_default_wallet_name().toStdString(), seed, with_pin_cfg, rpcpass);
             this->dispatcher_.trigger<post_login>();
             set_log_status(true);
 

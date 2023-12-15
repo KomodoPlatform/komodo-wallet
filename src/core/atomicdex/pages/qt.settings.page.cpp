@@ -178,6 +178,20 @@ namespace atomic_dex
         emit onLangChanged();
     }
 
+    bool atomic_dex::settings_page::is_static_rpcpass_enabled() const
+    {
+        return m_config.static_rpcpass_enabled;
+    }
+
+    void settings_page::set_static_rpcpass_enabled(bool is_enabled)
+    {
+        if (m_config.static_rpcpass_enabled != is_enabled)
+        {
+            change_static_rpcpass_status(m_config, is_enabled);
+            emit onStaticRpcPassEnabledChanged();
+        }
+    }
+
     bool atomic_dex::settings_page::is_spamfilter_enabled() const
     {
         return m_config.spamfilter_enabled;
@@ -624,6 +638,8 @@ namespace atomic_dex
         using namespace std::string_literals;
         const std::filesystem::path seed_path = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".seed"s);
         auto           seed      = atomic_dex::decrypt(seed_path, key.data(), ec);
+        const std::filesystem::path rpcpass_path = utils::get_atomic_dex_config_folder() / (wallet_name.toStdString() + ".rpcpass"s);
+        auto           rpcpass   = atomic_dex::decrypt(rpcpass_path, key.data(), ec);
         if (ec == dextop_error::corrupted_file_or_wrong_password)
         {
             SPDLOG_ERROR("cannot decrypt the seed with the derived password: {}", ec.message());

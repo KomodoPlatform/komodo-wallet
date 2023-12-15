@@ -791,10 +791,9 @@ ClipRRect // Trade Card
 
                 SearchField
                 {
-
                     id: _bestOrderSearchField
                     Layout.alignment: Qt.AlignVCenter
-                    Layout.preferredWidth: 206
+                    Layout.preferredWidth: 160
                     Layout.preferredHeight: 35
                     Layout.leftMargin: 20
                     Layout.topMargin: 10
@@ -802,6 +801,26 @@ ClipRRect // Trade Card
                     textField.onTextChanged: Constants.API.app.trading_pg.orderbook.best_orders.proxy_mdl.setFilterFixedString(textField.text)
                     Component.onDestruction: Constants.API.app.trading_pg.orderbook.best_orders.proxy_mdl.setFilterFixedString("")
                     textField.placeholderText: qsTr("Search coins")
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+                
+                SearchField
+                {
+                    id: _bestOrderFiatFilterField
+                    Layout.alignment: Qt.AlignVCenter
+                    Layout.preferredWidth: 160
+                    Layout.preferredHeight: 35
+                    Layout.leftMargin: 20
+                    Layout.topMargin: 10
+                    textField.placeholderText: qsTr("Min Value")
+                    textField.validator: RegExpValidator
+                    {
+                        regExp: /[0-9]+/
+                    }
+                    Component.onDestruction: textField.text = ""
                 }
 
                 Item {
@@ -819,7 +838,7 @@ ClipRRect // Trade Card
 
                     label.wrapMode: Label.NoWrap
                     label.font.pixelSize: 14
-                    text: qsTr("Show only enabled coins")
+                    text: qsTr("Hide disabled coins")
                     textColor: Dex.CurrentTheme.foregroundColor2
                 }
             }

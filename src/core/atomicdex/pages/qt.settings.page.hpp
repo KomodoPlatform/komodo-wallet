@@ -46,6 +46,7 @@ namespace atomic_dex
         Q_PROPERTY(QString  current_fiat                    READ get_current_fiat                   WRITE set_current_fiat                      NOTIFY onFiatChanged)
         Q_PROPERTY(bool     notification_enabled            READ is_notification_enabled            WRITE set_notification_enabled              NOTIFY onNotificationEnabledChanged)
         Q_PROPERTY(bool     spamfilter_enabled              READ is_spamfilter_enabled              WRITE set_spamfilter_enabled                NOTIFY onSpamFilterEnabledChanged)
+        Q_PROPERTY(bool     static_rpcpass_enabled          READ is_static_rpcpass_enabled          WRITE set_static_rpcpass_enabled            NOTIFY onStaticRpcPassEnabledChanged)
         Q_PROPERTY(QVariant custom_token_data               READ get_custom_token_data              WRITE set_custom_token_data                 NOTIFY customTokenDataChanged)
         Q_PROPERTY(bool     fetching_custom_token_data_busy READ is_fetching_custom_token_data_busy WRITE set_fetching_custom_token_data_busy   NOTIFY customTokenDataStatusChanged)
         Q_PROPERTY(bool     fetching_priv_keys_busy         READ is_fetching_priv_key_busy          WRITE set_fetching_priv_key_busy            NOTIFY privKeyStatusChanged)
@@ -85,6 +86,8 @@ namespace atomic_dex
         void                                    set_pirate_sync_date(int new_timestamp);
         [[nodiscard]] bool                      is_notification_enabled() const;
         void                                    set_notification_enabled(bool is_enabled);
+        [[nodiscard]] bool                      is_static_rpcpass_enabled() const;
+        void                                    set_static_rpcpass_enabled(bool is_enabled);
         [[nodiscard]] bool                      is_spamfilter_enabled() const;
         void                                    set_spamfilter_enabled(bool is_enabled);
         void                                    set_current_currency(const QString& current_currency);
@@ -133,6 +136,7 @@ namespace atomic_dex
         void onFiatChanged();
         void onNotificationEnabledChanged();
         void onSpamFilterEnabledChanged();
+        void onStaticRpcPassEnabledChanged();
         void customTokenDataChanged();
         void customTokenDataStatusChanged();
         void privKeyStatusChanged();

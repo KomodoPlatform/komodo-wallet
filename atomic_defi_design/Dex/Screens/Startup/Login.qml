@@ -26,7 +26,7 @@ SetupPage
 
     function onClickedLogin(password)
     {
-        if (API.app.wallet_mgr.login(password, walletName))
+        if (API.app.wallet_mgr.login(password, walletName, API.app.settings_pg.static_rpcpass_enabled))
         {
             console.info("Success: Login");
             app.currentWalletName = walletName;

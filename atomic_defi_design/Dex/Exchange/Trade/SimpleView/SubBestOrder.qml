@@ -125,9 +125,10 @@ DexListView
     delegate: DexRectangle // Order Line
     {
         property bool _isCoinEnabled: Constants.API.app.portfolio_pg.global_cfg_mdl.get_coin_info(coin).is_enabled
+        property bool _isAboveMinVal: parseFloat(price_fiat) > parseFloat(_bestOrderFiatFilterField.textField.text) || _bestOrderFiatFilterField.textField.text === ""
         property bool _hideDisabled: hide_disabled_coins_checkbox.checked
-        visible: _isCoinEnabled ? true : _hideDisabled ? false : true
-        height: _isCoinEnabled ? _rowHeight : _hideDisabled ? 0 : _rowHeight
+        visible: !_isAboveMinVal ? false : _isCoinEnabled ? true : _hideDisabled ? false : true
+        height: !_isAboveMinVal ? 0 : _isCoinEnabled ? _rowHeight : _hideDisabled ? 0 : _rowHeight
         width: _rowWidth
         radius: mouse_area.containsMouse ? 3 : 0
         border.width: 0
@@ -204,6 +205,7 @@ DexListView
             {
                 Layout.preferredWidth: _fiatVolumeColumnSize
                 horizontalAlignment: Text.AlignRight
+                // TODO: Adjust fiat to left/right sign based on region
                 text_value: parseFloat(price_fiat).toFixed(2)+Constants.API.app.settings_pg.current_fiat_sign
                 opacity: !_isCoinEnabled? .3 : 1
             }

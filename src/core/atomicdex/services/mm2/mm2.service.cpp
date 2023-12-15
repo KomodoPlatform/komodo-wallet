@@ -2084,7 +2084,7 @@ namespace atomic_dex
         }
     }
 
-    void mm2_service::spawn_mm2_instance(std::string wallet_name, std::string passphrase, bool with_pin_cfg)
+    void mm2_service::spawn_mm2_instance(std::string wallet_name, std::string passphrase, bool with_pin_cfg, std::string rpcpass)
     {
         this->m_balance_factor = utils::determine_balance_factor(with_pin_cfg);
         SPDLOG_DEBUG("balance factor is: {}", m_balance_factor);
@@ -2093,7 +2093,10 @@ namespace atomic_dex
         this->dispatcher_.trigger<coin_cfg_parsed>(this->retrieve_coins_informations());
         this->dispatcher_.trigger<force_update_providers>();
         this->dispatcher_.trigger<force_update_defi_stats>();
-        mm2_config cfg{.passphrase = std::move(passphrase), .rpc_password = atomic_dex::gen_random_password()};
+        mm2_config cfg{
+            .passphrase = std::move(passphrase), 
+            .rpc_password = std::move(rpcpass) == "" ? std::move(atomic_dex::gen_random_password()) : std::move(rpcpass)
+        };
         mm2::set_system_manager(m_system_manager);
         mm2::set_rpc_password(cfg.rpc_password);
         json       json_cfg;

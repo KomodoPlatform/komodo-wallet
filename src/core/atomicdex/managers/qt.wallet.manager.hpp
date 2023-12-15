@@ -66,7 +66,7 @@ namespace atomic_dex
         static QString get_default_wallet_name() ; ///< Static version
 
         //! Q_INVOKABLE (QML API)
-        Q_INVOKABLE bool               login(const QString& password, const QString& wallet_name);
+        Q_INVOKABLE bool               login(const QString& password, const QString& wallet_name, bool use_static_rpcpass = false);
         Q_INVOKABLE bool               create(const QString& password, const QString& seed, const QString& wallet_name);
         Q_INVOKABLE static QStringList get_wallets(const QString& wallet_name = "") ;
         Q_INVOKABLE static bool        delete_wallet(const QString& wallet_name) ;

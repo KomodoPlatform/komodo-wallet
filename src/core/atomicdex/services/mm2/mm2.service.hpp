@@ -160,7 +160,7 @@ namespace atomic_dex
        void on_gui_leave_trading(const gui_leave_trading& evt);
 
        //! Spawn mm2 instance with given seed
-       void spawn_mm2_instance(std::string wallet_name, std::string passphrase, bool with_pin_cfg = false);
+       void spawn_mm2_instance(std::string wallet_name, std::string passphrase, bool with_pin_cfg = false, std::string rpcpassword = "");
 
        //! Refresh the current info (internally call process_balance and process_tx)
        void fetch_infos_thread(bool is_a_fresh = true, bool only_tx = false);

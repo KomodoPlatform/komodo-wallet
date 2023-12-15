@@ -617,6 +617,31 @@ Qaterial.Dialog
                                 onClicked: camouflage_password_modal.open()
                             }
 
+                            // Spam filter toggle
+                            RowLayout
+                            {
+                                width: parent.width - 30
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                height: 50
+
+                                DexLabel
+                                {
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.fillWidth: true
+                                    font: DexTypo.subtitle1
+                                    text: qsTr("Reuse static RPC password")
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                DexSwitch
+                                {
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Component.onCompleted: checked = API.app.settings_pg.static_rpcpass_enabled
+                                    onCheckedChanged: API.app.settings_pg.static_rpcpass_enabled = checked
+                                }
+                            }
+
                         }
                     }
 
