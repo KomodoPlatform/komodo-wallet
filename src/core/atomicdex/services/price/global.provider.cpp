@@ -21,43 +21,6 @@
 
 namespace
 {
-    web::http::client::http_client_config g_openrates_cfg{[]()
-                                                          {
-                                                              web::http::client::http_client_config cfg;
-                                                              cfg.set_validate_certificates(false);
-                                                              cfg.set_timeout(std::chrono::seconds(5));
-                                                              return cfg;
-                                                          }()};
-    t_http_client_ptr g_openrates_client = std::make_unique<web::http::client::http_client>(FROM_STD_STR("https://defi-stats.komodo.earth"), g_openrates_cfg);
-    pplx::cancellation_token_source g_token_source;
-
-    pplx::task<web::http::http_response>
-    async_fetch_fiat_rates()
-    {
-        web::http::http_request req;
-        req.set_method(web::http::methods::GET);
-        req.set_request_uri(FROM_STD_STR("api/v3/rates/fixer_io"));
-        //SPDLOG_INFO("req: {}", TO_STD_STR(req.to_string()));
-        return g_openrates_client->request(req, g_token_source.get_token());
-    }
-
-    nlohmann::json
-    process_fetch_fiat_answer(web::http::http_response resp)
-    {
-        nlohmann::json answer;
-        if (resp.status_code() == 200)
-        {
-            answer = nlohmann::json::parse(TO_STD_STR(resp.extract_string(true).get()));
-            return answer;
-        }
-
-        SPDLOG_WARN("unable to fetch last open rates");
-        return answer;
-    }
-} // namespace
-
-namespace
-{
     std::string
     compute_result(const std::string& amount, const std::string& price, const std::string& currency, atomic_dex::cfg& cfg)
     {
@@ -91,7 +54,6 @@ namespace
         return result;
     }
 } // namespace
-
 
 namespace atomic_dex
 {
