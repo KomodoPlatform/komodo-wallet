@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html class="loading" prefix="og: https://ogp.me/ns#" style="width: 360px; height: 600px">
+
+<head>
+    <base href="/">
+
+    <meta charset="UTF-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="description" content="Start using Komodo Wallet from your web browser on any device or operating system. HODL and trade popular cryptocurrencies — BTC, ETH, DOGE, LTC, and more.">
+
+    <!-- Open Graph Protocol -->
+    <meta property="og:site_name" content="Komodo Wallet" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX" />
+    <meta property="og:description" content="Start using Komodo Wallet from your web browser on any device or operating system. HODL and trade popular cryptocurrencies — BTC, ETH, DOGE, LTC, and more." />
+    <meta property="og:image" content="https://app.komodoplatform.com/thumbnail.jpg" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX" />
+    <meta name="twitter:description" content="Start using Komodo Wallet from your web browser on any device or operating system. HODL and trade popular cryptocurrencies — BTC, ETH, DOGE, LTC, and more." />
+    <meta name="twitter:site" content="@atomicdex" />
+    <meta name="twitter:image" content="https://app.komodoplatform.com/thumbnail.jpg" />
+
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="web_dex">
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <title>Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX</title>
+
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        html.loading {
+            height: 100%;
+        }
+
+        html.loading body {
+            background-color: rgb(245, 245, 245);
+        }
+
+        html.loading_dark body {
+            background-color: rgb(18, 20, 32);
+        }
+
+        .lds-ring-wrapper {
+            position: absolute;
+            display: none;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgb(245, 245, 245);
+        }
+
+        html.loading_dark .lds-ring-wrapper {
+            background-color: rgb(18, 20, 32);
+        }
+
+        html.loading .lds-ring-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lds-ring {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            transform: translate(-4px, -4px);
+        }
+
+        .lds-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            margin: 4px;
+            border: 4px solid #2196f3;
+            border-radius: 50%;
+            animation: lds-ring 0.9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #2196f3 transparent transparent transparent;
+        }
+
+        .lds-ring div:nth-child(1) {
+            animation-delay: -0.3s;
+        }
+
+        .lds-ring div:nth-child(2) {
+            animation-delay: -0.2s;
+        }
+
+        .lds-ring div:nth-child(3) {
+            animation-delay: -0.1s;
+        }
+
+        @keyframes lds-ring {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="lds-ring-wrapper">
+        <div class="lds-ring">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    
+    <script src="src/mm2/mm2lib.js" type="module"></script>
+    <script src="src/index.js" type="module"></script>
+    <script src="main.dart.js" type="application/javascript"></script>
+</body>
+
+</html>

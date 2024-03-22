@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 
 enum MainMenuValue {
   wallet,
@@ -14,7 +15,7 @@ enum MainMenuValue {
   none;
 
   static MainMenuValue defaultMenu() =>
-      kIsWalletOnly ? MainMenuValue.wallet : MainMenuValue.dex;
+      kIsWalletOnly || isRunningAsChromeExtension() ? MainMenuValue.wallet : MainMenuValue.dex;
 
   bool isEnabledInCurrentMode() {
     return !(kIsWalletOnly && isDisabledWhenWalletOnly);

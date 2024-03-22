@@ -2,7 +2,7 @@
 class Zip {
     constructor() {
       this.encode = this.encode.bind(this);
-      this.worker = new Worker(new URL('./zip_worker.js', import.meta.url));
+      this.worker = new Worker(new URL('./zip_worker.js', import.meta.url), { type: 'module' });
     }
   
     /**

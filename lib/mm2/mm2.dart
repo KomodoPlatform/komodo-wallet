@@ -11,12 +11,15 @@ import 'package:web_dex/mm2/mm2_api/rpc/version/version_response.dart';
 import 'package:web_dex/mm2/mm2_ios.dart';
 import 'package:web_dex/mm2/mm2_linux.dart';
 import 'package:web_dex/mm2/mm2_macos.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/mm2/mm2_web.dart';
 import 'package:web_dex/mm2/mm2_windows.dart';
+import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/utils/password.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 final MM2 mm2 = _createMM2();
+const rpcPasswordStorageKey = 'cachedRpcPassword';
 
 abstract class MM2 {
   const MM2();
@@ -65,8 +68,22 @@ abstract class MM2 {
     required String? passphrase,
     required String? userHome,
     required String? dbDir,
+    MM2Status? mm2Status,
   }) async {
-    String newRpcPassword = generatePassword();
+    String newRpcPassword;
+
+    if (isRunningAsChromeExtension()) {
+      final storage = getStorage();
+
+      if (mm2Status == null || mm2Status == MM2Status.isNotRunningYet) {
+        newRpcPassword = generatePassword();
+        await storage.write(rpcPasswordStorageKey, newRpcPassword);
+      } else {
+        newRpcPassword = await storage.read(rpcPasswordStorageKey);
+      }
+    } else {
+      newRpcPassword = generatePassword();
+    }
 
     if (!validateRPCPassword(newRpcPassword)) {
       log(
@@ -123,7 +140,11 @@ abstract class MM2 {
 
 MM2 _createMM2() {
   if (kIsWeb) {
-    return MM2Web();
+    if (isRunningAsChromeExtension()) {
+      return MM2Sw();
+    } else {
+      return MM2Web();
+    }
   } else if (Platform.isMacOS) {
     return MM2MacOs();
   } else if (Platform.isIOS) {

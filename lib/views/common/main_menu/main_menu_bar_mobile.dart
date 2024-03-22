@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_state.dart';
 import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile_item.dart';
@@ -16,6 +17,7 @@ class MainMenuBarMobile extends StatelessWidget {
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         final bool isMMBotEnabled = state.mmBotSettings.isMMBotEnabled;
+        final inExtension = isRunningAsChromeExtension();
         return DecoratedBox(
           decoration: BoxDecoration(
             color: theme.currentGlobal.cardColor,
@@ -38,21 +40,23 @@ class MainMenuBarMobile extends StatelessWidget {
                     value: MainMenuValue.wallet,
                     isActive: selected == MainMenuValue.wallet,
                   ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.fiat,
-                    enabled: currentWalletBloc.wallet?.isHW != true,
-                    isActive: selected == MainMenuValue.fiat,
-                  ),
+                  if (!inExtension)
+                    MainMenuBarMobileItem(
+                      value: MainMenuValue.fiat,
+                      enabled: currentWalletBloc.wallet?.isHW != true,
+                      isActive: selected == MainMenuValue.fiat,
+                    ),
                   MainMenuBarMobileItem(
                     value: MainMenuValue.dex,
                     enabled: currentWalletBloc.wallet?.isHW != true,
                     isActive: selected == MainMenuValue.dex,
                   ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.bridge,
-                    enabled: currentWalletBloc.wallet?.isHW != true,
-                    isActive: selected == MainMenuValue.bridge,
-                  ),
+                  if (!inExtension)
+                    MainMenuBarMobileItem(
+                      value: MainMenuValue.bridge,
+                      enabled: currentWalletBloc.wallet?.isHW != true,
+                      isActive: selected == MainMenuValue.bridge,
+                    ),
                   // TODO(Francois): consider moving into sub-menu somewhere to
                   // avoid cluttering the main menu (and text wrapping)
                   if (isMMBotEnabled)
@@ -61,11 +65,12 @@ class MainMenuBarMobile extends StatelessWidget {
                       value: MainMenuValue.marketMakerBot,
                       isActive: selected == MainMenuValue.marketMakerBot,
                     ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.nft,
-                    enabled: currentWalletBloc.wallet?.isHW != true,
-                    isActive: selected == MainMenuValue.nft,
-                  ),
+                  if (!inExtension)
+                    MainMenuBarMobileItem(
+                      value: MainMenuValue.nft,
+                      enabled: currentWalletBloc.wallet?.isHW != true,
+                      isActive: selected == MainMenuValue.nft,
+                    ),
                   MainMenuBarMobileItem(
                     value: MainMenuValue.settings,
                     isActive: selected == MainMenuValue.settings,

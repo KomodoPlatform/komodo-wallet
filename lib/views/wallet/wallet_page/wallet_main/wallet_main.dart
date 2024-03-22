@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_theme/app_theme.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,8 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc_event.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc_state.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
@@ -18,11 +21,14 @@ import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
+import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
@@ -55,6 +61,8 @@ class _WalletMainState extends State<WalletMain>
   void initState() {
     super.initState();
 
+    if (isRunningAsChromeExtension()) handleExtensionLogin();
+
     if (currentWalletBloc.wallet != null) {
       _loadWalletData(currentWalletBloc.wallet!.id);
     }
@@ -68,6 +76,39 @@ class _WalletMainState extends State<WalletMain>
     });
 
     _tabController = TabController(length: 2, vsync: this);
+  }
+
+  Future<void> handleExtensionLogin() async {
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+
+    // Logged in
+    if (authBloc.state.mode != AuthorizeMode.noLogin) {
+      return;
+    }
+
+    // Not logged in, show wallet selection
+    if (await mm2.status() != MM2Status.rpcIsUp) {
+      _showWalletSelectionPopup();
+      return;
+    }
+
+    // RPC is logged in, try auto-login the UI
+    await walletsBloc.fetchSavedWallets();
+    final wallets = walletsBloc.wallets;
+
+    if (wallets.isEmpty) {
+      _showWalletSelectionPopup();
+    } else {
+      final lastLoginWalletId = await getStorage().read('lastLoginWalletId');
+      final Wallet? lastLoginWallet =
+          wallets.firstWhereOrNull((wallet) => wallet.id == lastLoginWalletId);
+
+      if (lastLoginWallet == null) {
+        _showWalletSelectionPopup();
+      } else {
+        authBloc.add(AuthReLogInEvent(seed: '', wallet: lastLoginWallet));
+      }
+    }
   }
 
   @override
@@ -85,76 +126,118 @@ class _WalletMainState extends State<WalletMain>
 
     final authState = context.select((AuthBloc bloc) => bloc.state.mode);
 
+    if (isRunningAsChromeExtension()) {
+      return PageLayout(
+        header: isMobile && !isRunningAsChromeExtension()
+            ? PageHeader(title: LocaleKeys.wallet.tr())
+            : null,
+        content: Flexible(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: BlocBuilder<AuthBloc, AuthBlocState>(
+                  builder: (context, state) {
+                    final AuthorizeMode mode = state.mode;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const WalletOverview(),
+                        WalletManageSection(
+                          withBalance: _showCoinWithBalance,
+                          onSearchChange: _onSearchChange,
+                          onWithBalanceChange: _onShowCoinsWithBalanceClick,
+                          mode: mode,
+                          pinned: true,
+                        ),
+                        SizedBox(
+                            height: isRunningAsChromeExtension() ? 0 : 18.0),
+                        Flexible(
+                          child: _buildCoinList(mode),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return PageLayout(
-      noBackground: true,
-      header: isMobile ? PageHeader(title: LocaleKeys.wallet.tr()) : null,
-      content: Expanded(
-        child: CustomScrollView(
-          slivers: <Widget>[
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  if (authState == AuthorizeMode.logIn) ...[
-                    WalletOverview(
-                      onPortfolioGrowthPressed: () =>
-                          _tabController.animateTo(0),
-                      onPortfolioProfitLossPressed: () =>
-                          _tabController.animateTo(1),
-                    ),
+        noBackground: true,
+        header: isMobile ? PageHeader(title: LocaleKeys.wallet.tr()) : null,
+        content: Expanded(
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    if (authState == AuthorizeMode.logIn) ...[
+                      WalletOverview(
+                        onPortfolioGrowthPressed: () =>
+                            _tabController.animateTo(0),
+                        onPortfolioProfitLossPressed: () =>
+                            _tabController.animateTo(1),
+                      ),
+                      const Gap(8),
+                    ],
+                    if (authState != AuthorizeMode.logIn)
+                      const SizedBox(
+                        width: double.infinity,
+                        height: 340,
+                        child: PriceChartPage(key: Key('price-chart')),
+                      )
+                    else ...[
+                      Card(
+                        child: TabBar(
+                          controller: _tabController,
+                          tabs: [
+                            Tab(text: LocaleKeys.portfolioGrowth.tr()),
+                            Tab(text: LocaleKeys.profitAndLoss.tr()),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 340,
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 340,
+                              child: PortfolioGrowthChart(
+                                initialCoins: walletCoinsFiltered.toList(),
+                              ),
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 340,
+                              child: PortfolioProfitLossChart(
+                                initialCoins: walletCoinsFiltered.toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const Gap(8),
                   ],
-                  if (authState != AuthorizeMode.logIn)
-                    const SizedBox(
-                      width: double.infinity,
-                      height: 340,
-                      child: PriceChartPage(key: Key('price-chart')),
-                    )
-                  else ...[
-                    Card(
-                      child: TabBar(
-                        controller: _tabController,
-                        tabs: [
-                          Tab(text: LocaleKeys.portfolioGrowth.tr()),
-                          Tab(text: LocaleKeys.profitAndLoss.tr()),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 340,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 340,
-                            child: PortfolioGrowthChart(
-                              initialCoins: walletCoinsFiltered.toList(),
-                            ),
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 340,
-                            child: PortfolioProfitLossChart(
-                              initialCoins: walletCoinsFiltered.toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  const Gap(8),
-                ],
+                ),
               ),
-            ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _SliverSearchBarDelegate(
-                withBalance: _showCoinWithBalance,
-                onSearchChange: _onSearchChange,
-                onWithBalanceChange: _onShowCoinsWithBalanceClick,
-                mode: authState,
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverSearchBarDelegate(
+                  withBalance: _showCoinWithBalance,
+                  onSearchChange: _onSearchChange,
+                  onWithBalanceChange: _onShowCoinsWithBalanceClick,
+                  mode: authState,
+                ),
               ),
-            ),
               _buildCoinList(authState),
             ],
           ),
@@ -251,15 +334,19 @@ class _WalletMainState extends State<WalletMain>
     _popupDispatcher!.show();
   }
 
-  PopupDispatcher _createPopupDispatcher() {
-    final TakerBloc takerBloc = context.read<TakerBloc>();
-    final BridgeBloc bridgeBloc = context.read<BridgeBloc>();
+  PopupDispatcher _createPopupDispatcher(
+      {bool expanded = false, bool barrierDismissable = true}) {
+    final ctx = scaffoldKey.currentContext ?? context;
+    final TakerBloc takerBloc = ctx.read<TakerBloc>();
+    final BridgeBloc bridgeBloc = ctx.read<BridgeBloc>();
 
     return PopupDispatcher(
       width: 320,
-      context: scaffoldKey.currentContext ?? context,
-      barrierColor: isMobile ? Theme.of(context).colorScheme.onSurface : null,
+      expanded: expanded,
+      context: ctx,
+      barrierColor: isMobile ? Theme.of(ctx).colorScheme.surface : null,
       borderColor: theme.custom.specificButtonBorderColor,
+      barrierDismissible: barrierDismissable,
       popupContent: WalletsManagerWrapper(
         eventType: WalletsManagerEventType.wallet,
         onSuccess: (_) async {
@@ -270,6 +357,12 @@ class _WalletMainState extends State<WalletMain>
         },
       ),
     );
+  }
+
+  Future<void> _showWalletSelectionPopup() async {
+    _popupDispatcher =
+        _createPopupDispatcher(expanded: true, barrierDismissable: false);
+    _popupDispatcher!.show();
   }
 }
 

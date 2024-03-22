@@ -19,6 +19,7 @@ class PopupDispatcher {
     this.borderColor,
     this.maxWidth = 640,
     this.barrierDismissible = true,
+    this.expanded = false,
     this.onDismiss,
   });
 
@@ -26,6 +27,7 @@ class PopupDispatcher {
   final Widget? popupContent;
   final double? width;
   final double maxWidth;
+  final bool expanded;
   final bool barrierDismissible;
   final EdgeInsets? insetPadding;
   final EdgeInsets? contentPadding;
@@ -45,39 +47,54 @@ class PopupDispatcher {
     _isShown = true;
     final borderColor = this.borderColor;
     _setupDismissibleLogic();
-
+    final padding = contentPadding ??
+        EdgeInsets.symmetric(
+          horizontal: isMobile ? 16 : 30,
+          vertical: isMobile ? 26 : 30,
+        );
     await showDialog<void>(
       barrierDismissible: barrierDismissible,
       context: _currentContext!,
       barrierColor: theme.custom.dialogBarrierColor,
       builder: (BuildContext dialogContext) {
         return SimpleDialog(
-          insetPadding: insetPadding ??
-              EdgeInsets.symmetric(
-                horizontal: isMobile ? 16 : 24,
-                vertical: isMobile ? 40 : 24,
-              ),
+          insetPadding: expanded
+              ? EdgeInsets.zero
+              : (insetPadding ??
+                  EdgeInsets.symmetric(
+                    horizontal: isMobile ? 16 : 24,
+                    vertical: isMobile ? 40 : 24,
+                  )),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius:
+                expanded ? BorderRadius.zero : BorderRadius.circular(18),
             side: borderColor != null
                 ? BorderSide(color: borderColor)
                 : BorderSide.none,
           ),
-          contentPadding: contentPadding ??
-              EdgeInsets.symmetric(
-                horizontal: isMobile ? 16 : 30,
-                vertical: isMobile ? 26 : 30,
-              ),
+          contentPadding: expanded ? EdgeInsets.zero : padding,
           children: [
-            Container(
-              width: width,
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              child: popupContent,
-            )
+            expanded
+                ? SizedBox(
+                    width: MediaQuery.of(dialogContext).size.width,
+                    height: MediaQuery.of(dialogContext).size.height,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: padding,
+                        child: popupContent,
+                      ),
+                    ),
+                  )
+                : Container(
+                    width: width,
+                    constraints: BoxConstraints(maxWidth: maxWidth),
+                    child: popupContent),
           ],
         );
       },
     );
+
     _isShown = false;
     _resetBrowserNavigationToDefault();
     if (onDismiss != null) onDismiss!();
