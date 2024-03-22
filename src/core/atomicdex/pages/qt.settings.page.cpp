@@ -288,7 +288,6 @@ namespace atomic_dex
             SPDLOG_INFO("change currency {} to {}", m_config.current_currency, current_currency.toStdString());
             atomic_dex::change_currency(m_config, current_currency.toStdString());
 
-            // this->dispatcher_.trigger<force_update_providers>();
             this->dispatcher_.trigger<update_portfolio_values>();
             this->dispatcher_.trigger<current_currency_changed>();
             emit onCurrencyChanged();
