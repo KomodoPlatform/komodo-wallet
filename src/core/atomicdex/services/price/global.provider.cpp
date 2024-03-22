@@ -99,7 +99,6 @@ namespace atomic_dex
         system(registry), m_system_manager(system_manager), m_cfg(cfg)
     {
         m_update_clock = std::chrono::high_resolution_clock::now();
-        this->dispatcher_.sink<force_update_providers>().connect<&global_price_service::on_force_update_providers>(*this);
     }
 } // namespace atomic_dex
 
@@ -115,7 +114,6 @@ namespace atomic_dex
         if (s >= 5min)
         {
             SPDLOG_INFO("[global_price_service::update()] - 5min elapsed, updating providers");
-            this->on_force_update_providers({});
             m_update_clock = std::chrono::high_resolution_clock::now();
         }
     }
