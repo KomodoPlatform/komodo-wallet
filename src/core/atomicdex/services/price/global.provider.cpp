@@ -16,7 +16,6 @@
 
 //! Project Headers
 #include "atomicdex/services/price/global.provider.hpp"
-#include "atomicdex/api/coinpaprika/coinpaprika.hpp"
 #include "atomicdex/pages/qt.settings.page.hpp"
 #include "atomicdex/services/price/komodo_prices/komodo.prices.provider.hpp"
 
@@ -96,69 +95,6 @@ namespace
 
 namespace atomic_dex
 {
-    void
-    global_price_service::refresh_other_coins_rates(
-        const std::string& quote_id, const std::string& ticker, bool with_update_providers, std::atomic_uint16_t nb_try)
-    {
-        nb_try += 1;
-        SPDLOG_INFO("refresh_other_coins_rates - try {}", nb_try.load());
-        if (nb_try == 10)
-        {
-            SPDLOG_WARN("refresh other coins rates max try reached, skipping");
-            return;
-        }
-        using namespace std::chrono_literals;
-        coinpaprika::api::price_converter_request request{.base_currency_id = "usd-us-dollars", .quote_currency_id = quote_id};
-        auto error_functor = [this, quote_id, ticker, with_update_providers, nb_try_load = nb_try.load()](pplx::task<void> previous_task)
-        {
-            try
-            {
-                previous_task.wait();
-            }
-            catch (const std::exception& e)
-            {
-                SPDLOG_ERROR("pplx task error from refresh_other_coins_rates: {} - nb_try {}", e.what(), nb_try_load);
-                using namespace std::chrono_literals;
-                std::this_thread::sleep_for(1s);
-                this->refresh_other_coins_rates(quote_id, ticker, with_update_providers, nb_try_load);
-            };
-        };
-        coinpaprika::api::async_price_converter(request)
-            .then(
-                [this, quote_id, ticker, with_update_providers, nb_try_cap = nb_try.load()](web::http::http_response resp)
-                {
-                    auto answer = coinpaprika::api::process_generic_resp<t_price_converter_answer>(resp);
-                    if (answer.rpc_result_code == static_cast<web::http::status_code>(antara::app::http_code::too_many_requests))
-                    {
-                        std::this_thread::sleep_for(1s);
-                        SPDLOG_WARN("too many request - retrying");
-                        this->refresh_other_coins_rates(quote_id, ticker, with_update_providers, nb_try_cap);
-                    }
-                    else
-                    {
-                        SPDLOG_INFO("Successfully get the coinpaprika::api::async_price_converter answer after {} try", nb_try_cap);
-                        if (answer.raw_result.find("error") == std::string::npos)
-                        {
-                            if (not answer.price.empty())
-                            {
-                                std::unique_lock lock(m_coin_rate_mutex);
-                                this->m_coin_rate_providers[ticker] = answer.price;
-                            }
-                        }
-                        else
-                        {
-                            std::unique_lock lock(m_coin_rate_mutex);
-                            this->m_coin_rate_providers[ticker] = "0.00";
-                        }
-                    }
-                    if (with_update_providers)
-                    {
-                        //this->m_system_manager.get_system<komodo_prices_provider>().update_ticker_and_provider();
-                    }
-                })
-            .then(error_functor);
-    }
-
     global_price_service::global_price_service(entt::registry& registry, ag::ecs::system_manager& system_manager, atomic_dex::cfg& cfg) :
         system(registry), m_system_manager(system_manager), m_cfg(cfg)
     {
