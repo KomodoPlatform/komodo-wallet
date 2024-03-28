@@ -120,3 +120,4 @@ jobs:
           channelId: dev-preview
           target: walletrc
           projectId: komodo-wallet-official
+          
