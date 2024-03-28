@@ -88,3 +88,4 @@ atomic_legacy_imgui
 .vscode/settings.json
 .vscode/tasks.json
 bundled
+.flatpak-builder

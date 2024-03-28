@@ -26,8 +26,13 @@ sudo apt-get install build-essential \
                     libxcb-render-util0-dev \
                     libxcb-xinerama0 \
                     libgstreamer-plugins-base1.0-dev \
+                    flatpak-builder \
                     git -y
-                    
+
+# Get flatpak platform/sdk
+flatpak install org.kde.Sdk//5.15-22.08 -y
+flatpak install org.kde.Platform//5.15-22.08 -y
+
 # get llvm
 wget https://apt.llvm.org/llvm.sh
 chmod +x llvm.sh

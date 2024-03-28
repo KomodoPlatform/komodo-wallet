@@ -1,0 +1,28 @@
+{
+    "app-id": "com.komodoplatform.komodowallet",
+    "runtime": "org.kde.Platform",
+    "runtime-version": "5.15-22.08",
+    "sdk": "org.kde.Sdk",
+    "command": "/app/bin/AntaraAtomicDexAppDir/usr/bin/komodo-wallet",
+    "finish-args": [
+      "--socket=x11",
+      "--share=ipc",
+      "--device=dri"
+    ],
+    "modules": [
+      {
+        "name": "KomodoWallet",
+        "buildsystem": "simple",
+        "build-commands": [
+          "mkdir -p /app/bin",
+          "unzip komodo-wallet-linux-ac46a28.zip -d /app/bin"
+        ],
+        "sources": [
+          {
+            "type": "file",
+            "path": "/home/smk762/Downloads/komodo-wallet-ubuntu-debug-ac46a28.zip/komodo-wallet-linux-ac46a28.zip"
+          }
+        ]
+      }
+    ]
+  }
