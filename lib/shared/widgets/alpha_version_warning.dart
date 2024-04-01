@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/shared/widgets/send_analytics_checkbox.dart';
 
 class AlphaVersionWarning extends StatelessWidget {
@@ -22,10 +23,11 @@ class AlphaVersionWarning extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              '$assetsPath/logo/alpha_warning.png',
-              filterQuality: FilterQuality.high,
-            ),
+            if (!isRunningAsChromeExtension())
+              Image.asset(
+                '$assetsPath/logo/alpha_warning.png',
+                filterQuality: FilterQuality.high,
+              ),
             Padding(
               padding: const EdgeInsets.only(top: 25.0),
               child: Text(
