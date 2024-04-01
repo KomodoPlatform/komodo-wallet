@@ -157,8 +157,10 @@ ThemeData get themeGlobalDark {
     ),
     textTheme: textTheme,
     scrollbarTheme: ScrollbarThemeData(
-      thumbColor:
-          WidgetStateProperty.all<Color?>(colorScheme.primary.withOpacity(0.8)),
+      thickness: WidgetStateProperty.all<double?>(6),
+      thumbColor: WidgetStateProperty.all<Color?>(
+          colorScheme.primary.withOpacity(0.15)),
+      thumbVisibility: WidgetStateProperty.all<bool?>(true),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       // remove icons shift
