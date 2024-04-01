@@ -29,7 +29,8 @@ class AlphaVersionWarning extends StatelessWidget {
                 filterQuality: FilterQuality.high,
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 25.0),
+              padding:
+                  EdgeInsets.only(top: isRunningAsChromeExtension() ? 0 : 25.0),
               child: Text(
                 LocaleKeys.alphaVersionWarningTitle.tr(),
                 style: appTheme.textTheme.headlineMedium,
