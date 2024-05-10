@@ -25,6 +25,12 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       TextEditingController(text: '');
   bool _isObscured = true;
 
+  /// Defines if the password confirmation field should be auto-validated on
+  /// every change. This is used to prevent the field from showing errors until
+  /// after the user's first submission attempt and then after that,
+  /// revalidating on every change.
+  bool _shouldConfirmPasswordFieldAutoValidate = false;
+
   @override
   Widget build(BuildContext context) {
     return Column(
