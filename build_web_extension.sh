@@ -9,5 +9,6 @@ cp web/index_extension.html web/index.html
 rm -r build
 
 # Build the extension
-flutter build web --web-renderer html --csp --profile
+flutter build web --csp --web-renderer=canvaskit --no-web-resources-cdn
+#flutter build web --web-renderer html --csp --profile
 #flutter build web --web-renderer html --csp
