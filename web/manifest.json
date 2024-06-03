@@ -2,7 +2,20 @@
     "manifest_version": 3,
     "name": "Komodo Wallet",
     "version": "0.0.0.1",
-    "description": "Komodo Wallet is a secure wallet and non-custodial decentralized exchange rolled into one application.",
+    "short_name": "KomodoWebWallet",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "description": "Non-Custodial Multi-Coin Wallet & DEX.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "related_applications": [
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.komodoplatform.atomicdex"
+        }
+    ],
     "permissions": [],
     "host_permissions": ["*://*.komodo.earth/*"],
     "content_security_policy": {
