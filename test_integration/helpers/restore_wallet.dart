@@ -32,7 +32,7 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
       find.byKey(const Key('custom-seed-dialog-input'));
   final Finder customSeedDialogOkButton =
       find.byKey(const Key('custom-seed-dialog-ok-button'));
-  const String confirmCustomSeedText = 'I understand';
+  const String confirmCustomSeedText = 'I Understand';
 
   await tester.pumpAndSettle();
   isMobile
@@ -45,27 +45,33 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
   await tester.tap(nameField);
   await tester.enterText(nameField, walletName);
   await tester.enterText(importSeedField, testSeed);
+  await tester.pump();
+
+  // Change focus from the text field to allow the text error to appear
+  // TODO: look into more aggressive input validation
+  await tester.tap(eulaCheckBox);
+  await tester.pump();
+  await tester.tap(tocCheckBox);
+  await tester.pumpNFrames(5);
 
   if (!bip39.validateMnemonic(testSeed)) {
     await tester.tap(allowCustomSeedCheckbox);
-    await tester.pumpAndSettle();
+    await tester.pumpNFrames(5);
     await tester.enterText(customSeedDialogInput, confirmCustomSeedText);
-    await tester.pumpAndSettle();
+    await tester.pumpNFrames(5);
     await tester.tap(customSeedDialogOkButton);
-    await tester.pumpAndSettle();
+    // Works on safari with 5 frames, but requires more on chrome?
+    await tester.pumpNFrames(10);
   }
 
-  await tester.tap(eulaCheckBox);
-  await tester.pumpAndSettle();
-  await tester.tap(tocCheckBox);
   await tester.dragUntilVisible(
     importConfirmButton,
     walletsManagerWrapper,
     const Offset(0, -15),
   );
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(5);
   await tester.tap(importConfirmButton);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(5);
   await tester.enterText(passwordField, password);
   await tester.enterText(passwordConfirmField, password);
   await tester.dragUntilVisible(
@@ -73,7 +79,7 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
     walletsManagerWrapper,
     const Offset(0, -15),
   );
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(5);
   await tester.tap(importConfirmButton);
   await pumpUntilDisappear(tester, walletsManagerWrapper);
 }

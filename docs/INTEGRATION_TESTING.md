@@ -37,15 +37,15 @@
 #### 2.1.2. Launch the WebDriver
   - for Google Chrome
   ```bash
-  ./chromedriver --port=4444 --silent  --enable-chrome-logs --log-path=console.log
+  chromedriver --port=4444 --silent  --enable-chrome-logs --log-path=console.log
   ```
    - or Firefox
   ```bash
-  ./geckodriver  --port=4444
+  geckodriver  --port=4444
   ```
   - or Safari
   ```bash
-  /usr/bin/safaridriver  --port=4444
+  /usr/bin/safaridriver  --port=4444 --diagnose
   ```
 #### 2.1.3. Run test. From the root of the project, run the following command:
 

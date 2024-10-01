@@ -22,8 +22,8 @@ const Duration kPerformanceLogInterval = Duration(minutes: 1);
 // This information is here because it is not contextual and is branded.
 // Names of their own are not localized. Also, the application is initialized before
 // the localization package is initialized.
-String get appTitle => "Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX";
-String get appShortTitle => "Komodo Wallet";
+String get appTitle => 'Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX';
+String get appShortTitle => 'Komodo Wallet';
 
 // We're using a hardcoded seed for the hidden login instead
 // of generating it on the fly. This will allow us to access
@@ -113,8 +113,8 @@ List<String> get enabledByDefaultCoins => [
       'BNB',
       'AVAX',
       'FTM',
-      if (kDebugMode || kProfileMode) 'DOC',
-      if (kDebugMode || kProfileMode) 'MARTY',
+      if (kDebugMode) 'DOC',
+      if (kDebugMode) 'MARTY',
     ];
 
 List<String> get enabledByDefaultTrezorCoins => [

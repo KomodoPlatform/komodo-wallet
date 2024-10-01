@@ -31,7 +31,7 @@ Future<void> testImportWallet(WidgetTester tester) async {
       find.byKey(const Key('custom-seed-dialog-input'));
   final Finder customSeedDialogOkButton =
       find.byKey(const Key('custom-seed-dialog-ok-button'));
-  const String confirmCustomSeedText = 'I understand';
+  const String confirmCustomSeedText = 'I Understand';
   final Finder eulaCheckbox = find.byKey(const Key('checkbox-eula'));
   final Finder tocCheckbox = find.byKey(const Key('checkbox-toc'));
   final Finder authorizedWalletButton =
@@ -51,17 +51,17 @@ Future<void> testImportWallet(WidgetTester tester) async {
   await tester.tap(nameField);
   await tester.enterText(nameField, walletName);
   await tester.enterText(importSeedField, customSeed);
-  await tester.pumpAndSettle();
-  await tester.tap(allowCustomSeedCheckbox);
-  await tester.pumpAndSettle();
-  await tester.enterText(customSeedDialogInput, confirmCustomSeedText);
-  await tester.pumpAndSettle();
-  await tester.tap(customSeedDialogOkButton);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(10);
   await tester.tap(eulaCheckbox);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(10);
   await tester.tap(tocCheckbox);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(10);
+  await tester.tap(allowCustomSeedCheckbox);
+  await tester.pumpNFrames(10);
+  await tester.enterText(customSeedDialogInput, confirmCustomSeedText);
+  await tester.pumpNFrames(10);
+  await tester.tap(customSeedDialogOkButton);
+  await tester.pumpNFrames(20);
   await tester.tap(importConfirmButton);
   await tester.pumpAndSettle();
 
@@ -77,15 +77,19 @@ Future<void> testImportWallet(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('Run Wallet Import tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    print('ACCEPT ALPHA WARNING');
-    await acceptAlphaWarning(tester);
-    await testImportWallet(tester);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Run Wallet Import tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      print('ACCEPT ALPHA WARNING');
+      await acceptAlphaWarning(tester);
+      await testImportWallet(tester);
+      await tester.pumpAndSettle();
 
-    print('END WALLET IMPORT TESTS');
-  }, semanticsEnabled: false);
+      print('END WALLET IMPORT TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

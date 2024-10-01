@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'pause.dart';
+import 'pump_and_settle.dart';
 
 Future<void> testerTap(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(10);
   await pause();
 }
 

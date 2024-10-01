@@ -8,9 +8,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx webpack --config=webpack.config.js --mode=production",
-    "build:dev": "npx webpack --config=webpack.config.js --mode=development"
+    "test": "echo \"Error: no test specified\" ; exit 1",
+    "build": "git update-index --assume-unchanged web/index.html ; npx webpack --config=webpack.config.js --mode=production",
+    "build:dev": "git update-index --assume-unchanged web/index.html ; npx webpack --config=webpack.config.js --mode=development"
   },
   "repository": {
     "type": "git",

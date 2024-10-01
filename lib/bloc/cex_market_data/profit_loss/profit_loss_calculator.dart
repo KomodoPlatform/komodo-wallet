@@ -5,9 +5,8 @@ import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart
 import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
 
 class ProfitLossCalculator {
-  final CexRepository _cexRepository;
-
   ProfitLossCalculator(this._cexRepository);
+  final CexRepository _cexRepository;
 
   /// Get the running profit/loss for a coin based on the transactions.
   /// ProfitLoss = Proceeds - CostBasis
@@ -19,7 +18,6 @@ class ProfitLossCalculator {
   /// [fiatCoinId] is id of the fiat currency tether to convert the [coinId] to.
   /// E.g. 'USDT'. This can be any supported coin id, but the idea is to convert
   /// the coin to a fiat currency to calculate the profit/loss in fiat.
-  /// [cexRepository] is the repository to fetch the fiat price of the coin.
   ///
   /// Returns the list of [ProfitLoss] for the coin.
   Future<List<ProfitLoss>> getProfitFromTransactions(
@@ -69,7 +67,7 @@ class ProfitLossCalculator {
     List<DateTime> dates,
   ) async {
     final cleanCoinId = coinId.split('-').firstOrNull?.toUpperCase() ?? '';
-    return await _cexRepository.getCoinFiatPrices(cleanCoinId, dates);
+    return _cexRepository.getCoinFiatPrices(cleanCoinId, dates);
   }
 
   List<ProfitLoss> _calculateProfitLosses(
@@ -79,7 +77,7 @@ class ProfitLossCalculator {
     var state = _ProfitLossState();
     final profitLosses = <ProfitLoss>[];
 
-    for (var transaction in transactions) {
+    for (final transaction in transactions) {
       if (transaction.totalAmountAsDouble == 0) continue;
 
       if (transaction.isReceived) {
@@ -127,7 +125,7 @@ class ProfitLossCalculator {
     // calculate the cost basis (formula assumes positive "total" value).
     var remainingToSell = transaction.balanceChange.abs();
     var costBasis = 0.0;
-    var newHoldings =
+    final newHoldings =
         List<({double holdings, double price})>.from(state.holdings);
 
     while (remainingToSell > 0) {
@@ -175,8 +173,7 @@ class ProfitLossCalculator {
 }
 
 class RealisedProfitLossCalculator extends ProfitLossCalculator {
-  RealisedProfitLossCalculator(CexRepository cexRepository)
-      : super(cexRepository);
+  RealisedProfitLossCalculator(super.cexRepository);
 
   @override
   double _calculateProfitLoss(
@@ -188,8 +185,7 @@ class RealisedProfitLossCalculator extends ProfitLossCalculator {
 }
 
 class UnRealisedProfitLossCalculator extends ProfitLossCalculator {
-  UnRealisedProfitLossCalculator(CexRepository cexRepository)
-      : super(cexRepository);
+  UnRealisedProfitLossCalculator(super.cexRepository);
 
   @override
   double _calculateProfitLoss(
@@ -203,15 +199,14 @@ class UnRealisedProfitLossCalculator extends ProfitLossCalculator {
 }
 
 class _ProfitLossState {
-  final List<({double holdings, double price})> holdings;
-  final double realizedProfitLoss;
-  final double totalInvestment;
-  final double currentHoldings;
-
   _ProfitLossState({
     List<({double holdings, double price})>? holdings,
     this.realizedProfitLoss = 0.0,
     this.totalInvestment = 0.0,
     this.currentHoldings = 0.0,
   }) : holdings = holdings ?? [];
+  final List<({double holdings, double price})> holdings;
+  final double realizedProfitLoss;
+  final double totalInvestment;
+  final double currentHoldings;
 }

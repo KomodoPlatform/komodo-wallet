@@ -6,7 +6,7 @@
 // will "boot" the module and make it ready to use. Currently browsers
 // don't support natively imported WebAssembly as an ES module, but
 // eventually the manual initialization won't be required!
-import init, { LogLevel, Mm2MainErr, Mm2RpcErr, mm2_main, mm2_main_status, mm2_rpc, mm2_version } from "./mm2/kdflib.js";
+import init, { LogLevel, Mm2MainErr, Mm2RpcErr, mm2_main, mm2_main_status, mm2_rpc, mm2_version } from "./src/mm2/kdflib.js";
 import './services/theme_checker/theme_checker.js';
 import zip from './services/zip/zip.js';
 
@@ -70,7 +70,7 @@ window.rpc_request = async function (request_js) {
                 alert(`Unexpected error: ${e}`);
                 break;
         }
-        throw(e);
+        throw (e);
     }
 }
 

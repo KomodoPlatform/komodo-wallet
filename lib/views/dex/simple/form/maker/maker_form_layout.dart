@@ -43,7 +43,7 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
         builder: (context, snapshot) {
           if (snapshot.data == true) {
             return MakerOrderConfirmation(
-              onCreateOrder: () => bloc.add(const TabChanged(1)),
+              onCreateOrder: () => bloc.add(const TabChanged(2)),
               onCancel: () {
                 makerFormBloc.showConfirmation = false;
               },

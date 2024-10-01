@@ -9,7 +9,7 @@ Future<void> pumpUntilDisappear(
 }) async {
   bool timerDone = false;
   final timer =
-      Timer(timeout, () => throw TimeoutException("Pump until has timed out"));
+      Timer(timeout, () => throw TimeoutException('Pump until has timed out'));
   while (timerDone != true) {
     await tester.pumpAndSettle();
 
@@ -19,4 +19,12 @@ Future<void> pumpUntilDisappear(
     }
   }
   timer.cancel();
+}
+
+extension WidgetTesterPumpExtension on WidgetTester {
+  Future<void> pumpNFrames(int frames) async {
+    for (int i = 0; i < frames; i++) {
+      await pump();
+    }
+  }
 }

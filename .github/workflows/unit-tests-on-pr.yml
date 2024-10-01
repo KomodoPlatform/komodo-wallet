@@ -1,11 +1,13 @@
+# Runs unit tests on PRs to ensure the app is working as expected
 name: Run unit test on PR
+run-name: ${{ github.actor }} is running unit tests on PR 🚀
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build_and_preview:
+  unit_tests_:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -13,74 +15,29 @@ jobs:
       - name: Setup GH Actions
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          
-      - run: |
-          npx @puppeteer/browsers install chromedriver@stable
-
-      - name: Get stable flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.x'
-          channel: 'stable'
-      
-      - name: Prepare build directory
-        run: |
-          flutter clean
-          rm -rf build/*
-          rm -rf web/src/mm2/*
-          rm -rf web/src/kdfi/*
-          rm -rf web/dist/*
+      - name: Install Flutter and dependencies
+        uses: ./.github/actions/flutter-deps
 
       - name: Fetch packages and generate assets
-        run: |
-          echo "Running \`flutter build\` to generate assets for the deployment build"
-          flutter pub get > /dev/null 2>&1
-          flutter build web --release > /dev/null 2>&1 || true
-          flutter pub get > /dev/null 2>&1
-          flutter build web --release > /dev/null 2>&1 || true
-          echo "Done fetching packages and generating assets"
+        uses: ./.github/actions/generate-assets
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Validate build
-        run: |
-          # Check that the web build folder contains a wasm file in the format build/web/dist/*.wasm
-          if [ ! -f build/web/dist/*.wasm ]; then
-            echo "Error: Web build failed. No wasm file found in build/web/dist/"
-            # List files for debugging
-            echo "Listing files in build/web recursively"
-            ls -R build/web
-
-            echo "Listing files in web recursively"
-            ls -R web
-
-            exit 1
-          fi
-          # Check that the index.html is present and that it is equal to the source index.html
-          if ! cmp -s web/index.html build/web/index.html; then
-            echo "Error: Web build failed. index.html is not equal to the source index.html"
-            exit 1
-          fi
-          # Check that the index.html has uncommitted changes to ensure that the placeholder was replaced with the generated content
-          if git diff --exit-code web/index.html; then
-            echo "Error: Web build failed. index.html has no uncommitted changes which indicates an issue with the \`template.html\` to \`index.html\` generation"
-            exit 1
-          fi
-          # Decode the AssetManifest.bin and check for the coin icon presence
-          if [ ! -f build/web/assets/AssetManifest.bin ]; then
-            echo "Error: AssetManifest.bin file not found."
-            exit 1
-          fi
-          if ! strings build/web/assets/AssetManifest.bin | grep -q "assets/coin_icons/png/kmd.png"; then
-            echo "Error: Coin icon not found in AssetManifest.bin"
-            exit 1
-          fi
+        uses: ./.github/actions/validate-build
 
       - name: Test unit_test (unix)
         id: unit_tests
         continue-on-error: false
         timeout-minutes: 15
+        env: 
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           flutter test test_units/main.dart
+
+      - name: Generate unit test coverage report
+        id: unit_test_coverage
+        timeout-minutes: 15
+        uses: ./.github/actions/code-coverage
+        with:
+          test_file: 'test_units/main.dart'

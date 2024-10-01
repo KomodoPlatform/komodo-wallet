@@ -1,0 +1,40 @@
+name: "Generates assets"
+description: "Runs the flutter build command to transform and generate assets for the deployment build"
+
+inputs:
+  GITHUB_TOKEN:
+    description: "The GitHub API public readonly token"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Fetch packages and generate assets
+      shell: bash
+      env:
+        GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      run: |
+        echo "Running \`flutter build\` to generate assets for the deployment build"
+
+        if [ -n "$GITHUB_API_PUBLIC_READONLY_TOKEN" ]; then
+          echo "GITHUB_TOKEN provided, running flutter build with token"
+        else
+          echo "GITHUB_TOKEN not provided or empty, running flutter build without token"
+          unset GITHUB_API_PUBLIC_READONLY_TOKEN
+        fi
+
+        flutter pub get > /dev/null 2>&1
+        flutter build web --release > /dev/null 2>&1 || true
+        rm -rf build/*
+
+        # Run flutter build and capture its output and exit status
+        flutter pub get > /dev/null 2>&1
+        output=$(flutter build web --release)
+        exit_status=$?
+
+        # Check if the exit status is non-zero (indicating an error)
+        if [ $exit_status -ne 0 ]; then
+            echo "Flutter build exited with status $exit_status. Output:"
+            echo "$output"
+            exit $exit_status
+        fi
+        echo "Done fetching packages and generating assets"

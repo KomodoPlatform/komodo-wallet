@@ -24,17 +24,11 @@ Future<void> testCexPrices(WidgetTester tester) async {
   final Finder coinDetailsReturnButton = find.byKey(
     const Key('back-button'),
   );
-  final Finder docCoinActive = find.byKey(
-    const Key('active-coin-item-doc'),
-  );
   final Finder kmdBep20CoinActive = find.byKey(
     const Key('active-coin-item-kmd-bep20'),
   );
   final Finder kmdBep20Price = find.byKey(
     const Key('fiat-price-kmd-bep20'),
-  );
-  final Finder docPrice = find.byKey(
-    const Key('fiat-price-doc'),
   );
   final Finder list = find.byKey(
     const Key('wallet-page-coins-list'),
@@ -68,10 +62,12 @@ Future<void> testCexPrices(WidgetTester tester) async {
   }
 
   // Check KMD-BEP20 cex price
-  final hasKmdBep20 = await filterAsset(tester,
-      asset: kmdBep20CoinActive,
-      text: kmdBep20ByTicker,
-      searchField: searchCoinsField);
+  final hasKmdBep20 = await filterAsset(
+    tester,
+    asset: kmdBep20CoinActive,
+    text: kmdBep20ByTicker,
+    searchField: searchCoinsField,
+  );
 
   if (hasKmdBep20) {
     await testerTap(tester, kmdBep20CoinActive);
@@ -83,8 +79,9 @@ Future<void> testCexPrices(WidgetTester tester) async {
   }
 
   // Check DOC cex price (does not exist)
-  await testerTap(tester, docCoinActive);
-  expect(docPrice, findsNothing);
+  // TODO: re-enable this after the doc/marty changes have been decided on
+  // await testerTap(tester, docCoinActive);
+  // expect(docPrice, findsNothing);
 
   await goto.walletPage(tester);
 
@@ -95,16 +92,20 @@ Future<void> testCexPrices(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('Run cex prices tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    print('ACCEPT ALPHA WARNING');
-    await acceptAlphaWarning(tester);
-    await restoreWalletToTest(tester);
-    await testCexPrices(tester);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Run cex prices tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      print('ACCEPT ALPHA WARNING');
+      await acceptAlphaWarning(tester);
+      await restoreWalletToTest(tester);
+      await testCexPrices(tester);
+      await tester.pumpAndSettle();
 
-    print('END CEX PRICES TESTS');
-  }, semanticsEnabled: false);
+      print('END CEX PRICES TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

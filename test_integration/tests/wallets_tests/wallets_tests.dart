@@ -15,25 +15,29 @@ import 'test_withdraw.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Run wallet tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Run wallet tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
 
-    print('RESTORE WALLET TO TEST');
-    await acceptAlphaWarning(tester);
-    await restoreWalletToTest(tester);
-    await tester.pumpAndSettle();
-    await testCoinIcons(tester);
-    await tester.pumpAndSettle();
-    await testActivateCoins(tester);
-    await tester.pumpAndSettle();
-    await testCexPrices(tester);
-    await tester.pumpAndSettle();
-    await testWithdraw(tester);
-    await tester.pumpAndSettle();
-    await testFilters(tester);
+      print('RESTORE WALLET TO TEST');
+      await acceptAlphaWarning(tester);
+      await restoreWalletToTest(tester);
+      await tester.pumpAndSettle();
+      await testCoinIcons(tester);
+      await tester.pumpAndSettle();
+      await testActivateCoins(tester);
+      await tester.pumpAndSettle();
+      await testCexPrices(tester);
+      await tester.pumpAndSettle();
+      await testWithdraw(tester);
+      await tester.pumpAndSettle();
+      await testFilters(tester);
 
-    print('END WALLET TESTS');
-  }, semanticsEnabled: false);
+      print('END WALLET TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

@@ -1,141 +1,125 @@
-name: UI flutter tests on PR
+# Runs UI tests on PRs to ensure the app is working as expected
+name: UI Integration tests on PR
+run-name: ${{ github.actor }} is running UI tests on PR 🚀
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  tests:
+  ui_tests:
     name: Test ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 45    
     strategy:
       fail-fast: false
       matrix:
-            name: [
-              web-app-linux,
-              web-app-macos,
-              ]
-            include:
-              - name: web-app-linux
-                os: ubuntu-latest
+        name: [
+          web-app-linux,
+          web-app-macos,
+        ]
+        include:
+          - name: web-app-linux
+            os: ubuntu-latest
 
-              - name: web-app-macos
-                os: macos-14
+          - name: web-app-macos
+            os: macos-14
 
     steps:
-
       - name: Setup GH Actions
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Install Chrome and chromedriver
+        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
+        uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
         with:
-          node-version: '18'
-          
-      - run: |
-          npx @puppeteer/browsers install chromedriver@stable
+          chrome-version: 116.0.5845.96
+          install-chromedriver: true
+          install-dependencies: true
 
-      - name: Get stable flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.x'
-          channel: 'stable'
-
-      - name: Prepare build directory
+      - name: Add chromedriver to PATH
+        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
         run: |
-          flutter clean
-          rm -rf build/*
-          rm -rf web/src/mm2/*
-          rm -rf web/src/kdfi/*
-          rm -rf web/dist/*
+          export PATH="${{ steps.setup-chrome.outputs.chrome-path }}:${PATH}"
+          export PATH="${{ steps.setup-chrome.outputs.chromedriver-path }}:${PATH}"
 
-      - name: Fetch packages and generate assets
-        run: |
-          echo "Running \`flutter build\` to generate assets for the deployment build"
-          flutter pub get > /dev/null 2>&1
-          flutter build web --profile > /dev/null 2>&1 || true
-          flutter pub get > /dev/null 2>&1
-          flutter build web --release > /dev/null 2>&1 || true
-          echo "Done fetching packages and generating assets"
-          
-      - name: Validate build
-        run: |
-          # Check that the web build folder contains a wasm file in the format build/web/dist/*.wasm
-          if [ ! -f build/web/dist/*.wasm ]; then
-            echo "Error: Web build failed. No wasm file found in build/web/dist/"
-            # List files for debugging
-            echo "Listing files in build/web recursively"
-            ls -R build/web
-
-            echo "Listing files in web recursively"
-            ls -R web
-
-            exit 1
-          fi
-          # Check that the index.html is present and that it is equal to the source index.html
-          if ! cmp -s web/index.html build/web/index.html; then
-            echo "Error: Web build failed. index.html is not equal to the source index.html"
-            exit 1
-          fi
-          # Check that the index.html has uncommitted changes to ensure that the placeholder was replaced with the generated content
-          if git diff --exit-code web/index.html; then
-            echo "Error: Web build failed. index.html has no uncommitted changes which indicates an issue with the \`template.html\` to \`index.html\` generation"
-            exit 1
-          fi
-          # Decode the AssetManifest.bin and check for the coin icon presence
-          if [ ! -f build/web/assets/AssetManifest.bin ]; then
-            echo "Error: AssetManifest.bin file not found."
-            exit 1
-          fi
-          if ! strings build/web/assets/AssetManifest.bin | grep -q "assets/coin_icons/png/kmd.png"; then
-            echo "Error: Coin icon not found in AssetManifest.bin"
-            exit 1
-          fi
-
-      - name: Test air_dex chrome (unix) (Linux)
-        if: runner.name == 'ci-builder-radon'
-        id: tests-chrome
-        continue-on-error: true
-        timeout-minutes: 35
-        run: |
-          chromedriver --port=4444 --silent --enable-chrome-logs --log-path=chrome_console.log &
-          dart run_integration_tests.dart -d 'headless' -b '1600,1024' --browser-name=chrome
+          echo "Chrome version: ${{ steps.setup-chrome.outputs.chrome-version }}"
+          echo "chromedriver version: $(chromedriver --version)"
 
       - name: Enable safaridriver (sudo) (MacOS)
-        if: runner.name == 'ci-builder-astatine'
+        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
         timeout-minutes: 1
         run: |
           defaults write com.apple.Safari IncludeDevelopMenu YES
           defaults write com.apple.Safari AllowRemoteAutomation 1
           sudo /usr/bin/safaridriver --enable || echo "Failed to enable safaridriver!"
 
+      - name: Install Flutter and dependencies
+        uses: ./.github/actions/flutter-deps
+
+      - name: Fetch packages and generate assets
+        uses: ./.github/actions/generate-assets
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Validate build
+        uses: ./.github/actions/validate-build
+
+      - name: Test air_dex chrome (unix) (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
+        id: tests-chrome
+        continue-on-error: true
+        timeout-minutes: 35
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chromedriver --port=4444 --silent --enable-chrome-logs --log-path=chrome_console.log &
+          dart run_integration_tests.dart -d 'headless' -b '1600,1024' --browser-name=chrome
+
       - name: Run safaridriver in background (MacOS)
-        if: runner.name == 'ci-builder-astatine'
+        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
         continue-on-error: true
         run: |
-          safaridriver -p 4444 &
+          safaridriver -p 4444 --diagnose &
 
       - name: Test air_dex safari (MacOS)
-        if: runner.name == 'ci-builder-astatine'
+        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
         id: tests-safari
         continue-on-error: true
         timeout-minutes: 35
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           flutter pub get
           dart run_integration_tests.dart --browser-name=safari
 
       - name: Upload logs (Linux)
-        if: runner.name == 'ci-builder-radon'
+        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-chromedriver-logs.zip
           path: ./chrome_console.log
 
+      - name: Upload logs (macOS)
+        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-safaridriver-logs.zip
+          path: ~/Library/Logs/com.apple.WebDriver/
+
+      - name: Generate coverage report
+        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
+        id: test-coverage-report
+        timeout-minutes: 35
+        uses: ./.github/actions/code-coverage
+        with:
+          test_file: 'test_integration'
+
       - name: Fail workflow if tests failed (Linux)
-        if: runner.name == 'ci-builder-radon' && steps.tests-chrome.outcome == 'failure'
+        if: ${{ (matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon') && steps.tests-chrome.outcome == 'failure' }}
         run: exit 1
 
       - name: Fail workflow if tests failed (MacOS)
-        if: runner.name == 'ci-builder-astatine' && steps.tests-safari.outcome == 'failure'
+        if: ${{ (matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine') && steps.tests-safari.outcome == 'failure' }}
         run: exit 1

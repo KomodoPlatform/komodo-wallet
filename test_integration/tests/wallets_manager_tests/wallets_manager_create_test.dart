@@ -43,11 +43,11 @@ Future<void> testCreateWallet(WidgetTester tester) async {
   await tester.enterText(nameField, walletName);
   await tester.enterText(passwordField, password);
   await tester.enterText(passwordConfirmField, password);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(10);
   await tester.tap(eulaCheckBox);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(10);
   await tester.tap(tocCheckBox);
-  await tester.pumpAndSettle();
+  await tester.pumpNFrames(10);
   await tester.tap(confirmButton);
   await pumpUntilDisappear(tester, walletsManagerWrapper);
   if (!isMobile) {
@@ -57,15 +57,19 @@ Future<void> testCreateWallet(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('Run Wallet Creation tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    print('ACCEPT ALPHA WARNING');
-    await acceptAlphaWarning(tester);
-    await testCreateWallet(tester);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Run Wallet Creation tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      print('ACCEPT ALPHA WARNING');
+      await acceptAlphaWarning(tester);
+      await testCreateWallet(tester);
+      await tester.pumpAndSettle();
 
-    print('END WALLET CREATION TESTS');
-  }, semanticsEnabled: false);
+      print('END WALLET CREATION TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

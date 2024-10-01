@@ -14,7 +14,7 @@ final _ohlcvCache = <CexCoinPair, List<Ohlc>>{};
 /// transactions are generated in a way that the overall balance of the user
 /// will increase or decrease based on the given performance mode.
 class DemoDataGenerator {
-  final BinanceRepository _ohlcRepo;
+  final CexRepository _ohlcRepo;
   final int randomSeed;
   final List<CexCoinPair> coinPairs;
   final Map<PerformanceMode, double> transactionsPerMode;
@@ -155,7 +155,15 @@ class DemoDataGenerator {
 
   Future<Map<CexCoinPair, List<Ohlc>>> fetchOhlcData() async {
     final ohlcvData = <CexCoinPair, List<Ohlc>>{};
+    final supportedCoins = await _ohlcRepo.getCoinList();
     for (final CexCoinPair coin in coinPairs) {
+      final supportedCoin = supportedCoins.where(
+        (element) => element.id == coin.baseCoinTicker,
+      );
+      if (supportedCoin.isEmpty) {
+        continue;
+      }
+
       const interval = GraphInterval.oneDay;
       final startAt = DateTime.now().subtract(const Duration(days: 365));
 

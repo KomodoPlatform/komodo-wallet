@@ -515,10 +515,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
+      sha256: b9c29a161230ee03d3ccf545097fccd9b87a5264228c5d348202e0f0c28f9010
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.6"
+    version: "1.2.2"
   http_multi_server:
     dependency: transitive
     description:
@@ -596,8 +596,10 @@ packages:
     dependency: "direct dev"
     description:
       path: "packages/komodo_wallet_build_transformer"
-      relative: true
-    source: path
+      ref: dev
+      resolved-ref: "388f04296a5531c3cdad766269a3040d2b4ee9ac"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.0.1"
   leak_tracker:
     dependency: transitive

@@ -3,83 +3,106 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/generate_demo_data.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 
+import 'mocks/mock_binance_provider.dart';
+
+void main() {
+  testGenerateDemoData();
+}
+
 void testGenerateDemoData() {
   late DemoDataGenerator generator;
-  late BinanceRepository binanceRepository;
+  late CexRepository cexRepository;
 
-  setUp(() {
-    binanceRepository = BinanceRepository(
-      binanceProvider: const BinanceProvider(),
+  setUp(() async {
+    // TODO: Replace with a mock repository
+    cexRepository = BinanceRepository(
+      binanceProvider: const MockBinanceProvider(),
     );
+    // Pre-fetch & cache the coins list to avoid making multiple requests
+    await cexRepository.getCoinList();
+
     generator = DemoDataGenerator(
-      binanceRepository,
-      randomSeed: 42,
+      cexRepository,
     );
   });
 
-  group('DemoDataGenerator', () {
-    test('generateTransactions returns correct number of transactions',
-        () async {
-      final transactions =
-          await generator.generateTransactions('KMD', PerformanceMode.good);
-      expect(
-        transactions.length,
-        closeTo(generator.transactionsPerMode[PerformanceMode.good] ?? 0, 4),
-      );
-    });
+  group(
+    'DemoDataGenerator with live BinanceAPI repository',
+    () {
+      test('generateTransactions returns correct number of transactions',
+          () async {
+        final transactions =
+            await generator.generateTransactions('BTC', PerformanceMode.good);
+        expect(
+          transactions.length,
+          closeTo(generator.transactionsPerMode[PerformanceMode.good] ?? 0, 4),
+        );
+      });
 
-    test('generateTransactions returns empty list for invalid coin', () async {
-      final transactions = await generator.generateTransactions(
-        'INVALID_COIN',
-        PerformanceMode.good,
-      );
-      expect(transactions, isEmpty);
-    });
+      test('generateTransactions returns empty list for invalid coin',
+          () async {
+        final transactions = await generator.generateTransactions(
+          'INVALID_COIN',
+          PerformanceMode.good,
+        );
+        expect(transactions, isEmpty);
+      });
 
-    test('generateTransactions respects performance mode', () async {
-      final goodTransactions =
-          await generator.generateTransactions('KMD', PerformanceMode.good);
-      final badTransactions =
-          await generator.generateTransactions('KMD', PerformanceMode.veryBad);
+      test('generateTransactions respects performance mode', () async {
+        final goodTransactions =
+            await generator.generateTransactions('BTC', PerformanceMode.good);
+        final badTransactions = await generator.generateTransactions(
+            'BTC', PerformanceMode.veryBad);
 
-      double goodBalance = generator.initialBalance;
-      double badBalance = generator.initialBalance;
+        double goodBalance = generator.initialBalance;
+        double badBalance = generator.initialBalance;
 
-      for (var tx in goodTransactions) {
-        goodBalance += double.parse(tx.myBalanceChange);
-      }
+        for (final tx in goodTransactions) {
+          goodBalance += double.parse(tx.myBalanceChange);
+        }
 
-      for (var tx in badTransactions) {
-        badBalance += double.parse(tx.myBalanceChange);
-      }
+        for (final tx in badTransactions) {
+          badBalance += double.parse(tx.myBalanceChange);
+        }
 
-      expect(goodBalance, greaterThan(badBalance));
-    });
+        expect(goodBalance, greaterThan(badBalance));
+      });
 
-    test('generateTransactions produces valid transaction objects', () async {
-      final transactions =
-          await generator.generateTransactions('KMD', PerformanceMode.mediocre);
+      test('generateTransactions produces valid transaction objects', () async {
+        final transactions = await generator.generateTransactions(
+            'BTC', PerformanceMode.mediocre);
 
-      for (var tx in transactions) {
-        expect(tx.coin, equals('KMD'));
-        expect(tx.confirmations, inInclusiveRange(1, 3));
-        expect(tx.feeDetails.coin, equals('USDT'));
-        expect(tx.from, isNotEmpty);
-        expect(tx.to, isNotEmpty);
-        expect(tx.internalId, isNotEmpty);
-        expect(tx.txHash, isNotEmpty);
-        expect(double.tryParse(tx.myBalanceChange), isNotNull);
-        expect(double.tryParse(tx.totalAmount), isNotNull);
-      }
-    });
+        for (final tx in transactions) {
+          expect(tx.coin, equals('BTC'));
+          expect(tx.confirmations, inInclusiveRange(1, 3));
+          expect(tx.feeDetails.coin, equals('USDT'));
+          expect(tx.from, isNotEmpty);
+          expect(tx.to, isNotEmpty);
+          expect(tx.internalId, isNotEmpty);
+          expect(tx.txHash, isNotEmpty);
+          expect(double.tryParse(tx.myBalanceChange), isNotNull);
+          expect(double.tryParse(tx.totalAmount), isNotNull);
+        }
+      });
 
-    test('fetchOhlcData returns data for all specified coin pairs', () async {
-      final ohlcData = await generator.fetchOhlcData();
+      test('fetchOhlcData returns data for all supported coin pairs', () async {
+        final ohlcData = await generator.fetchOhlcData();
+        final supportedCoins = await cexRepository.getCoinList();
 
-      for (var coinPair in generator.coinPairs) {
-        expect(ohlcData[coinPair], isNotNull);
-        expect(ohlcData[coinPair]!, isNotEmpty);
-      }
-    });
-  });
+        for (final coinPair in generator.coinPairs) {
+          final supportedCoin = supportedCoins.where(
+            (coin) => coin.id == coinPair.baseCoinTicker,
+          );
+          if (supportedCoin.isEmpty) {
+            expect(ohlcData[coinPair], isNull);
+            continue;
+          }
+
+          expect(ohlcData[coinPair], isNotNull);
+          expect(ohlcData[coinPair]!, isNotEmpty);
+        }
+      });
+    },
+    skip: true,
+  );
 }

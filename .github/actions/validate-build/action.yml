@@ -1,0 +1,84 @@
+name: "Validate build"
+description: "Checks that all the necessary files are present in the build directory"
+runs:
+  using: "composite"
+  steps:
+    - name: Validate build
+      continue-on-error: false
+      shell: bash
+      run: |
+        # Check that the web build folder contains a wasm file in the format build/web/dist/*.wasm
+        if [ ! -f build/web/dist/*.wasm ]; then
+          echo "Error: Web build failed. No wasm file found in build/web/dist/"
+          # List files for debugging
+          echo "Listing files in build/web recursively"
+          ls -R build/web
+
+          echo "Listing files in web recursively"
+          ls -R web
+
+          exit 1
+        fi
+
+        # Check that the index.html is present and that it is equal to the source index.html
+        if ! cmp -s web/index.html build/web/index.html; then
+          echo "Error: Web build failed. index.html is not equal to the source index.html"
+          exit 1
+        fi
+
+        # Check that the index.html has uncommitted changes to ensure that the placeholder was replaced with the generated content
+        git update-index --no-assume-unchanged web/index.html
+        if git diff --quiet web/index.html; then
+          echo "Error: Web build failed. index.html has no uncommitted changes which indicates an issue with the \`template.html\` to \`index.html\` generation"
+          exit 1
+        fi
+
+        # Decode the AssetManifest.bin and check for the coin icon presence
+        if [ ! -f build/web/assets/AssetManifest.bin ]; then
+          echo "Error: AssetManifest.bin file not found."
+          exit 1
+        fi
+        if ! strings build/web/assets/AssetManifest.bin | grep -qi "assets/coin_icons/png/kmd.png"; then
+          echo "Error: Coin icon not found in AssetManifest.bin"
+          echo "Output of case-invariant grep on build/web/assets/AssetManifest.bin"
+          strings build/web/assets/AssetManifest.bin | grep -i "assets/coin_icons/png/kmd.png"
+          echo "Listing kmd png files in assets/coin_icons/png"
+          ls -R assets/coin_icons/png | grep kmd.png
+          if ! strings build/web/assets/AssetManifest.bin | grep -qi "assets/coin_icons/png/kmd.png"; then
+            echo "Error: Coin icon not found in AssetManifest.bin"
+            exit 1
+          fi
+        fi
+
+        # Check that build/web/assets/app_build/build_config.json is present, is valid json
+        # and does not contain "LAST_RUN" in the first line (invalid json format)
+        if [ ! -f build/web/assets/app_build/build_config.json ]; then
+          echo "Error: build_config.json file not found."
+          exit 1
+        fi
+        if ! jq . build/web/assets/app_build/build_config.json > /dev/null; then
+          echo "Error: build_config.json is not valid json"
+          exit 1
+        fi
+
+        # Check that build/web/assets/assets/config/coins.json is present, is valid json
+        # and does not contain "LAST_RUN" in the first line (invalid json format)
+        if [ ! -f build/web/assets/assets/config/coins.json ]; then
+          echo "Error: coins.json file not found."
+          exit 1
+        fi
+        if ! jq . build/web/assets/assets/config/coins.json > /dev/null; then
+          echo "Error: coins.json is not valid json"
+          exit 1
+        fi
+
+        # Check that build/web/assets/assets/config/coins_config.json is present, is valid json
+        # and does not contain "LAST_RUN" in the first line (invalid json format)
+        if [ ! -f build/web/assets/assets/config/coins_config.json ]; then
+          echo "Error: coins_config.json file not found."
+          exit 1
+        fi
+        if ! jq . build/web/assets/assets/config/coins_config.json > /dev/null; then
+          echo "Error: coins_config.json is not valid json"
+          exit 1
+        fi

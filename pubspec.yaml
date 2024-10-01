@@ -54,7 +54,7 @@ dependencies:
 
   args: 2.5.0 # dart.dev
   flutter_markdown: 0.6.14 # flutter.dev
-  http: 0.13.6 # dart.dev
+  http: 1.2.2 # dart.dev
   intl: 0.19.0 # dart.dev
   js: 0.6.7 # dart.dev
   shared_preferences: 2.1.1 # flutter.dev
@@ -216,7 +216,10 @@ dev_dependencies:
   test: ^1.24.1 # dart.dev
 
   komodo_wallet_build_transformer:
-    path: packages/komodo_wallet_build_transformer
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/komodo_wallet_build_transformer
+      ref: dev
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -279,6 +282,17 @@ flutter:
             # execution. This is useful for reducing build time in development,
             # but is not recommended for production builds.
             # - --concurrent,
+
+            #! NB: There may be complications if we want to publish the
+            # sub-packages as separate packages. However, Flutter's upcoming
+            # support for native/web build hooks may simplify this process.
+            # This package must be listed in the `package_config.json` of the
+            # root Flutter app.
+            --artifact_output_package=web_dex,
+
+            # The path to the build config file relative to the root of the
+            # artifact output package.
+            --config_output_path=app_build/build_config.json,
           ]
           
   # An image asset can refer to one or more resolution-specific "variants", see

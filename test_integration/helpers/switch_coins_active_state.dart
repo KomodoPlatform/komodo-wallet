@@ -39,7 +39,7 @@ Future<void> switchCoinsActiveState(
   await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
   final Finder switchButton =
-      find.byKey(const Key('coins-manager-switch-button'));
+      find.byKey(const Key('back-button'));
   await tester.tap(switchButton);
   await tester.pumpAndSettle();
 }

@@ -6,6 +6,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:web_dex/main.dart' as app;
 import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
 
+import '../../common/pause.dart';
+import '../../common/pump_and_settle.dart';
 import '../../common/tester_utils.dart';
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/get_funded_wif.dart';
@@ -62,6 +64,8 @@ Future<void> testWithdraw(WidgetTester tester) async {
   );
 
   await addAsset(tester, asset: martyCoinItem, search: 'marty');
+  await pause(sec: 5);
+  await tester.pumpNFrames(20);
 
   expect(martyCoinActive, findsOneWidget);
   await testerTap(tester, martyCoinActive);
@@ -90,20 +94,25 @@ Future<void> testWithdraw(WidgetTester tester) async {
 
   await testerTap(tester, addressInput);
   await enterText(tester, finder: addressInput, text: getRandomAddress());
+  await testerTap(tester, amountInput);
   await enterText(tester, finder: amountInput, text: '0.01');
   await testerTap(tester, sendEnterButton);
+  await tester.pumpAndSettle(); // skip all loading & transition frames
 
   expect(confirmBackButton, findsOneWidget);
   expect(confirmAgreeButton, findsOneWidget);
   await testerTap(tester, confirmAgreeButton);
+  await tester.pumpAndSettle(); // skip all loading & transition frames
 
   expect(completeButtons, findsOneWidget);
   expect(viewOnExplorerButton, findsOneWidget);
   expect(doneButton, findsOneWidget);
   await testerTap(tester, doneButton);
+  await tester.pumpAndSettle(); // skip all loading & transition frames
 
   expect(exitButton, findsOneWidget);
   await testerTap(tester, exitButton);
+  await tester.pumpAndSettle(); // skip all loading & transition frames
 
   await removeAsset(tester, asset: martyCoinItem, search: 'marty');
 
@@ -112,16 +121,20 @@ Future<void> testWithdraw(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('Run withdraw tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    print('ACCEPT ALPHA WARNING');
-    await acceptAlphaWarning(tester);
-    await restoreWalletToTest(tester);
-    await testWithdraw(tester);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Run withdraw tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      print('ACCEPT ALPHA WARNING');
+      await acceptAlphaWarning(tester);
+      await restoreWalletToTest(tester);
+      await testWithdraw(tester);
+      await tester.pumpAndSettle();
 
-    print('END WITHDARW TESTS');
-  }, semanticsEnabled: false);
+      print('END WITHDARW TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

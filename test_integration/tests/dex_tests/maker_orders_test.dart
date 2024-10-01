@@ -7,6 +7,7 @@ import 'package:web_dex/main.dart' as app;
 import 'package:web_dex/shared/widgets/focusable_widget.dart';
 import 'package:web_dex/views/dex/entities_list/orders/order_item.dart';
 
+import '../../common/pause.dart';
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
 
@@ -27,7 +28,7 @@ Future<void> testMakerOrder(WidgetTester tester) async {
     matching: find.byKey(const Key('search-field')),
   );
   final Finder sellCoinItem =
-      find.byKey(const Key('coin-table-item-$sellCoin'));
+      find.byKey(const Key('Coin-table-item-$sellCoin'));
   final Finder sellAmountField =
       find.byKey(const Key('maker-sell-amount-input'));
   final Finder buyCoinSelectButton =
@@ -36,7 +37,7 @@ Future<void> testMakerOrder(WidgetTester tester) async {
     of: find.byKey(const Key('maker-buy-coins-table')),
     matching: find.byKey(const Key('search-field')),
   );
-  final Finder buyCoinItem = find.byKey(const Key('coin-table-item-$buyCoin'));
+  final Finder buyCoinItem = find.byKey(const Key('Coin-table-item-$buyCoin'));
   final Finder buyAmountField = find.byKey(const Key('maker-buy-amount-input'));
   final Finder makeOrderButton = find.byKey(const Key('make-order-button'));
   final Finder makeOrderConfirmButton =
@@ -86,6 +87,7 @@ Future<void> testMakerOrder(WidgetTester tester) async {
   );
   await tester.tap(makeOrderConfirmButton);
   await tester.pumpAndSettle();
+  await pause(sec: 5);
 
   // Open order details page
   expect(orderListItem, findsOneWidget);

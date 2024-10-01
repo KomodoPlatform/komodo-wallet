@@ -1,0 +1,25 @@
+name: "Flutter Dependencies"
+description: "Installs Flutter and any other dependencies required for the build"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Get stable flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: "3.22.x"
+        channel: "stable"
+
+    - name: Prepare build directory
+      shell: bash
+      run: |
+        flutter clean
+        rm -rf build/*
+        rm -rf web/src/mm2/*
+        rm -rf web/src/kdfi/*
+        rm -rf web/dist/*
+

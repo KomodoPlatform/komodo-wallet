@@ -10,6 +10,7 @@ import 'package:web_dex/model/coin.dart';
 
 class WalletOverview extends StatelessWidget {
   const WalletOverview({
+    super.key,
     this.onPortfolioGrowthPressed,
     this.onPortfolioProfitLossPressed,
   });
@@ -28,7 +29,7 @@ class WalletOverview extends StatelessWidget {
 
         final portfolioAssetsOverviewBloc = context.watch<AssetOverviewBloc>();
 
-        int assetCount = coins.length;
+        final int assetCount = coins.length;
 
         final stateWithData = portfolioAssetsOverviewBloc.state
                 is PortfolioAssetsOverviewLoadSuccess
@@ -42,6 +43,7 @@ class WalletOverview extends StatelessWidget {
             FractionallySizedBox(
               widthFactor: isMobile ? 1 : 0.5,
               child: StatisticCard(
+                key: const Key('overview-total-balance'),
                 caption: Text(LocaleKeys.allTimeInvestment.tr()),
                 value: stateWithData?.totalInvestment.value ?? 0,
                 actionIcon: const Icon(CustomIcons.fiatIconCircle),

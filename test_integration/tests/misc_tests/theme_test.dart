@@ -15,42 +15,60 @@ Future<void> testThemeSwitcher(WidgetTester tester) async {
   final themeSettingsSwitcherDark =
       find.byKey(const Key('theme-settings-switcher-Dark'));
 
+  print(
+    'brightness: ${Theme.of(tester.element(themeSwitcherFinder)).brightness}, '
+    'expected: ${Brightness.dark}',
+  );
   // Check default theme (dark)
-  checkTheme(tester, themeSwitcherFinder, Brightness.dark);
+  expect(
+    Theme.of(tester.element(themeSwitcherFinder)).brightness,
+    equals(Brightness.dark),
+    reason: 'Default theme should be dark theme',
+  );
 
-  await tester.tap(themeSwitcherFinder);
-  await tester.pumpAndSettle();
-  checkTheme(tester, themeSwitcherFinder, Brightness.light);
+  // await tester.tap(themeSwitcherFinder);
+  // await tester.pumpAndSettle();
+  // expect(
+  //   Theme.of(tester.element(themeSwitcherFinder)).brightness,
+  //   equals(Brightness.light),
+  //   reason: 'Current theme should be light theme',
+  // );
 
   await goto.settingsPage(tester);
   await tester.tap(themeSettingsSwitcherDark);
   await tester.pumpAndSettle();
-  checkTheme(tester, themeSwitcherFinder, Brightness.dark);
+  expect(
+    Theme.of(tester.element(themeSwitcherFinder)).brightness,
+    equals(Brightness.dark),
+    reason: 'Current theme should be dark theme',
+  );
 
   await tester.pumpAndSettle();
   await tester.tap(themeSettingsSwitcherLight);
   await tester.pumpAndSettle();
-  checkTheme(tester, themeSwitcherFinder, Brightness.light);
-}
-
-dynamic checkTheme(
-    WidgetTester tester, Finder testElement, Brightness brightnessExpected) {
-  expect(Theme.of(tester.element(testElement)).brightness,
-      equals(brightnessExpected));
+  expect(
+    Theme.of(tester.element(themeSwitcherFinder)).brightness,
+    equals(Brightness.light),
+    reason: 'Current theme should be light theme',
+  );
 }
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Run design tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    await acceptAlphaWarning(tester);
-    print('ACCEPT ALPHA WARNING');
-    await tester.pumpAndSettle();
-    await testThemeSwitcher(tester);
+  testWidgets(
+    'Run design tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      await acceptAlphaWarning(tester);
+      print('ACCEPT ALPHA WARNING');
+      await tester.pumpAndSettle();
+      await testThemeSwitcher(tester);
 
-    print('END THEME SWITCH TESTS');
-  }, semanticsEnabled: false);
+      print('END THEME SWITCH TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

@@ -27,7 +27,7 @@ Future<void> testTakerOrder(WidgetTester tester) async {
     of: find.byKey(const Key('taker-sell-coins-table')),
     matching: find.byKey(const Key('search-field')),
   );
-  final Finder sellCoinItem = find.byKey(Key('coin-table-item-$sellCoin'));
+  final Finder sellCoinItem = find.byKey(Key('Coin-table-item-$sellCoin'));
   final Finder sellAmountField = find.descendant(
     of: find.byKey(const Key('taker-sell-amount')),
     matching: find.byKey(const Key('amount-input')),
@@ -38,7 +38,7 @@ Future<void> testTakerOrder(WidgetTester tester) async {
     of: find.byKey(const Key('taker-orders-table')),
     matching: find.byKey(const Key('search-field')),
   );
-  final Finder buyCoinItem = find.byKey(Key('orders-table-item-$buyCoin'));
+  final Finder buyCoinItem = find.byKey(Key('BestOrder-table-item-$buyCoin'));
 
   const String infiniteBidVolume = '2.00';
   final bidsTable = find.byKey(const Key('orderbook-bids-list'));
@@ -134,20 +134,21 @@ Future<void> testTakerOrder(WidgetTester tester) async {
   );
 
   expect(
-      find.descendant(
-        of: takerFeeSentEventStep,
-        matching: find.byType(CopiedText),
-      ),
-      findsOneWidget,
-      reason: 'Test error: \'takerFeeSent\' event tx copied text not found');
+    find.descendant(
+      of: takerFeeSentEventStep,
+      matching: find.byType(CopiedText),
+    ),
+    findsOneWidget,
+    reason: "Test error: 'takerFeeSent' event tx copied text not found",
+  );
   expect(
-      find.descendant(
-        of: makerPaymentReceivedEventStep,
-        matching: find.byType(CopiedText),
-      ),
-      findsOneWidget,
-      reason:
-          'Test error: \'makerPaymentReceived\' event tx copied text not found');
+    find.descendant(
+      of: makerPaymentReceivedEventStep,
+      matching: find.byType(CopiedText),
+    ),
+    findsOneWidget,
+    reason: "Test error: 'makerPaymentReceived' event tx copied text not found",
+  );
 
   await tester.dragUntilVisible(
     takerPaymentSentEventStep,
@@ -155,11 +156,13 @@ Future<void> testTakerOrder(WidgetTester tester) async {
     const Offset(0, -10),
   );
   expect(
-      find.descendant(
-          of: takerPaymentSentEventStep, matching: find.byType(CopiedText)),
-      findsOneWidget,
-      reason:
-          'Test error: \'takerPaymentSent\' event tx copied text not found');
+    find.descendant(
+      of: takerPaymentSentEventStep,
+      matching: find.byType(CopiedText),
+    ),
+    findsOneWidget,
+    reason: "Test error: 'takerPaymentSent' event tx copied text not found",
+  );
 
   await tester.dragUntilVisible(
     takerPaymentSpentEventStep,
@@ -167,11 +170,13 @@ Future<void> testTakerOrder(WidgetTester tester) async {
     const Offset(0, -10),
   );
   expect(
-      find.descendant(
-          of: takerPaymentSpentEventStep, matching: find.byType(CopiedText)),
-      findsOneWidget,
-      reason:
-          'Test error: \'takerPaymentSpent\' event tx copied text not found');
+    find.descendant(
+      of: takerPaymentSpentEventStep,
+      matching: find.byType(CopiedText),
+    ),
+    findsOneWidget,
+    reason: "Test error: 'takerPaymentSpent' event tx copied text not found",
+  );
 
   await tester.dragUntilVisible(
     makerPaymentSpentEventStep,
@@ -179,11 +184,13 @@ Future<void> testTakerOrder(WidgetTester tester) async {
     const Offset(0, -10),
   );
   expect(
-      find.descendant(
-          of: makerPaymentSpentEventStep, matching: find.byType(CopiedText)),
-      findsOneWidget,
-      reason:
-          'Test error: \'makerPaymentSpent\' event tx copied text not found');
+    find.descendant(
+      of: makerPaymentSpentEventStep,
+      matching: find.byType(CopiedText),
+    ),
+    findsOneWidget,
+    reason: "Test error: 'makerPaymentSpent' event tx copied text not found",
+  );
 
   await tester.dragUntilVisible(
     backButton,
@@ -194,7 +201,7 @@ Future<void> testTakerOrder(WidgetTester tester) async {
   await tester.tap(backButton);
   await tester.pumpAndSettle();
   await tester.tap(historyTab);
-  await tester.pump((const Duration(milliseconds: 1000)));
+  await tester.pump(const Duration(milliseconds: 1000));
   expect(
     find.byType(HistoryItem),
     findsOneWidget,
@@ -204,15 +211,19 @@ Future<void> testTakerOrder(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('Run taker order tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    await acceptAlphaWarning(tester);
-    await restoreWalletToTest(tester);
-    await tester.pumpAndSettle();
-    await testTakerOrder(tester);
+  testWidgets(
+    'Run taker order tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      await acceptAlphaWarning(tester);
+      await restoreWalletToTest(tester);
+      await tester.pumpAndSettle();
+      await testTakerOrder(tester);
 
-    print('END TAKER ORDER TESTS');
-  }, semanticsEnabled: false);
+      print('END TAKER ORDER TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }
