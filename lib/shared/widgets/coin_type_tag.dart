@@ -50,6 +50,8 @@ class CoinTypeTag extends StatelessWidget {
         return 'QRC20';
       case CoinType.ftm20:
         return 'FTM20';
+      case CoinType.arb20:
+        return 'ARB20';
       case CoinType.etc:
         return 'ETC';
       case CoinType.avx20:

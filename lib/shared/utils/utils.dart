@@ -285,6 +285,7 @@ String abbr2Ticker(String abbr) {
     'BEP20',
     'QRC20',
     'FTM20',
+    'ARB20',
     'HRC20',
     'MVR20',
     'AVX20',
@@ -370,6 +371,15 @@ String? getErcTransactionHistoryUrl(Coin coin) {
         contractAddress,
         coin.isTestCoin,
       ); // 'FTM', 'FTMT'
+    case CoinType.arb20:
+      return _getErcTransactionHistoryUrl(
+        coin.protocolType,
+        arbUrl,
+        arbTokenUrl,
+        address,
+        contractAddress,
+        coin.isTestCoin,
+      ); // 'ARB'
     case CoinType.etc:
       return _getErcTransactionHistoryUrl(
         coin.protocolType,
@@ -489,6 +499,8 @@ Color getProtocolColor(CoinType type) {
       return const Color.fromRGBO(0, 168, 226, 1);
     case CoinType.ftm20:
       return const Color.fromRGBO(25, 105, 255, 1);
+    case CoinType.arb20:
+      return const Color.fromRGBO(0, 168, 226, 1);
     case CoinType.hrc20:
       return const Color.fromRGBO(29, 195, 219, 1);
     case CoinType.etc:
@@ -534,6 +546,7 @@ bool hasTxHistorySupport(Coin coin) {
     case CoinType.bep20:
     case CoinType.qrc20:
     case CoinType.ftm20:
+    case CoinType.arb20:
     case CoinType.etc:
     case CoinType.avx20:
     case CoinType.mvr20:
@@ -561,6 +574,7 @@ String getNativeExplorerUrlByCoin(Coin coin, String? address) {
     case CoinType.bep20:
     case CoinType.qrc20:
     case CoinType.ftm20:
+    case CoinType.arb20:
     case CoinType.avx20:
     case CoinType.mvr20:
     case CoinType.hco20:

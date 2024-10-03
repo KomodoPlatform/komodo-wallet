@@ -7,6 +7,7 @@ enum CoinType {
   bep20,
   qrc20,
   ftm20,
+  arb20,
   avx20,
   hrc20,
   mvr20,

@@ -139,6 +139,7 @@ String abbr2Ticker(String abbr) {
     'BEP20',
     'QRC20',
     'FTM20',
+    'ARB20',
     'HRC20',
     'MVR20',
     'AVX20',

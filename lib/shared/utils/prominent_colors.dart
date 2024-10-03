@@ -74,6 +74,7 @@ final Map<String, String> _prominentColors = {
   "cds": "#a67116",
   "mil": "#49b1e6",
   "ftm": "#14b4ec",
+  "arb": "#28a0f0",
   "sol": "#63f89e",
   "joy": "#7f4ddf",
   "band": "#4f68f9",
