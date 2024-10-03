@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -42,7 +44,11 @@ class ActiveCoinsList extends StatelessWidget {
                 );
               }
 
-              final sorted = sortFiatBalance(displayedCoins.toList());
+              List<Coin> sorted = sortFiatBalance(displayedCoins.toList());
+
+              if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
+                sorted = removeTestCoins(sorted);
+              }
 
               return WalletCoinsList(
                 coins: sorted,

@@ -5,6 +5,7 @@ import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/import_swaps.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_download_logs.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_analytics.dart';
+import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_test_coins.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_trading_bot.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_reset_activated_coins.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_theme_switcher.dart';
@@ -23,6 +24,8 @@ class GeneralSettings extends StatelessWidget {
         const SettingsThemeSwitcher(),
         const SizedBox(height: 25),
         const SettingsManageAnalytics(),
+        const SizedBox(height: 25),
+        const SettingsManageTestCoins(),
         const SizedBox(height: 25),
         const HiddenWithoutWallet(
           child: SettingsManageTradingBot(),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -28,10 +30,15 @@ class AllCoinsList extends StatelessWidget {
             return const SliverToBoxAdapter(child: UiSpinner());
           }
 
-          final displayedCoins =
-              sortByPriority(filterCoinsByPhrase(coins, searchPhrase));
+          List<Coin> displayedCoins =
+              sortByPriority(filterCoinsByPhrase(coins, searchPhrase)).toList();
+
+          if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
+            displayedCoins = removeTestCoins(displayedCoins);
+          }
+
           return WalletCoinsList(
-            coins: displayedCoins.toList(),
+            coins: displayedCoins,
             onCoinItemTap: onCoinItemTap,
           );
         });

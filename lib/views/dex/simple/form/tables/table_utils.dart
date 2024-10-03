@@ -6,8 +6,13 @@ import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/balances_formatter.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 
-List<Coin> prepareCoinsForTable(List<Coin> coins, String? searchString) {
+List<Coin> prepareCoinsForTable(
+  List<Coin> coins,
+  String? searchString, {
+  bool testCoinsEnabled = true,
+}) {
   coins = List.from(coins);
+  if (!testCoinsEnabled) coins = removeTestCoins(coins);
   coins = removeWalletOnly(coins);
   coins = removeSuspended(coins);
   coins = sortFiatBalance(coins);
@@ -15,11 +20,20 @@ List<Coin> prepareCoinsForTable(List<Coin> coins, String? searchString) {
   return coins;
 }
 
-List<BestOrder> prepareOrdersForTable(Map<String, List<BestOrder>>? orders,
-    String? searchString, AuthorizeMode mode) {
+List<BestOrder> prepareOrdersForTable(
+  Map<String, List<BestOrder>>? orders,
+  String? searchString,
+  AuthorizeMode mode, {
+  bool testCoinsEnabled = true,
+}) {
   if (orders == null) return [];
   final List<BestOrder> sorted = _sortBestOrders(orders);
   if (sorted.isEmpty) return [];
+
+  if (!testCoinsEnabled) {
+    removeTestCoinOrders(sorted);
+    if (sorted.isEmpty) return [];
+  }
 
   removeSuspendedCoinOrders(sorted, mode);
   if (sorted.isEmpty) return [];

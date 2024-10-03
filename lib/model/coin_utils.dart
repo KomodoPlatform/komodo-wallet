@@ -27,6 +27,14 @@ List<Coin> sortFiatBalance(List<Coin> coins) {
   return list;
 }
 
+List<Coin> removeTestCoins(List<Coin> coins) {
+  final List<Coin> list = List.from(coins);
+
+  list.removeWhere((Coin coin) => coin.isTestCoin);
+
+  return list;
+}
+
 List<Coin> removeWalletOnly(List<Coin> coins) {
   final List<Coin> list = List.from(coins);
 

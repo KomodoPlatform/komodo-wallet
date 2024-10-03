@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/widgets/coin_icon.dart';
@@ -54,7 +56,11 @@ class _CoinSelectionAndAmountInputState
   }
 
   void _prepareItems() {
-    _items = prepareCoinsForTable(widget.coins, null)
+    _items = prepareCoinsForTable(
+      widget.coins,
+      null,
+      testCoinsEnabled: context.read<SettingsBloc>().state.testCoinsEnabled,
+    )
         .map(
           (coin) => CoinSelectItem(
             name: coin.name,

@@ -590,7 +590,9 @@ abstract class LocaleKeys {
   static const margin = 'margin';
   static const updateInterval = 'updateInterval';
   static const expertMode = 'expertMode';
+  static const testCoins = 'testCoins';
   static const enableTradingBot = 'enableTradingBot';
+  static const enableTestCoins = 'enableTestCoins';
   static const makeMarket = 'makeMarket';
   static const custom = 'custom';
   static const edit = 'edit';

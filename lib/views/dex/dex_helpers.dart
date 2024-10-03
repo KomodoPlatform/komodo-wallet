@@ -149,6 +149,15 @@ int getCoinPairsCountFromCoinAbbrMap(Map<String, List<String>> coinAbbrMap,
       .length;
 }
 
+void removeTestCoinOrders(List<BestOrder> orders) {
+  orders.removeWhere((BestOrder order) {
+    final Coin? coin = coinsBloc.getCoin(order.coin);
+    if (coin == null) return true;
+
+    return coin.isTestCoin;
+  });
+}
+
 void removeSuspendedCoinOrders(
     List<BestOrder> orders, AuthorizeMode authorizeMode) {
   if (authorizeMode == AuthorizeMode.noLogin) return;

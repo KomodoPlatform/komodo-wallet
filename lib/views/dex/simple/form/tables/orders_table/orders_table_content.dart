@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
@@ -43,8 +44,12 @@ class OrdersTableContent extends StatelessWidget {
 
         final Map<String, List<BestOrder>> ordersMap = bestOrders.result!;
         final AuthorizeMode mode = context.watch<AuthBloc>().state.mode;
-        final List<BestOrder> orders =
-            prepareOrdersForTable(ordersMap, searchString, mode);
+        final List<BestOrder> orders = prepareOrdersForTable(
+          ordersMap,
+          searchString,
+          mode,
+          testCoinsEnabled: context.read<SettingsBloc>().state.testCoinsEnabled,
+        );
 
         if (orders.isEmpty) return const NothingFound();
 
