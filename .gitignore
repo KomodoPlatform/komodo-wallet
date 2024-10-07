@@ -91,3 +91,6 @@ assets/coin_icons/
 
 # Python
 venv/
+
+# FVM Version Cache
+.fvm/

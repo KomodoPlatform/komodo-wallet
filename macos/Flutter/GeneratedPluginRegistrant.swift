@@ -5,7 +5,6 @@
 import FlutterMacOS
 import Foundation
 
-import desktop_webview_window
 import firebase_analytics
 import firebase_core
 import flutter_inappwebview_macos
@@ -19,7 +18,6 @@ import video_player_avfoundation
 import window_size
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  DesktopWebviewWindowPlugin.register(with: registry.registrar(forPlugin: "DesktopWebviewWindowPlugin"))
   FLTFirebaseAnalyticsPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseAnalyticsPlugin"))
   FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))

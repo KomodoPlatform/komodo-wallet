@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.8.1+0
 
 environment:
-  sdk: ">=3.4.0 <3.5.0" # The recent 3.5.0 breaks the build. We will resolve this after this release.
+  sdk: ">=3.4.0 <4.0.0" # The recent 3.5.0 breaks the build. We will resolve this after this release.
 
 dependencies:
   ## ---- Flutter SDK
@@ -48,7 +48,7 @@ dependencies:
 
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
-  dragon_logs: 1.0.3 # Secure code review PR URL: TBD
+  dragon_logs: 1.0.4 # Secure code review PR URL: TBD
 
   ## ---- Dart.dev, Flutter.dev
 
@@ -58,10 +58,10 @@ dependencies:
   intl: 0.19.0 # dart.dev
   js: 0.6.7 # dart.dev
   shared_preferences: 2.1.1 # flutter.dev
-  url_launcher: 6.1.11 # flutter.dev
+  url_launcher: 6.3.0 # flutter.dev
   crypto: 3.0.3 # dart.dev
   path_provider: 2.1.1  # flutter.dev
-  cross_file: 0.3.3+4 # flutter.dev
+  cross_file: 0.3.4+2 # flutter.dev
   video_player: 2.7.0 # flutter.dev
 
   ## ---- google.com
@@ -160,11 +160,6 @@ dependencies:
       url: https://github.com/KomodoPlatform/universal_html.git
       ref: 6a1bc7d9e6ed735ab9f7b319f9eedb138ce8b0e5 #2.2.2
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  file_picker:
-    git:
-      url: https://github.com/KomodoPlatform/flutter_file_picker.git
-      ref: 85ecbae83eca8d200f869403928d2bf7e6806c67 #5.3.1
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   hive:
@@ -194,8 +189,7 @@ dependencies:
 
   # Embedded web view
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/3
-  flutter_inappwebview: 6.0.0 # Android, iOS, macOS, Web (currently broke, open issue)
-  desktop_webview_window: 0.2.3 # Windows, Linux
+  flutter_inappwebview: 6.1.3 # Android, iOS, macOS, Web (currently broke, open issue)
 
   # Newly added, not yet reviewed
   # TODO: review required
@@ -208,7 +202,7 @@ dependencies:
   # TODO: review required
   dragon_charts_flutter: ^0.1.1-dev.1
   bloc_concurrency: ^0.2.5
-
+  file_picker: ^8.1.2 # Updated from git ref @5.1.4
 
 dev_dependencies:
   integration_test: # SDK

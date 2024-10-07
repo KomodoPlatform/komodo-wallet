@@ -11,16 +11,16 @@ import 'package:web_dex/views/bitrefill/bitrefill_button_view.dart';
 ///
 /// NOTE: this widget only works on Web, Android, iOS, and macOS (for now).
 class BitrefillInAppBrowserButton extends StatefulWidget {
-  /// The [onMessage] callback is called when a message is received from the webview.
+  /// The [onMessage] is called when a message is received from the webview.
   /// The [enabled] property determines if the button is enabled.
   /// The [windowTitle] property is used as the title of the window.
   /// The [url] property is the URL to open in the window.
   const BitrefillInAppBrowserButton({
-    super.key,
     required this.url,
     required this.windowTitle,
     required this.enabled,
     required this.onMessage,
+    super.key,
   });
 
   /// The title of the pop-up browser window.
@@ -32,7 +32,8 @@ class BitrefillInAppBrowserButton extends StatefulWidget {
   /// Determines if the button is enabled.
   final bool enabled;
 
-  /// The callback function that is called when a message is received from the webview.
+  /// The callback function that is called when a message is received from the
+  /// webview.
   final dynamic Function(String) onMessage;
 
   @override
@@ -71,7 +72,7 @@ class BitrefillInAppBrowserButtonState
   }
 
   Future<void> _openBrowserWindow() async {
-    browser?.openUrlRequest(
+    await browser?.openUrlRequest(
       urlRequest: URLRequest(
         url: WebUri(widget.url),
       ),
