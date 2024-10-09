@@ -103,11 +103,11 @@ class _TakerFormMobileLayout extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 37, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 52, 16, 0),
               child: TakerSellCoinsTable(),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 134, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 167, 16, 0),
               child: TakerOrdersTable(),
             ),
           ],

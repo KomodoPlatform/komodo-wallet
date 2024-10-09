@@ -22,10 +22,10 @@ class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   @override
   Future<AppRoutePath> parseRouteInformation(
       RouteInformation routeInformation) async {
-    final uri = Uri.parse(routeInformation.uri.path);
-    final BaseRouteParser parser = _getRoutParser(uri);
+    final BaseRouteParser parser =
+        _getRoutParser(Uri.parse(routeInformation.uri.path));
 
-    return parser.getRoutePath(uri);
+    return parser.getRoutePath(routeInformation.uri);
   }
 
   @override

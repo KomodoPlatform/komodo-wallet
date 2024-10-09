@@ -1,4 +1,5 @@
 import 'package:rational/rational.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
@@ -138,5 +139,29 @@ class DexRepository {
     }
 
     return Swap.fromJson(response['result']);
+  }
+
+  Future<void> waitOrderbookAvailability({
+    int retries = 10,
+    int interval = 300,
+  }) async {
+    BestOrders orders;
+
+    for (int attempt = 0; attempt < retries; attempt++) {
+      orders = await getBestOrders(
+        BestOrdersRequest(
+          coin: defaultDexCoin,
+          type: BestOrdersRequestType.number,
+          number: 1,
+          action: 'sell',
+        ),
+      );
+
+      if (orders.result?.isNotEmpty ?? false) {
+        return;
+      }
+
+      await Future.delayed(Duration(milliseconds: interval));
+    }
   }
 }

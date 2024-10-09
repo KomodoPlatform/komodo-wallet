@@ -8,6 +8,8 @@ import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/authorize_mode.dart';
+import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/views/dex/simple/confirm/maker_order_confirmation.dart';
 import 'package:web_dex/views/dex/simple/form/maker/maker_form_buy_coin_table.dart';
 import 'package:web_dex/views/dex/simple/form/maker/maker_form_content.dart';
@@ -25,7 +27,41 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
   @override
   void initState() {
     makerFormBloc.setDefaultSellCoin();
+    _consumeRouteParameters();
+
     super.initState();
+  }
+
+  void _consumeRouteParameters() {
+    if (routingState.dexState.orderType != 'taker') {
+      if (routingState.dexState.fromCurrency.isNotEmpty) {
+        final Coin? sellCoin =
+            coinsBloc.getCoin(routingState.dexState.fromCurrency);
+
+        if (sellCoin != null) {
+          makerFormBloc.sellCoin = sellCoin;
+
+          if (routingState.dexState.fromAmount.isNotEmpty) {
+            makerFormBloc.setSellAmount(routingState.dexState.fromAmount);
+          }
+        }
+      }
+
+      if (routingState.dexState.toCurrency.isNotEmpty) {
+        final Coin? buyCoin =
+            coinsBloc.getCoin(routingState.dexState.toCurrency);
+
+        if (buyCoin != null) {
+          makerFormBloc.buyCoin = buyCoin;
+
+          if (routingState.dexState.toAmount.isNotEmpty) {
+            makerFormBloc.setBuyAmount(routingState.dexState.toAmount);
+          }
+        }
+      }
+
+      routingState.dexState.clearDexParams();
+    }
   }
 
   @override

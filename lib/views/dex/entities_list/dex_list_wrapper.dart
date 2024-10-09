@@ -33,11 +33,37 @@ class _DexListWrapperState extends State<DexListWrapper> {
   bool _isFilterShown = false;
   DexListType? previouseType;
 
+  final TradingKindBloc tradingKindBloc =
+      TradingKindBloc(TradingKindState.initial());
+
+  @override
+  void initState() {
+    routingState.dexState.addListener(_onRouteChange);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    routingState.dexState.removeListener(_onRouteChange);
+    super.dispose();
+  }
+
+  void _onRouteChange() {
+    if (mounted) {
+      final type = routingState.dexState.orderType;
+      if (type.isNotEmpty ||
+          (routingState.dexState.fromCurrency.isNotEmpty ||
+              routingState.dexState.toCurrency.isNotEmpty)) {
+        tradingKindBloc
+            .setKind(type == 'taker' ? TradingKind.taker : TradingKind.maker);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TradingKindBloc>(
-      create: (BuildContext context) =>
-          TradingKindBloc(TradingKindState.initial()),
+      create: (_) => tradingKindBloc,
       child: BlocBuilder<TradingKindBloc, TradingKindState>(
         builder: (context, state) {
           final filter = filters[widget.listType];
