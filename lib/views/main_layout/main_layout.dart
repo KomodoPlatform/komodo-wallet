@@ -1,3 +1,6 @@
+import 'package:web/web.dart' as web;
+import 'dart:js_interop';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -23,6 +26,11 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   @override
   void initState() {
+    web.window.onbeforeunload = (web.BeforeUnloadEvent event) {
+      event.preventDefault();
+      event.returnValue = 'Are you sure?';
+    }.toJS;
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await AlphaVersionWarningService().run();
       updateBloc.init();
