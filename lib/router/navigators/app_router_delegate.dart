@@ -25,24 +25,25 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
   Widget build(BuildContext context) {
     updateScreenType(context);
 
+    final MaterialPage<dynamic> page1 = MaterialPage<dynamic>(
+      key: const ValueKey('MainPage'),
+      child: Builder(
+        builder: (context) {
+          materialPageContext = context;
+          return GestureDetector(
+            onTap: () => globalCancelBloc.runDropdownDismiss(context: context),
+            child: MainLayout(),
+          );
+        },
+      ),
+    );
+
+    final List<Page<dynamic>> pages = <Page<dynamic>>[page1];
+
     return Navigator(
       key: navigatorKey,
-      pages: [
-        MaterialPage<dynamic>(
-          key: const ValueKey('MainPage'),
-          child: Builder(
-            builder: (context) {
-              materialPageContext = context;
-              return GestureDetector(
-                onTap: () =>
-                    globalCancelBloc.runDropdownDismiss(context: context),
-                child: MainLayout(),
-              );
-            },
-          ),
-        ),
-      ],
-      onPopPage: (route, dynamic result) => route.didPop(result),
+      pages: pages,
+      onDidRemovePage: (Page<Object?> page) => pages.remove(page),
     );
   }
 
