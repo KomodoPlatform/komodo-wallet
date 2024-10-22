@@ -33,6 +33,8 @@ namespace atomic_dex::kdf
         CoinType                                     coin_type;
         bool                                         is_testnet{false};
         bool                                         with_tx_history{true};
+        int                                          min_connected{1};
+        int                                          max_connected{3};
         std::optional<std::string>                   swap_contract_address{std::nullopt};
         std::optional<std::string>                   fallback_swap_contract{std::nullopt};
         std::optional<address_format_t>              address_format;
