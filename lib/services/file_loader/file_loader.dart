@@ -8,8 +8,8 @@ abstract class FileLoader {
     required LoadFileType type,
   });
   Future<void> upload({
-    required Function(String name, String? content) onUpload,
-    required Function(String) onError,
+    required void Function(String name, String? content) onUpload,
+    required void Function(String) onError,
     LoadFileType? fileType,
   });
 }
@@ -32,8 +32,6 @@ enum LoadFileType {
         return 'application/zip';
       case LoadFileType.text:
         return 'text/plain';
-      default:
-        return '*/*';
     }
   }
 

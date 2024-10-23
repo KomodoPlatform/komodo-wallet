@@ -16,10 +16,8 @@ class FileLoaderWeb implements FileLoader {
     switch (type) {
       case LoadFileType.text:
         await _saveAsTextFile(filename: fileName, data: data);
-        return;
       case LoadFileType.compressed:
         await _saveAsCompressedFile(fileName: fileName, data: data);
-        return;
     }
   }
 

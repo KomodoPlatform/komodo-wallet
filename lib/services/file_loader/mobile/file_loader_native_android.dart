@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
+import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/zip.dart';
 
 class FileLoaderNativeAndroid implements FileLoader {
   const FileLoaderNativeAndroid();
@@ -16,10 +19,8 @@ class FileLoaderNativeAndroid implements FileLoader {
     switch (type) {
       case LoadFileType.text:
         await _saveAsTextFile(fileName: fileName, data: data);
-        break;
       case LoadFileType.compressed:
         await _saveAsCompressedFile(fileName: fileName, data: data);
-        break;
     }
   }
 
@@ -27,37 +28,38 @@ class FileLoaderNativeAndroid implements FileLoader {
     required String fileName,
     required String data,
   }) async {
+    // On mobile, the file bytes are used to create the file to be saved.
+    // On desktop a file is created first, then a file is saved.
+    final Uint8List fileBytes = utf8.encode(data);
     final String? fileFullPath = await FilePicker.platform.saveFile(
       fileName: '$fileName.txt',
+      bytes: fileBytes,
     );
-    if (fileFullPath == null) return;
-
-    final File file = File(fileFullPath)..createSync(recursive: true);
-    await file.writeAsString(data);
+    if (fileFullPath == null || fileFullPath.isEmpty == true) {
+      log('error: output filepath for $fileName is empty');
+    }
   }
 
   Future<void> _saveAsCompressedFile({
     required String fileName,
     required String data,
   }) async {
+    final Uint8List compressedBytes =
+        createZipOfSingleFile(fileName: fileName, fileContent: data);
     final String? fileFullPath = await FilePicker.platform.saveFile(
       fileName: '$fileName.zip',
+      bytes: compressedBytes,
     );
-    if (fileFullPath == null) return;
 
-    final List<int> fileBytes = utf8.encode(data);
-
-    // Using ZLibCodec for compression
-    final compressedBytes = ZLibEncoder().convert(fileBytes);
-
-    final File compressedFile = File(fileFullPath);
-    await compressedFile.writeAsBytes(compressedBytes);
+    if (fileFullPath == null || fileFullPath.isEmpty == true) {
+      log('error: output filepath for $fileName is empty');
+    }
   }
 
   @override
   Future<void> upload({
-    required Function(String name, String content) onUpload,
-    required Function(String) onError,
+    required void Function(String name, String content) onUpload,
+    required void Function(String) onError,
     LoadFileType? fileType,
   }) async {
     try {
