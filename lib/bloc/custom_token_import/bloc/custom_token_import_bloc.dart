@@ -63,7 +63,7 @@ class CustomTokenImportBloc
 
   Future<void> _onSubmitImportCustomToken(SubmitImportCustomTokenEvent event,
       Emitter<CustomTokenImportState> emit) async {
-    emit(state.copyWith(formStatus: () => FormStatus.submitting));
+    emit(state.copyWith(importStatus: () => FormStatus.submitting));
 
     try {
       await repository.importCustomToken(
