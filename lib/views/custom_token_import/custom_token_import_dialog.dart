@@ -135,6 +135,15 @@ class ImportFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initializing controllers with initial values from the BLoC state
+    final state = context.read<CustomTokenImportBloc>().state;
+    final networkController =
+        TextEditingController(text: state.network?.abbr ?? '');
+    final addressController = TextEditingController(text: state.address ?? '');
+    final decimalsController = TextEditingController(
+      text: state.decimals?.toString() ?? '',
+    );
+
     return BlocListener<CustomTokenImportBloc, CustomTokenImportState>(
       listenWhen: (previous, current) =>
           previous.formStatus != current.formStatus &&
@@ -180,6 +189,7 @@ class ImportFormPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 TextFormField(
+                  controller: networkController,
                   enabled: !flowCompleted,
                   onChanged: (value) {
                     final coin = coinsBloc.getCoin(value);
@@ -194,6 +204,7 @@ class ImportFormPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 TextFormField(
+                  controller: addressController,
                   enabled: !flowCompleted,
                   onChanged: (value) {
                     context
@@ -206,7 +217,10 @@ class ImportFormPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // Decimals Field
                 TextFormField(
+                  controller: decimalsController,
                   enabled: !flowCompleted,
                   onChanged: (value) {
                     context
@@ -276,15 +290,38 @@ class ImportSubmitPage extends StatelessWidget {
 
         return BasePage(
           title: LocaleKeys.importToken.tr(),
-          onBackPressed: onPreviousPage,
+          onBackPressed: () {
+            context
+                .read<CustomTokenImportBloc>()
+                .add(const ResetFormStatusEvent());
+            onPreviousPage();
+          },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text(
+                "Network: ${state.network?.abbr ?? 'No data'}",
+              ),
+              Text(
+                "Address: ${state.address ?? 'No data'}",
+              ),
+              Text(
+                "Decimals: ${state.decimals ?? 'No data'}",
+              ),
+              Text(
+                "Token Data Abbr: ${state.tokenData == null ? 'No data' : state.tokenData!['abbr']}",
+              ),
+              Text(
+                "Token Data Image URL: ${state.tokenData == null ? 'No data' : state.tokenData!['image_url']}",
+              ),
+              Text(
+                "Token Data Balance: ${state.tokenData == null ? 'No data' : state.tokenData!['balance']}",
+              ),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  (flowCompleted ? state.address : state.formErrorMessage) ??
+                  (flowCompleted ? state.address : state.importErrorMessage) ??
                       '',
                   textAlign: flowCompleted ? TextAlign.center : TextAlign.start,
                   style: TextStyle(

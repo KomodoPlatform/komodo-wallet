@@ -42,3 +42,7 @@ class SubmitImportCustomTokenEvent extends CustomTokenImportEvent {
 class SubmitFetchCustomTokenEvent extends CustomTokenImportEvent {
   const SubmitFetchCustomTokenEvent();
 }
+
+class ResetFormStatusEvent extends CustomTokenImportEvent {
+  const ResetFormStatusEvent();
+}

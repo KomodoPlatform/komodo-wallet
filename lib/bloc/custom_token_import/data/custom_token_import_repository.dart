@@ -16,8 +16,8 @@ class CustomTokenImportMockRepository implements ICustomTokenImportRepository {
     await Future.delayed(const Duration(seconds: 2));
 
     final random = Random();
-    if (random.nextInt(3) == 0) {
-      throw Exception(LocaleKeys.tokenNotFound.tr());
+    if (random.nextInt(2) == 0) {
+      throw LocaleKeys.tokenNotFound.tr();
     }
 
     return {

@@ -14,6 +14,15 @@ class CustomTokenImportBloc
     on<UpdateDecimalsEvent>(_onUpdateDecimals);
     on<SubmitImportCustomTokenEvent>(_onSubmitImportCustomToken);
     on<SubmitFetchCustomTokenEvent>(_onSubmitFetchCustomToken);
+    on<ResetFormStatusEvent>(_onResetFormStatus);
+  }
+
+  void _onResetFormStatus(
+      ResetFormStatusEvent event, Emitter<CustomTokenImportState> emit) {
+    emit(state.copyWith(
+      formStatus: () => FormStatus.initial,
+      formErrorMessage: () => null,
+    ));
   }
 
   void _onUpdateAsset(
@@ -42,6 +51,7 @@ class CustomTokenImportBloc
       emit(state.copyWith(
         formStatus: () => FormStatus.success,
         tokenData: () => tokenData,
+        formErrorMessage: () => null,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -61,6 +71,7 @@ class CustomTokenImportBloc
 
       emit(state.copyWith(
         importStatus: () => FormStatus.success,
+        importErrorMessage: () => null,
       ));
     } catch (e) {
       emit(state.copyWith(
