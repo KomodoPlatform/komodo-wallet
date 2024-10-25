@@ -288,6 +288,10 @@ class ImportSubmitPage extends StatelessWidget {
 
         final flowCompleted = state.importStatus == FormStatus.success;
 
+        final usdBalance = state.tokenData?['usd_balance'] != null
+            ? '\$${double.parse(state.tokenData!['usd_balance'].toString()).toStringAsFixed(2)} USD'
+            : null;
+
         return BasePage(
           title: LocaleKeys.importToken.tr(),
           onBackPressed: () {
@@ -299,38 +303,70 @@ class ImportSubmitPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                "Network: ${state.network?.abbr ?? 'No data'}",
-              ),
-              Text(
-                "Address: ${state.address ?? 'No data'}",
-              ),
-              Text(
-                "Decimals: ${state.decimals ?? 'No data'}",
-              ),
-              Text(
-                "Token Data Abbr: ${state.tokenData == null ? 'No data' : state.tokenData!['abbr']}",
-              ),
-              Text(
-                "Token Data Image URL: ${state.tokenData == null ? 'No data' : state.tokenData!['image_url']}",
-              ),
-              Text(
-                "Token Data Balance: ${state.tokenData == null ? 'No data' : state.tokenData!['balance']}",
-              ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  (flowCompleted ? state.address : state.importErrorMessage) ??
-                      '',
-                  textAlign: flowCompleted ? TextAlign.center : TextAlign.start,
-                  style: TextStyle(
-                    color: flowCompleted
-                        ? theme.custom.increaseColor
-                        : Theme.of(context).colorScheme.error,
-                  ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (state.tokenData?['image_url'] != null)
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Image.asset(
+                          state.tokenData!['image_url'],
+                          width: 48,
+                          height: 48,
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    Text(
+                      state.tokenData?['abbr'] ?? '',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 32),
+                    Text(
+                      'Balance',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.grey,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${state.tokenData?['balance'] ?? '0'} ${state.tokenData?['abbr'] ?? ''}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    if (usdBalance != null)
+                      Text(
+                        usdBalance,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Colors.grey,
+                            ),
+                      ),
+                  ],
                 ),
               ),
+              if (state.importErrorMessage != null || flowCompleted)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    (flowCompleted
+                            ? state.address
+                            : state.importErrorMessage) ??
+                        '',
+                    textAlign:
+                        flowCompleted ? TextAlign.center : TextAlign.start,
+                    style: TextStyle(
+                      color: flowCompleted
+                          ? theme.custom.increaseColor
+                          : Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
               UiPrimaryButton(
                 onPressed: isSubmitEnabled
                     ? () {
