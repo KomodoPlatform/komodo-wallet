@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/coin_type.dart';
 
 enum FormStatus { initial, submitting, success, failure }
 
 class CustomTokenImportState extends Equatable {
   final FormStatus formStatus;
   final FormStatus importStatus;
-  final Coin? network;
+  final CoinType? network;
   final String? address;
   final int? decimals;
   final String? formErrorMessage;
@@ -27,7 +27,7 @@ class CustomTokenImportState extends Equatable {
   CustomTokenImportState copyWith({
     FormStatus Function()? formStatus,
     FormStatus Function()? importStatus,
-    Coin? Function()? network,
+    CoinType? Function()? network,
     String? Function()? address,
     int? Function()? decimals,
     String? Function()? formErrorMessage,
@@ -50,7 +50,7 @@ class CustomTokenImportState extends Equatable {
   }
 
   CustomTokenImportState resetWith({
-    Coin? Function()? network,
+    CoinType? Function()? network,
     String? Function()? address,
     int? Function()? decimals,
     FormStatus Function()? formStatus,

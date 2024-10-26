@@ -7,8 +7,9 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_bloc.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/coin_type.dart';
+import 'package:web_dex/model/coin_utils.dart';
 
 class CustomTokenImportDialog extends StatefulWidget {
   const CustomTokenImportDialog({Key? key}) : super(key: key);
@@ -135,10 +136,7 @@ class ImportFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initializing controllers with initial values from the BLoC state
     final state = context.read<CustomTokenImportBloc>().state;
-    final networkController =
-        TextEditingController(text: state.network?.abbr ?? '');
     final addressController = TextEditingController(text: state.address ?? '');
     final decimalsController = TextEditingController(
       text: state.decimals?.toString() ?? '',
@@ -188,19 +186,28 @@ class ImportFormPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                TextFormField(
-                  controller: networkController,
-                  enabled: !flowCompleted,
-                  onChanged: (value) {
-                    final coin = coinsBloc.getCoin(value);
-                    context
-                        .read<CustomTokenImportBloc>()
-                        .add(UpdateNetworkEvent(coin));
-                  },
+                DropdownButtonFormField<CoinType>(
+                  value: state.network,
+                  isExpanded: true,
                   decoration: InputDecoration(
                     labelText: LocaleKeys.selectNetwork.tr(),
                     border: const OutlineInputBorder(),
                   ),
+                  items: CoinType.values.map((CoinType coinType) {
+                    return DropdownMenuItem<CoinType>(
+                      value: coinType,
+                      child: Text(getCoinTypeNameLong(coinType)),
+                    );
+                  }).toList(),
+                  onChanged: flowCompleted
+                      ? null
+                      : (CoinType? value) {
+                          if (value != null) {
+                            context
+                                .read<CustomTokenImportBloc>()
+                                .add(UpdateNetworkEvent(value));
+                          }
+                        },
                 ),
                 const SizedBox(height: 24),
                 TextFormField(

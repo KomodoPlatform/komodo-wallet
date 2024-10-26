@@ -48,7 +48,7 @@ class CustomTokenImportBloc
 
     try {
       final tokenData = await repository.fetchCustomToken(
-          state.network!.abbr, state.address!, state.decimals!);
+          state.network!, state.address!, state.decimals!);
 
       emit(state.copyWith(
         formStatus: () => FormStatus.success,
@@ -69,7 +69,7 @@ class CustomTokenImportBloc
 
     try {
       await repository.importCustomToken(
-          state.network!.abbr, state.address!, state.decimals!);
+          state.network!, state.address!, state.decimals!);
 
       emit(state.copyWith(
         importStatus: () => FormStatus.success,
