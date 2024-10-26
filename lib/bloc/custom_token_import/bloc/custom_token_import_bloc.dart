@@ -22,6 +22,8 @@ class CustomTokenImportBloc
     emit(state.copyWith(
       formStatus: () => FormStatus.initial,
       formErrorMessage: () => null,
+      importStatus: () => FormStatus.initial,
+      importErrorMessage: () => null,
     ));
   }
 

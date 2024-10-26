@@ -355,7 +355,7 @@ class ImportSubmitPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     (flowCompleted
-                            ? state.address
+                            ? LocaleKeys.successful.tr()
                             : state.importErrorMessage) ??
                         '',
                     textAlign:
