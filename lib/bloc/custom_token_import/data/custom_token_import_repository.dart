@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/coin_utils.dart';
 
 abstract class ICustomTokenImportRepository {
   Future<Map<String, dynamic>> fetchCustomToken(
