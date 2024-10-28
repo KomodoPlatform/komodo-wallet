@@ -107,7 +107,13 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         );
       },
       onError: (e, s) {
-        logger.log('Failed to load portfolio profit/loss: $e', isError: true);
+        logger
+            .log(
+              'Failed to load portfolio profit/loss: $e',
+              isError: true,
+              trace: s,
+            )
+            .ignore();
         return ProfitLossLoadFailure(
           error: TextError(error: 'Failed to load portfolio profit/loss: $e'),
           selectedPeriod: event.selectedPeriod,

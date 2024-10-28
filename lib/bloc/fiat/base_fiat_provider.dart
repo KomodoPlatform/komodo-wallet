@@ -3,45 +3,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
+import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/coin_utils.dart';
+import 'package:web_dex/shared/utils/window/window.dart';
 
-const String domain = "https://fiat-ramps-proxy.komodo.earth";
-
-class Currency {
-  final String symbol;
-  final String name;
-  final CoinType? chainType;
-  final bool isFiat;
-
-  Currency(this.symbol, this.name, {this.chainType, required this.isFiat});
-
-  String getAbbr() {
-    if (chainType == null) return symbol;
-
-    final t = chainType;
-    if (t == null ||
-        t == CoinType.utxo ||
-        (t == CoinType.cosmos && symbol == 'ATOM') ||
-        (t == CoinType.cosmos && symbol == 'ATOM') ||
-        (t == CoinType.erc20 && symbol == 'ETH') ||
-        (t == CoinType.bep20 && symbol == 'BNB') ||
-        (t == CoinType.avx20 && symbol == 'AVAX') ||
-        (t == CoinType.etc && symbol == 'ETC') ||
-        (t == CoinType.ftm20 && symbol == 'FTM') ||
-        (t == CoinType.arb20 && symbol == 'ARB') ||
-        (t == CoinType.hrc20 && symbol == 'ONE') ||
-        (t == CoinType.plg20 && symbol == 'MATIC') ||
-        (t == CoinType.mvr20 && symbol == 'MOVR')) return symbol;
-
-    return '$symbol-${getCoinTypeName(chainType!).replaceAll('-', '')}';
-  }
-
-  /// Returns the short name of the coin including the chain type (if any).
-  String formatNameShort() {
-    return '$name${chainType != null ? ' (${getCoinTypeName(chainType!)})' : ''}';
-  }
-}
+const String domain = 'https://fiat-ramps-proxy.komodo.earth';
 
 abstract class BaseFiatProvider {
   String getProviderId();
@@ -50,27 +16,27 @@ abstract class BaseFiatProvider {
 
   Stream<FiatOrderStatus> watchOrderStatus(String orderId);
 
-  Future<List<Currency>> getFiatList();
+  Future<List<ICurrency>> getFiatList();
 
-  Future<List<Currency>> getCoinList();
+  Future<List<ICurrency>> getCoinList();
 
-  Future<List<Map<String, dynamic>>> getPaymentMethodsList(
+  Future<List<FiatPaymentMethod>> getPaymentMethodsList(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
   );
 
-  Future<Map<String, dynamic>> getPaymentMethodPrice(
+  Future<FiatPriceInfo> getPaymentMethodPrice(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
-    Map<String, dynamic> paymentMethod,
+    FiatPaymentMethod paymentMethod,
   );
 
-  Future<Map<String, dynamic>> buyCoin(
+  Future<FiatBuyOrderInfo> buyCoin(
     String accountReference,
     String source,
-    Currency target,
+    ICurrency target,
     String walletAddress,
     String paymentMethodId,
     String sourceAmount,
@@ -130,15 +96,15 @@ abstract class BaseFiatProvider {
         return json.decode(response.body);
       } else {
         return Future.error(
-          json.decode(response.body),
+          json.decode(response.body) as Object,
         );
       }
     } catch (e) {
-      return Future.error("Network error: $e");
+      return Future.error('Network error: $e');
     }
   }
 
-  String? getCoinChainId(Currency currency) {
+  String? getCoinChainId(CryptoCurrency currency) {
     switch (currency.chainType) {
       // These exist in the current fiat provider coin lists:
       case CoinType.utxo:
@@ -164,6 +130,7 @@ abstract class BaseFiatProvider {
         return 'MATIC';
       case CoinType.mvr20:
         return 'MOVR';
+      // ignore: no_default_cases
       default:
         return null;
     }
@@ -246,34 +213,69 @@ abstract class BaseFiatProvider {
 
   CoinType? getCoinType(String chain) {
     switch (chain) {
-      case "BTC":
-      case "BCH":
-      case "DOGE":
-      case "LTC":
+      case 'BTC':
+      case 'BCH':
+      case 'DOGE':
+      case 'LTC':
         return CoinType.utxo;
-      case "ETH":
+      case 'ETH':
         return CoinType.erc20;
-      case "BSC":
-      case "BNB":
+      case 'BSC':
+      case 'BNB':
         return CoinType.bep20;
-      case "ATOM":
+      case 'ATOM':
         return CoinType.cosmos;
-      case "AVAX":
+      case 'AVAX':
         return CoinType.avx20;
-      case "ETC":
+      case 'ETC':
         return CoinType.etc;
-      case "FTM":
+      case 'FTM':
         return CoinType.ftm20;
-      case "ARB":
+      case 'ARB':
         return CoinType.arb20;
-      case "HARMONY":
+      case 'HARMONY':
         return CoinType.hrc20;
-      case "MATIC":
+      case 'MATIC':
         return CoinType.plg20;
-      case "MOVR":
+      case 'MOVR':
         return CoinType.mvr20;
       default:
         return null;
     }
+  }
+
+  /// Provides the base URL to the intermediate html page that is used to
+  /// bypass CORS restrictions so that console.log and postMessage events
+  /// can be received and handled.
+  static String fiatWrapperPageUrl(String providerUrl) {
+    final encodedUrl = base64Encode(utf8.encode(providerUrl));
+
+    return '${getOriginUrl()}/assets/assets/'
+        'web_pages/fiat_widget.html?fiatUrl=$encodedUrl';
+  }
+
+  /// Provides the URL to the checkout handler HTML page that posts the payment
+  /// status received from the fiat provider to the Komodo Wallet app. The
+  /// `window.opener.postMessage` function is used for this purpose, and should
+  /// be handled by the Komodo Wallet app.
+  static String checkoutCallbackUrl() {
+    const pagePath = 'assets/assets/web_pages/checkout_status_redirect.html';
+    return '${getOriginUrl()}/$pagePath';
+  }
+
+  /// Provides the URL to the checkout handler HTML page that posts the payment
+  /// status received from the fiat provider to the Komodo Wallet app.
+  static String successUrl(String accountReference) {
+    final baseUrl = checkoutCallbackUrl();
+
+    final queryString = {
+      'account_reference': accountReference,
+      'status': 'success',
+    }
+        .entries
+        .map<String>((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+
+    return '$baseUrl?$queryString';
   }
 }

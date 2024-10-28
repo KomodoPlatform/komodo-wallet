@@ -18,6 +18,7 @@ import 'package:web_dex/bloc/cex_market_data/cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/runtime_coin_updates/runtime_update_config_provider.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
+import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/blocs/startup_bloc.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';

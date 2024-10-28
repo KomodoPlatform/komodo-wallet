@@ -27,7 +27,7 @@ File structure example bellow:
 
 [Manual testing plan](https://docs.google.com/spreadsheets/d/1EiFwI00VJFj5lRm-x-ybRoV8r17EW3GnhzTBR628XjM/edit#gid=0)
 
-## Debugging web version on desktop 
+## Debugging web version on desktop
 
 ## HTTP
 
@@ -40,7 +40,7 @@ flutter run -d chrome --web-hostname=0.0.0.0 --web-port=7777
 ### Generate self-signed certificate with openssl
 
 ```bash
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha512 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=http://localhost.com"
 ```
 
 ### Run flutter with self-signed certificate
@@ -126,3 +126,128 @@ At the time of writing used branch [gen-recoverable-swap](https://github.com/Kom
   2. BOB_PASSPHRASE uses for maker
   3. TAKER_FAIL_AT values see [here](https://github.com/KomodoPlatform/atomicDEX-API/pull/1428/files#diff-3b58e25a3c557aa8a502011591e9a7d56441fd147c2ab072e108902a06ef3076R481)
   4. MAKER_FAIL_AT values see [here](https://github.com/KomodoPlatform/atomicDEX-API/pull/1428/files#diff-608240539630bec8eb43b211b0b74ec3580b34dda66e339bac21c04b1db6da43R1861)
+
+### iOS Crash Logs
+
+Look for entries starting with or containing "Runner" or "Komodo"
+
+- On a real device: Go to Settings -> Privacy -> Analytics & Improvements -> Analytics Data
+- In Simulator: ~/Library/Logs/DiagnosticReports/
+
+## Visual Studio Code Configuration
+
+### launch.json
+
+Replace `$HOME` with your home directory if there are any issues with the path.
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "KW (debug)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--web-port",
+                "6969"
+            ]
+        },
+        {
+            "name": "KW (debug,https)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--web-port",
+                "6970",
+                "--web-tls-cert-path",
+                "$HOME/.ssh/debug/server.crt",
+                "--web-tls-cert-key-path",
+                "$HOME/.ssh/debug/server.key"
+            ]
+        },
+        {
+            "name": "KW (debug,https,no-web-security)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--web-port",
+                "6971",
+                "--web-browser-flag",
+                "--disable-web-security",
+                "--web-tls-cert-path",
+                "$HOME/.ssh/debug/server.crt",
+                "--web-tls-cert-key-path",
+                "$HOME/.ssh/debug/server.key"
+            ]
+        },
+        {
+            "name": "KW (profile)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "args": [
+                "--web-port",
+                "6972"
+            ]
+        },
+        {
+            "name": "KW (profile,https)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "args": [
+                "--web-port",
+                "6973",
+                "--web-tls-cert-path",
+                "$HOME/.ssh/debug/server.crt",
+                "--web-tls-cert-key-path",
+                "$HOME/.ssh/debug/server.key"
+            ]
+        },
+        {
+            "name": "KW (release)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--web-port",
+                "8080"
+            ]
+        },
+        {
+            "name": "KW (release,https)",
+            "program": "lib/main.dart",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "--web-port",
+                "8081",
+                "--web-tls-cert-path",
+                "$HOME/.ssh/debug/server.crt",
+                "--web-tls-cert-key-path",
+                "$HOME/.ssh/debug/server.key"
+            ]
+        }
+    ]
+}
+```
+
+### settings.json
+
+```json
+{
+  "dart.flutterSdkPath": ".fvm/versions/stable",
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true
+  }
+}
+```

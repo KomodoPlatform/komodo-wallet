@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
+import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class BanxaFiatProvider extends BaseFiatProvider {
-  final String providerId = "Banxa";
-  final String apiEndpoint = "/api/v1/banxa";
-
   BanxaFiatProvider();
+  final String providerId = 'Banxa';
+  final String apiEndpoint = '/api/v1/banxa';
 
   @override
   String getProviderId() {
@@ -26,9 +26,9 @@ class BanxaFiatProvider extends BaseFiatProvider {
     return _parseOrderStatus(statusString ?? '');
   }
 
-  Future _getPaymentMethods(
+  Future<dynamic> _getPaymentMethods(
     String source,
-    Currency target, {
+    ICurrency target, {
     String? sourceAmount,
   }) =>
       apiRequest(
@@ -37,15 +37,15 @@ class BanxaFiatProvider extends BaseFiatProvider {
         queryParams: {
           'endpoint': '/api/payment-methods',
           'source': source,
-          'target': target.symbol
+          'target': target.symbol,
         },
       );
 
-  Future _getPricesWithPaymentMethod(
+  Future<dynamic> _getPricesWithPaymentMethod(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
-    Map<String, dynamic> paymentMethod,
+    FiatPaymentMethod paymentMethod,
   ) =>
       apiRequest(
         'GET',
@@ -55,24 +55,29 @@ class BanxaFiatProvider extends BaseFiatProvider {
           'source': source,
           'target': target.symbol,
           'source_amount': sourceAmount,
-          'payment_method_id': paymentMethod['id'].toString(),
+          'payment_method_id': paymentMethod.id,
         },
       );
 
-  Future _createOrder(Map<String, dynamic> payload) =>
-      apiRequest('POST', apiEndpoint,
-          queryParams: {
-            'endpoint': '/api/orders',
-          },
-          body: payload);
+  Future<dynamic> _createOrder(Map<String, dynamic> payload) => apiRequest(
+        'POST',
+        apiEndpoint,
+        queryParams: {
+          'endpoint': '/api/orders',
+        },
+        body: payload,
+      );
 
-  Future _getOrder(String orderId) =>
-      apiRequest('GET', apiEndpoint, queryParams: {
-        'endpoint': '/api/orders',
-        'order_id': orderId,
-      });
+  Future<dynamic> _getOrder(String orderId) => apiRequest(
+        'GET',
+        apiEndpoint,
+        queryParams: {
+          'endpoint': '/api/orders',
+          'order_id': orderId,
+        },
+      );
 
-  Future _getFiats() => apiRequest(
+  Future<dynamic> _getFiats() => apiRequest(
         'GET',
         apiEndpoint,
         queryParams: {
@@ -81,7 +86,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         },
       );
 
-  Future _getCoins() => apiRequest(
+  Future<dynamic> _getCoins() => apiRequest(
         'GET',
         apiEndpoint,
         queryParams: {
@@ -129,11 +134,12 @@ class BanxaFiatProvider extends BaseFiatProvider {
     // needs to be re-implemented for mobile/desktop.
     while (true) {
       final response = await _getOrder(orderId)
-          .catchError((e) => Future.error('Error fetching order: $e'));
+          .catchError((e) => Future<void>.error('Error fetching order: $e'));
 
-      log('Fiat order status response:\n${jsonEncode(response)}');
+      log('Fiat order status response:\n${jsonEncode(response)}').ignore();
 
-      final status = _parseStatusFromResponse(response);
+      final status =
+          _parseStatusFromResponse(response as Map<String, dynamic>? ?? {});
 
       final isCompleted =
           status == FiatOrderStatus.success || status == FiatOrderStatus.failed;
@@ -146,41 +152,46 @@ class BanxaFiatProvider extends BaseFiatProvider {
 
       if (isCompleted) break;
 
-      await Future.delayed(const Duration(seconds: 5));
+      await Future<void>.delayed(const Duration(seconds: 5));
     }
   }
 
   @override
-  Future<List<Currency>> getFiatList() async {
+  Future<List<ICurrency>> getFiatList() async {
     final response = await _getFiats();
     final data = response['data']['fiats'] as List<dynamic>;
     return data
-        .map((item) => Currency(
-              item['fiat_code'] as String,
-              item['fiat_name'] as String,
-              isFiat: true,
-            ))
+        .map(
+          (item) => FiatCurrency(
+            item['fiat_code'] as String,
+            item['fiat_name'] as String,
+          ),
+        )
         .toList();
   }
 
   @override
-  Future<List<Currency>> getCoinList() async {
+  Future<List<ICurrency>> getCoinList() async {
     final response = await _getCoins();
     final data = response['data']['coins'] as List<dynamic>;
 
-    List<Currency> currencyList = [];
+    final List<ICurrency> currencyList = [];
     for (final item in data) {
       final coinCode = item['coin_code'] as String;
       final coinName = item['coin_name'] as String;
       final blockchains = item['blockchains'] as List<dynamic>;
 
       for (final blockchain in blockchains) {
+        final coinType = getCoinType(blockchain['code'] as String);
+        if (coinType == null) {
+          continue;
+        }
+
         currencyList.add(
-          Currency(
+          CryptoCurrency(
             coinCode,
             coinName,
-            chainType: getCoinType(blockchain['code'] as String),
-            isFiat: false,
+            coinType,
           ),
         );
       }
@@ -190,18 +201,23 @@ class BanxaFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getPaymentMethodsList(
+  Future<List<FiatPaymentMethod>> getPaymentMethodsList(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
   ) async {
     try {
       final response =
           await _getPaymentMethods(source, target, sourceAmount: sourceAmount);
-      List<Map<String, dynamic>> paymentMethods =
-          List<Map<String, dynamic>>.from(response['data']['payment_methods']);
+      final List<FiatPaymentMethod> paymentMethods = (response['data']
+              ['payment_methods'] as List)
+          .map(
+            (json) =>
+                FiatPaymentMethod.fromJson(json as Map<String, dynamic>? ?? {}),
+          )
+          .toList();
 
-      List<Future<Map<String, dynamic>>> priceFutures = [];
+      final List<Future<FiatPriceInfo>> priceFutures = [];
       for (final paymentMethod in paymentMethods) {
         final futurePrice = getPaymentMethodPrice(
           source,
@@ -213,11 +229,13 @@ class BanxaFiatProvider extends BaseFiatProvider {
       }
 
       // Wait for all futures to complete
-      List<Map<String, dynamic>> prices = await Future.wait(priceFutures);
+      final List<FiatPriceInfo> prices = await Future.wait(priceFutures);
 
       // Combine price information with payment methods
       for (int i = 0; i < paymentMethods.length; i++) {
-        paymentMethods[i]['price_info'] = prices[i];
+        paymentMethods[i] = paymentMethods[i].copyWith(
+          priceInfo: prices[i],
+        );
       }
 
       return paymentMethods;
@@ -227,30 +245,42 @@ class BanxaFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<Map<String, dynamic>> getPaymentMethodPrice(
+  Future<FiatPriceInfo> getPaymentMethodPrice(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
-    Map<String, dynamic> paymentMethod,
+    FiatPaymentMethod paymentMethod,
   ) async {
     try {
       final response = await _getPricesWithPaymentMethod(
-        source,
-        target,
-        sourceAmount,
-        paymentMethod,
+            source,
+            target,
+            sourceAmount,
+            paymentMethod,
+          ) as Map<String, dynamic>? ??
+          {};
+      final responseData = response['data'] as Map<String, dynamic>? ?? {};
+      final prices = responseData['prices'] as List;
+      return FiatPriceInfo.fromJson(
+        prices.first as Map<String, dynamic>? ?? {},
       );
-      return Map<String, dynamic>.from(response['data']['prices'][0]);
-    } catch (e) {
-      return {};
+    } catch (e, s) {
+      log(
+        'Failed to get payment method price: $e',
+        isError: true,
+        trace: s,
+        // leaving path here until we figure out how to include stack trace
+        path: 'Banxa.getPaymentMethodPrice',
+      ).ignore();
+      return const FiatPriceInfo.zero();
     }
   }
 
   @override
-  Future<Map<String, dynamic>> buyCoin(
+  Future<FiatBuyOrderInfo> buyCoin(
     String accountReference,
     String source,
-    Currency target,
+    ICurrency target,
     String walletAddress,
     String paymentMethodId,
     String sourceAmount,
@@ -260,23 +290,23 @@ class BanxaFiatProvider extends BaseFiatProvider {
       'account_reference': accountReference,
       'source': source,
       'target': target.symbol,
-      "wallet_address": walletAddress,
+      'wallet_address': walletAddress,
       'payment_method_id': paymentMethodId,
       'source_amount': sourceAmount,
       'return_url_on_success': returnUrlOnSuccess,
     };
 
-    log('Fiat buy coin order payload:');
-    log(jsonEncode(payload));
+    await log('Fiat buy coin order payload:');
+    await log(jsonEncode(payload));
     final response = await _createOrder(payload);
-    log('Fiat buy coin order response:');
-    log(jsonEncode(response));
+    await log('Fiat buy coin order response:');
+    await log(jsonEncode(response));
 
-    return Map<String, dynamic>.from(response);
+    return FiatBuyOrderInfo.fromJson(response as Map<String, dynamic>? ?? {});
   }
 
   @override
-  String? getCoinChainId(Currency currency) {
+  String? getCoinChainId(CryptoCurrency currency) {
     switch (currency.chainType) {
       case CoinType.bep20:
         return 'BNB'; // It's BSC usually, different for this provider

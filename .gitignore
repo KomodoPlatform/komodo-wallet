@@ -35,6 +35,7 @@
 .pub/
 /build/
 contrib/coins_config.json
+devtools_options.yaml
 
 # Web related
 web/index.html

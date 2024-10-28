@@ -1,12 +1,28 @@
+import 'dart:io';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import 'models/coin_info.dart';
 import 'models/models.dart';
 
 class KomodoCoinUpdater {
-  static Future<void> ensureInitialized(String appFolder) async {
-    await Hive.initFlutter(appFolder);
+  /// Initialises Hive with the path to the app folder. This should be called
+  /// before any other operations with this package. If [isWeb] is true, then
+  /// [Hive.initFlutter] is called instead of [Hive.init].
+  static Future<void> ensureInitialized(
+    String appFolder, {
+    bool isWeb = false,
+  }) async {
+    if (isWeb) {
+      await Hive.initFlutter(appFolder);
+    } else {
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final String path = p.join(appDir.path, appFolder);
+      Hive.init(path);
+    }
     initializeAdapters();
   }
 

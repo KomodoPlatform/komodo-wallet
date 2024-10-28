@@ -66,7 +66,7 @@ class MarketMakerTradeFormBloc
 
   Future<void> _onSellCoinChanged(
     MarketMakerTradeFormSellCoinChanged event,
-    Emitter emit,
+    Emitter<MarketMakerTradeFormState> emit,
   ) async {
     final identicalBuyAndSellCoins = state.buyCoin.value == event.sellCoin;
     final sellCoinBalance = event.sellCoin?.balance ?? 0;

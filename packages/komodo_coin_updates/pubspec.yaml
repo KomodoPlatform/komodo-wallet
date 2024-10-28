@@ -9,6 +9,8 @@ environment:
 # Add regular dependencies here.
 dependencies:
   http: 1.2.2 # dart.dev
+  path_provider: 2.1.1  # flutter.dev
+  path: 1.9.0 # dart.dev - transitive to direct
 
   komodo_persistence_layer:
     path: ../komodo_persistence_layer/

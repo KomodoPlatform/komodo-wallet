@@ -20,7 +20,6 @@ class BitrefillBloc extends Bloc<BitrefillEvent, BitrefillState> {
   }
 
   final BitrefillRepository _bitrefillRepository;
-  StreamSubscription<BitrefillPaymentIntentEvent>? _paymentIntentSubscription;
 
   Future<void> _onBitrefillLoadRequested(
     BitrefillLoadRequested event,
@@ -41,12 +40,7 @@ class BitrefillBloc extends Bloc<BitrefillEvent, BitrefillState> {
     BitrefillEvent event,
     Emitter<BitrefillState> emit,
   ) {
-    _paymentIntentSubscription?.cancel();
-    _paymentIntentSubscription = _bitrefillRepository
-        .watchPaymentIntent()
-        .listen((BitrefillPaymentIntentEvent event) {
-      add(BitrefillPaymentIntentReceived(event));
-    });
+    // previously handled payment intent watching here
   }
 
   void _onBitrefillPaymentIntentReceived(
@@ -69,11 +63,5 @@ class BitrefillBloc extends Bloc<BitrefillEvent, BitrefillState> {
         .invoiceId
         .toString();
     emit(BitrefillPaymentSuccess(invoiceId: invoiceId));
-  }
-
-  @override
-  Future<void> close() {
-    _paymentIntentSubscription?.cancel();
-    return super.close();
   }
 }

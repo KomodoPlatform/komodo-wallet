@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:web_dex/app_config/app_config.dart';
 
@@ -17,7 +17,7 @@ class FiatIcon extends StatefulWidget {
 }
 
 class _FiatIconState extends State<FiatIcon> {
-  bool? _assetExists;
+  bool _assetExists = false;
 
   @override
   void initState() {
@@ -37,9 +37,11 @@ class _FiatIconState extends State<FiatIcon> {
 
   void setOrFetchAssetExistence() {
     if (_knownAssetExistence != null) {
-      setState(() => _assetExists = _knownAssetExistence);
+      setState(() => _assetExists = _knownAssetExistence!);
     } else {
       _checkIfAssetExists(context).then((exists) {
+        if (!mounted) return;
+
         setState(() => _assetExists = exists);
       });
     }
@@ -54,11 +56,10 @@ class _FiatIconState extends State<FiatIcon> {
     return _knownAssetExistence != null
         ? Future.value(_knownAssetExistence)
         : Future<bool>(() async {
-            // ignore: use_build_context_synchronously
-            final bundle = await _loadAssetManifest(context);
+            if (!mounted) return false;
 
-            // Check if asset exists in the asset bundle
-            final assetExists = bundle.contains(_assetPath);
+            // ignore: use_build_context_synchronously
+            final assetExists = await _doesAssetExist(context, _assetPath);
 
             FiatIcon._assetExistenceCache[_assetPath] = assetExists;
 
@@ -66,11 +67,15 @@ class _FiatIconState extends State<FiatIcon> {
           });
   }
 
-  Future<Set<String>> _loadAssetManifest(BuildContext context) async {
-    String manifestContent =
-        await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
-    Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    return manifestMap.keys.toSet();
+  Future<bool> _doesAssetExist(BuildContext context, String assetPath) async {
+    try {
+      // Try to load the image asset
+      await precacheImage(AssetImage(assetPath), context);
+      return true;
+    } catch (e) {
+      // Asset could not be loaded, return false
+      return false;
+    }
   }
 
   @override
@@ -82,7 +87,7 @@ class _FiatIconState extends State<FiatIcon> {
       child: Container(
         alignment: Alignment.center,
         width: 36,
-        child: (_assetExists == true)
+        child: _assetExists
             ? Image.asset(
                 '${FiatIcon._fiatAssetsFolder}/${widget.symbol.toLowerCase()}.webp',
                 key: Key(widget.symbol),

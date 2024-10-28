@@ -596,7 +596,7 @@ packages:
     description:
       path: "packages/komodo_wallet_build_transformer"
       ref: dev
-      resolved-ref: "388f04296a5531c3cdad766269a3040d2b4ee9ac"
+      resolved-ref: aed015fbec529f806ef40f59c884130d3b9b5806
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc_state.dart';
+import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
+import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/swap.dart';
@@ -40,62 +42,42 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthBlocState>(
-      listener: (context, state) {
-        if (state.mode == AuthorizeMode.noLogin) {
-          setState(() {
-            _activeTabIndex = 0;
-          });
-        }
-      },
-      child: _showSwap ? _buildTradingDetails() : _buildFiatPage(),
-    );
-  }
-
-  Widget _buildTradingDetails() {
-    return TradingDetails(
-      uuid: routingState.fiatState.uuid,
-    );
-  }
-
-  Widget _buildFiatPage() {
-    return PageLayout(
-      content: Expanded(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 650),
-          margin: isMobile ? const EdgeInsets.only(top: 14) : null,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: _backgroundColor(context),
-            borderRadius: BorderRadius.circular(18.0),
+    return BlocProvider(
+      create: (_) => FiatFormBloc(),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthBloc, AuthBlocState>(
+            listener: _handleAuthStateChange,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // TODO: Future feature to show fiat purchase history. Until then,
-              // we'll hide the tabs since only the first one is used.
-              // ConstrainedBox(
-              //   constraints:
-              //       BoxConstraints(maxWidth: theme.custom.dexFormWidth),
-              //   child: HiddenWithoutWallet(
-              //     child: FiatTabBar(
-              //       currentTabIndex: _activeTabIndex,
-              //       onTabClick: _setActiveTab,
-              //     ),
-              //   ),
-              // ),
-              Flexible(
-                child: _TabContent(
-                  activeTabIndex: _activeTabIndex,
-                  onCheckoutComplete: _onCheckoutComplete,
-                ),
+          BlocListener<FiatFormBloc, FiatFormState>(
+            listenWhen: (previous, current) =>
+                previous.fiatOrderStatus != current.fiatOrderStatus,
+            listener: _handleOrderStatusChange,
+          ),
+        ],
+        child: _showSwap
+            ? TradingDetails(
+                uuid: routingState.fiatState.uuid,
+              )
+            : FiatPageLayout(
+                activeTabIndex: _activeTabIndex,
               ),
-            ],
-          ),
-        ),
       ),
     );
+  }
+
+  void _handleOrderStatusChange(BuildContext context, FiatFormState state) {
+    if (state.fiatOrderStatus == FiatOrderStatus.success) {
+      _onCheckoutComplete(isSuccess: true);
+    }
+  }
+
+  void _handleAuthStateChange(BuildContext context, AuthBlocState state) {
+    if (state.mode == AuthorizeMode.noLogin) {
+      setState(() {
+        _activeTabIndex = 0;
+      });
+    }
   }
 
   // Will be used in the future for switching between tabs when we implement
@@ -105,14 +87,6 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
   //     _activeTabIndex = i;
   //   });
   // }
-
-  Color? _backgroundColor(BuildContext context) {
-    if (isMobile) {
-      final ThemeMode mode = theme.mode;
-      return mode == ThemeMode.dark ? null : Theme.of(context).cardColor;
-    }
-    return null;
-  }
 
   void _onRouteChange() {
     setState(() {
@@ -129,23 +103,74 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
   }
 }
 
+class FiatPageLayout extends StatelessWidget {
+  const FiatPageLayout({
+    required this.activeTabIndex,
+    super.key,
+  });
+
+  final int activeTabIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return PageLayout(
+      content: Expanded(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 650),
+          margin: isMobile ? const EdgeInsets.only(top: 14) : null,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: _backgroundColor(context),
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+          child: Column(
+            children: [
+              // TODO: Future feature to show fiat purchase history. Until then,
+              // we'll hide the tabs since only the first one is used.
+              // ConstrainedBox(
+              //   constraints:
+              //       BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+              //   child: HiddenWithoutWallet(
+              //     child: FiatTabBar(
+              //       currentTabIndex: _activeTabIndex,
+              //       onTabClick: _setActiveTab,
+              //     ),
+              //   ),
+              // ),
+              Flexible(
+                child: _TabContent(
+                  activeTabIndex: activeTabIndex,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color? _backgroundColor(BuildContext context) {
+    if (isMobile) {
+      final ThemeMode mode = theme.mode;
+      return mode == ThemeMode.dark ? null : Theme.of(context).cardColor;
+    }
+    return null;
+  }
+}
+
 class _TabContent extends StatelessWidget {
   const _TabContent({
     required int activeTabIndex,
-    required this.onCheckoutComplete,
     // ignore: unused_element
     super.key,
   }) : _activeTabIndex = activeTabIndex;
-
-  // TODO: Remove this when we have a proper bloc for this page
-  final Function({required bool isSuccess}) onCheckoutComplete;
 
   final int _activeTabIndex;
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> tabContents = [
-      FiatForm(onCheckoutComplete: onCheckoutComplete),
+      const FiatForm(),
       Padding(
         padding: const EdgeInsets.only(top: 20),
         child: InProgressList(

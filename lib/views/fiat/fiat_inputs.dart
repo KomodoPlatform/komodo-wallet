@@ -1,40 +1,47 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
-import 'package:web_dex/bloc/fiat/fiat_repository.dart';
+import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
+import 'package:web_dex/bloc/fiat/models/i_currency.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
+import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:web_dex/views/fiat/address_bar.dart';
+import 'package:web_dex/views/fiat/custom_fiat_input_field.dart';
+import 'package:web_dex/views/fiat/fiat_currency_item.dart';
 import 'package:web_dex/views/fiat/fiat_icon.dart';
 
 class FiatInputs extends StatefulWidget {
-  final Function(Currency, Currency) onUpdate;
-  final Function(String?) onFiatAmountUpdate;
-  final Currency initialFiat;
-  final Currency initialCoin;
-  final Map<String, dynamic>? selectedPaymentMethodPrice;
-  final bool isLoggedIn;
-  final String? receiveAddress;
-  final double? fiatMinAmount;
-  final double? fiatMaxAmount;
-  final String? boundariesError;
-
   const FiatInputs({
-    required this.onUpdate,
-    required this.onFiatAmountUpdate,
     required this.initialFiat,
+    required this.initialFiatAmount,
     required this.initialCoin,
+    required this.fiatList,
+    required this.coinList,
     required this.receiveAddress,
     required this.isLoggedIn,
+    required this.onFiatCurrencyChanged,
+    required this.onCoinChanged,
+    required this.onFiatAmountUpdate,
+    super.key,
     this.selectedPaymentMethodPrice,
     this.fiatMinAmount,
     this.fiatMaxAmount,
     this.boundariesError,
   });
+
+  final ICurrency initialFiat;
+  final double? initialFiatAmount;
+  final ICurrency initialCoin;
+  final Iterable<ICurrency> fiatList;
+  final Iterable<ICurrency> coinList;
+  final FiatPriceInfo? selectedPaymentMethodPrice;
+  final bool isLoggedIn;
+  final String? receiveAddress;
+  final double? fiatMinAmount;
+  final double? fiatMaxAmount;
+  final String? boundariesError;
+  final void Function(ICurrency) onFiatCurrencyChanged;
+  final void Function(ICurrency) onCoinChanged;
+  final void Function(String?) onFiatAmountUpdate;
 
   @override
   FiatInputsState createState() => FiatInputsState();
@@ -42,16 +49,6 @@ class FiatInputs extends StatefulWidget {
 
 class FiatInputsState extends State<FiatInputs> {
   TextEditingController fiatController = TextEditingController();
-
-  late Currency selectedFiat;
-  late Currency selectedCoin;
-  List<Currency> fiatList = [];
-  List<Currency> coinList = [];
-
-  // As part of refactoring, we need to move this to a bloc state. In this
-  // instance, we wanted to show the loading indicator in the parent widget
-  // but that's not possible with the current implementation.
-  bool get isLoading => fiatList.length < 2 || coinList.length < 2;
 
   @override
   void dispose() {
@@ -63,65 +60,43 @@ class FiatInputsState extends State<FiatInputs> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      selectedFiat = widget.initialFiat;
-      selectedCoin = widget.initialCoin;
-      fiatList = [widget.initialFiat];
-      coinList = [widget.initialCoin];
-    });
-    initFiatList();
-    initCoinList();
+    fiatController.text = widget.initialFiatAmount?.toString() ?? '';
   }
 
-  void initFiatList() async {
-    final list = await fiatRepository.getFiatList();
-    if (mounted) {
-      setState(() {
-        fiatList = list;
-      });
+  @override
+  void didUpdateWidget(FiatInputs oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final double? newFiatAmount = widget.initialFiatAmount;
+
+    // Convert the current text to double for comparison
+    final double currentFiatAmount =
+        double.tryParse(fiatController.text) ?? 0.0;
+
+    // Compare using double values
+    if (newFiatAmount != currentFiatAmount) {
+      final newFiatAmountText = newFiatAmount?.toString() ?? '';
+      fiatController
+        ..text = newFiatAmountText
+        ..selection = TextSelection.fromPosition(
+          TextPosition(offset: newFiatAmountText.length),
+        );
     }
   }
 
-  void initCoinList() async {
-    final list = await fiatRepository.getCoinList();
-    if (mounted) {
-      setState(() {
-        coinList = list;
-      });
-    }
-  }
-
-  void updateParent() {
-    widget.onUpdate(
-      selectedFiat,
-      selectedCoin,
-    );
-  }
-
-  void changeFiat(Currency? newValue) {
+  void changeFiat(ICurrency? newValue) {
     if (newValue == null) return;
 
-    if (mounted) {
-      setState(() {
-        selectedFiat = newValue;
-      });
-    }
-    updateParent();
+    widget.onFiatCurrencyChanged(newValue);
   }
 
-  void changeCoin(Currency? newValue) {
+  void changeCoin(ICurrency? newValue) {
     if (newValue == null) return;
 
-    if (mounted) {
-      setState(() {
-        selectedCoin = newValue;
-      });
-    }
-    updateParent();
+    widget.onCoinChanged(newValue);
   }
 
   void fiatAmountChanged(String? newValue) {
-    setState(() {});
     widget.onFiatAmountUpdate(newValue);
   }
 
@@ -129,11 +104,9 @@ class FiatInputsState extends State<FiatInputs> {
   Widget build(BuildContext context) {
     final priceInfo = widget.selectedPaymentMethodPrice;
 
-    final coinAmount = priceInfo != null && priceInfo.isNotEmpty
-        ? priceInfo['coin_amount']
-        : null;
-    final fiatListLoading = fiatList.length <= 1;
-    final coinListLoading = coinList.length <= 1;
+    final coinAmount = priceInfo?.coinAmount;
+    final fiatListLoading = widget.fiatList.length <= 1;
+    final coinListLoading = widget.coinList.length <= 1;
 
     final boundariesString = widget.fiatMaxAmount == null &&
             widget.fiatMinAmount == null
@@ -143,16 +116,19 @@ class FiatInputsState extends State<FiatInputs> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomFiatInputField(
+          key: const Key('fiat-amount-form-field'),
           controller: fiatController,
           hintText: '${LocaleKeys.enterAmount.tr()} $boundariesString',
           onTextChanged: fiatAmountChanged,
           label: Text(LocaleKeys.spend.tr()),
-          assetButton: _buildCurrencyItem(
+          assetButton: FiatCurrencyItem(
+            key: const Key('fiat-onramp-fiat-dropdown'),
+            foregroundColor: foregroundColor,
             disabled: fiatListLoading,
-            currency: selectedFiat,
+            currency: widget.initialFiat,
             icon: FiatIcon(
-              key: Key('fiat_icon_${selectedFiat.symbol}'),
-              symbol: selectedFiat.symbol,
+              key: Key('fiat_icon_${widget.initialFiat.symbol}'),
+              symbol: widget.initialFiat.symbol,
             ),
             onTap: () => _showAssetSelectionDialog('fiat'),
             isListTile: false,
@@ -160,11 +136,11 @@ class FiatInputsState extends State<FiatInputs> {
           inputError: widget.boundariesError,
         ),
         AnimatedContainer(
-          duration: const Duration(milliseconds: 00),
+          duration: Duration.zero,
           height: widget.boundariesError == null ? 0 : 8,
         ),
         Card(
-          margin: const EdgeInsets.all(0),
+          margin: EdgeInsets.zero,
           color: Theme.of(context).colorScheme.onSurface,
           child: ListTile(
             contentPadding:
@@ -173,29 +149,32 @@ class FiatInputsState extends State<FiatInputs> {
               padding: const EdgeInsets.only(top: 6.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(LocaleKeys.youReceive.tr()),
-                      Text(
-                        fiatController.text.isEmpty || priceInfo == null
-                            ? '0.00'
-                            : coinAmount ?? LocaleKeys.unknown.tr(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(fontSize: 24),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(LocaleKeys.youReceive.tr()),
+                        AutoScrollText(
+                          text: fiatController.text.isEmpty || priceInfo == null
+                              ? '0.00'
+                              : coinAmount.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(fontSize: 24),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 12),
                   SizedBox(
                     height: 48,
-                    child: _buildCurrencyItem(
+                    child: FiatCurrencyItem(
+                      key: const Key('fiat-onramp-coin-dropdown'),
+                      foregroundColor: foregroundColor,
                       disabled: coinListLoading,
-                      currency: selectedCoin,
+                      currency: widget.initialCoin,
                       icon: Icon(_getDefaultAssetIcon('coin')),
                       onTap: () => _showAssetSelectionDialog('coin'),
                       isListTile: false,
@@ -214,15 +193,13 @@ class FiatInputsState extends State<FiatInputs> {
     );
   }
 
-  IconData _getDefaultAssetIcon(String type) {
-    return type == 'fiat' ? Icons.attach_money : Icons.monetization_on;
-  }
-
   void _showAssetSelectionDialog(String type) {
     final isFiat = type == 'fiat';
-    List<Currency> itemList = isFiat ? fiatList : coinList;
+    final Iterable<ICurrency> itemList =
+        isFiat ? widget.fiatList : widget.coinList;
     final icon = Icon(_getDefaultAssetIcon(type));
-    Function(Currency) onItemSelected = isFiat ? changeFiat : changeCoin;
+    final void Function(ICurrency) onItemSelected =
+        isFiat ? changeFiat : changeCoin;
 
     _showSelectionDialog(
       context: context,
@@ -236,23 +213,27 @@ class FiatInputsState extends State<FiatInputs> {
   void _showSelectionDialog({
     required BuildContext context,
     required String title,
-    required List<Currency> itemList,
+    required Iterable<ICurrency> itemList,
     required Widget icon,
-    required Function(Currency) onItemSelected,
+    required void Function(ICurrency) onItemSelected,
   }) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          key: const Key('fiat-onramp-currency-dialog'),
           title: Text(title),
           content: SizedBox(
             width: 450,
             child: ListView.builder(
+              key: const Key('fiat-onramp-currency-list'),
               shrinkWrap: true,
               itemCount: itemList.length,
               itemBuilder: (BuildContext context, int index) {
-                final item = itemList[index];
-                return _buildCurrencyItem(
+                final item = itemList.elementAt(index);
+                return FiatCurrencyItem(
+                  key: Key('fiat-onramp-currency-item-${item.symbol}'),
+                  foregroundColor: foregroundColor,
                   disabled: false,
                   currency: item,
                   icon: icon,
@@ -270,283 +251,9 @@ class FiatInputsState extends State<FiatInputs> {
     );
   }
 
-  Widget _buildCurrencyItem({
-    required bool disabled,
-    required Currency currency,
-    required Widget icon,
-    required VoidCallback onTap,
-    required bool isListTile,
-  }) {
-    return FutureBuilder<bool>(
-      future: currency.isFiat
-          ? Future.value(true)
-          : checkIfAssetExists(currency.symbol),
-      builder: (context, snapshot) {
-        final assetExists = snapshot.connectionState == ConnectionState.done
-            ? snapshot.data ?? false
-            : null;
-        return isListTile
-            ? _buildListTile(
-                currency: currency,
-                icon: icon,
-                assetExists: assetExists,
-                onTap: onTap,
-              )
-            : _buildButton(
-                enabled: !disabled,
-                currency: currency,
-                icon: icon,
-                assetExists: assetExists,
-                onTap: onTap,
-              );
-      },
-    );
-  }
-
-  Widget _getAssetIcon({
-    required Currency currency,
-    required Widget icon,
-    bool? assetExists,
-    required VoidCallback onTap,
-  }) {
-    double size = 36.0;
-
-    if (currency.isFiat) {
-      return FiatIcon(symbol: currency.symbol);
-    }
-
-    if (assetExists != null && assetExists) {
-      return CoinIcon(currency.symbol, size: size);
-    } else {
-      return icon;
-    }
-  }
-
-  Widget _buildListTile({
-    required Currency currency,
-    required Widget icon,
-    bool? assetExists,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: _getAssetIcon(
-        currency: currency,
-        icon: icon,
-        assetExists: assetExists,
-        onTap: onTap,
-      ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            '${currency.name}${currency.chainType != null ? ' (${getCoinTypeName(currency.chainType!)})' : ''}',
-          ),
-          Text(currency.symbol),
-        ],
-      ),
-      onTap: onTap,
-    );
-  }
-
   Color get foregroundColor => Theme.of(context).colorScheme.onSurfaceVariant;
-
-  Widget _buildButton({
-    required bool enabled,
-    required Currency? currency,
-    required Widget icon,
-    bool? assetExists,
-    required VoidCallback onTap,
-  }) {
-    // TODO: Refactor so that [Currency] holds an enum for fiat/coin or create
-    // a separate class for fiat/coin that extend the same base class.
-    final isFiat = currency?.isFiat ?? false;
-
-    return FilledButton.icon(
-      onPressed: enabled ? onTap : null,
-      label: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                (isFiat ? currency?.getAbbr() : currency?.name) ??
-                    (isFiat
-                        ? LocaleKeys.selectFiat.tr()
-                        : LocaleKeys.selectCoin.tr()),
-                style: DefaultTextStyle.of(context).style.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: enabled
-                          ? foregroundColor
-                          : foregroundColor.withOpacity(0.5),
-                    ),
-              ),
-              if (!isFiat && currency != null)
-                Text(
-                  currency.chainType != null
-                      ? getCoinTypeName(currency.chainType!)
-                      : '',
-                  style: DefaultTextStyle.of(context).style.copyWith(
-                        color: enabled
-                            ? foregroundColor.withOpacity(0.5)
-                            : foregroundColor.withOpacity(0.25),
-                      ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 4),
-          Icon(
-            Icons.keyboard_arrow_down,
-            size: 28,
-            color: foregroundColor.withOpacity(enabled ? 1 : 0.5),
-          ),
-        ],
-      ),
-      style: (Theme.of(context).filledButtonTheme.style ?? const ButtonStyle())
-          .copyWith(
-        backgroundColor: WidgetStateProperty.all<Color>(
-            Theme.of(context).colorScheme.onSurface),
-        padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
-          const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-        ),
-        shape: WidgetStateProperty.all<OutlinedBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      icon: currency == null
-          ? Icon(_getDefaultAssetIcon(isFiat ? 'fiat' : 'coin'))
-          : _getAssetIcon(
-              currency: currency,
-              icon: icon,
-              assetExists: assetExists,
-              onTap: onTap,
-            ),
-    );
-  }
 }
 
-class AddressBar extends StatelessWidget {
-  const AddressBar({
-    super.key,
-    required this.receiveAddress,
-  });
-
-  final String? receiveAddress;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        child: InkWell(
-          customBorder: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          onTap: () => copyToClipBoard(context, receiveAddress!),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                if (receiveAddress != null && receiveAddress!.isNotEmpty)
-                  const Icon(Icons.copy, size: 16)
-                else
-                  const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    truncateMiddleSymbols(receiveAddress ?? ''),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomFiatInputField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hintText;
-  final Widget? label;
-  final Function(String?) onTextChanged;
-  final bool readOnly;
-  final Widget assetButton;
-  final String? inputError;
-
-  const CustomFiatInputField({
-    required this.controller,
-    required this.hintText,
-    required this.onTextChanged,
-    this.label,
-    this.readOnly = false,
-    required this.assetButton,
-    this.inputError,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor = Theme.of(context).colorScheme.onSurfaceVariant;
-
-    final inputStyle = Theme.of(context).textTheme.headlineLarge?.copyWith(
-          fontSize: 18,
-          fontWeight: FontWeight.w300,
-          color: textColor,
-          letterSpacing: 1.1,
-        );
-
-    InputDecoration inputDecoration = InputDecoration(
-      label: label,
-      labelStyle: inputStyle,
-      fillColor: Theme.of(context).colorScheme.onSurface,
-      floatingLabelStyle:
-          Theme.of(context).inputDecorationTheme.floatingLabelStyle,
-      floatingLabelBehavior: FloatingLabelBehavior.always,
-      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      hintText: hintText,
-      border: const OutlineInputBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(4),
-          topLeft: Radius.circular(4),
-          bottomRight: Radius.circular(18),
-          topRight: Radius.circular(18),
-        ),
-      ),
-      errorText: inputError,
-      errorMaxLines: 1,
-      helperText: '',
-    );
-
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.centerRight,
-      children: [
-        TextField(
-          autofocus: true,
-          controller: controller,
-          style: inputStyle,
-          decoration: inputDecoration,
-          readOnly: readOnly,
-          onChanged: onTextChanged,
-          inputFormatters: [FilteringTextInputFormatter.allow(numberRegExp)],
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        ),
-        Positioned(
-          right: 16,
-          bottom: 26,
-          top: 2,
-          child: assetButton,
-        ),
-      ],
-    );
-  }
+IconData _getDefaultAssetIcon(String type) {
+  return type == 'fiat' ? Icons.attach_money : Icons.monetization_on;
 }

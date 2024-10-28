@@ -39,7 +39,10 @@ final class AppBootstrapper {
     RuntimeUpdateConfigProvider()
         .getRuntimeUpdateConfig()
         .then((config) => _runtimeUpdateConfig = config),
-    KomodoCoinUpdater.ensureInitialized(appFolder)
+    // Hive has to be initialised before runtime coin operations can be used
+    // in the coins repository
+    KomodoCoinUpdater.ensureInitialized(appFolder, isWeb: kIsWeb)
+        .then((_) => coinsBloc.init())
         .then((_) => sparklineRepository.init()),
   ];
 }

@@ -12,6 +12,7 @@ final List<String> testsList = [
   'wallets_manager_tests/wallets_manager_tests.dart',
   'dex_tests/dex_tests.dart',
   'misc_tests/misc_tests.dart',
+  'fiat_onramp_tests/fiat_onramp_tests.dart',
 ];
 
 //app data path for mac and linux

@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
@@ -37,9 +35,6 @@ class BitrefillButton extends StatefulWidget {
 }
 
 class _BitrefillButtonState extends State<BitrefillButton> {
-  final bool isInAppBrowserSupported =
-      !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
-
   @override
   void initState() {
     context

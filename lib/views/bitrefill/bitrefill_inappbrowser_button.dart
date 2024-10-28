@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -44,12 +43,6 @@ class BitrefillInAppBrowserButton extends StatefulWidget {
 class BitrefillInAppBrowserButtonState
     extends State<BitrefillInAppBrowserButton> {
   CustomInAppBrowser? browser;
-  final InAppBrowserClassSettings settings = InAppBrowserClassSettings(
-    browserSettings: InAppBrowserSettings(),
-    webViewSettings: InAppWebViewSettings(
-      isInspectable: kDebugMode,
-    ),
-  );
 
   @override
   void initState() {

@@ -29,7 +29,7 @@ func performMM2Stop() -> Int32 {
 }
 
 @available(macOS 10.12, *)
-@NSApplicationMain
+@main
 class AppDelegate: FlutterAppDelegate, FlutterStreamHandler {
 
     override func applicationDidFinishLaunching(_ notification: Notification) {

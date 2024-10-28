@@ -34,11 +34,11 @@ import 'package:web_dex/views/wallet/coin_details/transactions/transaction_table
 
 class CoinDetailsInfo extends StatefulWidget {
   const CoinDetailsInfo({
-    Key? key,
     required this.coin,
     required this.setPageType,
     required this.onBackButtonPressed,
-  }) : super(key: key);
+    super.key,
+  });
   final Coin coin;
   final void Function(CoinPageType) setPageType;
   final VoidCallback onBackButtonPressed;
@@ -67,7 +67,6 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
         fiatCoinId: 'USDT',
         selectedPeriod: selectedDurationInitial,
         walletId: _walletId!,
-        updateFrequency: const Duration(minutes: 1),
       ),
     );
 
@@ -234,7 +233,6 @@ class _DesktopCoinDetails extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,8 +352,6 @@ class _MobileContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(18.0),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CoinIcon(
             coin.abbr,
@@ -381,7 +377,6 @@ class _MobileContent extends StatelessWidget {
               coin: coin,
             ),
           ),
-          if (!coin.walletOnly) _SwapButton(coin: coin),
           if (coin.hasFaucet)
             FaucetButton(
               onPressed: () => setPageType(CoinPageType.faucet),
@@ -478,16 +473,17 @@ class _Balance extends StatelessWidget {
           isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        isMobile
-            ? const SizedBox.shrink()
-            : Text(
-                LocaleKeys.yourBalance.tr(),
-                style: themeData.textTheme.titleMedium!.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: theme.custom.headerFloatBoxColor,
-                ),
-              ),
+        if (isMobile)
+          const SizedBox.shrink()
+        else
+          Text(
+            LocaleKeys.yourBalance.tr(),
+            style: themeData.textTheme.titleMedium!.copyWith(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: theme.custom.headerFloatBoxColor,
+            ),
+          ),
         Flexible(
           child: Row(
             mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
@@ -627,33 +623,6 @@ class _GetRewardsButton extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SwapButton extends StatelessWidget {
-  const _SwapButton({required this.coin});
-  final Coin coin;
-
-  @override
-  Widget build(BuildContext context) {
-    if (currentWalletBloc.wallet?.config.type != WalletType.iguana) {
-      return const SizedBox.shrink();
-    }
-
-    return UiBorderButton(
-      width: double.infinity,
-      height: 52,
-      borderColor: theme.custom.swapButtonColor,
-      borderWidth: 2,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      text: LocaleKeys.swapCoin.tr(),
-      textColor: theme.custom.swapButtonColor,
-      onPressed: coin.isSuspended ? null : () => _goToSwap(context, coin),
-      prefix: SvgPicture.asset(
-        '$assetsPath/others/swap.svg',
-        allowDrawingOutsideViewBox: true,
       ),
     );
   }

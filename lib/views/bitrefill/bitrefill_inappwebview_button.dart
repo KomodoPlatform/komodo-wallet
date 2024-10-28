@@ -67,6 +67,14 @@ class BitrefillInAppWebviewButtonState
   }
 
   Future<void> _openDialog() async {
+    if (kIsWeb) {
+      await _showWebDialog();
+    } else {
+      await _showFullScreenDialog();
+    }
+  }
+
+  Future<void> _showWebDialog() async {
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -79,18 +87,12 @@ class BitrefillInAppWebviewButtonState
           content: SizedBox(
             width: width,
             height: height,
-            child: Column(
-              children: [
-                Expanded(
-                  child: InAppWebView(
-                    key: const Key('bitrefill-inappwebview'),
-                    initialUrlRequest: _createUrlRequest(),
-                    initialSettings: settings,
-                    onWebViewCreated: _onCreated,
-                    onConsoleMessage: _onConsoleMessage,
-                  ),
-                ),
-              ],
+            child: InAppWebView(
+              key: const Key('bitrefill-inappwebview'),
+              initialUrlRequest: _createUrlRequest(),
+              initialSettings: settings,
+              onWebViewCreated: _onCreated,
+              onConsoleMessage: _onConsoleMessage,
             ),
           ),
           actions: <Widget>[
@@ -103,6 +105,32 @@ class BitrefillInAppWebviewButtonState
           ],
         );
       },
+    );
+  }
+
+  Future<void> _showFullScreenDialog() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(widget.windowTitle),
+              foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
+              elevation: 0,
+            ),
+            body: SafeArea(
+              child: InAppWebView(
+                key: const Key('bitrefill-inappwebview'),
+                initialUrlRequest: _createUrlRequest(),
+                initialSettings: settings,
+                onWebViewCreated: _onCreated,
+                onConsoleMessage: _onConsoleMessage,
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

@@ -1,6 +1,3 @@
-import 'package:web/web.dart' as web;
-import 'dart:js_interop';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -14,6 +11,7 @@ import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/alpha_version_alert_service/alpha_version_alert_service.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/window/window.dart';
 import 'package:web_dex/views/common/header/app_header.dart';
 import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -26,10 +24,8 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   @override
   void initState() {
-    web.window.onbeforeunload = (web.BeforeUnloadEvent event) {
-      event.preventDefault();
-      event.returnValue = 'Are you sure?';
-    }.toJS;
+    // TODO: localize
+    showMessageBeforeUnload('Are you sure you want to leave?');
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await AlphaVersionWarningService().run();

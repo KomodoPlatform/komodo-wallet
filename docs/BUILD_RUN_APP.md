@@ -161,10 +161,34 @@ The Linux dependencies, [according to flutter.dev](https://docs.flutter.dev/get-
 > - libstdc++-12-dev
 > - webkit2gtk-4.1 (Webview support)
 
-To install on Ubuntu 22.04 or later, run:
+To install on Ubuntu 20.04 or later, run:
 
 ```bash
-sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev webkit2gtk-4.1
+sudo apt-get install -y clang cmake git ninja-build pkg-config \
+    libgtk-3-dev liblzma-dev libstdc++-12-dev webkit2gtk-4.1 \
+    curl git unzip xz-utils zip libglu1-mesa
+```
+
+Users of Ubuntu 24.04 (Noble) or later, might need to install additional dependencies, and add `PKG_CONFIG_PATH` to their bash configuration. If that doesn't work, then try adding it to `/etc/environment` as well.
+
+```bash
+# Install xproto & xorg development libraries (xorg is precautionary, so can be excluded)
+sudo apt-get install -y x11proto-dev xorg-dev libgl1-mesa-dev
+
+# Check if PKG_CONFIG_PATH exists first before modifying or overwriting it
+echo $PKG_CONFIG_PATH
+
+# Add PKG_CONFIG_PATH to .bashrc only if it doesn't exist or is empty
+if [ -z "$PKG_CONFIG_PATH" ]; then
+    echo "PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig" | sudo tee -a ~/.bashrc
+    source ~/.bashrc
+    pkg-config --cflags --libs gtk+-3.0
+else
+    echo "PKG_CONFIG_PATH is already set."
+fi
+
+# Confirm that gtk+-3.0 is found in the output
+flutter doctor
 ```
 
 ```bash

@@ -38,7 +38,9 @@ class CoinsBloc implements BlocBase {
       trezorRepo: trezorRepo,
       walletRepo: currentWalletBloc,
     );
+  }
 
+  Future<void> init() async {
     _authorizationSubscription = authRepo.authMode.listen((event) async {
       switch (event) {
         case AuthorizeMode.noLogin:
@@ -371,8 +373,9 @@ class CoinsBloc implements BlocBase {
       );
     }
 
-    final WithdrawDetails withdrawDetails =
-        WithdrawDetails.fromJson(response['result']);
+    final WithdrawDetails withdrawDetails = WithdrawDetails.fromJson(
+      response['result'] as Map<String, dynamic>? ?? {},
+    );
 
     return BlocResponse(
       result: withdrawDetails,
@@ -454,6 +457,51 @@ class CoinsBloc implements BlocBase {
 
   void _updateCoins() {
     walletCoins = _walletCoins;
+  }
+
+  Future<String?> getCoinAddress(String abbr) async {
+    final loggedIn = isLoggedIn && currentWalletBloc.wallet != null;
+    if (!loggedIn) {
+      return null;
+    }
+
+    final accountKey = currentWalletBloc.wallet!.id;
+    final abbrKey = abbr;
+
+    if (addressCache.containsKey(accountKey) &&
+        addressCache[accountKey]!.containsKey(abbrKey)) {
+      return addressCache[accountKey]![abbrKey];
+    } else {
+      await activateCoins([getCoin(abbr)!]);
+      final coin = walletCoins.firstWhereOrNull((c) => c.abbr == abbr);
+
+      if (coin != null && coin.address != null) {
+        if (!addressCache.containsKey(accountKey)) {
+          addressCache[accountKey] = {};
+        }
+
+        // Cache this wallet's addresses
+        for (final walletCoin in walletCoins) {
+          if (walletCoin.address != null &&
+              !addressCache[accountKey]!.containsKey(walletCoin.abbr)) {
+            // Exit if the address already exists in a different account
+            // Address belongs to another account, this is a bug, 
+            // gives outdated data
+            for (final entry in addressCache.entries) {
+              if (entry.key != accountKey &&
+                  entry.value.containsValue(walletCoin.address)) {
+                return null;
+              }
+            }
+
+            addressCache[accountKey]![walletCoin.abbr] = walletCoin.address!;
+          }
+        }
+
+        return addressCache[accountKey]![abbrKey];
+      }
+    }
+    return null;
   }
 
   @override

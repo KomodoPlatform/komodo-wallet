@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:app_theme/app_theme.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rational/rational.dart';
@@ -223,7 +224,7 @@ Future<void> launchURL(
   }
 }
 
-void log(
+Future<void> log(
   String message, {
   String? path,
   StackTrace? trace,
@@ -235,11 +236,16 @@ void log(
   //   final String errorTrace = getInfoFromStackTrace(trace);
   //   logger.write('$errorTrace: $errorOrUsefulData');
   // }
-  if (isTestMode && isError) {
+  const isTestEnv = isTestMode || kDebugMode;
+  if (isTestEnv && isError) {
     // ignore: avoid_print
     print('path: $path');
     // ignore: avoid_print
     print('error: $message');
+    if (trace != null) {
+      // ignore: avoid_print
+      print('trace: $trace');
+    }
   }
 
   try {
@@ -260,19 +266,19 @@ void log(
 }
 
 /// Returns the ticker from the coin abbreviation.
-/// 
+///
 /// Parameters:
 /// - [abbr] (String): The abbreviation of the coin, including suffixes like the
-/// coin token type (e.g. 'ETH-ERC20', 'BNB-BEP20') and whether the coin is 
+/// coin token type (e.g. 'ETH-ERC20', 'BNB-BEP20') and whether the coin is
 /// a test or OLD coin (e.g. 'ETH_OLD', 'BNB-TEST').
-/// 
+///
 /// Return Value:
 /// - (String): The ticker of the coin, with the suffixes removed.
-/// 
+///
 /// Example Usage:
 /// ```dart
 /// String abbr = 'ETH-ERC20';
-/// 
+///
 /// String ticker = abbr2Ticker(abbr);
 /// print(ticker); // Output: "ETH"
 /// ```
@@ -609,7 +615,7 @@ String? assertString(dynamic value) {
     case double:
       return value.toString();
     default:
-      return value;
+      return value as String?;
   }
 }
 
@@ -618,9 +624,33 @@ int? assertInt(dynamic value) {
 
   switch (value.runtimeType) {
     case String:
-      return int.parse(value);
+      return int.parse(value as String);
     default:
-      return value;
+      return value as int?;
+  }
+}
+
+double assertDouble(dynamic value) {
+  if (value == null) return double.nan;
+
+  switch (value.runtimeType) {
+    case double:
+      return value as double;
+    case int:
+      return (value as int).toDouble();
+    case String:
+      return double.tryParse(value as String) ?? double.nan;
+    case bool:
+      return (value as bool) ? 1.0 : 0.0;
+    case num:
+      return (value as num).toDouble();
+    default:
+      try {
+        return double.parse(value.toString());
+      } catch (e, s) {
+        log('Error converting to double: $e', trace: s, isError: true);
+        return double.nan;
+      }
   }
 }
 

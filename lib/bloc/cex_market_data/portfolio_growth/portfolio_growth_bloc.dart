@@ -188,7 +188,7 @@ class PortfolioGrowthBloc
         isError: true,
         trace: s,
         path: 'PortfolioGrowthBloc',
-      );
+      ).ignore();
       return ChartData.empty();
     }
   }
