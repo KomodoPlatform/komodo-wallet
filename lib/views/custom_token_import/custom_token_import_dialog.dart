@@ -1,4 +1,3 @@
-import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -276,116 +275,114 @@ class ImportSubmitPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CustomTokenImportBloc, CustomTokenImportState>(
-      builder: (context, state) {
-        final isSubmitEnabled = state.importStatus != FormStatus.submitting &&
-            state.tokenData != null;
+    return BlocListener<CustomTokenImportBloc, CustomTokenImportState>(
+      listenWhen: (previous, current) =>
+          previous.importStatus != current.importStatus,
+      listener: (context, state) {
+        if (state.importStatus == FormStatus.success) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: BlocBuilder<CustomTokenImportBloc, CustomTokenImportState>(
+        builder: (context, state) {
+          final isSubmitEnabled = state.importStatus != FormStatus.submitting &&
+              state.importStatus != FormStatus.success &&
+              state.tokenData != null;
 
-        final flowCompleted = state.importStatus == FormStatus.success;
+          final usdBalance = state.tokenData?['usd_balance'] != null
+              ? '\$${double.parse(state.tokenData!['usd_balance'].toString()).toStringAsFixed(2)} USD'
+              : null;
 
-        final usdBalance = state.tokenData?['usd_balance'] != null
-            ? '\$${double.parse(state.tokenData!['usd_balance'].toString()).toStringAsFixed(2)} USD'
-            : null;
-
-        return BasePage(
-          title: LocaleKeys.importCustomToken.tr(),
-          onBackPressed: () {
-            context
-                .read<CustomTokenImportBloc>()
-                .add(const ResetFormStatusEvent());
-            onPreviousPage();
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: state.tokenData == null
-                ? [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            '$assetsPath/logo/not_found.png',
-                            height: 300,
-                            filterQuality: FilterQuality.high,
-                          ),
-                          Text(
-                            LocaleKeys.tokenNotFound.tr(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ]
-                : [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (state.tokenData?['image_url'] != null)
+          return BasePage(
+            title: LocaleKeys.importCustomToken.tr(),
+            onBackPressed: () {
+              context
+                  .read<CustomTokenImportBloc>()
+                  .add(const ResetFormStatusEvent());
+              onPreviousPage();
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: state.tokenData == null
+                  ? [
+                      Expanded(
+                        child: Column(
+                          children: [
                             Image.asset(
-                              state.tokenData!['image_url'],
-                              width: 80,
-                              height: 80,
+                              '$assetsPath/logo/not_found.png',
+                              height: 300,
+                              filterQuality: FilterQuality.high,
                             ),
-                          const SizedBox(height: 12),
-                          Text(
-                            state.tokenData?['abbr'] ?? '',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 32),
-                          Text(
-                            'Balance',
-                            style:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: Colors.grey,
-                                    ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '${state.tokenData?['balance'] ?? '0'} ${state.tokenData?['abbr'] ?? ''} ($usdBalance)',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (state.importErrorMessage != null || flowCompleted)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          (flowCompleted
-                                  ? LocaleKeys.successful.tr()
-                                  : state.importErrorMessage) ??
-                              '',
-                          textAlign: flowCompleted
-                              ? TextAlign.center
-                              : TextAlign.start,
-                          style: TextStyle(
-                            color: flowCompleted
-                                ? theme.custom.increaseColor
-                                : Theme.of(context).colorScheme.error,
-                          ),
+                            Text(
+                              LocaleKeys.tokenNotFound.tr(),
+                            ),
+                          ],
                         ),
                       ),
-                    UiPrimaryButton(
-                      onPressed: isSubmitEnabled
-                          ? () {
-                              if (flowCompleted) {
-                                Navigator.of(context).pop();
-                              } else {
+                    ]
+                  : [
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (state.tokenData?['image_url'] != null)
+                              Image.asset(
+                                state.tokenData!['image_url'],
+                                width: 80,
+                                height: 80,
+                              ),
+                            const SizedBox(height: 12),
+                            Text(
+                              state.tokenData?['abbr'] ?? '',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 32),
+                            Text(
+                              'Balance',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.grey,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${state.tokenData?['balance'] ?? '0'} ${state.tokenData?['abbr'] ?? ''} ($usdBalance)',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (state.importErrorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            state.importErrorMessage ?? '',
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+                      UiPrimaryButton(
+                        onPressed: isSubmitEnabled
+                            ? () {
                                 context
                                     .read<CustomTokenImportBloc>()
                                     .add(const SubmitImportCustomTokenEvent());
                               }
-                            }
-                          : null,
-                      child: flowCompleted
-                          ? Text(LocaleKeys.close.tr())
-                          : state.importStatus == FormStatus.submitting
-                              ? const UiSpinner(color: Colors.white)
-                              : Text(LocaleKeys.importToken.tr()),
-                    ),
-                  ],
-          ),
-        );
-      },
+                            : null,
+                        child: state.importStatus == FormStatus.submitting ||
+                                state.importStatus == FormStatus.success
+                            ? const UiSpinner(color: Colors.white)
+                            : Text(LocaleKeys.importToken.tr()),
+                      ),
+                    ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
