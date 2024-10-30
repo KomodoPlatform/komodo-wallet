@@ -58,6 +58,7 @@ class CustomTokenImportBloc
     } catch (e) {
       emit(state.copyWith(
         formStatus: () => FormStatus.failure,
+        tokenData: () => null,
         formErrorMessage: () => e.toString(),
       ));
     }

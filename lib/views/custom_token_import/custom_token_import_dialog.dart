@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_bloc.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
@@ -52,8 +53,8 @@ class CustomTokenImportDialogState extends State<CustomTokenImportDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
-        width: 400,
-        height: 500,
+        width: 450,
+        height: 450,
         child: PageView(
           controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
@@ -96,19 +97,18 @@ class BasePage extends StatelessWidget {
             children: [
               if (onBackPressed != null)
                 IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.chevron_left),
                   onPressed: onBackPressed,
-                  iconSize: 24,
+                  iconSize: 36,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   splashRadius: 20,
                 ),
-              if (onBackPressed != null) const SizedBox(width: 24),
+              if (onBackPressed != null) const SizedBox(width: 16),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
               ),
               const Spacer(),
@@ -144,22 +144,22 @@ class ImportFormPage extends StatelessWidget {
 
     return BlocListener<CustomTokenImportBloc, CustomTokenImportState>(
       listenWhen: (previous, current) =>
-          previous.formStatus != current.formStatus &&
-          current.formStatus == FormStatus.success,
+          previous.formStatus != current.formStatus,
       listener: (context, state) {
-        if (state.formStatus == FormStatus.success) {
+        if (state.formStatus == FormStatus.success ||
+            state.formStatus == FormStatus.failure) {
           onNextPage();
         }
       },
       child: BlocBuilder<CustomTokenImportBloc, CustomTokenImportState>(
         builder: (context, state) {
-          final isSubmitEnabled = state.formStatus != FormStatus.submitting &&
+          final initialState = state.formStatus == FormStatus.initial;
+
+          final isSubmitEnabled = initialState &&
               state.network != null &&
               state.address != null &&
               state.address!.isNotEmpty &&
               state.decimals != null;
-
-          final flowCompleted = state.formStatus == FormStatus.success;
 
           return BasePage(
             title: LocaleKeys.importCustomToken.tr(),
@@ -175,11 +175,14 @@ class ImportFormPage extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info, color: Colors.orange.shade300),
+                      Icon(Icons.info_outline, color: Colors.orange.shade300),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           LocaleKeys.importTokenWarning.tr(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -199,7 +202,7 @@ class ImportFormPage extends StatelessWidget {
                       child: Text(getCoinTypeNameLong(coinType)),
                     );
                   }).toList(),
-                  onChanged: flowCompleted
+                  onChanged: !initialState
                       ? null
                       : (CoinType? value) {
                           if (value != null) {
@@ -212,7 +215,7 @@ class ImportFormPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: addressController,
-                  enabled: !flowCompleted,
+                  enabled: initialState,
                   onChanged: (value) {
                     context
                         .read<CustomTokenImportBloc>()
@@ -228,7 +231,7 @@ class ImportFormPage extends StatelessWidget {
                 // Decimals Field
                 TextFormField(
                   controller: decimalsController,
-                  enabled: !flowCompleted,
+                  enabled: initialState,
                   onChanged: (value) {
                     context
                         .read<CustomTokenImportBloc>()
@@ -244,20 +247,6 @@ class ImportFormPage extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    (flowCompleted ? state.address : state.formErrorMessage) ??
-                        '',
-                    textAlign:
-                        flowCompleted ? TextAlign.center : TextAlign.start,
-                    style: TextStyle(
-                      color: flowCompleted
-                          ? theme.custom.increaseColor
-                          : Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
                 UiPrimaryButton(
                   onPressed: isSubmitEnabled
                       ? () {
@@ -266,10 +255,9 @@ class ImportFormPage extends StatelessWidget {
                               .add(const SubmitFetchCustomTokenEvent());
                         }
                       : null,
-                  child:
-                      state.formStatus == FormStatus.submitting || flowCompleted
-                          ? const UiSpinner(color: Colors.white)
-                          : Text(LocaleKeys.importToken.tr()),
+                  child: state.formStatus == FormStatus.initial
+                      ? Text(LocaleKeys.importToken.tr())
+                      : const UiSpinner(color: Colors.white),
                 ),
               ],
             ),
@@ -300,7 +288,7 @@ class ImportSubmitPage extends StatelessWidget {
             : null;
 
         return BasePage(
-          title: LocaleKeys.importToken.tr(),
+          title: LocaleKeys.importCustomToken.tr(),
           onBackPressed: () {
             context
                 .read<CustomTokenImportBloc>()
@@ -309,90 +297,92 @@ class ImportSubmitPage extends StatelessWidget {
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (state.tokenData?['image_url'] != null)
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Image.asset(
-                          state.tokenData!['image_url'],
-                          width: 48,
-                          height: 48,
-                        ),
-                      ),
-                    const SizedBox(height: 24),
-                    Text(
-                      state.tokenData?['abbr'] ?? '',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 32),
-                    Text(
-                      'Balance',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey,
+            children: state.tokenData == null
+                ? [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            '$assetsPath/logo/not_found.png',
+                            height: 300,
+                            filterQuality: FilterQuality.high,
                           ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${state.tokenData?['balance'] ?? '0'} ${state.tokenData?['abbr'] ?? ''}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    if (usdBalance != null)
-                      Text(
-                        usdBalance,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey,
-                            ),
+                          Text(
+                            LocaleKeys.tokenNotFound.tr(),
+                          ),
+                        ],
                       ),
-                  ],
-                ),
-              ),
-              if (state.importErrorMessage != null || flowCompleted)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    (flowCompleted
-                            ? LocaleKeys.successful.tr()
-                            : state.importErrorMessage) ??
-                        '',
-                    textAlign:
-                        flowCompleted ? TextAlign.center : TextAlign.start,
-                    style: TextStyle(
-                      color: flowCompleted
-                          ? theme.custom.increaseColor
-                          : Theme.of(context).colorScheme.error,
                     ),
-                  ),
-                ),
-              UiPrimaryButton(
-                onPressed: isSubmitEnabled
-                    ? () {
-                        if (flowCompleted) {
-                          Navigator.of(context).pop();
-                        } else {
-                          context
-                              .read<CustomTokenImportBloc>()
-                              .add(const SubmitImportCustomTokenEvent());
-                        }
-                      }
-                    : null,
-                child: flowCompleted
-                    ? Text(LocaleKeys.close.tr())
-                    : state.importStatus == FormStatus.submitting
-                        ? const UiSpinner(color: Colors.white)
-                        : Text(LocaleKeys.importToken.tr()),
-              ),
-            ],
+                  ]
+                : [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (state.tokenData?['image_url'] != null)
+                            Image.asset(
+                              state.tokenData!['image_url'],
+                              width: 80,
+                              height: 80,
+                            ),
+                          const SizedBox(height: 12),
+                          Text(
+                            state.tokenData?['abbr'] ?? '',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 32),
+                          Text(
+                            'Balance',
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${state.tokenData?['balance'] ?? '0'} ${state.tokenData?['abbr'] ?? ''} ($usdBalance)',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (state.importErrorMessage != null || flowCompleted)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          (flowCompleted
+                                  ? LocaleKeys.successful.tr()
+                                  : state.importErrorMessage) ??
+                              '',
+                          textAlign: flowCompleted
+                              ? TextAlign.center
+                              : TextAlign.start,
+                          style: TextStyle(
+                            color: flowCompleted
+                                ? theme.custom.increaseColor
+                                : Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
+                    UiPrimaryButton(
+                      onPressed: isSubmitEnabled
+                          ? () {
+                              if (flowCompleted) {
+                                Navigator.of(context).pop();
+                              } else {
+                                context
+                                    .read<CustomTokenImportBloc>()
+                                    .add(const SubmitImportCustomTokenEvent());
+                              }
+                            }
+                          : null,
+                      child: flowCompleted
+                          ? Text(LocaleKeys.close.tr())
+                          : state.importStatus == FormStatus.submitting
+                              ? const UiSpinner(color: Colors.white)
+                              : Text(LocaleKeys.importToken.tr()),
+                    ),
+                  ],
           ),
         );
       },

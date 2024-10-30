@@ -1,6 +1,4 @@
 import 'dart:math';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin_type.dart';
 
 abstract class ICustomTokenImportRepository {
@@ -19,7 +17,7 @@ class CustomTokenImportMockRepository implements ICustomTokenImportRepository {
 
     final random = Random();
     if (random.nextInt(3) == 0) {
-      throw LocaleKeys.tokenNotFound.tr();
+      throw 'Not found';
     }
 
     return {
