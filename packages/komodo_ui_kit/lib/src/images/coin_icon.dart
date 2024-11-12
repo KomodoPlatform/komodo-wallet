@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// NB: ENSURE IT STAYS IN SYNC WITH MAIN PROJECT in `lib/src/utils/utils.dart`.
-const coinImagesFolder = 'assets/coin_icons/png/';
+const coinImagesFolder = 'coin_icons/png/';
+const mediaCdnUrl = 'https://komodoplatform.github.io/coins/icons/';
 
 final Map<String, bool> _assetExistenceCache = {};
+final Map<String, bool> _cdnExistenceCache = {};
 List<String>? _cachedFileList;
 
 String _getImagePath(String abbr) {
@@ -13,13 +14,23 @@ String _getImagePath(String abbr) {
   return '$coinImagesFolder$fileName.png';
 }
 
+String _getCdnUrl(String abbr) {
+  final fileName = abbr2Ticker(abbr).toLowerCase();
+  return '$mediaCdnUrl$fileName.png';
+}
+
 Future<List<String>> _getFileList() async {
   if (_cachedFileList == null) {
-    final manifestContent = await rootBundle.loadString('AssetManifest.json');
-    final manifestMap = json.decode(manifestContent);
-    _cachedFileList = manifestMap.keys
-        .where((String key) => key.startsWith(coinImagesFolder))
-        .toList();
+    try {
+      final manifestContent = await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+      _cachedFileList = manifestMap.keys
+          .where((String key) => key.startsWith(coinImagesFolder))
+          .toList();
+    } catch (e) {
+      debugPrint('Error loading asset manifest: $e');
+      _cachedFileList = [];
+    }
   }
   return _cachedFileList!;
 }
@@ -27,12 +38,32 @@ Future<List<String>> _getFileList() async {
 Future<bool> checkIfAssetExists(String abbr) async {
   final filePath = _getImagePath(abbr);
 
-  if (!_assetExistenceCache.containsKey(filePath)) {
-    final fileList = await _getFileList();
-    _assetExistenceCache[filePath] = fileList.contains(filePath);
+  if (_assetExistenceCache.containsKey(filePath)) {
+    return _assetExistenceCache[filePath]!;
   }
 
-  return _assetExistenceCache[filePath]!;
+  try {
+    final fileList = await _getFileList();
+    final exists = fileList.contains(filePath);
+
+    if (exists) {
+      try {
+        await rootBundle.load(filePath);
+        _assetExistenceCache[filePath] = true;
+      } catch (e) {
+        debugPrint('Asset $filePath found in manifest but failed to load: $e');
+        _assetExistenceCache[filePath] = false;
+      }
+    } else {
+      _assetExistenceCache[filePath] = false;
+    }
+
+    return _assetExistenceCache[filePath]!;
+  } catch (e) {
+    debugPrint('Error checking if asset exists for $abbr: $e');
+    _assetExistenceCache[filePath] = false;
+    return false;
+  }
 }
 
 class CoinIcon extends StatelessWidget {
@@ -45,8 +76,6 @@ class CoinIcon extends StatelessWidget {
 
   /// Convenience constructor for creating a coin icon from a symbol aka
   /// abbreviation. This avoids having to call [abbr2Ticker] manually.
-  ///
-  ///
   CoinIcon.ofSymbol(
     String symbol, {
     this.size = 20,
@@ -60,46 +89,23 @@ class CoinIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final placeHolder = Center(child: Icon(Icons.monetization_on, size: size));
-
     return Opacity(
       opacity: suspended ? 0.4 : 1,
       child: SizedBox.square(
         dimension: size,
-        child: _maybeAssetExists() == true
-            ? _knownImage()
-            : _maybeAssetExists() == false
-                ? placeHolder
-                : FutureBuilder<Image?>(
-                    future: _getImage(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return snapshot.data!;
-                      } else {
-                        return placeHolder;
-                      }
-                    },
-                  ),
+        child: CoinIconResolverWidget(
+          key: Key(coinAbbr),
+          coinAbbr: coinAbbr,
+          size: size,
+        ),
       ),
     );
   }
 
-  /// Returns null if the asset existence is unknown.
-  /// Returns true if the asset exists.
-  /// Returns false if the asset does not exist.
-  bool? _maybeAssetExists() => _assetExistenceCache[_getImagePath(coinAbbr)];
-
-  Image _knownImage() => Image.asset(
-        _getImagePath(coinAbbr),
-        filterQuality: FilterQuality.high,
-      );
-
-  Future<Image?> _getImage() async {
-    if ((await checkIfAssetExists(coinAbbr)) == false) {
-      return null;
-    }
-
-    return _knownImage();
+  void clearAssetCaches() {
+    _assetExistenceCache.clear();
+    _cdnExistenceCache.clear();
+    _cachedFileList = null;
   }
 
   /// Pre-loads the coin icon image into the cache.
@@ -114,15 +120,84 @@ class CoinIcon extends StatelessWidget {
     String abbr, {
     bool throwExceptions = false,
   }) async {
-    final filePath = _getImagePath(abbr);
-    final image = AssetImage(filePath);
-    await precacheImage(
-      image,
-      context,
-      onError: !throwExceptions
-          ? null
-          : (e, _) =>
-              throw Exception('Failed to pre-cache image for coin $abbr: $e'),
+    try {
+      bool? assetExists, cdnExists;
+
+      final filePath = _getImagePath(abbr);
+      final assetImage = AssetImage(filePath);
+      final cdn = _getCdnUrl(abbr);
+      final cdnImage = NetworkImage(cdn);
+
+      assetExists = true;
+      await precacheImage(
+        assetImage,
+        context,
+        onError: (e, stackTrace) {
+          assetExists = false;
+
+          if (throwExceptions) {
+            throw Exception('Failed to pre-cache image for coin $abbr: $e');
+          }
+        },
+      );
+      if (context.mounted) {
+        cdnExists = true;
+        await precacheImage(
+          cdnImage,
+          context,
+          onError: (e, stackTrace) {
+            cdnExists = false;
+
+            if (throwExceptions) {
+              throw Exception('Failed to pre-cache image for coin $abbr: $e');
+            }
+          },
+        );
+      }
+
+      _assetExistenceCache[filePath] = assetExists ?? false;
+      if (cdnExists != null) _cdnExistenceCache[abbr] = cdnExists!;
+    } catch (e) {
+      debugPrint('Error in precacheCoinIcon for $abbr: $e');
+      if (throwExceptions) rethrow;
+    }
+  }
+}
+
+class CoinIconResolverWidget extends StatelessWidget {
+  const CoinIconResolverWidget({
+    super.key,
+    required this.coinAbbr,
+    required this.size,
+  });
+
+  final String coinAbbr;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    // Check local asset first
+    final filePath = _getImagePath(coinAbbr);
+
+    // if (await checkIfAssetExists(coinAbbr)) {
+
+    _assetExistenceCache[filePath] = true;
+    return Image.asset(
+      filePath,
+      filterQuality: FilterQuality.high,
+      errorBuilder: (context, error, stackTrace) {
+        _assetExistenceCache[filePath] = false;
+
+        _cdnExistenceCache[coinAbbr] ??= true;
+        return Image.network(
+          _getCdnUrl(coinAbbr),
+          filterQuality: FilterQuality.high,
+          errorBuilder: (context, error, stackTrace) {
+            _cdnExistenceCache[coinAbbr] = false;
+            return Icon(Icons.monetization_on_outlined, size: size);
+          },
+        );
+      },
     );
   }
 }
@@ -139,6 +214,7 @@ String abbr2Ticker(String abbr) {
     'BEP20',
     'QRC20',
     'FTM20',
+    'ARB20',
     'HRC20',
     'MVR20',
     'AVX20',
@@ -154,7 +230,6 @@ String abbr2Ticker(String abbr) {
     'IBC_NUCLEUSTEST',
   ];
 
-  // Join the suffixes with '|' to form the regex pattern
   String regexPattern = '(${filteredSuffixes.join('|')})';
 
   String ticker = abbr

@@ -1,6 +1,5 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -22,41 +21,13 @@ class CoinLogo extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        _CoinIcon(
-          coin: coin,
-          logoSize: size,
-        ),
-        _ProtocolIcon(
-          coin: coin,
-          logoSize: size,
-        ),
+        CoinIcon(coin.abbr, size: size),
+        if (coin.type != CoinType.utxo && coin.protocolData != null)
+          _ProtocolIcon(
+            coin: coin,
+            logoSize: size,
+          ),
       ],
-    );
-  }
-}
-
-class _CoinIcon extends StatelessWidget {
-  const _CoinIcon({
-    required this.coin,
-    required this.logoSize,
-  });
-
-  final Coin coin;
-  final double logoSize;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: logoSize,
-      height: logoSize,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: dexPageColors.emptyPlace,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 2),
-        child: CoinIcon(coin.abbr, size: logoSize),
-      ),
     );
   }
 }
@@ -74,15 +45,9 @@ class _ProtocolIcon extends StatelessWidget {
   double get protocolBorder => protocolSizeWithBorder * 0.1;
   double get protocolLeftPosition => logoSize * 0.55;
   double get protocolTopPosition => logoSize * 0.55;
-  String get protocolIconPath =>
-      '$assetsPath/coin_icons/png/${getProtocolIcon(coin)}.png';
 
   @override
   Widget build(BuildContext context) {
-    if (coin.type == CoinType.utxo || coin.protocolData == null) {
-      return const SizedBox.shrink();
-    }
-
     return Positioned(
       left: protocolLeftPosition,
       top: protocolTopPosition,
@@ -100,11 +65,12 @@ class _ProtocolIcon extends StatelessWidget {
         child: Container(
           width: protocolSizeWithBorder - protocolBorder,
           height: protocolSizeWithBorder - protocolBorder,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white,
-            image: DecorationImage(image: AssetImage(protocolIconPath)),
           ),
+          child: CoinIcon(getProtocolIcon(coin),
+              size: protocolSizeWithBorder - protocolBorder),
         ),
       ),
     );
