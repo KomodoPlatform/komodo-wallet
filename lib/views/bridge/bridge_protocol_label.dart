@@ -1,11 +1,10 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_logo.dart';
 
 class BridgeProtocolLabel extends StatelessWidget {
   const BridgeProtocolLabel(this.coin);
@@ -37,21 +36,10 @@ class BridgeProtocolLabel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _buildIcon(),
+          CoinIcon(coin.abbr, size: 16),
           const SizedBox(width: 6),
           _buildText(backgroundColor),
         ],
-      ),
-    );
-  }
-
-  Widget _buildIcon() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: SizedBox(
-        width: 16,
-        child: Image.asset(
-            '$assetsPath/coin_icons/png/${getProtocolIcon(coin)}.png'),
       ),
     );
   }
