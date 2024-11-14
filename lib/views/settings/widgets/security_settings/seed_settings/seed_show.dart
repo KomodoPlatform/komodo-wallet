@@ -8,14 +8,21 @@ import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/dry_intrinsic.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class SeedShow extends StatelessWidget {
-  const SeedShow({required this.seedPhrase});
+  const SeedShow({
+    required this.seedPhrase,
+    required this.privKeys,
+  });
   final String seedPhrase;
+  final Map<Coin, String> privKeys;
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +60,67 @@ class SeedShow extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Flexible(child: _SeedPlace(seedPhrase: seedPhrase)),
+                  const SizedBox(height: 20),
+                  _SeedPhraseConfirmButton(seedPhrase: seedPhrase),
+                  const SizedBox(height: 40),
+                  _PrivateKeysList(privKeys: privKeys),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            _SeedPhraseConfirmButton(seedPhrase: seedPhrase)
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PrivateKeysList extends StatelessWidget {
+  const _PrivateKeysList({
+    required this.privKeys,
+    Key? key,
+  }) : super(key: key);
+
+  final Map<Coin, String> privKeys;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      primary: false,
+      shrinkWrap: true,
+      itemCount: privKeys.length,
+      itemBuilder: (context, index) {
+        final coin = privKeys.keys.elementAt(index);
+        final key = privKeys[coin]!;
+
+        return Card(
+          color: Theme.of(context).colorScheme.onSurface,
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CoinItem(coin: coin),
+                const Spacer(),
+                Text(
+                  truncateMiddleSymbols(key, 5, 5),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () {
+                    copyToClipBoard(context, key);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

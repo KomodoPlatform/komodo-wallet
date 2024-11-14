@@ -5,6 +5,9 @@ import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/show_priv_key/show_priv_key_request.dart';
+import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/settings_menu_value.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
@@ -28,6 +31,7 @@ class SecuritySettingsPage extends StatefulWidget {
 
 class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   String _seed = '';
+  final Map<Coin, String> _privKeys = {};
 
   @override
   Widget build(BuildContext context) {
@@ -70,20 +74,23 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     switch (step) {
       case SecuritySettingsStep.securityMain:
         _seed = '';
+        _privKeys.clear();
         return SecuritySettingsMainPage(onViewSeedPressed: onViewSeedPressed);
 
       case SecuritySettingsStep.seedShow:
-        return SeedShow(seedPhrase: _seed);
+        return SeedShow(seedPhrase: _seed, privKeys: _privKeys);
 
       case SecuritySettingsStep.seedConfirm:
         return SeedConfirmation(seedPhrase: _seed);
 
       case SecuritySettingsStep.seedSuccess:
         _seed = '';
+        _privKeys.clear();
         return const SeedConfirmSuccess();
 
       case SecuritySettingsStep.passwordUpdate:
         _seed = '';
+        _privKeys.clear();
         return const PasswordUpdatePage();
     }
   }
@@ -98,6 +105,15 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     if (wallet == null) return;
     _seed = await wallet.getSeed(pass);
     if (_seed.isEmpty) return;
+
+    _privKeys.clear();
+    for (final coin in coinsBloc.walletCoins) {
+      final result =
+          await mm2Api.showPrivKey(ShowPrivKeyRequest(coin: coin.abbr));
+      if (result != null) {
+        _privKeys[coin] = result.privKey;
+      }
+    }
 
     securitySettingsBloc.add(const ShowSeedEvent());
   }
