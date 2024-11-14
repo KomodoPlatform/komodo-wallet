@@ -155,34 +155,37 @@ class _PrivateKeysList extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CoinItem(coin: coin),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                QRCodeAddress(currentAddress: key),
-                const SizedBox(height: 16),
-                SelectableText(
-                  key,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+          child: SizedBox(
+            width: 300,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CoinItem(coin: coin),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  QRCodeAddress(currentAddress: key),
+                  const SizedBox(height: 16),
+                  SelectableText(
+                    key,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
             ),
           ),
         );
