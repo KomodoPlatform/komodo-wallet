@@ -85,51 +85,65 @@ class _PrivateKeysList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      primary: false,
-      shrinkWrap: true,
-      itemCount: privKeys.length,
-      itemBuilder: (context, index) {
-        final coin = privKeys.keys.elementAt(index);
-        final key = privKeys[coin]!;
+    if (privKeys.isEmpty) {
+      return Container();
+    }
 
-        return Card(
-          color: Theme.of(context).colorScheme.onSurface,
-          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CoinItem(coin: coin),
-                const Spacer(),
-                Text(
-                  truncateMiddleSymbols(key, 5, 5),
-                  style: Theme.of(context).textTheme.bodySmall,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          LocaleKeys.privateKeys.tr(),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        ListView.builder(
+          primary: false,
+          shrinkWrap: true,
+          itemCount: privKeys.length,
+          itemBuilder: (context, index) {
+            final coin = privKeys.keys.elementAt(index);
+            final key = privKeys[coin]!;
+
+            return Card(
+              color: Theme.of(context).colorScheme.onSurface,
+              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CoinItem(coin: coin),
+                    const Spacer(),
+                    Text(
+                      truncateMiddleSymbols(key, 5, 5),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    IconButton(
+                      iconSize: 20,
+                      icon: const Icon(Icons.copy),
+                      onPressed: () {
+                        copyToClipBoard(context, key);
+                      },
+                    ),
+                    IconButton(
+                      iconSize: 20,
+                      icon: const Icon(Icons.qr_code),
+                      onPressed: () {
+                        _showQrDialog(context, coin, key);
+                      },
+                    ),
+                  ],
                 ),
-                IconButton(
-                  iconSize: 20,
-                  icon: const Icon(Icons.copy),
-                  onPressed: () {
-                    copyToClipBoard(context, key);
-                  },
-                ),
-                IconButton(
-                  iconSize: 20,
-                  icon: const Icon(Icons.qr_code),
-                  onPressed: () {
-                    _showQrDialog(context, coin, key);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 

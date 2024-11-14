@@ -463,6 +463,7 @@
     "manageAnalytics": "Manage analytics",
     "logs": "Logs",
     "resetActivatedCoinsTitle": "Reset Activated Coins",
+    "privateKeys": "Private Keys",
     "seedConfirmTitle": "Let's double check your seed phrase",
     "seedConfirmDescription": "Your seed phrase is the only way to access Your funds. That's why we want to ensure you saved it safely. Please input your seed phrase into text filed below.",
     "standardWallet": "Standard wallet",
