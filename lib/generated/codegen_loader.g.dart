@@ -492,6 +492,7 @@ abstract class LocaleKeys {
   static const logs = 'logs';
   static const resetActivatedCoinsTitle = 'resetActivatedCoinsTitle';
   static const privateKeys = 'privateKeys';
+  static const copyWarning = 'copyWarning';
   static const seedConfirmTitle = 'seedConfirmTitle';
   static const seedConfirmDescription = 'seedConfirmDescription';
   static const standardWallet = 'standardWallet';

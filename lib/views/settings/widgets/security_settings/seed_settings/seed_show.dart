@@ -207,8 +207,33 @@ class _TitleRow extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
         ),
         const SizedBox(height: 6),
-        Text(LocaleKeys.seedPhraseMakeSureBody.tr(),
-            style: Theme.of(context).textTheme.bodyLarge),
+        Text(
+          LocaleKeys.seedPhraseMakeSureBody.tr(),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.custom.warningColor.withOpacity(0.1),
+            border: Border.all(color: theme.custom.warningColor),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.warning, color: theme.custom.warningColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  LocaleKeys.copyWarning.tr(),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: theme.custom.warningColor,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
