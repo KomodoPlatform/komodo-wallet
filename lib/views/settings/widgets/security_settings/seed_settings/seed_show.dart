@@ -3,6 +3,7 @@ import 'package:bip39/bip39.dart' show validateMnemonic;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
@@ -125,9 +126,9 @@ class _PrivateKeysList extends StatelessWidget {
                     ),
                     IconButton(
                       iconSize: 20,
-                      icon: const Icon(Icons.copy),
+                      icon: const Icon(Icons.share),
                       onPressed: () {
-                        copyToClipBoard(context, key);
+                        Share.share(key);
                       },
                     ),
                     IconButton(
