@@ -15,6 +15,7 @@ import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/dry_intrinsic.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
 
 class SeedShow extends StatelessWidget {
   const SeedShow({
@@ -94,13 +95,13 @@ class _PrivateKeysList extends StatelessWidget {
 
         return Card(
           color: Theme.of(context).colorScheme.onSurface,
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          elevation: 3,
+          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -108,13 +109,64 @@ class _PrivateKeysList extends StatelessWidget {
                 const Spacer(),
                 Text(
                   truncateMiddleSymbols(key, 5, 5),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
                 IconButton(
+                  iconSize: 20,
                   icon: const Icon(Icons.copy),
                   onPressed: () {
                     copyToClipBoard(context, key);
                   },
+                ),
+                IconButton(
+                  iconSize: 20,
+                  icon: const Icon(Icons.qr_code),
+                  onPressed: () {
+                    _showQrDialog(context, coin, key);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showQrDialog(BuildContext context, Coin coin, String key) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CoinItem(coin: coin),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                QRCodeAddress(currentAddress: key),
+                const SizedBox(height: 16),
+                SelectableText(
+                  key,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
