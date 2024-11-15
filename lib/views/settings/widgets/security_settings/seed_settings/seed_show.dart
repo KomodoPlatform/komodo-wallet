@@ -8,14 +8,22 @@ import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/dry_intrinsic.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
 
 class SeedShow extends StatelessWidget {
-  const SeedShow({required this.seedPhrase});
+  const SeedShow({
+    required this.seedPhrase,
+    required this.privKeys,
+  });
   final String seedPhrase;
+  final Map<Coin, String> privKeys;
 
   @override
   Widget build(BuildContext context) {
@@ -53,14 +61,135 @@ class SeedShow extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Flexible(child: _SeedPlace(seedPhrase: seedPhrase)),
+                  const SizedBox(height: 20),
+                  _SeedPhraseConfirmButton(seedPhrase: seedPhrase),
+                  const SizedBox(height: 40),
+                  _PrivateKeysList(privKeys: privKeys),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            _SeedPhraseConfirmButton(seedPhrase: seedPhrase)
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PrivateKeysList extends StatelessWidget {
+  const _PrivateKeysList({
+    required this.privKeys,
+    Key? key,
+  }) : super(key: key);
+
+  final Map<Coin, String> privKeys;
+
+  @override
+  Widget build(BuildContext context) {
+    if (privKeys.isEmpty) {
+      return Container();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          LocaleKeys.privateKeys.tr(),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        ListView.builder(
+          primary: false,
+          shrinkWrap: true,
+          itemCount: privKeys.length,
+          itemBuilder: (context, index) {
+            final coin = privKeys.keys.elementAt(index);
+            final key = privKeys[coin]!;
+
+            return Card(
+              color: Theme.of(context).colorScheme.onSurface,
+              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CoinItem(coin: coin),
+                    const Spacer(),
+                    Text(
+                      truncateMiddleSymbols(key, 5, 5),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    IconButton(
+                      iconSize: 20,
+                      icon: const Icon(Icons.copy),
+                      onPressed: () {
+                        copyToClipBoard(context, key);
+                      },
+                    ),
+                    IconButton(
+                      iconSize: 20,
+                      icon: const Icon(Icons.qr_code),
+                      onPressed: () {
+                        _showQrDialog(context, coin, key);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showQrDialog(BuildContext context, Coin coin, String key) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: SizedBox(
+            width: 300,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CoinItem(coin: coin),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  QRCodeAddress(currentAddress: key),
+                  const SizedBox(height: 16),
+                  SelectableText(
+                    key,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -78,8 +207,33 @@ class _TitleRow extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
         ),
         const SizedBox(height: 6),
-        Text(LocaleKeys.seedPhraseMakeSureBody.tr(),
-            style: Theme.of(context).textTheme.bodyLarge),
+        Text(
+          LocaleKeys.seedPhraseMakeSureBody.tr(),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.custom.warningColor.withOpacity(0.1),
+            border: Border.all(color: theme.custom.warningColor),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.warning, color: theme.custom.warningColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  LocaleKeys.copyWarning.tr(),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: theme.custom.warningColor,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -45,6 +45,8 @@ import 'package:web_dex/mm2/mm2_api/rpc/rpc_error.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/show_priv_key/show_priv_key_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/show_priv_key/show_priv_key_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/stop/stop_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.dart';
@@ -916,5 +918,26 @@ class Mm2Api {
     final dynamic response = await _mm2.call(req);
 
     return response;
+  }
+
+  Future<ShowPrivKeyResponse?> showPrivKey(
+    ShowPrivKeyRequest request,
+  ) async {
+    try {
+      final String response = await _call(request);
+      final Map<String, dynamic> json = jsonDecode(response);
+      if (json['error'] != null) {
+        return null;
+      }
+      return ShowPrivKeyResponse.fromJson(json);
+    } catch (e, s) {
+      log(
+        'Error getting privkey ${request.coin}: ${e.toString()}',
+        path: 'api => showPrivKey',
+        trace: s,
+        isError: true,
+      );
+      return null;
+    }
   }
 }
