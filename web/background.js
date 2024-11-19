@@ -6,7 +6,7 @@ import init, {
   mm2_main_status,
   mm2_rpc,
   mm2_version,
-} from "./src/mm2/mm2lib.js";
+} from "./src/mm2/kdflib.js";
 
 const LOG_LEVEL = LogLevel.Info;
 
