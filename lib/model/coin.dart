@@ -414,6 +414,35 @@ CoinType? getCoinType(String? jsonType, String coinAbbr) {
   return null;
 }
 
+String? getEvmPlatformCoin(CoinType coinType) {
+  switch (coinType) {
+    case CoinType.erc20:
+      return 'ETH';
+    case CoinType.bep20:
+      return 'BNB';
+    case CoinType.qrc20:
+      return 'QTUM';
+    case CoinType.ftm20:
+      return 'FTM';
+    case CoinType.arb20:
+      return 'ETH-ARB20';
+    case CoinType.avx20:
+      return 'AVAX';
+    case CoinType.mvr20:
+      return 'MOVR';
+    case CoinType.hco20:
+      return 'HT';
+    case CoinType.plg20:
+      return 'MATIC';
+    case CoinType.hrc20:
+      return 'ONE';
+    case CoinType.krc20:
+      return 'KCS';
+    default:
+      return null;
+  }
+}
+
 class ProtocolData {
   ProtocolData({
     required this.platform,
