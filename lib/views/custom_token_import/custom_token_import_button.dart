@@ -19,7 +19,7 @@ class CustomTokenImportButton extends StatelessWidget {
           builder: (BuildContext context) {
             return BlocProvider<CustomTokenImportBloc>(
               create: (context) =>
-                  CustomTokenImportBloc(CustomTokenImportMockRepository()),
+                  CustomTokenImportBloc(KdfCustomTokenImportRepository()),
               child: const CustomTokenImportDialog(),
             );
           },
