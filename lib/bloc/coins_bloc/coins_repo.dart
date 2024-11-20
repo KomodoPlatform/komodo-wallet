@@ -438,6 +438,19 @@ class CoinsRepo {
     return walletCoinsCopy;
   }
 
+  Future<Map<String, dynamic>?> getTokenInfo(
+      kdf_rpc.CoinType network, String address, int decimals) async {
+    // final platform = getEvmPlatformCoin(network);
+    // if (platform == null) return null;
+
+    // TODO!: implement via the sdk
+    // return await _api.getTokenInfo(GetTokenInfoRequest(
+    //   platform: platform,
+    //   contractAddress: address,
+    // ));
+    return {};
+  }
+
   Stream<Coin> updateIguanaBalances(
     Map<String, Coin> walletCoins,
   ) async* {
