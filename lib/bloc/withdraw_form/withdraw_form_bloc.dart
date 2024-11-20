@@ -294,19 +294,10 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       return;
     }
 
-    if (state.withdrawDetails.txHex == null &&
-        state.withdrawDetails.txJson == null) {
-      emitter(state.copyWith(
-          isSending: false,
-          sendError: TextError(error: 'Missing txHex and txJson')
-      ));
-    }
-
     final response = await _coinsRepo.sendRawTransaction(
       SendRawTransactionRequest(
         coin: state.withdrawDetails.coin,
         txHex: state.withdrawDetails.txHex,
-        txJson: state.withdrawDetails.txJson,
       ),
     );
 
