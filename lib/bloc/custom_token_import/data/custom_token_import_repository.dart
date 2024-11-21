@@ -4,16 +4,15 @@ import 'package:web_dex/model/coin_type.dart';
 
 abstract class ICustomTokenImportRepository {
   Future<Map<String, dynamic>> fetchCustomToken(
-      CoinType network, String address, int decimals);
+      CoinType network, String address);
 
-  Future<void> importCustomToken(
-      CoinType network, String address, int decimals);
+  Future<void> importCustomToken(CoinType network, String address);
 }
 
 class CustomTokenImportMockRepository implements ICustomTokenImportRepository {
   @override
   Future<Map<String, dynamic>> fetchCustomToken(
-      CoinType network, String address, int decimals) async {
+      CoinType network, String address) async {
     await Future.delayed(const Duration(seconds: 2));
 
     final random = Random();
@@ -30,8 +29,7 @@ class CustomTokenImportMockRepository implements ICustomTokenImportRepository {
   }
 
   @override
-  Future<void> importCustomToken(
-      CoinType network, String address, int decimals) async {
+  Future<void> importCustomToken(CoinType network, String address) async {
     await Future.delayed(const Duration(seconds: 2));
   }
 }
@@ -39,8 +37,8 @@ class CustomTokenImportMockRepository implements ICustomTokenImportRepository {
 class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   @override
   Future<Map<String, dynamic>> fetchCustomToken(
-      CoinType network, String address, int decimals) async {
-    final response = await coinsRepo.getTokenInfo(network, address, decimals);
+      CoinType network, String address) async {
+    final response = await coinsRepo.getTokenInfo(network, address);
     final tokenInfo = response?['result'];
 
     if (tokenInfo == null) {
@@ -62,8 +60,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   }
 
   @override
-  Future<void> importCustomToken(
-      CoinType network, String address, int decimals) async {
+  Future<void> importCustomToken(CoinType network, String address) async {
     await Future.delayed(const Duration(seconds: 2));
   }
 }

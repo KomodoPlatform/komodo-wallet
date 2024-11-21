@@ -8,7 +8,6 @@ class CustomTokenImportState extends Equatable {
   final FormStatus importStatus;
   final CoinType? network;
   final String? address;
-  final int? decimals;
   final String? formErrorMessage;
   final String? importErrorMessage;
   final Map<String, dynamic>? tokenData;
@@ -16,7 +15,6 @@ class CustomTokenImportState extends Equatable {
   const CustomTokenImportState({
     this.network,
     this.address,
-    this.decimals,
     this.formStatus = FormStatus.initial,
     this.importStatus = FormStatus.initial,
     this.formErrorMessage,
@@ -29,7 +27,6 @@ class CustomTokenImportState extends Equatable {
     FormStatus Function()? importStatus,
     CoinType? Function()? network,
     String? Function()? address,
-    int? Function()? decimals,
     String? Function()? formErrorMessage,
     String? Function()? importErrorMessage,
     Map<String, dynamic>? Function()? tokenData,
@@ -39,7 +36,6 @@ class CustomTokenImportState extends Equatable {
       importStatus: importStatus == null ? this.importStatus : importStatus(),
       network: network == null ? this.network : network(),
       address: address == null ? this.address : address(),
-      decimals: decimals == null ? this.decimals : decimals(),
       formErrorMessage:
           formErrorMessage == null ? this.formErrorMessage : formErrorMessage(),
       importErrorMessage: importErrorMessage == null
@@ -52,7 +48,6 @@ class CustomTokenImportState extends Equatable {
   CustomTokenImportState resetWith({
     CoinType? Function()? network,
     String? Function()? address,
-    int? Function()? decimals,
     FormStatus Function()? formStatus,
     FormStatus Function()? importStatus,
     String? Function()? formErrorMessage,
@@ -64,7 +59,6 @@ class CustomTokenImportState extends Equatable {
       importStatus: importStatus == null ? FormStatus.initial : importStatus(),
       network: network == null ? null : network(),
       address: address == null ? null : address(),
-      decimals: decimals == null ? null : decimals(),
       formErrorMessage: formErrorMessage == null ? null : formErrorMessage(),
       importErrorMessage:
           importErrorMessage == null ? null : importErrorMessage(),
@@ -78,7 +72,6 @@ class CustomTokenImportState extends Equatable {
         importStatus,
         network,
         address,
-        decimals,
         formErrorMessage,
         importErrorMessage,
         tokenData,

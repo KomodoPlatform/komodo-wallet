@@ -11,7 +11,6 @@ class CustomTokenImportBloc
       : super(const CustomTokenImportState()) {
     on<UpdateNetworkEvent>(_onUpdateAsset);
     on<UpdateAddressEvent>(_onUpdateAddress);
-    on<UpdateDecimalsEvent>(_onUpdateDecimals);
     on<SubmitImportCustomTokenEvent>(_onSubmitImportCustomToken);
     on<SubmitFetchCustomTokenEvent>(_onSubmitFetchCustomToken);
     on<ResetFormStatusEvent>(_onResetFormStatus);
@@ -37,18 +36,13 @@ class CustomTokenImportBloc
     emit(state.copyWith(address: () => event.address));
   }
 
-  void _onUpdateDecimals(
-      UpdateDecimalsEvent event, Emitter<CustomTokenImportState> emit) {
-    emit(state.copyWith(decimals: () => event.decimals));
-  }
-
   Future<void> _onSubmitFetchCustomToken(SubmitFetchCustomTokenEvent event,
       Emitter<CustomTokenImportState> emit) async {
     emit(state.copyWith(formStatus: () => FormStatus.submitting));
 
     try {
-      final tokenData = await repository.fetchCustomToken(
-          state.network!, state.address!, state.decimals!);
+      final tokenData =
+          await repository.fetchCustomToken(state.network!, state.address!);
 
       emit(state.copyWith(
         formStatus: () => FormStatus.success,
@@ -69,8 +63,7 @@ class CustomTokenImportBloc
     emit(state.copyWith(importStatus: () => FormStatus.submitting));
 
     try {
-      await repository.importCustomToken(
-          state.network!, state.address!, state.decimals!);
+      await repository.importCustomToken(state.network!, state.address!);
 
       emit(state.copyWith(
         importStatus: () => FormStatus.success,

@@ -137,9 +137,6 @@ class ImportFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.read<CustomTokenImportBloc>().state;
     final addressController = TextEditingController(text: state.address ?? '');
-    final decimalsController = TextEditingController(
-      text: state.decimals?.toString() ?? '',
-    );
 
     return BlocListener<CustomTokenImportBloc, CustomTokenImportState>(
       listenWhen: (previous, current) =>
@@ -157,8 +154,7 @@ class ImportFormPage extends StatelessWidget {
           final isSubmitEnabled = initialState &&
               state.network != null &&
               state.address != null &&
-              state.address!.isNotEmpty &&
-              state.decimals != null;
+              state.address!.isNotEmpty;
 
           return BasePage(
             title: LocaleKeys.importCustomToken.tr(),
@@ -224,26 +220,6 @@ class ImportFormPage extends StatelessWidget {
                     labelText: LocaleKeys.tokenContractAddress.tr(),
                     border: const OutlineInputBorder(),
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Decimals Field
-                TextFormField(
-                  controller: decimalsController,
-                  enabled: initialState,
-                  onChanged: (value) {
-                    context
-                        .read<CustomTokenImportBloc>()
-                        .add(UpdateDecimalsEvent(int.tryParse(value)));
-                  },
-                  decoration: InputDecoration(
-                    labelText: LocaleKeys.decimals.tr(),
-                    border: const OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
                 ),
                 const Spacer(),
                 UiPrimaryButton(

@@ -26,15 +26,6 @@ class UpdateAddressEvent extends CustomTokenImportEvent {
   List<Object?> get props => [address];
 }
 
-class UpdateDecimalsEvent extends CustomTokenImportEvent {
-  final int? decimals;
-
-  const UpdateDecimalsEvent(this.decimals);
-
-  @override
-  List<Object?> get props => [decimals];
-}
-
 class SubmitImportCustomTokenEvent extends CustomTokenImportEvent {
   const SubmitImportCustomTokenEvent();
 }
