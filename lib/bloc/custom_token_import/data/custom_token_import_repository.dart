@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
+import 'package:http/http.dart' as http;
+import 'package:web_dex/shared/utils/utils.dart';
 
 abstract class ICustomTokenImportRepository {
   Future<Map<String, dynamic>> fetchCustomToken(
@@ -50,12 +53,13 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     }
 
     String abbr = tokenInfo['config_ticker'] ?? tokenInfo['info']['symbol'];
+    final imageUrl = await fetchTokenImageUrl(network, address);
 
     return {
       "abbr": abbr,
       "decimals": tokenInfo['info']['decimals'],
-      // TODO: Acquire image url from a web API
-      "image_url": 'assets/coin_icons/png/${abbr.toLowerCase()}.png',
+      "image_url":
+          imageUrl ?? 'assets/coin_icons/png/${abbr.toLowerCase()}.png',
 
       // TODO: Get balance by temporarily activating the coin
       "balance": '50',
@@ -76,5 +80,55 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   @override
   Future<void> importCustomToken(CoinType network, String address) async {
     await Future.delayed(const Duration(seconds: 2));
+  }
+
+  Future<String?> fetchTokenImageUrl(
+      CoinType coinType, String contractAddress) async {
+    final platform = getNetworkApiName(coinType);
+    if (platform == null) {
+      log('Unsupported Image URL Network: $coinType');
+      return null;
+    }
+
+    final url = Uri.parse(
+        'https://api.coingecko.com/api/v3/coins/$platform/contract/$contractAddress');
+
+    try {
+      final response = await http.get(url);
+      final data = jsonDecode(response.body);
+      return data['image']['large'];
+    } catch (e) {
+      log('Error fetching token image URL: $e');
+      return null;
+    }
+  }
+
+  String? getNetworkApiName(CoinType coinType) {
+    switch (coinType) {
+      case CoinType.erc20:
+        return 'ethereum';
+      case CoinType.bep20:
+        return 'binance-smart-chain';
+      case CoinType.qrc20:
+        return 'qtum';
+      case CoinType.ftm20:
+        return 'fantom';
+      case CoinType.arb20:
+        return 'arbitrum-one';
+      case CoinType.avx20:
+        return 'avalanche';
+      case CoinType.mvr20:
+        return 'moonriver';
+      case CoinType.hco20:
+        return 'huobi-token';
+      case CoinType.plg20:
+        return 'polygon-pos';
+      case CoinType.hrc20:
+        return 'harmony-shard-0';
+      case CoinType.krc20:
+        return 'kcc';
+      default:
+        return null;
+    }
   }
 }

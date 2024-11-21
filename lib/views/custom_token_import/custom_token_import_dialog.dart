@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -302,10 +301,13 @@ class ImportSubmitPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             if (state.tokenData?['image_url'] != null)
-                              Image.asset(
+                              Image.network(
                                 state.tokenData!['image_url'],
                                 width: 80,
                                 height: 80,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.error, size: 80);
+                                },
                               ),
                             const SizedBox(height: 12),
                             Text(
