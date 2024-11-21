@@ -264,9 +264,7 @@ class ImportSubmitPage extends StatelessWidget {
               state.importStatus != FormStatus.success &&
               state.tokenData != null;
 
-          final usdBalance = state.tokenData?['usd_balance'] != null
-              ? '\$${double.parse(state.tokenData!['usd_balance'].toString()).toStringAsFixed(2)} USD'
-              : null;
+          final newCoin = state.tokenData;
 
           return BasePage(
             title: LocaleKeys.importCustomToken.tr(),
@@ -300,9 +298,9 @@ class ImportSubmitPage extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (state.tokenData?['image_url'] != null)
+                            if (newCoin?.logoImageUrl != null)
                               Image.network(
-                                state.tokenData!['image_url'],
+                                newCoin!.logoImageUrl!,
                                 width: 80,
                                 height: 80,
                                 errorBuilder: (context, error, stackTrace) {
@@ -311,12 +309,12 @@ class ImportSubmitPage extends StatelessWidget {
                               ),
                             const SizedBox(height: 12),
                             Text(
-                              state.tokenData?['abbr'] ?? '',
+                              newCoin!.abbr,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 32),
                             Text(
-                              'Balance',
+                              LocaleKeys.balance.tr(),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyLarge
@@ -326,7 +324,7 @@ class ImportSubmitPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '${state.tokenData?['balance'] ?? '0'} ${state.tokenData?['abbr'] ?? ''} ($usdBalance)',
+                              '${newCoin.balance} ${newCoin.abbr} (${newCoin.getFormattedUsdBalance})',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ],
