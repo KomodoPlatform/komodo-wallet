@@ -25,16 +25,18 @@ class Order {
       base: json['coin'],
       rel: otherCoin,
       direction: direction,
-      address: json['address'],
+      address:
+          json['address'] != null ? Address.fromJson(json['address']) : null,
       uuid: json['uuid'],
       pubkey: json['pubkey'],
-      price: fract2rat(json['price_fraction']) ?? Rational.parse(json['price']),
-      maxVolume: fract2rat(json['base_max_volume_fraction']) ??
-          Rational.parse(json['base_max_volume']),
-      minVolume: fract2rat(json['base_min_volume_fraction']) ??
-          Rational.parse(json['base_min_volume']),
-      minVolumeRel: fract2rat(json['rel_min_volume_fraction']) ??
-          Rational.parse(json['rel_min_volume']),
+      price: fract2rat(json['price']['fraction']) ??
+          Rational.parse(json['price']['rational']),
+      maxVolume: fract2rat(json['base_max_volume']['fraction']) ??
+          Rational.parse(json['base_max_volume']['rational']),
+      minVolume: fract2rat(json['base_min_volume']['fraction']) ??
+          Rational.parse(json['base_min_volume']['rational']),
+      minVolumeRel: fract2rat(json['rel_min_volume']['fraction']) ??
+          Rational.parse(json['rel_min_volume']['rational']),
     );
   }
 
@@ -43,7 +45,7 @@ class Order {
   final OrderDirection direction;
   final Rational maxVolume;
   final Rational price;
-  final String? address;
+  final Address? address;
   final String? uuid;
   final String? pubkey;
   final Rational? minVolume;
@@ -58,3 +60,17 @@ enum OrderDirection { bid, ask }
 // This const is used to identify and highlight newly created
 // order preview in maker form orderbook (instead of isTarget flag)
 final String orderPreviewUuid = const Uuid().v1();
+
+class Address {
+  Address({required this.addressType, required this.addressData});
+
+  final String addressType;
+  final String addressData;
+
+  factory Address.fromJson(Map<String, dynamic> json) {
+    return Address(
+      addressData: json['address_data'],
+      addressType: json['address_type'],
+    );
+  }
+}

@@ -38,7 +38,7 @@ class BestOrder {
       maxVolume: order.maxVolume,
       minVolume: order.minVolume ?? Rational.zero,
       coin: coin ?? order.base,
-      address: order.address ?? '',
+      address: order.address?.addressData ?? '',
       uuid: order.uuid ?? '',
     );
   }

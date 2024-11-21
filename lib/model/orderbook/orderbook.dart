@@ -33,14 +33,14 @@ class Orderbook {
                 otherCoin: json['base'],
               ))
           .toList(),
-      bidsBaseVolTotal: fract2rat(json['total_bids_base_vol_fraction']) ??
-          Rational.parse(json['total_bids_base_vol']),
-      bidsRelVolTotal: fract2rat(json['total_bids_rel_vol_fraction']) ??
-          Rational.parse(json['total_bids_rel_vol']),
-      asksBaseVolTotal: fract2rat(json['total_asks_base_vol_fraction']) ??
-          Rational.parse(json['total_asks_base_vol']),
-      asksRelVolTotal: fract2rat(json['total_asks_rel_vol_fraction']) ??
-          Rational.parse(json['total_asks_rel_vol']),
+      bidsBaseVolTotal: fract2rat(json['total_bids_base_vol']['fraction']) ??
+          Rational.parse(json['total_bids_base_vol']['rational']),
+      bidsRelVolTotal: fract2rat(json['total_bids_rel_vol']['fraction']) ??
+          Rational.parse(json['total_bids_rel_vol']['rational']),
+      asksBaseVolTotal: fract2rat(json['total_asks_base_vol']['fraction']) ??
+          Rational.parse(json['total_asks_base_vol']['rational']),
+      asksRelVolTotal: fract2rat(json['total_asks_rel_vol']['fraction']) ??
+          Rational.parse(json['total_asks_rel_vol']['rational']),
       timestamp: json['timestamp'],
     );
   }

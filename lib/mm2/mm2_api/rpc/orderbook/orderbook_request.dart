@@ -15,9 +15,12 @@ class OrderbookRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
+        'mmrpc': '2.0',
         'userpass': userpass,
         'method': method,
-        'base': base,
-        'rel': rel,
+        'params': {
+          'base': base,
+          'rel': rel,
+        }
       };
 }

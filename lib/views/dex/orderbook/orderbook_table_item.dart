@@ -33,8 +33,8 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
   @override
   void initState() {
     _isPreview = widget.order.uuid == orderPreviewUuid;
-    _isTradeWithSelf =
-        widget.order.address == coinsBloc.getCoin(widget.order.rel)?.address;
+    _isTradeWithSelf = widget.order.address?.addressData ==
+        coinsBloc.getCoin(widget.order.rel)?.address;
     _style = const TextStyle(fontSize: 11, fontWeight: FontWeight.w500);
     _color = _isPreview
         ? theme.custom.targetColor

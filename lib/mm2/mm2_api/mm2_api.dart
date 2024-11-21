@@ -789,7 +789,7 @@ class Mm2Api {
 
       return OrderbookResponse(
         request: request,
-        result: Orderbook.fromJson(json),
+        result: Orderbook.fromJson(json['result'] as Map<String, dynamic>),
       );
     } catch (e, s) {
       log(
