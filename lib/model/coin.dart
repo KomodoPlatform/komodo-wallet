@@ -27,6 +27,7 @@ class Coin {
     this.derivationPath,
     this.accounts,
     this.usdPrice,
+    this.logoImageUrl,
     this.coinpaprikaId,
     this.activeByDefault = false,
     required String? swapContractAddress,
@@ -51,6 +52,7 @@ class Coin {
   final String? derivationPath;
   final int decimals;
   CexPrice? usdPrice;
+  String? logoImageUrl;
   final bool isTestCoin;
   String? address;
   List<HdAccount>? accounts;
@@ -221,6 +223,7 @@ class Coin {
       walletOnly: walletOnly,
       mode: mode,
       usdPrice: usdPrice,
+      logoImageUrl: logoImageUrl,
       parentCoin: parentCoin,
       derivationPath: derivationPath,
       accounts: accounts,
