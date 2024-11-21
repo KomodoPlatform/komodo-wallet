@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 
 abstract class ICustomTokenImportRepository {
@@ -38,6 +40,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   @override
   Future<Map<String, dynamic>> fetchCustomToken(
       CoinType network, String address) async {
+    await _activatePlatformCoin(network);
+
     final response = await coinsRepo.getTokenInfo(network, address);
     final tokenInfo = response?['result'];
 
@@ -57,6 +61,16 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       "balance": '50',
       "usd_balance": '200',
     };
+  }
+
+  Future<void> _activatePlatformCoin(CoinType network) async {
+    final platformCoinAbbr = getEvmPlatformCoin(network);
+    if (platformCoinAbbr == null) throw "Unsupported network";
+
+    final platformCoin = coinsBloc.getCoin(platformCoinAbbr);
+    if (platformCoin == null) throw "$platformCoinAbbr platform coin not found";
+
+    await coinsBloc.activateCoins([platformCoin]);
   }
 
   @override
