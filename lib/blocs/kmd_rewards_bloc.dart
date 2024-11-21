@@ -39,13 +39,9 @@ class KmdRewardsBloc implements BlocBase {
       );
     }
 
-    if (withdrawDetails.txHex == null && withdrawDetails.txJson == null) {
-      return BlocResponse(error: TextError(error: 'Missing txHex and txJson'));
-    }
-
     final tx = await coinsBloc.sendRawTransaction(SendRawTransactionRequest(
       coin: 'KMD',
-      txHex: withdrawDetails.txHex!,
+      txHex: withdrawDetails.txHex,
     ));
     if (tx.error != null) {
       final BaseError error =
