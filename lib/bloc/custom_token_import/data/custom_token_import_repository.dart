@@ -73,8 +73,6 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     await coinsRepo.activateCustomEvmToken(
         platformCoin.abbr, tokenAbbr, address);
 
-    await Future.delayed(const Duration(seconds: 10));
-
     final balanceInfo = await coinsRepo.getBalanceInfo(tokenAbbr);
     print("Balance info: ${balanceInfo?.balance.decimal}");
     print("Balance info: ${balanceInfo?.volume.decimal}");
