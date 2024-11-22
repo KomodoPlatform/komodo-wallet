@@ -51,7 +51,6 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         contractAddress: address,
       ),
       coingeckoId: tokenApi?['id'],
-      swapContractAddress: address,
       usdPrice: price == null
           ? null
           : CexPrice(
@@ -61,11 +60,12 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       explorerUrl: platformCoin.explorerUrl,
       explorerTxUrl: platformCoin.explorerTxUrl,
       explorerAddressUrl: platformCoin.explorerAddressUrl,
+      swapContractAddress: platformCoin.swapContractAddress,
+      fallbackSwapContract: platformCoin.fallbackSwapContract,
       state: CoinState.inactive,
       mode: CoinMode.standard,
       isTestCoin: false,
       walletOnly: false,
-      fallbackSwapContract: '',
       electrum: [],
       nodes: [],
       rpcUrls: [],
