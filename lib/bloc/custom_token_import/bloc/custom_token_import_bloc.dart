@@ -63,7 +63,7 @@ class CustomTokenImportBloc
     emit(state.copyWith(importStatus: () => FormStatus.submitting));
 
     try {
-      await repository.importCustomToken(state.network!, state.address!);
+      await repository.importCustomToken(state.coin!);
 
       emit(state.copyWith(
         importStatus: () => FormStatus.success,

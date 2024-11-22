@@ -11,7 +11,7 @@ import 'package:web_dex/shared/utils/utils.dart';
 abstract class ICustomTokenImportRepository {
   Future<Coin> fetchCustomToken(CoinType network, String address);
 
-  Future<void> importCustomToken(CoinType network, String address);
+  Future<void> importCustomToken(Coin coin);
 }
 
 class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
@@ -101,8 +101,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   }
 
   @override
-  Future<void> importCustomToken(CoinType network, String address) async {
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> importCustomToken(Coin coin) async {
+    await coinsBloc.activateCoins([coin]);
   }
 
   Future<Map<String, dynamic>?> fetchTokenInfoFromApi(
