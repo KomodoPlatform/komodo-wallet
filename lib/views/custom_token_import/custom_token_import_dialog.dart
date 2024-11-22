@@ -298,9 +298,9 @@ class ImportSubmitPage extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (newCoin?.logoImageUrl != null)
-                              Image.network(
-                                newCoin!.logoImageUrl!,
+                            if (newCoin?.logoImage != null)
+                              Image(
+                                image: newCoin!.logoImage!,
                                 width: 80,
                                 height: 80,
                                 errorBuilder: (context, error, stackTrace) {

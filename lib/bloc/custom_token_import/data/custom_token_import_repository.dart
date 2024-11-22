@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/cex_price.dart';
@@ -39,8 +40,10 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       type: network,
       decimals: decimals,
       name: tokenApi?['name'] ?? tokenAbbr,
-      logoImageUrl: tokenApi?['image']?['large'] ??
-          'assets/coin_icons/png/${tokenAbbr.toLowerCase()}.png',
+      logoImage: NetworkImage(
+        tokenApi?['image']?['large'] ??
+            'assets/coin_icons/png/${tokenAbbr.toLowerCase()}.png',
+      ),
       parentCoin: platformCoin,
       protocolType: platformCoin.protocolType,
       protocolData: ProtocolData(
