@@ -668,4 +668,25 @@ class Mm2Api {
       rethrow;
     }
   }
+
+  Future<ShowPrivKeyResponse?> showPrivKey(
+    ShowPrivKeyRequest request,
+  ) async {
+    try {
+      final String response = await _call(request);
+      final Map<String, dynamic> json = jsonDecode(response);
+      if (json['error'] != null) {
+        return null;
+      }
+      return ShowPrivKeyResponse.fromJson(json);
+    } catch (e, s) {
+      log(
+        'Error getting privkey ${request.coin}: ${e.toString()}',
+        path: 'api => showPrivKey',
+        trace: s,
+        isError: true,
+      );
+      return null;
+    }
+  }
 }
