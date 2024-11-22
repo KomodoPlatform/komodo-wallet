@@ -45,7 +45,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
             'assets/coin_icons/png/${tokenAbbr.toLowerCase()}.png',
       ),
       parentCoin: platformCoin,
-      protocolType: platformCoin.protocolType,
+      protocolType: 'ERC20',
       protocolData: ProtocolData(
         platform: platformCoin.abbr,
         contractAddress: address,
@@ -73,16 +73,17 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       priority: 0,
     );
 
-    await coinsRepo.activateCustomEvmToken(
-        platformCoin.abbr, tokenAbbr, address);
-
-    final balanceInfo = await coinsRepo.getBalanceInfo(tokenAbbr);
-    print("Balance info: ${balanceInfo?.balance.decimal}");
-    print("Balance info: ${balanceInfo?.volume.decimal}");
-
-    newCoin.balance = double.tryParse(balanceInfo?.balance.decimal ?? '0') ?? 0;
+    newCoin.balance = await _getBalance(newCoin);
 
     return newCoin;
+  }
+
+  Future<double> _getBalance(Coin coin) async {
+    await coinsRepo.activateCoins([coin]);
+    final balanceInfo = await coinsRepo.getBalanceInfo(coin.abbr);
+    await coinsRepo.deactivateCoin(coin);
+
+    return double.tryParse(balanceInfo?.balance.decimal ?? '0') ?? 0;
   }
 
   Future<Coin> _activatePlatformCoin(CoinType network) async {
