@@ -266,9 +266,9 @@ class ImportSubmitPage extends StatelessWidget {
         builder: (context, state) {
           final isSubmitEnabled = state.importStatus != FormStatus.submitting &&
               state.importStatus != FormStatus.success &&
-              state.tokenData != null;
+              state.coin != null;
 
-          final newCoin = state.tokenData;
+          final newCoin = state.coin;
 
           return BasePage(
             title: LocaleKeys.importCustomToken.tr(),
@@ -280,7 +280,7 @@ class ImportSubmitPage extends StatelessWidget {
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: state.tokenData == null
+              children: state.coin == null
                   ? [
                       Expanded(
                         child: Column(

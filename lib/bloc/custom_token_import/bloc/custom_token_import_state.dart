@@ -11,7 +11,7 @@ class CustomTokenImportState extends Equatable {
   final String? address;
   final String? formErrorMessage;
   final String? importErrorMessage;
-  final Coin? tokenData;
+  final Coin? coin;
 
   const CustomTokenImportState({
     this.network,
@@ -20,7 +20,7 @@ class CustomTokenImportState extends Equatable {
     this.importStatus = FormStatus.initial,
     this.formErrorMessage,
     this.importErrorMessage,
-    this.tokenData,
+    this.coin,
   });
 
   CustomTokenImportState copyWith({
@@ -42,7 +42,7 @@ class CustomTokenImportState extends Equatable {
       importErrorMessage: importErrorMessage == null
           ? this.importErrorMessage
           : importErrorMessage(),
-      tokenData: tokenData == null ? this.tokenData : tokenData(),
+      coin: tokenData == null ? this.coin : tokenData(),
     );
   }
 
@@ -63,7 +63,7 @@ class CustomTokenImportState extends Equatable {
       formErrorMessage: formErrorMessage == null ? null : formErrorMessage(),
       importErrorMessage:
           importErrorMessage == null ? null : importErrorMessage(),
-      tokenData: tokenData == null ? null : tokenData(),
+      coin: tokenData == null ? null : tokenData(),
     );
   }
 
@@ -75,6 +75,6 @@ class CustomTokenImportState extends Equatable {
         address,
         formErrorMessage,
         importErrorMessage,
-        tokenData,
+        coin,
       ];
 }
