@@ -7,6 +7,7 @@ import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_bloc.d
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 
@@ -190,7 +191,10 @@ class ImportFormPage extends StatelessWidget {
                     labelText: LocaleKeys.selectNetwork.tr(),
                     border: const OutlineInputBorder(),
                   ),
-                  items: CoinType.values.map((CoinType coinType) {
+                  items: CoinType.values
+                      .where((CoinType coinType) =>
+                          getEvmPlatformCoin(coinType) != null)
+                      .map((CoinType coinType) {
                     return DropdownMenuItem<CoinType>(
                       value: coinType,
                       child: Text(getCoinTypeNameLong(coinType)),
