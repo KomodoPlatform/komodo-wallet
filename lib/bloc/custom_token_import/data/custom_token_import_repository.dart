@@ -28,9 +28,13 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       throw 'Failed to get token info';
     }
 
+    return await _getCoin(tokenInfo, network, address, platformCoin);
+  }
+
+  Future<Coin> _getCoin(
+      tokenInfo, CoinType network, String address, Coin platformCoin) async {
     String tokenAbbr =
         tokenInfo['config_ticker'] ?? tokenInfo['info']['symbol'];
-    print("getTokenInfo abbr: $tokenAbbr");
     int decimals = tokenInfo['info']['decimals'];
     final tokenApi = await fetchTokenInfoFromApi(network, address);
 
@@ -74,7 +78,6 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     );
 
     newCoin.balance = await _getBalance(newCoin);
-
     return newCoin;
   }
 
