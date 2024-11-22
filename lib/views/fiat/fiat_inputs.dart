@@ -9,6 +9,9 @@ import 'package:web_dex/views/fiat/custom_fiat_input_field.dart';
 import 'package:web_dex/views/fiat/fiat_currency_item.dart';
 import 'package:web_dex/views/fiat/fiat_icon.dart';
 
+// TODO(@takenagain): When `dev` is merged into `main`, please refactor this
+// to use the `CoinIcon` widget. I'm leaving this unchanged for now to avoid
+// merge conflicts with your fiat onramp overhaul.
 class FiatInputs extends StatefulWidget {
   const FiatInputs({
     required this.initialFiat,
