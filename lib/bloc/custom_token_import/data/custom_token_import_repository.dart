@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/cex_price.dart';
@@ -76,6 +77,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       bchdUrls: [],
       priority: 0,
     );
+
+    CoinIcon.registerCustomIcon(newCoin.abbr, newCoin.logoImage!);
 
     newCoin.balance = await _getBalance(newCoin);
     return newCoin;
