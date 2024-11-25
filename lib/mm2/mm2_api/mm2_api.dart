@@ -10,6 +10,8 @@ import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/cancel_order/cancel_order_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/convert_address/convert_address_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/directly_connected_peers/get_directly_connected_peers.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/directly_connected_peers/get_directly_connected_peers_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/disable_coin/disable_coin_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/electrum/electrum_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/enable/enable_req.dart';
@@ -19,9 +21,9 @@ import 'package:web_dex/mm2/mm2_api/rpc/get_enabled_coins/get_enabled_coins_req.
 import 'package:web_dex/mm2/mm2_api/rpc/import_swaps/import_swaps_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/import_swaps/import_swaps_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/kmd_rewards_info/kmd_rewards_info_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/market_maker_bot_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_maker_vol/max_maker_vol_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_maker_vol/max_maker_vol_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/market_maker_bot_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
@@ -938,6 +940,33 @@ class Mm2Api {
         isError: true,
       );
       return null;
+    }
+  }
+
+  Future<GetDirectlyConnectedPeersResponse> getDirectlyConnectedPeers(
+    GetDirectlyConnectedPeers request,
+  ) async {
+    try {
+      final String response = await _call(request);
+      final Map<String, dynamic> json = jsonDecode(response);
+      if (json['error'] != null) {
+        log(
+          'Error getting directly connected peers: ${json['error']}',
+          isError: true,
+          path: 'api => getDirectlyConnectedPeers',
+        );
+        throw Exception('Failed to get directly connected peers');
+      }
+
+      return GetDirectlyConnectedPeersResponse.fromJson(json);
+    } catch (e, s) {
+      log(
+        'Error getting directly connected peers',
+        path: 'api => getDirectlyConnectedPeers',
+        trace: s,
+        isError: true,
+      );
+      rethrow;
     }
   }
 }

@@ -40,6 +40,7 @@ import 'package:web_dex/bloc/nfts/nft_main_repo.dart';
 import 'package:web_dex/bloc/runtime_coin_updates/coin_config_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
+import 'package:web_dex/bloc/system_health/system_clock_repository.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
@@ -227,7 +228,7 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider<SystemHealthBloc>(
-            create: (_) => SystemHealthBloc(),
+            create: (_) => SystemHealthBloc(SystemClockRepository(), mm2Api),
           ),
           BlocProvider<CoinConfigBloc>(
             lazy: false,

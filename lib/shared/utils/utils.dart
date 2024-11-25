@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:app_theme/app_theme.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -18,33 +17,8 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/shared/constants.dart';
-import 'package:http/http.dart' as http;
 export 'package:web_dex/shared/utils/extensions/async_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
-
-Future<bool> systemClockIsValid() async {
-  try {
-    final response = await http
-        .get(Uri.parse('https://worldtimeapi.org/api/timezone/UTC'))
-        .timeout(const Duration(seconds: 20));
-
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      final apiTimeStr = jsonResponse['datetime'];
-      final apiTime = DateTime.parse(apiTimeStr).toUtc();
-      final localTime = DateTime.now().toUtc();
-      final difference = apiTime.difference(localTime).abs().inSeconds;
-
-      return difference < 60;
-    } else {
-      log('Failed to get time from API');
-      return true; // Do not block the usage
-    }
-  } catch (e) {
-    log('Failed to validate system clock');
-    return true; // Do not block the usage
-  }
-}
 
 void copyToClipBoard(BuildContext context, String str) {
   final themeData = Theme.of(context);
