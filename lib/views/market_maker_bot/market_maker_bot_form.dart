@@ -49,7 +49,7 @@ class MarketMakerBotForm extends StatelessWidget {
         .read<MarketMakerBotBloc>()
         .add(MarketMakerBotOrderUpdateRequested(tradePair));
 
-    context.read<DexTabBarBloc>().add(const TabChanged(1));
+    context.read<DexTabBarBloc>().add(const TabChanged(2));
 
     marketMakerTradeFormBloc.add(const MarketMakerTradeFormClearRequested());
   }

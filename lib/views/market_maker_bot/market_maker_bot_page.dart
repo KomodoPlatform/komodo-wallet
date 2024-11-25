@@ -61,6 +61,7 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
             MarketMakerBotOrderListRepository(
               myOrdersService,
               SettingsRepository(),
+              coinsBloc,
             ),
           ),
         ),

@@ -6,8 +6,8 @@ import 'package:web_dex/views/market_maker_bot/tab_type_enum.dart';
 
 enum MarketMakerBotTabType implements TabTypeEnum {
   marketMaker,
-  orders,
   inProgress,
+  orders,
   history;
 
   @override
@@ -40,7 +40,7 @@ enum MarketMakerBotTabType implements TabTypeEnum {
 
   /// This is a temporary solution to avoid changing the entire DEX flow to add
   /// the market maker bot tab.
-  // TODO(Francois): separate the tab widget logic from the page logic
+  // TODO: separate the tab widget logic from the page logic
   DexListType toDexListType() {
     switch (this) {
       case marketMaker:

@@ -222,6 +222,7 @@ class AppBlocRoot extends StatelessWidget {
               MarketMakerBotOrderListRepository(
                 myOrdersService,
                 SettingsRepository(),
+                coinsBloc,
               ),
             ),
           ),

@@ -148,7 +148,7 @@ class _SelectedTabContent extends StatelessWidget {
   }
 
   void _onSwapItemClick(Swap swap) {
-    routingState.dexState.setDetailsAction(swap.uuid);
+    routingState.marketMakerState.setDetailsAction(swap.uuid);
   }
 }
 

@@ -31,9 +31,9 @@ class TradePairListItem extends StatelessWidget {
     final config = pair.config;
     final order = pair.order;
     final sellCoin = config.baseCoinId;
-    final sellAmount = order?.baseAmountAvailable ?? Rational.zero;
+    final sellAmount = order?.baseAmountAvailable ?? pair.baseCoinAmount;
     final buyCoin = config.relCoinId;
-    final buyAmount = order?.relAmountAvailable ?? Rational.zero;
+    final buyAmount = order?.relAmountAvailable ?? pair.relCoinAmount;
     final String date = order != null ? getFormattedDate(order.createdAt) : '-';
     final double fillProgress = order != null
         ? tradingEntitiesBloc.getProgressFillSwap(pair.order!)
