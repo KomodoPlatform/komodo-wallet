@@ -2,13 +2,12 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/services/file_loader/get_file_loader.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
@@ -17,11 +16,11 @@ import 'package:web_dex/views/wallets_manager/widgets/custom_seed_dialog.dart';
 
 class WalletSimpleImport extends StatefulWidget {
   const WalletSimpleImport({
-    Key? key,
     required this.onImport,
     required this.onUploadFiles,
     required this.onCancel,
-  }) : super(key: key);
+    super.key,
+  });
 
   final void Function({
     required String name,
@@ -160,7 +159,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     return UploadButton(
       buttonText: LocaleKeys.walletCreationUploadFile.tr(),
       uploadFile: () async {
-        await fileLoader.upload(
+        await FileLoader.fromPlatform().upload(
           onUpload: (fileName, fileData) => widget.onUploadFiles(
             fileData: fileData ?? '',
             fileName: fileName,
@@ -214,12 +213,10 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       autofocus: true,
       autocorrect: false,
       textInputAction: TextInputAction.next,
-      enableInteractiveSelection: true,
       validator: (String? name) =>
           _inProgress ? null : walletsBloc.validateWalletName(name ?? ''),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
       hintText: LocaleKeys.walletCreationNameHint.tr(),
-      validationMode: InputValidationMode.eager,
     );
   }
 
@@ -232,7 +229,6 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       textInputAction: TextInputAction.done,
       autocorrect: false,
       obscureText: _isSeedHidden,
-      enableInteractiveSelection: true,
       maxLines: _isSeedHidden ? 1 : null,
       errorMaxLines: 4,
       style: Theme.of(context).textTheme.bodyMedium,

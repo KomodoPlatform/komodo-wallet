@@ -90,6 +90,7 @@ class _WalletMainState extends State<WalletMain>
       header: isMobile ? PageHeader(title: LocaleKeys.wallet.tr()) : null,
       content: Expanded(
         child: CustomScrollView(
+          key: const Key('wallet-page-scroll-view'),
           slivers: <Widget>[
             SliverToBoxAdapter(
               child: Column(

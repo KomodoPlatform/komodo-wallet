@@ -7,15 +7,15 @@ import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 
 class MarketMakerBotOrderListRepository {
-  final MyOrdersService _ordersService;
-  final SettingsRepository _settingsRepository;
   final CoinsBloc _coinsRepository;
-
   const MarketMakerBotOrderListRepository(
     this._ordersService,
     this._settingsRepository,
     this._coinsRepository,
   );
+
+  final MyOrdersService _ordersService;
+  final SettingsRepository _settingsRepository;
 
   Future<void> cancelOrders(List<TradeCoinPairConfig> tradePairs) async {
     final orders = await _ordersService.getOrders();
@@ -31,7 +31,7 @@ class MarketMakerBotOrderListRepository {
         )
         .toList();
 
-    if (ordersToCancel?.isEmpty == true) {
+    if (ordersToCancel?.isEmpty ?? false) {
       return;
     }
 

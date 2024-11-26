@@ -12,6 +12,7 @@ const String allWalletsStorageKey = 'all-wallets';
 const String defaultDexCoin = 'KMD';
 const List<Locale> localeList = [Locale('en')];
 const String assetsPath = 'assets';
+const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
 
 // Temporary feature flag to allow merging of the PR
 // TODO: Remove this flag after the feature is finalized

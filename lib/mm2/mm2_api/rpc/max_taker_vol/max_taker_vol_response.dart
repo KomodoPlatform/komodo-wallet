@@ -6,8 +6,13 @@ class MaxTakerVolResponse {
 
   factory MaxTakerVolResponse.fromJson(Map<String, dynamic> json) =>
       MaxTakerVolResponse(
-          coin: json['coin'] ?? '',
-          result: MaxTakerVolumeResponseResult.fromJson(json['result']));
+        coin: json['coin'] as String? ?? '',
+        result: MaxTakerVolumeResponseResult.fromJson(
+          Map<String, dynamic>.from(
+            json['result'] as Map? ?? {},
+          ),
+        ),
+      );
   final String coin;
   final MaxTakerVolumeResponseResult result;
 }
@@ -18,7 +23,10 @@ class MaxTakerVolumeResponseResult {
     required this.denom,
   });
   factory MaxTakerVolumeResponseResult.fromJson(Map<String, dynamic> json) =>
-      MaxTakerVolumeResponseResult(denom: json['denom'], numer: json['numer']);
+      MaxTakerVolumeResponseResult(
+        denom: json['denom'] as String,
+        numer: json['numer'] as String,
+      );
   final String denom;
   final String numer;
 

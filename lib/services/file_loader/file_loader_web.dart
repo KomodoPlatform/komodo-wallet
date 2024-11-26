@@ -1,12 +1,14 @@
-import 'dart:convert';
+import 'dart:js_interop';
 
-import 'package:universal_html/html.dart';
-import 'package:universal_html/js_util.dart';
-import 'package:web_dex/platform/platform.dart';
+import 'package:web/web.dart' as web;
 import 'package:web_dex/services/file_loader/file_loader.dart';
+import 'package:web_dex/shared/utils/utils.dart';
+
+FileLoader createFileLoader() => const FileLoaderWeb();
 
 class FileLoaderWeb implements FileLoader {
   const FileLoaderWeb();
+
   @override
   Future<void> save({
     required String fileName,
@@ -25,62 +27,107 @@ class FileLoaderWeb implements FileLoader {
     required String filename,
     required String data,
   }) async {
-    final AnchorElement anchor = AnchorElement();
-    anchor.href =
-        '${Uri.dataFromString(data, mimeType: 'text/plain', encoding: utf8)}';
-    anchor.download = filename;
-    anchor.style.display = 'none';
-    anchor.click();
+    final dataArray = web.TextEncoder().encode(data);
+    final blob =
+        web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
+
+    final url = web.URL.createObjectURL(blob);
+
+    try {
+      // Create an anchor element and set the attributes
+      final anchor = web.HTMLAnchorElement()
+        ..href = url
+        ..download = filename
+        ..style.display = 'none';
+
+      // Append to the DOM and trigger click
+      web.document.body?.append(anchor);
+      anchor
+        ..click()
+        ..remove();
+    } finally {
+      // Revoke the object URL
+      web.URL.revokeObjectURL(url);
+    }
   }
 
   Future<void> _saveAsCompressedFile({
     required String fileName,
     required String data,
   }) async {
-    final String? compressedData =
-        await promiseToFuture<String?>(zipEncode('$fileName.txt', data));
+    try {
+      // add the extension of the contained file to the filename, so that the
+      // extracted file is simply the filename excluding '.zip'
+      final fileNameWithExt = '$fileName.txt';
 
-    if (compressedData == null) return;
+      final encoder = web.TextEncoder();
+      final dataArray = encoder.encode(data);
+      final blob =
+          web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
 
-    final anchor = AnchorElement();
-    anchor.href = 'data:application/zip;base64,$compressedData';
-    anchor.download = '$fileName.zip';
-    anchor.click();
+      final response = web.Response(blob);
+      final compressedResponse = web.Response(
+        response.body!.pipeThrough(
+          web.CompressionStream('gzip') as web.ReadableWritablePair,
+        ),
+      );
+
+      final compressedBlob = await compressedResponse.blob().toDart;
+      final url = web.URL.createObjectURL(compressedBlob);
+
+      final anchor = web.HTMLAnchorElement()
+        ..href = url
+        ..download = '$fileNameWithExt.zip'
+        ..style.display = 'none';
+
+      web.document.body?.append(anchor);
+      anchor
+        ..click()
+        ..remove();
+
+      web.URL.revokeObjectURL(url);
+    } catch (e) {
+      log('Error compressing and saving file: $e').ignore();
+    }
   }
 
   @override
   Future<void> upload({
-    required Function(String name, String? content) onUpload,
-    required Function(String) onError,
+    required void Function(String name, String? content) onUpload,
+    required void Function(String) onError,
     LoadFileType? fileType,
   }) async {
-    final FileUploadInputElement uploadInput = FileUploadInputElement();
+    final uploadInput = web.HTMLInputElement()..type = 'file';
+
     if (fileType != null) {
-      uploadInput.setAttribute('accept', _getMimeType(fileType));
+      uploadInput.accept = _getMimeType(fileType);
     }
+
     uploadInput.click();
-    uploadInput.onChange.listen((Event event) {
-      final List<File>? files = uploadInput.files;
+    uploadInput.onChange.listen((event) {
+      final web.FileList? files = uploadInput.files;
       if (files == null) {
         return;
       }
+
       if (files.length == 1) {
-        final file = files[0];
+        final web.File? file = files.item(0);
+        final reader = web.FileReader();
 
-        final FileReader reader = FileReader();
-
-        reader.onLoadEnd.listen((_) {
+        reader.onLoadEnd.listen((event) {
           final result = reader.result;
-          if (result is String) {
-            onUpload(file.name, result);
+          if (result case final String content) {
+            onUpload(file!.name, content);
           }
         });
-        reader.onError.listen(
-          (ProgressEvent _) {},
-          onError: (Object error) => onError(error.toString()),
-        );
 
-        reader.readAsText(file);
+        reader
+          ..onerror = (JSAny event) {
+            if (event is web.ErrorEvent) {
+              onError(event.message);
+            }
+          }.toJS
+          ..readAsText(file! as web.Blob);
       }
     });
   }

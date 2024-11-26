@@ -57,10 +57,8 @@ dependencies:
   http: 1.2.2 # dart.dev
   intl: 0.19.0 # dart.dev
   js: 0.6.7 # dart.dev
-  shared_preferences: 2.1.1 # flutter.dev
   url_launcher: 6.3.0 # flutter.dev
   crypto: 3.0.3 # dart.dev
-  path_provider: 2.1.1  # flutter.dev
   cross_file: 0.3.4+2 # flutter.dev
   video_player: 2.7.0 # flutter.dev
 
@@ -82,11 +80,8 @@ dependencies:
 
   ## ---- Fluttercommunity.dev
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  equatable:
-    git:
-      url: https://github.com/KomodoPlatform/equatable.git
-      ref: 2117551ff3054f8edb1a58f63ffe1832a8d25623 #2.0.5
+  # does not require review, since hosted and git versions are the same
+  equatable: 2.0.5 # sdk depends on hosted version, and not from git
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   package_info_plus:
@@ -130,36 +125,14 @@ dependencies:
       url: https://github.com/KomodoPlatform/qr.flutter.git
       ref: e3f8d3d4bbe8661f6c941acde8c9815a876756a3 #4.0.0
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  uuid:
-    3.0.6
-    # git:
-    #   url: https://github.com/KomodoPlatform/dart-uuid.git
-    #   ref: 832f38af9e4a676d1f47c302785e8a00d3fc72a9 #3.0.6
-
-  # Pending approval 
+  # Pending approval
   easy_localization: 3.0.7 # last reviewed 3.0.2 via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-
-
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  flutter_bloc:
-    git:
-      url: https://github.com/KomodoPlatform/bloc.git
-      path: packages/flutter_bloc/
-      ref: 32d5002fb8b8a1e548fe8021d8468327680875ff # 8.1.1
-
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  rational:
-    git:
-      url: https://github.com/KomodoPlatform/dart-rational.git
-      ref: 84d8fe00e33560405c6d72b22a6e9c5c468db058 #1.2.1
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   universal_html:
     git:
       url: https://github.com/KomodoPlatform/universal_html.git
       ref: 6a1bc7d9e6ed735ab9f7b319f9eedb138ce8b0e5 #2.2.2
-
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   hive:
@@ -196,7 +169,7 @@ dependencies:
   # MRC: At least 3.3.0 is needed for AGP 8.0+ compatibility on Android
   mobile_scanner: ^5.1.0
 
-  # Newly added, not yet reviewed 
+  # Newly added, not yet reviewed
   formz: 0.7.0
 
   # TODO: review required
@@ -204,16 +177,29 @@ dependencies:
   bloc_concurrency: ^0.2.5
   file_picker: ^8.1.2 # Updated from git ref @5.1.4
 
+  # TODO: review required - SDK integration
+  path_provider: 2.1.4 # flutter.dev
+  shared_preferences: 2.3.2 # flutter.dev
+  decimal: 3.0.2 # transitive dependency that is required to fix breaking changes in rational package
+  rational: 2.0.0 # sdk depends on decimal ^3.0.2, which depends on rational ^2.0.0
+  uuid: 4.4.2 # sdk depends on this version
+  flutter_bloc: 8.1.6 # sdk depends on this version, and hosted instead of git reference
+  komodo_defi_sdk: # TODO: change to pub.dev version?
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/komodo_defi_sdk
+      ref: dev
+
+  komodo_defi_types:
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/komodo_defi_types
+      ref: dev
+
 dev_dependencies:
   integration_test: # SDK
     sdk: flutter
   test: ^1.24.1 # dart.dev
-
-  komodo_wallet_build_transformer:
-    git:
-      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
-      path: packages/komodo_wallet_build_transformer
-      ref: dev
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -236,10 +222,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - assets/config/
-    - assets/coin_icons/
     - assets/custom_icons/16px/
-    - assets/coin_icons/png/
     - assets/logo/
     - assets/fonts/
     - assets/flags/
@@ -255,40 +238,10 @@ flutter:
     - assets/fiat/fiat_icons_square/
     - assets/fiat/providers/
     - assets/packages/flutter_inappwebview_web/assets/web/
+    - app_build/build_config.json
+    - packages/komodo_defi_framework/assets/config/
+    - packages/komodo_defi_framework/assets/coin_icons/png/
 
-    # Komodo Wallet build transformer configuration. This handles all build-time
-    # dependencies, such as fetching coin assets, platform-specific assets, and
-    # more. This replaces the complicated build process that was previously
-    # required running multiple scripts and manual steps.
-    - path: app_build/build_config.json
-      transformers:
-        - package: komodo_wallet_build_transformer
-          args: [
-          # Uncomment any of the following options to disable specific build
-          # steps. They are executed in the order listed in `_build_steps`
-          # in `packages/komodo_wallet_build_transformer/bin/komodo_wallet_build_transformer.dart`
-            # Configure fetch_defi_api in `build_config.json`
-            --fetch_defi_api,
-            # Configure `fetch_coin_assets` in `build_config.json`
-            --fetch_coin_assets,
-            --copy_platform_assets,
-            # Uncomment the following option to enable concurrent build step
-            # execution. This is useful for reducing build time in development,
-            # but is not recommended for production builds.
-            # - --concurrent,
-
-            #! NB: There may be complications if we want to publish the
-            # sub-packages as separate packages. However, Flutter's upcoming
-            # support for native/web build hooks may simplify this process.
-            # This package must be listed in the `package_config.json` of the
-            # root Flutter app.
-            --artifact_output_package=web_dex,
-
-            # The path to the build config file relative to the root of the
-            # artifact output package.
-            --config_output_path=app_build/build_config.json,
-          ]
-          
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
@@ -322,7 +275,6 @@ flutter:
       fonts:
         - asset: assets/fallback_fonts/roboto/v20/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf
           weight: 400
-
 
   #   - family: Trajan Pro
   #     fonts:

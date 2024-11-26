@@ -23,6 +23,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       add(AuthChangedEvent(mode: event));
     });
   }
+
   late StreamSubscription<AuthorizeMode> _authorizationSubscription;
   final AuthRepository _authRepo;
   final AuthChecker _authChecker = getAuthChecker();
@@ -70,7 +71,16 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     );
 
     await _logOut();
-    await _logIn(event.seed, event.wallet);
+    await _authRepo.logIn(
+      AuthorizeMode.logIn,
+      seed: event.seed,
+      walletName: event.wallet.name,
+      password: event.password,
+    );
+    currentWalletBloc.wallet = event.wallet;
+    if (event.wallet.config.type == WalletType.iguana) {
+      _authChecker.addSession(event.wallet.config.seedPhrase);
+    }
 
     log(
       're-logged in  from a wallet',
@@ -91,16 +101,5 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       _authChecker.removeSession(currentWallet.config.seedPhrase);
     }
     currentWalletBloc.wallet = null;
-  }
-
-  Future<void> _logIn(
-    String seed,
-    Wallet wallet,
-  ) async {
-    await _authRepo.logIn(AuthorizeMode.logIn, seed);
-    currentWalletBloc.wallet = wallet;
-    if (wallet.config.type == WalletType.iguana) {
-      _authChecker.addSession(wallet.config.seedPhrase);
-    }
   }
 }

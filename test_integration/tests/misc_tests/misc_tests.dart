@@ -6,13 +6,21 @@ import 'package:web_dex/main.dart' as app;
 
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
-import './feedback_tests.dart';
-import './menu_tests.dart';
-import './theme_test.dart';
+import 'feedback_tests.dart';
+import 'menu_tests.dart';
+import 'theme_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
+  miscWidgetTests();
+}
+
+void miscWidgetTests({
+  bool skip = false,
+  int retryLimit = 0,
+  Duration timeout = const Duration(minutes: 10),
+}) {
+  return testWidgets(
     'Run misc tests:',
     (WidgetTester tester) async {
       tester.testTextInput.register();
@@ -30,5 +38,8 @@ void main() {
       print('END MISC TESTS');
     },
     semanticsEnabled: false,
+    skip: skip,
+    retry: retryLimit,
+    timeout: Timeout(timeout),
   );
 }

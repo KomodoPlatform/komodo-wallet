@@ -22,6 +22,9 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
+        # Run flutter build once to download coin icons and config files. 
+        # This step is expected to "fail", since flutter build has to run again 
+        # after the assets are downloaded to register them in AssetManifest.bin
         flutter pub get > /dev/null 2>&1
         flutter build web --release > /dev/null 2>&1 || true
         rm -rf build/*

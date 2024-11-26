@@ -32,8 +32,7 @@ class StartUpBloc implements BlocBase {
   }
 
   Future<void> run() async {
-    if (mm2 is MM2WithInit) await (mm2 as MM2WithInit).init();
-
+    await mm2.init();
     final wasAlreadyRunning = running;
 
     authRepo.authMode.listen((event) {

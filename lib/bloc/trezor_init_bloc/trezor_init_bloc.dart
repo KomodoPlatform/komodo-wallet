@@ -224,22 +224,19 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
   }
 
   Future<void> _loginToHiddenMode() async {
-    final MM2Status mm2Status = await mm2.status();
+    final bool mm2SignedIn = await mm2.isSignedIn();
+    if (state.authMode == AuthorizeMode.hiddenLogin && mm2SignedIn) return;
 
-    if (state.authMode == AuthorizeMode.hiddenLogin &&
-        mm2Status == MM2Status.rpcIsUp) return;
-
-    if (mm2Status == MM2Status.rpcIsUp) await _authRepo.logOut();
-    await _authRepo.logIn(AuthorizeMode.hiddenLogin, seedForHiddenLogin);
+    if (mm2SignedIn) await _authRepo.logOut();
+    await _authRepo.logIn(AuthorizeMode.hiddenLogin, seed: seedForHiddenLogin);
   }
 
   Future<void> _logoutFromHiddenMode() async {
-    final MM2Status mm2Status = await mm2.status();
+    final bool mm2SignedIn = await mm2.isSignedIn();
 
-    if (state.authMode != AuthorizeMode.hiddenLogin &&
-        mm2Status == MM2Status.rpcIsUp) return;
+    if (state.authMode != AuthorizeMode.hiddenLogin && mm2SignedIn) return;
 
-    if (mm2Status == MM2Status.rpcIsUp) await _authRepo.logOut();
+    if (mm2SignedIn) await _authRepo.logOut();
     await _authRepo.logIn(AuthorizeMode.noLogin);
   }
 

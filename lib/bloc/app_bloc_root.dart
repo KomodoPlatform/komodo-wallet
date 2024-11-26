@@ -321,8 +321,10 @@ class _MyAppViewState extends State<_MyAppView> {
   Future<void> _precacheCoinIcons() async {
     if (_currentPrecacheOperation != null &&
         !_currentPrecacheOperation!.isCompleted) {
-      _currentPrecacheOperation!
-          .completeError('New request to precache icons started.');
+      // completeError throws an uncaught exception, which causes the UI
+      // tests to fail when switching between light and dark theme
+      log('New request to precache icons started.');
+      _currentPrecacheOperation!.complete();
     }
 
     _currentPrecacheOperation = Completer<void>();

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app_theme/app_theme.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,6 @@ import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -60,8 +60,12 @@ void copyToClipBoard(BuildContext context, String str) {
 /// unit tests: [testCustomDoubleToString]
 String doubleToString(double dv, [int fractions = 8]) {
   final Rational r = Rational.parse(dv.toString());
-  if (r.isInteger) return r.toStringAsFixed(0);
-  String sv = r.toStringAsFixed(fractions > 20 ? 20 : fractions);
+  if (r.isInteger) {
+    return r.toDecimal(scaleOnInfinitePrecision: 24).toStringAsFixed(0);
+  }
+  String sv = r
+      .toDecimal(scaleOnInfinitePrecision: 24)
+      .toStringAsFixed(fractions > 20 ? 20 : fractions);
   final dot = sv.indexOf('.');
   // Looks like we already have [cutTrailingZeros]
   sv = sv.replaceFirst(RegExp(r'0+$'), '', dot);
@@ -637,16 +641,6 @@ Future<void> pauseWhile(
   while (condition() && !timedOut) {
     await Future<dynamic>.delayed(const Duration(milliseconds: 10));
     timedOut = nowMs - startMs > timeout.inMilliseconds;
-  }
-}
-
-Future<void> waitMM2StatusChange(MM2Status status, MM2 mm2,
-    {int waitingTime = 3000}) async {
-  final int start = DateTime.now().millisecondsSinceEpoch;
-
-  while (await mm2.status() != status &&
-      DateTime.now().millisecondsSinceEpoch - start < waitingTime) {
-    await Future<dynamic>.delayed(const Duration(milliseconds: 100));
   }
 }
 

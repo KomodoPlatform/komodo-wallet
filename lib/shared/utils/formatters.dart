@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,14 +9,10 @@ import 'package:web_dex/shared/constants.dart';
 
 final List<TextInputFormatter> currencyInputFormatters = [
   DecimalTextInputFormatter(decimalRange: decimalRange),
-  FilteringTextInputFormatter.allow(numberRegExp)
+  FilteringTextInputFormatter.allow(numberRegExp),
 ];
 
 class DurationLocalization {
-  final String milliseconds;
-  final String seconds;
-  final String minutes;
-  final String hours;
 
   DurationLocalization({
     required this.milliseconds,
@@ -23,11 +20,15 @@ class DurationLocalization {
     required this.minutes,
     required this.hours,
   });
+  final String milliseconds;
+  final String seconds;
+  final String minutes;
+  final String hours;
 }
 
 /// unit test: [testDurationFormat]
 String durationFormat(
-    Duration duration, DurationLocalization durationLocalization) {
+    Duration duration, DurationLocalization durationLocalization,) {
   final int hh = duration.inHours;
   final int mm = duration.inMinutes.remainder(60);
   final int ss = duration.inSeconds.remainder(60);
@@ -35,7 +36,7 @@ String durationFormat(
 
   if (ms < 1000) return '$ms${durationLocalization.milliseconds}';
 
-  StringBuffer output = StringBuffer();
+  final StringBuffer output = StringBuffer();
   if (hh > 0) {
     output.write('$hh${durationLocalization.hours} ');
   }
@@ -50,7 +51,9 @@ String durationFormat(
 /// unit test: [testNumberWithoutExponent]
 String getNumberWithoutExponent(String value) {
   try {
-    return Rational.parse(value).toDecimalString();
+    return Rational.parse(value)
+        .toDecimal(scaleOnInfinitePrecision: 10)
+        .toString();
   } catch (_) {
     return value;
   }
@@ -125,7 +128,6 @@ class DecimalTextInputFormatter extends TextInputFormatter {
     return TextEditingValue(
       text: truncated,
       selection: newSelection,
-      composing: TextRange.empty,
     );
   }
 }
@@ -171,8 +173,10 @@ String formatDexAmt(dynamic amount) {
 
   switch (amount.runtimeType) {
     case double:
+      return cutTrailingZeros((amount as double).toStringAsFixed(8));
     case Rational:
-      return cutTrailingZeros(amount.toStringAsFixed(8) ?? '');
+      return cutTrailingZeros(
+          (amount as Rational).toDecimal(scaleOnInfinitePrecision: 12).toStringAsFixed(8),);
     case String:
       return cutTrailingZeros(double.parse(amount).toStringAsFixed(8));
     case int:
@@ -241,8 +245,8 @@ const one = 1;
 
 final hugeFormatter = NumberFormat.compactLong();
 final billionFormatter = NumberFormat.decimalPattern();
-final thousandFormatter = NumberFormat("###,###,###,###", "en_US");
-final oneFormatter = NumberFormat("###,###,###,###.00", "en_US");
+final thousandFormatter = NumberFormat('###,###,###,###', 'en_US');
+final oneFormatter = NumberFormat('###,###,###,###.00', 'en_US');
 
 /// unit tests: [testToStringAmount]
 /// Main idea is to keep length of value less then 13 symbols
@@ -266,11 +270,11 @@ String toStringAmount(double amount, [int? digits]) {
     case >= one:
       return oneFormatter.format(amount);
     case >= lowAmount:
-      String pattern = "0.00######";
+      String pattern = '0.00######';
       if (digits != null) {
         pattern = "0.00${List.filled(digits - 2, "#").join()}";
       }
-      return NumberFormat(pattern, "en_US").format(amount);
+      return NumberFormat(pattern, 'en_US').format(amount);
   }
   return amount.toStringAsPrecision(4);
 }
@@ -296,12 +300,14 @@ void formatAmountInput(TextEditingController controller, Rational? value) {
   final String currentText = controller.text;
   if (currentText.isNotEmpty && Rational.parse(currentText) == value) return;
 
-  final newText =
-      value == null ? '' : cutTrailingZeros(value.toStringAsFixed(8));
+  final newText = value == null
+      ? ''
+      : cutTrailingZeros(
+          value.toDecimal(scaleOnInfinitePrecision: 12).toStringAsFixed(8),
+        );
   controller.value = TextEditingValue(
     text: newText,
     selection: TextSelection.collapsed(offset: newText.length),
-    composing: TextRange.empty,
   );
 }
 
@@ -327,8 +333,8 @@ void formatAmountInput(TextEditingController controller, Rational? value) {
 /// ```
 /// unit tests: [testTruncateHash]
 String truncateMiddleSymbols(String text,
-    [int? startSymbolsCount, int endCount = 7]) {
-  int startCount = startSymbolsCount ?? (text.startsWith('0x') ? 6 : 4);
+    [int? startSymbolsCount, int endCount = 7,]) {
+  final int startCount = startSymbolsCount ?? (text.startsWith('0x') ? 6 : 4);
   if (text.length <= startCount + endCount + 3) return text;
   final String firstPart = text.substring(0, startCount);
   final String secondPart = text.substring(text.length - endCount, text.length);

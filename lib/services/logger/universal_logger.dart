@@ -4,7 +4,6 @@ import 'package:dragon_logs/dragon_logs.dart';
 import 'package:intl/intl.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/services/file_loader/get_file_loader.dart';
 import 'package:web_dex/services/logger/log_message.dart';
 import 'package:web_dex/services/logger/logger.dart';
 import 'package:web_dex/services/logger/logger_metadata_mixin.dart';
@@ -87,7 +86,7 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
         DateFormat('dd.MM.yyyy_HH-mm-ss').format(DateTime.now());
     final String filename = 'komodo_wallet_log_$date';
 
-    await fileLoader.save(
+    await FileLoader.fromPlatform().save(
       fileName: filename,
       data: await DragonLogs.exportLogsString(),
       type: LoadFileType.compressed,

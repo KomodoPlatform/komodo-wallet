@@ -10,12 +10,12 @@ import 'package:web_dex/views/dex/dex_helpers.dart';
 
 class ExchangeRate extends StatelessWidget {
   const ExchangeRate({
-    Key? key,
     required this.base,
     required this.rel,
     required this.rate,
+    super.key,
     this.showDetails = true,
-  }) : super(key: key);
+  });
 
   final String? base;
   final String? rel;
@@ -28,22 +28,22 @@ class ExchangeRate extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.max,
       children: [
         Text(
           '${LocaleKeys.rate.tr()}:',
           style: theme.custom.tradingFormDetailsLabel,
         ),
-        isEmptyData
-            ? Text('0.00', style: theme.custom.tradingFormDetailsContent)
-            : Flexible(
-                child: _Rates(
-                  base: base,
-                  rel: rel,
-                  rate: rate,
-                  showDetails: showDetails,
-                ),
-              ),
+        if (isEmptyData)
+          Text('0.00', style: theme.custom.tradingFormDetailsContent)
+        else
+          Flexible(
+            child: _Rates(
+              base: base,
+              rel: rel,
+              rate: rate,
+              showDetails: showDetails,
+            ),
+          ),
       ],
     );
   }
@@ -69,7 +69,6 @@ class _Rates extends StatelessWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.max,
           children: [
             Text(
               ' 1 ${Coin.normalizeAbbr(base ?? '')} = ',

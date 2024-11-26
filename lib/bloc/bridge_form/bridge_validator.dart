@@ -269,7 +269,7 @@ class BridgeValidator {
     final coin = _coinsRepo.getCoin(selectedOrder.coin);
     final ownAddress = coin?.address;
 
-    if (selectedOrderAddress == ownAddress) {
+    if (selectedOrderAddress.addressData == ownAddress) {
       _add(BridgeSetError(_tradingWithSelfError()));
       return true;
     }

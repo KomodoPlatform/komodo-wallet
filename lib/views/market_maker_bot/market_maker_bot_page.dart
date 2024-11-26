@@ -42,13 +42,20 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
 
   @override
   Widget build(BuildContext context) {
+    final orderListRepository = MarketMakerBotOrderListRepository(
+      myOrdersService,
+      SettingsRepository(),
+      coinsBloc,
+    );
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(
           create: (BuildContext context) => DexTabBarBloc(
-            DexTabBarState.initial(),
             authRepo,
-          ),
+            tradingEntitiesBloc,
+            orderListRepository,
+          )..add(const StartListening()),
         ),
         BlocProvider<MarketMakerTradeFormBloc>(
           create: (BuildContext context) => MarketMakerTradeFormBloc(

@@ -213,6 +213,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       newWallet,
       walletsManagerEventsFactory.createEvent(
           widget.eventType, WalletsManagerEventMethod.create),
+      password,
     );
   }
 
@@ -240,10 +241,12 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     }
 
     await _reLogin(
-        walletConfig.seedPhrase,
-        newWallet,
-        walletsManagerEventsFactory.createEvent(
-            widget.eventType, WalletsManagerEventMethod.import));
+      walletConfig.seedPhrase,
+      newWallet,
+      walletsManagerEventsFactory.createEvent(
+          widget.eventType, WalletsManagerEventMethod.import),
+      password,
+    );
   }
 
   Future<void> _logInToWallet(String password, Wallet wallet) async {
@@ -266,6 +269,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       wallet,
       walletsManagerEventsFactory.createEvent(
           widget.eventType, WalletsManagerEventMethod.loginExisting),
+      password,
     );
   }
 
@@ -284,12 +288,20 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   }
 
   Future<void> _reLogin(
-      String seed, Wallet wallet, AnalyticsEventData analyticsEventData) async {
+    String seed,
+    Wallet wallet,
+    AnalyticsEventData analyticsEventData,
+    String password,
+  ) async {
     final AnalyticsBloc analyticsBloc = context.read<AnalyticsBloc>();
     final AuthBloc authBloc = context.read<AuthBloc>();
     if (await authBloc.isLoginAllowed(wallet)) {
       analyticsBloc.add(AnalyticsSendDataEvent(analyticsEventData));
-      authBloc.add(AuthReLogInEvent(seed: seed, wallet: wallet));
+      authBloc.add(AuthReLogInEvent(
+        seed: seed,
+        wallet: wallet,
+        password: password,
+      ));
     }
     if (mounted) {
       setState(() {

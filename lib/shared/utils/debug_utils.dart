@@ -29,8 +29,11 @@ Future<void> initDebugData(AuthBloc authBloc) async {
       return;
     }
     if (newWalletJson['automateLogin'] == true) {
-      authBloc.add(
-          AuthReLogInEvent(seed: newWalletJson['seed'], wallet: debugWallet));
+      authBloc.add(AuthReLogInEvent(
+        seed: newWalletJson['seed'],
+        wallet: debugWallet,
+        password: newWalletJson['password'],
+      ));
     }
   } catch (e) {
     return;

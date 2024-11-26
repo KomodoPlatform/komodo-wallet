@@ -10,7 +10,15 @@ import 'form_tests.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
+  fiatOnRampWidgetTests();
+}
+
+void fiatOnRampWidgetTests({
+  bool skip = false,
+  int retryLimit = 0,
+  Duration timeout = const Duration(minutes: 10),
+}) {
+  return testWidgets(
     'Run Fiat On-Ramp tests:',
     (WidgetTester tester) async {
       tester.testTextInput.register();
@@ -23,5 +31,8 @@ void main() {
       print('END Fiat On-Ramp TESTS');
     },
     semanticsEnabled: false,
+    skip: skip,
+    retry: retryLimit,
+    timeout: Timeout(timeout),
   );
 }

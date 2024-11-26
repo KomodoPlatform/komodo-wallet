@@ -27,7 +27,7 @@ class PageContentRouterDelegate extends RouterDelegate<AppRoutePath>
       case MainMenuValue.fiat:
         return const FiatPage();
       case MainMenuValue.dex:
-        return DexPage();
+        return const DexPage();
       case MainMenuValue.bridge:
         return const BridgePage();
       case MainMenuValue.marketMakerBot:

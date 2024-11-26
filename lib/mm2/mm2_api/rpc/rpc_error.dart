@@ -2,9 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/rpc_error_type.dart';
 
 class RpcException implements Exception {
-  final RpcError error;
-
   const RpcException(this.error);
+
+  final RpcError error;
 
   @override
   String toString() {
@@ -13,14 +13,6 @@ class RpcException implements Exception {
 }
 
 class RpcError extends Equatable {
-  final String? mmrpc;
-  final String? error;
-  final String? errorPath;
-  final String? errorTrace;
-  final RpcErrorType? errorType;
-  final String? errorData;
-  final int? id;
-
   const RpcError({
     this.mmrpc,
     this.error,
@@ -40,6 +32,14 @@ class RpcError extends Equatable {
         errorData: json['error_data'] as String?,
         id: json['id'] as int?,
       );
+
+  final String? mmrpc;
+  final String? error;
+  final String? errorPath;
+  final String? errorTrace;
+  final RpcErrorType? errorType;
+  final String? errorData;
+  final int? id;
 
   Map<String, dynamic> toJson() => {
         'mmrpc': mmrpc,

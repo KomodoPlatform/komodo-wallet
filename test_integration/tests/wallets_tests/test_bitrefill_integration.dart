@@ -7,7 +7,7 @@ import 'package:web_dex/main.dart' as app;
 
 import '../../common/goto.dart' as goto;
 import '../../common/pause.dart';
-import '../../common/tester_utils.dart';
+import '../../common/widget_tester_action_extensions.dart';
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
 import 'wallet_tools.dart';
@@ -33,7 +33,7 @@ Future<void> testBitrefillIntegration(WidgetTester tester) async {
   await goto.walletPage(tester);
   expect(totalAmount, findsOneWidget);
 
-  final bool isLtcVisible = await isWidgetVisible(tester, ltcActiveCoinItem);
+  final bool isLtcVisible = await tester.isWidgetVisible(ltcActiveCoinItem);
   if (!isLtcVisible) {
     await addAsset(tester, asset: ltcCoinSearchItem, search: ltcSearchTerm);
     await goto.dexPage(tester);
@@ -42,11 +42,11 @@ Future<void> testBitrefillIntegration(WidgetTester tester) async {
 
   await tester.pumpAndSettle();
   expect(ltcActiveCoinItem, findsOneWidget);
-  await testerTap(tester, ltcActiveCoinItem);
+  await tester.tapAndPump(ltcActiveCoinItem);
   await tester.pumpAndSettle();
 
   expect(bitrefillButton, findsOneWidget);
-  await testerTap(tester, bitrefillButton);
+  await tester.tapAndPump(bitrefillButton);
 
   await pause(msg: 'END TEST BITREFILL INTEGRATION');
 }

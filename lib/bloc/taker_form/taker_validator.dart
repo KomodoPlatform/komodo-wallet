@@ -134,7 +134,7 @@ class TakerValidator {
     final coin = _coinsRepo.getCoin(selectedOrder.coin);
     final ownAddress = coin?.address;
 
-    if (selectedOrderAddress == ownAddress) {
+    if (selectedOrderAddress.addressData == ownAddress) {
       add(TakerAddError(_tradingWithSelfError()));
       return true;
     }

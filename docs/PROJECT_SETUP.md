@@ -28,18 +28,14 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
 
  3. Run `flutter doctor` and make sure all checks (except version) pass
  4. [Clone project repository](CLONE_REPOSITORY.md)
- 5. Install [nodejs and npm](https://nodejs.org/en/download). Make sure `npm` is in your system PATH and you can run `npm run build` from the project root folder. Node LTS (v18, v20) is required.
-
-  > In case of an error, try to run `npm i`.
-
- 6. Build and run the App for each target platform:
+ 5. Build and run the App for each target platform:
     - [Web](BUILD_RUN_APP.md#web)
     - [Android mobile](BUILD_RUN_APP.md#android)
     - [iOS mobile](BUILD_RUN_APP.md#ios) (macOS host only)
     - [macOS desktop](BUILD_RUN_APP.md#macos-desktop) (macOS host only)
     - [Windows desktop](BUILD_RUN_APP.md#windows-desktop) (Windows host only)
     - [Linux desktop](BUILD_RUN_APP.md#linux-desktop) (Linux host only)
- 7. [Build release version](BUILD_RELEASE.md)
+ 6. [Build release version](BUILD_RELEASE.md)
 
 ## Dev Container setup (Web and Android builds only)
 

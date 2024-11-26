@@ -15,8 +15,13 @@ class AuthLogOutEvent extends AuthBlocEvent {
 }
 
 class AuthReLogInEvent extends AuthBlocEvent {
-  const AuthReLogInEvent({required this.seed, required this.wallet});
+  const AuthReLogInEvent({
+    required this.seed,
+    required this.password,
+    required this.wallet,
+  });
 
   final String seed;
+  final String password;
   final Wallet wallet;
 }

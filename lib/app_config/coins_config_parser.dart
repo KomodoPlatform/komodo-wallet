@@ -20,7 +20,7 @@ class CoinConfigParser {
 
   Future<List<dynamic>> _readGlobalConfig() async {
     final String globalConfig =
-        await rootBundle.loadString('$assetsPath/config/coins.json');
+        await rootBundle.loadString('$coinsAssetsPath/config/coins.json');
     final List<dynamic> globalCoinsJson = jsonDecode(globalConfig);
 
     _globalConfigCache = globalCoinsJson;
@@ -41,8 +41,8 @@ class CoinConfigParser {
   /// Checks if the local coin configs exist.
   /// Returns `true` if the local coin configs exist, otherwise `false`.
   Future<bool> hasLocalConfigs({
-    String coinsPath = '$assetsPath/config/coins.json',
-    String coinsConfigPath = '$assetsPath/config/coins_config.json',
+    String coinsPath = '$coinsAssetsPath/config/coins.json',
+    String coinsConfigPath = '$coinsAssetsPath/config/coins_config.json',
   }) async {
     try {
       final bool coinsFileExists = await doesAssetExist(coinsPath);
@@ -99,7 +99,7 @@ class CoinConfigParser {
 
   Future<Map<String, dynamic>> _readLocalConfig() async {
     final String localConfig =
-        await rootBundle.loadString('$assetsPath/config/coins_config.json');
+        await rootBundle.loadString('$coinsAssetsPath/config/coins_config.json');
     final Map<String, dynamic> json = jsonDecode(localConfig);
 
     return json;

@@ -10,27 +10,44 @@ jobs:
   ui_tests:
     name: Test ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45    
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
         name: [
-          web-app-linux,
+          web-app-linux-profile,
           web-app-macos,
         ]
         include:
-          - name: web-app-linux
-            os: ubuntu-latest
+          - name: web-app-linux-profile
+            os: [self-hosted, linux]
+            browser: chrome
+            display: 'headless' 
+            resolution: '1600,1024'
+            mode: profile
+            # memory_profile.json should be generated in profile mode
+            driver_logs: |
+              ./*.log
+              ./memory_profile.json
 
           - name: web-app-macos
-            os: macos-14
+            os: [self-hosted, macos]
+            browser: safari
+            display: 'headless' # has no affect with safaridriver
+            resolution: '1600,1024' # has no affect with safaridriver
+            mode: release
+            driver_logs: |
+              ./*.log
+              ~/Library/Logs/com.apple.WebDriver/**/*.log
+              ~/Library/Logs/com.apple.WebDriver/**/*.txt
 
     steps:
       - name: Setup GH Actions
         uses: actions/checkout@v4
 
+      # Flutter integration test setup
       - name: Install Chrome and chromedriver
-        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
+        if: ${{ matrix.browser == 'chrome' }}
         uses: browser-actions/setup-chrome@v1
         id: setup-chrome
         with:
@@ -38,17 +55,9 @@ jobs:
           install-chromedriver: true
           install-dependencies: true
 
-      - name: Add chromedriver to PATH
-        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
-        run: |
-          export PATH="${{ steps.setup-chrome.outputs.chrome-path }}:${PATH}"
-          export PATH="${{ steps.setup-chrome.outputs.chromedriver-path }}:${PATH}"
-
-          echo "Chrome version: ${{ steps.setup-chrome.outputs.chrome-version }}"
-          echo "chromedriver version: $(chromedriver --version)"
 
       - name: Enable safaridriver (sudo) (MacOS)
-        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
+        if: ${{ matrix.browser == 'safari' }}
         timeout-minutes: 1
         run: |
           defaults write com.apple.Safari IncludeDevelopMenu YES
@@ -62,64 +71,40 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Validate build
         uses: ./.github/actions/validate-build
 
-      - name: Test air_dex chrome (unix) (Linux)
-        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
-        id: tests-chrome
+      # Run integration tests
+      - name: Test air_dex ${{ matrix.browser }}
+        id: integration-tests
         continue-on-error: true
         timeout-minutes: 35
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          chromedriver --port=4444 --silent --enable-chrome-logs --log-path=chrome_console.log &
-          dart run_integration_tests.dart -d 'headless' -b '1600,1024' --browser-name=chrome
+          dart run_integration_tests.dart \
+            -d ${{ matrix.display }} \
+            -b ${{ matrix.resolution }} \
+            -n ${{ matrix.browser }} \
+            -m ${{ matrix.mode }}
 
-      - name: Run safaridriver in background (MacOS)
-        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
-        continue-on-error: true
-        run: |
-          safaridriver -p 4444 --diagnose &
-
-      - name: Test air_dex safari (MacOS)
-        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
-        id: tests-safari
-        continue-on-error: true
-        timeout-minutes: 35
-        env:
-          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          flutter pub get
-          dart run_integration_tests.dart --browser-name=safari
-
-      - name: Upload logs (Linux)
-        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
+      # Post-test steps (upload logs, coverage, and failure check)
+      - name: Upload driver logs
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-chromedriver-logs.zip
-          path: ./chrome_console.log
-
-      - name: Upload logs (macOS)
-        if: ${{ matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}-safaridriver-logs.zip
-          path: ~/Library/Logs/com.apple.WebDriver/
+          name: ${{ runner.os }}-${{ matrix.browser }}-logs
+          path: ${{ matrix.driver_logs }}
+          if-no-files-found: warn
 
       - name: Generate coverage report
-        if: ${{ matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon' }}
-        id: test-coverage-report
+        if: ${{ matrix.browser == 'chrome' }}
+        continue-on-error: true
         timeout-minutes: 35
         uses: ./.github/actions/code-coverage
         with:
           test_file: 'test_integration'
 
-      - name: Fail workflow if tests failed (Linux)
-        if: ${{ (matrix.os == 'ubuntu-latest' || runner.name == 'ci-builder-radon') && steps.tests-chrome.outcome == 'failure' }}
-        run: exit 1
-
-      - name: Fail workflow if tests failed (MacOS)
-        if: ${{ (matrix.os == 'macos-latest' || runner.name == 'ci-builder-astatine') && steps.tests-safari.outcome == 'failure' }}
+      - name: Fail workflow if tests failed
+        if: ${{ steps.integration-tests.outcome == 'failure' }}
         run: exit 1

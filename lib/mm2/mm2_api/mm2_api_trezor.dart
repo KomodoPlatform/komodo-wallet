@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_init/trezor_balance_init_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_init/trezor_balance_init_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_status/trezor_balance_status_request.dart';
@@ -29,12 +28,11 @@ import 'package:web_dex/shared/utils/utils.dart';
 class Mm2ApiTrezor {
   Mm2ApiTrezor(this.call);
 
-  final Future<dynamic> Function(dynamic) call;
+  final Future<JsonMap> Function(dynamic) call;
 
   Future<InitTrezorRes> init(InitTrezorReq request) async {
     try {
-      final String response = await call(request);
-      return InitTrezorRes.fromJson(jsonDecode(response));
+      return InitTrezorRes.fromJson(await call(request));
     } catch (e) {
       return InitTrezorRes(
         error: e.toString(),
@@ -44,8 +42,7 @@ class Mm2ApiTrezor {
 
   Future<InitTrezorStatusRes> initStatus(InitTrezorStatusReq request) async {
     try {
-      final String response = await call(request);
-      return InitTrezorStatusRes.fromJson(jsonDecode(response));
+      return InitTrezorStatusRes.fromJson(await call(request));
     } catch (e) {
       return InitTrezorStatusRes(error: e.toString());
     }
@@ -55,7 +52,8 @@ class Mm2ApiTrezor {
     try {
       await call(request);
     } catch (e) {
-      log(e.toString(), path: 'api => initTrezorCancel', isError: true);
+      log(e.toString(), path: 'api => initTrezorCancel', isError: true)
+          .ignore();
     }
   }
 
@@ -63,7 +61,7 @@ class Mm2ApiTrezor {
     try {
       await call(request);
     } catch (e) {
-      log(e.toString(), path: 'api => trezorPin', isError: true);
+      log(e.toString(), path: 'api => trezorPin', isError: true).ignore();
     }
   }
 
@@ -71,45 +69,46 @@ class Mm2ApiTrezor {
     try {
       await call(request);
     } catch (e) {
-      log(e.toString(), path: 'api => trezorPassphrase', isError: true);
+      log(e.toString(), path: 'api => trezorPassphrase', isError: true)
+          .ignore();
     }
   }
 
   Future<TrezorEnableUtxoResponse> enableUtxo(
-      TrezorEnableUtxoReq request) async {
+    TrezorEnableUtxoReq request,
+  ) async {
     try {
-      final String response = await call(request);
-      return TrezorEnableUtxoResponse.fromJson(jsonDecode(response));
+      return TrezorEnableUtxoResponse.fromJson(await call(request));
     } catch (e) {
       return TrezorEnableUtxoResponse(error: e.toString());
     }
   }
 
   Future<TrezorEnableUtxoStatusResponse> enableUtxoStatus(
-      TrezorEnableUtxoStatusReq request) async {
+    TrezorEnableUtxoStatusReq request,
+  ) async {
     try {
-      final String response = await call(request);
-      return TrezorEnableUtxoStatusResponse.fromJson(jsonDecode(response));
+      return TrezorEnableUtxoStatusResponse.fromJson(await call(request));
     } catch (e) {
       return TrezorEnableUtxoStatusResponse(error: e.toString());
     }
   }
 
   Future<TrezorBalanceInitResponse> balanceInit(
-      TrezorBalanceInitRequest request) async {
+    TrezorBalanceInitRequest request,
+  ) async {
     try {
-      final String response = await call(request);
-      return TrezorBalanceInitResponse.fromJson(jsonDecode(response));
+      return TrezorBalanceInitResponse.fromJson(await call(request));
     } catch (e) {
       return TrezorBalanceInitResponse(error: e.toString());
     }
   }
 
   Future<TrezorBalanceStatusResponse> balanceStatus(
-      TrezorBalanceStatusRequest request) async {
+    TrezorBalanceStatusRequest request,
+  ) async {
     try {
-      final String response = await call(request);
-      return TrezorBalanceStatusResponse.fromJson(jsonDecode(response));
+      return TrezorBalanceStatusResponse.fromJson(await call(request));
     } catch (e) {
       return TrezorBalanceStatusResponse(error: e.toString());
     }
@@ -117,9 +116,9 @@ class Mm2ApiTrezor {
 
   Future<TrezorGetNewAddressInitResponse> initNewAddress(String coin) async {
     try {
-      final String response =
+      final JsonMap response =
           await call(TrezorGetNewAddressInitReq(coin: coin));
-      return TrezorGetNewAddressInitResponse.fromJson(jsonDecode(response));
+      return TrezorGetNewAddressInitResponse.fromJson(response);
     } catch (e) {
       return TrezorGetNewAddressInitResponse(error: e.toString());
     }
@@ -127,9 +126,9 @@ class Mm2ApiTrezor {
 
   Future<GetNewAddressResponse> getNewAddressStatus(int taskId) async {
     try {
-      final String response =
+      final JsonMap response =
           await call(TrezorGetNewAddressStatusReq(taskId: taskId));
-      return GetNewAddressResponse.fromJson(jsonDecode(response));
+      return GetNewAddressResponse.fromJson(response);
     } catch (e) {
       return GetNewAddressResponse(error: e.toString());
     }
@@ -139,24 +138,23 @@ class Mm2ApiTrezor {
     try {
       await call(TrezorGetNewAddressCancelReq(taskId: taskId));
     } catch (e) {
-      log(e.toString(), path: 'api_trezor => getNewAddressCancel');
+      log(e.toString(), path: 'api_trezor => getNewAddressCancel').ignore();
     }
   }
 
   Future<TrezorWithdrawResponse> withdraw(TrezorWithdrawRequest request) async {
     try {
-      final String response = await call(request);
-      return TrezorWithdrawResponse.fromJson(jsonDecode(response));
+      return TrezorWithdrawResponse.fromJson(await call(request));
     } catch (e) {
       return TrezorWithdrawResponse(error: e.toString());
     }
   }
 
   Future<TrezorWithdrawStatusResponse> withdrawStatus(
-      TrezorWithdrawStatusRequest request) async {
+    TrezorWithdrawStatusRequest request,
+  ) async {
     try {
-      final String response = await call(request);
-      return TrezorWithdrawStatusResponse.fromJson(jsonDecode(response));
+      return TrezorWithdrawStatusResponse.fromJson(await call(request));
     } catch (e) {
       return TrezorWithdrawStatusResponse(error: e.toString());
     }
@@ -166,25 +164,24 @@ class Mm2ApiTrezor {
     try {
       await call(request);
     } catch (e) {
-      log(e.toString(), path: 'api => withdrawCancel', isError: true);
+      log(e.toString(), path: 'api => withdrawCancel', isError: true).ignore();
     }
   }
 
   Future<TrezorConnectionStatus> getConnectionStatus(String pubKey) async {
     try {
-      final String response =
+      final JsonMap responseJson =
           await call(TrezorConnectionStatusRequest(pubKey: pubKey));
-      final Map<String, dynamic> responseJson = jsonDecode(response);
-      final String? status = responseJson['result']?['status'];
+      final String? status = responseJson['result']?['status'] as String?;
       if (status == null) return TrezorConnectionStatus.unknown;
       return TrezorConnectionStatus.fromString(status);
     } catch (e, s) {
       log(
-        'Error getting trezor status: ${e.toString()}',
+        'Error getting trezor status: $e',
         path: 'api => trezorConnectionStatus',
         trace: s,
         isError: true,
-      );
+      ).ignore();
       return TrezorConnectionStatus.unknown;
     }
   }

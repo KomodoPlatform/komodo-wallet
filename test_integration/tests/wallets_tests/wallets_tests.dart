@@ -15,29 +15,36 @@ import 'test_withdraw.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets(
+  walletsWidgetTests();
+}
+
+void walletsWidgetTests({
+  bool skip = false,
+  int retryLimit = 0,
+  Duration timeout = const Duration(minutes: 10),
+}) {
+  return testWidgets(
     'Run wallet tests:',
     (WidgetTester tester) async {
       tester.testTextInput.register();
       await app.main();
       await tester.pumpAndSettle();
 
-      print('RESTORE WALLET TO TEST');
       await acceptAlphaWarning(tester);
       await restoreWalletToTest(tester);
-      await tester.pumpAndSettle();
       await testCoinIcons(tester);
-      await tester.pumpAndSettle();
       await testActivateCoins(tester);
-      await tester.pumpAndSettle();
       await testCexPrices(tester);
-      await tester.pumpAndSettle();
       await testWithdraw(tester);
-      await tester.pumpAndSettle();
       await testFilters(tester);
 
-      print('END WALLET TESTS');
+      // Disabled until the bitrefill feature is re-enabled
+      // await tester.pumpAndSettle();
+      // await testBitrefillIntegration(tester);
     },
     semanticsEnabled: false,
+    timeout: Timeout(timeout),
+    retry: retryLimit,
+    skip: skip,
   );
 }

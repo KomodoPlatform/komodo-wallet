@@ -6,12 +6,20 @@ import 'package:web_dex/main.dart' as app;
 
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
-import './maker_orders_test.dart';
-import './taker_orders_test.dart';
+import 'maker_orders_test.dart';
+import 'taker_orders_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
+  dexWidgetTests();
+}
+
+void dexWidgetTests({
+  bool skip = false,
+  int retryLimit = 0,
+  Duration timeout = const Duration(minutes: 30),
+}) {
+  return testWidgets(
     'Run DEX tests:',
     (WidgetTester tester) async {
       tester.testTextInput.register();
@@ -27,5 +35,8 @@ void main() {
       print('END DEX TESTS');
     },
     semanticsEnabled: false,
+    skip: skip,
+    retry: retryLimit,
+    timeout: Timeout(timeout),
   );
 }

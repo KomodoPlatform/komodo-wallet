@@ -7,7 +7,9 @@ class MyRecentSwapsResponse {
 
   factory MyRecentSwapsResponse.fromJson(Map<String, dynamic> json) =>
       MyRecentSwapsResponse(
-        result: MyRecentSwapsResponseResult.fromJson(json['result']),
+        result: MyRecentSwapsResponseResult.fromJson(
+          Map<String, dynamic>.from(json['result'] as Map? ?? {}),
+        ),
       );
 
   MyRecentSwapsResponseResult result;
@@ -31,16 +33,20 @@ class MyRecentSwapsResponseResult {
 
   factory MyRecentSwapsResponseResult.fromJson(Map<String, dynamic> json) =>
       MyRecentSwapsResponseResult(
-        fromUuid: json['from_uuid'],
-        limit: json['limit'] ?? 0,
-        skipped: json['skipped'] ?? 0,
-        swaps: List<Swap>.from((json['swaps'] ?? <Swap>[])
-            .where((dynamic x) => x != null)
-            .map((dynamic x) => Swap.fromJson(x))),
-        total: json['total'] ?? 0,
-        foundRecords: json['found_records'] ?? 0,
-        pageNumber: json['page_number'] ?? 0,
-        totalPages: json['total_pages'] ?? 0,
+        fromUuid: json['from_uuid'] as String?,
+        limit: json['limit'] as int? ?? 0,
+        skipped: json['skipped'] as int? ?? 0,
+        swaps: List<Swap>.from(
+          (json['swaps'] as List? ?? <Swap>[])
+              .where((dynamic x) => x != null)
+              .map(
+                (dynamic x) => Swap.fromJson(x as Map<String, dynamic>? ?? {}),
+              ),
+        ),
+        total: json['total'] as int? ?? 0,
+        foundRecords: json['found_records'] as int? ?? 0,
+        pageNumber: json['page_number'] as int? ?? 0,
+        totalPages: json['total_pages'] as int? ?? 0,
       );
 
   String? fromUuid;
@@ -57,7 +63,8 @@ class MyRecentSwapsResponseResult {
         'limit': limit,
         'skipped': skipped,
         'swaps': List<dynamic>.from(
-            swaps.map<Map<String, dynamic>>((Swap x) => x.toJson())),
+          swaps.map<Map<String, dynamic>>((Swap x) => x.toJson()),
+        ),
         'total': total,
       };
 }

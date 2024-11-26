@@ -59,8 +59,7 @@ class TrezorConnectionBloc
 
     switch (status) {
       case TrezorConnectionStatus.unreachable:
-        final MM2Status mm2Status = await mm2.status();
-        if (mm2Status == MM2Status.rpcIsUp) await authRepo.logOut();
+        if (await mm2.isSignedIn()) await authRepo.logOut();
         await _authRepo.logIn(AuthorizeMode.noLogin);
         return;
       case TrezorConnectionStatus.unknown:

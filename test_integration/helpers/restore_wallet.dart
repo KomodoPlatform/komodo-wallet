@@ -1,14 +1,19 @@
+// ignore_for_file: avoid_print
+
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/wallet.dart';
 
-import '../common/pump_and_settle.dart';
-import '../helpers/get_funded_wif.dart';
+import '../common/widget_tester_action_extensions.dart';
+import '../common/widget_tester_pump_extension.dart';
 import 'connect_wallet.dart';
+import 'get_funded_wif.dart';
 
 Future<void> restoreWalletToTest(WidgetTester tester) async {
+  print('🔍 RESTORE WALLET: Starting wallet restoration test');
+
   // Restores wallet to be used in following tests
   final String testSeed = getFundedWif();
   const String walletName = 'my-wallet';
@@ -35,43 +40,44 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
   const String confirmCustomSeedText = 'I Understand';
 
   await tester.pumpAndSettle();
+  print('🔍 RESTORE WALLET: Connecting wallet');
   isMobile
       ? await tapOnMobileConnectWallet(tester, WalletType.iguana)
       : await tapOnAppBarConnectWallet(tester, WalletType.iguana);
+
+  print('🔍 RESTORE WALLET: Tapping import wallet button');
   await tester.ensureVisible(importWalletButton);
   await tester.tap(importWalletButton);
   await tester.pumpAndSettle();
 
-  await tester.tap(nameField);
+  print('🔍 RESTORE WALLET: Entering wallet details');
+  await tester.tapAndPump(nameField);
   await tester.enterText(nameField, walletName);
   await tester.enterText(importSeedField, testSeed);
   await tester.pump();
 
-  // Change focus from the text field to allow the text error to appear
-  // TODO: look into more aggressive input validation
-  await tester.tap(eulaCheckBox);
-  await tester.pump();
-  await tester.tap(tocCheckBox);
-  await tester.pumpNFrames(5);
+  print('🔍 RESTORE WALLET: Accepting terms');
+  await tester.tapAndPump(eulaCheckBox);
+  await tester.tapAndPump(tocCheckBox);
 
   if (!bip39.validateMnemonic(testSeed)) {
-    await tester.tap(allowCustomSeedCheckbox);
-    await tester.pumpNFrames(5);
+    print('🔍 RESTORE WALLET: Handling custom seed input');
+    await tester.tapAndPump(allowCustomSeedCheckbox);
     await tester.enterText(customSeedDialogInput, confirmCustomSeedText);
     await tester.pumpNFrames(5);
-    await tester.tap(customSeedDialogOkButton);
-    // Works on safari with 5 frames, but requires more on chrome?
-    await tester.pumpNFrames(10);
+    await tester.tapAndPump(customSeedDialogOkButton);
   }
 
+  print('🔍 RESTORE WALLET: Confirming wallet creation');
   await tester.dragUntilVisible(
     importConfirmButton,
     walletsManagerWrapper,
     const Offset(0, -15),
   );
-  await tester.pumpNFrames(5);
-  await tester.tap(importConfirmButton);
-  await tester.pumpNFrames(5);
+  await tester.pumpNFrames(10);
+  await tester.tapAndPump(importConfirmButton);
+
+  print('🔍 RESTORE WALLET: Setting up password');
   await tester.enterText(passwordField, password);
   await tester.enterText(passwordConfirmField, password);
   await tester.dragUntilVisible(
@@ -79,7 +85,10 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
     walletsManagerWrapper,
     const Offset(0, -15),
   );
-  await tester.pumpNFrames(5);
-  await tester.tap(importConfirmButton);
-  await pumpUntilDisappear(tester, walletsManagerWrapper);
+  await tester.pumpNFrames(10);
+  await tester.tapAndPump(importConfirmButton);
+
+  print('🔍 RESTORE WALLET: Waiting for completion');
+  await tester.pumpUntilDisappear(walletsManagerWrapper);
+  print('🔍 RESTORE WALLET: Wallet restoration completed');
 }

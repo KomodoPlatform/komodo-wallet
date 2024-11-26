@@ -1,34 +1,73 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/mm2/mm2_android.dart';
+import 'package:komodo_defi_framework/komodo_defi_framework.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/get_my_peer_id/get_my_peer_id_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/version/version_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/version/version_response.dart';
-import 'package:web_dex/mm2/mm2_ios.dart';
-import 'package:web_dex/mm2/mm2_linux.dart';
-import 'package:web_dex/mm2/mm2_macos.dart';
-import 'package:web_dex/mm2/mm2_web.dart';
-import 'package:web_dex/mm2/mm2_windows.dart';
 import 'package:web_dex/shared/utils/password.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
-final MM2 mm2 = _createMM2();
+final MM2 mm2 = MM2();
 
-abstract class MM2 {
-  const MM2();
-  static late String _rpcPassword;
+final class MM2 {
+  MM2() {
+    final String newRpcPassword = generatePassword();
 
-  Future<void> start(String? passphrase);
+    if (!validateRPCPassword(newRpcPassword)) {
+      log(
+        "If you're seeing this, there's a bug in the rpcPassword generation code.",
+        path: 'auth_bloc => _startMM2',
+      );
+      throw Exception('invalid rpc password');
+    }
+    _rpcPassword = newRpcPassword;
+  }
+  late final String _rpcPassword;
+  late final KomodoDefiFramework _kdf;
 
-  Future<void> stop();
+  Future<bool> isSignedIn() => _kdf.isRunning();
+
+  Future<void> init() async {
+    final hostConfig = LocalConfig(rpcPassword: _rpcPassword, https: false);
+    final startupConfig = await KdfStartupConfig.noAuthStartup(
+      rpcPassword: _rpcPassword,
+    );
+
+    _kdf = KomodoDefiFramework.create(hostConfig: hostConfig);
+    _kdf.startKdf(startupConfig);
+  }
+
+  Future<void> start({
+    String? passphrase,
+    String? walletName,
+    String? walletPassword,
+  }) async {
+    if (passphrase == null) {
+      log('Passpharse is null, and SDK is already initialised, '
+              'so skipping KDF start call')
+          .ignore();
+      return;
+    }
+
+    if (await _kdf.isRunning()) {
+      await _kdf.kdfStop();
+    }
+
+    final startupConfig = await KdfStartupConfig.generateWithDefaults(
+      walletName: walletName ?? '',
+      walletPassword: walletPassword ?? '',
+      enableHd: false,
+      rpcPassword: _rpcPassword,
+      seed: passphrase,
+    );
+    await _kdf.startKdf(startupConfig);
+  }
+
+  Future<void> stop() async {
+    await _kdf.kdfStop();
+  }
 
   Future<String> version() async {
-    final dynamic responseStr = await call(VersionRequest());
-    final Map<String, dynamic> responseJson = jsonDecode(responseStr);
+    final JsonMap responseJson = await call(VersionRequest());
     final VersionResponse response = VersionResponse.fromJson(responseJson);
 
     return response.result;
@@ -36,107 +75,74 @@ abstract class MM2 {
 
   Future<bool> isLive() async {
     try {
-      final String response = await call(GetMyPeerIdRequest());
-      final Map<String, dynamic> responseJson = jsonDecode(response);
-
-      return responseJson['result']?.isNotEmpty ?? false;
+      final JsonMap response = await call(GetMyPeerIdRequest());
+      return (response['result'] as String?)?.isNotEmpty ?? false;
     } catch (e, s) {
       log(
-        'Get my peer id error: ${e.toString()}',
+        'Get my peer id error: $e',
         path: 'mm2 => isLive',
         trace: s,
         isError: true,
-      );
+      ).ignore();
       return false;
     }
   }
 
-  Future<MM2Status> status();
+  Future<JsonMap> call(dynamic request) async {
+    final dynamic requestWithUserpass = _assertPass(request);
+    final JsonMap jsonRequest = requestWithUserpass is Map
+        ? JsonMap.from(requestWithUserpass)
+        // ignore: avoid_dynamic_calls
+        : (requestWithUserpass?.toJson != null
+            // ignore: avoid_dynamic_calls
+            ? requestWithUserpass.toJson() as JsonMap
+            : requestWithUserpass as JsonMap);
 
-  Future<dynamic> call(dynamic reqStr);
-
-  static String prepareRequest(dynamic req) {
-    final String reqStr = jsonEncode(_assertPass(req));
-    return reqStr;
+    final response = await _kdf.client.executeRpc(jsonRequest);
+    return _deepConvertMap(response as Map);
   }
 
-  static Future<Map<String, dynamic>> generateStartParams({
-    required String gui,
-    required String? passphrase,
-    required String? userHome,
-    required String? dbDir,
-  }) async {
-    String newRpcPassword = generatePassword();
-
-    if (!validateRPCPassword(newRpcPassword)) {
-      log(
-        'If you\'re seeing this, there\'s a bug in the rpcPassword generation code.',
-        path: 'auth_bloc => _startMM2',
-      );
-      throw Exception('invalid rpc password');
-    }
-    _rpcPassword = newRpcPassword;
-
-    // Use the repository to load the known global coins, so that we can load
-    // from the bundled configs OR the storage provider after updates are
-    // downloaded from GitHub.
-    final List<dynamic> coins = (await coinsRepo.getKnownGlobalCoins())
-        .map((e) => e.toJson() as dynamic)
-        .toList();
-
-    // Load the stored settings to get the message service config.
-    final storedSettings = await SettingsRepository.loadStoredSettings();
-    final messageServiceConfig =
-        storedSettings.marketMakerBotSettings.messageServiceConfig;
-
-    return {
-      'mm2': 1,
-      'allow_weak_password': false,
-      'rpc_password': _rpcPassword,
-      'netid': 8762,
-      'coins': coins,
-      'gui': gui,
-      if (dbDir != null) 'dbdir': dbDir,
-      if (userHome != null) 'userhome': userHome,
-      if (passphrase != null) 'passphrase': passphrase,
-      if (messageServiceConfig != null)
-        'message_service_cfg': messageServiceConfig.toJson(),
-    };
+  /// Recursively converts the provided map to JsonMap. This is required, as
+  /// many of the responses received from the sdk are
+  /// LinkedHashMap<Object?, Object?>
+  Map<String, dynamic> _deepConvertMap(Map<dynamic, dynamic> map) {
+    return map.map((key, value) {
+      if (value is Map) return MapEntry(key.toString(), _deepConvertMap(value));
+      if (value is List) {
+        return MapEntry(key.toString(), _deepConvertList(value));
+      }
+      return MapEntry(key.toString(), value);
+    });
   }
 
-  static dynamic _assertPass(dynamic req) {
+  List<dynamic> _deepConvertList(List<dynamic> list) {
+    return list.map((value) {
+      if (value is Map) return _deepConvertMap(value);
+      if (value is List) return _deepConvertList(value);
+      return value;
+    }).toList();
+  }
+
+  // this is a necessary evil for now becuase of the RPC models that override
+  // or use the `late String? userpass` field, which would require refactoring
+  // most of the RPC models and directly affected code.
+  dynamic _assertPass(dynamic req) {
     if (req is List) {
-      for (dynamic element in req) {
+      for (final dynamic element in req) {
+        // ignore: avoid_dynamic_calls
         element.userpass = _rpcPassword;
       }
     } else {
       if (req is Map) {
         req['userpass'] = _rpcPassword;
       } else {
+        // ignore: avoid_dynamic_calls
         req.userpass = _rpcPassword;
       }
     }
 
     return req;
   }
-}
-
-MM2 _createMM2() {
-  if (kIsWeb) {
-    return MM2Web();
-  } else if (Platform.isMacOS) {
-    return MM2MacOs();
-  } else if (Platform.isIOS) {
-    return MM2iOS();
-  } else if (Platform.isWindows) {
-    return MM2Windows();
-  } else if (Platform.isLinux) {
-    return MM2Linux();
-  } else if (Platform.isAndroid) {
-    return MM2Android();
-  }
-
-  throw UnimplementedError();
 }
 
 // 0 - MM2 is not running yet.
@@ -163,8 +169,4 @@ enum MM2Status {
         return isNotRunningYet;
     }
   }
-}
-
-abstract class MM2WithInit {
-  Future<void> init();
 }

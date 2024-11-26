@@ -7,14 +7,14 @@ import 'package:web_dex/views/market_maker_bot/tab_type_enum.dart';
 /// The order in this enum is important.
 /// When you rearrange the elements, the order of the tabs must change.
 /// Remember to change the initial tab
-enum DexListType implements TabTypeEnum {
+enum DexListType implements ITabTypeEnum {
   swap,
   inProgress,
   orders,
   history;
 
   @override
-  String name(DexTabBarBloc bloc) {
+  String name(DexTabBarState bloc) {
     switch (this) {
       case swap:
         return LocaleKeys.swap.tr();

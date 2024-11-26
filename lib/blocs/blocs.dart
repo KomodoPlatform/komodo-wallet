@@ -10,7 +10,7 @@ import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/blocs/wallets_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/services/cex_service/cex_service.dart';
-import 'package:web_dex/services/file_loader/get_file_loader.dart';
+import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 
 // todo(yurii): recommended bloc arch refactoring order:
@@ -29,7 +29,7 @@ WalletsBloc walletsBloc = WalletsBloc(
 );
 // 4)
 CurrentWalletBloc currentWalletBloc = CurrentWalletBloc(
-  fileLoader: fileLoader,
+  fileLoader: FileLoader.fromPlatform(),
   authRepo: authRepo,
   walletsRepo: walletsRepo,
   encryptionTool: EncryptionTool(),

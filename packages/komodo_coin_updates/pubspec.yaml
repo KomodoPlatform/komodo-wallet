@@ -9,24 +9,14 @@ environment:
 # Add regular dependencies here.
 dependencies:
   http: 1.2.2 # dart.dev
-  path_provider: 2.1.1  # flutter.dev
+  path_provider: 2.1.4 # flutter.dev
   path: 1.9.0 # dart.dev - transitive to direct
 
   komodo_persistence_layer:
     path: ../komodo_persistence_layer/
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  flutter_bloc:
-    git:
-      url: https://github.com/KomodoPlatform/bloc.git
-      path: packages/flutter_bloc/
-      ref: 32d5002fb8b8a1e548fe8021d8468327680875ff # 8.1.1
-
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  equatable:
-    git:
-      url: https://github.com/KomodoPlatform/equatable.git
-      ref: 2117551ff3054f8edb1a58f63ffe1832a8d25623 #2.0.5
+  flutter_bloc: 8.1.6
+  equatable: 2.0.5
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   hive:
