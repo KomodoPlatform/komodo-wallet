@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin_type.dart';
@@ -28,7 +27,6 @@ class Coin {
     this.derivationPath,
     this.accounts,
     this.usdPrice,
-    this.logoImage,
     this.coinpaprikaId,
     this.activeByDefault = false,
     required String? swapContractAddress,
@@ -53,7 +51,6 @@ class Coin {
   final String? derivationPath;
   final int decimals;
   CexPrice? usdPrice;
-  ImageProvider? logoImage;
   final bool isTestCoin;
   String? address;
   List<HdAccount>? accounts;
@@ -224,7 +221,6 @@ class Coin {
       walletOnly: walletOnly,
       mode: mode,
       usdPrice: usdPrice,
-      logoImage: logoImage,
       parentCoin: parentCoin,
       derivationPath: derivationPath,
       accounts: accounts,

@@ -264,11 +264,11 @@ class ImportSubmitPage extends StatelessWidget {
       },
       child: BlocBuilder<CustomTokenImportBloc, CustomTokenImportState>(
         builder: (context, state) {
+          final newCoin = state.coin;
+
           final isSubmitEnabled = state.importStatus != FormStatus.submitting &&
               state.importStatus != FormStatus.success &&
-              state.coin != null;
-
-          final newCoin = state.coin;
+              newCoin != null;
 
           return BasePage(
             title: LocaleKeys.importCustomToken.tr(),
@@ -280,7 +280,7 @@ class ImportSubmitPage extends StatelessWidget {
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: state.coin == null
+              children: newCoin == null
                   ? [
                       Expanded(
                         child: Column(
@@ -302,18 +302,13 @@ class ImportSubmitPage extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (newCoin?.logoImage != null)
-                              Image(
-                                image: newCoin!.logoImage!,
-                                width: 80,
-                                height: 80,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.error, size: 80);
-                                },
-                              ),
+                            CoinIcon.ofSymbol(
+                              newCoin.abbr,
+                              size: 80,
+                            ),
                             const SizedBox(height: 12),
                             Text(
-                              newCoin!.abbr,
+                              newCoin.abbr,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 32),

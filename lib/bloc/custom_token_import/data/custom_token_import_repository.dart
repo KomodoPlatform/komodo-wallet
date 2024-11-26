@@ -45,10 +45,6 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       type: network,
       decimals: decimals,
       name: tokenApi?['name'] ?? tokenAbbr,
-      logoImage: NetworkImage(
-        tokenApi?['image']?['large'] ??
-            'assets/coin_icons/png/${tokenAbbr.toLowerCase()}.png',
-      ),
       parentCoin: platformCoin,
       protocolType: 'ERC20',
       protocolData: ProtocolData(
@@ -78,7 +74,12 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       priority: 0,
     );
 
-    CoinIcon.registerCustomIcon(newCoin.abbr, newCoin.logoImage!);
+    CoinIcon.registerCustomIcon(
+        newCoin.abbr,
+        NetworkImage(
+          tokenApi?['image']?['large'] ??
+              'assets/coin_icons/png/${tokenAbbr.toLowerCase()}.png',
+        ));
 
     newCoin.balance = await _getBalance(newCoin);
     return newCoin;
