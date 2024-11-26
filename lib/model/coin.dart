@@ -29,6 +29,7 @@ class Coin {
     this.usdPrice,
     this.coinpaprikaId,
     this.activeByDefault = false,
+    this.isCustomCoin = false,
     required String? swapContractAddress,
     required bool walletOnly,
     required this.mode,
@@ -52,6 +53,7 @@ class Coin {
   final int decimals;
   CexPrice? usdPrice;
   final bool isTestCoin;
+  bool isCustomCoin;
   String? address;
   List<HdAccount>? accounts;
   final double _balance;
@@ -213,6 +215,7 @@ class Coin {
       explorerAddressUrl: explorerAddressUrl,
       protocolType: protocolType,
       isTestCoin: isTestCoin,
+      isCustomCoin: isCustomCoin,
       coingeckoId: coingeckoId,
       fallbackSwapContract: fallbackSwapContract,
       priority: priority,

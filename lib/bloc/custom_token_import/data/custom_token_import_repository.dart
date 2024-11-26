@@ -8,6 +8,7 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:collection/collection.dart';
 
 abstract class ICustomTokenImportRepository {
   Future<Coin> fetchCustomToken(CoinType network, String address);
@@ -34,52 +35,61 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   Future<Coin> _getCoin(
       tokenInfo, CoinType network, String address, Coin platformCoin) async {
-    String tokenAbbr =
-        tokenInfo['config_ticker'] ?? tokenInfo['info']['symbol'];
+    String ticker = tokenInfo['config_ticker'] ?? tokenInfo['info']['symbol'];
     int decimals = tokenInfo['info']['decimals'];
     final tokenApi = await fetchTokenInfoFromApi(network, address);
 
     final price = tokenApi?['market_data']?['current_price']?['usd'];
-    Coin newCoin = Coin(
-      abbr: tokenAbbr,
-      type: network,
-      decimals: decimals,
-      name: tokenApi?['name'] ?? tokenAbbr,
-      parentCoin: platformCoin,
-      protocolType: 'ERC20',
-      protocolData: ProtocolData(
-        platform: platformCoin.abbr,
-        contractAddress: address,
-      ),
-      coingeckoId: tokenApi?['id'],
-      usdPrice: price == null
-          ? null
-          : CexPrice(
-              ticker: tokenAbbr,
-              price: price,
-            ),
-      explorerUrl: platformCoin.explorerUrl,
-      explorerTxUrl: platformCoin.explorerTxUrl,
-      explorerAddressUrl: platformCoin.explorerAddressUrl,
-      swapContractAddress: platformCoin.swapContractAddress,
-      fallbackSwapContract: platformCoin.fallbackSwapContract,
-      state: CoinState.inactive,
-      mode: CoinMode.standard,
-      isTestCoin: false,
-      walletOnly: false,
-      electrum: [],
-      nodes: [],
-      rpcUrls: [],
-      bchdUrls: [],
-      priority: 0,
+
+    final knownCoin = (await coinsRepo.getKnownCoins()).firstWhereOrNull(
+      (coin) => coin.protocolData?.contractAddress == address,
     );
 
-    CoinIcon.registerCustomIcon(
-        newCoin.abbr,
-        NetworkImage(
-          tokenApi?['image']?['large'] ??
-              'assets/coin_icons/png/${tokenAbbr.toLowerCase()}.png',
-        ));
+    Coin? newCoin = knownCoin;
+
+    if (newCoin == null) {
+      newCoin = Coin(
+        isCustomCoin: true,
+        abbr: '$ticker-${getEvmPlatformSuffix(network)}',
+        type: network,
+        decimals: decimals,
+        name: tokenApi?['name'] ?? ticker,
+        parentCoin: platformCoin,
+        protocolType: 'ERC20',
+        protocolData: ProtocolData(
+          platform: platformCoin.abbr,
+          contractAddress: address,
+        ),
+        coingeckoId: tokenApi?['id'],
+        usdPrice: price == null
+            ? null
+            : CexPrice(
+                ticker: ticker,
+                price: price,
+              ),
+        explorerUrl: platformCoin.explorerUrl,
+        explorerTxUrl: platformCoin.explorerTxUrl,
+        explorerAddressUrl: platformCoin.explorerAddressUrl,
+        swapContractAddress: platformCoin.swapContractAddress,
+        fallbackSwapContract: platformCoin.fallbackSwapContract,
+        state: CoinState.inactive,
+        mode: CoinMode.standard,
+        isTestCoin: false,
+        walletOnly: false,
+        electrum: [],
+        nodes: [],
+        rpcUrls: [],
+        bchdUrls: [],
+        priority: 0,
+      );
+
+      CoinIcon.registerCustomIcon(
+          newCoin.abbr,
+          NetworkImage(
+            tokenApi?['image']?['large'] ??
+                'assets/coin_icons/png/${ticker.toLowerCase()}.png',
+          ));
+    }
 
     newCoin.balance = await _getBalance(newCoin);
     return newCoin;
