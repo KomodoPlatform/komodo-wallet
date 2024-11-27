@@ -93,7 +93,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
                 'assets/coin_icons/png/${ticker.toLowerCase()}.png',
           ));
 
-      coinsRepo.saveCustomCoin(newCoin);
+      await coinsRepo.saveCustomCoin(newCoin);
+      await coinsBloc.syncKnownCoins();
     }
 
     newCoin.balance = await _getBalance(newCoin);
