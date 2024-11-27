@@ -18,6 +18,7 @@ class Coin {
     required this.protocolType,
     required this.protocolData,
     required this.isTestCoin,
+    required this.logoImageUrl,
     required this.coingeckoId,
     required this.fallbackSwapContract,
     required this.priority,
@@ -40,6 +41,7 @@ class Coin {
 
   final String abbr;
   final String name;
+  final String? logoImageUrl;
   final String? coingeckoId;
   final String? coinpaprikaId;
   final CoinType type;
@@ -216,6 +218,7 @@ class Coin {
       protocolType: protocolType,
       isTestCoin: isTestCoin,
       isCustomCoin: isCustomCoin,
+      logoImageUrl: logoImageUrl,
       coingeckoId: coingeckoId,
       fallbackSwapContract: fallbackSwapContract,
       priority: priority,

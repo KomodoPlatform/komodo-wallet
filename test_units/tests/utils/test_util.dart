@@ -8,6 +8,8 @@ Coin setCoin(
     abbr: coinAbbr ?? 'KMD',
     accounts: null,
     activeByDefault: true,
+    bchdUrls: [],
+    logoImageUrl: null,
     coingeckoId: "komodo",
     coinpaprikaId: "kmd-komodo",
     derivationPath: "m/44'/141'/0'",

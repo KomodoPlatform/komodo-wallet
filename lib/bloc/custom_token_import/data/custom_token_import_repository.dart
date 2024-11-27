@@ -60,6 +60,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
           platform: platformCoin.abbr,
           contractAddress: address,
         ),
+        logoImageUrl: tokenApi?['image']?['large'] ??
+            tokenApi?['image']?['small'] ??
+            tokenApi?['image']?['thumb'],
         coingeckoId: tokenApi?['id'],
         usdPrice: price == null
             ? null
@@ -89,6 +92,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
             tokenApi?['image']?['large'] ??
                 'assets/coin_icons/png/${ticker.toLowerCase()}.png',
           ));
+
+      coinsRepo.saveCustomCoin(newCoin);
     }
 
     newCoin.balance = await _getBalance(newCoin);
