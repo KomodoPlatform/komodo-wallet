@@ -36,7 +36,7 @@ class FiatCurrencyListTile extends StatelessWidget {
           // Use Expanded to let AutoScrollText take all available space
           Expanded(
             child: AutoScrollText(
-              text: '${currency.name}$coinType',
+              text: '${currency.name}${coinType.isEmpty ? '' : ' ($coinType)'}',
             ),
           ),
           // Align the text to the right
