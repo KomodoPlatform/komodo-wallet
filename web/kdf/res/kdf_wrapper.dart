@@ -3,11 +3,12 @@
 import 'dart:async';
 // This is a web-specific file, so it's safe to ignore this warning
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:js' as js;
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:js/js_util.dart';
+import 'package:web/web.dart';
 
 class KdfPlugin {
   static void registerWith(Registrar registrar) {
@@ -57,38 +58,57 @@ class KdfPlugin {
 
     final completer = Completer<void>();
 
-    final script =
-        js.context['document'].callMethod('createElement', ['script']);
-    script['src'] = 'kdf/kdflib.js';
-    script['onload'] = js.allowInterop(() {
-      _libraryLoaded = true;
-      completer.complete();
-    });
-    script['onerror'] = js.allowInterop((event) {
-      completer.completeError('Failed to load kdflib.js');
-    });
+    final script = (document.createElement('script') as HTMLScriptElement)
+      ..src = 'kdf/kdflib.js'
+      ..onload = () {
+        _libraryLoaded = true;
+        completer.complete();
+      }.toJS
+      ..onerror = (event) {
+        completer.completeError('Failed to load kdflib.js');
+      }.toJS;
 
-    js.context['document']['head'].callMethod('appendChild', [script]);
+    document.head!.appendChild(script);
 
     return completer.future;
   }
 
   Future<int> _mm2Main(String conf, Function logCallback) async {
     await _ensureLoaded();
-    return dartify(
-      js.context.callMethod('mm2_main', [conf, js.allowInterop(logCallback)]),
-    )! as int;
+
+    try {
+      final jsCallback = logCallback.toJS;
+      final jsResponse = globalContext.callMethod(
+        'mm2_main'.toJS,
+        [conf.toJS, jsCallback].toJS,
+      );
+      if (jsResponse == null) {
+        throw Exception('mm2_main call returned null');
+      }
+
+      final dynamic dartResponse = (jsResponse as JSAny?).dartify();
+      if (dartResponse == null) {
+        throw Exception('Failed to convert mm2_main response to Dart');
+      }
+
+      return dartResponse as int;
+    } catch (e) {
+      throw Exception('Error in mm2_main: $e\nConfig: $conf');
+    }
   }
 
   int _mm2MainStatus() {
     if (!_libraryLoaded) {
       throw StateError('KDF library not loaded. Call ensureLoaded() first.');
     }
-    return js.context.callMethod('mm2_main_status') as int;
+
+    final jsResult = globalContext.callMethod('mm2_main_status'.toJS);
+    return jsResult.dartify()! as int;
   }
 
   Future<int> _mm2Stop() async {
     await _ensureLoaded();
-    return js.context.callMethod('mm2_stop') as int;
+    final jsResult = globalContext.callMethod('mm2_stop'.toJS);
+    return jsResult.dartify()! as int;
   }
 }
