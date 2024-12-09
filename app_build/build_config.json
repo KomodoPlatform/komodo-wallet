@@ -1,4 +1,64 @@
 {
+    "api": {
+        "api_commit_hash": "bb749a99344fb61e92410cb64b035dba1de35779",
+        "branch": "main",
+        "fetch_at_build_enabled": true,
+        "source_urls": [
+            "https://api.github.com/repos/KomodoPlatform/komodo-defi-framework",
+            "https://sdk.devbuilds.komodo.earth"
+        ],
+        "platforms": {
+            "web": {
+                "matching_keyword": "wasm",
+                "valid_zip_sha256_checksums": [
+                    "877d42c9051c060609b969aa3dfa550d73ae24f53153dea08143d820e7d317c7"
+                ],
+                "path": "web/src/mm2"
+            },
+            "ios": {
+                "matching_keyword": "ios-aarch64",
+                "valid_zip_sha256_checksums": [
+                    "545e657f6d15a1bd552e59f6006811f84876ae39837b6b68a39b1eec3094f8dc"
+                ],
+                "path": "ios"
+            },
+            "macos": {
+                "matching_keyword": "Darwin-Release",
+                "valid_zip_sha256_checksums": [
+                    "62c3ef36cb3cd4fc166d381d7efce6b67d3b5dc62de4080bfb39462c0c4efb48"
+                ],
+                "path": "macos"
+            },
+            "windows": {
+                "matching_keyword": "Win64",
+                "valid_zip_sha256_checksums": [
+                    "88a723d584ef10e528b11a16327a6bcdf25867cdb6c7e6afadc77a62c8bed7dc"
+                ],
+                "path": "windows/runner/exe"
+            },
+            "android-armv7": {
+                "matching_keyword": "android-armv7",
+                "valid_zip_sha256_checksums": [
+                    "bfc294ece8481aabedf21b2d3e785eedc9719f066b396da91811427fa857f2b3"
+                ],
+                "path": "android/app/src/main/cpp/libs/armeabi-v7a"
+            },
+            "android-aarch64": {
+                "matching_keyword": "android-aarch64",
+                "valid_zip_sha256_checksums": [
+                    "bdead61715e5f95e5f1d842691b7ee19b8dc9ef780bc13f1207589214ff0fc24"
+                ],
+                "path": "android/app/src/main/cpp/libs/arm64-v8a"
+            },
+            "linux": {
+                "matching_keyword": "Linux-Release",
+                "valid_zip_sha256_checksums": [
+                    "e8c4cc2b6fbddc229820e7868591b757e223a47553a66755131330345a624093"
+                ],
+                "path": "linux/mm2"
+            }
+        }
+    },
     "coins": {
         "fetch_at_build_enabled": true,
         "update_commit_on_build": true,
