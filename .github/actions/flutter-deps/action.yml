@@ -17,4 +17,3 @@ runs:
         rm -rf web/src/mm2/*
         rm -rf web/src/kdfi/*
         rm -rf web/dist/*
-
