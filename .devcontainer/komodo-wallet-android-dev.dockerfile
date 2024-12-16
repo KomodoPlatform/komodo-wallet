@@ -2,7 +2,7 @@ FROM docker.io/ubuntu:22.04
 
 ARG KDF_BRANCH=main
 ENV KDF_DIR=/kdf
-ENV FLUTTER_VERSION="3.22.3"
+ENV FLUTTER_VERSION="3.27.1"
 ENV FLUTTER_HOME="/home/komodo/.flutter-sdk"
 ENV USER="komodo"
 ENV USER_ID=1000
