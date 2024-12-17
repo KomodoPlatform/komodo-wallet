@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - dev
+      - main
+      - release/*
   workflow_dispatch:
 
 jobs:
@@ -117,13 +119,4 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}"
           channelId: dev-preview
           target: walletrc
-          projectId: komodo-wallet-official
-
-      - name: Deploy Komodo Wallet Web Production (`master` branch)
-        if: github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch'
-        uses: FirebaseExtended/action-hosting-deploy@v0.7.1
-        with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}"
-          channelId: live
           projectId: komodo-wallet-official
