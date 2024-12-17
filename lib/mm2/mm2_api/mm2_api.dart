@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:rational/rational.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api_nft.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
@@ -26,6 +27,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol_response.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/my_balance/my_balance_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_orders/my_orders_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_orders/my_orders_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.dart';
@@ -357,6 +359,36 @@ class Mm2Api {
     }
   }
 
+  Future<String?> getBalance(String abbr) async {
+    dynamic response;
+    try {
+      response = await _call(MyBalanceReq(coin: abbr));
+    } catch (e, s) {
+      log(
+        'Error getting balance $abbr: ${e.toString()}',
+        path: 'api => getBalance => _call',
+        trace: s,
+        isError: true,
+      );
+      return null;
+    }
+
+    Map<String, dynamic> json;
+    try {
+      json = jsonDecode(response);
+    } catch (e, s) {
+      log(
+        'Error parsing of get balance $abbr response: ${e.toString()}',
+        path: 'api => getBalance => jsonDecode',
+        trace: s,
+        isError: true,
+      );
+      return null;
+    }
+
+    return json['balance'];
+  }
+
   Future<MaxMakerVolResponse?> getMaxMakerVol(String abbr) async {
     dynamic response;
     try {
@@ -368,7 +400,7 @@ class Mm2Api {
         trace: s,
         isError: true,
       );
-      return null;
+      return _fallbackToBalance(abbr);
     }
 
     Map<String, dynamic> json;
@@ -381,7 +413,7 @@ class Mm2Api {
         trace: s,
         isError: true,
       );
-      return null;
+      return _fallbackToBalance(abbr);
     }
 
     final error = json['error'];
@@ -391,10 +423,60 @@ class Mm2Api {
         path: 'api => getMaxMakerVol => error',
         isError: true,
       );
+      return _fallbackToBalance(abbr);
+    }
+
+    try {
+      return MaxMakerVolResponse.fromJson(json['result']);
+    } catch (e, s) {
+      log(
+        'Error constructing MaxMakerVolResponse for $abbr: ${e.toString()}',
+        path: 'api => getMaxMakerVol => fromJson',
+        trace: s,
+        isError: true,
+      );
+      return _fallbackToBalance(abbr);
+    }
+  }
+
+  Future<MaxMakerVolResponse?> _fallbackToBalance(String abbr) async {
+    final balance = await getBalance(abbr);
+    if (balance == null) {
+      log(
+        'Failed to retrieve balance for fallback construction of MaxMakerVolResponse for $abbr',
+        path: 'api => _fallbackToBalance',
+        isError: true,
+      );
       return null;
     }
 
-    return MaxMakerVolResponse.fromJson(json['result']);
+    final balanceValue = MaxMakerVolResponseValue(decimal: balance);
+    return MaxMakerVolResponse(
+      volume: balanceValue,
+      balance: balanceValue,
+    );
+  }
+
+  Future<MaxTakerVolResponse?> _fallbackToBalanceTaker(String abbr) async {
+    final balance = await getBalance(abbr);
+    if (balance == null) {
+      log(
+        'Failed to retrieve balance for fallback construction of MaxTakerVolResponse for $abbr',
+        path: 'api => _fallbackToBalanceTaker',
+        isError: true,
+      );
+      return null;
+    }
+    final rational = Rational.parse(balance);
+    final result = MaxTakerVolumeResponseResult(
+      numer: rational.numerator.toString(),
+      denom: rational.denominator.toString(),
+    );
+
+    return MaxTakerVolResponse(
+      coin: abbr,
+      result: result,
+    );
   }
 
   Future<Map<String, dynamic>?> getActiveSwaps(
@@ -721,7 +803,7 @@ class Mm2Api {
       final String response = await _call(request);
       final Map<String, dynamic> json = jsonDecode(response);
       if (json['error'] != null) {
-        return null;
+        return await _fallbackToBalanceTaker(request.coin);
       }
       return MaxTakerVolResponse.fromJson(json);
     } catch (e, s) {
@@ -731,7 +813,7 @@ class Mm2Api {
         trace: s,
         isError: true,
       );
-      return null;
+      return await _fallbackToBalanceTaker(request.coin);
     }
   }
 
