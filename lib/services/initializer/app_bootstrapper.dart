@@ -53,4 +53,14 @@ Future<void> _initHive({required bool isWeb, required String appFolder}) async {
   return Hive.init(path);
 }
 
+Future<void> _initHive({required bool isWeb, required String appFolder}) async {
+  if (isWeb) {
+    return Hive.initFlutter(appFolder);
+  }
+
+  final appDirectory = await getApplicationDocumentsDirectory();
+  final path = p.join(appDirectory.path, appFolder);
+  return Hive.init(path);
+}
+
 StoredSettings? _storedSettings;
