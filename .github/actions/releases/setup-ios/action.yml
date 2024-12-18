@@ -6,7 +6,7 @@ inputs:
   xcode-version:
     description: "Xcode version to use"
     required: false
-    default: "16.2"
+    default: "latest-stable"
   p12-file-base64:
     description: "Base64-encoded P12 certificate file"
     required: false
@@ -53,7 +53,7 @@ runs:
         p12-password: ${{ inputs.p12-password }}
 
     - name: Download iOS provisioning profile
-      if: inputs.issuer-id != ''  
+      if: inputs.issuer-id != ''
       uses: apple-actions/download-provisioning-profiles@v1
       with:
         bundle-id: ${{ inputs.bundle-id }}
