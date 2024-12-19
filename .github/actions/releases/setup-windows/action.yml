@@ -17,13 +17,9 @@ runs:
       uses: microsoft/setup-msbuild@v1.3
 
     - name: Install Windows SDK
-      uses: GuillaumeFalourd/setup-windows10-sdk-action@v1
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
-        sdk-version: 19041
-    
-    - name: Enable Windows desktop support
-      shell: pwsh
-      run: flutter config --enable-windows-desktop
+        sdk-version: 26100
     
     - name: Install Windows build dependencies
       shell: pwsh
