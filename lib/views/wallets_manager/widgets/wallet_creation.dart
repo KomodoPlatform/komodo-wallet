@@ -120,7 +120,6 @@ class _WalletCreationState extends State<WalletCreation> {
             setState(() => _isHdMode = value);
           },
         ),
-        const SizedBox(height: 16),
       ],
     );
   }

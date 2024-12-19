@@ -187,6 +187,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         _buildNameField(),
         const SizedBox(height: 16),
         _buildSeedField(),
+        const SizedBox(height: 16),
         HDWalletModeSwitch(
           value: _isHdMode,
           onChanged: (value) {
@@ -197,7 +198,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
           const SizedBox(height: 15),
           _buildCheckBoxCustomSeed(),
         ],
-        const SizedBox(height: 25),
+        const SizedBox(height: 20),
         UiDivider(text: LocaleKeys.or.tr()),
         const SizedBox(height: 20),
         _buildImportFileButton(),
