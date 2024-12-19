@@ -25,7 +25,12 @@ class HDWalletModeSwitch extends StatelessWidget {
           ),
         ],
       ),
-      subtitle: Text(LocaleKeys.hdWalletModeSwitchSubtitle.tr()),
+      subtitle: Text(
+        LocaleKeys.hdWalletModeSwitchSubtitle.tr(),
+        style: const TextStyle(
+          fontSize: 12,
+        ),
+      ),
       value: value,
       onChanged: onChanged,
     );
