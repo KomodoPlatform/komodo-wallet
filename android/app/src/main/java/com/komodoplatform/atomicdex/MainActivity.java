@@ -25,60 +25,12 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 
 
 public class MainActivity extends FlutterActivity {
-    private EventChannel.EventSink logsSink;
-    private final Handler logHandler = new Handler(Looper.getMainLooper());
-
     private boolean isSafBytes = false;
     private MethodChannel.Result safResult;
     private String safData;
     private byte[] safDataBytes;
     private static final int CREATE_SAF_FILE = 21;
     private static final String TAG_CREATE_SAF_FILE = "CREATE_SAF_FILE";
-
-    static {
-        System.loadLibrary("mm2-lib");
-    }
-
-
-    private void nativeC(FlutterEngine flutterEngine) {
-        BinaryMessenger bm = flutterEngine.getDartExecutor().getBinaryMessenger();
-        EventChannel logsChannel = new EventChannel(bm, "komodo-web-dex/event");
-        logsChannel.setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(Object arguments, EventChannel.EventSink events) {
-                logsSink = events;
-            }
-
-            @Override
-            public void onCancel(Object arguments) {
-                logsSink = null;
-            }
-        });
-
-        // https://flutter.dev/docs/development/platform-integration/platform-channels?tab=android-channel-kotlin-tab#step-3-add-an-android-platform-specific-implementation
-        new MethodChannel(bm, "komodo-web-dex")
-                .setMethodCallHandler((call, result) -> {
-                    switch (call.method) {
-                        case "start": {
-                            Map<String, String> arguments = call.arguments();
-                            onStart(arguments, result);
-                            break;
-                        }
-                        case "status": {
-                            onStatus(result);
-                            break;
-                        }
-                        case "stop": {
-                            onStop(result);
-                            break;
-                        }
-                        default: {
-                            result.notImplemented();
-                        }
-                    }
-                });
-
-    }
 
     private void setupSaf(FlutterEngine flutterEngine) {
         BinaryMessenger bm = flutterEngine.getDartExecutor().getBinaryMessenger();
@@ -167,64 +119,9 @@ public class MainActivity extends FlutterActivity {
         safDataBytes = null;
     }
 
-
-    private void onStart(Map<String, String> arguments, MethodChannel.Result result) {
-
-        if (arguments == null) {
-            result.success(0);
-            return;
-        }
-        String arg = arguments.get("params");
-        if (arg == null) {
-            result.success(0);
-            return;
-        }
-
-        int ret = startMm2(arg);
-        result.success(ret);
-    }
-
-    private void onStatus(MethodChannel.Result result) {
-        int status = nativeMm2MainStatus();
-        result.success(status);
-    }
-
-    private void onStop(MethodChannel.Result result) {
-        int ret = nativeMm2Stop();
-        result.success(ret);
-    }
-
-    private int startMm2(String conf) {
-
-        sendLog("START MM2 --------------------------------");
-
-        return nativeMm2Main(conf, this::sendLog);
-    }
-
-    private void sendLog(String line) {
-        if (logsSink != null) {
-            logHandler.post(() -> logsSink.success(line));
-
-        }
-    }
-
-    /// Corresponds to Java_com_komodoplatform_atomicdex_MainActivity_nativeMm2MainStatus in main.cpp
-    private native byte nativeMm2MainStatus();
-
-    /// Corresponds to Java_com_komodoplatform_atomicdex_MainActivity_nativeMm2Main in main.cpp
-    private native byte nativeMm2Main(String conf, JNILogListener listener);
-
-    /// Corresponds to Java_com_komodoplatform_atomicdex_MainActivity_nativeMm2Stop in main.cpp
-    private native byte nativeMm2Stop();
-
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
-        nativeC(flutterEngine);
         setupSaf(flutterEngine);
     }
-}
-
-interface JNILogListener {
-    void onLog(String line);
 }
