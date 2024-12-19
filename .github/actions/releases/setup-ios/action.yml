@@ -42,6 +42,7 @@ runs:
     - name: Install iOS dependencies
       shell: bash
       run: |
+        flutter pub get
         cd ios
         pod install
 

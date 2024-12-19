@@ -45,10 +45,6 @@ runs:
         sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
         sudo xcodebuild -license accept
     
-    - name: Enable macOS desktop support
-      shell: bash
-      run: flutter config --enable-macos-desktop
-    
     - name: Install macOS build dependencies
       shell: bash
       run: |
