@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class HDWalletModeSwitch extends StatelessWidget {
   final bool value;
@@ -13,19 +15,17 @@ class HDWalletModeSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SwitchListTile(
-      title: const Row(
+      title: Row(
         children: [
-          Text('HD Wallet Mode'),
-          SizedBox(width: 8),
+          Text(LocaleKeys.hdWalletModeSwitchTitle.tr()),
+          const SizedBox(width: 8),
           Tooltip(
-            message: 'HD wallets require a valid BIP39 seed phrase. \n'
-                'NB! Your addresses and balances will be different '
-                'in HD mode.',
-            child: Icon(Icons.info, size: 16),
+            message: LocaleKeys.hdWalletModeSwitchTooltip.tr(),
+            child: const Icon(Icons.info, size: 16),
           ),
         ],
       ),
-      subtitle: const Text('Enable HD multi-address mode'),
+      subtitle: Text(LocaleKeys.hdWalletModeSwitchSubtitle.tr()),
       value: value,
       onChanged: onChanged,
     );

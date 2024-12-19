@@ -398,6 +398,9 @@ abstract class  LocaleKeys {
   static const missingDerivationPath = 'missingDerivationPath';
   static const protocolNotSupported = 'protocolNotSupported';
   static const derivationModeNotSupported = 'derivationModeNotSupported';
+  static const hdWalletModeSwitchTitle = 'hdWalletModeSwitchTitle';
+  static const hdWalletModeSwitchSubtitle = 'hdWalletModeSwitchSubtitle';
+  static const hdWalletModeSwitchTooltip = 'hdWalletModeSwitchTooltip';
   static const noActiveWallet = 'noActiveWallet';
   static const memo = 'memo';
   static const gasPriceGwei = 'gasPriceGwei';
