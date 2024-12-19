@@ -191,11 +191,15 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     required String name,
     required String password,
     required String seed,
+    WalletType? walletType,
   }) {
     setState(() {
       _isLoading = true;
     });
-    final Wallet newWallet = Wallet.fromName(name: name);
+    final Wallet newWallet = Wallet.fromName(
+      name: name,
+      walletType: walletType ?? WalletType.iguana,
+    );
 
     context.read<AuthBloc>().add(
           AuthRestoreRequested(
