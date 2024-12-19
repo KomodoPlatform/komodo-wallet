@@ -14,6 +14,7 @@ import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_dialog.dart';
+import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletSimpleImport extends StatefulWidget {
   const WalletSimpleImport({
@@ -186,20 +187,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         _buildNameField(),
         const SizedBox(height: 16),
         _buildSeedField(),
-        SwitchListTile(
-          title: const Row(
-            children: [
-              Text('HD Wallet Mode'),
-              SizedBox(width: 8),
-              Tooltip(
-                message: 'HD wallets require a valid BIP39 seed phrase. \n'
-                    'NB! Your addresses and balances will be different '
-                    'in HD mode.',
-                child: Icon(Icons.info, size: 16),
-              ),
-            ],
-          ),
-          subtitle: const Text('Enable HD multi-address mode'),
+        HDWalletModeSwitch(
           value: _isHdMode,
           onChanged: (value) {
             setState(() => _isHdMode = value);
