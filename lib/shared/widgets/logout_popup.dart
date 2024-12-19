@@ -36,7 +36,8 @@ class LogOutPopup extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              if (currentWallet?.config.type == WalletType.iguana)
+              if (currentWallet?.config.type == WalletType.iguana ||
+                  currentWallet?.config.type == WalletType.hdwallet)
                 SelectableText(
                   kIsWalletOnly
                       ? LocaleKeys.logoutPopupDescriptionWalletOnly.tr()

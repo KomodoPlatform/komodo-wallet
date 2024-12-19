@@ -11,6 +11,7 @@ class WalletsTypeList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: WalletType.values
+          .where((type) => type != WalletType.hdwallet)
           .map((type) => Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: WalletTypeListItem(

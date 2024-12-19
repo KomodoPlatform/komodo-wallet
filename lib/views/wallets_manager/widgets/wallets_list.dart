@@ -21,8 +21,12 @@ class WalletsList extends StatelessWidget {
       stream: walletsRepository.getWallets().asStream(),
       builder: (BuildContext context, AsyncSnapshot<List<Wallet>> snapshot) {
         final List<Wallet> wallets = snapshot.data ?? [];
-        final List<Wallet> filteredWallets =
-            wallets.where((w) => w.config.type == walletType).toList();
+        final List<Wallet> filteredWallets = wallets
+            .where((w) =>
+                w.config.type == walletType ||
+                (walletType == WalletType.iguana &&
+                    w.config.type == WalletType.hdwallet))
+            .toList();
         if (wallets.isEmpty) {
           return const SizedBox(width: 0, height: 0);
         }

@@ -54,6 +54,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
   bool? _allowCustomSeed;
+  bool _isHdMode = true;
 
   bool get _isButtonEnabled {
     return _eulaAndTosChecked && !_inProgress;
@@ -185,6 +186,25 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         _buildNameField(),
         const SizedBox(height: 16),
         _buildSeedField(),
+        SwitchListTile(
+          title: const Row(
+            children: [
+              Text('HD Wallet Mode'),
+              SizedBox(width: 8),
+              Tooltip(
+                message: 'HD wallets require a valid BIP39 seed phrase. \n'
+                    'NB! Your addresses and balances will be different '
+                    'in HD mode.',
+                child: Icon(Icons.info, size: 16),
+              ),
+            ],
+          ),
+          subtitle: const Text('Enable HD multi-address mode'),
+          value: _isHdMode,
+          onChanged: (value) {
+            setState(() => _isHdMode = value);
+          },
+        ),
         if (_allowCustomSeed != null) ...[
           const SizedBox(height: 15),
           _buildCheckBoxCustomSeed(),
@@ -273,6 +293,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     }
 
     final WalletConfig config = WalletConfig(
+      type: _isHdMode ? WalletType.hdwallet : WalletType.iguana,
       activatedCoins: enabledByDefaultCoins,
       hasBackup: true,
       seedPhrase: _seedController.text,

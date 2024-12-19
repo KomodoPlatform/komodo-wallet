@@ -59,7 +59,8 @@ class Wallet {
   String name;
   WalletConfig config;
 
-  bool get isHW => config.type != WalletType.iguana;
+  bool get isHW =>
+      config.type != WalletType.iguana && config.type != WalletType.hdwallet;
   bool get isLegacyWallet => config.isLegacyWallet;
   Future<String> getLegacySeed(String password) async =>
       await EncryptionTool().decryptData(password, config.seedPhrase) ?? '';
@@ -133,6 +134,7 @@ class WalletConfig {
 enum WalletType {
   iguana,
   // TODO! add HD wallet type
+  hdwallet,
   trezor,
   metamask,
   keplr;
@@ -145,6 +147,8 @@ enum WalletType {
         return WalletType.metamask;
       case 'keplr':
         return WalletType.keplr;
+      case 'hdwallet':
+        return WalletType.hdwallet;
       default:
         return WalletType.iguana;
     }

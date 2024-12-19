@@ -585,7 +585,9 @@ class _SpecificButton extends StatelessWidget {
     final currentWallet = context.watch<AuthBloc>().state.currentUser?.wallet;
     final walletType = currentWallet?.config.type;
 
-    if (coin.abbr == 'KMD' && walletType == WalletType.iguana) {
+    if (coin.abbr == 'KMD' &&
+        (walletType == WalletType.iguana ||
+            walletType == WalletType.hdwallet)) {
       return _GetRewardsButton(
         coin: coin,
         onTap: () => selectWidget(CoinPageType.claim),

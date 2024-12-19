@@ -18,7 +18,8 @@ class WalletTypeListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool needAttractAttention = type == WalletType.iguana;
+    final bool needAttractAttention =
+        type == WalletType.iguana || type == WalletType.hdwallet;
     final bool isSupported = _checkWalletSupport(type);
 
     return Column(
@@ -35,7 +36,7 @@ class WalletTypeListItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (type != WalletType.iguana)
+              if (type != WalletType.iguana && type != WalletType.hdwallet)
                 SvgPicture.asset(
                   _iconPath,
                   width: 25,
@@ -73,6 +74,7 @@ class WalletTypeListItem extends StatelessWidget {
   String get _iconPath {
     switch (type) {
       case WalletType.iguana:
+      case WalletType.hdwallet:
         return '$assetsPath/ui_icons/atomic_dex.svg';
       case WalletType.metamask:
         return '$assetsPath/ui_icons/metamask.svg';
@@ -90,6 +92,7 @@ class WalletTypeListItem extends StatelessWidget {
   String get _walletTypeName {
     switch (type) {
       case WalletType.iguana:
+      case WalletType.hdwallet:
         return LocaleKeys.komodoWalletSeed.tr();
       case WalletType.metamask:
         return LocaleKeys.metamask.tr();
@@ -103,6 +106,7 @@ class WalletTypeListItem extends StatelessWidget {
   bool _checkWalletSupport(WalletType type) {
     switch (type) {
       case WalletType.iguana:
+      case WalletType.hdwallet:
       case WalletType.trezor:
         return true;
       case WalletType.keplr:

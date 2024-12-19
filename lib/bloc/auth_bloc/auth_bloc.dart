@@ -72,7 +72,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       await _kdfSdk.auth.signIn(
         walletName: event.wallet.name,
         password: event.password,
-        options: const AuthOptions(derivationMethod: DerivationMethod.iguana),
+        options: AuthOptions(
+          derivationMethod: event.wallet.config.type == WalletType.hdwallet
+              ? DerivationMethod.hdWallet
+              : DerivationMethod.iguana,
+        ),
       );
       log('logged in  from a wallet', path: 'auth_bloc => _reLogin').ignore();
       emit(
@@ -121,7 +125,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       await _kdfSdk.auth.register(
         password: event.password,
         walletName: event.wallet.name,
-        options: const AuthOptions(derivationMethod: DerivationMethod.iguana),
+        options: AuthOptions(
+          derivationMethod: event.wallet.config.type == WalletType.hdwallet
+              ? DerivationMethod.hdWallet
+              : DerivationMethod.iguana,
+        ),
       );
       if (!await _kdfSdk.auth.isSignedIn()) {
         throw Exception('Registration failed: user is not signed in');
@@ -169,7 +177,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         password: event.password,
         walletName: event.wallet.name,
         mnemonic: Mnemonic.plaintext(event.seed),
-        options: const AuthOptions(derivationMethod: DerivationMethod.iguana),
+        options: AuthOptions(
+          derivationMethod: event.wallet.config.type == WalletType.hdwallet
+              ? DerivationMethod.hdWallet
+              : DerivationMethod.iguana,
+        ),
       );
       if (!await _kdfSdk.auth.isSignedIn()) {
         throw Exception('Registration failed: user is not signed in');

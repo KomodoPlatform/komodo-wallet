@@ -144,6 +144,7 @@ class _Dropdown extends StatelessWidget {
     final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
     switch (currentWallet?.config.type) {
       case WalletType.iguana:
+      case WalletType.hdwallet:
         return coinsBloc.state.coins.values
                 .firstWhereOrNull((coin) => coin.type == type) !=
             null;

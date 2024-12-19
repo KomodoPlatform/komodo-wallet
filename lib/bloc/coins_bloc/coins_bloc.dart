@@ -102,6 +102,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       case WalletType.metamask:
       case WalletType.keplr:
       case WalletType.iguana:
+      case WalletType.hdwallet:
       case null:
         final coinUpdateStream =
             _coinsRepo.updateIguanaBalances(state.walletCoins);
@@ -201,7 +202,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     await _activateCoins(event.coinIds, emit);
 
-    if (_currentUserCache?.wallet.config.type == WalletType.iguana) {
+    if (_currentUserCache?.wallet.config.type == WalletType.iguana ||
+        _currentUserCache?.wallet.config.type == WalletType.hdwallet) {
       final coinUpdates = _syncIguanaCoinsStates(event.coinIds);
       await emit.forEach(
         coinUpdates,
@@ -311,6 +313,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     for (final Coin coin in coins) {
       switch (coin.enabledType) {
         case WalletType.iguana:
+        case WalletType.hdwallet:
           coin.reset();
           final newWalletCoins = Map<String, Coin>.from(state.walletCoins);
           newWalletCoins.remove(coin.abbr.toUpperCase());
@@ -401,6 +404,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     switch (_currentUserCache?.wallet.config.type) {
       case WalletType.iguana:
+      case WalletType.hdwallet:
         coin = await _activateIguanaCoin(coin);
       case WalletType.trezor:
         final asset = _kdfSdk.assets.assetsFromTicker(coin.abbr).single;

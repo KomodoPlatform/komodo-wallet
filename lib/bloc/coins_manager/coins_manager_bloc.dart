@@ -222,6 +222,7 @@ Future<List<Coin>> _getDeactivatedCoins(
 
   switch (walletType) {
     case WalletType.iguana:
+    case WalletType.hdwallet:
       return disabledCoins.values.toList();
     case WalletType.trezor:
       final disabledCoinsWithTrezorSupport =

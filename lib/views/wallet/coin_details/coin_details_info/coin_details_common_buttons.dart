@@ -304,7 +304,8 @@ class CoinDetailsSwapButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentWallet = context.watch<AuthBloc>().state.currentUser?.wallet;
-    if (currentWallet?.config.type != WalletType.iguana) {
+    if (currentWallet?.config.type != WalletType.iguana &&
+        currentWallet?.config.type != WalletType.hdwallet) {
       return const SizedBox.shrink();
     }
 
