@@ -11,6 +11,7 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletFileData {
   const WalletFileData({required this.content, required this.name});
@@ -43,6 +44,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       TextEditingController(text: '');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscured = true;
+  bool _isHdMode = true;
 
   String? _filePasswordError;
   String? _commonError;
@@ -117,6 +119,12 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                 ),
               const SizedBox(height: 30),
               const UiDivider(),
+              HDWalletModeSwitch(
+                value: _isHdMode,
+                onChanged: (value) {
+                  setState(() => _isHdMode = value);
+                },
+              ),
               const SizedBox(height: 30),
               UiPrimaryButton(
                 key: const Key('confirm-password-button'),
@@ -164,6 +172,8 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
     try {
       final WalletConfig walletConfig =
           WalletConfig.fromJson(json.decode(fileData));
+      walletConfig.type = _isHdMode ? WalletType.hdwallet : WalletType.iguana;
+
       final String? decryptedSeed = await encryptionTool.decryptData(
           _filePasswordController.text, walletConfig.seedPhrase);
       if (decryptedSeed == null) return;
