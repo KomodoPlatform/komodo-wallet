@@ -25,6 +25,11 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
     - [xCode](https://developer.apple.com/xcode/) - 15.4 (macOS only)
     - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) - Community 17.11.3 (Windows only)
       - `Desktop development with C++` workload required
+      - Enable long paths in Windows registry. Open CMD or PowerShell as Administrator, run the following, and restart:
+
+        ```PowerShell
+        Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+        ```
 
  3. Run `flutter doctor` and make sure all checks (except version) pass
  4. [Clone project repository](CLONE_REPOSITORY.md)
