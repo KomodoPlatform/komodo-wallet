@@ -5,6 +5,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletLogIn extends StatefulWidget {
   const WalletLogIn({
@@ -30,6 +31,7 @@ class _WalletLogInState extends State<WalletLogIn> {
   final _backKeyButton = GlobalKey();
   final TextEditingController _passwordController = TextEditingController();
   bool _inProgress = false;
+  bool _isHdMode = true;
 
   @override
   void dispose() {
@@ -44,6 +46,8 @@ class _WalletLogInState extends State<WalletLogIn> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.wallet.config.type =
+          _isHdMode ? WalletType.hdwallet : WalletType.iguana;
       widget.onLogin(
         _passwordController.text,
         widget.wallet,
@@ -67,6 +71,13 @@ class _WalletLogInState extends State<WalletLogIn> {
           height: 20,
         ),
         _buildPasswordField(),
+        const SizedBox(height: 20),
+        HDWalletModeSwitch(
+          value: _isHdMode,
+          onChanged: (value) {
+            setState(() => _isHdMode = value);
+          },
+        ),
         const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0),
