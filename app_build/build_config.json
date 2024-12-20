@@ -1,6 +1,6 @@
 {
     "api": {
-        "api_commit_hash": "bb749a99344fb61e92410cb64b035dba1de35779",
+        "api_commit_hash": "8206c6ef61ee5c0f697fab5fcfd7256e3ebe13ac",
         "branch": "main",
         "fetch_at_build_enabled": true,
         "source_urls": [
@@ -11,7 +11,7 @@
             "web": {
                 "matching_keyword": "wasm",
                 "valid_zip_sha256_checksums": [
-                    "91ac9f0e880ec49aedab21c5df130ffc9475cdbf0b6428cf6862842142176293"
+                    "f82e330a8d9bc1c2011604648233922cf216a732858c5a6a935ad77a286b1993"
                 ],
                 "path": "web/src/mm2"
             }
@@ -19,7 +19,7 @@
     },
     "coins": {
         "update_commit_on_build": true,
-        "bundled_coins_repo_commit": "5e12a42ea95f8f50667291c7adae881eef513bf0",
+        "bundled_coins_repo_commit": "642abea7172b81db24b16bffc13783b9a0e400f5",
         "coins_repo_api_url": "https://api.github.com/repos/KomodoPlatform/coins",
         "coins_repo_content_url": "https://raw.githubusercontent.com/KomodoPlatform/coins",
         "coins_repo_branch": "master",
