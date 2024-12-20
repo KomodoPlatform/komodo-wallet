@@ -176,7 +176,7 @@
     "swapProgressStatusFailed": "Failed swap",
     "swapDetailsStepStatusFailed": "Failed",
     "disclaimerAcceptEulaCheckbox": "EULA",
-    "disclaimerAcceptTermsAndConditionsCheckbox": "TERMS and CONDITIONS",
+    "disclaimerAcceptTermsAndConditionsCheckbox": "Terms & Conditions",
     "disclaimerAcceptDescription": "By clicking the button below, you confirm that you have read and accept:",
     "swapDetailsStepStatusInProcess": "In progress",
     "swapDetailsStepStatusTimeSpent": "Time spent {}",
