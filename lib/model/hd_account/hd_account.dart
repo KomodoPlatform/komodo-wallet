@@ -52,10 +52,31 @@ class HdBalance {
     required this.unspendable,
   });
 
-  factory HdBalance.fromJson(Map<String, dynamic> json) {
+  factory HdBalance.fromJson(Map<String, dynamic> coinBalanceMap) {
+    // Left in for backwards compatibility, but is no longer necessary from
+    // KDF v2.3.0-beta onwards
+    if (coinBalanceMap['spendable'] != null) {
+      return HdBalance(
+        spendable: double.tryParse(coinBalanceMap['spendable'].toString()) ?? 0,
+        unspendable:
+            double.tryParse(coinBalanceMap['unspendable'].toString()) ?? 0,
+      );
+    }
+
+    final balances =
+        coinBalanceMap.values.fold<({double spendable, double unspendable})>(
+      (spendable: 0.0, unspendable: 0.0),
+      (({double spendable, double unspendable}) sum, dynamic value) => (
+        spendable: sum.spendable +
+            (double.tryParse(value['spendable']?.toString() ?? '0') ?? 0),
+        unspendable: sum.unspendable +
+            (double.tryParse(value['unspendable']?.toString() ?? '0') ?? 0),
+      ),
+    );
+
     return HdBalance(
-      spendable: double.parse(json['spendable'] ?? '0'),
-      unspendable: double.parse(json['unspendable'] ?? '0'),
+      spendable: balances.spendable,
+      unspendable: balances.unspendable,
     );
   }
 
