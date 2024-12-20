@@ -61,13 +61,13 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
         Text(
           LocaleKeys.walletImportByFileTitle.tr(),
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontSize: 18,
+                fontSize: 24,
               ),
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: 20),
         Text(LocaleKeys.walletImportByFileDescription.tr(),
             style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: 22),
+        const SizedBox(height: 20),
         Form(
           key: _formKey,
           child: Column(
@@ -97,8 +97,9 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
               Row(children: [
                 const UiGradientIcon(
                   icon: Icons.folder,
+                  size: 32,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                     child: Text(
                   widget.fileData.name,
@@ -118,7 +119,6 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                   ),
                 ),
               const SizedBox(height: 30),
-              const UiDivider(),
               HDWalletModeSwitch(
                 value: _isHdMode,
                 onChanged: (value) {
