@@ -27,49 +27,42 @@ class _EulaTosCheckboxesState extends State<EulaTosCheckboxes> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        UiCheckbox(
-          checkboxKey: const Key('checkbox-eula-tos'),
-          value: _checkBox,
-          onChanged: (bool? value) {
-            setState(() {
-              _checkBox = value ?? false;
-            });
-            _onCheck();
-          },
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text.rich(
+    return UiCheckbox(
+      checkboxKey: const Key('checkbox-eula-tos'),
+      value: _checkBox,
+      onChanged: (bool? value) {
+        setState(() {
+          _checkBox = value ?? false;
+        });
+        _onCheck();
+      },
+      textWidget: Text.rich(
+        maxLines: 99,
+        TextSpan(
+          children: [
+            TextSpan(text: LocaleKeys.disclaimerAcceptDescription.tr()),
+            const TextSpan(text: ' '),
             TextSpan(
-              text: "${LocaleKeys.disclaimerAcceptDescription.tr()} ",
-              children: [
-                TextSpan(
-                  text: LocaleKeys.disclaimerAcceptEulaCheckbox.tr(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                  ),
-                  recognizer: TapGestureRecognizer()..onTap = _showEula,
-                ),
-                const TextSpan(text: ", "),
-                TextSpan(
-                  text: LocaleKeys.disclaimerAcceptTermsAndConditionsCheckbox
-                      .tr(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                  ),
-                  recognizer: TapGestureRecognizer()..onTap = _showDisclaimer,
-                ),
-              ],
+              text: LocaleKeys.disclaimerAcceptEulaCheckbox.tr(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                decoration: TextDecoration.underline,
+              ),
+              recognizer: TapGestureRecognizer()..onTap = _showEula,
             ),
-            style: const TextStyle(fontSize: 14),
-          ),
+            const TextSpan(text: ', '),
+            TextSpan(
+              text: LocaleKeys.disclaimerAcceptTermsAndConditionsCheckbox.tr(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                decoration: TextDecoration.underline,
+              ),
+              recognizer: TapGestureRecognizer()..onTap = _showDisclaimer,
+            ),
+          ],
         ),
-      ],
+        style: const TextStyle(fontSize: 14),
+      ),
     );
   }
 
