@@ -10,6 +10,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
+import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
@@ -45,12 +46,17 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscured = true;
   bool _isHdMode = true;
+  bool _eulaAndTosChecked = false;
 
   String? _filePasswordError;
   String? _commonError;
 
   bool get _isValidData {
     return _filePasswordError == null;
+  }
+
+  bool get _isButtonEnabled {
+    return _eulaAndTosChecked;
   }
 
   @override
@@ -125,12 +131,22 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                   setState(() => _isHdMode = value);
                 },
               ),
+              const SizedBox(height: 15),
+              EulaTosCheckboxes(
+                key: const Key('import-wallet-eula-checks'),
+                isChecked: _eulaAndTosChecked,
+                onCheck: (isChecked) {
+                  setState(() {
+                    _eulaAndTosChecked = isChecked;
+                  });
+                },
+              ),
               const SizedBox(height: 30),
               UiPrimaryButton(
                 key: const Key('confirm-password-button'),
                 height: 50,
                 text: LocaleKeys.import.tr(),
-                onPressed: _onImport,
+                onPressed: _isButtonEnabled ? _onImport : null,
               ),
               const SizedBox(height: 20),
               UiUnderlineTextButton(
