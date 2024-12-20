@@ -13,7 +13,7 @@ import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
-import 'package:web_dex/views/wallets_manager/widgets/custom_seed_dialog.dart';
+import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletSimpleImport extends StatefulWidget {
@@ -119,19 +119,11 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   }
 
   Widget _buildCheckBoxCustomSeed() {
-    return UiCheckbox(
-      checkboxKey: const Key('checkbox-custom-seed'),
+    return CustomSeedCheckbox(
       value: _allowCustomSeed,
-      text: LocaleKeys.allowCustomFee.tr(),
-      onChanged: (bool? data) async {
-        if (data == null) return;
-        if (!_allowCustomSeed) {
-          final bool confirmed = await customSeedDialog(context);
-          if (!confirmed) return;
-        }
-
+      onChanged: (value) {
         setState(() {
-          _allowCustomSeed = data;
+          _allowCustomSeed = value;
         });
 
         if (_seedController.text.isNotEmpty &&
@@ -301,14 +293,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   String? _validateSeed(String? seed) {
     if (seed == null || seed.isEmpty) {
       return LocaleKeys.walletCreationEmptySeedError.tr();
-    } else if ((_allowCustomSeed != true) && !bip39.validateMnemonic(seed)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _allowCustomSeed = false;
-          });
-        }
-      });
+    } else if (!_allowCustomSeed && !bip39.validateMnemonic(seed)) {
       return LocaleKeys.walletCreationBip39SeedError.tr();
     }
     return null;
