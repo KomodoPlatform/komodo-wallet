@@ -54,7 +54,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _isSeedHidden = true;
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
-  bool? _allowCustomSeed;
+  bool _allowCustomSeed = false;
   bool _isHdMode = true;
 
   bool get _isButtonEnabled {
@@ -72,11 +72,11 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
               : LocaleKeys.walletImportCreatePasswordTitle
                   .tr(args: [_nameController.text]),
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 18,
+                fontSize: 20,
               ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: 20),
         Form(
           key: _formKey,
           child: Column(
@@ -121,17 +121,17 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   Widget _buildCheckBoxCustomSeed() {
     return UiCheckbox(
       checkboxKey: const Key('checkbox-custom-seed'),
-      value: _allowCustomSeed!,
+      value: _allowCustomSeed,
       text: LocaleKeys.allowCustomFee.tr(),
       onChanged: (bool? data) async {
         if (data == null) return;
-        if (!_allowCustomSeed!) {
+        if (!_allowCustomSeed) {
           final bool confirmed = await customSeedDialog(context);
           if (!confirmed) return;
         }
 
         setState(() {
-          _allowCustomSeed = !_allowCustomSeed!;
+          _allowCustomSeed = data;
         });
 
         if (_seedController.text.isNotEmpty &&
@@ -183,6 +183,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
 
   Widget _buildNameAndSeed() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildNameField(),
         const SizedBox(height: 16),
@@ -194,15 +195,13 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
             setState(() => _isHdMode = value);
           },
         ),
-        if (_allowCustomSeed != null) ...[
-          const SizedBox(height: 15),
-          _buildCheckBoxCustomSeed(),
-        ],
         const SizedBox(height: 20),
         UiDivider(text: LocaleKeys.or.tr()),
         const SizedBox(height: 20),
         _buildImportFileButton(),
-        const SizedBox(height: 22),
+        const SizedBox(height: 15),
+        _buildCheckBoxCustomSeed(),
+        const SizedBox(height: 15),
         EulaTosCheckboxes(
           key: const Key('import-wallet-eula-checks'),
           isChecked: _eulaAndTosChecked,
