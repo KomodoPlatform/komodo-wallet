@@ -114,7 +114,7 @@
     "walletImportTitle": "Import wallet",
     "walletImportByFileTitle": "Seed file has been imported",
     "walletImportCreatePasswordTitle": "Create a password for \"{}\" wallet",
-    "walletImportByFileDescription": "Enter the password for your seed file to decrypt it. This password will be used to log in to your wallet",
+    "walletImportByFileDescription": "Create a password of your seed file to decrypt it. This password will be used to log in to your wallet",
     "walletLogInTitle": "Log in",
     "walletCreationNameHint": "Wallet name",
     "walletCreationPasswordHint": "Wallet password",
