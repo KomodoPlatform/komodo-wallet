@@ -27,6 +27,11 @@ class _EulaTosCheckboxesState extends State<EulaTosCheckboxes> {
 
   @override
   Widget build(BuildContext context) {
+    const linkStyle = TextStyle(
+      fontWeight: FontWeight.w700,
+      decoration: TextDecoration.underline,
+    );
+
     return UiCheckbox(
       checkboxKey: const Key('checkbox-eula-tos'),
       value: _checkBox,
@@ -44,19 +49,13 @@ class _EulaTosCheckboxesState extends State<EulaTosCheckboxes> {
             const TextSpan(text: ' '),
             TextSpan(
               text: LocaleKeys.disclaimerAcceptEulaCheckbox.tr(),
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                decoration: TextDecoration.underline,
-              ),
+              style: linkStyle,
               recognizer: TapGestureRecognizer()..onTap = _showEula,
             ),
             const TextSpan(text: ', '),
             TextSpan(
               text: LocaleKeys.disclaimerAcceptTermsAndConditionsCheckbox.tr(),
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                decoration: TextDecoration.underline,
-              ),
+              style: linkStyle,
               recognizer: TapGestureRecognizer()..onTap = _showDisclaimer,
             ),
           ],
