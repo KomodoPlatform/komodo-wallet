@@ -83,7 +83,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               _buildFields(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
               UiPrimaryButton(
                 key: const Key('confirm-seed-button'),
                 text: _inProgress
