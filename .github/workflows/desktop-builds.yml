@@ -19,17 +19,17 @@ jobs:
         include:
           - platform: macos
             runner: macos-latest
-            build_command: flutter build macos --release
+            build_command: flutter build macos --release || flutter build macos --release -v
             artifact_path: build/macos/Build/Products/Release/*.app
-            artifact_name: komodo-wallet-macos
+            artifact_name: komodo-wallet-macos.app
           - platform: windows
             runner: windows-latest
-            build_command: flutter build windows --release
+            build_command: flutter build windows --release || flutter build windows --release -v
             artifact_path: build/windows/runner/Release/*
-            artifact_name: komodo-wallet-windows
+            artifact_name: komodo-wallet-windows.exe
           - platform: linux
             runner: ubuntu-latest
-            build_command: flutter build linux --release
+            build_command: flutter build linux --release || flutter build linux --release -v
             artifact_path: build/linux/x64/release/bundle/*
             artifact_name: komodo-wallet-linux
 
@@ -46,8 +46,8 @@ jobs:
         with:
           p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
           p12-password: ${{ secrets.MACOS_P12_PASSWORD }}
-          bundle-id: "com.komodo.wallet"
-          profile-type: "MAC_APP_STORE"
+          bundle-id: "com.komodo.komodowallet"
+          profile-type: "MAC_APP_DEVELOPMENT"
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
