@@ -19,18 +19,21 @@ jobs:
         include:
           - platform: iOS
             runner: macos-latest
-            build_command: flutter build ios --release --no-codesign
+            build_command: flutter build ios --release --no-codesign || flutter build ios --release --no-codesign -v
             artifact_path: build/ios/iphoneos/Runner.app
-            artifact_name: komodo-wallet-ios-unsigned
+            artifact_name: komodo-wallet-ios-unsigned.app
           - platform: Android
             runner: ubuntu-latest
-            build_command: flutter build apk --release
+            build_command: flutter build apk --release || flutter build apk --release -v
             artifact_path: build/app/outputs/flutter-apk/app-release.apk
-            artifact_name: komodo-wallet-android-unsigned
+            artifact_name: komodo-wallet-android-unsigned.apk
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install Flutter and dependencies
+        uses: ./.github/actions/flutter-deps
 
       - name: Setup ${{ matrix.platform }} environment
         if: ${{ matrix.platform == 'iOS' }}
@@ -38,8 +41,8 @@ jobs:
         with:
           p12-file-base64: ${{ secrets.IOS_P12_BASE64 }}
           p12-password: ${{ secrets.IOS_P12_PASSWORD }}
-          bundle-id: 'com.komodo.wallet'
-          profile-type: 'IOS_APP_STORE'
+          bundle-id: "com.komodo.wallet"
+          profile-type: "IOS_APP_STORE"
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
@@ -52,9 +55,6 @@ jobs:
           key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
           store-password: ${{ secrets.ANDROID_STORE_PASSWORD }}
           key-password: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
-      - name: Install Flutter and dependencies
-        uses: ./.github/actions/flutter-deps
 
       - name: Fetch packages and generate assets
         uses: ./.github/actions/generate-assets
