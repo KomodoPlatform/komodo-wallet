@@ -54,7 +54,7 @@ jobs:
 
       # Linux setup
       - name: Setup ${{ matrix.platform }} environment
-        if: ${{ matrix.platform == 'Linux' }}
+        if: ${{ matrix.platform == 'linux' }}
         uses: ./.github/actions/releases/setup-linux
         with:
           gpg-key: ${{ secrets.LINUX_GPG_KEY }}
@@ -62,7 +62,7 @@ jobs:
 
       # Windows setup
       - name: Setup ${{ matrix.platform }} environment
-        if: ${{ matrix.platform == 'Windows' }}
+        if: ${{ matrix.platform == 'windows' }}
         uses: ./.github/actions/releases/setup-windows
         with:
           pfx-base64: ${{ secrets.WINDOWS_PFX_BASE64 }}
@@ -77,6 +77,8 @@ jobs:
         uses: ./.github/actions/validate-build
 
       - name: Build for ${{ matrix.platform }}
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ${{ matrix.build_command }}
 
       - name: Create ZIP archive
