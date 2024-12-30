@@ -91,3 +91,4 @@ venv/
 
 # FVM Version Cache
 .fvm/
+/macos/build

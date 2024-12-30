@@ -25,6 +25,15 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
     - [xCode](https://developer.apple.com/xcode/) - 15.4 (macOS only)
     - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) - Community 17.11.3 (Windows only)
       - `Desktop development with C++` workload required
+      - Nuget CLI is required for Windows desktop builds. Install with winget
+
+        ```PowerShell
+        winget install -e --id Microsoft.NuGet
+        # Add a primary package source
+        . $profile
+        nuget sources add -name "NuGet.org" -source https://api.nuget.org/v3/index.json
+        ```
+
       - Enable long paths in Windows registry. Open CMD or PowerShell as Administrator, run the following, and restart:
 
         ```PowerShell
