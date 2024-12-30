@@ -65,6 +65,8 @@ jobs:
         uses: ./.github/actions/validate-build
 
       - name: Build for ${{ matrix.platform }}
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ${{ matrix.build_command }}
 
       - name: Upload artifact
