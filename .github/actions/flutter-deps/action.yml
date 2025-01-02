@@ -23,7 +23,7 @@ runs:
     - name: Clone SDK for local path references
       shell: bash
       run: |
-        git clone https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git -b build/fix-desktop-builds ../komodo-defi-sdk-flutter
+        git clone https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git -b build/fix-desktop-builds ../komodo-defi-sdk-flutter || true
 
         # append SDK dependency overrides to pubspec.yaml
         dependency_overrides="
