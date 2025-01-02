@@ -25,12 +25,14 @@ runs:
         # Run flutter build once to download coin icons and config files. 
         # This step is expected to "fail", since flutter build has to run again 
         # after the assets are downloaded to register them in AssetManifest.bin
-        flutter pub get > /dev/null 2>&1
+        flutter pub get > /dev/null 2>&1 || true
         flutter build web --release > /dev/null 2>&1 || true
         rm -rf build/*
 
         # Run flutter build and capture its output and exit status
-        flutter pub get > /dev/null 2>&1
+        # Allow error messages from `flutter pub get` to be printed for debugging 
+        # in case there are legitimate, unexpected errors.
+        flutter pub get > /dev/null
         output=$(flutter build web --release)
         exit_status=$?
 
