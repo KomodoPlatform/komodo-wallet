@@ -60,8 +60,8 @@ runs:
       with:
         p12-file-base64: ${{ inputs.p12-file-base64 }}
         p12-password: ${{ inputs.p12-password }}
-        keychain: 'signing_temp'
-        create-keychain: true
+        keychain: ${{ github.run_id }}
+        keychain-password: ${{ github.run_id }}
 
     - name: Download macOS provisioning profile
       if: inputs.issuer-id != ''
