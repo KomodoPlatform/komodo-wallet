@@ -240,8 +240,6 @@ flutter:
     - assets/fiat/providers/
     - assets/packages/flutter_inappwebview_web/assets/web/
     - app_build/build_config.json
-    - packages/komodo_defi_framework/assets/config/
-    - packages/komodo_defi_framework/assets/coin_icons/png/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
