@@ -4,25 +4,42 @@
 
 <a href="https://app.komodoplatform.com" target="_blank">![web_app](https://github.com/KomodoPlatform/komodo-wallet-archive/assets/10762374/ca06f4bc-2e7a-40c6-9e06-e0872a32cbdf)</a>
 
+<a href="https://idx.google.com/import?url=https://github.com/KomodoPlatform/komodo-wallet.git">
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://cdn.idx.dev/btn/open_dark_32.svg">
+    <source
+      media="(prefers-color-scheme: light)"
+      srcset="https://cdn.idx.dev/btn/open_light_32.svg">
+    <img
+      height="32"
+      alt="Open in IDX"
+      src="https://cdn.idx.dev/btn/open_purple_32.svg">
+  </picture>
+</a>
+
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/KomodoPlatform/komodo-wallet?quickstart=1)
 
-### Runs on: 
- - [Web](https://app.komodoplatform.com)
- - Desktop
-   - Windows
-   - MacOS
-   - Linux
- - Mobile
-   - Android
-   - iOS
+### Runs on
+
+- [Web](https://app.komodoplatform.com)
+- Desktop
+  - Windows
+  - MacOS
+  - Linux
+- Mobile
+  - Android
+  - iOS
 
 ----
 
-## Developer guide.
+## Developer guide
 
-Current production version is available here: https://app.komodoplatform.com
+Current production version is available here: <https://app.komodoplatform.com>
 
 ### Index
+
 - [Code of Conduct](docs/CODE_OF_CONDUCT.md)
 - [Project setup](docs/PROJECT_SETUP.md)
 - [Firebase Setup](docs/FIREBASE_SETUP.md)
@@ -38,4 +55,3 @@ Current production version is available here: https://app.komodoplatform.com
 - [Gitflow and branching strategy](docs/GITFLOW_BRANCHING.md)
 - [Issue: create and maintain](docs/ISSUE.md) ...in progress
 - [Contribution guide](docs/CONTRIBUTION_GUIDE.md)
-
