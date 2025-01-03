@@ -192,7 +192,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         const SizedBox(height: 20),
         _buildImportFileButton(),
         const SizedBox(height: 15),
-        _buildCheckBoxCustomSeed(),
+        if (!_isHdMode) _buildCheckBoxCustomSeed(),
         const SizedBox(height: 15),
         EulaTosCheckboxes(
           key: const Key('import-wallet-eula-checks'),
@@ -293,7 +293,8 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   String? _validateSeed(String? seed) {
     if (seed == null || seed.isEmpty) {
       return LocaleKeys.walletCreationEmptySeedError.tr();
-    } else if (!_allowCustomSeed && !bip39.validateMnemonic(seed)) {
+    } else if ((_isHdMode || !_allowCustomSeed) &&
+        !bip39.validateMnemonic(seed)) {
       return LocaleKeys.walletCreationBip39SeedError.tr();
     }
     return null;
