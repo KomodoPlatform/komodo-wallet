@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +12,7 @@ import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletFileData {
@@ -47,6 +48,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   bool _isObscured = true;
   bool _isHdMode = true;
   bool _eulaAndTosChecked = false;
+  bool _allowCustomSeed = false;
 
   String? _filePasswordError;
   String? _commonError;
@@ -132,6 +134,15 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                 },
               ),
               const SizedBox(height: 15),
+              CustomSeedCheckbox(
+                value: _allowCustomSeed,
+                onChanged: (value) {
+                  setState(() {
+                    _allowCustomSeed = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 15),
               EulaTosCheckboxes(
                 key: const Key('import-wallet-eula-checks'),
                 isChecked: _eulaAndTosChecked,
@@ -194,6 +205,13 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
           _filePasswordController.text, walletConfig.seedPhrase);
       if (decryptedSeed == null) return;
       if (!_isValidData) return;
+
+      if (!_allowCustomSeed && !bip39.validateMnemonic(decryptedSeed)) {
+        setState(() {
+          _commonError = LocaleKeys.walletCreationBip39SeedError.tr();
+        });
+        return;
+      }
 
       walletConfig.seedPhrase = decryptedSeed;
       final String name = widget.fileData.name.split('.').first;
