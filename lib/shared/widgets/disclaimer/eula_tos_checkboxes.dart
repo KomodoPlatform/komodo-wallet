@@ -27,9 +27,9 @@ class _EulaTosCheckboxesState extends State<EulaTosCheckboxes> {
 
   @override
   Widget build(BuildContext context) {
-    const linkStyle = TextStyle(
+    final linkStyle = TextStyle(
       fontWeight: FontWeight.w700,
-      decoration: TextDecoration.underline,
+      color: Theme.of(context).colorScheme.primary,
     );
 
     return UiCheckbox(
