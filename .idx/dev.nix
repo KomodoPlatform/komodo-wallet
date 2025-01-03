@@ -27,7 +27,7 @@
       onCreate = {
         build-flutter = ''
           # https://github.com/flutter/flutter/issues/96283#issuecomment-1144750411
-          flutter build web --profile --dart-define=Dart2jsOptimization=O0 
+          flutter build web || flutter build web --profile --dart-define=Dart2jsOptimization=O0 
         '';
       };
       
