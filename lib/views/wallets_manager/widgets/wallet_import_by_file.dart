@@ -135,14 +135,15 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                 },
               ),
               const SizedBox(height: 15),
-              CustomSeedCheckbox(
-                value: _allowCustomSeed,
-                onChanged: (value) {
-                  setState(() {
-                    _allowCustomSeed = value;
-                  });
-                },
-              ),
+              if (!_isHdMode)
+                CustomSeedCheckbox(
+                  value: _allowCustomSeed,
+                  onChanged: (value) {
+                    setState(() {
+                      _allowCustomSeed = value;
+                    });
+                  },
+                ),
               const SizedBox(height: 15),
               EulaTosCheckboxes(
                 key: const Key('import-wallet-eula-checks'),
@@ -207,7 +208,8 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       if (decryptedSeed == null) return;
       if (!_isValidData) return;
 
-      if (!_allowCustomSeed && !bip39.validateMnemonic(decryptedSeed)) {
+      if ((_isHdMode || !_allowCustomSeed) &&
+          !bip39.validateMnemonic(decryptedSeed)) {
         setState(() {
           _commonError = LocaleKeys.walletCreationBip39SeedError.tr();
         });
