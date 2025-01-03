@@ -188,7 +188,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
           },
         ),
         const SizedBox(height: 20),
-        UiDivider(text: LocaleKeys.or.tr()),
+        UiDivider(text: LocaleKeys.seedOr.tr()),
         const SizedBox(height: 20),
         _buildImportFileButton(),
         const SizedBox(height: 15),
