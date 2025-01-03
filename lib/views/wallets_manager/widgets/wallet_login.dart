@@ -1,5 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -32,6 +36,26 @@ class _WalletLogInState extends State<WalletLogIn> {
   final TextEditingController _passwordController = TextEditingController();
   bool _inProgress = false;
   bool _isHdMode = true;
+  KdfUser? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKdfUser();
+  }
+
+  Future<void> _fetchKdfUser() async {
+    final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    final users = await kdfSdk.auth.getUsers();
+    final user = users
+        .firstWhereOrNull((user) => user.walletId.name == widget.wallet.name);
+
+    if (user != null) {
+      setState(() {
+        _user = user;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -47,7 +71,10 @@ class _WalletLogInState extends State<WalletLogIn> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.wallet.config.type =
-          _isHdMode ? WalletType.hdwallet : WalletType.iguana;
+          _isHdMode && _user != null && _user!.isBip39Seed == true
+              ? WalletType.hdwallet
+              : WalletType.iguana;
+
       widget.onLogin(
         _passwordController.text,
         widget.wallet,
@@ -72,12 +99,13 @@ class _WalletLogInState extends State<WalletLogIn> {
         ),
         _buildPasswordField(),
         const SizedBox(height: 20),
-        HDWalletModeSwitch(
-          value: _isHdMode,
-          onChanged: (value) {
-            setState(() => _isHdMode = value);
-          },
-        ),
+        if (_user != null && _user!.isBip39Seed == true)
+          HDWalletModeSwitch(
+            value: _isHdMode,
+            onChanged: (value) {
+              setState(() => _isHdMode = value);
+            },
+          ),
         const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0),
