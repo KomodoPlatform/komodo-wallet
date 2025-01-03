@@ -17,36 +17,3 @@ runs:
         rm -rf web/src/mm2/*
         rm -rf web/src/kdfi/*
         rm -rf web/dist/*
-
-    # Temporary solution to bypass breaking dart workspace changes
-    # TODO!: Remove once packages are published to pub.dev
-    - name: Clone SDK for local path references
-      shell: bash
-      run: |
-        git clone https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git -b build/fix-desktop-builds ../komodo-defi-sdk-flutter || true
-
-        # append SDK dependency overrides to pubspec.yaml
-        dependency_overrides="
-        dependency_overrides:
-          komodo_defi_sdk:
-            path: ../komodo-defi-sdk-flutter/packages/komodo_defi_sdk
-
-          komodo_defi_types:
-            path: ../komodo-defi-sdk-flutter/packages/komodo_defi_types
-
-          komodo_defi_rpc_methods:
-            path: ../komodo-defi-sdk-flutter/packages/komodo_defi_rpc_methods
-
-          komodo_defi_local_auth:
-            path: ../komodo-defi-sdk-flutter/packages/komodo_defi_local_auth
-
-          komodo_defi_framework:
-            path: ../komodo-defi-sdk-flutter/packages/komodo_defi_framework
-
-          komodo_wallet_build_transformer:
-            path: ../komodo-defi-sdk-flutter/packages/komodo_wallet_build_transformer
-
-          komodo_coins:
-            path: ../komodo-defi-sdk-flutter/packages/komodo_coins
-          "
-        echo "$dependency_overrides" >> pubspec.yaml
