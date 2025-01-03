@@ -65,7 +65,7 @@ class UiCheckbox extends StatelessWidget {
                     : const SizedBox.shrink(),
               ),
               if (textWidget != null || text.isNotEmpty)
-                Expanded(
+                Flexible(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8, right: 2),
                     child: textWidget ??

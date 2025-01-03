@@ -80,6 +80,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               UiTextFormField(
                 key: const Key('file-password-field'),
