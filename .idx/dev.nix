@@ -25,10 +25,7 @@
     workspace = {
       # Runs when a workspace is first created with this `dev.nix` file
       onCreate = {
-        installDependencies = "flutter pub get";
         build-flutter = ''
-          # TODO: Execute web build in debug mode.
-          # flutter run does this transparently either way
           # https://github.com/flutter/flutter/issues/96283#issuecomment-1144750411
           flutter build web --profile --dart-define=Dart2jsOptimization=O0 
         '';
@@ -37,8 +34,6 @@
       # To run something each time the workspace is (re)started, use the `onStart` hook
       onStart = {
         gitFetch = "git fetch --all";
-        installDependencies = "flutter pub get";
-        flutterAnalyze = "flutter analyze"; 
       };
     };
 
@@ -47,7 +42,18 @@
       enable = true;
       previews = {
         web = {
-          command = ["flutter" "run" "--release" "-d" "web-server" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
+          command = [
+            "flutter" 
+            "run" 
+            "--profile" 
+            "-d" 
+            "web-server" 
+            "--web-hostname" 
+            "0.0.0.0" 
+            "--web-port" 
+            "$PORT" 
+            "--dart-define=Dart2jsOptimization=O0"
+          ];
           manager = "web";
         };
       };
