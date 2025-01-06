@@ -1,6 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_maker_bot_order_list_repository.dart';
@@ -41,6 +42,9 @@ class _DexPageState extends State<DexPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWalletOnly) {
+      return const Placeholder(child: Text('You should not see this page'));
+    }
     return MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(

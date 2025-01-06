@@ -18,6 +18,8 @@ const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
 // TODO: Remove this flag after the feature is finalized
 const bool isBitrefillIntegrationEnabled = false;
 
+const bool kIsWalletOnly = kDebugMode;
+
 const Duration kPerformanceLogInterval = Duration(minutes: 1);
 
 // This information is here because it is not contextual and is branded.
