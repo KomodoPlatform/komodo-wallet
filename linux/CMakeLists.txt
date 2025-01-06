@@ -136,8 +136,3 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
-
-set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter/ephemeral")
-set(KDF_BINARY_DIR "${EPHEMERAL_DIR}/.plugin_symlinks/komodo_defi_framework/linux/bin/kdf")
-install(FILES "${KDF_BINARY_DIR}" DESTINATION "${CMAKE_INSTALL_PREFIX}"
-COMPONENT Runtime)
