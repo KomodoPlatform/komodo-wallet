@@ -21,12 +21,12 @@ jobs:
             runner: macos-latest
             build_command: flutter build macos --release || flutter build macos --release -v
             artifact_path: build/macos/Build/Products/Release/*.app
-            artifact_name: komodo-wallet-macos.app
+            artifact_name: komodo-wallet-macos
           - platform: windows
             runner: windows-latest
             build_command: flutter build windows --release || flutter build windows --release -v
-            artifact_path: build/windows/runner/Release/*
-            artifact_name: komodo-wallet-windows.exe
+            artifact_path: build/windows/x64/runner/Release/*
+            artifact_name: komodo-wallet-windows
           - platform: linux
             runner: ubuntu-latest
             build_command: flutter build linux --release || flutter build linux --release -v
@@ -72,6 +72,7 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_PLATFORM: ${{ matrix.platform }}
 
       - name: Validate build
         uses: ./.github/actions/validate-build
@@ -81,15 +82,9 @@ jobs:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ${{ matrix.build_command }}
 
-      - name: Create ZIP archive
-        shell: bash
-        run: |
-          cd $(dirname "${{ matrix.artifact_path }}")
-          zip -r ../../${{ matrix.artifact_name }}.zip .
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ matrix.artifact_path }}
           path: ${{ matrix.artifact_name }}.zip
           retention-days: 5
