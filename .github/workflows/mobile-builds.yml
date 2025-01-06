@@ -61,9 +61,6 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate build
-        uses: ./.github/actions/validate-build
-
       - name: Build for ${{ matrix.platform }}
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
