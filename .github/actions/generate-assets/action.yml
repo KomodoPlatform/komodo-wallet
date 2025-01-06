@@ -5,6 +5,10 @@ inputs:
   GITHUB_TOKEN:
     description: "The GitHub API public readonly token"
     required: true
+  BUILD_PLATFORM:
+    description: "The platform to build for. Defaults to 'web'"
+    required: false
+    default: web
 runs:
   using: "composite"
   steps:
@@ -26,14 +30,14 @@ runs:
         # This step is expected to "fail", since flutter build has to run again 
         # after the assets are downloaded to register them in AssetManifest.bin
         flutter pub get > /dev/null 2>&1 || true
-        flutter build web --release > /dev/null 2>&1 || true
+        flutter build ${{ inputs.BUILD_PLATFORM }} --release > /dev/null 2>&1 || true
         rm -rf build/*
 
         # Run flutter build and capture its output and exit status
         # Allow error messages from `flutter pub get` to be printed for debugging 
         # in case there are legitimate, unexpected errors.
         flutter pub get > /dev/null
-        output=$(flutter build web --release)
+        output=$(flutter build ${{ inputs.BUILD_PLATFORM }} --release 2>&1)
         exit_status=$?
 
         # Check if the exit status is non-zero (indicating an error)

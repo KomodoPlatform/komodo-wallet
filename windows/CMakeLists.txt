@@ -99,3 +99,15 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter/ephemeral")
+set(KDF_BINARY_DIR "${EPHEMERAL_DIR}/.plugin_symlinks/komodo_defi_framework/windows/bin")
+
+# Find all .exe and .dll files in the bin directory
+file(GLOB EXE_DLL_FILES "${KDF_BINARY_DIR}/*.exe" "${KDF_BINARY_DIR}/*.dll")
+# Copy each .exe and .dll file to the final install directory
+foreach(FILE ${EXE_DLL_FILES})
+  get_filename_component(FILE_NAME ${FILE} NAME)
+  install(FILES "${FILE}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
+endforeach()

@@ -44,12 +44,10 @@ runs:
       run: |
         sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
         sudo xcodebuild -license accept
-    
+
     - name: Install macOS build dependencies
       shell: bash
       run: |
-        brew update
-        brew install cocoapods
         flutter pub get
         cd macos
         pod install
