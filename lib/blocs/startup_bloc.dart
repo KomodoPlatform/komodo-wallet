@@ -43,7 +43,7 @@ class StartUpBloc implements BlocBase {
     coinsBloc.subscribeOnPrice(cexService);
     running = true;
     tradingEntitiesBloc.runUpdate();
-    routingState.selectedMenu = MainMenuValue.dex;
+    routingState.selectedMenu = MainMenuValue.defaultMenu();
     if (!wasAlreadyRunning) await authRepo.logIn(AuthorizeMode.noLogin);
 
     log('Application has started');

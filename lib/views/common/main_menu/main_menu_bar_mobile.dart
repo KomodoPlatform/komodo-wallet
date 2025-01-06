@@ -70,7 +70,9 @@ class MainMenuBarMobile extends StatelessWidget {
                     value: MainMenuValue.settings,
                     isActive: selected == MainMenuValue.settings,
                   ),
-                ],
+                ]
+                    .where((element) => element.value.isEnabledInCurrentMode())
+                    .toList(),
               ),
             ),
           ),

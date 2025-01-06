@@ -1,6 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -16,6 +17,9 @@ import 'package:web_dex/views/dex/entity_details/trading_details.dart';
 class DexPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    if (kIsWalletOnly) {
+      return const Placeholder(child: Text('You should not see this page'));
+    }
     return MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(
