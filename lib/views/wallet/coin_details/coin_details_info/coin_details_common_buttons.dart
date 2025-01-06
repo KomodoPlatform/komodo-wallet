@@ -24,7 +24,7 @@ class CoinDetailsCommonButtons extends StatelessWidget {
   final bool isMobile;
   final Coin coin;
   final void Function(CoinPageType) selectWidget;
-  final VoidCallback clickSwapButton;
+  final VoidCallback? clickSwapButton;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +163,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
             context: context,
           ),
         ),
-        if (!coin.walletOnly)
+        if (!coin.walletOnly && !kIsWalletOnly)
           Container(
             margin: const EdgeInsets.only(left: 21),
             constraints: const BoxConstraints(maxWidth: 120),

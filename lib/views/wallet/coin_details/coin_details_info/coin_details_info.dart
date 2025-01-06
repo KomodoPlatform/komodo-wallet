@@ -260,16 +260,17 @@ class _DesktopCoinDetails extends StatelessWidget {
               ),
             ],
           ),
-          if (MainMenuValue.dex.isEnabledInCurrentMode())
-            Padding(
-              padding: const EdgeInsets.fromLTRB(2, 28.0, 0, 0),
-              child: CoinDetailsCommonButtons(
-                isMobile: false,
-                selectWidget: setPageType,
-                clickSwapButton: () => _goToSwap(context, coin),
-                coin: coin,
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2, 28.0, 0, 0),
+            child: CoinDetailsCommonButtons(
+              isMobile: false,
+              selectWidget: setPageType,
+              clickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
+                  ? null
+                  : () => _goToSwap(context, coin),
+              coin: coin,
             ),
+          ),
           const Gap(16),
           if (areChartsSupported)
             Card(
