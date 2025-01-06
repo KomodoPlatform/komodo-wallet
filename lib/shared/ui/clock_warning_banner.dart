@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -13,7 +14,8 @@ class ClockWarningBanner extends StatelessWidget {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
       builder: (context, systemHealthState) {
         if (systemHealthState is SystemHealthLoadSuccess &&
-            !systemHealthState.isValid) {
+            !systemHealthState.isValid &&
+            !kIsWalletOnly) {
           return _buildWarningBanner();
         }
         return const SizedBox.shrink();
