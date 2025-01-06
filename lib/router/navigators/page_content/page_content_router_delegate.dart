@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/router/routes.dart';
 import 'package:web_dex/router/state/routing_state.dart';
@@ -18,12 +19,16 @@ class PageContentRouterDelegate extends RouterDelegate<AppRoutePath>
 
   @override
   Widget build(BuildContext context) {
+    // Redirect to the Wallet page if the selected menu is disabled in
+    // wallet-only mode and the wallet is in wallet-only mode.
+    if (routingState.selectedMenu.isDisabledWhenWalletOnly && kIsWalletOnly) {
+      return WalletPage(
+        coinAbbr: routingState.walletState.selectedCoin,
+        action: routingState.walletState.coinsManagerAction,
+      );
+    }
+
     switch (routingState.selectedMenu) {
-      case MainMenuValue.wallet:
-        return WalletPage(
-          coinAbbr: routingState.walletState.selectedCoin,
-          action: routingState.walletState.coinsManagerAction,
-        );
       case MainMenuValue.fiat:
         return const FiatPage();
       case MainMenuValue.dex:
@@ -43,6 +48,7 @@ class PageContentRouterDelegate extends RouterDelegate<AppRoutePath>
             selectedMenu: routingState.settingsState.selectedMenu);
       case MainMenuValue.support:
         return SupportPage();
+      case MainMenuValue.wallet:
       default:
         return WalletPage(
           coinAbbr: routingState.walletState.selectedCoin,

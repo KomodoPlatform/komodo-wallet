@@ -107,7 +107,6 @@ class AppBlocRoot extends StatelessWidget {
             demoDataGenerator: DemoDataCache.withDefaults(),
           )
         : TransactionHistoryRepo(api: mm2Api, client: Client());
-    
 
     final profitLossRepo = ProfitLossRepository.withDefaults(
       transactionHistoryRepo: transactionsRepo,
@@ -260,7 +259,7 @@ class _MyAppViewState extends State<_MyAppView> {
   @override
   void initState() {
     _airDexBackButtonDispatcher = AirDexBackButtonDispatcher(_routerDelegate);
-    routingState.selectedMenu = MainMenuValue.dex;
+    routingState.selectedMenu = MainMenuValue.defaultMenu();
 
     if (kDebugMode) initDebugData(context.read<AuthBloc>());
 

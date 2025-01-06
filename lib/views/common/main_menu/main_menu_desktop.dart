@@ -50,7 +50,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
+                  children: [
                     DesktopMenuDesktopItem(
                       key: const Key('main-menu-wallet'),
                       menu: MainMenuValue.wallet,
@@ -131,7 +131,12 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                       }),
                     ),
                     const SizedBox(height: 48),
-                  ],
+                  ]
+                      // Filter out disabled items
+                      .where((item) =>
+                          item is! DesktopMenuDesktopItem ||
+                          item.menu.isEnabledInCurrentMode())
+                      .toList(),
                 ),
               ),
             );
