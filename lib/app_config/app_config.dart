@@ -17,7 +17,7 @@ const String assetsPath = 'assets';
 // TODO: Remove this flag after the feature is finalized
 const bool isBitrefillIntegrationEnabled = false;
 
-const bool kIsWalletOnly = kDebugMode;
+const bool kIsWalletOnly = !kDebugMode;
 
 const Duration kPerformanceLogInterval = Duration(minutes: 1);
 
