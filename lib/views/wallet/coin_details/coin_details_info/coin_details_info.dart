@@ -375,7 +375,9 @@ class _MobileContent extends StatelessWidget {
             child: CoinDetailsCommonButtons(
               isMobile: true,
               selectWidget: setPageType,
-              clickSwapButton: () => _goToSwap(context, coin),
+              clickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
+                  ? null
+                  : () => _goToSwap(context, coin),
               coin: coin,
             ),
           ),
