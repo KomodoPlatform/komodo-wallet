@@ -1,6 +1,6 @@
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:komodo_defi_types/types.dart';
 
 abstract class TransactionHistoryEvent {
   const TransactionHistoryEvent();
@@ -17,12 +17,12 @@ class TransactionHistoryUnsubscribe extends TransactionHistoryEvent {
 }
 
 class TransactionHistoryUpdated extends TransactionHistoryEvent {
-  const TransactionHistoryUpdated({
-    required this.transactions,
-    required this.isInProgress,
-  });
-  final List<Transaction> transactions;
-  final bool isInProgress;
+  const TransactionHistoryUpdated({required this.transactions});
+  final List<Transaction>? transactions;
+}
+
+class TransactionHistoryStartedLoading extends TransactionHistoryEvent {
+  const TransactionHistoryStartedLoading();
 }
 
 class TransactionHistoryFailure extends TransactionHistoryEvent {

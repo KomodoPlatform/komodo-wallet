@@ -1,7 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/available_balance_state.dart';
 import 'package:web_dex/views/dex/simple/form/common/dex_form_group_header.dart';
@@ -29,6 +30,7 @@ class _AvailableBalance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<Rational?>(
         initialData: makerFormBloc.maxSellAmount,
         stream: makerFormBloc.outMaxSellAmount,
@@ -51,6 +53,7 @@ class _HalfMaxButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<Rational?>(
         initialData: makerFormBloc.maxSellAmount,
         stream: makerFormBloc.outMaxSellAmount,
@@ -69,11 +72,15 @@ class _HalfMaxButtons extends StatelessWidget {
 class _MaxButton extends DexSmallButton {
   _MaxButton()
       : super(
-            LocaleKeys.max.tr(), (context) => makerFormBloc.setMaxSellAmount());
+            LocaleKeys.max.tr(),
+            (context) => RepositoryProvider.of<MakerFormBloc>(context)
+                .setMaxSellAmount());
 }
 
 class _HalfButton extends DexSmallButton {
   _HalfButton()
-      : super(LocaleKeys.half.tr(),
-            (context) => makerFormBloc.setHalfSellAmount());
+      : super(
+            LocaleKeys.half.tr(),
+            (context) => RepositoryProvider.of<MakerFormBloc>(context)
+                .setHalfSellAmount());
 }

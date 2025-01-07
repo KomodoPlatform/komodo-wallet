@@ -7,6 +7,7 @@ import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 
 class MockProfitLossRepository extends ProfitLossRepository {
@@ -18,10 +19,13 @@ class MockProfitLossRepository extends ProfitLossRepository {
     required super.cexRepository,
     required super.profitLossCacheProvider,
     required super.profitLossCalculator,
+    required super.coinsRepository,
   });
 
   factory MockProfitLossRepository.withDefaults({
     required PerformanceMode performanceMode,
+    required CoinsRepo coinsRepository,
+    required Mm2Api mm2Api,
     String cacheTableName = 'mock_profit_loss',
   }) {
     return MockProfitLossRepository(
@@ -42,6 +46,7 @@ class MockProfitLossRepository extends ProfitLossRepository {
           binanceProvider: const BinanceProvider(),
         ),
       ),
+      coinsRepository: coinsRepository,
     );
   }
 }

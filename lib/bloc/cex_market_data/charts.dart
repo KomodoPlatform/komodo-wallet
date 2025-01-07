@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/types.dart';
 
 typedef ChartData = List<Point<double>>;
 
@@ -249,9 +249,10 @@ class Charts {
       return List.empty();
     }
 
-    final int firstTransactionDate = transactions.first.timestamp;
+    final int firstTransactionDate =
+        transactions.first.timestamp.millisecondsSinceEpoch;
     final ChartData ohlcFromFirstTransaction = spotValues
-        .where((Point<double> spot) => (spot.x / 1000) >= firstTransactionDate)
+        .where((Point<double> spot) => spot.x >= firstTransactionDate)
         .toList();
 
     double runningTotal = 0;
@@ -263,10 +264,9 @@ class Charts {
     for (final Point<double> spot in ohlcFromFirstTransaction) {
       if (transactionIndex < transactions.length) {
         bool transactionPassed =
-            currentTransaction().timestamp <= (spot.x ~/ 1000);
+            currentTransaction().timestamp.millisecondsSinceEpoch <= spot.x;
         while (transactionPassed) {
-          final double changeAmount =
-              double.parse(currentTransaction().myBalanceChange);
+          final double changeAmount = currentTransaction().amount.toDouble();
           runningTotal += changeAmount;
           transactionIndex++;
 
@@ -295,7 +295,8 @@ class Charts {
             break;
           }
 
-          transactionPassed = currentTransaction().timestamp < (spot.x ~/ 1000);
+          transactionPassed =
+              currentTransaction().timestamp.millisecondsSinceEpoch < spot.x;
         }
       }
 

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/swap.dart';
@@ -10,7 +12,6 @@ import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/entity_details/maker_order/maker_order_details_page.dart';
 import 'package:web_dex/views/dex/entity_details/swap/swap_details_page.dart';
 import 'package:web_dex/views/dex/entity_details/taker_order/taker_order_details_page.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class TradingDetails extends StatefulWidget {
   const TradingDetails({Key? key, required this.uuid}) : super(key: key);
@@ -28,8 +29,11 @@ class _TradingDetailsState extends State<TradingDetails> {
 
   @override
   void initState() {
+    final myOrdersService = RepositoryProvider.of<MyOrdersService>(context);
+    final dexRepository = RepositoryProvider.of<DexRepository>(context);
+
     _statusTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      _updateStatus();
+      _updateStatus(dexRepository, myOrdersService);
     });
 
     super.initState();
@@ -79,7 +83,10 @@ class _TradingDetailsState extends State<TradingDetails> {
     return const SizedBox.shrink();
   }
 
-  Future<void> _updateStatus() async {
+  Future<void> _updateStatus(
+    DexRepository dexRepository,
+    MyOrdersService myOrdersService,
+  ) async {
     Swap? swapStatus;
     try {
       swapStatus = await dexRepository.getSwapStatus(widget.uuid);

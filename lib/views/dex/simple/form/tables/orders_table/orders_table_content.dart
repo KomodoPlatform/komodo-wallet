@@ -45,6 +45,7 @@ class OrdersTableContent extends StatelessWidget {
         final Map<String, List<BestOrder>> ordersMap = bestOrders.result!;
         final AuthorizeMode mode = context.watch<AuthBloc>().state.mode;
         final List<BestOrder> orders = prepareOrdersForTable(
+          context,
           ordersMap,
           searchString,
           mode,

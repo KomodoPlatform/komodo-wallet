@@ -86,7 +86,7 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
     const Offset(0, -15),
   );
   await tester.pumpNFrames(10);
-  await tester.tapAndPump(importConfirmButton);
+  await tester.tap(importConfirmButton);
 
   print('🔍 RESTORE WALLET: Waiting for completion');
   await tester.pumpUntilDisappear(walletsManagerWrapper);

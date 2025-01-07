@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
@@ -22,7 +22,7 @@ import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_act
 class TakerValidator {
   TakerValidator({
     required TakerBloc bloc,
-    required CoinsBloc coinsRepo,
+    required CoinsRepo coinsRepo,
     required DexRepository dexRepo,
   })  : _bloc = bloc,
         _coinsRepo = coinsRepo,
@@ -30,17 +30,17 @@ class TakerValidator {
         add = bloc.add;
 
   final TakerBloc _bloc;
-  final CoinsBloc _coinsRepo;
+  final CoinsRepo _coinsRepo;
   final DexRepository _dexRepo;
 
   final Function(TakerEvent) add;
   TakerState get state => _bloc.state;
 
   Future<bool> validate() async {
-    final bool isFormValid = validateForm();
+    final bool isFormValid = await validateForm();
     if (!isFormValid) return false;
 
-    final bool tradingWithSelf = _checkTradeWithSelf();
+    final bool tradingWithSelf = await _checkTradeWithSelf();
     if (tradingWithSelf) return false;
 
     final bool isPreimageValid = await _validatePreimage();
@@ -96,7 +96,7 @@ class TakerValidator {
     return null;
   }
 
-  bool validateForm() {
+  Future<bool> validateForm() async {
     add(TakerClearErrors());
 
     if (!_isSellCoinSelected) {
@@ -109,8 +109,8 @@ class TakerValidator {
       return false;
     }
 
-    if (!_validateCoinAndParent(state.sellCoin!.abbr)) return false;
-    if (!_validateCoinAndParent(state.selectedOrder!.coin)) return false;
+    if (!await _validateCoinAndParent(state.sellCoin!.abbr)) return false;
+    if (!await _validateCoinAndParent(state.selectedOrder!.coin)) return false;
 
     if (!_validateAmount()) return false;
 
@@ -124,14 +124,14 @@ class TakerValidator {
     return true;
   }
 
-  bool _checkTradeWithSelf() {
+  Future<bool> _checkTradeWithSelf() async {
     add(TakerClearErrors());
 
     if (state.selectedOrder == null) return false;
     final BestOrder selectedOrder = state.selectedOrder!;
 
     final selectedOrderAddress = selectedOrder.address;
-    final coin = _coinsRepo.getCoin(selectedOrder.coin);
+    final coin = await _coinsRepo.getEnabledCoin(selectedOrder.coin);
     final ownAddress = coin?.address;
 
     if (selectedOrderAddress.addressData == ownAddress) {
@@ -209,8 +209,8 @@ class TakerValidator {
     return true;
   }
 
-  bool _validateCoinAndParent(String abbr) {
-    final Coin? coin = _coinsRepo.getKnownCoin(abbr);
+  Future<bool> _validateCoinAndParent(String abbr) async {
+    final Coin? coin = await _coinsRepo.getEnabledCoin(abbr);
 
     if (coin == null) {
       add(TakerAddError(_unknownCoinError(abbr)));

@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:web_dex/blocs/coins_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_response.dart';
 import 'package:web_dex/model/coin.dart';
@@ -9,12 +10,13 @@ import 'package:web_dex/model/typedef.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class BridgeRepository {
-  BridgeRepository._();
+  BridgeRepository(this._mm2Api, this._kdfSdk, this._coinsRepository);
 
-  static final BridgeRepository _instance = BridgeRepository._();
-  static BridgeRepository get instance => _instance;
+  final Mm2Api _mm2Api;
+  final KomodoDefiSdk _kdfSdk;
+  final CoinsRepo _coinsRepository;
 
-  Future<CoinsByTicker?> getSellCoins(CoinsByTicker? tickers) async {
+  Future<CoinsByTicker?> getSellCoins( CoinsByTicker? tickers) async {
     if (tickers == null) return null;
 
     final List<OrderBookDepth>? depths = await _getDepths(tickers);
@@ -48,11 +50,10 @@ class BridgeRepository {
     return sellCoins;
   }
 
-  Future<CoinsByTicker> getAvailableTickers(CoinsBloc coinsRepo) async {
-    List<Coin> coins = List.from(coinsRepo.knownCoins);
-
+  Future<CoinsByTicker> getAvailableTickers() async {
+    List<Coin> coins = _coinsRepository.getKnownCoins();
     coins = removeWalletOnly(coins);
-    coins = removeSuspended(coins);
+    coins = removeSuspended(coins, await _kdfSdk.auth.isSignedIn());
 
     final CoinsByTicker coinsByTicker = convertToCoinsByTicker(coins);
     final CoinsByTicker multiProtocolCoins =
@@ -82,7 +83,8 @@ class BridgeRepository {
   }
 
   Future<List<OrderBookDepth>?> _frequentRequestDepth(
-      List<List<String>> depthsPairs) async {
+    List<List<String>> depthsPairs,
+  ) async {
     int attempts = 5;
     List<OrderBookDepth>? orderBookDepthsLocal;
 
@@ -102,9 +104,10 @@ class BridgeRepository {
   }
 
   Future<List<OrderBookDepth>?> _getNotEmptyDepths(
-      List<List<String>> pairs) async {
+    List<List<String>> pairs,
+  ) async {
     final OrderBookDepthResponse? depthResponse =
-        await mm2Api.getOrderBookDepth(pairs);
+        await _mm2Api.getOrderBookDepth(pairs, _coinsRepository);
 
     return depthResponse?.list
         .where((d) => d.bids != 0 || d.asks != 0)

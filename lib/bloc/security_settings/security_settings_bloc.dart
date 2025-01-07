@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/current_wallet_bloc.dart';
 
 class SecuritySettingsBloc
     extends Bloc<SecuritySettingsEvent, SecuritySettingsState> {
-  SecuritySettingsBloc(SecuritySettingsState state) : super(state) {
+  SecuritySettingsBloc(super.state, this.currentWalletBloc) {
     on<ResetEvent>(_onReset);
     on<ShowSeedEvent>(_onShowSeed);
     on<SeedConfirmEvent>(_onSeedConfirm);
@@ -16,6 +16,8 @@ class SecuritySettingsBloc
     on<PasswordUpdateEvent>(_onPasswordUpdate);
     on<ShowSeedCopiedEvent>(_onSeedCopied);
   }
+
+  final CurrentWalletBloc currentWalletBloc;
 
   void _onReset(
     ResetEvent event,
@@ -35,14 +37,18 @@ class SecuritySettingsBloc
     emit(newState);
   }
 
-  void _onShowSeedWords(
+  Future<void> _onShowSeedWords(
     ShowSeedWordsEvent event,
     Emitter<SecuritySettingsState> emit,
-  ) {
+  ) async {
+    final isSeedSaved = state.isSeedSaved || event.isShow;
+    if (isSeedSaved) {
+      await currentWalletBloc.confirmBackup();
+    }
     final newState = state.copyWith(
       step: SecuritySettingsStep.seedShow,
       showSeedWords: event.isShow,
-      isSeedSaved: state.isSeedSaved || event.isShow,
+      isSeedSaved: isSeedSaved,
     );
     emit(newState);
   }
@@ -51,11 +57,13 @@ class SecuritySettingsBloc
     PasswordUpdateEvent event,
     Emitter<SecuritySettingsState> emit,
   ) {
-    final newState = state.copyWith(
-      step: SecuritySettingsStep.passwordUpdate,
-      showSeedWords: false,
-    );
-    emit(newState);
+    // TODO!: re-enable once password change is implemented
+    // final newState = state.copyWith(
+    //   step: SecuritySettingsStep.passwordUpdate,
+    //   showSeedWords: false,
+    // );
+    // emit(newState);
+    emit(state);
   }
 
   void _onSeedConfirm(
@@ -81,8 +89,11 @@ class SecuritySettingsBloc
     emit(newState);
   }
 
-  FutureOr<void> _onSeedCopied(
-      ShowSeedCopiedEvent event, Emitter<SecuritySettingsState> emit) {
+  Future<void> _onSeedCopied(
+    ShowSeedCopiedEvent event,
+    Emitter<SecuritySettingsState> emit,
+  ) async {
+    await currentWalletBloc.confirmBackup();
     emit(state.copyWith(isSeedSaved: true));
   }
 }

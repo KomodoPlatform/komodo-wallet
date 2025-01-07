@@ -19,9 +19,7 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
   final Mm2Api _api;
 
   void _startPeriodicCheck() {
-    add(CheckSystemClock());
-
-    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 60), (timer) {
       add(CheckSystemClock());
     });
   }
@@ -50,17 +48,8 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
       final connectedPeersHealthy = directlyConnectedPeers.peers.length >= 2;
       return connectedPeersHealthy;
     } on Exception catch (_) {
-      // TODO: remove once the breaking rpc name change is in main
-      try {
-        final directlyConnectedPeers = await _api.getDirectlyConnectedPeers(
-          GetDirectlyConnectedPeers(method: 'get_peers_info'),
-        );
-        final connectedPeersHealthy = directlyConnectedPeers.peers.length >= 2;
-        return connectedPeersHealthy;
-      } catch (_) {
-        // fall through and return false
-      }
-
+      // do not prevent usage if no peers are connected
+      // mm2 api is responsible for logging, so only return result here
       return false;
     }
   }

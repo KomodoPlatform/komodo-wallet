@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
@@ -11,8 +10,8 @@ class WalletsManagerWrapper extends StatefulWidget {
   const WalletsManagerWrapper({
     required this.eventType,
     this.onSuccess,
-    Key? key = const Key('wallets-manager-wrapper'),
-  }) : super(key: key);
+    super.key = const Key('wallets-manager-wrapper'),
+  });
 
   final Function(Wallet)? onSuccess;
   final WalletsManagerEventType eventType;
@@ -25,7 +24,6 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
   WalletType? _selectedWalletType;
   @override
   void initState() {
-    walletsBloc.fetchSavedWallets();
     super.initState();
   }
 

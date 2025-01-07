@@ -5,7 +5,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -18,6 +18,7 @@ class PortfolioGrowthBloc
     extends Bloc<PortfolioGrowthEvent, PortfolioGrowthState> {
   PortfolioGrowthBloc({
     required this.portfolioGrowthRepository,
+    required this.coinsRepository,
   }) : super(const PortfolioGrowthInitial()) {
     // Use the restartable transformer for period change events to avoid
     // overlapping events if the user rapidly changes the period (i.e. faster
@@ -34,6 +35,7 @@ class PortfolioGrowthBloc
   }
 
   final PortfolioGrowthRepository portfolioGrowthRepository;
+  final CoinsRepo coinsRepository;
 
   void _onClearPortfolioGrowth(
     PortfolioGrowthClearRequested event,
@@ -70,40 +72,49 @@ class PortfolioGrowthBloc
     PortfolioGrowthLoadRequested event,
     Emitter<PortfolioGrowthState> emit,
   ) async {
-    List<Coin> coins = await _removeUnsupportedCoins(event);
-    // Charts for individual coins (coin details) are parsed here as well,
-    // and should be hidden if not supported.
-    if (coins.isEmpty && event.coins.length <= 1) {
-      return emit(
-        PortfolioGrowthChartUnsupported(selectedPeriod: event.selectedPeriod),
-      );
-    }
-
-    await _loadChart(coins, event, useCache: true)
-        .then(emit.call)
-        .catchError((e, _) {
-      if (state is! PortfolioGrowthChartLoadSuccess) {
-        emit(
-          GrowthChartLoadFailure(
-            error: TextError(error: e.toString()),
-            selectedPeriod: event.selectedPeriod,
-          ),
+    try {
+      final List<Coin> coins = await _removeUnsupportedCoins(event);
+      // Charts for individual coins (coin details) are parsed here as well,
+      // and should be hidden if not supported.
+      if (coins.isEmpty && event.coins.length <= 1) {
+        return emit(
+          PortfolioGrowthChartUnsupported(selectedPeriod: event.selectedPeriod),
         );
       }
-    });
 
-    // Only remove inactivate/activating coins after an attempt to load the
-    // cached chart, as the cached chart may contain inactive coins.
-    coins = _removeInactiveCoins(coins);
-    if (coins.isNotEmpty) {
-      await _loadChart(coins, event, useCache: false)
+      await _loadChart(coins, event, useCache: true)
           .then(emit.call)
-          .catchError((_, __) {
-        // Ignore un-cached errors, as a transaction loading exception should not
-        // make the graph disappear with a load failure emit, as the cached data
-        // is already displayed. The periodic updates will still try to fetch the
-        // data and update the graph.
+          .catchError((e, _) {
+        if (state is! PortfolioGrowthChartLoadSuccess) {
+          emit(
+            GrowthChartLoadFailure(
+              error: TextError(error: e.toString()),
+              selectedPeriod: event.selectedPeriod,
+            ),
+          );
+        }
       });
+
+      // Only remove inactivate/activating coins after an attempt to load the
+      // cached chart, as the cached chart may contain inactive coins.
+      final activeCoins = await _removeInactiveCoins(coins);
+      if (activeCoins.isNotEmpty) {
+        await _loadChart(activeCoins, event, useCache: false)
+            .then(emit.call)
+            .catchError((_, __) {
+          // Ignore un-cached errors, as a transaction loading exception should not
+          // make the graph disappear with a load failure emit, as the cached data
+          // is already displayed. The periodic updates will still try to fetch the
+          // data and update the graph.
+        });
+      }
+    } catch (e, s) {
+      log(
+        'Failed to load portfolio growth: $e',
+        isError: true,
+        trace: s,
+        path: 'portfolio_growth_bloc => _onLoadPortfoliowGrowth',
+      );
     }
 
     await emit.forEach(
@@ -128,22 +139,26 @@ class PortfolioGrowthBloc
     PortfolioGrowthLoadRequested event,
   ) async {
     final List<Coin> coins = List.from(event.coins);
-    await coins.removeWhereAsync(
-      (Coin coin) async {
-        final isCoinSupported = await portfolioGrowthRepository
-            .isCoinChartSupported(coin.abbr, event.fiatCoinId);
-        return !isCoinSupported;
-      },
-    );
+    for (final coin in event.coins) {
+      final isCoinSupported = await portfolioGrowthRepository
+          .isCoinChartSupported(coin.abbr, event.fiatCoinId);
+      if (!isCoinSupported) {
+        coins.remove(coin);
+      }
+    }
     return coins;
   }
 
-  List<Coin> _removeInactiveCoins(List<Coin> coins) {
-    final List<Coin> coinsCopy = List.from(coins)
-      ..removeWhere((coin) {
-        final updatedCoin = coinsBlocRepository.getCoin(coin.abbr)!;
-        return updatedCoin.isActivating || !updatedCoin.isActive;
-      });
+  Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
+    final List<Coin> coinsCopy = List.from(coins);
+    for (final coin in coins) {
+      final updatedCoin = await coinsRepository.getEnabledCoin(coin.abbr);
+      if (updatedCoin == null ||
+          updatedCoin.isActivating ||
+          !updatedCoin.isActive) {
+        coinsCopy.remove(coin);
+      }
+    }
     return coinsCopy;
   }
 
@@ -174,8 +189,9 @@ class PortfolioGrowthBloc
     PortfolioGrowthLoadRequested event,
   ) async {
     // Do not let transaction loading exceptions stop the periodic updates
-    final coins = _removeInactiveCoins(await _removeUnsupportedCoins(event));
     try {
+      final supportedCoins = await _removeUnsupportedCoins(event);
+      final coins = await _removeInactiveCoins(supportedCoins);
       return await portfolioGrowthRepository.getPortfolioGrowthChart(
         coins,
         fiatCoinId: event.fiatCoinId,

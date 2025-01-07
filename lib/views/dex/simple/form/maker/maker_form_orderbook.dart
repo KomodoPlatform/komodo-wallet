@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/orderbook/order.dart';
 import 'package:web_dex/views/dex/orderbook/orderbook_view.dart';
@@ -10,6 +11,7 @@ class MakerFormOrderbook extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<Coin?>(
       initialData: makerFormBloc.sellCoin,
       stream: makerFormBloc.outSellCoin,
@@ -22,10 +24,11 @@ class MakerFormOrderbook extends StatelessWidget {
               initialData: makerFormBloc.price,
               stream: makerFormBloc.outPrice,
               builder: (context, price) {
-                return _buildOrderbook(
-                  base: sellCoin.data,
-                  rel: buyCoin.data,
-                  price: price.data,
+                return OrderbookView(
+                  base: makerFormBloc.sellCoin,
+                  rel: makerFormBloc.buyCoin,
+                  myOrder: _getMyOrder(context, price.data),
+                  onAskClick: (Order order) => _onAskClick(context, order),
                 );
               },
             );
@@ -35,20 +38,8 @@ class MakerFormOrderbook extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderbook({
-    required Coin? base,
-    required Coin? rel,
-    required Rational? price,
-  }) {
-    return OrderbookView(
-      base: makerFormBloc.sellCoin,
-      rel: makerFormBloc.buyCoin,
-      myOrder: _getMyOrder(price),
-      onAskClick: _onAskClick,
-    );
-  }
-
-  Order? _getMyOrder(Rational? price) {
+  Order? _getMyOrder(BuildContext context, Rational? price) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     final Coin? sellCoin = makerFormBloc.sellCoin;
     final Coin? buyCoin = makerFormBloc.buyCoin;
     final Rational? sellAmount = makerFormBloc.sellAmount;
@@ -68,7 +59,8 @@ class MakerFormOrderbook extends StatelessWidget {
     );
   }
 
-  void _onAskClick(Order order) {
+  void _onAskClick(BuildContext context, Order order) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     if (makerFormBloc.sellAmount == null) makerFormBloc.setMaxSellAmount();
     makerFormBloc.setPriceValue(order.price.toDouble().toStringAsFixed(8));
   }

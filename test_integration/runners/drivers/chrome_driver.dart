@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'chrome_config_manager.dart';
 import 'find.dart';
 import 'web_browser_driver.dart';
@@ -36,7 +38,11 @@ class ChromeDriver extends WebBrowserDriver with WebDriverProcessMixin {
 
   @override
   Future<void> stop() async {
-    chromeConfigManager.restoreChromeConfiguration();
+    try {
+      chromeConfigManager.restoreChromeConfiguration();
+    } catch (e) {
+      print('Failed to restore Chrome configuration: $e');
+    }
     await stopDriver();
   }
 

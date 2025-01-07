@@ -2,10 +2,10 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 const List<List<int>> _keys = [
   [7, 8, 9],
@@ -75,7 +75,7 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
 
   Widget _buildObscuredPin() {
     final Color? backspaceColor = _pinController.text.isEmpty
-        ? Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7)
+        ? Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7)
         : Theme.of(context).textTheme.bodyMedium?.color;
 
     return UiTextFormField(

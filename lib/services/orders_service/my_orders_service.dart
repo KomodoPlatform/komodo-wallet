@@ -7,11 +7,13 @@ import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/model/my_orders/taker_order.dart';
 import 'package:web_dex/services/mappers/my_orders_mappers.dart';
 
-MyOrdersService myOrdersService = MyOrdersService();
-
 class MyOrdersService {
+  MyOrdersService(this._mm2Api);
+
+  final Mm2Api _mm2Api;
+
   Future<List<MyOrder>?> getOrders() async {
-    final MyOrdersResponse? response = await mm2Api.getMyOrders();
+    final MyOrdersResponse? response = await _mm2Api.getMyOrders();
 
     if (response == null) {
       return null;
@@ -22,7 +24,7 @@ class MyOrdersService {
 
   Future<OrderStatus?> getStatus(String uuid) async {
     try {
-      final OrderStatusResponse? response = await mm2Api.getOrderStatus(uuid);
+      final OrderStatusResponse? response = await _mm2Api.getOrderStatus(uuid);
       if (response == null) {
         return null;
       }
@@ -51,7 +53,7 @@ class MyOrdersService {
 
   Future<String?> cancelOrder(String uuid) async {
     final Map<String, dynamic> response =
-        await mm2Api.cancelOrder(CancelOrderRequest(uuid: uuid));
+        await _mm2Api.cancelOrder(CancelOrderRequest(uuid: uuid));
     return response['error'];
   }
 

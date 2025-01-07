@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_response.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
@@ -43,8 +42,8 @@ List<Coin> removeWalletOnly(List<Coin> coins) {
   return list;
 }
 
-List<Coin> removeSuspended(List<Coin> coins) {
-  if (!coinsBloc.isLoggedIn) return coins;
+List<Coin> removeSuspended(List<Coin> coins, bool isLoggedIn) {
+  if (!isLoggedIn) return coins;
   final List<Coin> list = List.from(coins);
 
   list.removeWhere((Coin coin) => coin.isSuspended);

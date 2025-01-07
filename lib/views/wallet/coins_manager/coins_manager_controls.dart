@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_event.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_filters_dropdown.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_select_all_button.dart';

@@ -1,13 +1,14 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
 import 'package:web_dex/model/coin.dart';
-
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/copied_text.dart';
@@ -88,7 +89,7 @@ class TransactionDetails extends StatelessWidget {
                     _buildSimpleData(
                       context,
                       title: LocaleKeys.date.tr(),
-                      value: transaction.formattedTime,
+                      value: formatTransactionDateTime(transaction),
                       hasBackground: true,
                     ),
                     _buildFee(context),
@@ -107,7 +108,7 @@ class TransactionDetails extends StatelessWidget {
                     _buildSimpleData(
                       context,
                       title: LocaleKeys.transactionHash.tr(),
-                      value: transaction.txHash,
+                      value: transaction.txHash ?? '',
                       isCopied: true,
                     ),
                     const SizedBox(height: 20),
@@ -169,7 +170,7 @@ class TransactionDetails extends StatelessWidget {
                 _buildAddress(
                   context,
                   title: LocaleKeys.to.tr(),
-                  address: transaction.toAddress,
+                  address: transaction.to.first,
                 ),
               ],
             )
@@ -192,7 +193,7 @@ class TransactionDetails extends StatelessWidget {
                     child: _buildAddress(
                       context,
                       title: LocaleKeys.to.tr(),
-                      address: transaction.toAddress,
+                      address: transaction.to.first,
                     ),
                   ),
                 ),
@@ -202,14 +203,14 @@ class TransactionDetails extends StatelessWidget {
   }
 
   Widget _buildBalanceChanges(BuildContext context) {
-    final String formatted =
-        formatDexAmt(double.parse(transaction.myBalanceChange).abs());
-    final String sign = transaction.isReceived ? '+' : '-';
+    final String formatted = formatDexAmt(transaction.amount.toDouble().abs());
+    final String sign = transaction.amount.toDouble() > 0 ? '+' : '-';
+    final coinsBloc = RepositoryProvider.of<CoinsRepo>(context);
     final double? usd =
-        coinsBloc.getUsdPriceByAmount(formatted, transaction.coin);
+        coinsBloc.getUsdPriceByAmount(formatted, transaction.assetId.id);
     final String formattedUsd = formatAmt(usd ?? 0);
     final String value =
-        '$sign $formatted ${Coin.normalizeAbbr(transaction.coin)} (\$$formattedUsd)';
+        '$sign $formatted ${Coin.normalizeAbbr(transaction.assetId.id)} (\$$formattedUsd)';
 
     return SelectableText(
       value,
@@ -237,7 +238,7 @@ class TransactionDetails extends StatelessWidget {
                 color: theme.custom.defaultGradientButtonTextColor,
               ),
           onPressed: () {
-            launchURL(getTxExplorerUrl(coin, transaction.txHash));
+            launchURL(getTxExplorerUrl(coin, transaction.txHash ?? ''));
           },
           text: LocaleKeys.viewOnExplorer.tr(),
         ),
@@ -258,10 +259,12 @@ class TransactionDetails extends StatelessWidget {
   }
 
   Widget _buildFee(BuildContext context) {
-    final String? fee = transaction.feeDetails.feeValue;
+    final String? fee = transaction.fee?.amount.toString();
     final String formattedFee =
         getNumberWithoutExponent(double.parse(fee ?? '').abs().toString());
-    final double? usd = coinsBloc.getUsdPriceByAmount(formattedFee, _feeCoin);
+    final coinsBloc = context.read<CoinsBloc>();
+    final double? usd =
+        coinsBloc.state.getUsdPriceByAmount(formattedFee, _feeCoin);
     final String formattedUsd = formatAmt(usd ?? 0);
 
     final String title = LocaleKeys.fees.tr();
@@ -392,8 +395,8 @@ class TransactionDetails extends StatelessWidget {
   }
 
   String get _feeCoin {
-    return transaction.feeDetails.coin.isNotEmpty
-        ? transaction.feeDetails.coin
-        : transaction.coin;
+    return transaction.fee != null && transaction.fee!.coin.isNotEmpty
+        ? transaction.fee!.coin
+        : transaction.assetId.id;
   }
 }

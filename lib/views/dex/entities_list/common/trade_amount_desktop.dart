@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 
@@ -15,7 +16,8 @@ class TradeAmountDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Coin? coin = coinsBloc.getCoin(coinAbbr);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final Coin? coin = coinsRepository.getCoin(coinAbbr);
     if (coin == null) return const SizedBox.shrink();
 
     return Padding(

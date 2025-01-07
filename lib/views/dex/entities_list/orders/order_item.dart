@@ -1,8 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
 import 'package:vector_math/vector_math_64.dart' as vector_math;
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
@@ -35,6 +36,8 @@ class _OrderItemState extends State<OrderItem> {
     final bool isTaker = order.orderType == TradeSide.taker;
     final String date = getFormattedDate(order.createdAt);
     final int orderMatchingTime = order.orderMatchingTime;
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     final double fillProgress = tradingEntitiesBloc.getProgressFillSwap(order);
 
     return Column(
@@ -119,6 +122,8 @@ class _OrderItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [

@@ -1,7 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -64,6 +65,8 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
   }
 
   Widget _buildSwapCoinList() {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<Swap>>(
         stream: tradingEntitiesBloc.outSwaps,
         initialData: tradingEntitiesBloc.swaps,
@@ -80,6 +83,8 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
   }
 
   Widget _buildOrderCoinList() {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<MyOrder>>(
         stream: tradingEntitiesBloc.outMyOrders,
         initialData: tradingEntitiesBloc.myOrders,

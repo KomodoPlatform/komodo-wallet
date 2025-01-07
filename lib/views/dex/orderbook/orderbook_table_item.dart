@@ -1,6 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/orderbook/order.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
@@ -32,9 +33,10 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
 
   @override
   void initState() {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     _isPreview = widget.order.uuid == orderPreviewUuid;
-    _isTradeWithSelf =
-        widget.order.address == coinsBloc.getCoin(widget.order.rel)?.address;
+    _isTradeWithSelf = widget.order.address ==
+        coinsRepository.getCoin(widget.order.rel)?.address;
     _style = const TextStyle(fontSize: 11, fontWeight: FontWeight.w500);
     _color = _isPreview
         ? theme.custom.targetColor
@@ -119,7 +121,7 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 21),
         child: Container(
-          color: _color.withOpacity(0.1),
+          color: _color.withValues(alpha: 0.1),
         ),
       ),
     );
@@ -132,11 +134,11 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
             ? Border(
                 bottom: BorderSide(
                   width: 0.5,
-                  color: _color.withOpacity(0.3),
+                  color: _color.withValues(alpha: 0.3),
                 ),
                 top: BorderSide(
                   width: 0.5,
-                  color: _color.withOpacity(0.3),
+                  color: _color.withValues(alpha: 0.3),
                 ),
               )
             : null,

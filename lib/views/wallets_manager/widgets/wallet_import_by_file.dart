@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
-
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 
@@ -170,10 +170,11 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       if (!_isValidData) return;
 
       walletConfig.seedPhrase = decryptedSeed;
-
       final String name = widget.fileData.name.split('.').first;
+      // ignore: use_build_context_synchronously
+      final walletsBloc = RepositoryProvider.of<WalletsRepository>(context);
       final bool isNameExisted =
-          walletsBloc.wallets.firstWhereOrNull((w) => w.name == name) != null;
+          walletsBloc.wallets!.firstWhereOrNull((w) => w.name == name) != null;
       if (isNameExisted) {
         setState(() {
           _commonError = LocaleKeys.walletCreationExistNameError.tr();

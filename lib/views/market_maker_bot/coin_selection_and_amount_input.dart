@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/widgets/coin_icon.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
@@ -57,6 +57,7 @@ class _CoinSelectionAndAmountInputState
 
   void _prepareItems() {
     _items = prepareCoinsForTable(
+      context,
       widget.coins,
       null,
       testCoinsEnabled: context.read<SettingsBloc>().state.testCoinsEnabled,
@@ -115,10 +116,11 @@ class _CoinSelectionAndAmountInputState
       content = FrontPlate(child: content);
     }
 
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     return CoinDropdown(
       items: _items,
-      onItemSelected: (item) =>
-          widget.onItemSelected?.call(coinsBloc.getCoin(item.coinId)),
+      onItemSelected: (item) async => widget.onItemSelected
+          ?.call(await coinsRepository.getEnabledCoin(item.coinId)),
       child: content,
     );
   }

@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/coin_icon.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
@@ -382,8 +383,10 @@ class _CoinDropdownState extends State<CoinDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final coin =
-        selectedItem == null ? null : coinsBloc.getCoin(selectedItem!.coinId);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final coin = selectedItem == null
+        ? null
+        : coinsRepository.getCoin(selectedItem!.coinId);
 
     return CompositedTransformTarget(
       link: _layerLink,

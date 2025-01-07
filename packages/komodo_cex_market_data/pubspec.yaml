@@ -10,7 +10,7 @@ environment:
 dependencies:
   http: 1.2.2 # dart.dev
 
-  equatable: 2.0.5
+  equatable: 2.0.7
       
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   hive:

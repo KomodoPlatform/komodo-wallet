@@ -46,7 +46,7 @@ class FiatSelectButton extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: enabled
                           ? foregroundColor
-                          : foregroundColor.withOpacity(0.5),
+                          : foregroundColor.withValues(alpha: 0.5),
                     ),
               ),
               if (!isFiat && currency != null)
@@ -56,8 +56,8 @@ class FiatSelectButton extends StatelessWidget {
                       : '',
                   style: DefaultTextStyle.of(context).style.copyWith(
                         color: enabled
-                            ? foregroundColor.withOpacity(0.5)
-                            : foregroundColor.withOpacity(0.25),
+                            ? foregroundColor.withValues(alpha: 0.5)
+                            : foregroundColor.withValues(alpha: 0.25),
                       ),
                 ),
             ],
@@ -66,7 +66,7 @@ class FiatSelectButton extends StatelessWidget {
           Icon(
             Icons.keyboard_arrow_down,
             size: 28,
-            color: foregroundColor.withOpacity(enabled ? 1 : 0.5),
+            color: foregroundColor.withValues(alpha: enabled ? 1 : 0.5),
           ),
         ],
       ),

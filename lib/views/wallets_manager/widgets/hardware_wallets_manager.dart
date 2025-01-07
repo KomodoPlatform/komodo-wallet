@@ -1,17 +1,19 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_event.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
-import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
-import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_event.dart';
-import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/hw_wallet/init_trezor.dart';
 import 'package:web_dex/model/hw_wallet/trezor_status.dart';
+import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/hw_dialog_init.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/trezor_steps/trezor_dialog_error.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/trezor_steps/trezor_dialog_in_progress.dart';
@@ -30,13 +32,9 @@ class HardwareWalletsManager extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TrezorInitBloc>(
-      create: (context) =>
-          TrezorInitBloc(authRepo: authRepo, trezorRepo: trezorRepo),
-      child: HardwareWalletsManagerView(
-        close: close,
-        eventType: eventType,
-      ),
+    return HardwareWalletsManagerView(
+      close: close,
+      eventType: eventType,
     );
   }
 }
@@ -69,9 +67,7 @@ class _HardwareWalletsManagerViewState
       listener: (context, state) {
         final status = state.status;
         if (status?.trezorStatus == InitTrezorStatus.ok) {
-          context.read<AnalyticsBloc>().add(AnalyticsSendDataEvent(
-              walletsManagerEventsFactory.createEvent(
-                  widget.eventType, WalletsManagerEventMethod.hardware)));
+          _successfulTrezorLogin(context, state.kdfUser!);
         }
       },
       child: BlocSelector<TrezorInitBloc, TrezorInitState, TextError?>(
@@ -87,6 +83,22 @@ class _HardwareWalletsManagerViewState
         },
       ),
     );
+  }
+
+  void _successfulTrezorLogin(BuildContext context, KdfUser kdfUser) {
+    context.read<AuthBloc>().add(
+          AuthModeChanged(mode: AuthorizeMode.logIn, currentUser: kdfUser),
+        );
+    context.read<CoinsBloc>().add(CoinsSessionStarted(kdfUser));
+    context.read<AnalyticsBloc>().add(
+          AnalyticsSendDataEvent(
+            walletsManagerEventsFactory.createEvent(
+                widget.eventType, WalletsManagerEventMethod.hardware),
+          ),
+        );
+
+    routingState.selectedMenu = MainMenuValue.wallet;
+    widget.close();
   }
 
   Widget _buildContent() {

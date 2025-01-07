@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_maker_bot_order_list_repository.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/model/trading_entities_filter.dart';
@@ -17,29 +17,24 @@ part 'dex_tab_bar_state.dart';
 
 class DexTabBarBloc extends Bloc<DexTabBarEvent, DexTabBarState> {
   DexTabBarBloc(
-    AuthRepository authRepo,
+    this._kdfSdk,
     this._tradingEntitiesBloc,
     this._tradingBotRepository,
   ) : super(const DexTabBarState.initial()) {
     on<TabChanged>(_onTabChanged);
     on<FilterChanged>(_onFilterChanged);
-    on<StartListening>(_onStartListening);
-    on<StopListening>(_onStopListening);
+    on<ListenToOrdersRequested>(_onStartListening);
+    on<StopListeningToOrdersRequested>(_onStopListening);
     on<MyOrdersUpdated>(_onMyOrdersUpdated);
     on<SwapsUpdated>(_onSwapsUpdated);
     on<TradeBotOrdersUpdated>(_onTradeBotOrdersUpdated);
-
-    _authorizationSubscription = authRepo.authMode.listen((event) {
-      if (event == AuthorizeMode.noLogin) {
-        add(const TabChanged(0));
-      }
-    });
   }
 
   final TradingEntitiesBloc _tradingEntitiesBloc;
   final MarketMakerBotOrderListRepository _tradingBotRepository;
+  final KomodoDefiSdk _kdfSdk;
 
-  StreamSubscription<AuthorizeMode>? _authorizationSubscription;
+  StreamSubscription<KdfUser?>? _authorizationSubscription;
   StreamSubscription<List<MyOrder>>? _myOrdersSubscription;
   StreamSubscription<List<Swap>>? _swapsSubscription;
   StreamSubscription<List<TradePair>>? _tradeBotOrdersSubscription;
@@ -53,12 +48,20 @@ class DexTabBarBloc extends Bloc<DexTabBarEvent, DexTabBarState> {
     return super.close();
   }
 
-  Future<void> _onStartListening(
-    StartListening event,
+  int get tabIndex => state.tabIndex;
+
+  void _onStartListening(
+    ListenToOrdersRequested event,
     Emitter<DexTabBarState> emit,
-  ) async {
-    _myOrdersSubscription = _tradingEntitiesBloc.outMyOrders.listen((myOrders) {
-      add(MyOrdersUpdated(myOrders));
+  ) {
+    _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((event) {
+      if (event != null) {
+        add(const TabChanged(0));
+      }
+    });
+
+    _myOrdersSubscription = _tradingEntitiesBloc.outMyOrders.listen((orders) {
+      add(MyOrdersUpdated(orders));
     });
 
     _swapsSubscription = _tradingEntitiesBloc.outSwaps.listen((swaps) {
@@ -73,7 +76,7 @@ class DexTabBarBloc extends Bloc<DexTabBarEvent, DexTabBarState> {
   }
 
   Future<void> _onStopListening(
-    StopListening event,
+    StopListeningToOrdersRequested event,
     Emitter<DexTabBarState> emit,
   ) async {
     await _myOrdersSubscription?.cancel();

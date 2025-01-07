@@ -1,9 +1,10 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
@@ -22,8 +23,9 @@ class TradingDetailsCoinPair extends StatelessWidget {
   final Rational relAmount;
   @override
   Widget build(BuildContext context) {
-    final Coin? coinBase = coinsBloc.getCoin(baseCoin);
-    final Coin? coinRel = coinsBloc.getCoin(relCoin);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final Coin? coinBase = coinsRepository.getCoin(baseCoin);
+    final Coin? coinRel = coinsRepository.getCoin(relCoin);
 
     if (coinBase == null || coinRel == null) return const SizedBox.shrink();
 

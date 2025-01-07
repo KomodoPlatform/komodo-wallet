@@ -38,10 +38,11 @@ ThemeData get themeGlobalLight {
     bodyMedium: const TextStyle(
         fontSize: 16.0, color: textColor, fontWeight: FontWeight.w300),
     labelLarge: const TextStyle(fontSize: 16.0, color: textColor),
-    bodyLarge: TextStyle(fontSize: 14.0, color: textColor.withOpacity(0.5)),
+    bodyLarge:
+        TextStyle(fontSize: 14.0, color: textColor.withValues(alpha: 0.5)),
     bodySmall: TextStyle(
       fontSize: 12.0,
-      color: textColor.withOpacity(0.8),
+      color: textColor.withValues(alpha: 0.8),
       fontWeight: FontWeight.w400,
     ),
   );
@@ -77,7 +78,8 @@ ThemeData get themeGlobalLight {
     snackBarTheme: snackBarThemeLight(),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: const Color.fromRGBO(57, 161, 238, 1),
-      selectionColor: const Color.fromRGBO(57, 161, 238, 1).withOpacity(0.3),
+      selectionColor:
+          const Color.fromRGBO(57, 161, 238, 1).withValues(alpha: 0.3),
       selectionHandleColor: const Color.fromRGBO(57, 161, 238, 1),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -93,12 +95,12 @@ ThemeData get themeGlobalLight {
       filled: true,
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
       hintStyle: TextStyle(
-        color: textColor.withOpacity(0.58),
+        color: textColor.withValues(alpha: 0.58),
       ),
       labelStyle: TextStyle(
-        color: textColor.withOpacity(0.58),
+        color: textColor.withValues(alpha: 0.58),
       ),
-      prefixIconColor: textColor.withOpacity(0.58),
+      prefixIconColor: textColor.withValues(alpha: 0.58),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -120,8 +122,8 @@ ThemeData get themeGlobalLight {
     ),
     textTheme: textTheme,
     scrollbarTheme: ScrollbarThemeData(
-      thumbColor:
-          WidgetStateProperty.all<Color?>(colorScheme.primary.withOpacity(0.8)),
+      thumbColor: WidgetStateProperty.all<Color?>(
+          colorScheme.primary.withValues(alpha: 0.8)),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       // remove icons shift
@@ -139,7 +141,7 @@ ThemeData get themeGlobalLight {
         backgroundColor: const Color.fromRGBO(243, 245, 246, 1),
         surfaceTintColor: Colors.purple,
         selectedBackgroundColor: colorScheme.primary,
-        foregroundColor: textColor.withOpacity(0.7),
+        foregroundColor: textColor.withValues(alpha: 0.7),
         selectedForegroundColor: Colors.white,
         side: const BorderSide(color: Color.fromRGBO(208, 214, 237, 1)),
         shape: RoundedRectangleBorder(
@@ -156,8 +158,7 @@ ThemeData get themeGlobalLight {
           color: colorScheme.primary,
         ),
         // Match the card's border radius
-        insets: const EdgeInsets.symmetric(
-            horizontal: 18),
+        insets: const EdgeInsets.symmetric(horizontal: 18),
       ),
     ),
   );

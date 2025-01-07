@@ -1,13 +1,17 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/ui/custom_tooltip.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:web_dex/views/wallet/common/address_copy_button.dart';
+import 'package:web_dex/views/wallet/common/address_icon.dart';
+import 'package:web_dex/views/wallet/common/address_text.dart';
 
 class TransactionListRow extends StatefulWidget {
   const TransactionListRow({
@@ -30,7 +34,7 @@ class _TransactionListRowState extends State<TransactionListRow> {
     return _isReceived ? Icons.arrow_circle_down : Icons.arrow_circle_up;
   }
 
-  bool get _isReceived => widget.transaction.isReceived;
+  bool get _isReceived => widget.transaction.amount.toDouble() > 0;
 
   String get _sign {
     return _isReceived ? '+' : '-';
@@ -40,12 +44,16 @@ class _TransactionListRowState extends State<TransactionListRow> {
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.circular(16);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSurface,
-        borderRadius: BorderRadius.circular(4),
+        color: isMobile
+            ? Theme.of(context).colorScheme.onSurface
+            : Colors.transparent,
+        borderRadius: borderRadius,
       ),
       child: InkWell(
+        borderRadius: borderRadius,
         onFocusChange: (value) {
           setState(() {
             _hasFocus = value;
@@ -56,10 +64,10 @@ class _TransactionListRowState extends State<TransactionListRow> {
             color: _hasFocus
                 ? Theme.of(context).colorScheme.tertiary
                 : Colors.transparent,
-            margin: const EdgeInsets.symmetric(vertical: 5),
+            margin: EdgeInsets.symmetric(vertical: isMobile ? 5 : 0),
             padding: isMobile
-                ? const EdgeInsets.fromLTRB(0, 12, 0, 12)
-                : const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                ? const EdgeInsets.only(bottom: 12)
+                : const EdgeInsets.all(6),
             child:
                 isMobile ? _buildMobileRow(context) : _buildNormalRow(context)),
         onTap: () => widget.setTransaction(widget.transaction),
@@ -69,17 +77,17 @@ class _TransactionListRowState extends State<TransactionListRow> {
 
   Widget _buildAmountChangesMobile(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildBalanceChanges(),
         _buildUsdChanges(),
-        _buildBalanceMobile(),
       ],
     );
   }
 
   Widget _buildBalanceChanges() {
     final String formatted =
-        formatDexAmt(double.parse(widget.transaction.myBalanceChange).abs());
+        formatDexAmt(widget.transaction.amount.toDouble().abs());
 
     return Row(
       children: [
@@ -92,7 +100,7 @@ class _TransactionListRowState extends State<TransactionListRow> {
         ),
         const SizedBox(width: 4),
         Text(
-          '${Coin.normalizeAbbr(widget.transaction.coin)} $formatted',
+          '${Coin.normalizeAbbr(widget.transaction.assetId.id)} $formatted',
           style: TextStyle(
               color: _isReceived
                   ? theme.custom.increaseColor
@@ -112,30 +120,15 @@ class _TransactionListRowState extends State<TransactionListRow> {
           children: [
             Text(
               _isReceived ? LocaleKeys.receive.tr() : LocaleKeys.send.tr(),
-              style: TextStyle(
-                  color: _isReceived
-                      ? theme.custom.increaseColor
-                      : theme.custom.decreaseColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
             ),
             Text(
-              widget.transaction.formattedTime,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              formatTransactionDateTime(widget.transaction),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
             ),
           ],
         )
       ],
-    );
-  }
-
-  Widget _buildBalanceMobile() {
-    final String formatted =
-        formatDexAmt(double.parse(widget.transaction.myBalanceChange).abs());
-
-    return Text(
-      '${Coin.normalizeAbbr(widget.transaction.coin)} $formatted',
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
     );
   }
 
@@ -149,11 +142,12 @@ class _TransactionListRowState extends State<TransactionListRow> {
           _buildMemo(),
           const SizedBox(width: 6),
           Text(
-            widget.transaction.formattedTime,
+            formatTransactionDateTime(widget.transaction),
             style: isMobile
                 ? TextStyle(color: Colors.grey[400])
                 : const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
+          const SizedBox(width: 4),
         ],
       ),
     );
@@ -162,42 +156,31 @@ class _TransactionListRowState extends State<TransactionListRow> {
   Widget _buildMobileRow(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 35,
-            height: 35,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiary,
-                borderRadius: BorderRadius.circular(20)),
-            child: Center(
-              child: Icon(
-                _isReceived ? Icons.arrow_downward : Icons.arrow_upward,
-                color: _isReceived
-                    ? theme.custom.increaseColor
-                    : theme.custom.decreaseColor,
-                size: 15,
+          _buildAddress(),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBalanceChangesMobile(context),
+                  ],
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildBalanceChangesMobile(context),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Align(
-              alignment: const Alignment(1, 0),
-              child: _buildAmountChangesMobile(context),
-            ),
+              Expanded(
+                flex: 5,
+                child: Align(
+                  alignment: const Alignment(1, 0),
+                  child: _buildAmountChangesMobile(context),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -208,7 +191,7 @@ class _TransactionListRowState extends State<TransactionListRow> {
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        const SizedBox(width: 4),
+        Expanded(flex: 4, child: _buildAddress()),
         Expanded(
             flex: 4,
             child: Text(
@@ -259,8 +242,9 @@ class _TransactionListRowState extends State<TransactionListRow> {
   }
 
   Widget _buildUsdChanges() {
-    final double? usdChanges = coinsBloc.getUsdPriceByAmount(
-      widget.transaction.myBalanceChange,
+    final coinsBloc = context.read<CoinsBloc>();
+    final double? usdChanges = coinsBloc.state.getUsdPriceByAmount(
+      widget.transaction.amount.toString(),
       widget.coinAbbr,
     );
     return Text(
@@ -271,6 +255,22 @@ class _TransactionListRowState extends State<TransactionListRow> {
               : theme.custom.decreaseColor,
           fontSize: 14,
           fontWeight: FontWeight.w500),
+    );
+  }
+
+  Widget _buildAddress() {
+    final myAddress = widget.transaction.isIncoming
+        ? widget.transaction.to.first
+        : widget.transaction.from.first;
+
+    return Row(
+      children: [
+        const SizedBox(width: 8),
+        AddressIcon(address: myAddress),
+        const SizedBox(width: 8),
+        AddressText(address: myAddress),
+        AddressCopyButton(address: myAddress),
+      ],
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/model/trading_entities_filter.dart';
@@ -10,7 +12,6 @@ import 'package:web_dex/views/dex/entities_list/common/dex_empty_list.dart';
 import 'package:web_dex/views/dex/entities_list/common/dex_error_message.dart';
 import 'package:web_dex/views/dex/entities_list/history/history_item.dart';
 import 'package:web_dex/views/dex/entities_list/history/history_list_header.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 import 'swap_history_sort_mixin.dart';
 
@@ -108,6 +109,8 @@ class _HistoryListState extends State<HistoryList>
   }
 
   StreamSubscription<List<Swap>> listenForSwaps() {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return tradingEntitiesBloc.outSwaps.where((swaps) {
       final didSwapsChange = !areSwapsSame(swaps, _unprocessedSwaps);
 
@@ -145,7 +148,7 @@ class _HistoryListState extends State<HistoryList>
 
     setState(() {
       clearErrorIfExists();
-      _processedSwaps = sortSwaps(filteredSwaps, sortData: _sortData);
+      _processedSwaps = sortSwaps(context, filteredSwaps, sortData: _sortData);
     });
   }
 

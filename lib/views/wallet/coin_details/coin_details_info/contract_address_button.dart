@@ -176,8 +176,11 @@ class _ContractAddressTitle extends StatelessWidget {
       style: Theme.of(context).textTheme.titleSmall!.copyWith(
             fontSize: 9,
             fontWeight: FontWeight.w500,
-            color:
-                Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(.45),
+            color: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.color
+                ?.withValues(alpha: .45),
           ),
     );
   }

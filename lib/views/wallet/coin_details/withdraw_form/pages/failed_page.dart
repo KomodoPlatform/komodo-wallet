@@ -75,8 +75,11 @@ class _SendErrorBody extends StatelessWidget {
     return BlocSelector<WithdrawFormBloc, WithdrawFormState, String>(
       selector: (state) => state.sendError.message,
       builder: (BuildContext context, String errorText) {
-        final iconColor =
-            Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(.7);
+        final iconColor = Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.color
+            ?.withValues(alpha: .7);
 
         return Material(
           color: theme.custom.buttonColorDefault,

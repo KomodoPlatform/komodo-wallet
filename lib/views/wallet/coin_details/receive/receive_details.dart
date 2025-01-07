@@ -1,8 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -29,9 +30,8 @@ class ReceiveDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    return StreamBuilder<Wallet?>(
-      stream: currentWalletBloc.outWallet,
-      builder: (context, snapshot) {
+    return BlocBuilder<AuthBloc, AuthBlocState>(
+      builder: (context, state) {
         return PageLayout(
           header: PageHeader(
             title: LocaleKeys.receive.tr(),
@@ -81,8 +81,8 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
 
-    if (currentWalletBloc.wallet?.config.hasBackup == false &&
-        !widget.coin.isTestCoin) {
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+    if (currentWallet?.config.hasBackup == false && !widget.coin.isTestCoin) {
       return const BackupNotification();
     }
 

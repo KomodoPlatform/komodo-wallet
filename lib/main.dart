@@ -5,24 +5,35 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
-import 'package:komodo_coin_updates/komodo_coin_updates.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/app_bloc_observer.dart';
 import 'package:web_dex/bloc/app_bloc_root.dart' deferred as app_bloc_root;
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
-import 'package:web_dex/bloc/runtime_coin_updates/runtime_update_config_provider.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/blocs/blocs.dart';
-import 'package:web_dex/blocs/startup_bloc.dart';
+import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
+import 'package:web_dex/blocs/current_wallet_bloc.dart';
+import 'package:web_dex/blocs/trezor_coins_bloc.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
+import 'package:web_dex/mm2/mm2.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
+import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
+import 'package:web_dex/services/storage/get_storage.dart';
+import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -34,26 +45,82 @@ PerformanceMode? get appDemoPerformanceMode =>
     _appDemoPerformanceMode ?? _getPerformanceModeFromUrl();
 
 Future<void> main() async {
-  usePathUrlStrategy();
+  await runZonedGuarded(
+    () async {
+      usePathUrlStrategy();
+      WidgetsFlutterBinding.ensureInitialized();
+      Bloc.observer = AppBlocObserver();
+      PerformanceAnalytics.init();
 
-  WidgetsFlutterBinding.ensureInitialized();
+      FlutterError.onError = (FlutterErrorDetails details) {
+        catchUnhandledExceptions(details.exception, details.stack);
+      };
 
-  await AppBootstrapper.instance.ensureInitialized();
+      final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
 
-  Bloc.observer = AppBlocObserver();
+      // This is necessary for now, as the runtime coin updates is reliant on the
+      // [CoinsBloc] to be initialized before it can be used. This is a temporary
+      // solution that should be removed once the CoinsBloc is refactored
+      final currentWalletRepo = CurrentWalletBloc(
+        kdfSdk: komodoDefiSdk,
+        encryptionTool: EncryptionTool(),
+        fileLoader: FileLoader.fromPlatform(),
+      );
+      final trezorRepo = TrezorRepo(
+        api: Mm2ApiTrezor(mm2.call),
+        kdfSdk: komodoDefiSdk,
+      );
+      final trezor = TrezorCoinsBloc(trezorRepo: trezorRepo);
+      final coinsRepo = CoinsRepo(
+        kdfSdk: komodoDefiSdk,
+        mm2: mm2,
+        trezorBloc: trezor,
+      );
+      final mm2Api = Mm2Api(mm2: mm2, coinsRepo: coinsRepo);
+      final walletsRepository = WalletsRepository(
+        komodoDefiSdk,
+        mm2Api,
+        getStorage(),
+      );
 
-  PerformanceAnalytics.init();
+      await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk);
+      await initializeLogger(mm2Api);
 
-  runApp(
-    EasyLocalization(
-      supportedLocales: localeList,
-      fallbackLocale: localeList.first,
-      useFallbackTranslations: true,
-      useOnlyLangCode: true,
-      path: '$assetsPath/translations',
-      child: MyApp(),
-    ),
+      runApp(
+        EasyLocalization(
+          supportedLocales: localeList,
+          fallbackLocale: localeList.first,
+          useFallbackTranslations: true,
+          useOnlyLangCode: true,
+          path: '$assetsPath/translations',
+          child: MultiRepositoryProvider(
+            providers: [
+              RepositoryProvider(create: (_) => komodoDefiSdk),
+              RepositoryProvider(create: (_) => currentWalletRepo),
+              RepositoryProvider(create: (_) => mm2Api),
+              RepositoryProvider(create: (_) => coinsRepo),
+              RepositoryProvider(create: (_) => trezorRepo),
+              RepositoryProvider(create: (_) => trezor),
+              RepositoryProvider(create: (_) => walletsRepository),
+            ],
+            child: const MyApp(),
+          ),
+        ),
+      );
+    },
+    catchUnhandledExceptions,
   );
+}
+
+void catchUnhandledExceptions(Object error, StackTrace? stack) {
+  log('Uncaught exception: $error.\n$stack');
+  debugPrintStack(stackTrace: stack, label: error.toString(), maxFrames: 50);
+
+  // Rethrow the error if it has a stacktrace (valid, traceable error)
+  // async errors from the sdk are not traceable so do not rethrow them.
+  if (!isTestMode && stack != null && stack.toString().isNotEmpty) {
+    Error.throwWithStackTrace(error, stack);
+  }
 }
 
 PerformanceMode? _getPerformanceModeFromUrl() {
@@ -83,17 +150,22 @@ PerformanceMode? _getPerformanceModeFromUrl() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (_) => AuthBloc(authRepo: authRepo),
+          create: (_) => AuthBloc(komodoDefiSdk, walletsRepository),
         ),
       ],
       child: app_bloc_root.AppBlocRoot(
         storedPrefs: _storedSettings!,
-        runtimeUpdateConfig: _runtimeUpdateConfig!,
+        komodoDefiSdk: komodoDefiSdk,
       ),
     );
   }

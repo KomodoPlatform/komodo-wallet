@@ -1,11 +1,14 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/common/wallet_password_dialog/wallet_password_dialog.dart';
 
 class PlateSeedBackup extends StatelessWidget {
@@ -101,7 +104,8 @@ class _AtomicIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasBackup = currentWalletBloc.wallet?.config.hasBackup ?? false;
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+    final hasBackup = currentWallet?.config.hasBackup ?? false;
     return DexSvgImage(
       path: hasBackup ? Assets.seedBackedUp : Assets.seedNotBackedUp,
       size: 50,
@@ -114,7 +118,8 @@ class _SaveAndRememberTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasBackup = currentWalletBloc.wallet?.config.hasBackup ?? false;
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+    final hasBackup = currentWallet?.config.hasBackup ?? false;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -171,7 +176,9 @@ class _SaveAndRememberButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasBackup = currentWalletBloc.wallet?.config.hasBackup == true;
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+    final currentWalletBloc = context.read<CurrentWalletBloc>();
+    final hasBackup = currentWallet?.config.hasBackup == true;
     final text = hasBackup
         ? LocaleKeys.viewSeedPhrase.tr()
         : LocaleKeys.backupSeedPhrase.tr();

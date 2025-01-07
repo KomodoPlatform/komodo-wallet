@@ -1,7 +1,8 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -39,10 +40,9 @@ class _BackupSeedNotificationState extends State<BackupSeedNotification> {
     final String description =
         widget.description ?? LocaleKeys.backupSeedNotificationDescription.tr();
 
-    return StreamBuilder<Wallet?>(
-      stream: currentWalletBloc.outWallet,
-      builder: (context, snapshot) {
-        final currentWallet = currentWalletBloc.wallet;
+    return BlocBuilder<AuthBloc, AuthBlocState>(
+      builder: (context, state) {
+        final currentWallet = state.currentUser?.wallet;
         if (currentWallet == null || currentWallet.config.hasBackup) {
           return const SizedBox();
         }
@@ -221,7 +221,11 @@ class BackupNotification extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+          color: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.color
+              ?.withValues(alpha: 0.7),
           fontWeight: FontWeight.w600,
         );
     return BackupSeedNotification(

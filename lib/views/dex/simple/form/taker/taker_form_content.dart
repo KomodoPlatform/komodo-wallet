@@ -1,7 +1,9 @@
 import 'package:app_theme/app_theme.dart';
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_state.dart';
@@ -20,8 +22,6 @@ import 'package:web_dex/views/dex/simple/form/taker/coin_item/taker_form_sell_it
 import 'package:web_dex/views/dex/simple/form/taker/taker_form_error_list.dart';
 import 'package:web_dex/views/dex/simple/form/taker/taker_form_exchange_info.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:collection/collection.dart';
 
 class TakerFormContent extends StatelessWidget {
   @override
@@ -40,13 +40,14 @@ class TakerFormContent extends StatelessWidget {
               final selectedOrder = takerBloc.state.selectedOrder;
               if (selectedOrder == null) return false;
 
-              final knownCoins = await coinsRepo.getKnownCoins();
+              final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
+              final knownCoins = coinsRepo.getKnownCoins();
               final buyCoin = knownCoins.firstWhereOrNull(
                   (element) => element.abbr == selectedOrder.coin);
               if (buyCoin == null) return false;
 
               takerBloc.add(TakerSetSellCoin(buyCoin,
-                  autoSelectOrderAbbr: takerBloc.state.sellCoin?.abbr));
+                  autoSelectOrderAbbr: takerBloc.state.sellCoin?.abbr),);
               return true;
             },
             topWidget: const TakerFormSellItem(),

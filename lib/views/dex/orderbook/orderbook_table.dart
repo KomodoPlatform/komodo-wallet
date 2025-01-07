@@ -1,14 +1,15 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/orderbook/order.dart';
 import 'package:web_dex/model/orderbook/orderbook.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/views/dex/orderbook/orderbook_table_item.dart';
 import 'package:web_dex/views/dex/orderbook/orderbook_table_title.dart';
@@ -46,7 +47,7 @@ class OrderbookTable extends StatelessWidget {
             Container(
               height: 30,
               alignment: Alignment.centerLeft,
-              child: _buildSpotPrice(),
+              child: _buildSpotPrice(context),
             ),
             Flexible(child: _buildBids(highestVolume)),
           ],
@@ -55,10 +56,11 @@ class OrderbookTable extends StatelessWidget {
     );
   }
 
-  Widget _buildSpotPrice() {
+  Widget _buildSpotPrice(BuildContext context) {
     const TextStyle style = TextStyle(fontSize: 11);
-    final Coin? baseCoin = coinsBloc.getCoin(orderbook.base);
-    final Coin? relCoin = coinsBloc.getCoin(orderbook.rel);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final Coin? baseCoin = coinsRepository.getCoin(orderbook.base);
+    final Coin? relCoin = coinsRepository.getCoin(orderbook.rel);
     if (baseCoin == null || relCoin == null) return const SizedBox.shrink();
 
     final double? baseUsdPrice = baseCoin.usdPrice?.price;

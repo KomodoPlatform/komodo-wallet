@@ -1,12 +1,12 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_maker_bot_order_list_repository.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/router/state/routing_state.dart';
@@ -42,22 +42,24 @@ class _DexPageState extends State<DexPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWalletOnly) {
-      return const Placeholder(child: Text('You should not see this page'));
-    }
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final myOrdersService = RepositoryProvider.of<MyOrdersService>(context);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(
           key: const Key('dex-page'),
           create: (BuildContext context) => DexTabBarBloc(
-            authRepo,
+            RepositoryProvider.of<KomodoDefiSdk>(context),
             tradingEntitiesBloc,
             MarketMakerBotOrderListRepository(
               myOrdersService,
               SettingsRepository(),
-              coinsBloc,
+              coinsRepository,
             ),
-          )..add(const StartListening()),
+          )..add(const ListenToOrdersRequested()),
         ),
       ],
       child: isTradingDetails

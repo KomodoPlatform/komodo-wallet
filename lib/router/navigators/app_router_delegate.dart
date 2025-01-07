@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
+import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
+import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
+import 'package:web_dex/bloc/taker_form/taker_event.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/settings_menu_value.dart';
@@ -31,7 +36,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
         builder: (context) {
           materialPageContext = context;
           return GestureDetector(
-            onTap: () => globalCancelBloc.runDropdownDismiss(context: context),
+            onTap: () => runDropdownDismiss(context),
             child: MainLayout(),
           );
         },
@@ -45,6 +50,22 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       pages: pages,
       onDidRemovePage: (Page<Object?> page) => pages.remove(page),
     );
+  }
+
+  void runDropdownDismiss(BuildContext context) {
+      // Taker form
+      context.read<TakerBloc>().add(TakerCoinSelectorOpen(false));
+      context.read<TakerBloc>().add(TakerOrderSelectorOpen(false));
+
+      // Maker form
+      final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+      makerFormBloc.showSellCoinSelect = false;
+      makerFormBloc.showBuyCoinSelect = false;
+
+      // Bridge form
+      context.read<BridgeBloc>().add(const BridgeShowTickerDropdown(false));
+      context.read<BridgeBloc>().add(const BridgeShowSourceDropdown(false));
+      context.read<BridgeBloc>().add(const BridgeShowTargetDropdown(false));
   }
 
   @override

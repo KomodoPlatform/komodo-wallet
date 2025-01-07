@@ -1,5 +1,5 @@
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
-import 'package:web_dex/model/withdraw_details/fee_details.dart';
+import 'package:decimal/decimal.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 Transaction createBuyTransaction(
   double balanceChange, {
@@ -7,20 +7,28 @@ Transaction createBuyTransaction(
 }) {
   final String value = balanceChange.toString();
   return Transaction(
+    id: '0',
     blockHeight: 10000,
-    coin: 'BTC',
+    assetId: AssetId(
+      id: 'BTC',
+      name: 'Bitcoin',
+      symbol: AssetSymbol(assetConfigId: 'BTC'),
+      chainId: AssetChainId(chainId: 9),
+      derivationPath: '',
+      subClass: CoinSubClass.utxo,
+    ),
     confirmations: 6,
-    feeDetails: FeeDetails(type: 'utxo', coin: 'BTC'),
-    from: ['1ABC...'],
+    balanceChanges: BalanceChanges(
+      netChange: Decimal.parse(value),
+      receivedByMe: Decimal.parse(value),
+      spentByMe: Decimal.zero,
+      totalAmount: Decimal.parse(value),
+    ),
+    from: const ['1ABC...'],
     internalId: 'internal1',
-    myBalanceChange: value,
-    receivedByMe: value,
-    spentByMe: '0.0',
-    timestamp: timeStamp,
-    to: ['1XYZ...'],
-    totalAmount: value,
+    timestamp: DateTime.fromMillisecondsSinceEpoch(timeStamp * 1000),
+    to: const ['1XYZ...'],
     txHash: 'hash1',
-    txHex: 'hex1',
     memo: 'Buy 1 BTC',
   );
 }
@@ -34,21 +42,30 @@ Transaction createSellTransaction(
     adjustedBalanceChange = -adjustedBalanceChange;
   }
   final String value = adjustedBalanceChange.toString();
+
   return Transaction(
+    id: '0',
     blockHeight: 100200,
-    coin: 'BTC',
+    assetId: AssetId(
+      id: 'BTC',
+      name: 'Bitcoin',
+      symbol: AssetSymbol(assetConfigId: 'BTC'),
+      chainId: AssetChainId(chainId: 9),
+      derivationPath: '',
+      subClass: CoinSubClass.utxo,
+    ),
     confirmations: 6,
-    feeDetails: FeeDetails(type: 'utxo', coin: 'BTC'),
-    from: ['1XYZ...'],
+    balanceChanges: BalanceChanges(
+      netChange: Decimal.parse(value),
+      receivedByMe: Decimal.zero,
+      spentByMe: Decimal.parse(adjustedBalanceChange.abs().toString()),
+      totalAmount: Decimal.parse(value),
+    ),
+    from: const ['1ABC...'],
     internalId: 'internal3',
-    myBalanceChange: value,
-    receivedByMe: '0.0',
-    spentByMe: adjustedBalanceChange.abs().toString(),
-    timestamp: timeStamp,
-    to: ['1GHI...'],
-    totalAmount: value,
+    timestamp: DateTime.fromMillisecondsSinceEpoch(timeStamp * 1000),
+    to: const ['1GHI...'],
     txHash: 'hash3',
-    txHex: 'hex3',
     memo: 'Sell 0.5 BTC',
   );
 }

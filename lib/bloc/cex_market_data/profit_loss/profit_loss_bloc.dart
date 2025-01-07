@@ -149,17 +149,16 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     bool allowInactiveCoins = true,
   }) async {
     final List<Coin> coins = List.from(event.coins);
-    await coins.removeWhereAsync(
-      (Coin coin) async {
-        final isCoinSupported =
-            await _profitLossRepository.isCoinChartSupported(
-          coin.abbr,
-          event.fiatCoinId,
-          allowInactiveCoins: allowInactiveCoins,
-        );
-        return coin.isTestCoin || !isCoinSupported;
-      },
-    );
+    for (final coin in event.coins) {
+      final isCoinSupported = await _profitLossRepository.isCoinChartSupported(
+        coin.abbr,
+        event.fiatCoinId,
+        allowInactiveCoins: allowInactiveCoins,
+      );
+      if (coin.isTestCoin || !isCoinSupported) {
+        coins.remove(coin);
+      }
+    }
     return coins;
   }
 

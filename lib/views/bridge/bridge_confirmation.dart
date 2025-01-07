@@ -7,7 +7,8 @@ import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -41,14 +42,17 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
         context.read<BridgeBloc>().add(const BridgeClear());
         routingState.bridgeState.setDetailsAction(swapUuid);
 
+        final tradingEntitiesBloc =
+            RepositoryProvider.of<TradingEntitiesBloc>(context);
         await tradingEntitiesBloc.fetch();
       },
       builder: (BuildContext context, BridgeState state) {
         final TradePreimage? preimage = state.preimageData?.data;
         if (preimage == null) return const UiSpinner();
+        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
 
-        final Coin? sellCoin = coinsBloc.getCoin(preimage.request.base);
-        final Coin? buyCoin = coinsBloc.getCoin(preimage.request.rel);
+        final Coin? sellCoin = coinsRepo.getCoin(preimage.request.base);
+        final Coin? buyCoin = coinsRepo.getCoin(preimage.request.rel);
         final Rational? sellAmount = preimage.request.volume;
         final Rational buyAmount =
             (sellAmount ?? Rational.zero) * preimage.request.price;
@@ -241,6 +245,7 @@ class _SendGroup extends StatelessWidget {
           fontSize: 14.0,
           fontWeight: FontWeight.w500,
         );
+    final coinsBloc = RepositoryProvider.of<CoinsRepo>(context);
     final Coin? coin = coinsBloc.getCoin(dto.sellCoin.abbr);
     if (coin == null) return const SizedBox.shrink();
 

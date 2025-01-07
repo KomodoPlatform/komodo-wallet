@@ -1,7 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
@@ -33,6 +34,8 @@ class _OrdersListState extends State<OrdersList> {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<MyOrder>>(
         initialData: tradingEntitiesBloc.myOrders,
         stream: tradingEntitiesBloc.outMyOrders,
@@ -149,6 +152,8 @@ class _OrdersListState extends State<OrdersList> {
   }
 
   List<MyOrder> _sortByPrice(List<MyOrder> orders) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     orders.sort((first, second) => sortByDouble(
           tradingEntitiesBloc.getPriceFromAmount(
             first.baseAmount,

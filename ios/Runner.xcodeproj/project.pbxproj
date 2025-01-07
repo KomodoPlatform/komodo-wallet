@@ -17,12 +17,10 @@
 		C2B3782B4B651E97F3AF9B7A /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DB340A008F6FECB3B82619D /* Pods_Runner.framework */; };
 		D63143E32701FFB500374C78 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D63143E22701FFB500374C78 /* CoreFoundation.framework */; };
 		D63143E52702003500374C78 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D63143E42701FFD100374C78 /* libc++.tbd */; };
-		D63143E62702004B00374C78 /* libmm2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D63143E12701FF6700374C78 /* libmm2.a */; };
 		D63143E92702008000374C78 /* libSystem.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D63143E82702007200374C78 /* libSystem.tbd */; };
 		D63143EA2702008B00374C78 /* libSystem.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D63143E82702007200374C78 /* libSystem.tbd */; };
 		D63143EB2702009900374C78 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D63143E72702005D00374C78 /* libresolv.tbd */; };
 		D63143ED270200B100374C78 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D63143EC270200B100374C78 /* SystemConfiguration.framework */; };
-		D6C50BDA2702024E0095EE3C /* mm2.m in Sources */ = {isa = PBXBuildFile; fileRef = D6C50BD82702024E0095EE3C /* mm2.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -63,8 +61,6 @@
 		D63143E72702005D00374C78 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		D63143E82702007200374C78 /* libSystem.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libSystem.tbd; path = usr/lib/libSystem.tbd; sourceTree = SDKROOT; };
 		D63143EC270200B100374C78 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		D6C50BD82702024E0095EE3C /* mm2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mm2.m; sourceTree = "<group>"; };
-		D6C50BD92702024E0095EE3C /* mm2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mm2.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,7 +72,6 @@
 				D63143EA2702008B00374C78 /* libSystem.tbd in Frameworks */,
 				D63143E32701FFB500374C78 /* CoreFoundation.framework in Frameworks */,
 				D63143EB2702009900374C78 /* libresolv.tbd in Frameworks */,
-				D63143E62702004B00374C78 /* libmm2.a in Frameworks */,
 				D63143E92702008000374C78 /* libSystem.tbd in Frameworks */,
 				D63143ED270200B100374C78 /* SystemConfiguration.framework in Frameworks */,
 				C2B3782B4B651E97F3AF9B7A /* Pods_Runner.framework in Frameworks */,
@@ -120,8 +115,6 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				D6C50BD92702024E0095EE3C /* mm2.h */,
-				D6C50BD82702024E0095EE3C /* mm2.m */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -327,7 +320,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6C50BDA2702024E0095EE3C /* mm2.m in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 			);

@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/nfts/nft_main_repo.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/model/text_error.dart';
 
@@ -15,7 +15,7 @@ part 'nft_main_state.dart';
 class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   NftMainBloc({
     required NftsRepo repo,
-    required AuthRepository authRepo,
+    required KomodoDefiSdk kdfSdk,
     required bool isLoggedIn,
   })  : _repo = repo,
         _isLoggedIn = isLoggedIn,
@@ -27,8 +27,8 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     on<StartUpdateNftsEvent>(_onStartUpdate);
     on<StopUpdateNftEvent>(_onStopUpdate);
 
-    _authorizationSubscription = authRepo.authMode.listen((event) {
-      _isLoggedIn = event == AuthorizeMode.logIn;
+    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
+      _isLoggedIn = event != null;
 
       if (_isLoggedIn) {
         add(const UpdateChainNftsEvent());
@@ -39,7 +39,7 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   }
 
   final NftsRepo _repo;
-  late StreamSubscription<AuthorizeMode> _authorizationSubscription;
+  late StreamSubscription<KdfUser?> _authorizationSubscription;
   Timer? _updateTimer;
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;

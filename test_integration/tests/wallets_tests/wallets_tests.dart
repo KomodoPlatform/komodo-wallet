@@ -20,8 +20,6 @@ void main() {
 
 void walletsWidgetTests({
   bool skip = false,
-  int retryLimit = 0,
-  Duration timeout = const Duration(minutes: 10),
 }) {
   return testWidgets(
     'Run wallet tests:',
@@ -43,8 +41,6 @@ void walletsWidgetTests({
       // await testBitrefillIntegration(tester);
     },
     semanticsEnabled: false,
-    timeout: Timeout(timeout),
-    retry: retryLimit,
     skip: skip,
   );
 }

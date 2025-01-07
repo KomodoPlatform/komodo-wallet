@@ -84,7 +84,7 @@ class WalletManageSection extends StatelessWidget {
                             backgroundColor: themeData.colorScheme.surface,
                             textStyle: TextStyle(
                               color: themeData.textTheme.labelLarge?.color
-                                  ?.withOpacity(0.7),
+                                  ?.withValues(alpha: 0.7),
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -169,7 +169,7 @@ class WalletManageSection extends StatelessWidget {
                             backgroundColor: themeData.colorScheme.onSurface,
                             textStyle: TextStyle(
                               color: themeData.textTheme.labelLarge?.color
-                                  ?.withOpacity(0.7),
+                                  ?.withValues(alpha: 0.7),
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),

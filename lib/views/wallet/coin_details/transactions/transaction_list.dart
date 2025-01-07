@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/types.dart';
 import 'package:web_dex/views/wallet/coin_details/transactions/transaction_list_item.dart';
 
 class TransactionList extends StatelessWidget {
@@ -47,40 +47,109 @@ class _List extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasTitle = transactions.isNotEmpty || !isMobile;
-    final indexOffset = hasTitle ? 1 : 0;
+    return SliverToBoxAdapter(
+      child: Column(
+        children: [
+          if (transactions.isNotEmpty && !isMobile) const HistoryTitle(),
+          Card(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            color: theme.custom.dexPageTheme.frontPlate,
+            child: Padding(
+              padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+              child: isMobile
+                  ? HistoryListContent(
+                      transactions: transactions,
+                      coinAbbr: coinAbbr,
+                      setTransaction: setTransaction,
+                      isInProgress: isInProgress,
+                    )
+                  : Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      color: Theme.of(context).colorScheme.onSurface,
+                      child: HistoryListContent(
+                        transactions: transactions,
+                        coinAbbr: coinAbbr,
+                        setTransaction: setTransaction,
+                        isInProgress: isInProgress,
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-    return SliverList(
-      key: const Key('coin-details-transaction-list'),
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          if (index == 0) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                LocaleKeys.history.tr(),
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: isMobile ? 16 : 18,
+class HistoryListContent extends StatelessWidget {
+  const HistoryListContent({
+    super.key,
+    required this.transactions,
+    required this.coinAbbr,
+    required this.setTransaction,
+    required this.isInProgress,
+  });
+
+  final List<Transaction> transactions;
+  final String coinAbbr;
+  final void Function(Transaction tx) setTransaction;
+  final bool isInProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (transactions.isNotEmpty && isMobile) const HistoryTitle(),
+        if (transactions.isNotEmpty && isMobile) const SizedBox(height: 12),
+        ...transactions.asMap().entries.map(
+          (entry) {
+            final index = entry.key;
+            final transaction = entry.value;
+
+            return Column(
+              children: [
+                TransactionListRow(
+                  transaction: transaction,
+                  coinAbbr: coinAbbr,
+                  setTransaction: setTransaction,
                 ),
-              ),
+                if (isMobile && index < transactions.length - 1)
+                  const SizedBox(height: 12),
+              ],
             );
-          }
+          },
+        ).toList(),
+        if (isInProgress) const UiSpinnerList(height: 50),
+      ],
+    );
+  }
+}
 
-          final adjustedIndex = index - indexOffset;
+class HistoryTitle extends StatelessWidget {
+  const HistoryTitle({
+    super.key,
+  });
 
-          if (adjustedIndex + 1 == transactions.length && isInProgress) {
-            return const UiSpinnerList(height: 50);
-          }
-
-          final Transaction tx = transactions[adjustedIndex];
-          return TransactionListRow(
-            transaction: tx,
-            coinAbbr: coinAbbr,
-            setTransaction: setTransaction,
-          );
-        },
-        childCount: transactions.length + indexOffset,
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          LocaleKeys.lastTransactions.tr(),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: isMobile ? 16 : 24,
+          ),
+        ),
       ),
     );
   }

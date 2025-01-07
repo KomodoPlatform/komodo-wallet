@@ -2,9 +2,10 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
@@ -207,6 +208,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   }
 
   Widget _buildNameField() {
+    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
     return UiTextFormField(
       key: const Key('name-wallet-field'),
       controller: _nameController,
@@ -214,7 +216,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       autocorrect: false,
       textInputAction: TextInputAction.next,
       validator: (String? name) =>
-          _inProgress ? null : walletsBloc.validateWalletName(name ?? ''),
+          _inProgress ? null : walletsRepository.validateWalletName(name ?? ''),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
       hintText: LocaleKeys.walletCreationNameHint.tr(),
     );

@@ -11,7 +11,11 @@ import 'package:web_dex/shared/utils/utils.dart';
 class NftsRepo {
   NftsRepo({
     required Mm2ApiNft api,
-  }) : _api = api;
+    required CoinsRepo coinsRepo,
+  })  : _coinsRepo = coinsRepo,
+        _api = api;
+
+  final CoinsRepo _coinsRepo;
   final Mm2ApiNft _api;
 
   Future<void> updateNft(List<NftBlockchains> chains) async {
@@ -47,7 +51,7 @@ class NftsRepo {
     try {
       final response = GetNftListResponse.fromJson(json);
       final nfts = response.result.nfts;
-      final coins = await coinsRepo.getKnownCoins();
+      final coins = _coinsRepo.getKnownCoins();
       for (NftToken nft in nfts) {
         final coin = coins.firstWhere((c) => c.type == nft.coinType);
         final parentCoin = coin.parentCoin ?? coin;

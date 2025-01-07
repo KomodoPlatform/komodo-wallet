@@ -45,7 +45,7 @@ class FiatPaymentMethodCardState extends State<FiatPaymentMethodCard> {
           side: BorderSide(
             color: Theme.of(context)
                 .primaryColor
-                .withOpacity(isSelected ? 1 : 0.25),
+                .withValues(alpha: isSelected ? 1 : 0.25),
           ),
         ),
         child: Padding(

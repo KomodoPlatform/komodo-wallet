@@ -21,15 +21,14 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		0FECB4522D11D6AF00F11CB7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC10F02044A3C60003C045 /* AppDelegate.swift */; };
 		335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */; };
-		33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC10F02044A3C60003C045 /* AppDelegate.swift */; };
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
+		CE34F2E95A5E72AAE9A202B0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC509CF635E02824A671F07F /* GoogleService-Info.plist */; };
 		D60A10D52711A1B300EB58E3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D60A10D42711A1B300EB58E3 /* CoreFoundation.framework */; platformFilter = maccatalyst; };
 		D60A10D72711A1D000EB58E3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D60A10D62711A1D000EB58E3 /* SystemConfiguration.framework */; platformFilter = maccatalyst; };
-		D68B8E5A2710401800D6C7D1 /* mm2.m in Sources */ = {isa = PBXBuildFile; fileRef = D68B8E592710401800D6C7D1 /* mm2.m */; };
-		D68B8E5C2710416100D6C7D1 /* libmm2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D68B8E5B2710416000D6C7D1 /* libmm2.a */; };
 		D6B034F02711A360007FC221 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D6B034EF2711A360007FC221 /* libz.tbd */; };
 		D6F2739D2710691C005CC4F3 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D6F2739C2710690C005CC4F3 /* libc++.tbd */; platformFilter = maccatalyst; };
 		D6F2739F27106934005CC4F3 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D6F2739E2710692B005CC4F3 /* libresolv.tbd */; platformFilter = maccatalyst; };
@@ -78,13 +77,10 @@
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		AC3362C2E5FD3245C1DF46DE /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		BC509CF635E02824A671F07F /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CBED5C6C4A1CA4CE9B9F2193 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D60A10D42711A1B300EB58E3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D60A10D62711A1D000EB58E3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		D68B8E572710401800D6C7D1 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
-		D68B8E582710401800D6C7D1 /* mm2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mm2.h; sourceTree = "<group>"; };
-		D68B8E592710401800D6C7D1 /* mm2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mm2.m; sourceTree = "<group>"; };
-		D68B8E5B2710416000D6C7D1 /* libmm2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmm2.a; sourceTree = "<group>"; };
 		D6B034EF2711A360007FC221 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		D6F2739C2710690C005CC4F3 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		D6F2739E2710692B005CC4F3 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
@@ -101,7 +97,6 @@
 				D6B034F02711A360007FC221 /* libz.tbd in Frameworks */,
 				D6F2739D2710691C005CC4F3 /* libc++.tbd in Frameworks */,
 				D60A10D72711A1D000EB58E3 /* SystemConfiguration.framework in Frameworks */,
-				D68B8E5C2710416100D6C7D1 /* libmm2.a in Frameworks */,
 				D60A10D52711A1B300EB58E3 /* CoreFoundation.framework in Frameworks */,
 				F0C41ACB9674358D4A6C7838 /* Pods_Runner.framework in Frameworks */,
 				D6F273A12710694D005CC4F3 /* libSystem.tbd in Frameworks */,
@@ -131,6 +126,7 @@
 				33CC10EE2044A3C60003C045 /* Products */,
 				D73912EC22F37F3D000D13A0 /* Frameworks */,
 				3931C7C5835EE32D50936E8A /* Pods */,
+				BC509CF635E02824A671F07F /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -167,15 +163,12 @@
 		33FAB671232836740065AC1E /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				D68B8E582710401800D6C7D1 /* mm2.h */,
-				D68B8E592710401800D6C7D1 /* mm2.m */,
 				33CC10F02044A3C60003C045 /* AppDelegate.swift */,
 				33CC11122044BFA00003C045 /* MainFlutterWindow.swift */,
 				33E51913231747F40026EE4D /* DebugProfile.entitlements */,
 				33E51914231749380026EE4D /* Release.entitlements */,
 				33CC11242044D66E0003C045 /* Resources */,
 				33BA886A226E78AF003329D5 /* Configs */,
-				D68B8E572710401800D6C7D1 /* Runner-Bridging-Header.h */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -193,7 +186,6 @@
 		D73912EC22F37F3D000D13A0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D68B8E5B2710416000D6C7D1 /* libmm2.a */,
 				D6B034EF2711A360007FC221 /* libz.tbd */,
 				D60A10D62711A1D000EB58E3 /* SystemConfiguration.framework */,
 				D60A10D42711A1B300EB58E3 /* CoreFoundation.framework */,
@@ -282,6 +274,7 @@
 			files = (
 				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
 				33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */,
+				CE34F2E95A5E72AAE9A202B0 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,7 +317,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$FLUTTER_ROOT\"/packages/flutter_tools/bin/macos_assemble.sh && touch Flutter/ephemeral/tripwire";
+			shellScript = "\"$FLUTTER_ROOT\"/packages/flutter_tools/bin/macos_assemble.sh && touch Flutter/ephemeral/tripwire\n";
 		};
 		A4BFE8B57517ABC4F933089B /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -409,9 +402,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D68B8E5A2710401800D6C7D1 /* mm2.m in Sources */,
 				33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */,
-				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
+				0FECB4522D11D6AF00F11CB7 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -493,11 +485,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
-				EXCLUDED_ARCHS = arm64;
+				EXCLUDED_ARCHS = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter/ephemeral",
@@ -512,7 +504,6 @@
 					"$(PROJECT_DIR)",
 				);
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Profile;
@@ -632,10 +623,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
 				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = G3VBBBMD8T;
-				EXCLUDED_ARCHS = arm64;
+				EXCLUDED_ARCHS = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter/ephemeral",
@@ -651,7 +643,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.komodo.komodowallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -665,10 +657,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
 				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = G3VBBBMD8T;
-				EXCLUDED_ARCHS = arm64;
+				EXCLUDED_ARCHS = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter/ephemeral",
@@ -684,7 +677,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.komodo.komodowallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

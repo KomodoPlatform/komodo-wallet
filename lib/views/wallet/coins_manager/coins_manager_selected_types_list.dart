@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_event.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_state.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin_type.dart';

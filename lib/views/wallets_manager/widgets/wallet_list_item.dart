@@ -38,10 +38,12 @@ class WalletListItem extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-              onPressed: () =>
-                  onClick(wallet, WalletsManagerExistWalletAction.delete),
-              icon: const Icon(Icons.close))
+          // TODO: enable delete for sdk wallets as well when supported
+          if (wallet.isLegacyWallet)
+            IconButton(
+                onPressed: () =>
+                    onClick(wallet, WalletsManagerExistWalletAction.delete),
+                icon: const Icon(Icons.close)),
         ],
       ),
     );

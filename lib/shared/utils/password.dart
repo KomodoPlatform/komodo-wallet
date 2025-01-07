@@ -27,7 +27,9 @@ String generatePassword() {
     if (tab.contains(lowerCase) &&
         tab.contains(upperCase) &&
         tab.contains(digit) &&
-        tab.contains(punctuation)) break;
+        tab.contains(punctuation)) {
+      break;
+    }
   }
 
   for (int i = 0; i < tab.length; i++) {

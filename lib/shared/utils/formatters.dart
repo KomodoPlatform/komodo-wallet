@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_defi_types/types.dart';
 
 final List<TextInputFormatter> currencyInputFormatters = [
   DecimalTextInputFormatter(decimalRange: decimalRange),
@@ -339,4 +340,16 @@ String truncateMiddleSymbols(String text,
   final String firstPart = text.substring(0, startCount);
   final String secondPart = text.substring(text.length - endCount, text.length);
   return '$firstPart...$secondPart';
+}
+
+String formatTransactionDateTime(Transaction tx) {
+  if (tx.timestamp == DateTime.fromMillisecondsSinceEpoch(0) &&
+      tx.confirmations == 0) {
+    return 'unconfirmed';
+  } else if (tx.timestamp == DateTime.fromMillisecondsSinceEpoch(0) &&
+      tx.confirmations > 0) {
+    return 'confirmed';
+  } else {
+    return DateFormat('dd MMM yyyy HH:mm').format(tx.timestamp);
+  }
 }

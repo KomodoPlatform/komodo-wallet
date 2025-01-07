@@ -1,12 +1,9 @@
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 
 class WalletLogIn extends StatefulWidget {
@@ -41,10 +38,6 @@ class _WalletLogInState extends State<WalletLogIn> {
   }
 
   void _submitLogin() async {
-    final Wallet? wallet =
-        walletsBloc.wallets.firstWhereOrNull((w) => w.id == widget.wallet.id);
-    if (wallet == null) return;
-
     setState(() {
       _errorDisplay = true;
       _inProgress = true;
@@ -53,7 +46,7 @@ class _WalletLogInState extends State<WalletLogIn> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onLogin(
         _passwordController.text,
-        wallet,
+        widget.wallet,
       );
 
       if (mounted) setState(() => _inProgress = false);

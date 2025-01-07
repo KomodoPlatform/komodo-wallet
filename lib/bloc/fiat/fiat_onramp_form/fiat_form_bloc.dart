@@ -5,13 +5,12 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/fiat_repository.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/bloc/transformers.dart';
-import 'package:web_dex/blocs/blocs.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
@@ -23,11 +22,10 @@ part 'fiat_form_state.dart';
 
 class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   FiatFormBloc({
-    FiatRepository? repository,
-    // TODO: update to respository reference once refactored
-    CoinsBloc? coinsRepository,
-  })  : _fiatRepository = repository ?? fiatRepository,
-        _coinsRepository = coinsRepository ?? coinsBloc,
+    required FiatRepository repository,
+    required CoinsRepo coinsRepository,
+  })  : _fiatRepository = repository,
+        _coinsRepository = coinsRepository,
         super(const FiatFormState.initial()) {
     // all user input fields are debounced using the debounce stream transformer
     on<SelectedFiatCurrencyChanged>(
@@ -56,7 +54,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   final FiatRepository _fiatRepository;
-  final CoinsBloc _coinsRepository;
+  final CoinsRepo _coinsRepository;
 
   Future<void> _onChangeSelectedFiatCoin(
     SelectedFiatCurrencyChanged event,
@@ -375,8 +373,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     Emitter<FiatFormState> emit,
   ) async {
     try {
-      final fiatList = await fiatRepository.getFiatList();
-      final coinList = await fiatRepository.getCoinList();
+      final fiatList = await _fiatRepository.getFiatList();
+      final coinList = await _fiatRepository.getCoinList();
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {
       log(
@@ -403,7 +401,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       state.orderId,
     );
 
-    return emit.forEach(
+    return await emit.forEach(
       orderStatusStream,
       onData: (data) {
         return state.copyWith(fiatOrderStatus: data);
@@ -443,9 +441,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   String? getFormIssue() {
     // TODO: ? show on the UI and localise? These are currently used as more of
     // a boolean "is there an error?" rather than "what is the error?"
-    if (!_coinsRepository.isLoggedIn) {
-      return 'Please connect your wallet to purchase coins';
-    }
     if (state.paymentMethods.isEmpty) {
       return 'No payment method for this pair';
     }

@@ -5,9 +5,10 @@ import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_event.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_state.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/convert_address/convert_address_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw/trezor_withdraw_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/validateaddress/validateaddress_response.dart';
@@ -27,10 +28,14 @@ export 'package:web_dex/bloc/withdraw_form/withdraw_form_state.dart';
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
 
 class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
-  WithdrawFormBloc(
-      {required Coin coin, required CoinsBloc coinsBloc, required this.goBack})
-      : _coinsRepo = coinsBloc,
-        super(WithdrawFormState.initial(coin, coinsBloc)) {
+  WithdrawFormBloc({
+    required Coin coin,
+    required CoinsRepo coinsRepository,
+    required Mm2Api api,
+    required this.goBack,
+  })  : _coinsRepo = coinsRepository,
+        _mm2Api = api,
+        super(WithdrawFormState.initial(coin, coinsRepository)) {
     on<WithdrawFormAddressChanged>(_onAddressChanged);
     on<WithdrawFormAmountChanged>(_onAmountChanged);
     on<WithdrawFormCustomFeeChanged>(_onCustomFeeChanged);
@@ -51,7 +56,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   }
 
   // will use actual CoinsRepo when implemented
-  final CoinsBloc _coinsRepo;
+  final CoinsRepo _coinsRepo;
+  final Mm2Api _mm2Api;
   final VoidCallback goBack;
 
   // Event handlers
@@ -268,9 +274,12 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     WithdrawFormConvertAddress event,
     Emitter<WithdrawFormState> emitter,
   ) async {
-    final result = await coinsRepo.convertLegacyAddress(
-      state.coin,
-      state.address,
+    final result = await _mm2Api.convertLegacyAddress(
+      ConvertAddressRequest(
+        coin: state.coin.abbr,
+        from: state.address,
+        isErc: state.coin.isErcType,
+      ),
     );
 
     add(WithdrawFormAddressChanged(address: result ?? ''));
@@ -294,7 +303,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       return;
     }
 
-    final response = await _coinsRepo.sendRawTransaction(
+    final response = await _mm2Api.sendRawTransaction(
       SendRawTransactionRequest(
         coin: state.withdrawDetails.coin,
         txHex: state.withdrawDetails.txHex,
@@ -325,7 +334,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       ));
       return;
     }
-    await _coinsRepo.updateBalances();
     emitter(state.copyWith(step: WithdrawFormStep.success));
   }
 
@@ -400,8 +408,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     }
 
     final Map<String, dynamic>? validateRawResponse =
-        await coinsRepo.validateCoinAddress(
-      state.coin,
+        await _mm2Api.validateAddress(
+      state.coin.abbr,
       state.address,
     );
     if (validateRawResponse == null) {

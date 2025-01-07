@@ -4,10 +4,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_bloc.dart';
 import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_repo.dart';
 import 'package:web_dex/bloc/nfts/nft_main_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
@@ -43,6 +43,7 @@ class NftDetailsPage extends StatelessWidget {
             .firstWhereOrNull((list) =>
                 list?.firstWhereOrNull((token) => token.uuid == uuid) != null)
             ?.firstWhereOrNull((token) => token.uuid == uuid);
+        final mm2Api = RepositoryProvider.of<Mm2Api>(context);
 
         if (nft == null) {
           return Column(
@@ -64,8 +65,9 @@ class NftDetailsPage extends StatelessWidget {
           key: Key('nft-withdraw-bloc-provider-${nft.uuid}'),
           create: (context) => NftWithdrawBloc(
             nft: nft,
-            repo: NftWithdrawRepo(api: mm2Api.nft),
-            coinsBloc: coinsBloc,
+            repo: NftWithdrawRepo(api: mm2Api),
+            mm2Api: mm2Api,
+            coinsRepository: RepositoryProvider.of<CoinsRepo>(context),
           ),
           child: isMobile
               ? NftDetailsPageMobile(isRouterSend: isSend)

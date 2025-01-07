@@ -7,6 +7,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_dex/common/screen.dart';
@@ -647,4 +649,13 @@ Future<void> pauseWhile(
 enum HashExplorerType {
   address,
   tx,
+}
+
+Asset getSdkAsset(KomodoDefiSdk? sdk, String abbr) {
+  if (sdk == null) {
+    throw Exception('getSdkAsset: SDK is null');
+  }
+
+  // ignore: deprecated_member_use
+  return sdk.assets.assetsFromTicker(abbr).single;
 }

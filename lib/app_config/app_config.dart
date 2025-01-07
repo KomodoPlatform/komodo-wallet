@@ -28,12 +28,6 @@ const Duration kPerformanceLogInterval = Duration(minutes: 1);
 String get appTitle => 'Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX';
 String get appShortTitle => 'Komodo Wallet';
 
-// We're using a hardcoded seed for the hidden login instead
-// of generating it on the fly. This will allow us to access
-// previously connected Trezor wallet accounts data and speed up
-// the reactivation of its coins.
-String get seedForHiddenLogin => 'hidden-login';
-
 Map<String, int> priorityCoinsAbbrMap = {
   'KMD': 30,
   'BTC-segwit': 20,

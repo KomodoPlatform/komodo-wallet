@@ -14,16 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [
-          web-app-linux-profile,
-          web-app-macos,
-        ]
+        name: [web-app-linux-profile, web-app-macos]
         include:
           - name: web-app-linux-profile
             os: [self-hosted, linux]
             browser: chrome
-            display: 'headless' 
-            resolution: '1600,1024'
+            display: "headless"
+            resolution: "1600,1024"
             mode: profile
             # memory_profile.json should be generated in profile mode
             driver_logs: |
@@ -33,8 +30,8 @@ jobs:
           - name: web-app-macos
             os: [self-hosted, macos]
             browser: safari
-            display: 'headless' # has no affect with safaridriver
-            resolution: '1600,1024' # has no affect with safaridriver
+            display: "headless" # has no affect with safaridriver
+            resolution: "1600,1024" # has no affect with safaridriver
             mode: release
             driver_logs: |
               ./*.log
@@ -54,7 +51,6 @@ jobs:
           chrome-version: 116.0.5845.96
           install-chromedriver: true
           install-dependencies: true
-
 
       - name: Enable safaridriver (sudo) (MacOS)
         if: ${{ matrix.browser == 'safari' }}
@@ -79,7 +75,6 @@ jobs:
       - name: Test air_dex ${{ matrix.browser }}
         id: integration-tests
         continue-on-error: true
-        timeout-minutes: 35
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -97,13 +92,16 @@ jobs:
           path: ${{ matrix.driver_logs }}
           if-no-files-found: warn
 
-      - name: Generate coverage report
-        if: ${{ matrix.browser == 'chrome' }}
-        continue-on-error: true
-        timeout-minutes: 35
-        uses: ./.github/actions/code-coverage
-        with:
-          test_file: 'test_integration'
+      # TODO: re-enable once integration test coverage is fixed.
+      # there are errors related to Hive and other storage providers
+      # that will likely need to be mocked to support the new
+      # flutter integration test structure (flutter drive is deprecated)
+      # - name: Generate coverage report
+      #   if: ${{ matrix.browser == 'chrome' }}
+      #   continue-on-error: true
+      #   uses: ./.github/actions/code-coverage
+      #   with:
+      #     test_file: 'test_integration'
 
       - name: Fail workflow if tests failed
         if: ${{ steps.integration-tests.outcome == 'failure' }}

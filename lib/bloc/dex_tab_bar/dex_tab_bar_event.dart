@@ -24,12 +24,12 @@ class FilterChanged extends DexTabBarEvent {
   List<Object?> get props => [tabType, filter];
 }
 
-class StartListening extends DexTabBarEvent {
-  const StartListening();
+class ListenToOrdersRequested extends DexTabBarEvent {
+  const ListenToOrdersRequested();
 }
 
-class StopListening extends DexTabBarEvent {
-  const StopListening();
+class StopListeningToOrdersRequested extends DexTabBarEvent {
+  const StopListeningToOrdersRequested();
 }
 
 class MyOrdersUpdated extends DexTabBarEvent {

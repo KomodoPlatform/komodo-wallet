@@ -98,7 +98,8 @@ Future<void> addAsset(
     return;
   }
 
-  await tester.tapAndPump(addAssetsButton);
+  await tester.tap(addAssetsButton);
+  await tester.pumpAndSettle(); // wait for page switch and list loading
   print('🔍 ADD ASSET: Tapped add assets button');
 
   try {

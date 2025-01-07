@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_init/trezor_balance_init_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_init/trezor_balance_init_response.dart';
@@ -24,15 +25,22 @@ import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw_cancel/t
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw_status/trezor_withdraw_status_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw_status/trezor_withdraw_status_response.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/hd_account/hd_account.dart';
 import 'package:web_dex/model/hw_wallet/trezor_connection_status.dart';
+import 'package:web_dex/model/hw_wallet/trezor_status.dart';
 import 'package:web_dex/model/hw_wallet/trezor_task.dart';
+import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 class TrezorRepo {
   TrezorRepo({
     required Mm2ApiTrezor api,
-  }) : _api = api;
+    required KomodoDefiSdk kdfSdk,
+  })  : _api = api,
+        _kdfSdk = kdfSdk;
 
   final Mm2ApiTrezor _api;
+  final KomodoDefiSdk _kdfSdk;
 
   Future<InitTrezorRes> init() async {
     return await _api.init(InitTrezorReq());
@@ -74,8 +82,8 @@ class TrezorRepo {
     return await _api.balanceStatus(TrezorBalanceStatusRequest(taskId: taskId));
   }
 
-  Future<TrezorEnableUtxoResponse> enableUtxo(Coin coin) async {
-    return await _api.enableUtxo(TrezorEnableUtxoReq(coin: coin));
+  Future<TrezorEnableUtxoResponse> enableUtxo(Asset asset) async {
+    return await _api.enableUtxo(TrezorEnableUtxoReq(coin: asset));
   }
 
   Future<TrezorEnableUtxoStatusResponse> getEnableUtxoStatus(int taskId) async {
@@ -85,10 +93,6 @@ class TrezorRepo {
 
   Future<TrezorGetNewAddressInitResponse> initNewAddress(String coin) async {
     return await _api.initNewAddress(coin);
-  }
-
-  Future<GetNewAddressResponse> getNewAddressStatus(int taskId) async {
-    return await _api.getNewAddressStatus(taskId);
   }
 
   Future<void> cancelGetNewAddress(int taskId) async {
@@ -126,6 +130,49 @@ class TrezorRepo {
     _connectionStatusTimer?.cancel();
     _connectionStatusTimer = null;
   }
-}
 
-final TrezorRepo trezorRepo = TrezorRepo(api: mm2Api.trezor);
+  Future<bool> isTrezorWallet() async {
+    final currentWallet = await _kdfSdk.currentWallet();
+    return currentWallet?.config.type == WalletType.trezor;
+  }
+
+  Future<List<HdAccount>?> getAccounts(Coin coin) async {
+    final TrezorBalanceInitResponse initResponse =
+        await _api.balanceInit(TrezorBalanceInitRequest(coin: coin));
+    final int? taskId = initResponse.result?.taskId;
+    if (taskId == null) return null;
+
+    final int started = nowMs;
+    // todo(yurii): change timeout to some reasonable value (10000?)
+    while (nowMs - started < 100000) {
+      final statusResponse =
+          await _api.balanceStatus(TrezorBalanceStatusRequest(taskId: taskId));
+      final InitTrezorStatus? status = statusResponse.result?.status;
+
+      if (status == InitTrezorStatus.error) return null;
+
+      if (status == InitTrezorStatus.ok) {
+        return statusResponse.result?.balanceDetails?.accounts;
+      }
+
+      await Future<dynamic>.delayed(const Duration(milliseconds: 500));
+    }
+
+    return null;
+  }
+
+  Future<GetNewAddressResponse> getNewAddressStatus(
+    int taskId,
+    Coin coin,
+  ) async {
+    final GetNewAddressResponse response =
+        await _api.getNewAddressStatus(taskId);
+    final GetNewAddressStatus? status = response.result?.status;
+    final GetNewAddressResultDetails? details = response.result?.details;
+    if (status == GetNewAddressStatus.ok &&
+        details is GetNewAddressResultOkDetails) {
+      coin.accounts = await getAccounts(coin);
+    }
+    return response;
+  }
+}

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/views/dex/common/trading_amount_field.dart';
@@ -66,6 +66,7 @@ class _FiatAmount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     return BlocBuilder<BridgeBloc, BridgeState>(
       buildWhen: (prev, cur) {
         return prev.bestOrder != cur.bestOrder ||
@@ -73,7 +74,7 @@ class _FiatAmount extends StatelessWidget {
       },
       builder: (context, state) {
         final String? abbr = state.bestOrder?.coin;
-        final Coin? coin = abbr == null ? null : coinsBloc.getCoin(abbr);
+        final Coin? coin = abbr == null ? null : coinsRepository.getCoin(abbr);
 
         return DexFiatAmount(
           coin: coin,

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/orderbook_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
 import 'package:web_dex/model/coin.dart';
 
@@ -8,11 +8,14 @@ class OrderbookModel {
   OrderbookModel({
     required Coin? base,
     required Coin? rel,
+    required this.orderBookRepository,
   }) {
     _base = base;
     _rel = rel;
     _updateListener();
   }
+
+  final OrderbookBloc orderBookRepository;
 
   Coin? _base;
   Coin? get base => _base;
@@ -56,7 +59,8 @@ class OrderbookModel {
     response = null;
     if (base == null || rel == null) return;
 
-    final stream = orderbookBloc.getOrderbookStream(base!.abbr, rel!.abbr);
+    final stream =
+        orderBookRepository.getOrderbookStream(base!.abbr, rel!.abbr);
     _orderbookListener = stream.listen((resp) => response = resp);
   }
 

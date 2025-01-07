@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/prominent_colors.dart';
@@ -37,7 +37,8 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
     // TODO: Handle this. And for other charts. This
   }
 
-  String? get walletId => currentWalletBloc.wallet?.id;
+  String? get walletId =>
+      RepositoryProvider.of<CurrentWalletBloc>(context).wallet?.id;
 
   @override
   Widget build(BuildContext context) {

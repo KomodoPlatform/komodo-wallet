@@ -1,7 +1,4 @@
-import 'package:equatable/equatable.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/router/state/wallet_state.dart';
+part of 'coins_manager_bloc.dart';
 
 class CoinsManagerState extends Equatable {
   const CoinsManagerState({

@@ -1,7 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallets_manager_models.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -114,6 +115,7 @@ class _WalletCreationState extends State<WalletCreation> {
   }
 
   Widget _buildNameField() {
+    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
     return UiTextFormField(
       key: const Key('name-wallet-field'),
       controller: _nameController,
@@ -122,7 +124,7 @@ class _WalletCreationState extends State<WalletCreation> {
       textInputAction: TextInputAction.next,
       enableInteractiveSelection: true,
       validator: (String? name) =>
-          _inProgress ? null : walletsBloc.validateWalletName(name ?? ''),
+          _inProgress ? null : walletsRepository.validateWalletName(name ?? ''),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
       hintText: LocaleKeys.walletCreationNameHint.tr(),
     );

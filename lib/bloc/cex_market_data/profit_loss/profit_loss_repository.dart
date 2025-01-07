@@ -12,8 +12,9 @@ import 'package:web_dex/bloc/cex_market_data/profit_loss/models/adapters/adapter
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class ProfitLossRepository {
@@ -23,20 +24,24 @@ class ProfitLossRepository {
     required cex.CexRepository cexRepository,
     required TransactionHistoryRepo transactionHistoryRepo,
     required ProfitLossCalculator profitLossCalculator,
+    required CoinsRepo coinsRepository,
   })  : _transactionHistoryRepo = transactionHistoryRepo,
         _cexRepository = cexRepository,
         _profitLossCacheProvider = profitLossCacheProvider,
-        _profitLossCalculator = profitLossCalculator;
+        _profitLossCalculator = profitLossCalculator,
+        _coinsRepository = coinsRepository;
 
   final PersistenceProvider<String, ProfitLossCache> _profitLossCacheProvider;
   final cex.CexRepository _cexRepository;
   final TransactionHistoryRepo _transactionHistoryRepo;
   final ProfitLossCalculator _profitLossCalculator;
+  final CoinsRepo _coinsRepository;
 
   static Future<void> ensureInitialized() async {
-    Hive..registerAdapter(FiatValueAdapter())
-    ..registerAdapter(ProfitLossAdapter())
-    ..registerAdapter(ProfitLossCacheAdapter());
+    Hive
+      ..registerAdapter(FiatValueAdapter())
+      ..registerAdapter(ProfitLossAdapter())
+      ..registerAdapter(ProfitLossCacheAdapter());
   }
 
   Future<void> clearCache() async {
@@ -50,12 +55,16 @@ class ProfitLossRepository {
     String cacheTableName = 'profit_loss',
     required TransactionHistoryRepo transactionHistoryRepo,
     required cex.CexRepository cexRepository,
+    required CoinsRepo coinsRepository,
+    required Mm2Api mm2Api,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
       return MockProfitLossRepository.withDefaults(
         performanceMode: demoMode,
+        coinsRepository: coinsRepository,
         cacheTableName: 'mock_${cacheTableName}_${demoMode.name}',
+        mm2Api: mm2Api,
       );
     }
 
@@ -65,6 +74,7 @@ class ProfitLossRepository {
           HiveLazyBoxProvider<String, ProfitLossCache>(name: cacheTableName),
       cexRepository: cexRepository,
       profitLossCalculator: RealisedProfitLossCalculator(cexRepository),
+      coinsRepository: coinsRepository,
     );
   }
 
@@ -85,8 +95,8 @@ class ProfitLossRepository {
     bool allowInactiveCoins = false,
   }) async {
     if (!allowInactiveCoins) {
-      final coin = coinsBlocRepository.getCoin(coinId)!;
-      if (coin.isActivating || !coin.isActive) {
+      final coin = await _coinsRepository.getEnabledCoin(coinId);
+      if (coin == null || coin.isActivating || !coin.isActive) {
         return false;
       }
     }
@@ -151,7 +161,7 @@ class ProfitLossRepository {
         await _transactionHistoryRepo.fetchCompletedTransactions(
       // TODO: Refactor referenced coinsBloc method to a repository.
       // NB: Even though the class is called [CoinsBloc], it is not a Bloc.
-      coinsBlocRepository.getCoin(coinId)!,
+      _coinsRepository.getCoin(coinId)!,
     );
 
     if (transactions.isEmpty) {

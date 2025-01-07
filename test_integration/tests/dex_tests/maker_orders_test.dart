@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:web_dex/main.dart' as app;
+import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
 import 'package:web_dex/shared/widgets/focusable_widget.dart';
 import 'package:web_dex/views/dex/entities_list/orders/order_item.dart';
 
 import '../../common/pause.dart';
 import '../../common/widget_tester_action_extensions.dart';
+import '../../common/widget_tester_find_extension.dart';
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
 import '../wallets_tests/wallet_tools.dart';
@@ -48,6 +50,8 @@ Future<void> testMakerOrder(WidgetTester tester) async {
       find.byKey(const Key('make-order-confirm-button'));
   final Finder orderListItem = find.byType(OrderItem);
   final Finder orderUuidWidget = find.byKey(const Key('maker-order-uuid'));
+
+  await useFaucetIfBalanceInsufficient(tester);
 
   // Open maker order form
   await tester.tapAndPump(dexSectionButton);
@@ -136,6 +140,77 @@ Future<void> testMakerOrder(WidgetTester tester) async {
   print('🔍 MAKER ORDER: Found order UUID: $truncatedUuid');
   expect(truncatedUuid != null, isTrue);
   expect(truncatedUuid?.isNotEmpty, isTrue);
+}
+
+Future<void> useFaucetIfBalanceInsufficient(WidgetTester tester) async {
+  final walletTab = find.byKeyName('main-menu-wallet');
+  final coinsList = find.byKey(const Key('wallet-page-coins-list'));
+  final docItem = find.byKeyName('coins-manager-list-item-doc');
+  final docCoinActive = find.byKeyName('active-coin-item-doc');
+  final docCoinBalance = find.byKeyName('coin-balance-asset-doc');
+  final martyItem = find.byKeyName('coins-manager-list-item-marty');
+  final martyCoinActive = find.byKeyName('active-coin-item-marty');
+  final martyCoinBalance = find.byKeyName('coin-balance-asset-marty');
+  final walletPageScrollView = find.byKeyName('wallet-page-scroll-view');
+  final faucetButton = find.byKeyName('coin-details-faucet-button');
+
+  await tester.tap(walletTab);
+  await tester.pumpAndSettle();
+
+  await addAsset(tester, asset: docItem, search: 'DOC');
+  print('🔍 Added doc asset');
+  await addAsset(tester, asset: martyItem, search: 'MARTY');
+  print('🔍 Added marty asset');
+
+  await tester.dragUntilVisible(
+    docCoinActive,
+    walletPageScrollView,
+    const Offset(0, -50),
+  );
+  await tester.pumpAndSettle();
+  print('🔍 dragged until doc coin item visible');
+  final docText = docCoinBalance.evaluate().single.widget as AutoScrollText;
+  final String? docBalanceStr = docText.text.split(' ').firstOrNull;
+  print('🔍 doc balance str: $docBalanceStr');
+  final double? docBalance = double.tryParse(docBalanceStr ?? '');
+  print('🔍 doc balance: $docBalance');
+  if (docBalance != null && docBalance <= 0.2) {
+    await tester.tapAndPump(docCoinActive);
+    await tester.pumpAndSettle(); // wait for page and tx history
+    print('🔍 navigated to doc coin details page');
+    await tester.tap(faucetButton);
+    await tester.pumpAndSettle(); // wait for page & loader
+    print('🔍 pressed faucet button for doc');
+    await pause(sec: 60);
+  }
+
+  await tester.tap(walletTab);
+  await tester.pumpAndSettle();
+
+  await tester.dragUntilVisible(
+    coinsList,
+    walletPageScrollView,
+    const Offset(0, -50),
+  );
+  await tester.dragUntilVisible(
+    martyCoinActive,
+    walletPageScrollView,
+    const Offset(0, -50),
+  );
+  final martyText = martyCoinBalance.evaluate().single.widget as AutoScrollText;
+  final String? martyBalanceStr = martyText.text.split(' ').firstOrNull;
+  print('🔍 marty balance str: $martyBalanceStr');
+  final double? martyBalance = double.tryParse(martyBalanceStr ?? '');
+  print('🔍 marty balance: $martyBalance');
+  if (martyBalance != null && martyBalance <= 0.2) {
+    await tester.tapAndPump(martyCoinActive);
+    await tester.pumpAndSettle(); // wait for page and tx history
+    print('🔍  navigated to marty coin details page');
+    await tester.tap(faucetButton);
+    await tester.pumpAndSettle(); // wait for page & loader
+    print('🔍 pressed faucet button for marty');
+    await pause(sec: 60);
+  }
 }
 
 void main() {

@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
 
 class WalletOverview extends StatelessWidget {
   const WalletOverview({
@@ -20,17 +19,12 @@ class WalletOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Coin>>(
-      initialData: coinsBloc.walletCoinsMap.values.toList(),
-      stream: coinsBloc.outWalletCoins,
-      builder: (context, snapshot) {
-        final List<Coin>? coins = snapshot.data;
-        if (!snapshot.hasData || coins == null) return _buildSpinner();
+    return BlocBuilder<CoinsBloc, CoinsState>(
+      builder: (context, state) {
+        if (state.coins.isEmpty) return _buildSpinner();
 
         final portfolioAssetsOverviewBloc = context.watch<AssetOverviewBloc>();
-
-        final int assetCount = coins.length;
-
+        final int assetCount = state.walletCoins.length;
         final stateWithData = portfolioAssetsOverviewBloc.state
                 is PortfolioAssetsOverviewLoadSuccess
             ? portfolioAssetsOverviewBloc.state

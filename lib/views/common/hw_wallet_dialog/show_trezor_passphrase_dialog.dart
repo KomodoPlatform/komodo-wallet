@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
@@ -24,6 +25,7 @@ Future<void> showTrezorPassphraseDialog(TrezorTask task) async {
     onDismiss: close,
     popupContent: TrezorDialogSelectWallet(
       onComplete: (String passphrase) async {
+        final trezorRepo = RepositoryProvider.of<TrezorRepo>(context);
         await trezorRepo.sendPassphrase(passphrase, task);
         // todo(yurii): handle invalid pin
         close();

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/orderbook/order.dart';
@@ -81,20 +81,14 @@ class _MakerFormDesktopLayout extends StatelessWidget {
               child: ConstrainedBox(
                 constraints:
                     BoxConstraints(maxWidth: theme.custom.dexFormWidth),
-                child: StreamBuilder<List<Coin?>>(
-                  initialData: coinsBloc.walletCoins,
-                  stream: coinsBloc.outWalletCoins,
-                  builder: (context, snapshot) {
-                    final coins = snapshot.data
-                            ?.where(
-                              (e) =>
-                                  e != null &&
-                                  e.usdPrice != null &&
-                                  e.usdPrice!.price > 0,
-                            )
-                            .cast<Coin>()
-                            .toList() ??
-                        [];
+                child: BlocBuilder<CoinsBloc, CoinsState>(
+                  builder: (context, state) {
+                    final coins = state.walletCoins.values
+                        .where(
+                          (e) => e.usdPrice != null && e.usdPrice!.price > 0,
+                        )
+                        .cast<Coin>()
+                        .toList();
                     return MarketMakerBotFormContent(coins: coins);
                   },
                 ),
@@ -130,20 +124,14 @@ class _MakerFormMobileLayout extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            StreamBuilder<List<Coin?>>(
-              initialData: coinsBloc.walletCoins,
-              stream: coinsBloc.outWalletCoins,
-              builder: (context, snapshot) {
-                final coins = snapshot.data
-                        ?.where(
-                          (e) =>
-                              e != null &&
-                              e.usdPrice != null &&
-                              e.usdPrice!.price > 0,
-                        )
-                        .cast<Coin>()
-                        .toList() ??
-                    [];
+            BlocBuilder<CoinsBloc, CoinsState>(
+              builder: (context, state) {
+                final coins = state.walletCoins.values
+                    .where(
+                      (e) => e.usdPrice != null && e.usdPrice!.price > 0,
+                    )
+                    .cast<Coin>()
+                    .toList();
                 return MarketMakerBotFormContent(coins: coins);
               },
             ),

@@ -1,9 +1,8 @@
-// TODO(Francois): delete once the migration is done
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc_state.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
@@ -11,7 +10,7 @@ import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_mak
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_maker_order_list_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
@@ -42,25 +41,30 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final myOrdersService = RepositoryProvider.of<MyOrdersService>(context);
+
     final orderListRepository = MarketMakerBotOrderListRepository(
       myOrdersService,
       SettingsRepository(),
-      coinsBloc,
+      coinsRepository,
     );
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(
           create: (BuildContext context) => DexTabBarBloc(
-            authRepo,
+            RepositoryProvider.of<KomodoDefiSdk>(context),
             tradingEntitiesBloc,
             orderListRepository,
-          )..add(const StartListening()),
+          )..add(const ListenToOrdersRequested()),
         ),
         BlocProvider<MarketMakerTradeFormBloc>(
           create: (BuildContext context) => MarketMakerTradeFormBloc(
-            dexRepo: DexRepository(),
-            coinsRepo: coinsBloc,
+            dexRepo: RepositoryProvider.of<DexRepository>(context),
+            coinsRepo: coinsRepository,
           ),
         ),
         BlocProvider<MarketMakerOrderListBloc>(
@@ -68,7 +72,7 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
             MarketMakerBotOrderListRepository(
               myOrdersService,
               SettingsRepository(),
-              coinsBloc,
+              coinsRepository,
             ),
           ),
         ),

@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/amount_input_field.dart';
@@ -17,11 +18,16 @@ class MakerFormPriceItem extends StatefulWidget {
 
 class _MakerFormPriceItemState extends State<MakerFormPriceItem> {
   final List<StreamSubscription> _listeners = [];
-  Coin? _sellCoin = makerFormBloc.sellCoin;
-  Coin? _buyCoin = makerFormBloc.buyCoin;
+  Coin? _sellCoin;
+  Coin? _buyCoin;
 
   @override
   void initState() {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+
+    _sellCoin = makerFormBloc.sellCoin;
+    _buyCoin = makerFormBloc.buyCoin;
+
     _listeners.add(makerFormBloc.outSellCoin.listen(_onFormStateChange));
     _listeners.add(makerFormBloc.outBuyCoin.listen(_onFormStateChange));
     super.initState();
@@ -73,6 +79,7 @@ class _MakerFormPriceItemState extends State<MakerFormPriceItem> {
   }
 
   Widget _buildPriceField() {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return AmountInputField(
         hint: '',
         stream: makerFormBloc.outPrice,
@@ -103,6 +110,7 @@ class _MakerFormPriceItemState extends State<MakerFormPriceItem> {
   void _onFormStateChange(dynamic _) {
     if (!mounted) return;
 
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     setState(() {
       _sellCoin = makerFormBloc.sellCoin;
       _buyCoin = makerFormBloc.buyCoin;

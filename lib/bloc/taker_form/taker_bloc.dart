@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
 import 'package:web_dex/bloc/taker_form/taker_validator.dart';
 import 'package:web_dex/bloc/transformers.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_response.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/available_balance_state.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/data_from_service.dart';
@@ -28,8 +28,8 @@ import 'package:web_dex/views/dex/dex_helpers.dart';
 class TakerBloc extends Bloc<TakerEvent, TakerState> {
   TakerBloc({
     required DexRepository dexRepository,
-    required CoinsBloc coinsRepository,
-    required AuthRepository authRepo,
+    required CoinsRepo coinsRepository,
+    required KomodoDefiSdk kdfSdk,
   })  : _dexRepo = dexRepository,
         _coinsRepo = coinsRepository,
         super(TakerState.initial()) {
@@ -65,12 +65,12 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     on<TakerVerifyOrderVolume>(_onVerifyOrderVolume);
     on<TakerSetWalletIsReady>(_onSetWalletReady);
 
-    _authorizationSubscription = authRepo.authMode.listen((event) {
-      if (event == AuthorizeMode.noLogin && state.step == TakerStep.confirm) {
+    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
+      if (event != null && state.step == TakerStep.confirm) {
         add(TakerBackButtonClick());
       }
       final bool prevLoginState = _isLoggedIn;
-      _isLoggedIn = event == AuthorizeMode.logIn;
+      _isLoggedIn = event != null;
 
       if (prevLoginState != _isLoggedIn) {
         add(const TakerUpdateMaxSellAmount(true));
@@ -80,13 +80,13 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   }
 
   final DexRepository _dexRepo;
-  final CoinsBloc _coinsRepo;
+  final CoinsRepo _coinsRepo;
   Timer? _maxSellAmountTimer;
   bool _activatingAssets = false;
   bool _waitingForWallet = true;
   bool _isLoggedIn = false;
   late TakerValidator _validator;
-  late StreamSubscription<AuthorizeMode> _authorizationSubscription;
+  late StreamSubscription<KdfUser?> _authorizationSubscription;
 
   Future<void> _onStartSwap(
       TakerStartSwap event, Emitter<TakerState> emit) async {
@@ -493,7 +493,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
 
     _activatingAssets = true;
     final List<DexFormError> activationErrors =
-        await activateCoinIfNeeded(abbr);
+        await activateCoinIfNeeded(abbr, _coinsRepo);
     _activatingAssets = false;
 
     if (activationErrors.isNotEmpty) {

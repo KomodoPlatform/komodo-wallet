@@ -1,3 +1,7 @@
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:uuid/uuid.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 
 class Wallet {
@@ -8,18 +12,56 @@ class Wallet {
   });
 
   factory Wallet.fromJson(Map<String, dynamic> json) => Wallet(
-        id: json['id'] ?? '',
-        name: json['name'] ?? '',
-        config: WalletConfig.fromJson(json['config']),
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        config: WalletConfig.fromJson(
+          json['config'] as Map<String, dynamic>? ?? {},
+        ),
       );
+
+  /// Creates a wallet from a name and the optional parameters.
+  /// [name] - The name of the wallet.
+  /// [walletType] - The [WalletType] of the wallet. Defaults to [WalletType.iguana].
+  /// [activatedCoins] - The list of activated coins. If not provided, the
+  /// default list of enabled coins ([enabledByDefaultCoins]) will be used.
+  /// [hasBackup] - Whether the wallet has been backed up. Defaults to false.
+  factory Wallet.fromName({
+    required String name,
+    WalletType walletType = WalletType.iguana,
+    List<String>? activatedCoins,
+    bool hasBackup = false,
+  }) {
+    return Wallet(
+      id: const Uuid().v1(),
+      name: name,
+      config: WalletConfig(
+        activatedCoins: activatedCoins ?? enabledByDefaultCoins,
+        hasBackup: hasBackup,
+        type: walletType,
+        seedPhrase: '',
+      ),
+    );
+  }
+
+  /// Creates a wallet from a name and the optional parameters.
+  factory Wallet.fromConfig({
+    required String name,
+    required WalletConfig config,
+  }) {
+    return Wallet(
+      id: const Uuid().v1(),
+      name: name,
+      config: config,
+    );
+  }
 
   String id;
   String name;
   WalletConfig config;
 
   bool get isHW => config.type != WalletType.iguana;
-
-  Future<String> getSeed(String password) async =>
+  bool get isLegacyWallet => config.isLegacyWallet;
+  Future<String> getLegacySeed(String password) async =>
       await EncryptionTool().decryptData(password, config.seedPhrase) ?? '';
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -40,22 +82,32 @@ class Wallet {
 class WalletConfig {
   WalletConfig({
     required this.seedPhrase,
-    this.pubKey,
     required this.activatedCoins,
     required this.hasBackup,
+    this.pubKey,
     this.type = WalletType.iguana,
+    this.isLegacyWallet = false,
   });
 
   factory WalletConfig.fromJson(Map<String, dynamic> json) {
     return WalletConfig(
-      type: WalletType.fromJson(json['type'] ?? WalletType.iguana.name),
-      seedPhrase: json['seed_phrase'],
-      pubKey: json['pub_key'],
+      type: WalletType.fromJson(
+          json['type'] as String? ?? WalletType.iguana.name),
+      seedPhrase: json['seed_phrase'] as String? ?? '',
+      pubKey: json['pub_key'] as String?,
       activatedCoins:
-          List<String>.from(json['activated_coins'] ?? <String>[]).toList(),
-      hasBackup: json['has_backup'] ?? false,
+          List<String>.from(json['activated_coins'] as List? ?? <String>[])
+              .toList(),
+      hasBackup: json['has_backup'] as bool? ?? false,
     );
   }
+
+  String seedPhrase;
+  String? pubKey;
+  List<String> activatedCoins;
+  bool hasBackup;
+  WalletType type;
+  bool isLegacyWallet;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -66,12 +118,6 @@ class WalletConfig {
       'has_backup': hasBackup,
     };
   }
-
-  String seedPhrase;
-  String? pubKey;
-  List<String> activatedCoins;
-  bool hasBackup;
-  WalletType type;
 
   WalletConfig copy() {
     return WalletConfig(
@@ -86,6 +132,7 @@ class WalletConfig {
 
 enum WalletType {
   iguana,
+  // TODO! add HD wallet type
   trezor,
   metamask,
   keplr;
@@ -101,5 +148,82 @@ enum WalletType {
       default:
         return WalletType.iguana;
     }
+  }
+}
+
+extension KdfUserWalletExtension on KdfUser {
+  Wallet get wallet {
+    final walletType =
+        WalletType.fromJson(metadata['type'] as String? ?? 'iguana');
+    return Wallet(
+      id: walletId.name,
+      name: walletId.name,
+      config: WalletConfig(
+        seedPhrase: '',
+        pubKey: walletId.pubkeyHash,
+        activatedCoins: _parseActivatedCoins(walletType),
+        hasBackup: metadata['has_backup'] as bool? ?? false,
+        type: walletType,
+      ),
+    );
+  }
+
+  List<String> _parseActivatedCoins(WalletType walletType) {
+    final activatedCoins =
+        metadata.valueOrNull<List<String>>('activated_coins');
+    if (activatedCoins == null || activatedCoins.isEmpty) {
+      if (walletType == WalletType.trezor) {
+        return enabledByDefaultTrezorCoins;
+      }
+
+      return enabledByDefaultCoins;
+    }
+
+    return activatedCoins;
+  }
+}
+
+extension KdfSdkWalletExtension on KomodoDefiSdk {
+  Future<Iterable<Wallet>> get wallets async =>
+      (await auth.getUsers()).map((user) => user.wallet);
+}
+
+extension KdfAuthExtension on KomodoDefiSdk {
+  Future<bool> walletExists(String walletId) async {
+    final users = await auth.getUsers();
+    return users.any((user) => user.walletId.name == walletId);
+  }
+
+  Future<Wallet?> currentWallet() async {
+    final user = await auth.currentUser;
+    return user?.wallet;
+  }
+
+  Future<void> addActivatedCoins(Iterable<String> coins) async {
+    final existingCoins = (await auth.currentUser)
+            ?.metadata
+            .valueOrNull<List<String>>('activated_coins') ??
+        [];
+
+    final mergedCoins = <dynamic>{...existingCoins, ...coins}.toList();
+    await auth.setOrRemoveActiveUserKeyValue('activated_coins', mergedCoins);
+  }
+
+  Future<void> removeActivatedCoins(List<String> coins) async {
+    final existingCoins = (await auth.currentUser)
+            ?.metadata
+            .valueOrNull<List<String>>('activated_coins') ??
+        [];
+
+    existingCoins.removeWhere((coin) => coins.contains(coin));
+    await auth.setOrRemoveActiveUserKeyValue('activated_coins', existingCoins);
+  }
+
+  Future<void> confirmSeedBackup({bool hasBackup = true}) async {
+    await auth.setOrRemoveActiveUserKeyValue('has_backup', true);
+  }
+
+  Future<void> setWalletType(WalletType type) async {
+    await auth.setOrRemoveActiveUserKeyValue('type', type.name);
   }
 }

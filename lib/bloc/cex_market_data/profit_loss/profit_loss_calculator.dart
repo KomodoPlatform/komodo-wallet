@@ -2,7 +2,7 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/extensions/profit_loss_transaction_extension.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/price_stamped_transaction.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/types.dart';
 
 class ProfitLossCalculator {
   ProfitLossCalculator(this._cexRepository);
@@ -29,7 +29,7 @@ class ProfitLossCalculator {
       return <ProfitLoss>[];
     }
 
-    transactions.sort((a, b) => a.timestampDate.compareTo(b.timestampDate));
+    transactions.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final todayAtMidnight = _getDateAtMidnight(DateTime.now());
     final transactionDates = _getTransactionDates(transactions);
@@ -47,15 +47,13 @@ class ProfitLossCalculator {
     Map<DateTime, double> usdPrices,
   ) {
     return transactions.map((transaction) {
-      final usdPrice =
-          usdPrices[_getDateAtMidnight(transaction.timestampDate)]!;
+      final usdPrice = usdPrices[_getDateAtMidnight(transaction.timestamp)]!;
       return UsdPriceStampedTransaction(transaction, usdPrice);
     }).toList();
   }
 
   List<DateTime> _getTransactionDates(List<Transaction> transactions) {
-    return transactions.map((tx) => tx.timestampDate).toList()
-      ..add(DateTime.now());
+    return transactions.map((tx) => tx.timestamp).toList()..add(DateTime.now());
   }
 
   DateTime _getDateAtMidnight(DateTime date) {
@@ -80,7 +78,7 @@ class ProfitLossCalculator {
     for (final transaction in transactions) {
       if (transaction.totalAmountAsDouble == 0) continue;
 
-      if (transaction.isReceived) {
+      if (transaction.amount.toDouble() > 0) {
         state = _processBuyTransaction(state, transaction);
       } else {
         state = _processSellTransaction(state, transaction);
@@ -104,12 +102,12 @@ class ProfitLossCalculator {
     UsdPriceStampedTransaction transaction,
   ) {
     final newHolding =
-        (holdings: transaction.balanceChange, price: transaction.priceUsd);
+        (holdings: transaction.amount.toDouble(), price: transaction.priceUsd);
     return _ProfitLossState(
       holdings: [...state.holdings, newHolding],
       realizedProfitLoss: state.realizedProfitLoss,
       totalInvestment: state.totalInvestment + transaction.balanceChangeUsd,
-      currentHoldings: state.currentHoldings + transaction.balanceChange,
+      currentHoldings: state.currentHoldings + transaction.amount.toDouble(),
     );
   }
 
@@ -117,13 +115,13 @@ class ProfitLossCalculator {
     _ProfitLossState state,
     UsdPriceStampedTransaction transaction,
   ) {
-    if (state.currentHoldings < transaction.balanceChange) {
+    if (state.currentHoldings < transaction.amount.toDouble()) {
       throw Exception('Attempting to sell more than currently held');
     }
 
     // Balance change is negative for sales, so we use the abs value to
     // calculate the cost basis (formula assumes positive "total" value).
-    var remainingToSell = transaction.balanceChange.abs();
+    var remainingToSell = transaction.amount.toDouble().abs();
     var costBasis = 0.0;
     final newHoldings =
         List<({double holdings, double price})>.from(state.holdings);
@@ -151,7 +149,7 @@ class ProfitLossCalculator {
     // Balance change is negative for a sale, so subtract the abs value (
     // or add the positive value) to get the new holdings.
     final double newCurrentHoldings =
-        state.currentHoldings - transaction.balanceChange.abs();
+        state.currentHoldings - transaction.amount.toDouble().abs();
     final double newTotalInvestment = state.totalInvestment - costBasis;
 
     return _ProfitLossState(

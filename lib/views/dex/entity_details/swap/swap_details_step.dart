@@ -91,7 +91,8 @@ class SwapDetailsStep extends StatelessWidget {
                 width: 1,
                 color: isProcessedStep
                     ? theme.custom.progressBarPassedColor
-                    : themeData.textTheme.bodyMedium?.color?.withOpacity(0.3) ??
+                    : themeData.textTheme.bodyMedium?.color
+                            ?.withValues(alpha: 0.3) ??
                         Colors.transparent,
               ),
           ],

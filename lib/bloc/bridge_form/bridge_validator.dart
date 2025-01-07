@@ -3,8 +3,8 @@ import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
@@ -22,7 +22,7 @@ import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_act
 class BridgeValidator {
   BridgeValidator({
     required BridgeBloc bloc,
-    required CoinsBloc coinsRepository,
+    required CoinsRepo coinsRepository,
     required DexRepository dexRepository,
   })  : _bloc = bloc,
         _coinsRepo = coinsRepository,
@@ -30,7 +30,7 @@ class BridgeValidator {
         _add = bloc.add;
 
   final BridgeBloc _bloc;
-  final CoinsBloc _coinsRepo;
+  final CoinsRepo _coinsRepo;
   final DexRepository _dexRepo;
 
   final Function(BridgeEvent) _add;
@@ -226,7 +226,7 @@ class BridgeValidator {
   }
 
   bool _validateCoinAndParent(String abbr) {
-    final Coin? coin = _coinsRepo.getKnownCoin(abbr);
+    final Coin? coin = _coinsRepo.getCoin(abbr);
 
     if (coin == null) {
       _add(BridgeSetError(_unknownCoinError(abbr)));

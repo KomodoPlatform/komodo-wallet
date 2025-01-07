@@ -55,7 +55,7 @@ class _BuyPriceField extends StatelessWidget {
 
         final amount = state.buyAmount ?? Rational.zero;
         return Text(
-          getFormattedFiatAmount(order.coin, amount),
+          getFormattedFiatAmount(context, order.coin, amount),
           style: textStyle,
         );
       },

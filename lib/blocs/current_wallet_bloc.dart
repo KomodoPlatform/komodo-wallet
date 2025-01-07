@@ -1,65 +1,46 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
-import 'package:web_dex/bloc/wallets_bloc/wallets_repo.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 
+@Deprecated('Please use AuthBloc or KomodoDefiSdk instead.')
 class CurrentWalletBloc implements BlocBase {
   CurrentWalletBloc({
+    required KomodoDefiSdk kdfSdk,
     required EncryptionTool encryptionTool,
     required FileLoader fileLoader,
-    required WalletsRepo walletsRepo,
-    required AuthRepository authRepo,
   })  : _encryptionTool = encryptionTool,
         _fileLoader = fileLoader,
-        _walletsRepo = walletsRepo;
+        _kdfSdk = kdfSdk;
 
+  final KomodoDefiSdk _kdfSdk;
   final EncryptionTool _encryptionTool;
   final FileLoader _fileLoader;
-  final WalletsRepo _walletsRepo;
-  late StreamSubscription<AuthorizeMode> _authModeListener;
-
-  final StreamController<Wallet?> _walletController =
-      StreamController<Wallet?>.broadcast();
-  Sink<Wallet?> get _inWallet => _walletController.sink;
-  Stream<Wallet?> get outWallet => _walletController.stream;
 
   Wallet? _wallet;
+  // ignore: unnecessary_getters_setters
   Wallet? get wallet => _wallet;
   set wallet(Wallet? wallet) {
     _wallet = wallet;
-    _inWallet.add(_wallet);
   }
 
   @override
-  void dispose() {
-    _walletController.close();
-    _authModeListener.cancel();
-  }
+  void dispose() {}
 
   Future<bool> updatePassword(
-      String oldPassword, String password, Wallet wallet) async {
-    final walletCopy = wallet.copy();
-
-    final String? decryptedSeed = await _encryptionTool.decryptData(
-        oldPassword, walletCopy.config.seedPhrase);
-    final String encryptedSeed =
-        await _encryptionTool.encryptData(password, decryptedSeed!);
-    walletCopy.config.seedPhrase = encryptedSeed;
-    final bool isSaved = await _walletsRepo.save(walletCopy);
-
-    if (isSaved) {
-      this.wallet = walletCopy;
-      return true;
-    } else {
-      return false;
-    }
+    String oldPassword,
+    String password,
+    Wallet wallet,
+  ) async {
+    // TODO!: re-implement via sdk
+    throw UnimplementedError(
+      'Update password operation is not currently supported',
+    );
   }
 
   Future<bool> addCoin(Coin coin) async {
@@ -72,9 +53,8 @@ class CurrentWalletBloc implements BlocBase {
       return false;
     }
     wallet.config.activatedCoins.add(coinAbbr);
-
-    final bool isSuccess = await _walletsRepo.save(wallet);
-    return isSuccess;
+    this.wallet = wallet;
+    return true;
   }
 
   Future<bool> removeCoin(String coinAbbr) async {
@@ -84,20 +64,19 @@ class CurrentWalletBloc implements BlocBase {
     }
 
     wallet.config.activatedCoins.remove(coinAbbr);
-    final bool isSuccess = await _walletsRepo.save(wallet);
     this.wallet = wallet;
-    return isSuccess;
+    return true;
   }
 
   Future<void> downloadCurrentWallet(String password) async {
-    final Wallet? wallet = this.wallet;
+    final Wallet? wallet = (await _kdfSdk.auth.currentUser)?.wallet;
     if (wallet == null) return;
 
     final String data = jsonEncode(wallet.config);
     final String encryptedData =
         await _encryptionTool.encryptData(password, data);
 
-    _fileLoader.save(
+    await _fileLoader.save(
       fileName: wallet.name,
       data: encryptedData,
       type: LoadFileType.text,
@@ -108,11 +87,11 @@ class CurrentWalletBloc implements BlocBase {
   }
 
   Future<void> confirmBackup() async {
-    final Wallet? wallet = this.wallet;
+    final Wallet? wallet = (await _kdfSdk.auth.currentUser)?.wallet;
     if (wallet == null || wallet.config.hasBackup) return;
 
     wallet.config.hasBackup = true;
-    await _walletsRepo.save(wallet);
+    await _kdfSdk.confirmSeedBackup();
     this.wallet = wallet;
   }
 }

@@ -2,9 +2,12 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc_state.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/bloc/fiat/banxa_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
+import 'package:web_dex/bloc/fiat/fiat_repository.dart';
+import 'package:web_dex/bloc/fiat/ramp/ramp_fiat_provider.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/swap.dart';
@@ -42,8 +45,16 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final fiatRepository = FiatRepository(
+      [BanxaFiatProvider(), RampFiatProvider()],
+      coinsRepository,
+    );
     return BlocProvider(
-      create: (_) => FiatFormBloc(),
+      create: (_) => FiatFormBloc(
+        repository: fiatRepository,
+        coinsRepository: coinsRepository,
+      ),
       child: MultiBlocListener(
         listeners: [
           BlocListener<AuthBloc, AuthBlocState>(

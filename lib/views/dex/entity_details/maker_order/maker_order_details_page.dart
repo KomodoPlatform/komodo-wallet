@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/order_status/cancellation_reason.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
@@ -12,7 +14,6 @@ import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/entity_details/trading_details_coin_pair.dart';
 import 'package:web_dex/views/dex/entity_details/trading_details_header.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class MakerOrderDetailsPage extends StatefulWidget {
   const MakerOrderDetailsPage(this.makerOrderStatus, {Key? key})
@@ -219,6 +220,7 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
       _inProgress = true;
     });
 
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(context);
     final String? error = await tradingEntitiesBloc
         .cancelOrder(widget.makerOrderStatus.order.uuid);
 

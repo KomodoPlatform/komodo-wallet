@@ -1,14 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_transaction_completed_dialog.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form_index.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class WithdrawForm extends StatelessWidget {
   const WithdrawForm({
@@ -26,7 +27,8 @@ class WithdrawForm extends StatelessWidget {
     return BlocProvider<WithdrawFormBloc>(
       create: (BuildContext context) => WithdrawFormBloc(
         coin: coin,
-        coinsBloc: coinsBloc,
+        coinsRepository: RepositoryProvider.of<CoinsRepo>(context),
+        api: RepositoryProvider.of<Mm2Api>(context),
         goBack: onBackButtonPressed,
       ),
       child: isBitrefillIntegrationEnabled

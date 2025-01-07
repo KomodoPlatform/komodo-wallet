@@ -165,7 +165,7 @@ class _Thumb extends StatelessWidget {
       curve: style.curve,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: style.thumbBgColor.withOpacity(isHovered ? 0.6 : 1),
+        color: style.thumbBgColor.withValues(alpha: isHovered ? 0.6 : 1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: AnimatedScale(

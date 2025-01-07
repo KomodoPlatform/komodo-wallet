@@ -1,19 +1,19 @@
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 
 class MarketMakerBotOrderListRepository {
-  final CoinsBloc _coinsRepository;
   const MarketMakerBotOrderListRepository(
     this._ordersService,
     this._settingsRepository,
     this._coinsRepository,
   );
 
+  final CoinsRepo _coinsRepository;
   final MyOrdersService _ordersService;
   final SettingsRepository _settingsRepository;
 

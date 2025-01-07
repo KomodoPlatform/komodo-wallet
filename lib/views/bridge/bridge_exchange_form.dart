@@ -1,16 +1,15 @@
-import 'dart:async';
-
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dart';
 import 'package:web_dex/views/bridge/bridge_group.dart';
@@ -25,7 +24,6 @@ import 'package:web_dex/views/bridge/view/bridge_target_amount_row.dart';
 import 'package:web_dex/views/bridge/view/bridge_target_protocol_row.dart';
 import 'package:web_dex/views/bridge/view/error_list/bridge_form_error_list.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class BridgeExchangeForm extends StatefulWidget {
   const BridgeExchangeForm({Key? key}) : super(key: key);
@@ -35,53 +33,49 @@ class BridgeExchangeForm extends StatefulWidget {
 }
 
 class _BridgeExchangeFormState extends State<BridgeExchangeForm> {
-  StreamSubscription<bool>? _coinsListener;
-
   @override
   void initState() {
     final bridgeBloc = context.read<BridgeBloc>();
+    final coinsBlocState = context.read<CoinsBloc>().state;
     bridgeBloc.add(const BridgeInit(ticker: defaultDexCoin));
-    bridgeBloc.add(BridgeSetWalletIsReady(coinsBloc.loginActivationFinished));
-    _coinsListener = coinsBloc.outLoginActivationFinished.listen((value) {
-      bridgeBloc.add(BridgeSetWalletIsReady(value));
-    });
-
+    bridgeBloc
+        .add(BridgeSetWalletIsReady(coinsBlocState.loginActivationFinished));
     super.initState();
   }
 
   @override
-  void dispose() {
-    _coinsListener?.cancel();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return const Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        BridgeTickerSelector(),
-        SizedBox(height: 30),
-        BridgeGroup(
-          header: SourceProtocolHeader(),
-          child: SourceProtocol(),
-        ),
-        SizedBox(height: 19),
-        BridgeGroup(
-          header: TargetProtocolHeader(),
-          child: TargetProtocol(),
-        ),
-        SizedBox(height: 12),
-        BridgeFormErrorList(),
-        SizedBox(height: 12),
-        BridgeExchangeRate(),
-        SizedBox(height: 12),
-        BridgeTotalFees(),
-        SizedBox(height: 24),
-        _ExchangeButton(),
-        SizedBox(height: 12),
-      ],
+    final bridgeBloc = context.read<BridgeBloc>();
+    return BlocListener<CoinsBloc, CoinsState>(
+      listenWhen: (previous, current) =>
+          previous.loginActivationFinished != current.loginActivationFinished,
+      listener: (context, state) =>
+          bridgeBloc.add(BridgeSetWalletIsReady(state.loginActivationFinished)),
+      child: const Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          BridgeTickerSelector(),
+          SizedBox(height: 30),
+          BridgeGroup(
+            header: SourceProtocolHeader(),
+            child: SourceProtocol(),
+          ),
+          SizedBox(height: 19),
+          BridgeGroup(
+            header: TargetProtocolHeader(),
+            child: TargetProtocol(),
+          ),
+          SizedBox(height: 12),
+          BridgeFormErrorList(),
+          SizedBox(height: 12),
+          BridgeExchangeRate(),
+          SizedBox(height: 12),
+          BridgeTotalFees(),
+          SizedBox(height: 24),
+          _ExchangeButton(),
+          SizedBox(height: 12),
+        ],
+      ),
     );
   }
 }

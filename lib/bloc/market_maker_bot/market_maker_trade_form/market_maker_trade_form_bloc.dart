@@ -4,9 +4,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_volume.dart';
@@ -33,11 +33,11 @@ class MarketMakerTradeFormBloc
   /// The [DexRepository] is used to get the trade preimage, which is used
   /// to pre-emptively check if a trade will be successful.
   ///
-  /// The [CoinsBloc] is used to activate coins that are not active when
+  /// The [CoinsRepo] is used to activate coins that are not active when
   /// they are selected in the trade form.
   MarketMakerTradeFormBloc({
     required DexRepository dexRepo,
-    required CoinsBloc coinsRepo,
+    required CoinsRepo coinsRepo,
   })  : _dexRepository = dexRepo,
         _coinsRepo = coinsRepo,
         super(MarketMakerTradeFormState.initial()) {
@@ -62,7 +62,7 @@ class MarketMakerTradeFormBloc
 
   /// The coins repository is used to activate coins that are not active
   /// when they are selected in the trade form
-  final CoinsBloc _coinsRepo;
+  final CoinsRepo _coinsRepo;
 
   Future<void> _onSellCoinChanged(
     MarketMakerTradeFormSellCoinChanged event,
@@ -508,11 +508,11 @@ class MarketMakerTradeFormBloc
     }
 
     if (!coin.isActive) {
-      await _coinsRepo.activateCoins([coin]);
+      await _coinsRepo.activateCoinsSync([coin]);
     } else {
       final Coin? parentCoin = coin.parentCoin;
       if (parentCoin != null && !parentCoin.isActive) {
-        await _coinsRepo.activateCoins([parentCoin]);
+        await _coinsRepo.activateCoinsSync([parentCoin]);
       }
     }
   }

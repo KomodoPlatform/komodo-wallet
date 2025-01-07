@@ -3,9 +3,10 @@ import 'dart:math';
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/trade_preimage.dart';
@@ -30,6 +31,7 @@ class TotalFees extends StatefulWidget {
 class _TotalFeesState extends State<TotalFees> {
   @override
   Widget build(BuildContext context) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     return Row(
       children: [
         Text(LocaleKeys.totalFees.tr(),
@@ -53,7 +55,8 @@ class _TotalFeesState extends State<TotalFees> {
           child: Container(
             alignment: Alignment.centerRight,
             child: AutoScrollText(
-              text: getTotalFee(widget.preimage?.totalFees, coinsBloc.getCoin),
+              text: getTotalFee(
+                  widget.preimage?.totalFees, coinsRepository.getCoin),
               style: theme.custom.tradingFormDetailsContent,
             ),
           ),
@@ -100,7 +103,7 @@ class _TotalFeesState extends State<TotalFees> {
             child: SelectableText(
               '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.baseCoinFee.amount) ?? 0))} '
               '${preimage.baseCoinFee.coin} '
-              '(${getFormattedFiatAmount(preimage.baseCoinFee.coin, preimage.baseCoinFee.amountRational, 8)}): '
+              '(${getFormattedFiatAmount(context, preimage.baseCoinFee.coin, preimage.baseCoinFee.amountRational, 8)}): '
               '${LocaleKeys.swapFeeDetailsSendCoinTxFee.tr(args: [
                     preimage.baseCoinFee.coin
                   ])}',
@@ -113,7 +116,7 @@ class _TotalFeesState extends State<TotalFees> {
             child: SelectableText(
               '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.relCoinFee.amount) ?? 0))} '
               '${preimage.relCoinFee.coin} '
-              '(${getFormattedFiatAmount(preimage.relCoinFee.coin, preimage.relCoinFee.amountRational, 8)}): '
+              '(${getFormattedFiatAmount(context, preimage.relCoinFee.coin, preimage.relCoinFee.amountRational, 8)}): '
               '${LocaleKeys.swapFeeDetailsReceiveCoinTxFee.tr(args: [
                     preimage.relCoinFee.coin
                   ])}',
@@ -126,7 +129,7 @@ class _TotalFeesState extends State<TotalFees> {
             child: SelectableText(
               '• ${cutTrailingZeros(formatAmt(double.tryParse(takerFee.amount) ?? 0))} '
               '${takerFee.coin} '
-              '(${getFormattedFiatAmount(takerFee.coin, takerFee.amountRational, 8)}): '
+              '(${getFormattedFiatAmount(context, takerFee.coin, takerFee.amountRational, 8)}): '
               '${LocaleKeys.swapFeeDetailsTradingFee.tr()}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -137,7 +140,7 @@ class _TotalFeesState extends State<TotalFees> {
             child: SelectableText(
               '• ${cutTrailingZeros(formatAmt(double.tryParse(feeToSendTakerFee.amount) ?? 0))} '
               '${feeToSendTakerFee.coin} '
-              '(${getFormattedFiatAmount(feeToSendTakerFee.coin, feeToSendTakerFee.amountRational, 8)}): '
+              '(${getFormattedFiatAmount(context, feeToSendTakerFee.coin, feeToSendTakerFee.amountRational, 8)}): '
               '${LocaleKeys.swapFeeDetailsSendTradingFeeTxFee.tr()}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -161,7 +164,7 @@ class _TotalFeesState extends State<TotalFees> {
         child: SelectableText(
           '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.baseCoinFee.amount) ?? 0))} '
           '${preimage.baseCoinFee.coin} '
-          '(${getFormattedFiatAmount(preimage.baseCoinFee.coin, preimage.baseCoinFee.amountRational, 8)}): '
+          '(${getFormattedFiatAmount(context, preimage.baseCoinFee.coin, preimage.baseCoinFee.amountRational, 8)}): '
           '${LocaleKeys.swapFeeDetailsSendCoinTxFee.tr(args: [
                 preimage.baseCoinFee.coin
               ])}',
@@ -176,7 +179,7 @@ class _TotalFeesState extends State<TotalFees> {
         child: SelectableText(
           '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.relCoinFee.amount) ?? 0))} '
           '${preimage.relCoinFee.coin} '
-          '(${getFormattedFiatAmount(preimage.relCoinFee.coin, preimage.relCoinFee.amountRational, 8)}): '
+          '(${getFormattedFiatAmount(context, preimage.relCoinFee.coin, preimage.relCoinFee.amountRational, 8)}): '
           '${LocaleKeys.swapFeeDetailsReceiveCoinTxFee.tr(args: [
                 preimage.relCoinFee.coin
               ])}',
@@ -191,7 +194,7 @@ class _TotalFeesState extends State<TotalFees> {
         child: SelectableText(
           '• ${cutTrailingZeros(formatAmt(double.tryParse(takerFee.amount) ?? 0))} '
           '${takerFee.coin} '
-          '(${getFormattedFiatAmount(takerFee.coin, takerFee.amountRational, 8)}): '
+          '(${getFormattedFiatAmount(context, takerFee.coin, takerFee.amountRational, 8)}): '
           '${LocaleKeys.swapFeeDetailsTradingFee.tr()}',
           style: Theme.of(context).textTheme.bodySmall,
         ),
@@ -204,7 +207,7 @@ class _TotalFeesState extends State<TotalFees> {
         child: SelectableText(
           '• ${cutTrailingZeros(formatAmt(double.tryParse(feeToSendTakerFee.amount) ?? 0))} '
           '${feeToSendTakerFee.coin} '
-          '(${getFormattedFiatAmount(feeToSendTakerFee.coin, feeToSendTakerFee.amountRational, 8)}): '
+          '(${getFormattedFiatAmount(context, feeToSendTakerFee.coin, feeToSendTakerFee.amountRational, 8)}): '
           '${LocaleKeys.swapFeeDetailsSendTradingFeeTxFee.tr()}',
           style: Theme.of(context).textTheme.bodySmall,
         ),

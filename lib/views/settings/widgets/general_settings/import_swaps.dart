@@ -4,7 +4,10 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/import_swaps/import_swaps_request.dart';
 
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/utils/debug_utils.dart';
@@ -142,7 +145,9 @@ class _ImportSwapsState extends State<ImportSwaps> {
     }
 
     try {
-      await importSwapsData(swaps);
+      final mm2Api = RepositoryProvider.of<Mm2Api>(context);
+      final ImportSwapsRequest request = ImportSwapsRequest(swaps: swaps);
+      await mm2Api.importSwaps(request);
     } catch (e) {
       setState(() {
         _inProgress = false;

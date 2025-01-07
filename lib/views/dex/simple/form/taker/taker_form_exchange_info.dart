@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/common/dex_info_container.dart';
@@ -42,6 +42,7 @@ class _TakerComparedToCex extends StatelessWidget {
       builder: (context, state) {
         final BestOrder? bestOrder = state.selectedOrder;
         final Coin? sellCoin = state.sellCoin;
+        final coinsBloc = RepositoryProvider.of<CoinsRepo>(context);
         final Coin? buyCoin =
             bestOrder == null ? null : coinsBloc.getCoin(bestOrder.coin);
 

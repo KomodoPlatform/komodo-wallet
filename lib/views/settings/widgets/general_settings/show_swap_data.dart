@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.dart';
@@ -87,6 +88,7 @@ class _ShowSwapDataState extends State<ShowSwapData> {
     setState(() => _inProgress = true);
 
     try {
+      final mm2Api = RepositoryProvider.of<Mm2Api>(context);
       final response = await mm2Api.getRawSwapData(MyRecentSwapsRequest());
       final Map<String, dynamic> data = jsonDecode(response);
       _controller.text = jsonEncode(data['result']['swaps']).toString();

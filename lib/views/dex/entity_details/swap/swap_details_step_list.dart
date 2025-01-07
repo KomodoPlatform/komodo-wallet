@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/views/dex/entity_details/swap/swap_details_step.dart';
@@ -39,7 +40,7 @@ class SwapDetailsStepList extends StatelessWidget {
               (isLastStep && isFailedSwap);
           final SwapEventItem? eventData =
               swapStatus.events.firstWhereOrNull((e) => e.event.type == event);
-          final Coin? coin = _getCoinForTransaction(event, swapStatus);
+          final Coin? coin = _getCoinForTransaction(context, event, swapStatus);
 
           return SwapDetailsStep(
             key: Key('swap-details-step-$event'),
@@ -88,7 +89,12 @@ class SwapDetailsStepList extends StatelessWidget {
     return currentEvent.timestamp - previousEvent.timestamp;
   }
 
-  Coin? _getCoinForTransaction(String event, Swap swapStatus) {
+  Coin? _getCoinForTransaction(
+    BuildContext context,
+    String event,
+    Swap swapStatus,
+  ) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final List<String> takerEvents = [
       'TakerPaymentSent',
       'TakerPaymentSpent',
@@ -103,10 +109,10 @@ class SwapDetailsStepList extends StatelessWidget {
       'MakerPaymentSent',
     ];
     if (takerEvents.contains(event)) {
-      return coinsBloc.getCoin(swapStatus.takerCoin);
+      return coinsRepository.getCoin(swapStatus.takerCoin);
     }
     if (makerEvents.contains(event)) {
-      return coinsBloc.getCoin(swapStatus.makerCoin);
+      return coinsRepository.getCoin(swapStatus.makerCoin);
     }
     return null;
   }

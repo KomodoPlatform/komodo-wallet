@@ -1,8 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
 
 abstract class ErrorNeedsSetCoinAbbr {
@@ -198,13 +196,14 @@ class WithdrawTransportError
 
   @override
   void setCoinAbbr(String coinAbbr) {
-    final Coin? coin = coinsBloc.getCoin(coinAbbr);
-    if (coin == null) {
-      return;
-    }
-    final String? platform = coin.protocolData?.platform;
+    // TODO!: reimplemen?
+    // final Coin? coin = coinsBloc.getCoin(coinAbbr);
+    // if (coin == null) {
+    //   return;
+    // }
+    // final String? platform = coin.protocolData?.platform;
 
-    _feeCoin = platform ?? coinAbbr;
+    // _feeCoin = platform ?? coinAbbr;
   }
 }
 

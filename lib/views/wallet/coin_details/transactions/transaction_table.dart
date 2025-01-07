@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/launch_native_explorer_button.dart';
@@ -68,40 +68,28 @@ class TransactionTable extends StatelessWidget {
   Widget _buildTransactionList(BuildContext context) {
     return BlocBuilder<TransactionHistoryBloc, TransactionHistoryState>(
       builder: (BuildContext ctx, TransactionHistoryState state) {
-        if (coin.isActivating || state is TransactionHistoryInitialState) {
-          return const SliverToBoxAdapter(
-            child: UiSpinnerList(),
-          );
+        if (state.transactions.isEmpty) {
+          if (coin.isActivating || state.loading) {
+            return const SliverToBoxAdapter(
+              child: UiSpinnerList(),
+            );
+          }
+
+          if (state.error != null) {
+            return SliverToBoxAdapter(
+              child: _ErrorMessage(
+                text: state.error!.message,
+                textColor: theme.currentGlobal.colorScheme.error,
+              ),
+            );
+          }
         }
 
-        if (state is TransactionHistoryFailureState) {
-          return SliverToBoxAdapter(
-            child: _ErrorMessage(
-              text: state.error.message,
-              textColor: theme.currentGlobal.colorScheme.error,
-            ),
-          );
-        }
-
-        if (state is TransactionHistoryInProgressState) {
-          return _TransactionsListWrapper(
-            coinAbbr: coin.abbr,
-            setTransaction: setTransaction,
-            transactions: state.transactions,
-            isInProgress: true,
-          );
-        }
-
-        if (state is TransactionHistoryLoadedState) {
-          return _TransactionsListWrapper(
-            coinAbbr: coin.abbr,
-            setTransaction: setTransaction,
-            transactions: state.transactions,
-            isInProgress: false,
-          );
-        }
-        return const SliverToBoxAdapter(
-          child: SizedBox(),
+        return _TransactionsListWrapper(
+          coinAbbr: coin.abbr,
+          setTransaction: setTransaction,
+          transactions: state.transactions,
+          isInProgress: state.loading,
         );
       },
     );

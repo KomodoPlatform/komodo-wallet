@@ -9,6 +9,7 @@ abstract class  LocaleKeys {
   static const price = 'price';
   static const volume = 'volume';
   static const history = 'history';
+  static const lastTransactions = 'lastTransactions';
   static const active = 'active';
   static const change24h = 'change24h';
   static const change24hRevert = 'change24hRevert';
@@ -391,6 +392,12 @@ abstract class  LocaleKeys {
   static const withdrawNoSuchCoinError = 'withdrawNoSuchCoinError';
   static const txHistoryFetchError = 'txHistoryFetchError';
   static const txHistoryNoTransactions = 'txHistoryNoTransactions';
+  static const maxGapLimitReached = 'maxGapLimitReached';
+  static const maxAddressesReached = 'maxAddressesReached';
+  static const missingDerivationPath = 'missingDerivationPath';
+  static const protocolNotSupported = 'protocolNotSupported';
+  static const derivationModeNotSupported = 'derivationModeNotSupported';
+  static const noActiveWallet = 'noActiveWallet';
   static const memo = 'memo';
   static const gasPriceGwei = 'gasPriceGwei';
   static const gasLimit = 'gasLimit';
@@ -589,6 +596,13 @@ abstract class  LocaleKeys {
   static const mmBotFirstTradePreview = 'mmBotFirstTradePreview';
   static const mmBotFirstTradeEstimate = 'mmBotFirstTradeEstimate';
   static const mmBotFirstOrderVolume = 'mmBotFirstOrderVolume';
+  static const onlySendToThisAddress = 'onlySendToThisAddress';
+  static const scanTheQrCode = 'scanTheQrCode';
+  static const swapAddress = 'swapAddress';
+  static const addresses = 'addresses';
+  static const creating = 'creating';
+  static const createAddress = 'createAddress';
+  static const hideZeroBalanceAddresses = 'hideZeroBalanceAddresses';
   static const important = 'important';
   static const trend = 'trend';
   static const growth = 'growth';

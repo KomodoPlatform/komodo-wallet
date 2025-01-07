@@ -6,12 +6,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_mode.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -32,7 +33,7 @@ class FiatForm extends StatefulWidget {
 }
 
 class _FiatFormState extends State<FiatForm> {
-  bool _isLoggedIn = currentWalletBloc.wallet != null;
+  bool _isLoggedIn = false;
 
   StreamSubscription<List<Coin>>? _walletCoinsListener;
   StreamSubscription<bool>? _loginActivationListener;
@@ -66,14 +67,8 @@ class _FiatFormState extends State<FiatForm> {
   void initState() {
     super.initState();
 
-    _walletCoinsListener = coinsBloc.outWalletCoins.listen((walletCoins) async {
-      await _handleAccountStatusChange(walletCoins.isNotEmpty);
-    });
-
-    _loginActivationListener =
-        coinsBloc.outLoginActivationFinished.listen((isLoggedIn) async {
-      await _handleAccountStatusChange(isLoggedIn);
-    });
+    _isLoggedIn =
+        RepositoryProvider.of<CurrentWalletBloc>(context).wallet != null;
 
     context.read<FiatFormBloc>()
       ..add(const LoadCurrencyListsRequested())
@@ -211,80 +206,85 @@ class _FiatFormState extends State<FiatForm> {
     // orders that were never completed.
 
     final scrollController = ScrollController();
-    return BlocConsumer<FiatFormBloc, FiatFormState>(
-      listenWhen: (previous, current) =>
-          previous.fiatOrderStatus != current.fiatOrderStatus,
-      listener: (context, state) => _handlePaymentStatusUpdate(state),
-      builder: (context, state) => DexScrollbar(
-        isMobile: isMobile,
-        scrollController: scrollController,
-        child: SingleChildScrollView(
-          key: const Key('fiat-form-scroll'),
-          controller: scrollController,
-          child: Column(
-            children: [
-              FiatActionTabBar(
-                currentTabIndex: state.fiatMode.tabIndex,
-                onTabClick: _setActiveTab,
-              ),
-              const SizedBox(height: 16),
-              if (state.fiatMode == FiatMode.offramp)
-                Center(child: Text(LocaleKeys.comingSoon.tr()))
-              else
-                GradientBorder(
-                  innerColor: dexPageColors.frontPlate,
-                  gradient: dexPageColors.formPlateGradient,
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
-                    child: Column(
-                      children: [
-                        FiatInputs(
-                          onFiatCurrencyChanged: _onFiatChanged,
-                          onCoinChanged: _onCoinChanged,
-                          onFiatAmountUpdate: _onFiatAmountChanged,
-                          initialFiat: state.selectedFiat.value!,
-                          initialCoin: state.selectedCoin.value!,
-                          initialFiatAmount: state.fiatAmount.valueAsDouble,
-                          fiatList: state.fiatList,
-                          coinList: state.coinList,
-                          selectedPaymentMethodPrice:
-                              state.selectedPaymentMethod.priceInfo,
-                          receiveAddress: state.coinReceiveAddress,
-                          isLoggedIn: _isLoggedIn,
-                          fiatMinAmount: state.minFiatAmount,
-                          fiatMaxAmount: state.maxFiatAmount,
-                          boundariesError: state.fiatAmount.error?.text(state),
-                        ),
-                        const SizedBox(height: 16),
-                        FiatPaymentMethodsGrid(state: state),
-                        const SizedBox(height: 16),
-                        ConnectWalletWrapper(
-                          key: const Key('connect-wallet-fiat-form'),
-                          eventType: WalletsManagerEventType.fiat,
-                          child: UiPrimaryButton(
-                            key: const Key('fiat-onramp-submit-button'),
-                            height: 40,
-                            text: state.fiatOrderStatus.isSubmitting
-                                ? '${LocaleKeys.submitting.tr()}...'
-                                : LocaleKeys.buyNow.tr(),
-                            onPressed: state.canSubmit ? completeOrder : null,
+    return BlocListener<CoinsBloc, CoinsState>(
+      listener: (context, state) => _handleAccountStatusChange(
+          state.loginActivationFinished || state.walletCoins.isNotEmpty),
+      child: BlocConsumer<FiatFormBloc, FiatFormState>(
+        listenWhen: (previous, current) =>
+            previous.fiatOrderStatus != current.fiatOrderStatus,
+        listener: (context, state) => _handlePaymentStatusUpdate(state),
+        builder: (context, state) => DexScrollbar(
+          isMobile: isMobile,
+          scrollController: scrollController,
+          child: SingleChildScrollView(
+            key: const Key('fiat-form-scroll'),
+            controller: scrollController,
+            child: Column(
+              children: [
+                FiatActionTabBar(
+                  currentTabIndex: state.fiatMode.tabIndex,
+                  onTabClick: _setActiveTab,
+                ),
+                const SizedBox(height: 16),
+                if (state.fiatMode == FiatMode.offramp)
+                  Center(child: Text(LocaleKeys.comingSoon.tr()))
+                else
+                  GradientBorder(
+                    innerColor: dexPageColors.frontPlate,
+                    gradient: dexPageColors.formPlateGradient,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
+                      child: Column(
+                        children: [
+                          FiatInputs(
+                            onFiatCurrencyChanged: _onFiatChanged,
+                            onCoinChanged: _onCoinChanged,
+                            onFiatAmountUpdate: _onFiatAmountChanged,
+                            initialFiat: state.selectedFiat.value!,
+                            initialCoin: state.selectedCoin.value!,
+                            initialFiatAmount: state.fiatAmount.valueAsDouble,
+                            fiatList: state.fiatList,
+                            coinList: state.coinList,
+                            selectedPaymentMethodPrice:
+                                state.selectedPaymentMethod.priceInfo,
+                            receiveAddress: state.coinReceiveAddress,
+                            isLoggedIn: _isLoggedIn,
+                            fiatMinAmount: state.minFiatAmount,
+                            fiatMaxAmount: state.maxFiatAmount,
+                            boundariesError:
+                                state.fiatAmount.error?.text(state),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _isLoggedIn
-                              ? state.fiatOrderStatus.isFailed
-                                  ? LocaleKeys.fiatCantCompleteOrder.tr()
-                                  : LocaleKeys.fiatPriceCanChange.tr()
-                              : LocaleKeys.fiatConnectWallet.tr(),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          FiatPaymentMethodsGrid(state: state),
+                          const SizedBox(height: 16),
+                          ConnectWalletWrapper(
+                            key: const Key('connect-wallet-fiat-form'),
+                            eventType: WalletsManagerEventType.fiat,
+                            child: UiPrimaryButton(
+                              key: const Key('fiat-onramp-submit-button'),
+                              height: 40,
+                              text: state.fiatOrderStatus.isSubmitting
+                                  ? '${LocaleKeys.submitting.tr()}...'
+                                  : LocaleKeys.buyNow.tr(),
+                              onPressed: state.canSubmit ? completeOrder : null,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _isLoggedIn
+                                ? state.fiatOrderStatus.isFailed
+                                    ? LocaleKeys.fiatCantCompleteOrder.tr()
+                                    : LocaleKeys.fiatPriceCanChange.tr()
+                                : LocaleKeys.fiatConnectWallet.tr(),
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

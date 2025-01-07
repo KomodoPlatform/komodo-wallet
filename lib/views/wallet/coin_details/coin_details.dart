@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
@@ -52,10 +52,8 @@ class _CoinDetailsState extends State<CoinDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Iterable<Coin>>(
-      initialData: coinsBloc.walletCoinsMap.values,
-      stream: coinsBloc.outWalletCoins,
-      builder: (context, AsyncSnapshot<Iterable<Coin>> snapshot) {
+    return BlocBuilder<CoinsBloc, CoinsState>(
+      builder: (context, state) {
         return _buildContent();
       },
     );

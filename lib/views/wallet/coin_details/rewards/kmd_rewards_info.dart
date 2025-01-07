@@ -1,7 +1,10 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
 import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/common/screen.dart';
@@ -16,7 +19,6 @@ import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_info_header.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_list_item.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class KmdRewardsInfo extends StatefulWidget {
   const KmdRewardsInfo({
@@ -161,7 +163,7 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
                                     .textTheme
                                     .bodyMedium
                                     ?.color
-                                    ?.withOpacity(0.4),
+                                    ?.withValues(alpha: 0.4),
                               ),
                             ),
                             const SizedBox(
@@ -263,7 +265,7 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
                                       .textTheme
                                       .bodyMedium
                                       ?.color
-                                      ?.withOpacity(0.3),
+                                      ?.withValues(alpha: 0.3),
                                 ),
                               ),
                               const SizedBox(height: 24.0),
@@ -403,6 +405,8 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
       _successMessage = '';
     });
 
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final kmdRewardsBloc = RepositoryProvider.of<KmdRewardsBloc>(context);
     final BlocResponse<String, BaseError> response =
         await kmdRewardsBloc.claim(context);
     final BaseError? error = response.error;
@@ -414,13 +418,14 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
       return;
     }
 
-    await coinsBloc.updateBalances(); // consider refactoring (add timeout?)
+    // ignore: use_build_context_synchronously
+    context.read<CoinsBloc>().add(CoinsBalancesRefreshed());
     await _updateInfoUntilSuccessOrTimeOut(30000);
 
     final String reward =
         doubleToString(double.tryParse(response.result!) ?? 0);
     final double? usdPrice =
-        coinsBloc.getUsdPriceByAmount(response.result!, 'KMD');
+        coinsRepository.getUsdPriceByAmount(response.result!, 'KMD');
     final String formattedUsdPrice = cutTrailingZeros(formatAmt(usdPrice ?? 0));
     setState(() {
       _isClaiming = false;
@@ -460,10 +465,12 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
   }
 
   Future<void> _updateRewardsInfo() async {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final kmdRewardsBloc = RepositoryProvider.of<KmdRewardsBloc>(context);
     final double? total = await kmdRewardsBloc.getTotal(context);
     final List<KmdRewardItem> currentRewards = await kmdRewardsBloc.getInfo();
     final double? totalUsd =
-        coinsBloc.getUsdPriceByAmount((total ?? 0).toString(), 'KMD');
+        coinsRepository.getUsdPriceByAmount((total ?? 0).toString(), 'KMD');
 
     if (!mounted) return;
     setState(() {

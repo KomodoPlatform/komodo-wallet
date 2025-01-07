@@ -41,10 +41,10 @@ ThemeData get themeGlobalDark {
     bodyMedium: const TextStyle(
         fontSize: 16.0, color: textColor, fontWeight: FontWeight.w300),
     labelLarge: const TextStyle(fontSize: 16.0, color: textColor),
-    bodyLarge: TextStyle(fontSize: 14.0, color: textColor.withOpacity(0.5)),
+    bodyLarge: TextStyle(fontSize: 14.0, color: textColor.withValues(alpha: 0.5)),
     bodySmall: TextStyle(
       fontSize: 12.0,
-      color: textColor.withOpacity(0.8),
+      color: textColor.withValues(alpha: 0.8),
       fontWeight: FontWeight.w400,
     ),
   );
@@ -80,7 +80,7 @@ ThemeData get themeGlobalDark {
     snackBarTheme: snackBarThemeLight(),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: const Color.fromRGBO(57, 161, 238, 1),
-      selectionColor: const Color.fromRGBO(57, 161, 238, 1).withOpacity(0.3),
+      selectionColor: const Color.fromRGBO(57, 161, 238, 1).withValues(alpha: 0.3),
       selectionHandleColor: const Color.fromRGBO(57, 161, 238, 1),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -96,12 +96,12 @@ ThemeData get themeGlobalDark {
       filled: true,
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
       hintStyle: TextStyle(
-        color: textColor.withOpacity(0.58),
+        color: textColor.withValues(alpha: 0.58),
       ),
       labelStyle: TextStyle(
-        color: textColor.withOpacity(0.58),
+        color: textColor.withValues(alpha: 0.58),
       ),
-      prefixIconColor: textColor.withOpacity(0.58),
+      prefixIconColor: textColor.withValues(alpha: 0.58),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -118,7 +118,7 @@ ThemeData get themeGlobalDark {
         backgroundColor: colorScheme.surfaceContainerLowest,
         surfaceTintColor: Colors.purple,
         selectedBackgroundColor: colorScheme.primary,
-        foregroundColor: textColor.withOpacity(0.7),
+        foregroundColor: textColor.withValues(alpha: 0.7),
         selectedForegroundColor: textColor,
         side: BorderSide(color: colorScheme.outlineVariant),
         shape: RoundedRectangleBorder(
@@ -158,7 +158,7 @@ ThemeData get themeGlobalDark {
     textTheme: textTheme,
     scrollbarTheme: ScrollbarThemeData(
       thumbColor:
-          WidgetStateProperty.all<Color?>(colorScheme.primary.withOpacity(0.8)),
+          WidgetStateProperty.all<Color?>(colorScheme.primary.withValues(alpha: 0.8)),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       // remove icons shift

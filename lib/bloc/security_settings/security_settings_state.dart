@@ -5,7 +5,7 @@ enum SecuritySettingsStep {
   seedShow,
   seedConfirm,
   seedSuccess,
-  passwordUpdate,
+  // passwordUpdate,
 }
 
 class SecuritySettingsState extends Equatable {

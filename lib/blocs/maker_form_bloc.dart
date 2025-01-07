@@ -1,17 +1,17 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_errors.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/available_balance_state.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/data_from_service.dart';
@@ -24,21 +24,19 @@ import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
 
 class MakerFormBloc implements BlocBase {
-  MakerFormBloc({required this.api});
-
-  void onChangeAuthStatus(AuthorizeMode event) {
-    final bool prevLoginState = _isLoggedIn;
-    _isLoggedIn = event == AuthorizeMode.logIn;
-
-    if (prevLoginState != _isLoggedIn) {
-      sellCoin = sellCoin;
-    }
-  }
+  MakerFormBloc({
+    required this.api,
+    required this.kdfSdk,
+    required this.coinsRepository,
+    required this.dexRepository,
+  });
 
   final Mm2Api api;
+  final KomodoDefiSdk kdfSdk;
+  final CoinsRepo coinsRepository;
+  final DexRepository dexRepository;
 
   String currentEntityUuid = '';
-  bool _isLoggedIn = false;
 
   bool _showConfirmation = false;
   final StreamController<bool> _showConfirmationCtrl =
@@ -114,7 +112,7 @@ class MakerFormBloc implements BlocBase {
     if (coin == buyCoin) buyCoin = null;
 
     _autoActivate(sellCoin)
-        .then((_) => _updateMaxSellAmountListener())
+        .then((_) async => await _updateMaxSellAmountListener())
         .then((_) => _updatePreimage())
         .then((_) => _reValidate());
   }
@@ -244,25 +242,26 @@ class MakerFormBloc implements BlocBase {
   }
 
   Timer? _maxSellAmountTimer;
-  void _updateMaxSellAmountListener() {
+  Future<void> _updateMaxSellAmountListener() async {
     _maxSellAmountTimer?.cancel();
     maxSellAmount = null;
     availableBalanceState = AvailableBalanceState.loading;
     isMaxActive = false;
 
-    _updateMaxSellAmount();
-    _maxSellAmountTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      _updateMaxSellAmount();
+    await _updateMaxSellAmount();
+    _maxSellAmountTimer =
+        Timer.periodic(const Duration(seconds: 10), (_) async {
+      await _updateMaxSellAmount();
     });
   }
 
-  void _updateMaxSellAmount() {
+  Future<void> _updateMaxSellAmount() async {
     final Coin? coin = sellCoin;
     if (availableBalanceState == AvailableBalanceState.initial) {
       availableBalanceState = AvailableBalanceState.loading;
     }
 
-    if (!_isLoggedIn) {
+    if (!await kdfSdk.auth.isSignedIn()) {
       availableBalanceState = AvailableBalanceState.unavailable;
     } else {
       if (coin == null) {
@@ -475,7 +474,7 @@ class MakerFormBloc implements BlocBase {
     if (coin == null) return;
     inProgress = true;
     final List<DexFormError> activationErrors =
-        await activateCoinIfNeeded(coin.abbr);
+        await activateCoinIfNeeded(coin.abbr, coinsRepository);
     inProgress = false;
     if (activationErrors.isNotEmpty) {
       _setFormErrors(activationErrors);
@@ -664,14 +663,16 @@ class MakerFormBloc implements BlocBase {
   }
 
   Future<void> reInitForm() async {
-    if (sellCoin != null) sellCoin = coinsBloc.getKnownCoin(sellCoin!.abbr);
-    if (buyCoin != null) buyCoin = coinsBloc.getKnownCoin(buyCoin!.abbr);
+    if (sellCoin != null) {
+      sellCoin = coinsRepository.getCoin(sellCoin!.abbr);
+    }
+    if (buyCoin != null) buyCoin = coinsRepository.getCoin(buyCoin!.abbr);
   }
 
   void setDefaultSellCoin() {
     if (sellCoin != null) return;
 
-    final Coin? defaultSellCoin = coinsBloc.getCoin(defaultDexCoin);
+    final Coin? defaultSellCoin = coinsRepository.getCoin(defaultDexCoin);
     if (defaultSellCoin == null) return;
 
     sellCoin = defaultSellCoin;

@@ -40,9 +40,6 @@ dependencies:
   komodo_persistence_layer:
     path: packages/komodo_persistence_layer
 
-  komodo_coin_updates:
-    path: packages/komodo_coin_updates
-
   komodo_cex_market_data:
     path: packages/komodo_cex_market_data
 
@@ -81,7 +78,7 @@ dependencies:
   ## ---- Fluttercommunity.dev
 
   # does not require review, since hosted and git versions are the same
-  equatable: 2.0.5 # sdk depends on hosted version, and not from git
+  equatable: 2.0.7 # sdk depends on hosted version, and not from git
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   package_info_plus:
@@ -155,7 +152,7 @@ dependencies:
       ref: 69958a3a2d6d5dd108393832acde6bda06bd10bc
 
   flutter_slidable: # last reviewed 27bbe0dfa9866ae01e8001267e873221ef5fbd67
-    ^3.1.0
+    ^3.1.2
     # git:
     #   url: https://github.com/KomodoPlatform/flutter_slidable.git
     #   ref: 175b0735f5577dd7d378e60cfe2fe1ca607df9fa #1.1.0

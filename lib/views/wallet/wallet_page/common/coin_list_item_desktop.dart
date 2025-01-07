@@ -1,8 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/ui/ui_simple_border_button.dart';
@@ -11,9 +12,9 @@ import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_change.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_price.dart';
+import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:web_dex/shared/widgets/need_attention_mark.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
 
 class CoinListItemDesktop extends StatelessWidget {
@@ -134,6 +135,7 @@ class _CoinBalance extends StatelessWidget {
         Flexible(
           flex: 2,
           child: AutoScrollText(
+            key: Key('coin-balance-asset-${coin.abbr.toLowerCase()}'),
             text: doubleToString(coin.balance),
             style: const TextStyle(
               fontSize: _fontSize,
@@ -175,11 +177,13 @@ class _SuspendedMessage extends StatelessWidget {
     required this.coin,
     required this.isReEnabling,
   });
+
   final Coin coin;
   final bool isReEnabling;
 
   @override
   Widget build(BuildContext context) {
+    final coinsBloc = context.read<CoinsBloc>();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -200,9 +204,7 @@ class _SuspendedMessage extends StatelessWidget {
             key: Key('retry-suspended-asset-${(coin.abbr)}'),
             onPressed: isReEnabling
                 ? null
-                : () async {
-                    await coinsBloc.activateCoins([coin]);
-                  },
+                : () => coinsBloc.add(CoinsActivated([coin.abbr])),
             inProgress: isReEnabling,
             child: const Text(LocaleKeys.retryButtonText).tr(),
           ),

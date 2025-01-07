@@ -1,8 +1,10 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_response.dart';
 import 'package:web_dex/model/coin.dart';
@@ -52,6 +54,8 @@ class _SwapRecoverButtonState extends State<SwapRecoverButton> {
                       _recoverResponse = null;
                       _message = '';
                     });
+                    final tradingEntitiesBloc =
+                        RepositoryProvider.of<TradingEntitiesBloc>(context);
                     final response = await tradingEntitiesBloc
                         .recoverFundsOfSwap(widget.uuid);
                     await Future<dynamic>.delayed(const Duration(seconds: 1));
@@ -95,7 +99,8 @@ class _SwapRecoverButtonState extends State<SwapRecoverButton> {
         ),
       );
     }
-    final Coin? coin = coinsBloc.getCoin(response?.result.coin ?? '');
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final Coin? coin = coinsRepository.getCoin(response?.result.coin ?? '');
     if (coin == null || response == null) {
       return const SizedBox();
     }

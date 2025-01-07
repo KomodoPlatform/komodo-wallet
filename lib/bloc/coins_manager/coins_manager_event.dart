@@ -1,5 +1,4 @@
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
+part of 'coins_manager_bloc.dart';
 
 abstract class CoinsManagerEvent {
   const CoinsManagerEvent();

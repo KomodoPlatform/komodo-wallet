@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/nft_transactions/bloc/nft_transactions_filters.dart';
 import 'package:web_dex/bloc/nft_transactions/nft_txn_repository.dart';
 import 'package:web_dex/bloc/nfts/nft_main_repo.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/shared/utils/utils.dart' as utils;
 import 'package:web_dex/views/dex/dex_helpers.dart';
@@ -21,13 +21,12 @@ part 'nft_transactions_state.dart';
 class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   NftTransactionsBloc({
     required NftTxnRepository nftTxnRepository,
-    required AuthRepository authRepo,
-    required CoinsBloc coinsBloc,
+    required KomodoDefiSdk kdfSdk,
+    required CoinsRepo coinsRepository,
     required bool isLoggedIn,
     required NftsRepo nftsRepository,
   })  : _nftTxnRepository = nftTxnRepository,
-        _authRepo = authRepo,
-        _coinsBloc = coinsBloc,
+        _coinsBloc = coinsRepository,
         _nftsRepository = nftsRepository,
         _isLoggedIn = isLoggedIn,
         super(NftTransactionsInitial()) {
@@ -42,9 +41,9 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
     on<NftTxnEventFullFilterChanged>(_changeFullFilter);
     on<NftTxnEventNoLogin>(_noLogin);
 
-    _authorizationSubscription = _authRepo.authMode.listen((event) {
+    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
       final bool prevLoginState = _isLoggedIn;
-      _isLoggedIn = event == AuthorizeMode.logIn;
+      _isLoggedIn = event != null;
 
       if (_isLoggedIn && prevLoginState) {
         if (_isLoggedIn) {
@@ -58,12 +57,11 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
 
   final NftTxnRepository _nftTxnRepository;
   final NftsRepo _nftsRepository;
-  final AuthRepository _authRepo;
-  final CoinsBloc _coinsBloc;
+  final CoinsRepo _coinsBloc;
   final List<NftTransaction> _transactions = [];
 
   bool _isLoggedIn = false;
-  late final StreamSubscription<AuthorizeMode> _authorizationSubscription;
+  late final StreamSubscription<KdfUser?> _authorizationSubscription;
   PersistentBottomSheetController? _bottomSheetController;
   set bottomSheetController(PersistentBottomSheetController controller) =>
       _bottomSheetController = controller;
@@ -303,7 +301,7 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   Future<void> viewNftOnExplorer(NftTransaction transaction) async {
     final abbr = transaction.chain.coinAbbr();
 
-    final activationErrors = await activateCoinIfNeeded(abbr);
+    final activationErrors = await activateCoinIfNeeded(abbr, _coinsBloc);
     var coin = _coinsBloc.getCoin(abbr);
     if (coin != null) {
       if (activationErrors.isEmpty) {

@@ -3,6 +3,7 @@ import 'package:bip39/bip39.dart' show validateMnemonic;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
@@ -14,7 +15,6 @@ import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/dry_intrinsic.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
 
 class SeedShow extends StatelessWidget {
@@ -215,7 +215,7 @@ class _TitleRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.custom.warningColor.withOpacity(0.1),
+            color: theme.custom.warningColor.withValues(alpha: 0.1),
             border: Border.all(color: theme.custom.warningColor),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -412,7 +412,8 @@ class _SelectableSeedWord extends StatelessWidget {
     final numStyle = TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.4),
+      color:
+          Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.4),
     );
     final TextEditingController seedWordController = TextEditingController()
       ..text = isSeedShown ? initialValue : '••••••';
@@ -472,7 +473,7 @@ class _SeedPhraseConfirmButton extends StatelessWidget {
     final isCustom = !validateMnemonic(seedPhrase);
     if (isCustom) return const SizedBox.shrink();
 
-    onPressed() => bloc.add(const SeedConfirmEvent());
+    void onPressed() => bloc.add(const SeedConfirmEvent());
     final text = LocaleKeys.seedPhraseShowingSavedPhraseButton.tr();
 
     final contentWidth = screenWidth - 80;

@@ -4,15 +4,13 @@ import 'package:web_dex/model/coin_type.dart';
 
 Coin setCoin(
     {double? usdPrice, double? change24h, String? coinAbbr, double? balance}) {
-  final coin = Coin(
+  return Coin(
     abbr: coinAbbr ?? 'KMD',
     accounts: null,
     activeByDefault: true,
-    bchdUrls: [],
     coingeckoId: "komodo",
     coinpaprikaId: "kmd-komodo",
     derivationPath: "m/44'/141'/0'",
-    electrum: [],
     explorerUrl: "https://kmdexplorer.io/address/",
     explorerAddressUrl: "address/",
     explorerTxUrl: "tx/",
@@ -20,16 +18,15 @@ Coin setCoin(
     isTestCoin: false,
     mode: CoinMode.standard,
     name: 'Komodo',
-    nodes: [],
     priority: 30,
     protocolData: null,
     protocolType: 'UTXO',
     parentCoin: null,
-    rpcUrls: [],
     state: CoinState.inactive,
     swapContractAddress: null,
     type: CoinType.smartChain,
     walletOnly: false,
+    balance: balance,
     usdPrice: usdPrice != null
         ? CexPrice(
             price: usdPrice,
@@ -39,8 +36,4 @@ Coin setCoin(
           )
         : null,
   );
-  if (balance != null) {
-    coin.balance = balance;
-  }
-  return coin;
 }

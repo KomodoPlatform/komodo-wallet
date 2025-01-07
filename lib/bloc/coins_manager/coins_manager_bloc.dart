@@ -1,28 +1,26 @@
 import 'dart:async';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show Bloc, Emitter;
-import 'package:web_dex/blocs/blocs.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 
-import 'coins_manager_event.dart';
-import 'coins_manager_state.dart';
+part 'coins_manager_event.dart';
+part 'coins_manager_state.dart';
 
 class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   CoinsManagerBloc({
-    required CoinsBloc coinsRepo,
+    required CoinsRepo coinsRepo,
     required CoinsManagerAction action,
+    required CurrentWalletBloc currentWalletBloc,
   })  : _coinsRepo = coinsRepo,
-        super(
-          CoinsManagerState.initial(
-            action: action,
-            coins: _getOriginalCoinList(coinsRepo, action),
-          ),
-        ) {
+        _currentWalletBloc = currentWalletBloc,
+        super(CoinsManagerState.initial(action: action, coins: [])) {
     on<CoinsManagerCoinsUpdate>(_onCoinsUpdate);
     on<CoinsManagerCoinTypeSelect>(_onCoinTypeSelect);
     on<CoinsManagerCoinsSwitch>(_onCoinsSwitch);
@@ -30,18 +28,10 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     on<CoinsManagerSelectAllTap>(_onSelectAll);
     on<CoinsManagerSelectedTypesReset>(_onSelectedTypesReset);
     on<CoinsManagerSearchUpdate>(_onSearchUpdate);
-
-    _enabledCoinsListener = _coinsRepo.outWalletCoins
-        .listen((_) => add(const CoinsManagerCoinsUpdate()));
   }
-  final CoinsBloc _coinsRepo;
-  late StreamSubscription<List<Coin>> _enabledCoinsListener;
 
-  @override
-  Future<void> close() {
-    _enabledCoinsListener.cancel();
-    return super.close();
-  }
+  final CoinsRepo _coinsRepo;
+  final CurrentWalletBloc _currentWalletBloc;
 
   List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
     Map<String, Coin> coinMap = {};
@@ -60,14 +50,16 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     return list;
   }
 
-  void _onCoinsUpdate(
+  Future<void> _onCoinsUpdate(
     CoinsManagerCoinsUpdate event,
     Emitter<CoinsManagerState> emit,
-  ) {
+  ) async {
     final List<FilterFunction> filters = [];
 
     List<Coin> list = mergeCoinLists(
-        _getOriginalCoinList(_coinsRepo, state.action), state.coins);
+      await _getOriginalCoinList(_coinsRepo, state.action, _currentWalletBloc),
+      state.coins,
+    );
 
     if (state.searchPhrase.isNotEmpty) {
       filters.add(_filterByPhrase);
@@ -104,8 +96,8 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     emit(state.copyWith(isSwitching: true));
 
     final Future<void> switchingFuture = state.action == CoinsManagerAction.add
-        ? _coinsRepo.activateCoins(selectedCoins)
-        : _coinsRepo.deactivateCoins(selectedCoins);
+        ? _coinsRepo.activateCoinsSync(selectedCoins)
+        : _coinsRepo.deactivateCoinsSync(selectedCoins);
 
     emit(state.copyWith(selectedCoins: [], isSwitching: false));
     await switchingFuture;
@@ -121,17 +113,17 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       selectedCoins.remove(coin);
 
       if (state.action == CoinsManagerAction.add) {
-        _coinsRepo.deactivateCoins([event.coin]);
+        _coinsRepo.deactivateCoinsSync([event.coin]);
       } else {
-        _coinsRepo.activateCoins([event.coin]);
+        _coinsRepo.activateCoinsSync([event.coin]);
       }
     } else {
       selectedCoins.add(coin);
 
       if (state.action == CoinsManagerAction.add) {
-        _coinsRepo.activateCoins([event.coin]);
+        _coinsRepo.activateCoinsSync([event.coin]);
       } else {
-        _coinsRepo.deactivateCoins([event.coin]);
+        _coinsRepo.deactivateCoinsSync([event.coin]);
       }
     }
     emit(state.copyWith(selectedCoins: selectedCoins));
@@ -196,42 +188,45 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   }
 }
 
-List<Coin> _getOriginalCoinList(
-  CoinsBloc coinsRepo,
+Future<List<Coin>> _getOriginalCoinList(
+  CoinsRepo coinsRepo,
   CoinsManagerAction action,
-) {
+  CurrentWalletBloc currentWalletBloc,
+) async {
   final WalletType? walletType = currentWalletBloc.wallet?.config.type;
   if (walletType == null) return [];
 
   switch (action) {
     case CoinsManagerAction.add:
-      return _getDeactivatedCoins(coinsRepo, walletType);
+      return await _getDeactivatedCoins(coinsRepo, walletType);
     case CoinsManagerAction.remove:
-      return _getActivatedCoins(coinsRepo);
+      return await _getActivatedCoins(coinsRepo);
     case CoinsManagerAction.none:
       return [];
   }
 }
 
-List<Coin> _getActivatedCoins(CoinsBloc coinsRepo) {
-  return coinsRepo.walletCoins.where((coin) => !coin.isActivating).toList();
+Future<List<Coin>> _getActivatedCoins(CoinsRepo coinsRepo) async {
+  return (await coinsRepo.getEnabledCoins())
+      .where((coin) => !coin.isActivating)
+      .toList();
 }
 
-List<Coin> _getDeactivatedCoins(CoinsBloc coinsRepo, WalletType walletType) {
-  final Map<String, Coin> disabledCoinsMap = Map.from(coinsRepo.knownCoinsMap)
-    ..removeWhere(
-      (key, coin) =>
-          coinsRepo.walletCoinsMap.containsKey(key) || coin.isActivating,
-    );
+Future<List<Coin>> _getDeactivatedCoins(
+  CoinsRepo coinsRepo,
+  WalletType walletType,
+) async {
+  final Map<String, Coin> enabledCoins = await coinsRepo.getEnabledCoinsMap();
+  final Map<String, Coin> disabledCoins = (coinsRepo.getKnownCoinsMap())
+    ..removeWhere((key, coin) => enabledCoins.containsKey(key));
 
   switch (walletType) {
     case WalletType.iguana:
-      return disabledCoinsMap.values.toList();
+      return disabledCoins.values.toList();
     case WalletType.trezor:
-      return (disabledCoinsMap
-            ..removeWhere((_, coin) => !coin.hasTrezorSupport))
-          .values
-          .toList();
+      final disabledCoinsWithTrezorSupport =
+          disabledCoins.values.where((coin) => coin.hasTrezorSupport);
+      return disabledCoinsWithTrezorSupport.toList();
     case WalletType.metamask:
     case WalletType.keplr:
       return [];

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/fee/fee_request.dart';
 import 'package:web_dex/model/coin.dart';
@@ -31,11 +31,11 @@ class WithdrawFormState extends Equatable {
     required this.gasPriceError,
     required this.isCustomFeeEnabled,
     required this.memo,
-    required CoinsBloc coinsBloc,
+    required CoinsRepo coinsRepository,
   })  : _isMaxAmount = isMaxAmount,
-        _coinsRepo = coinsBloc;
+        _coinsRepo = coinsRepository;
 
-  static WithdrawFormState initial(Coin coin, CoinsBloc coinsBloc) {
+  static WithdrawFormState initial(Coin coin, CoinsRepo coinsRepository) {
     final List<HdAddress> initSenderAddresses = coin.nonEmptyHdAddresses();
     final String selectedSenderAddress =
         initSenderAddresses.isNotEmpty ? initSenderAddresses.first.address : '';
@@ -60,7 +60,7 @@ class WithdrawFormState extends Equatable {
       gasLimitError: TextError.empty(),
       gasPriceError: TextError.empty(),
       memo: null,
-      coinsBloc: coinsBloc,
+      coinsRepository: coinsRepository,
     );
   }
 
@@ -84,7 +84,7 @@ class WithdrawFormState extends Equatable {
     bool? isCustomFeeEnabled,
     String? trezorProgressStatus,
     String? memo,
-    CoinsBloc? coinsBloc,
+    CoinsRepo? coinsRepository,
   }) {
     return WithdrawFormState(
       coin: coin ?? this.coin,
@@ -107,7 +107,7 @@ class WithdrawFormState extends Equatable {
       isCustomFeeEnabled: isCustomFeeEnabled ?? this.isCustomFeeEnabled,
       trezorProgressStatus: trezorProgressStatus,
       memo: memo ?? this.memo,
-      coinsBloc: coinsBloc ?? _coinsRepo,
+      coinsRepository: coinsRepository ?? _coinsRepo,
     );
   }
 
@@ -130,7 +130,7 @@ class WithdrawFormState extends Equatable {
   final BaseError gasPriceError;
   final bool _isMaxAmount;
   final String? memo;
-  final CoinsBloc _coinsRepo;
+  final CoinsRepo _coinsRepo;
 
   @override
   List<Object?> get props => [

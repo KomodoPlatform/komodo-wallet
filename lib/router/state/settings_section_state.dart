@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/settings_menu_value.dart';
 import 'package:web_dex/router/state/menu_state_interface.dart';
@@ -15,7 +14,10 @@ class SettingsSectionState extends ChangeNotifier
     }
 
     final isSecurity = menu == SettingsMenuValue.security;
-    final showSecurity = currentWalletBloc.wallet?.isHW == false;
+    // final showSecurity = currentWalletBloc.wallet?.isHW == false;
+    // TODO! reimplement
+    const showSecurity = true;
+    // ignore: dead_code
     if (isSecurity && !showSecurity) return;
 
     _selectedMenu = menu;

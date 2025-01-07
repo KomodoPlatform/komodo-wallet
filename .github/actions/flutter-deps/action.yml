@@ -3,15 +3,10 @@ description: "Installs Flutter and any other dependencies required for the build
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: "20"
-
     - name: Get stable flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: "3.24.x"
+        flutter-version: "3.27.x"
         channel: "stable"
 
     - name: Prepare build directory

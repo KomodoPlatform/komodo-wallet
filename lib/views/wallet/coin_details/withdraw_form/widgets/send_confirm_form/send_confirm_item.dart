@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/widgets/copied_text.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class SendConfirmItem extends StatelessWidget {
   const SendConfirmItem({
@@ -44,7 +44,7 @@ class SendConfirmItem extends StatelessWidget {
                     .textTheme
                     .titleLarge
                     ?.color
-                    ?.withOpacity(.6)),
+                    ?.withValues(alpha: .6)),
           ),
         ),
         const SizedBox(height: 8),

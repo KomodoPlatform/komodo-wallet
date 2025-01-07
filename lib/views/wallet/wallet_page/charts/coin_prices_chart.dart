@@ -34,10 +34,12 @@ class PriceChartPage extends StatelessWidget {
               children: [
                 MarketChartHeaderControls(
                   title: const Text('Statistics'),
-                  leadingIcon: CoinIcon(
-                    state.data.firstOrNull?.info.ticker ?? '???',
-                    size: 22,
-                  ),
+                  leadingIcon: state.data.firstOrNull?.info.ticker == null
+                      ? const Icon(Icons.attach_money, size: 22)
+                      : CoinIcon(
+                          state.data.firstOrNull?.info.ticker ?? '',
+                          size: 22,
+                        ),
                   leadingText: Text(
                     NumberFormat.currency(symbol: '\$', decimalDigits: 4)
                         .format(

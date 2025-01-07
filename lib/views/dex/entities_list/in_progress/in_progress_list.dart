@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/model/trading_entities_filter.dart';
@@ -9,7 +11,6 @@ import 'package:web_dex/views/dex/entities_list/common/dex_empty_list.dart';
 import 'package:web_dex/views/dex/entities_list/common/dex_error_message.dart';
 import 'package:web_dex/views/dex/entities_list/in_progress/in_progress_item.dart';
 import 'package:web_dex/views/dex/entities_list/in_progress/in_progress_list_header.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class InProgressList extends StatefulWidget {
   const InProgressList({
@@ -36,6 +37,8 @@ class _InProgressListState extends State<InProgressList> {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<Swap>>(
         initialData: tradingEntitiesBloc.swaps,
         stream: tradingEntitiesBloc.outSwaps,
@@ -151,6 +154,8 @@ class _InProgressListState extends State<InProgressList> {
   }
 
   List<Swap> _sortByPrice(List<Swap> swaps) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     swaps.sort((first, second) => sortByDouble(
           tradingEntitiesBloc.getPriceFromAmount(
             first.sellAmount,

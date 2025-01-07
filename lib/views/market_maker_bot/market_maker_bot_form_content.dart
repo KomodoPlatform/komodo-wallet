@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
@@ -178,7 +178,8 @@ class _MarketMakerBotFormContentState extends State<MarketMakerBotFormContent> {
   }
 
   void _setSellCoinToDefaultCoin() {
-    final defaultCoin = coinsBloc.getCoin(defaultDexCoin);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final defaultCoin = coinsRepository.getCoin(defaultDexCoin);
     final tradeFormBloc = context.read<MarketMakerTradeFormBloc>();
     if (defaultCoin != null && tradeFormBloc.state.sellCoin.value == null) {
       tradeFormBloc.add(MarketMakerTradeFormSellCoinChanged(defaultCoin));

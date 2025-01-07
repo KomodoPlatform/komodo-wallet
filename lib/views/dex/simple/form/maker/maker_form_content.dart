@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dart';
@@ -25,6 +26,8 @@ class MakerFormContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+
     return FormPlate(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 12, 0, 20),
@@ -98,6 +101,7 @@ class _ClearButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return UiLightButton(
       text: LocaleKeys.clear.tr(),
       onPressed: () {

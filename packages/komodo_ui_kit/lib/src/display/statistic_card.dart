@@ -49,7 +49,7 @@ class StatisticCard extends StatelessWidget {
                   Theme.of(context)
                       .colorScheme
                       .primaryContainer
-                      .withOpacity(0.25),
+                      .withValues(alpha: 0.25),
                   Colors.transparent,
                 ],
                 center: const Alignment(0.2, 0.1),

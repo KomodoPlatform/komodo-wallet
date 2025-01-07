@@ -30,8 +30,8 @@ class FiatPaymentMethodGroup extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: Theme.of(context).primaryColor.withOpacity(
-                selectedPaymentMethod != null &&
+          color: Theme.of(context).primaryColor.withValues(
+                alpha: selectedPaymentMethod != null &&
                         selectedPaymentMethod!.providerId == providerId
                     ? 1
                     : 0.25,

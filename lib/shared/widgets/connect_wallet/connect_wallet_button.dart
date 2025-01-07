@@ -110,7 +110,7 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
         onSuccess: (_) async {
           takerBloc.add(TakerReInit());
           bridgeBloc.add(const BridgeReInit());
-          await reInitTradingForms();
+          await reInitTradingForms(context);
           _popupDispatcher?.close();
         },
       ),

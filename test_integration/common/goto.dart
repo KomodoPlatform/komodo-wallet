@@ -37,5 +37,5 @@ Future<void> _go(String key, WidgetTester tester, {int nFrames = 60}) async {
   await tester.tapAndPump(finder);
   await tester.pumpNFrames(nFrames);
   // ignore: avoid_print
-  print('🔍 GOTO: finished navigating to to $key');
+  print('🔍 GOTO: finished navigating to $key');
 }

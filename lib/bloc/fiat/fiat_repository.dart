@@ -1,17 +1,14 @@
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/fiat/banxa_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
-import 'package:web_dex/bloc/fiat/ramp/ramp_fiat_provider.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
-final fiatRepository =
-    FiatRepository([BanxaFiatProvider(), RampFiatProvider()]);
-
 class FiatRepository {
-  FiatRepository(this.fiatProviders);
+  FiatRepository(this.fiatProviders, this._coinsRepo);
+
   final List<BaseFiatProvider> fiatProviders;
+  final CoinsRepo _coinsRepo;
 
   String? _paymentMethodFiat;
   ICurrency? _paymentMethodsCoin;
@@ -56,7 +53,7 @@ class FiatRepository {
     Set<String>? knownCoinAbbreviations;
 
     if (isCoin) {
-      final knownCoins = await coinsRepo.getKnownCoins();
+      final knownCoins = _coinsRepo.getKnownCoins();
       knownCoinAbbreviations = knownCoins.map((coin) => coin.abbr).toSet();
     }
 

@@ -12,9 +12,10 @@ import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -55,17 +56,10 @@ class _WalletMainState extends State<WalletMain>
   void initState() {
     super.initState();
 
-    if (currentWalletBloc.wallet != null) {
-      _loadWalletData(currentWalletBloc.wallet!.id);
+    final authBloc = context.read<AuthBloc>();
+    if (authBloc.state.currentUser != null) {
+      _loadWalletData(authBloc.state.currentUser!.wallet.id).ignore();
     }
-
-    _walletSubscription = currentWalletBloc.outWallet.listen((wallet) {
-      if (wallet != null) {
-        _loadWalletData(wallet.id);
-      } else {
-        _clearWalletData();
-      }
-    });
 
     _tabController = TabController(length: 2, vsync: this);
   }
@@ -81,95 +75,118 @@ class _WalletMainState extends State<WalletMain>
 
   @override
   Widget build(BuildContext context) {
-    final walletCoinsFiltered = coinsBloc.walletCoinsMap.values;
+    return BlocConsumer<AuthBloc, AuthBlocState>(
+      // This should only load / refresh wallet data if the user changes
+      listenWhen: (previous, current) =>
+          previous.currentUser != current.currentUser,
+      listener: (context, state) {
+        if (state.currentUser?.wallet != null) {
+          _loadWalletData(state.currentUser!.wallet.id).ignore();
+        } else {
+          _clearWalletData();
+        }
+      },
+      builder: (authContext, authState) {
+        final authStateMode = authState.currentUser == null
+            ? AuthorizeMode.noLogin
+            : AuthorizeMode.logIn;
+        return BlocBuilder<CoinsBloc, CoinsState>(
+          builder: (context, state) {
+            final walletCoinsFiltered = state.walletCoins.values.toList();
 
-    final authState = context.select((AuthBloc bloc) => bloc.state.mode);
-
-    return PageLayout(
-      noBackground: true,
-      header: isMobile ? PageHeader(title: LocaleKeys.wallet.tr()) : null,
-      content: Expanded(
-        child: CustomScrollView(
-          key: const Key('wallet-page-scroll-view'),
-          slivers: <Widget>[
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  if (authState == AuthorizeMode.logIn) ...[
-                    WalletOverview(
-                      onPortfolioGrowthPressed: () =>
-                          _tabController.animateTo(0),
-                      onPortfolioProfitLossPressed: () =>
-                          _tabController.animateTo(1),
-                    ),
-                    const Gap(8),
-                  ],
-                  if (authState != AuthorizeMode.logIn)
-                    const SizedBox(
-                      width: double.infinity,
-                      height: 340,
-                      child: PriceChartPage(key: Key('price-chart')),
-                    )
-                  else ...[
-                    Card(
-                      child: TabBar(
-                        controller: _tabController,
-                        tabs: [
-                          Tab(text: LocaleKeys.portfolioGrowth.tr()),
-                          Tab(text: LocaleKeys.profitAndLoss.tr()),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 340,
-                      child: TabBarView(
-                        controller: _tabController,
+            return PageLayout(
+              noBackground: true,
+              header:
+                  isMobile ? PageHeader(title: LocaleKeys.wallet.tr()) : null,
+              content: Expanded(
+                child: CustomScrollView(
+                  key: const Key('wallet-page-scroll-view'),
+                  slivers: <Widget>[
+                    SliverToBoxAdapter(
+                      child: Column(
                         children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 340,
-                            child: PortfolioGrowthChart(
-                              initialCoins: walletCoinsFiltered.toList(),
+                          if (authStateMode == AuthorizeMode.logIn) ...[
+                            WalletOverview(
+                              onPortfolioGrowthPressed: () =>
+                                  _tabController.animateTo(0),
+                              onPortfolioProfitLossPressed: () =>
+                                  _tabController.animateTo(1),
                             ),
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 340,
-                            child: PortfolioProfitLossChart(
-                              initialCoins: walletCoinsFiltered.toList(),
+                            const Gap(8),
+                          ],
+                          if (authStateMode != AuthorizeMode.logIn)
+                            const SizedBox(
+                              width: double.infinity,
+                              height: 340,
+                              child: PriceChartPage(key: Key('price-chart')),
+                            )
+                          else ...[
+                            Card(
+                              child: TabBar(
+                                controller: _tabController,
+                                tabs: [
+                                  Tab(text: LocaleKeys.portfolioGrowth.tr()),
+                                  Tab(text: LocaleKeys.profitAndLoss.tr()),
+                                ],
+                              ),
                             ),
-                          ),
+                            SizedBox(
+                              height: 340,
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: [
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 340,
+                                    child: PortfolioGrowthChart(
+                                      initialCoins: walletCoinsFiltered,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 340,
+                                    child: PortfolioProfitLossChart(
+                                      initialCoins: walletCoinsFiltered,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const Gap(8),
                         ],
                       ),
                     ),
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _SliverSearchBarDelegate(
+                        withBalance: _showCoinWithBalance,
+                        onSearchChange: _onSearchChange,
+                        onWithBalanceChange: _onShowCoinsWithBalanceClick,
+                        mode: authStateMode,
+                      ),
+                    ),
+                    _buildCoinList(authStateMode),
                   ],
-                  const Gap(8),
-                ],
+                ),
               ),
-            ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _SliverSearchBarDelegate(
-                withBalance: _showCoinWithBalance,
-                onSearchChange: _onSearchChange,
-                onWithBalanceChange: _onShowCoinsWithBalanceClick,
-                mode: authState,
-              ),
-            ),
-              _buildCoinList(authState),
-            ],
-          ),
-        ));
+            );
+          },
+        );
+      },
+    );
   }
 
-  void _loadWalletData(String walletId) {
+  Future<void> _loadWalletData(String walletId) async {
     final portfolioGrowthBloc = context.read<PortfolioGrowthBloc>();
     final profitLossBloc = context.read<ProfitLossBloc>();
     final assetOverviewBloc = context.read<AssetOverviewBloc>();
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final walletCoins = await coinsRepository.getWalletCoins();
 
     portfolioGrowthBloc.add(
       PortfolioGrowthLoadRequested(
-        coins: coinsBloc.walletCoins,
+        coins: walletCoins,
         fiatCoinId: 'USDT',
         updateFrequency: const Duration(minutes: 1),
         selectedPeriod: portfolioGrowthBloc.state.selectedPeriod,
@@ -179,7 +196,7 @@ class _WalletMainState extends State<WalletMain>
 
     profitLossBloc.add(
       ProfitLossPortfolioChartLoadRequested(
-        coins: coinsBloc.walletCoins,
+        coins: walletCoins,
         selectedPeriod: profitLossBloc.state.selectedPeriod,
         fiatCoinId: 'USDT',
         walletId: walletId,
@@ -189,13 +206,13 @@ class _WalletMainState extends State<WalletMain>
     assetOverviewBloc
       ..add(
         PortfolioAssetsOverviewLoadRequested(
-          coins: coinsBloc.walletCoins,
+          coins: walletCoins,
           walletId: walletId,
         ),
       )
       ..add(
         PortfolioAssetsOverviewSubscriptionRequested(
-          coins: coinsBloc.walletCoins,
+          coins: walletCoins,
           walletId: walletId,
           updateFrequency: const Duration(minutes: 1),
         ),
@@ -266,7 +283,7 @@ class _WalletMainState extends State<WalletMain>
         onSuccess: (_) async {
           takerBloc.add(TakerReInit());
           bridgeBloc.add(const BridgeReInit());
-          await reInitTradingForms();
+          await reInitTradingForms(context);
           _popupDispatcher?.close();
         },
       ),

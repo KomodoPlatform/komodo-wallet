@@ -5,7 +5,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
@@ -112,6 +112,7 @@ class _TargetProtocolItems extends StatelessWidget {
     if (targetsList.isEmpty) return BridgeNothingFound();
 
     final scrollController = ScrollController();
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -128,7 +129,7 @@ class _TargetProtocolItems extends StatelessWidget {
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, int index) {
                   final BestOrder order = targetsList[index];
-                  final Coin coin = coinsBloc.getCoin(order.coin)!;
+                  final Coin coin = coinsRepository.getCoin(order.coin)!;
 
                   return BridgeProtocolTableOrderItem(
                     index: index,

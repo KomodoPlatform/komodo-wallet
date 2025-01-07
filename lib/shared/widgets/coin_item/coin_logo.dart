@@ -59,7 +59,7 @@ class _ProtocolIcon extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 2)
+            BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 2)
           ],
         ),
         child: Container(

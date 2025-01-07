@@ -27,15 +27,6 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
     try {
       await DragonLogs.init();
 
-      DragonLogs.setSessionMetadata({
-        'appVersion': packageInformation.packageVersion,
-        'mm2Version': await apiVersion(),
-        'appLanguage': await localeName(),
-        'platform': platformInfo.platform,
-        'osLanguage': platformInfo.osLanguage,
-        'screenSize': platformInfo.screenSize,
-      });
-
       initialised_logger
           .log('Logger initialized in ${timer.elapsedMilliseconds}ms');
 
@@ -59,7 +50,7 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
     final LogMessage logMessage = LogMessage(
       path: path,
       appVersion: packageInformation.packageVersion ?? '',
-      mm2Version: await apiVersion(),
+      mm2Version: DragonLogs.sessionMetadata?['mm2Version'],
       appLocale: await localeName(),
       platform: platformInfo.platform,
       osLanguage: platformInfo.osLanguage,

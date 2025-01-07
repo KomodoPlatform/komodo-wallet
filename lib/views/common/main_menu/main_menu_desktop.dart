@@ -8,7 +8,6 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_event.dart';
 import 'package:web_dex/bloc/settings/settings_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/authorize_mode.dart';
@@ -28,15 +27,15 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
     final isAuthenticated = context
         .select((AuthBloc bloc) => bloc.state.mode == AuthorizeMode.logIn);
 
-    return StreamBuilder<Wallet?>(
-      stream: currentWalletBloc.outWallet,
-      builder: (context, currentWalletSnapshot) {
+    return BlocBuilder<AuthBloc, AuthBlocState>(
+      builder: (context, state) {
         return BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, settingsState) {
             final bool isDarkTheme = settingsState.themeMode == ThemeMode.dark;
             final bool isMMBotEnabled =
                 settingsState.mmBotSettings.isMMBotEnabled;
             final SettingsBloc settings = context.read<SettingsBloc>();
+            final currentWallet = state.currentUser?.wallet;
             return Container(
               margin: isWideScreen
                   ? const EdgeInsets.fromLTRB(0, mainLayoutPadding + 12, 24, 0)
@@ -59,21 +58,21 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                     ),
                     DesktopMenuDesktopItem(
                       key: const Key('main-menu-fiat'),
-                      enabled: currentWalletBloc.wallet?.isHW != true,
+                      enabled: currentWallet?.isHW != true,
                       menu: MainMenuValue.fiat,
                       onTap: onTapItem,
                       isSelected: _checkSelectedItem(MainMenuValue.fiat),
                     ),
                     DesktopMenuDesktopItem(
                       key: const Key('main-menu-dex'),
-                      enabled: currentWalletBloc.wallet?.isHW != true,
+                      enabled: currentWallet?.isHW != true,
                       menu: MainMenuValue.dex,
                       onTap: onTapItem,
                       isSelected: _checkSelectedItem(MainMenuValue.dex),
                     ),
                     DesktopMenuDesktopItem(
                       key: const Key('main-menu-bridge'),
-                      enabled: currentWalletBloc.wallet?.isHW != true,
+                      enabled: currentWallet?.isHW != true,
                       menu: MainMenuValue.bridge,
                       onTap: onTapItem,
                       isSelected: _checkSelectedItem(MainMenuValue.bridge),
@@ -81,7 +80,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                     if (isMMBotEnabled && isAuthenticated)
                       DesktopMenuDesktopItem(
                         key: const Key('main-menu-market-maker-bot'),
-                        enabled: currentWalletBloc.wallet?.isHW != true,
+                        enabled: currentWallet?.isHW != true,
                         menu: MainMenuValue.marketMakerBot,
                         onTap: onTapItem,
                         isSelected:
@@ -89,7 +88,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                       ),
                     DesktopMenuDesktopItem(
                         key: const Key('main-menu-nft'),
-                        enabled: currentWalletBloc.wallet?.isHW != true,
+                        enabled: currentWallet?.isHW != true,
                         menu: MainMenuValue.nft,
                         onTap: onTapItem,
                         isSelected: _checkSelectedItem(MainMenuValue.nft)),
@@ -98,8 +97,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                       key: const Key('main-menu-settings'),
                       menu: MainMenuValue.settings,
                       onTap: onTapItem,
-                      needAttention:
-                          currentWalletBloc.wallet?.config.hasBackup == false,
+                      needAttention: currentWallet?.config.hasBackup == false,
                       isSelected: _checkSelectedItem(MainMenuValue.settings),
                     ),
                     Theme(

@@ -8,15 +8,6 @@ import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/common/header/actions/header_actions.dart';
 
-PreferredSize? buildAppHeader() {
-  return isMobile
-      ? null
-      : const PreferredSize(
-          preferredSize: Size.fromHeight(appBarHeight),
-          child: AppHeader(),
-        );
-}
-
 class AppHeader extends StatefulWidget {
   const AppHeader({Key? key}) : super(key: key);
 

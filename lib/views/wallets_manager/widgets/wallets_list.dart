@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/wallets_manager_models.dart';
@@ -14,9 +15,10 @@ class WalletsList extends StatelessWidget {
   final void Function(Wallet, WalletsManagerExistWalletAction) onWalletClick;
   @override
   Widget build(BuildContext context) {
+    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
     return StreamBuilder<List<Wallet>>(
-      initialData: walletsBloc.wallets,
-      stream: walletsBloc.outWallets,
+      initialData: walletsRepository.wallets,
+      stream: walletsRepository.getWallets().asStream(),
       builder: (BuildContext context, AsyncSnapshot<List<Wallet>> snapshot) {
         final List<Wallet> wallets = snapshot.data ?? [];
         final List<Wallet> filteredWallets =

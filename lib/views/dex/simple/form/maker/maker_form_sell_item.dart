@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/common/front_plate.dart';
 import 'package:web_dex/views/dex/simple/form/maker/maker_form_sell_header.dart';
@@ -17,6 +18,7 @@ class MakerFormSellItem extends StatefulWidget {
 class _MakerFormSellItemState extends State<MakerFormSellItem> {
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return FrontPlate(
       child: StreamBuilder<Coin?>(
         initialData: makerFormBloc.sellCoin,

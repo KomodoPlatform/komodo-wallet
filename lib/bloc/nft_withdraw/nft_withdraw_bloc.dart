@@ -6,9 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_repo.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/convert_address/convert_address_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_response.dart';
@@ -23,9 +24,11 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
   NftWithdrawBloc({
     required NftWithdrawRepo repo,
     required NftToken nft,
-    required CoinsBloc coinsBloc,
+    required Mm2Api mm2Api,
+    required CoinsRepo coinsRepository,
   })  : _repo = repo,
-        _coinsBloc = coinsBloc,
+        _coinsRepository = coinsRepository,
+        _mm2Api = mm2Api,
         super(NftWithdrawFillState.initial(nft)) {
     on<NftWithdrawAddressChanged>(_onAddressChanged);
     on<NftWithdrawAmountChanged>(_onAmountChanged);
@@ -37,7 +40,8 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
   }
 
   final NftWithdrawRepo _repo;
-  final CoinsBloc _coinsBloc;
+  final Mm2Api _mm2Api;
+  final CoinsRepo _coinsRepository;
 
   Future<void> _onSend(
     NftWithdrawSendEvent event,
@@ -223,9 +227,12 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final state = this.state;
     if (state is! NftWithdrawFillState) return;
 
-    final result = await coinsRepo.convertLegacyAddress(
-      state.nft.parentCoin,
-      state.address,
+    final result = await _mm2Api.convertLegacyAddress(
+      ConvertAddressRequest(
+        coin: state.nft.parentCoin.abbr,
+        from: state.address,
+        isErc: state.nft.parentCoin.isErcType,
+      ),
     );
     if (result == null) return;
 
@@ -236,7 +243,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final parentCoin = state.nft.parentCoin;
 
     if (!parentCoin.isActive) {
-      await _coinsBloc.activateCoins([parentCoin]);
+      await _coinsRepository.activateCoinsSync([parentCoin]);
     }
   }
 }

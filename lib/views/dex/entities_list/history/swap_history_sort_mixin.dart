@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/shared/utils/sorting.dart';
 import 'package:web_dex/views/dex/entities_list/history/history_list_header.dart';
@@ -14,7 +16,7 @@ mixin SwapHistorySortingMixin {
   }
 
   List<Swap> sortSwaps(
-    List<Swap> swaps, {
+    BuildContext context, List<Swap> swaps, {
     required SortData<HistoryListSortType> sortData,
   }) {
     final direction = sortData.sortDirection;
@@ -25,7 +27,7 @@ mixin SwapHistorySortingMixin {
       case HistoryListSortType.receive:
         return _sortByAmount(swaps, false, direction);
       case HistoryListSortType.price:
-        return _sortByPrice(swaps, sortDirection: direction);
+        return _sortByPrice(context, swaps, sortDirection: direction);
       case HistoryListSortType.date:
         return _sortByDate(swaps, sortDirection: direction);
       case HistoryListSortType.orderType:
@@ -85,9 +87,10 @@ mixin SwapHistorySortingMixin {
   }
 
   List<Swap> _sortByPrice(
-    List<Swap> swaps, {
+    BuildContext context, List<Swap> swaps, {
     required SortDirection sortDirection,
   }) {
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(context);
     swaps.sort(
       (first, second) => sortByDouble(
         tradingEntitiesBloc.getPriceFromAmount(

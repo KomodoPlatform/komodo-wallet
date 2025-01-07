@@ -63,10 +63,10 @@ class UiBorderButton extends StatelessWidget {
               child: InkWell(
                 onTap: onPressed,
                 borderRadius: BorderRadius.circular(15),
-                hoverColor: secondaryColor.withOpacity(0.05),
-                highlightColor: secondaryColor.withOpacity(0.1),
-                focusColor: secondaryColor.withOpacity(0.2),
-                splashColor: secondaryColor.withOpacity(0.4),
+                hoverColor: secondaryColor.withValues(alpha: 0.05),
+                highlightColor: secondaryColor.withValues(alpha: 0.1),
+                focusColor: secondaryColor.withValues(alpha: 0.2),
+                splashColor: secondaryColor.withValues(alpha: 0.4),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
                   child: Builder(

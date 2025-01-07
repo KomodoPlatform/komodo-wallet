@@ -9,9 +9,10 @@ import 'package:web_dex/bloc/cex_market_data/mockup/mock_portfolio_growth_reposi
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/cex_market_data/models/graph_type.dart';
 import 'package:web_dex/bloc/cex_market_data/models/models.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/blocs/blocs.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_defi_types/types.dart';
 import 'package:web_dex/model/coin.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
@@ -21,9 +22,11 @@ class PortfolioGrowthRepository {
     required cex.CexRepository cexRepository,
     required TransactionHistoryRepo transactionHistoryRepo,
     required PersistenceProvider<String, GraphCache> cacheProvider,
+    required CoinsRepo coinsRepository,
   })  : _transactionHistoryRepository = transactionHistoryRepo,
         _cexRepository = cexRepository,
-        _graphCache = cacheProvider;
+        _graphCache = cacheProvider,
+        _coinsRepository = coinsRepository;
 
   /// Create a new instance of the repository with default dependencies.
   /// The default dependencies are the [BinanceRepository] and the
@@ -31,11 +34,15 @@ class PortfolioGrowthRepository {
   factory PortfolioGrowthRepository.withDefaults({
     required TransactionHistoryRepo transactionHistoryRepo,
     required cex.CexRepository cexRepository,
+    required CoinsRepo coinsRepository,
+    required Mm2Api mm2Api,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
       return MockPortfolioGrowthRepository.withDefaults(
         performanceMode: demoMode,
+        coinsRepository: coinsRepository,
+        mm2Api: mm2Api,
       );
     }
 
@@ -45,6 +52,7 @@ class PortfolioGrowthRepository {
       cacheProvider: HiveLazyBoxProvider<String, GraphCache>(
         name: GraphType.balanceGrowth.tableName,
       ),
+      coinsRepository: coinsRepository,
     );
   }
 
@@ -56,6 +64,8 @@ class PortfolioGrowthRepository {
 
   /// The graph cache provider to store the portfolio growth graph data.
   final PersistenceProvider<String, GraphCache> _graphCache;
+
+  final CoinsRepo _coinsRepository;
 
   static Future<void> ensureInitialized() async {
     Hive
@@ -111,7 +121,7 @@ class PortfolioGrowthRepository {
 
     // TODO: Refactor referenced coinsBloc method to a repository.
     // NB: Even though the class is called [CoinsBloc], it is not a Bloc.
-    final Coin coin = coinsBlocRepository.getCoin(coinId)!;
+    final Coin coin = _coinsRepository.getCoin(coinId)!;
     final List<Transaction> transactions = await _transactionHistoryRepository
         .fetchCompletedTransactions(coin)
         .then((value) => value.toList())
@@ -142,7 +152,7 @@ class PortfolioGrowthRepository {
 
     // Continue to cache an empty chart rather than trying to fetch transactions
     // again for each invocation.
-    startAt ??= transactions.first.timestampDate;
+    startAt ??= transactions.first.timestamp;
     endAt ??= DateTime.now();
 
     final String baseCoinId = coin.abbr.split('-').first;
@@ -235,6 +245,9 @@ class PortfolioGrowthRepository {
           rethrow;
         }
       } on Exception {
+        // Exception primarily thrown for cache misses
+        // TODO: create a custom exception for cache misses to avoid catching
+        // this broad exception type
         return Future.value(ChartData.empty());
       }
     });
@@ -301,7 +314,7 @@ class PortfolioGrowthRepository {
     String fiatCoinId, {
     bool allowFiatAsBase = true,
   }) async {
-    final Coin coin = coinsBlocRepository.getCoin(coinId)!;
+    final Coin coin = _coinsRepository.getCoin(coinId)!;
 
     final supportedCoins = await _cexRepository.getCoinList();
     final coinTicker = coin.abbr.split('-').firstOrNull?.toUpperCase() ?? '';
