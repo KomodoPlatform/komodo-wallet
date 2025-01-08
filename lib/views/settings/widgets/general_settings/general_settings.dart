@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/widgets/hidden_with_wallet.dart';
 import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
@@ -24,9 +25,10 @@ class GeneralSettings extends StatelessWidget {
         const SizedBox(height: 25),
         const SettingsManageAnalytics(),
         const SizedBox(height: 25),
-        const HiddenWithoutWallet(
-          child: SettingsManageTradingBot(),
-        ),
+        if (!kIsWalletOnly)
+          const HiddenWithoutWallet(
+            child: SettingsManageTradingBot(),
+          ),
         const SizedBox(height: 25),
         const SettingsDownloadLogs(),
         const SizedBox(height: 25),
