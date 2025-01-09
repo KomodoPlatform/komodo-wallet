@@ -17,7 +17,7 @@ class CoinDetailsCommonButtons extends StatelessWidget {
   const CoinDetailsCommonButtons({
     required this.isMobile,
     required this.selectWidget,
-    required this.clickSwapButton,
+    required this.onClickSwapButton,
     required this.coin,
     super.key,
   });
@@ -25,7 +25,7 @@ class CoinDetailsCommonButtons extends StatelessWidget {
   final bool isMobile;
   final Coin coin;
   final void Function(CoinPageType) selectWidget;
-  final VoidCallback? clickSwapButton;
+  final VoidCallback? onClickSwapButton;
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +34,14 @@ class CoinDetailsCommonButtons extends StatelessWidget {
             coin: coin,
             isMobile: isMobile,
             selectWidget: selectWidget,
-            clickSwapButton: clickSwapButton,
+            clickSwapButton: onClickSwapButton,
             context: context,
           )
         : CoinDetailsCommonButtonsDesktopLayout(
             isMobile: isMobile,
             coin: coin,
             selectWidget: selectWidget,
-            clickSwapButton: clickSwapButton,
+            clickSwapButton: onClickSwapButton,
             context: context,
           );
   }
@@ -60,7 +60,7 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
   final Coin coin;
   final bool isMobile;
   final void Function(CoinPageType p1) selectWidget;
-  final VoidCallback clickSwapButton;
+  final VoidCallback? clickSwapButton;
   final BuildContext context;
 
   @override
@@ -114,7 +114,7 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
                 child: CoinDetailsSwapButton(
                   isMobile: isMobile,
                   coin: coin,
-                  clickSwapButton: clickSwapButton,
+                  onClickSwapButton: clickSwapButton,
                   context: context,
                 ),
               ),
@@ -138,7 +138,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
   final bool isMobile;
   final Coin coin;
   final void Function(CoinPageType p1) selectWidget;
-  final VoidCallback clickSwapButton;
+  final VoidCallback? clickSwapButton;
   final BuildContext context;
 
   @override
@@ -171,7 +171,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
             child: CoinDetailsSwapButton(
               isMobile: isMobile,
               coin: coin,
-              clickSwapButton: clickSwapButton,
+              onClickSwapButton: clickSwapButton,
               context: context,
             ),
           ),
@@ -291,14 +291,14 @@ class CoinDetailsSwapButton extends StatelessWidget {
   const CoinDetailsSwapButton({
     required this.isMobile,
     required this.coin,
-    required this.clickSwapButton,
+    required this.onClickSwapButton,
     required this.context,
     super.key,
   });
 
   final bool isMobile;
   final Coin coin;
-  final VoidCallback clickSwapButton;
+  final VoidCallback? onClickSwapButton;
   final BuildContext context;
 
   @override
@@ -322,7 +322,7 @@ class CoinDetailsSwapButton extends StatelessWidget {
           '$assetsPath/others/swap.svg',
         ),
       ),
-      onPressed: coin.isSuspended ? null : clickSwapButton,
+      onPressed: coin.isSuspended ? null : onClickSwapButton,
     );
   }
 }

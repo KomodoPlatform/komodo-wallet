@@ -250,7 +250,7 @@ class _DesktopCoinDetails extends StatelessWidget {
             child: CoinDetailsCommonButtons(
               isMobile: false,
               selectWidget: setPageType,
-              clickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
+              onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
                   ? null
                   : () => _goToSwap(context, coin),
               coin: coin,
@@ -347,7 +347,7 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
             child: CoinDetailsCommonButtons(
               isMobile: true,
               selectWidget: setPageType,
-              clickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
+              onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
                   ? null
                   : () => _goToSwap(context, coin),
               coin: coin,
@@ -379,7 +379,7 @@ class _CoinDetailsMarketMetricsTabBar extends StatelessWidget {
         profitLossState is! PortfolioProfitLossChartUnsupported;
     final areChartsSupported =
         isPortfolioGrowthSupported || isProfitLossSupported;
-    final numChartsSupported = 0 + 
+    final numChartsSupported = 0 +
         (isPortfolioGrowthSupported ? 1 : 0) +
         (isProfitLossSupported ? 1 : 0);
 
