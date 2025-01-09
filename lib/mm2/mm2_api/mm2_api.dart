@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api_nft.dart';
@@ -86,7 +87,7 @@ class Mm2Api {
   Future<String?> getBalance(String abbr) async {
     dynamic response;
     try {
-      response = await _call(MyBalanceReq(coin: abbr));
+      response = await _mm2.call(MyBalanceReq(coin: abbr));
     } catch (e, s) {
       log(
         'Error getting balance $abbr: ${e.toString()}',
@@ -111,74 +112,6 @@ class Mm2Api {
     }
 
     return json['balance'];
-  }
-
-  Future<MaxMakerVolResponse?> getMaxMakerVol(String abbr) async {
-    dynamic response;
-    try {
-      response = await _call(MaxMakerVolRequest(coin: abbr));
-    } catch (e, s) {
-      log(
-        'Error getting max maker vol $abbr: ${e.toString()}',
-        path: 'api => getMaxMakerVol => _call',
-        trace: s,
-        isError: true,
-      );
-      return _fallbackToBalance(abbr);
-    }
-
-    Map<String, dynamic> json;
-    try {
-      json = jsonDecode(response);
-    } catch (e, s) {
-      log(
-        'Error parsing of max maker vol $abbr response: ${e.toString()}',
-        path: 'api => getMaxMakerVol => jsonDecode',
-        trace: s,
-        isError: true,
-      );
-      return _fallbackToBalance(abbr);
-    }
-
-    final error = json['error'];
-    if (error != null) {
-      log(
-        'Error parsing of max maker vol $abbr response: ${error.toString()}',
-        path: 'api => getMaxMakerVol => error',
-        isError: true,
-      );
-      return _fallbackToBalance(abbr);
-    }
-
-    try {
-      return MaxMakerVolResponse.fromJson(json['result']);
-    } catch (e, s) {
-      log(
-        'Error constructing MaxMakerVolResponse for $abbr: ${e.toString()}',
-        path: 'api => getMaxMakerVol => fromJson',
-        trace: s,
-        isError: true,
-      );
-      return _fallbackToBalance(abbr);
-    }
-  }
-
-  Future<MaxMakerVolResponse?> _fallbackToBalance(String abbr) async {
-    final balance = await getBalance(abbr);
-    if (balance == null) {
-      log(
-        'Failed to retrieve balance for fallback construction of MaxMakerVolResponse for $abbr',
-        path: 'api => _fallbackToBalance',
-        isError: true,
-      );
-      return null;
-    }
-
-    final balanceValue = MaxMakerVolResponseValue(decimal: balance);
-    return MaxMakerVolResponse(
-      volume: balanceValue,
-      balance: balanceValue,
-    );
   }
 
   Future<MaxTakerVolResponse?> _fallbackToBalanceTaker(String abbr) async {
