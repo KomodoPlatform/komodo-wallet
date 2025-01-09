@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/model/first_uri_segment.dart';
 import 'package:web_dex/router/parsers/base_route_parser.dart';
 import 'package:web_dex/router/parsers/bridge_route_parser.dart';
@@ -11,22 +12,26 @@ import 'package:web_dex/router/parsers/wallet_route_parser.dart';
 import 'package:web_dex/router/routes.dart';
 
 class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
-  final Map<String, BaseRouteParser> _parsers = {
-    firstUriSegment.wallet: walletRouteParser,
-    firstUriSegment.fiat: fiatRouteParser,
-    firstUriSegment.dex: dexRouteParser,
-    firstUriSegment.bridge: bridgeRouteParser,
-    firstUriSegment.nfts: nftRouteParser,
-    firstUriSegment.settings: settingsRouteParser,
-  };
+  RootRouteInformationParser(this.coinsBloc);
+
+  final CoinsBloc coinsBloc;
+
+  Map<String, BaseRouteParser> get _parsers => {
+        firstUriSegment.wallet: WalletRouteParser(coinsBloc),
+        firstUriSegment.fiat: fiatRouteParser,
+        firstUriSegment.dex: dexRouteParser,
+        firstUriSegment.bridge: bridgeRouteParser,
+        firstUriSegment.nfts: nftRouteParser,
+        firstUriSegment.settings: settingsRouteParser,
+      };
 
   @override
   Future<AppRoutePath> parseRouteInformation(
       RouteInformation routeInformation) async {
-    final uri = Uri.parse(routeInformation.uri.path);
-    final BaseRouteParser parser = _getRoutParser(uri);
+    final BaseRouteParser parser =
+        _getRoutParser(Uri.parse(routeInformation.uri.path));
 
-    return parser.getRoutePath(uri);
+    return parser.getRoutePath(routeInformation.uri);
   }
 
   @override
@@ -35,8 +40,8 @@ class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   }
 
   BaseRouteParser _getRoutParser(Uri uri) {
-    const defaultRouteParser =
-        kIsWalletOnly ? walletRouteParser : dexRouteParser;
+    final defaultRouteParser =
+        kIsWalletOnly ? _parsers[firstUriSegment.wallet]! : dexRouteParser;
 
     if (uri.pathSegments.isEmpty) return defaultRouteParser;
     return _parsers[uri.pathSegments.first] ?? defaultRouteParser;
