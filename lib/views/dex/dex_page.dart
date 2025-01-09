@@ -1,6 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
@@ -42,6 +43,9 @@ class _DexPageState extends State<DexPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWalletOnly) {
+      return const Placeholder(child: Text('You should not see this page'));
+    }
     final tradingEntitiesBloc =
         RepositoryProvider.of<TradingEntitiesBloc>(context);
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);

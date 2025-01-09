@@ -66,4 +66,56 @@ class _MainLayoutState extends State<MainLayout> {
       ),
     );
   }
+
+  Widget _buildAppBody() {
+    return StreamBuilder<bool>(
+        initialData: startUpBloc.running,
+        stream: startUpBloc.outRunning,
+        builder: (context, snapshot) {
+          log('_LayoutWrapperState.build([context]) StreamBuilder: $snapshot');
+          if (!snapshot.hasData) {
+            return const Center(child: UiSpinner());
+          }
+
+          return MainLayoutRouter();
+        });
+  }
+
+  // Method to show an alert dialog with an option to agree if the app is in
+  // debug mode stating that trading features may not be used for actual trading
+  // and that only test assets/networks may be used.
+  Future<void> _showDebugModeDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Debug mode'),
+          content: const Text(
+            'This app is in debug mode. Trading features may not be used for '
+            'actual trading. Only test assets/networks may be used.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _saveAgreedState().ignore();
+              },
+              child: const Text('I agree'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _saveAgreedState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('wallet_only_agreed', true);
+  }
+
+  Future<bool> _hasAgreedNoTrading() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('wallet_only_agreed') ?? false;
+  }
 }
