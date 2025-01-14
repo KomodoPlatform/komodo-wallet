@@ -133,7 +133,6 @@ class WalletConfig {
 
 enum WalletType {
   iguana,
-  // TODO! add HD wallet type
   hdwallet,
   trezor,
   metamask,

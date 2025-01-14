@@ -57,9 +57,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
     return _filePasswordError == null;
   }
 
-  bool get _isButtonEnabled {
-    return _eulaAndTosChecked;
-  }
+  bool get _isButtonEnabled => _eulaAndTosChecked;
 
   @override
   Widget build(BuildContext context) {
