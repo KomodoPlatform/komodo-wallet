@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_transaction_fee.dart';
@@ -16,12 +17,12 @@ class FiatPaymentMethod extends Equatable {
     required this.transactionFees,
   });
 
-  const FiatPaymentMethod.none()
+  FiatPaymentMethod.none()
       : providerId = 'none',
         id = '',
         name = '',
         priceInfo = const FiatPriceInfo.zero(),
-        relativePercent = 0,
+        relativePercent = Decimal.zero,
         providerIconAssetPath = '',
         transactionLimits = const [],
         transactionFees = const [];
@@ -49,7 +50,8 @@ class FiatPaymentMethod extends Equatable {
       priceInfo: FiatPriceInfo.fromJson(
         json['price_info'] as Map<String, dynamic>? ?? {},
       ),
-      relativePercent: double.parse(json['relative_percent'] as String? ?? '0'),
+      relativePercent:
+          Decimal.parse(json['relative_percent'] as String? ?? '0'),
       providerIconAssetPath: json['provider_icon_asset_path'] as String? ?? '',
       transactionLimits: limits,
       transactionFees: fees,
@@ -60,7 +62,7 @@ class FiatPaymentMethod extends Equatable {
   final String id;
   final String name;
   final FiatPriceInfo priceInfo;
-  final double relativePercent;
+  final Decimal relativePercent;
   final String providerIconAssetPath;
   final List<FiatTransactionLimit> transactionLimits;
   final List<FiatTransactionFee> transactionFees;
@@ -72,7 +74,7 @@ class FiatPaymentMethod extends Equatable {
     String? id,
     String? name,
     FiatPriceInfo? priceInfo,
-    double? relativePercent,
+    Decimal? relativePercent,
     String? providerIconAssetPath,
     List<FiatTransactionLimit>? transactionLimits,
     List<FiatTransactionFee>? transactionFees,
@@ -116,53 +118,53 @@ class FiatPaymentMethod extends Equatable {
       ];
 }
 
-const List<FiatPaymentMethod> defaultFiatPaymentMethods = [
+final List<FiatPaymentMethod> defaultFiatPaymentMethods = [
   FiatPaymentMethod(
     id: 'CARD_PAYMENT',
     name: 'Card Payment',
     providerId: 'Ramp',
-    priceInfo: FiatPriceInfo(
+    priceInfo: const FiatPriceInfo(
       fiatAmount: 0,
       coinAmount: 0,
       fiatCode: 'USD',
       coinCode: 'BTC',
       spotPriceIncludingFee: 0,
     ),
-    relativePercent: 0,
+    relativePercent: Decimal.zero,
     providerIconAssetPath: 'assets/fiat/providers/ramp_icon.svg',
-    transactionLimits: [],
-    transactionFees: [],
+    transactionLimits: const [],
+    transactionFees: const [],
   ),
   FiatPaymentMethod(
     id: 'APPLE_PAY',
     name: 'Apple Pay',
     providerId: 'Ramp',
-    priceInfo: FiatPriceInfo(
+    priceInfo: const FiatPriceInfo(
       fiatAmount: 0,
       coinAmount: 0,
       fiatCode: 'USD',
       coinCode: 'BTC',
       spotPriceIncludingFee: 0,
     ),
-    relativePercent: -0.04126038522159592,
+    relativePercent: Decimal.parse('-0.04126038522159592'),
     providerIconAssetPath: 'assets/fiat/providers/ramp_icon.svg',
-    transactionLimits: [],
-    transactionFees: [],
+    transactionLimits: const [],
+    transactionFees: const [],
   ),
   FiatPaymentMethod(
     id: '7554',
     name: 'Visa/Mastercard',
     providerId: 'Banxa',
-    priceInfo: FiatPriceInfo(
+    priceInfo: const FiatPriceInfo(
       fiatAmount: 0,
       coinAmount: 0,
       fiatCode: 'USD',
       coinCode: 'BTC',
       spotPriceIncludingFee: 0,
     ),
-    relativePercent: -0.017942476775854282,
+    relativePercent: Decimal.parse('-0.017942476775854282'),
     providerIconAssetPath: 'assets/fiat/providers/banxa_icon.svg',
-    transactionLimits: [],
-    transactionFees: [],
+    transactionLimits: const [],
+    transactionFees: const [],
   ),
 ];

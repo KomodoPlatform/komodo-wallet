@@ -20,7 +20,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     this.fiatMode = FiatMode.onramp,
   });
 
-  const FiatFormState.initial()
+  FiatFormState.initial()
       : selectedFiat = const CurrencyInput.dirty(
           FiatCurrency('USD', 'United States Dollar'),
         ),
@@ -28,7 +28,7 @@ final class FiatFormState extends Equatable with FormzMixin {
           CryptoCurrency('BTC', 'Bitcoin', CoinType.utxo),
         ),
         fiatAmount = const FiatAmountInput.pure(),
-        selectedPaymentMethod = const FiatPaymentMethod.none(),
+        selectedPaymentMethod = FiatPaymentMethod.none(),
         accountReference = '',
         coinReceiveAddress = '',
         checkoutUrl = '',

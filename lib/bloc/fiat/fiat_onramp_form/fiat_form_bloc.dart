@@ -26,7 +26,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     required CoinsRepo coinsRepository,
   })  : _fiatRepository = repository,
         _coinsRepository = coinsRepository,
-        super(const FiatFormState.initial()) {
+        super(FiatFormState.initial()) {
     // all user input fields are debounced using the debounce stream transformer
     on<SelectedFiatCurrencyChanged>(
       _onChangeSelectedFiatCoin,
