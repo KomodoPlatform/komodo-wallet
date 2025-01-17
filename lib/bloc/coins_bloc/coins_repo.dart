@@ -169,9 +169,27 @@ class CoinsRepo {
     );
   }
 
-  Future<kdf_rpc.MyBalanceResponse> tryGetBalanceInfo(String abbr) async {
+  /// Attempts to get the balance of a coin. If the coin is not found, it will
+  /// return a zero balance.
+  Future<kdf_rpc.BalanceInfo> tryGetBalanceInfo(String abbr) async {
     try {
-      return await _kdfSdk.client.rpc.wallet.myBalance(coin: abbr);
+      final assets = _kdfSdk.assets.findAssetsByTicker(abbr).nonNulls;
+      if (assets.isEmpty) {
+        throw Exception("Asset $abbr not found");
+      }
+
+      if (assets.length == 1) {
+        final pubkeys = await _kdfSdk.pubkeys.getPubkeys(assets.single);
+        return pubkeys.balance;
+      }
+
+      final balances = await Future.wait(
+        assets.map((asset) => _kdfSdk.pubkeys.getPubkeys(asset)),
+      );
+      return balances.fold<kdf_rpc.BalanceInfo>(
+        kdf_rpc.BalanceInfo.zero(),
+        (a, b) => a + b.balance,
+      );
     } catch (e, s) {
       log(
         'Failed to get coin $abbr balance: $e',
@@ -179,12 +197,7 @@ class CoinsRepo {
         path: 'coins_repo => tryGetBalanceInfo',
         trace: s,
       ).ignore();
-      return kdf_rpc.MyBalanceResponse(
-        address: '',
-        balance: kdf_rpc.BalanceInfo.zero(),
-        coin: abbr,
-        mmrpc: '2',
-      );
+      return kdf_rpc.BalanceInfo.zero();
     }
   }
 
@@ -495,8 +508,8 @@ class CoinsRepo {
         await Future.wait(coins.map((coin) => tryGetBalanceInfo(coin.abbr)));
 
     for (int i = 0; i < coins.length; i++) {
-      final newBalance = newBalances[i].balance.total.toDouble();
-      final newSendableBalance = newBalances[i].balance.spendable.toDouble();
+      final newBalance = newBalances[i].total.toDouble();
+      final newSendableBalance = newBalances[i].spendable.toDouble();
 
       final balanceChanged = newBalance != coins[i].balance;
       final sendableBalanceChanged =
