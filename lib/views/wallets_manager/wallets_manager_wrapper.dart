@@ -2,10 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_type_list.dart';
+import 'package:collection/collection.dart';
 
 class WalletsManagerWrapper extends StatefulWidget {
   const WalletsManagerWrapper({
@@ -25,8 +28,35 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
   WalletType? _selectedWalletType;
   @override
   void initState() {
-    walletsBloc.fetchSavedWallets();
     super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    if (isRunningAsChromeExtension()) {
+      await walletsBloc.fetchSavedWallets();
+      final wallets = walletsBloc.wallets;
+      if (wallets.isNotEmpty) {
+        final lastLoginWalletId = await getStorage().read('lastLoginWalletId');
+        Wallet? lastLoginWallet = wallets
+            .firstWhereOrNull((wallet) => wallet.id == lastLoginWalletId);
+
+        // Use the first wallet if it's the only one
+        if (lastLoginWallet == null && wallets.length == 1) {
+          lastLoginWallet = wallets.first;
+        }
+
+        if (lastLoginWallet != null) {
+          setState(() {
+            if (lastLoginWallet != null) {
+              _selectedWalletType = lastLoginWallet.config.type;
+            }
+          });
+        }
+      }
+    } else {
+      walletsBloc.fetchSavedWallets();
+    }
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:universal_html/html.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/services/auth_checker/auth_checker.dart';
 
 const _appCloseCommandKey = 'web_dex_command';
@@ -22,7 +23,7 @@ class WebAuthChecker implements AuthChecker {
       return true;
     }
 
-    final confirmAnswer =
+    final confirmAnswer = isRunningAsChromeExtension() ||
         window.confirm(LocaleKeys.confirmLogoutOnAnotherTab.tr());
     if (confirmAnswer) {
       window.localStorage[_appCloseCommandKey] = encryptedSeed;

@@ -2,6 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/shared/ui/gradient_border.dart';
 import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab.dart';
 
@@ -21,19 +22,19 @@ class UiTabBar extends StatefulWidget {
 
 class _UiTabBarState extends State<UiTabBar> {
   final GlobalKey _switcherKey = GlobalKey();
-  final int _tabsOnMobile = 3;
+  final int _tabsOnMobile = isRunningAsChromeExtension() ? 4 : 3;
 
   @override
   Widget build(BuildContext context) {
     return GradientBorder(
-      borderRadius: const BorderRadius.all(Radius.circular(36)),
+      borderRadius: const BorderRadius.all(Radius.circular(28)),
       innerColor: dexPageColors.frontPlate,
       gradient: dexPageColors.formPlateGradient,
       child: Container(
         constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
         padding: const EdgeInsets.all(2),
         child: SizedBox(
-            height: 36,
+            height: 28,
             child: FocusTraversalGroup(
               child: Row(children: _buildTabs()),
             )),

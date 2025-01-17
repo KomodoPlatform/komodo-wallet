@@ -207,9 +207,14 @@ Future<void> launchURL(
   String url, {
   bool? inSeparateTab,
 }) async {
-  final uri = Uri.parse(url);
+  launchUri(Uri.parse(url), inSeparateTab: inSeparateTab);
+}
 
-  if (await canLaunchUrl(uri)) {
+Future<void> launchUri(
+  Uri uri, {
+  bool? inSeparateTab,
+}) async {
+  try {
     await launchUrl(
       uri,
       mode: inSeparateTab == null
@@ -218,8 +223,8 @@ Future<void> launchURL(
               ? LaunchMode.externalApplication
               : LaunchMode.inAppWebView,
     );
-  } else {
-    throw 'Could not launch $url';
+  } catch (e) {
+    throw 'Could not launch ${uri.toString()} ... $e';
   }
 }
 

@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/services/auth_checker/auth_checker.dart';
 import 'package:web_dex/services/auth_checker/get_auth_checker.dart';
+import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 import 'auth_bloc_event.dart';
@@ -52,7 +54,9 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     );
 
     await _logOut();
-    await _authRepo.logIn(AuthorizeMode.noLogin);
+    if (!isRunningAsChromeExtension()) {
+      await _authRepo.logIn(AuthorizeMode.noLogin);
+    }
 
     log(
       'Logged out from a wallet',
@@ -69,7 +73,15 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       path: 'auth_bloc => _reLogin',
     );
 
-    await _logOut();
+    if (isRunningAsChromeExtension()) {
+      // No logout when auto-login without the seed or password
+      if (event.seed != '') {
+        await _logOut();
+      }
+    } else {
+      await _logOut();
+    }
+
     await _logIn(event.seed, event.wallet);
 
     log(
@@ -99,6 +111,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   ) async {
     await _authRepo.logIn(AuthorizeMode.logIn, seed);
     currentWalletBloc.wallet = wallet;
+
+    if (isRunningAsChromeExtension()) {
+      await getStorage().write('lastLoginWalletId', wallet.id);
+    }
+
     if (wallet.config.type == WalletType.iguana) {
       _authChecker.addSession(wallet.config.seedPhrase);
     }

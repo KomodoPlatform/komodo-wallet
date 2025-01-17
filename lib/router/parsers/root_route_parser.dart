@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/first_uri_segment.dart';
 import 'package:web_dex/router/parsers/base_route_parser.dart';
 import 'package:web_dex/router/parsers/bridge_route_parser.dart';
@@ -34,7 +35,9 @@ class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   }
 
   BaseRouteParser _getRoutParser(Uri uri) {
-    if (uri.pathSegments.isEmpty) return dexRouteParser;
-    return _parsers[uri.pathSegments.first] ?? dexRouteParser;
+    final defaultRouteParser =
+        isRunningAsChromeExtension() ? walletRouteParser : dexRouteParser;
+    if (uri.pathSegments.isEmpty) return defaultRouteParser;
+    return _parsers[uri.pathSegments.first] ?? defaultRouteParser;
   }
 }

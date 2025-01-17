@@ -17,6 +17,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transactio
 import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
@@ -133,6 +134,14 @@ class CoinsBloc implements BlocBase {
         .where((coin) => !coin.isActive)
         .toList();
 
+    if (isRunningAsChromeExtension()) {
+      // MM2 keeps alive so remove the activated ones
+      final enabledCoins = await _coinsRepo.getEnabledCoins(coins);
+      List<bool> results = await Future.wait(coins
+          .map((coin) => _syncIguanaCoinState(coin, enabledCoins: enabledCoins))
+          .toList());
+      coins.removeWhere((coin) => results[coins.indexOf(coin)]);
+    }
     await activateCoins(coins, skipUpdateBalance: true);
     await updateBalances();
     await reActivateSuspended(attempts: 2);
@@ -406,10 +415,15 @@ class CoinsBloc implements BlocBase {
     await _currentWalletBloc.addCoin(coin);
   }
 
-  Future<void> _syncIguanaCoinState(Coin coin) async {
-    final List<Coin> apiCoins = await _coinsRepo.getEnabledCoins([coin]);
+  Future<bool> _syncIguanaCoinState(Coin coin,
+      {List<Coin>? enabledCoins}) async {
+    final List<Coin> apiCoins =
+        enabledCoins ?? (await _coinsRepo.getEnabledCoins([coin]));
     final Coin? apiCoin =
         apiCoins.firstWhereOrNull((coin) => coin.abbr == coin.abbr);
+
+    // This needs to set here as well, for the browser extension to sync
+    coin.enabledType = _currentWalletBloc.wallet?.config.type;
 
     if (apiCoin != null) {
       // enabled on gui side, but not on api side - suspend
@@ -427,6 +441,8 @@ class CoinsBloc implements BlocBase {
       }
     }
     _updateCoins();
+
+    return coin.isActive;
   }
 
   Future<void> reactivateAll() async {

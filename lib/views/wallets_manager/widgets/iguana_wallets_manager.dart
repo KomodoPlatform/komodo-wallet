@@ -11,9 +11,11 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc_state.dart';
 import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/wallets_manager_models.dart';
+import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_creation.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_deleting.dart';
@@ -21,6 +23,7 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_import_wrapper.dart
 import 'package:web_dex/views/wallets_manager/widgets/wallet_login.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_list.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager_controls.dart';
+import 'package:collection/collection.dart';
 
 class IguanaWalletsManager extends StatefulWidget {
   const IguanaWalletsManager({
@@ -44,6 +47,37 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   Wallet? _selectedWallet;
   WalletsManagerExistWalletAction _existWalletAction =
       WalletsManagerExistWalletAction.none;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isRunningAsChromeExtension()) {
+      _autoSelectWallet();
+    }
+  }
+
+  Future<void> _autoSelectWallet() async {
+    await walletsBloc.fetchSavedWallets();
+    final wallets = walletsBloc.wallets
+        .where((wallet) => wallet.config.type == WalletType.iguana);
+    if (wallets.isNotEmpty) {
+      final lastLoginWalletId = await getStorage().read('lastLoginWalletId');
+      Wallet? lastLoginWallet =
+          wallets.firstWhereOrNull((wallet) => wallet.id == lastLoginWalletId);
+
+      // Use the first wallet if it's the only one
+      if (lastLoginWallet == null && wallets.length == 1) {
+        lastLoginWallet = wallets.first;
+      }
+
+      if (lastLoginWallet != null) {
+        setState(() {
+          _selectedWallet = lastLoginWallet;
+          _existWalletAction = WalletsManagerExistWalletAction.logIn;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

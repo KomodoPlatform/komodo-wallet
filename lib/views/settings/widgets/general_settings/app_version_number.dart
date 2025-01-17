@@ -8,6 +8,7 @@ import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/runtime_coin_updates/coin_config_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 
 class AppVersionNumber extends StatelessWidget {
   const AppVersionNumber({Key? key}) : super(key: key);
@@ -15,9 +16,12 @@ class AppVersionNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 12),
+      padding: EdgeInsets.only(
+          left: 12, bottom: isRunningAsChromeExtension() ? 12 : 0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: isRunningAsChromeExtension()
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.stretch,
         children: [
           SelectableText(
             LocaleKeys.komodoWallet.tr(),
@@ -96,23 +100,17 @@ class _ApiVersion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Flexible(
-          child: FutureBuilder<String?>(
-            future: mm2Api.version(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const SizedBox.shrink();
+    return FutureBuilder<String?>(
+      future: mm2Api.version(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
 
-              final String? commitHash = _tryParseCommitHash(snapshot.data);
-              if (commitHash == null) return const SizedBox.shrink();
+        final String? commitHash = _tryParseCommitHash(snapshot.data);
+        if (commitHash == null) return const SizedBox.shrink();
 
-              return SelectableText('${LocaleKeys.api.tr()}: $commitHash',
-                  style: _textStyle);
-            },
-          ),
-        ),
-      ],
+        return SelectableText('${LocaleKeys.api.tr()}: $commitHash',
+            style: _textStyle);
+      },
     );
   }
 }

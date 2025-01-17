@@ -5,6 +5,7 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/mm2/mm2_sw.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/ui/clock_warning_banner.dart';
@@ -50,8 +51,12 @@ class _DexContentState extends State<_DexContent> {
         return PageLayout(
           content: Flexible(
             child: Container(
-              margin: isMobile ? const EdgeInsets.only(top: 14) : null,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              margin: isMobile && !isRunningAsChromeExtension()
+                  ? const EdgeInsets.only(top: 14)
+                  : null,
+              padding: isRunningAsChromeExtension()
+                  ? const EdgeInsets.fromLTRB(0, 12, 0, 0)
+                  : const EdgeInsets.fromLTRB(16, 22, 16, 0),
               decoration: BoxDecoration(
                 color: _backgroundColor(context),
                 borderRadius: BorderRadius.circular(18.0),

@@ -258,3 +258,25 @@ Build:
 ```
 flutter build ios
 ```
+
+
+#### Browser Extension
+
+In `packages/flutter_tools/lib/src/web/chrome.dart`, comment out `'--disable-extensions',` line.
+
+Build and run:
+- Switch to the `extension` branch
+- Set it up same way as the web
+- Put the browser extension compatible mm2 to `web/src/mm2`
+- Run `python3 app_build/fetch_coins.py` twice
+- Run `./build_web_extension.sh` at the root
+- It will create a `build/web` folder
+- Open chrome://extensions/ in browser
+- At top left, click `Load unpacked` and choose the `build/web` folder
+
+Notes: 
+
+- Extension has two parts, flutter side and service worker side. You will see a button there to view the service worker logs.
+- If you'd like, you can open the extension as a full website with the URL like chrome-extension://inhlokfaipmfnpfhapkkmmbbjgjemidb/index.html
+- Logs of the extension (Chrome DevTools) are different than the service worker logs.
+- Service worker is the one that has mm2 running. So when you close the website, mm2 is still running in the background.

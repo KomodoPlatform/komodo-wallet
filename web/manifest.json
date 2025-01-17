@@ -1,5 +1,7 @@
 {
-    "name": "Komodo Web Wallet",
+    "manifest_version": 3,
+    "name": "Komodo Wallet",
+    "version": "0.0.0.1",
     "short_name": "KomodoWebWallet",
     "start_url": ".",
     "display": "standalone",
@@ -14,16 +16,26 @@
             "url": "https://play.google.com/store/apps/details?id=com.komodoplatform.atomicdex"
         }
     ],
-    "icons": [
-        {
-            "src": "/icons/android-chrome-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/android-chrome-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
+    "permissions": [],
+    "host_permissions": ["*://*.komodo.earth/*"],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+    },
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "action": {
+        "default_popup": "index.html",
+        "default_icon": {
+            "16": "icons/Icon-16.png",
+            "48": "icons/Icon-48.png",
+            "128": "icons/Icon-128.png"
         }
-    ]
+    },
+    "icons": {
+        "16": "icons/Icon-16.png",
+        "48": "icons/Icon-48.png",
+        "128": "icons/Icon-128.png"
+    }
 }
