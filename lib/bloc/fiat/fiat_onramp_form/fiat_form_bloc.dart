@@ -295,13 +295,13 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     AccountInformationChanged event,
     Emitter<FiatFormState> emit,
   ) async {
-    final accountRerference = await _coinsRepository.getCoinAddress('KMD');
+    final accountReference = await _coinsRepository.getFirstPubkey('KMD');
     final address = await _coinsRepository
-        .getCoinAddress(state.selectedCoin.value!.getAbbr());
+        .getFirstPubkey(state.selectedCoin.value!.getAbbr());
 
     emit(
       state.copyWith(
-        accountReference: accountRerference,
+        accountReference: accountReference,
         coinReceiveAddress: address,
       ),
     );
@@ -321,7 +321,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
   Future<void> _fetchAccountInfo(Emitter<FiatFormState> emit) async {
     final address =
-        await _coinsRepository.getCoinAddress(state.selectedCoin.value!.symbol);
+        await _coinsRepository.getFirstPubkey(state.selectedCoin.value!.symbol);
     emit(
       state.copyWith(accountReference: address, coinReceiveAddress: address),
     );
