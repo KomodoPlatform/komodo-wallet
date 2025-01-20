@@ -45,6 +45,7 @@ import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_bloc.dart';
 import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
 import 'package:web_dex/blocs/current_wallet_bloc.dart';
+import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/orderbook_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
@@ -173,6 +174,9 @@ class AppBlocRoot extends StatelessWidget {
         ),
         RepositoryProvider(create: (_) => OrderbookBloc(api: mm2Api)),
         RepositoryProvider(create: (_) => myOrdersService),
+        RepositoryProvider(
+          create: (_) => KmdRewardsBloc(coinsRepository, mm2Api),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -183,8 +187,7 @@ class AppBlocRoot extends StatelessWidget {
               coinsRepository,
               trezorBloc,
               mm2Api,
-            )
-              ..add(CoinsStarted())
+            )..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(
             create: (context) => PriceChartBloc(binanceRepository)
