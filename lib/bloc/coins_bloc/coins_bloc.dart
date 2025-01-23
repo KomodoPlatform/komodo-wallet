@@ -11,6 +11,7 @@ import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
