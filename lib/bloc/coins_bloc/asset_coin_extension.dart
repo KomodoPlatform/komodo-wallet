@@ -84,7 +84,7 @@ extension CoinTypeExtension on CoinSubClass {
       case CoinSubClass.krc20:
         return CoinType.krc20;
       default:
-        throw ArgumentError('Unsupported CoinType: $this');
+        return CoinType.utxo;
     }
   }
 

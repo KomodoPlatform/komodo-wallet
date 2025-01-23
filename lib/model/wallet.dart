@@ -233,12 +233,21 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
 
   Future<List<Coin>> getCustomCoins() async {
     return (await auth.currentUser)
-        ?.metadata
-        .valueOrNull<List<Coin>>('custom_coins') ??
-        []; 
+            ?.metadata
+            .valueOrNull<List<Coin>>('custom_coins') ??
+        [];
   }
 
   Future<void> addCustomCoin(Coin coin) async {
+    final asset = assets.assetsFromTicker(coin.abbr).single;
+    final ActivationProgress progress =
+        await customAssets.activateAsset(asset).last;
+    if (progress.isError) {
+      throw Exception(
+        progress.errorMessage ?? 'Failed to activate asset ${coin.abbr}',
+      );
+    }
+
     final existingCoins = (await auth.currentUser)
             ?.metadata
             .valueOrNull<List<Coin>>('custom_coins') ??
