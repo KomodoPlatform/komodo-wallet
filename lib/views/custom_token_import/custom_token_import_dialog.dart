@@ -1,14 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_bloc.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 
 class CustomTokenImportDialog extends StatefulWidget {
@@ -164,7 +164,7 @@ class ImportFormPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade300.withOpacity(0.5),
+                    color: Colors.orange.shade300.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.orange.shade300),
                   ),
@@ -184,25 +184,25 @@ class ImportFormPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                DropdownButtonFormField<CoinType>(
+                DropdownButtonFormField<CoinSubClass>(
                   value: state.network,
                   isExpanded: true,
                   decoration: InputDecoration(
                     labelText: LocaleKeys.selectNetwork.tr(),
                     border: const OutlineInputBorder(),
                   ),
-                  items: CoinType.values
-                      .where((CoinType coinType) =>
-                          getEvmPlatformCoin(coinType) != null)
-                      .map((CoinType coinType) {
-                    return DropdownMenuItem<CoinType>(
+                  items: CoinSubClass.values
+                      .where(
+                          (CoinSubClass coinType) => coinType.isEvmProtocol())
+                      .map((CoinSubClass coinType) {
+                    return DropdownMenuItem<CoinSubClass>(
                       value: coinType,
-                      child: Text(getCoinTypeNameLong(coinType)),
+                      child: Text(getCoinTypeNameLong(coinType.toCoinType())),
                     );
                   }).toList(),
                   onChanged: !initialState
                       ? null
-                      : (CoinType? value) {
+                      : (CoinSubClass? value) {
                           if (value != null) {
                             context
                                 .read<CustomTokenImportBloc>()

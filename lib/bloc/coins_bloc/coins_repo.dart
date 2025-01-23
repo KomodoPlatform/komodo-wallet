@@ -20,7 +20,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 import 'package:web_dex/shared/constants.dart';
@@ -437,19 +436,6 @@ class CoinsRepo {
     }
 
     return walletCoinsCopy;
-  }
-
-  Future<Map<String, dynamic>?> getTokenInfo(
-      kdf_rpc.CoinType network, String address, int decimals) async {
-    // final platform = getEvmPlatformCoin(network);
-    // if (platform == null) return null;
-
-    // TODO!: implement via the sdk
-    // return await _api.getTokenInfo(GetTokenInfoRequest(
-    //   platform: platform,
-    //   contractAddress: address,
-    // ));
-    return {};
   }
 
   Stream<Coin> updateIguanaBalances(

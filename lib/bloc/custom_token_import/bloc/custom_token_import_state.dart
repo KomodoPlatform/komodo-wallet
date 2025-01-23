@@ -1,13 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
 
 enum FormStatus { initial, submitting, success, failure }
 
 class CustomTokenImportState extends Equatable {
   final FormStatus formStatus;
   final FormStatus importStatus;
-  final CoinType? network;
+  final CoinSubClass? network;
   final String? address;
   final String? formErrorMessage;
   final String? importErrorMessage;
@@ -26,7 +26,7 @@ class CustomTokenImportState extends Equatable {
   CustomTokenImportState copyWith({
     FormStatus Function()? formStatus,
     FormStatus Function()? importStatus,
-    CoinType? Function()? network,
+    CoinSubClass? Function()? network,
     String? Function()? address,
     String? Function()? formErrorMessage,
     String? Function()? importErrorMessage,
@@ -42,12 +42,12 @@ class CustomTokenImportState extends Equatable {
       importErrorMessage: importErrorMessage == null
           ? this.importErrorMessage
           : importErrorMessage(),
-      coin: tokenData == null ? this.coin : tokenData(),
+      coin: tokenData == null ? coin : tokenData(),
     );
   }
 
   CustomTokenImportState resetWith({
-    CoinType? Function()? network,
+    CoinSubClass? Function()? network,
     String? Function()? address,
     FormStatus Function()? formStatus,
     FormStatus Function()? importStatus,

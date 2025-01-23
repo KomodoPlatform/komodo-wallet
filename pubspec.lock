@@ -644,8 +644,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coins"
-      ref: dev
-      resolved-ref: "87ed8da39a14590e89ca9c47e84ecb7cb67186e6"
+      ref: "feature/custom-token-import"
+      resolved-ref: "665b5c88ddf80d72c2c94eeb0ecc65dcfaabc79c"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -653,8 +653,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_framework"
-      ref: dev
-      resolved-ref: "87ed8da39a14590e89ca9c47e84ecb7cb67186e6"
+      ref: "feature/custom-token-import"
+      resolved-ref: "665b5c88ddf80d72c2c94eeb0ecc65dcfaabc79c"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.1.0"
@@ -662,8 +662,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_local_auth"
-      ref: dev
-      resolved-ref: "87ed8da39a14590e89ca9c47e84ecb7cb67186e6"
+      ref: "feature/custom-token-import"
+      resolved-ref: "665b5c88ddf80d72c2c94eeb0ecc65dcfaabc79c"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.1.0+1"
@@ -671,8 +671,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: "87ed8da39a14590e89ca9c47e84ecb7cb67186e6"
+      ref: "feature/custom-token-import"
+      resolved-ref: "665b5c88ddf80d72c2c94eeb0ecc65dcfaabc79c"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.1.0+1"
@@ -680,8 +680,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_sdk"
-      ref: dev
-      resolved-ref: "87ed8da39a14590e89ca9c47e84ecb7cb67186e6"
+      ref: "feature/custom-token-import"
+      resolved-ref: "665b5c88ddf80d72c2c94eeb0ecc65dcfaabc79c"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.1.0+1"
@@ -689,8 +689,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: "87ed8da39a14590e89ca9c47e84ecb7cb67186e6"
+      ref: "feature/custom-token-import"
+      resolved-ref: "665b5c88ddf80d72c2c94eeb0ecc65dcfaabc79c"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -712,8 +712,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_wallet_build_transformer"
-      ref: dev
-      resolved-ref: "87ed8da39a14590e89ca9c47e84ecb7cb67186e6"
+      ref: "feature/custom-token-import"
+      resolved-ref: "665b5c88ddf80d72c2c94eeb0ecc65dcfaabc79c"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"

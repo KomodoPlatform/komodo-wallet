@@ -11,20 +11,17 @@ extension AssetCoinExtension on Asset {
       contractAddress: '',
     );
 
-    final CoinType? type = _getCoinTypeFromProtocol(protocol);
-    if (type == null) {
-      throw ArgumentError.value(
-          protocol.subClass, 'protocol type', 'Unsupported protocol type');
-    }
-
+    final CoinType type = protocol.subClass.toCoinType();
     // temporary measure to get metadata, like `wallet_only`, that isn't exposed
     // by the SDK (and might be phased out completely later on)
+    // TODO: Remove this once the SDK exposes all the necessary metadata
     final config = protocol.config;
 
     return Coin(
       type: type,
       abbr: id.id,
       name: id.name,
+      logoImageUrl: '',
       explorerUrl: config.valueOrNull<String>('explorer_url') ?? '',
       explorerTxUrl: config.valueOrNull<String>('explorer_tx_url') ?? '',
       explorerAddressUrl:
@@ -43,14 +40,15 @@ extension AssetCoinExtension on Asset {
       derivationPath: id.derivationPath,
     );
   }
+}
 
-  CoinType? _getCoinTypeFromProtocol(ProtocolClass protocol) {
-    switch (protocol.subClass) {
+extension CoinTypeExtension on CoinSubClass {
+  CoinType toCoinType() {
+    switch (this) {
       case CoinSubClass.ftm20:
         return CoinType.ftm20;
       case CoinSubClass.arbitrum:
         return CoinType.arb20;
-      // ignore: deprecated_member_use
       case CoinSubClass.slp:
         return CoinType.slp;
       case CoinSubClass.qrc20:
@@ -86,7 +84,75 @@ extension AssetCoinExtension on Asset {
       case CoinSubClass.krc20:
         return CoinType.krc20;
       default:
-        return CoinType.utxo;
+        throw ArgumentError('Unsupported CoinType: $this');
+    }
+  }
+
+  bool isEvmProtocol() {
+    switch (this) {
+      case CoinSubClass.avx20:
+      case CoinSubClass.bep20:
+      case CoinSubClass.ftm20:
+      case CoinSubClass.matic:
+      case CoinSubClass.hrc20:
+      case CoinSubClass.arbitrum:
+      case CoinSubClass.moonriver:
+      case CoinSubClass.moonbeam:
+      case CoinSubClass.ethereumClassic:
+      case CoinSubClass.ubiq:
+      case CoinSubClass.krc20:
+      case CoinSubClass.ewt:
+      case CoinSubClass.hecoChain:
+      case CoinSubClass.rskSmartBitcoin:
+      case CoinSubClass.erc20:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
+
+extension CoinSubClassExtension on CoinType {
+  CoinSubClass toCoinSubClass() {
+    switch (this) {
+      case CoinType.ftm20:
+        return CoinSubClass.ftm20;
+      case CoinType.arb20:
+        return CoinSubClass.arbitrum;
+      case CoinType.slp:
+        return CoinSubClass.slp;
+      case CoinType.qrc20:
+        return CoinSubClass.qrc20;
+      case CoinType.avx20:
+        return CoinSubClass.avx20;
+      case CoinType.smartChain:
+        return CoinSubClass.smartChain;
+      case CoinType.mvr20:
+        return CoinSubClass.moonriver;
+      case CoinType.etc:
+        return CoinSubClass.ethereumClassic;
+      case CoinType.hco20:
+        return CoinSubClass.hecoChain;
+      case CoinType.hrc20:
+        return CoinSubClass.hrc20;
+      case CoinType.iris:
+        return CoinSubClass.tendermintToken;
+      case CoinType.cosmos:
+        return CoinSubClass.tendermint;
+      case CoinType.ubiq:
+        return CoinSubClass.ubiq;
+      case CoinType.bep20:
+        return CoinSubClass.bep20;
+      case CoinType.plg20:
+        return CoinSubClass.matic;
+      case CoinType.utxo:
+        return CoinSubClass.utxo;
+      case CoinType.sbch:
+        return CoinSubClass.smartBch;
+      case CoinType.erc20:
+        return CoinSubClass.erc20;
+      case CoinType.krc20:
+        return CoinSubClass.krc20;
     }
   }
 }

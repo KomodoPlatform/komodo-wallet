@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/model/coin_type.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 abstract class CustomTokenImportEvent extends Equatable {
   const CustomTokenImportEvent();
@@ -9,7 +9,7 @@ abstract class CustomTokenImportEvent extends Equatable {
 }
 
 class UpdateNetworkEvent extends CustomTokenImportEvent {
-  final CoinType? network;
+  final CoinSubClass? network;
 
   const UpdateNetworkEvent(this.network);
 
