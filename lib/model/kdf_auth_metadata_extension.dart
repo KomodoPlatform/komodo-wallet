@@ -1,5 +1,6 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 
@@ -42,29 +43,58 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
     await auth.setOrRemoveActiveUserKeyValue('type', type.name);
   }
 
-  Future<List<Coin>> getCustomCoins() async {
+  Future<List<Coin>> getCustomTokens() async {
     return (await auth.currentUser)
             ?.metadata
-            .valueOrNull<List<Coin>>('custom_coins') ??
+            .valueOrNull<List<JsonMap>>('custom_coins')
+            ?.map((JsonMap coin) => Coin.fromJson(coin))
+            .toList() ??
         [];
   }
 
-  Future<void> addCustomCoin(Coin coin) async {
-    final asset = assets.assetsFromTicker(coin.abbr).single;
-    final ActivationProgress progress =
-        await customAssets.activateAsset(asset).last;
-    if (progress.isError) {
-      throw Exception(
-        progress.errorMessage ?? 'Failed to activate asset ${coin.abbr}',
-      );
-    }
-
+  Future<void> addCustomToken(Coin coin) async {
     final existingCoins = (await auth.currentUser)
             ?.metadata
-            .valueOrNull<List<Coin>>('custom_coins') ??
+            .valueOrNull<List<Coin>>('custom_tokens')
+            ?.map((Coin coin) => coin.toJson()) ??
         [];
 
-    final mergedCoins = <dynamic>{...existingCoins, coin}.toList();
-    await auth.setOrRemoveActiveUserKeyValue('custom_coins', mergedCoins);
+    final mergedCoins = <JsonMap>{...existingCoins, coin.toJson()}.toList();
+    await auth.setOrRemoveActiveUserKeyValue('custom_tokens', mergedCoins);
+  }
+}
+
+extension CoinKdfAssetConversionExtension on Coin {
+  Asset toAsset({
+    bool isCustomToken = false,
+    int chainId = 0,
+  }) {
+    return Asset(
+      id: AssetId(
+          id: abbr,
+          name: name,
+          symbol: AssetSymbol(
+            assetConfigId: '0',
+            coinGeckoId: coingeckoId,
+            coinPaprikaId: coinpaprikaId,
+          ),
+          chainId: AssetChainId(chainId: chainId),
+          derivationPath: derivationPath ?? '',
+          subClass: type.toCoinSubClass()),
+      protocol: Erc20Protocol.fromJson({
+        'type': parentCoin?.type.toCoinSubClass().formatted ??
+            type.toCoinSubClass().formatted,
+        'chain_id': chainId,
+        'nodes': [],
+        'swap_contract_address': swapContractAddress,
+        'fallback_swap_contract': fallbackSwapContract,
+        'protocol': {
+          'protocol_data': {
+            'platform': parentCoin?.abbr,
+            'contract_address': protocolData?.contractAddress,
+          },
+        }
+      }).copyWith(isCustomToken: true),
+    );
   }
 }

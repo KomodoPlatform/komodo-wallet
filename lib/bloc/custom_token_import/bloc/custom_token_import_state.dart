@@ -12,6 +12,7 @@ class CustomTokenImportState extends Equatable {
   final String? formErrorMessage;
   final String? importErrorMessage;
   final Coin? coin;
+  final Iterable<CoinSubClass> evmNetworks;
 
   const CustomTokenImportState({
     this.network,
@@ -21,9 +22,11 @@ class CustomTokenImportState extends Equatable {
     this.formErrorMessage,
     this.importErrorMessage,
     this.coin,
+    this.evmNetworks = const [],
   });
 
   CustomTokenImportState copyWith({
+    // why use functions here?
     FormStatus Function()? formStatus,
     FormStatus Function()? importStatus,
     CoinSubClass? Function()? network,
@@ -31,6 +34,7 @@ class CustomTokenImportState extends Equatable {
     String? Function()? formErrorMessage,
     String? Function()? importErrorMessage,
     Coin? Function()? tokenData,
+    Iterable<CoinSubClass>? evmNetworks,
   }) {
     return CustomTokenImportState(
       formStatus: formStatus == null ? this.formStatus : formStatus(),
@@ -43,10 +47,12 @@ class CustomTokenImportState extends Equatable {
           ? this.importErrorMessage
           : importErrorMessage(),
       coin: tokenData == null ? coin : tokenData(),
+      evmNetworks: evmNetworks ?? this.evmNetworks,
     );
   }
 
   CustomTokenImportState resetWith({
+    // same as above?
     CoinSubClass? Function()? network,
     String? Function()? address,
     FormStatus Function()? formStatus,
@@ -54,6 +60,7 @@ class CustomTokenImportState extends Equatable {
     String? Function()? formErrorMessage,
     String? Function()? importErrorMessage,
     Coin? Function()? tokenData,
+    Iterable<CoinSubClass>? evmNetworks,
   }) {
     return CustomTokenImportState(
       formStatus: formStatus == null ? FormStatus.initial : formStatus(),
@@ -64,6 +71,7 @@ class CustomTokenImportState extends Equatable {
       importErrorMessage:
           importErrorMessage == null ? null : importErrorMessage(),
       coin: tokenData == null ? null : tokenData(),
+      evmNetworks: evmNetworks ?? const [],
     );
   }
 
@@ -76,5 +84,6 @@ class CustomTokenImportState extends Equatable {
         formErrorMessage,
         importErrorMessage,
         coin,
+        evmNetworks,
       ];
 }

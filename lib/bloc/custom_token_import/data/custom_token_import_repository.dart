@@ -22,7 +22,7 @@ abstract class ICustomTokenImportRepository {
 
   /// Method for importing custom tokens using the legacy [Coin] model.
   @Deprecated('Use importCustomToken instead, using the new Asset model')
-  Future<void> importCustomTokenLegacy(String coinId);
+  Future<void> importCustomTokenLegacy(Coin coin);
 }
 
 class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
@@ -40,7 +40,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       coinSubClass: network,
     );
     final contractAddress = convertAddressResponse.address;
-    final knownCoin = _coinsRepo.getKnownCoins().firstWhereOrNull(
+    final knownCoin = (await _coinsRepo.getKnownCoins()).firstWhereOrNull(
           (coin) => coin.protocolData?.contractAddress == contractAddress,
         );
     if (knownCoin == null) {
@@ -73,7 +73,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     final String ticker = response.info.symbol;
     final int decimals = response.info.decimals;
     final tokenApi = await fetchTokenInfoFromApi(network, contractAddress);
-    final price = tokenApi?['market_data']?['current_price']?['usd'];
+    final double? price =
+        tokenApi?['market_data']?['current_price']?['usd'] as double?;
     final CoinType coinType = network.toCoinType();
 
     final newCoin = Coin(
@@ -112,10 +113,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
               'assets/coin_icons/png/${ticker.toLowerCase()}.png',
         ));
 
-    await _kdfSdk.addCustomCoin(newCoin);
-    return newCoin.copyWith(
-      balance: (await _getBalance(newCoin)).toDouble(),
-    );
+    return newCoin;
   }
 
   Future<Decimal> _getBalance(Coin coin) async {
@@ -138,6 +136,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   @override
   Future<void> importCustomToken(Asset asset) async {
     await _coinsRepo.activateCoinsSync([asset.toCoin()]);
+    await _kdfSdk.addCustomToken(asset.toCoin());
   }
 
   Future<Map<String, dynamic>?> fetchTokenInfoFromApi(
@@ -195,8 +194,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   }
 
   @override
-  Future<void> importCustomTokenLegacy(String coinId) {
-    final asset = _kdfSdk.assets.assetsFromTicker(coinId).single;
+  Future<void> importCustomTokenLegacy(Coin coin) {
+    final asset = coin.toAsset();
     return importCustomToken(asset);
   }
 }

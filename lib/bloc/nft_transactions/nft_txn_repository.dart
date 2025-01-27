@@ -93,7 +93,7 @@ class NftTxnRepository {
   }
 
   Future<void> getUsdPricesOfCoins(Iterable<String> coinAbbr) async {
-    final coins = _coinsRepo.getKnownCoins();
+    final coins = await _coinsRepo.getKnownCoins();
     for (var abbr in coinAbbr) {
       final coin = coins.firstWhere((c) => c.abbr == abbr);
       _abbrToUsdPrices[abbr] = coin.usdPrice?.price;

@@ -53,7 +53,7 @@ class FiatRepository {
     Set<String>? knownCoinAbbreviations;
 
     if (isCoin) {
-      final knownCoins = _coinsRepo.getKnownCoins();
+      final knownCoins = await _coinsRepo.getKnownCoins();
       knownCoinAbbreviations = knownCoins.map((coin) => coin.abbr).toSet();
     }
 

@@ -135,10 +135,10 @@ class ImportFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<CustomTokenImportBloc>().state;
-    final addressController = TextEditingController(text: state.address ?? '');
-
-    return BlocListener<CustomTokenImportBloc, CustomTokenImportState>(
+    // keep controller outside of bloc consumer to prevent user inputs from
+    // being hijacked by state updates
+    final addressController = TextEditingController(text: '');
+    return BlocConsumer<CustomTokenImportBloc, CustomTokenImportState>(
       listenWhen: (previous, current) =>
           previous.formStatus != current.formStatus,
       listener: (context, state) {
@@ -147,101 +147,94 @@ class ImportFormPage extends StatelessWidget {
           onNextPage();
         }
       },
-      child: BlocBuilder<CustomTokenImportBloc, CustomTokenImportState>(
-        builder: (context, state) {
-          final initialState = state.formStatus == FormStatus.initial;
+      builder: (context, state) {
+        final initialState = state.formStatus == FormStatus.initial;
 
-          final isSubmitEnabled = initialState &&
-              state.network != null &&
-              state.address != null &&
-              state.address!.isNotEmpty;
+        final isSubmitEnabled = initialState &&
+            state.network != null &&
+            state.address != null &&
+            state.address!.isNotEmpty;
 
-          return BasePage(
-            title: LocaleKeys.importCustomToken.tr(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade300.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange.shade300),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.orange.shade300),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          LocaleKeys.importTokenWarning.tr(),
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
+        return BasePage(
+          title: LocaleKeys.importCustomToken.tr(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade300.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade300),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.orange.shade300),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        LocaleKeys.importTokenWarning.tr(),
+                        style: const TextStyle(
+                          fontSize: 14,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                DropdownButtonFormField<CoinSubClass>(
-                  value: state.network,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: LocaleKeys.selectNetwork.tr(),
-                    border: const OutlineInputBorder(),
-                  ),
-                  items: CoinSubClass.values
-                      .where(
-                          (CoinSubClass coinType) => coinType.isEvmProtocol())
-                      .map((CoinSubClass coinType) {
-                    return DropdownMenuItem<CoinSubClass>(
-                      value: coinType,
-                      child: Text(getCoinTypeNameLong(coinType.toCoinType())),
-                    );
-                  }).toList(),
-                  onChanged: !initialState
-                      ? null
-                      : (CoinSubClass? value) {
-                          if (value != null) {
-                            context
-                                .read<CustomTokenImportBloc>()
-                                .add(UpdateNetworkEvent(value));
-                          }
-                        },
+              ),
+              const SizedBox(height: 24),
+              DropdownButtonFormField<CoinSubClass>(
+                value: state.network,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: LocaleKeys.selectNetwork.tr(),
+                  border: const OutlineInputBorder(),
                 ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: addressController,
-                  enabled: initialState,
-                  onChanged: (value) {
-                    context
-                        .read<CustomTokenImportBloc>()
-                        .add(UpdateAddressEvent(value));
-                  },
-                  decoration: InputDecoration(
-                    labelText: LocaleKeys.tokenContractAddress.tr(),
-                    border: const OutlineInputBorder(),
-                  ),
+                items: state.evmNetworks.map((CoinSubClass coinType) {
+                  return DropdownMenuItem<CoinSubClass>(
+                    value: coinType,
+                    child: Text(getCoinTypeNameLong(coinType.toCoinType())),
+                  );
+                }).toList(),
+                onChanged: !initialState
+                    ? null
+                    : (CoinSubClass? value) {
+                        context
+                            .read<CustomTokenImportBloc>()
+                            .add(UpdateNetworkEvent(value));
+                      },
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: addressController,
+                enabled: initialState,
+                onChanged: (value) {
+                  context
+                      .read<CustomTokenImportBloc>()
+                      .add(UpdateAddressEvent(value));
+                },
+                decoration: InputDecoration(
+                  labelText: LocaleKeys.tokenContractAddress.tr(),
+                  border: const OutlineInputBorder(),
                 ),
-                const Spacer(),
-                UiPrimaryButton(
-                  onPressed: isSubmitEnabled
-                      ? () {
-                          context
-                              .read<CustomTokenImportBloc>()
-                              .add(const SubmitFetchCustomTokenEvent());
-                        }
-                      : null,
-                  child: state.formStatus == FormStatus.initial
-                      ? Text(LocaleKeys.importToken.tr())
-                      : const UiSpinner(color: Colors.white),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+              const Spacer(),
+              UiPrimaryButton(
+                onPressed: isSubmitEnabled
+                    ? () {
+                        context
+                            .read<CustomTokenImportBloc>()
+                            .add(const SubmitFetchCustomTokenEvent());
+                      }
+                    : null,
+                child: state.formStatus == FormStatus.initial
+                    ? Text(LocaleKeys.importToken.tr())
+                    : const UiSpinner(color: Colors.white),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -254,7 +247,7 @@ class ImportSubmitPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CustomTokenImportBloc, CustomTokenImportState>(
+    return BlocConsumer<CustomTokenImportBloc, CustomTokenImportState>(
       listenWhen: (previous, current) =>
           previous.importStatus != current.importStatus,
       listener: (context, state) {
@@ -262,102 +255,98 @@ class ImportSubmitPage extends StatelessWidget {
           Navigator.of(context).pop();
         }
       },
-      child: BlocBuilder<CustomTokenImportBloc, CustomTokenImportState>(
-        builder: (context, state) {
-          final newCoin = state.coin;
+      builder: (context, state) {
+        final newCoin = state.coin;
 
-          final isSubmitEnabled = state.importStatus != FormStatus.submitting &&
-              state.importStatus != FormStatus.success &&
-              newCoin != null;
+        final isSubmitEnabled = state.importStatus != FormStatus.submitting &&
+            state.importStatus != FormStatus.success &&
+            newCoin != null;
 
-          return BasePage(
-            title: LocaleKeys.importCustomToken.tr(),
-            onBackPressed: () {
-              context
-                  .read<CustomTokenImportBloc>()
-                  .add(const ResetFormStatusEvent());
-              onPreviousPage();
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: newCoin == null
-                  ? [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              '$assetsPath/logo/not_found.png',
-                              height: 300,
-                              filterQuality: FilterQuality.high,
-                            ),
-                            Text(
-                              LocaleKeys.tokenNotFound.tr(),
-                            ),
-                          ],
-                        ),
+        return BasePage(
+          title: LocaleKeys.importCustomToken.tr(),
+          onBackPressed: () {
+            context
+                .read<CustomTokenImportBloc>()
+                .add(const ResetFormStatusEvent());
+            onPreviousPage();
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: newCoin == null
+                ? [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            '$assetsPath/logo/not_found.png',
+                            height: 300,
+                            filterQuality: FilterQuality.high,
+                          ),
+                          Text(
+                            LocaleKeys.tokenNotFound.tr(),
+                          ),
+                        ],
                       ),
-                    ]
-                  : [
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CoinIcon.ofSymbol(
-                              newCoin.abbr,
-                              size: 80,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              newCoin.abbr,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 32),
-                            Text(
-                              LocaleKeys.balance.tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                    color: Colors.grey,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${newCoin.balance} ${newCoin.abbr} (${newCoin.getFormattedUsdBalance})',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
+                    ),
+                  ]
+                : [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CoinIcon.ofSymbol(
+                            newCoin.abbr,
+                            size: 80,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            newCoin.abbr,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 32),
+                          Text(
+                            LocaleKeys.balance.tr(),
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${newCoin.balance} ${newCoin.abbr} (${newCoin.getFormattedUsdBalance})',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
                       ),
-                      if (state.importErrorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            state.importErrorMessage ?? '',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
+                    ),
+                    if (state.importErrorMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          state.importErrorMessage ?? '',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
                           ),
                         ),
-                      UiPrimaryButton(
-                        onPressed: isSubmitEnabled
-                            ? () {
-                                context
-                                    .read<CustomTokenImportBloc>()
-                                    .add(const SubmitImportCustomTokenEvent());
-                              }
-                            : null,
-                        child: state.importStatus == FormStatus.submitting ||
-                                state.importStatus == FormStatus.success
-                            ? const UiSpinner(color: Colors.white)
-                            : Text(LocaleKeys.importToken.tr()),
                       ),
-                    ],
-            ),
-          );
-        },
-      ),
+                    UiPrimaryButton(
+                      onPressed: isSubmitEnabled
+                          ? () {
+                              context
+                                  .read<CustomTokenImportBloc>()
+                                  .add(const SubmitImportCustomTokenEvent());
+                            }
+                          : null,
+                      child: state.importStatus == FormStatus.submitting ||
+                              state.importStatus == FormStatus.success
+                          ? const UiSpinner(color: Colors.white)
+                          : Text(LocaleKeys.importToken.tr()),
+                    ),
+                  ],
+          ),
+        );
+      },
     );
   }
 }

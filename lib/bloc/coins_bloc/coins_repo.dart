@@ -19,6 +19,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
@@ -71,24 +72,44 @@ class CoinsRepo {
     _balancesCache.clear();
   }
 
-  List<Coin> getKnownCoins() {
+  Future<List<Coin>> getKnownCoins() async {
     final assets = _kdfSdk.assets.available;
+    final customTokens = await _kdfSdk.getCustomTokens();
+    final customTokenAssets =
+        customTokens.map((coin) => coin.toAsset()).toList();
+    assets.addAll(
+      Map.fromEntries(
+        customTokenAssets.map((asset) => MapEntry(asset.id, asset)),
+      ),
+    );
     return assets.values.map(_assetToCoinWithoutAddress).toList();
   }
 
-  Map<String, Coin> getKnownCoinsMap() {
+  Future<Map<String, Coin>> getKnownCoinsMap() async {
     final assets = _kdfSdk.assets.available;
-    return Map.fromEntries(
+    final coinMapEntries = Map.fromEntries(
       assets.values.map(
         (asset) => MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),
       ),
     );
+    final customTokens = await _kdfSdk.getCustomTokens();
+    for (final customToken in customTokens) {
+      coinMapEntries[customToken.abbr] = customToken;
+    }
+    return coinMapEntries;
   }
 
   Coin? getCoin(String coinId) {
     try {
-      final asset = _kdfSdk.assets.assetsFromTicker(coinId).single;
-      return _assetToCoinWithoutAddress(asset);
+      final assets = _kdfSdk.assets.assetsFromTicker(coinId);
+      if (assets.isEmpty || assets.length > 1) {
+        log(
+          'Coin $coinId not found. ${assets.length} results returned',
+          isError: true,
+        ).ignore();
+        return null;
+      }
+      return _assetToCoinWithoutAddress(assets.single);
     } catch (_) {
       return null;
     }
@@ -101,7 +122,7 @@ class CoinsRepo {
     }
 
     final activatedCoins = currentUser.wallet.config.activatedCoins;
-    final knownCoins = getKnownCoinsMap();
+    final knownCoins = await getKnownCoinsMap();
     return activatedCoins
         .map((String coinId) => knownCoins[coinId])
         .where((Coin? coin) => coin != null)
@@ -156,7 +177,14 @@ class CoinsRepo {
     Coin? parentCoin;
     if (asset.id.isChildAsset) {
       final parentCoinId = asset.id.parentId!.id;
-      final parentAsset = _kdfSdk.assets.assetsFromTicker(parentCoinId).single;
+      final parentAssets = _kdfSdk.assets.assetsFromTicker(parentCoinId);
+      if (parentAssets.length != 1) {
+        log(
+          'Parent coin $parentCoinId not found. ${parentAssets.length} results returned',
+          isError: true,
+        ).ignore();
+      }
+      final parentAsset = parentAssets.single;
       parentCoin = _assetToCoinWithoutAddress(parentAsset);
     }
 
@@ -405,8 +433,8 @@ class CoinsRepo {
 
       // Coins with the same coingeckoId supposedly have same usd price
       // (e.g. KMD == KMD-BEP20)
-      final Iterable<Coin> samePriceCoins =
-          getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
+      final Iterable<Coin> samePriceCoins = (await getKnownCoins())
+          .where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
         prices[coin.abbr] = CexPrice(

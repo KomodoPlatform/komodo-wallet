@@ -236,37 +236,77 @@ class Coin {
     );
   }
 
+  factory Coin.fromJson(Map<String, dynamic> json) {
+    return Coin(
+      type: CoinType.values.firstWhere((value) => value == json['type']),
+      abbr: json['abbr'],
+      name: json['name'],
+      logoImageUrl: json['logo_image_url'],
+      explorerUrl: json['explorer_url'],
+      explorerTxUrl: json['explorer_tx_url'],
+      explorerAddressUrl: json['explorer_address_url'],
+      protocolType: json['protocol_type'],
+      protocolData: json['protocol_data'] == null
+          ? null
+          : ProtocolData.fromJson(json['protocol_data']),
+      isTestCoin: json['is_test_coin'],
+      coingeckoId: json['coingecko_id'],
+      fallbackSwapContract: json['fallback_swap_contract'],
+      priority: json['priority'],
+      state: CoinState.values
+              .firstWhereOrNull((value) => value.name == json['state']) ??
+          CoinState.inactive,
+      decimals: json['decimals'],
+      parentCoin: json['parent_coin'] == null
+          ? null
+          : Coin.fromJson(json['parent_coin']),
+      derivationPath: json['derivation_path'],
+      accounts: json['accounts'] == null
+          ? null
+          : List<HdAccount>.from(
+              json['accounts'].map((account) => HdAccount.fromJson(account))),
+      coinpaprikaId: json['coinpaprika_id'],
+      activeByDefault: json['active_by_default'],
+      swapContractAddress: json['swap_contract_address'],
+      walletOnly: json['wallet_only'],
+      mode: CoinMode.values
+              .firstWhereOrNull((value) => value.name == json['mode']) ??
+          CoinMode.standard,
+      isCustomCoin: true,
+    )..enabledType = WalletType.values
+        .firstWhereOrNull((value) => value.name == json['enabled_type']);
+  }
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'type': type,
+      'type': type.name,
       'abbr': abbr,
       'name': name,
-      'logoImageUrl': logoImageUrl,
-      'explorerUrl': explorerUrl,
-      'explorerTxUrl': explorerTxUrl,
-      'explorerAddressUrl': explorerAddressUrl,
-      'protocolType': protocolType,
-      'protocolData': protocolData?.toJson(),
-      'isTestCoin': isTestCoin,
-      'coingeckoId': coingeckoId,
-      'fallbackSwapContract': fallbackSwapContract,
+      'logo_image_url': logoImageUrl,
+      'explorer_url': explorerUrl,
+      'explorer_tx_url': explorerTxUrl,
+      'explorer_address_url': explorerAddressUrl,
+      'protocol_type': protocolType,
+      'protocol_data': protocolData?.toJson(),
+      'is_test_coin': isTestCoin,
+      'coingecko_id': coingeckoId,
+      'fallback_swap_contract': fallbackSwapContract,
       'priority': priority,
-      'state': state,
+      'state': state.name,
       'decimals': decimals,
-      'parentCoin': parentCoin?.toJson(),
-      'derivationPath': derivationPath,
+      'parent_coin': parentCoin?.toJson(),
+      'derivation_path': derivationPath,
       'accounts':
           accounts?.map((HdAccount account) => account.toJson()).toList(),
-      'usdPrice': usdPrice?.toJson(),
-      'coinpaprikaId': coinpaprikaId,
-      'activeByDefault': activeByDefault,
-      'swapContractAddress': swapContractAddress,
-      'walletOnly': walletOnly,
-      'mode': mode,
+      'usd_price': usdPrice?.toJson(),
+      'coinpaprika_id': coinpaprikaId,
+      'active_by_default': activeByDefault,
+      'swap_contract_address': swapContractAddress,
+      'wallet_only': walletOnly,
+      'mode': mode.name,
       'address': address,
-      'enabledType': enabledType,
-      'balance': balance,
-      'sendableBalance': sendableBalance,
+      'enabled_type': enabledType?.name,
+      'sendable_balance': sendableBalance,
     };
   }
 

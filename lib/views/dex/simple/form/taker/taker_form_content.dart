@@ -41,7 +41,7 @@ class TakerFormContent extends StatelessWidget {
               if (selectedOrder == null) return false;
 
               final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
-              final knownCoins = coinsRepo.getKnownCoins();
+              final knownCoins = await coinsRepo.getKnownCoins();
               final buyCoin = knownCoins.firstWhereOrNull(
                   (element) => element.abbr == selectedOrder.coin);
               if (buyCoin == null) return false;
