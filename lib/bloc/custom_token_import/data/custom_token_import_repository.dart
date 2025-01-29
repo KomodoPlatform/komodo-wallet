@@ -40,9 +40,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       coinSubClass: network,
     );
     final contractAddress = convertAddressResponse.address;
-    final knownCoin = (await _coinsRepo.getKnownCoins()).firstWhereOrNull(
-          (coin) => coin.protocolData?.contractAddress == contractAddress,
-        );
+    final knownCoin = (_coinsRepo.getKnownCoins()).firstWhereOrNull(
+      (coin) => coin.protocolData?.contractAddress == contractAddress,
+    );
     if (knownCoin == null) {
       return await _createNewCoin(
         contractAddress,
@@ -135,8 +135,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   @override
   Future<void> importCustomToken(Asset asset) async {
-    await _coinsRepo.activateCoinsSync([asset.toCoin()]);
-    await _kdfSdk.addCustomToken(asset.toCoin());
+    await _coinsRepo.activateAssetsSync([asset]);
   }
 
   Future<Map<String, dynamic>?> fetchTokenInfoFromApi(
@@ -195,7 +194,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   @override
   Future<void> importCustomTokenLegacy(Coin coin) {
-    final asset = coin.toAsset();
+    final asset = coin.toErc20Asset();
     return importCustomToken(asset);
   }
 }

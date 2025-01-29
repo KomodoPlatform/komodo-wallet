@@ -42,45 +42,39 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
   Future<void> setWalletType(WalletType type) async {
     await auth.setOrRemoveActiveUserKeyValue('type', type.name);
   }
-
-  Future<List<Coin>> getCustomTokens() async {
-    return (await auth.currentUser)
-            ?.metadata
-            .valueOrNull<List<JsonMap>>('custom_coins')
-            ?.map((JsonMap coin) => Coin.fromJson(coin))
-            .toList() ??
-        [];
-  }
-
-  Future<void> addCustomToken(Coin coin) async {
-    final existingCoins = (await auth.currentUser)
-            ?.metadata
-            .valueOrNull<List<Coin>>('custom_tokens')
-            ?.map((Coin coin) => coin.toJson()) ??
-        [];
-
-    final mergedCoins = <JsonMap>{...existingCoins, coin.toJson()}.toList();
-    await auth.setOrRemoveActiveUserKeyValue('custom_tokens', mergedCoins);
-  }
 }
 
 extension CoinKdfAssetConversionExtension on Coin {
-  Asset toAsset({
+  AssetId get assetId => AssetId(
+        id: abbr,
+        name: name,
+        symbol: AssetSymbol(
+          assetConfigId: abbr,
+          coinGeckoId: coingeckoId,
+          coinPaprikaId: coinpaprikaId,
+        ),
+        chainId: AssetChainId(chainId: 0),
+        derivationPath: derivationPath ?? '',
+        subClass: type.toCoinSubClass(),
+      );
+
+  Asset toErc20Asset({
     bool isCustomToken = false,
     int chainId = 0,
   }) {
     return Asset(
       id: AssetId(
-          id: abbr,
-          name: name,
-          symbol: AssetSymbol(
-            assetConfigId: '0',
-            coinGeckoId: coingeckoId,
-            coinPaprikaId: coinpaprikaId,
-          ),
-          chainId: AssetChainId(chainId: chainId),
-          derivationPath: derivationPath ?? '',
-          subClass: type.toCoinSubClass()),
+        id: abbr,
+        name: name,
+        symbol: AssetSymbol(
+          assetConfigId: abbr,
+          coinGeckoId: coingeckoId,
+          coinPaprikaId: coinpaprikaId,
+        ),
+        chainId: AssetChainId(chainId: chainId),
+        derivationPath: derivationPath ?? '',
+        subClass: type.toCoinSubClass(),
+      ),
       protocol: Erc20Protocol.fromJson({
         'type': parentCoin?.type.toCoinSubClass().formatted ??
             type.toCoinSubClass().formatted,

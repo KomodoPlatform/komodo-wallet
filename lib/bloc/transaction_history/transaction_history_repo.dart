@@ -12,9 +12,8 @@ class TransactionHistoryRepo {
   final KomodoDefiSdk? _sdk;
 
   Future<List<Transaction>?> fetch(Coin coin) async {
-    final asset = getSdkAsset(_sdk, coin.abbr);
-
     try {
+      final asset = getSdkAsset(_sdk, coin.abbr);
       final transactionHistory = await _sdk?.transactions.getTransactionHistory(
         asset,
         pagination: const PagePagination(

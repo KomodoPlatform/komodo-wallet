@@ -51,7 +51,7 @@ class NftsRepo {
     try {
       final response = GetNftListResponse.fromJson(json);
       final nfts = response.result.nfts;
-      final coins = await _coinsRepo.getKnownCoins();
+      final coins = _coinsRepo.getKnownCoins();
       for (NftToken nft in nfts) {
         final coin = coins.firstWhere((c) => c.type == nft.coinType);
         final parentCoin = coin.parentCoin ?? coin;

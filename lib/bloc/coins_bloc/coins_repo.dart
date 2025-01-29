@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
@@ -19,7 +18,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
@@ -68,43 +66,40 @@ class CoinsRepo {
   }
 
   void flushCache() {
+    // Intentionally avoid flushing the prices cache - prices are independent 
+    // of the user's session and should be updated on a regular basis.
     _addressCache.clear();
     _balancesCache.clear();
   }
 
-  Future<List<Coin>> getKnownCoins() async {
-    final assets = _kdfSdk.assets.available;
-    final customTokens = await _kdfSdk.getCustomTokens();
-    final customTokenAssets =
-        customTokens.map((coin) => coin.toAsset()).toList();
-    assets.addAll(
-      Map.fromEntries(
-        customTokenAssets.map((asset) => MapEntry(asset.id, asset)),
-      ),
-    );
+  List<Coin> getKnownCoins() {
+    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
     return assets.values.map(_assetToCoinWithoutAddress).toList();
   }
 
-  Future<Map<String, Coin>> getKnownCoinsMap() async {
-    final assets = _kdfSdk.assets.available;
-    final coinMapEntries = Map.fromEntries(
+  Map<String, Coin> getKnownCoinsMap() {
+    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
+    return Map.fromEntries(
       assets.values.map(
         (asset) => MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),
       ),
     );
-    final customTokens = await _kdfSdk.getCustomTokens();
-    for (final customToken in customTokens) {
-      coinMapEntries[customToken.abbr] = customToken;
-    }
-    return coinMapEntries;
+  }
+
+  Coin? getCoinFromId(AssetId id) {
+    final asset = _kdfSdk.assets.available[id];
+    if (asset == null) return null;
+    return _assetToCoinWithoutAddress(asset);
   }
 
   Coin? getCoin(String coinId) {
+    if (coinId.isEmpty) return null;
+
     try {
       final assets = _kdfSdk.assets.assetsFromTicker(coinId);
       if (assets.isEmpty || assets.length > 1) {
         log(
-          'Coin $coinId not found. ${assets.length} results returned',
+          'Coin "$coinId" not found. ${assets.length} results returned',
           isError: true,
         ).ignore();
         return null;
@@ -122,7 +117,7 @@ class CoinsRepo {
     }
 
     final activatedCoins = currentUser.wallet.config.activatedCoins;
-    final knownCoins = await getKnownCoinsMap();
+    final knownCoins = getKnownCoinsMap();
     return activatedCoins
         .map((String coinId) => knownCoins[coinId])
         .where((Coin? coin) => coin != null)
@@ -228,6 +223,42 @@ class CoinsRepo {
     }
   }
 
+  Future<void> activateAssetsSync(List<Asset> assets) async {
+    if (!await _kdfSdk.auth.isSignedIn()) return;
+    final enabledAssets = await getEnabledCoinsMap();
+
+    for (final asset in assets) {
+      try {
+        if (enabledAssets.containsKey(asset.id.id)) {
+          continue;
+        }
+
+        final coin = asset.toCoin();
+        await _broadcastAsset(coin.copyWith(state: CoinState.activating));
+
+        if (coin.parentCoin != null) {
+          await _activateParentAsset(coin);
+        }
+        // ignore: deprecated_member_use
+        final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
+        if (!progress.isSuccess) {
+          throw StateError('Failed to activate coin ${asset.id.id}');
+        }
+
+        await _broadcastAsset(coin.copyWith(state: CoinState.active));
+      } catch (e, s) {
+        log(
+          'Error activating coin: ${asset.id.id} \n$e',
+          isError: true,
+          trace: s,
+        ).ignore();
+        await _broadcastAsset(
+          asset.toCoin().copyWith(state: CoinState.suspended),
+        );
+      }
+    }
+  }
+
   Future<void> activateCoinsSync(List<Coin> coins) async {
     if (!await _kdfSdk.auth.isSignedIn()) return;
     final enabledAssets = await getEnabledCoinsMap();
@@ -238,14 +269,24 @@ class CoinsRepo {
           continue;
         }
 
-        final asset = _kdfSdk.assets.findAssetsByTicker(coin.abbr).single;
+        final assets = _kdfSdk.assets.findAssetsByTicker(coin.abbr);
+        if (assets.length != 1) {
+          log(
+            'Coin ${coin.abbr} not found. ${assets.length} results returned',
+            isError: true,
+          ).ignore();
+          continue;
+        }
         await _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
         if (coin.parentCoin != null) {
           await _activateParentAsset(coin);
         }
         // ignore: deprecated_member_use
-        await _kdfSdk.assets.activateAsset(asset).last;
+        final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
+        if (!progress.isSuccess) {
+          throw StateError('Failed to activate coin ${coin.abbr}');
+        }
 
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
       } catch (e, s) {
@@ -433,8 +474,8 @@ class CoinsRepo {
 
       // Coins with the same coingeckoId supposedly have same usd price
       // (e.g. KMD == KMD-BEP20)
-      final Iterable<Coin> samePriceCoins = (await getKnownCoins())
-          .where((coin) => coin.coingeckoId == coingeckoId);
+      final Iterable<Coin> samePriceCoins =
+          (getKnownCoins()).where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
         prices[coin.abbr] = CexPrice(
