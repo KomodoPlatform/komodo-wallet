@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/mock_portfolio_growth_repository.dart';
@@ -12,7 +13,6 @@ import 'package:web_dex/bloc/cex_market_data/models/models.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:komodo_defi_types/types.dart';
 import 'package:web_dex/model/coin.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
@@ -93,7 +93,7 @@ class PortfolioGrowthRepository {
   ///
   /// Returns the growth [ChartData] for the coin ([List] of [Point]).
   Future<ChartData> getCoinGrowthChart(
-    String coinId, {
+    AssetId coinId, {
     // avoid the possibility of accidentally swapping the order of these
     // required parameters by using named parameters
     required String fiatCoinId,
@@ -105,7 +105,7 @@ class PortfolioGrowthRepository {
   }) async {
     if (useCache) {
       final String compoundKey = GraphCache.getPrimaryKey(
-        coinId,
+        coinId.id,
         fiatCoinId,
         GraphType.balanceGrowth,
         walletId,
@@ -121,9 +121,9 @@ class PortfolioGrowthRepository {
 
     // TODO: Refactor referenced coinsBloc method to a repository.
     // NB: Even though the class is called [CoinsBloc], it is not a Bloc.
-    final Coin coin = _coinsRepository.getCoin(coinId)!;
+    final Coin coin = _coinsRepository.getCoinFromId(coinId)!;
     final List<Transaction> transactions = await _transactionHistoryRepository
-        .fetchCompletedTransactions(coin)
+        .fetchCompletedTransactions(coin.id)
         .then((value) => value.toList())
         .catchError((Object e) {
       if (ignoreTransactionFetchErrors) {
@@ -139,7 +139,7 @@ class PortfolioGrowthRepository {
       // called later with useCache set to false to fetch the transactions again
       await _graphCache.insert(
         GraphCache(
-          coinId: coinId,
+          coinId: coinId.id,
           fiatCoinId: fiatCoinId,
           lastUpdated: DateTime.now(),
           graph: List.empty(),
@@ -232,7 +232,7 @@ class PortfolioGrowthRepository {
     final chartDataFutures = coins.map((coin) async {
       try {
         return await getCoinGrowthChart(
-          coin.abbr,
+          coin.id,
           fiatCoinId: fiatCoinId,
           useCache: useCache,
           walletId: walletId,
@@ -310,11 +310,11 @@ class PortfolioGrowthRepository {
   /// Returns `true` if the coin is supported by the CEX API for charting.
   /// Returns `false` if the coin is not supported by the CEX API for charting.
   Future<bool> isCoinChartSupported(
-    String coinId,
+    AssetId coinId,
     String fiatCoinId, {
     bool allowFiatAsBase = true,
   }) async {
-    final Coin coin = _coinsRepository.getCoin(coinId)!;
+    final Coin coin = _coinsRepository.getCoinFromId(coinId)!;
 
     final supportedCoins = await _cexRepository.getCoinList();
     final coinTicker = coin.abbr.split('-').firstOrNull?.toUpperCase() ?? '';

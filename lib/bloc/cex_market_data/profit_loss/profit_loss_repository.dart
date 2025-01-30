@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
@@ -89,23 +90,23 @@ class ProfitLossRepository {
   /// Returns `true` if the coin is supported by the CEX API for charting.
   /// Returns `false` if the coin is not supported by the CEX API for charting.
   Future<bool> isCoinChartSupported(
-    String coinId,
+    AssetId coinId,
     String fiatCoinId, {
     bool allowFiatAsBase = false,
     bool allowInactiveCoins = false,
   }) async {
     if (!allowInactiveCoins) {
-      final coin = await _coinsRepository.getEnabledCoin(coinId);
+      final coin = await _coinsRepository.getEnabledCoin(coinId.id);
       if (coin == null || coin.isActivating || !coin.isActive) {
         return false;
       }
     }
 
     final supportedCoins = await _cexRepository.getCoinList();
-    final coinTicker = abbr2Ticker(coinId).toUpperCase();
+    final coinTicker = abbr2Ticker(coinId.id).toUpperCase();
     // Allow fiat coins through, as they are represented by a constant value,
     // 1, in the repository layer and are not supported by the CEX API
-    if (allowFiatAsBase && coinId == fiatCoinId.toUpperCase()) {
+    if (allowFiatAsBase && coinId.id == fiatCoinId.toUpperCase()) {
       return true;
     }
 
@@ -129,14 +130,14 @@ class ProfitLossRepository {
   ///
   /// Returns the list of [ProfitLoss] for the coin.
   Future<List<ProfitLoss>> getProfitLoss(
-    String coinId,
+    AssetId coinId,
     String fiatCoinId,
     String walletId, {
     bool useCache = true,
   }) async {
     if (useCache) {
       final String compoundKey = ProfitLossCache.getPrimaryKey(
-        coinId,
+        coinId.id,
         fiatCoinId,
         walletId,
       );
@@ -161,13 +162,13 @@ class ProfitLossRepository {
         await _transactionHistoryRepo.fetchCompletedTransactions(
       // TODO: Refactor referenced coinsBloc method to a repository.
       // NB: Even though the class is called [CoinsBloc], it is not a Bloc.
-      _coinsRepository.getCoin(coinId)!,
+      coinId,
     );
 
     if (transactions.isEmpty) {
       await _profitLossCacheProvider.insert(
         ProfitLossCache(
-          coinId: coinId,
+          coinId: coinId.id,
           profitLosses: List.empty(),
           fiatCoinId: fiatCoinId,
           lastUpdated: DateTime.now(),
@@ -180,13 +181,13 @@ class ProfitLossRepository {
     final List<ProfitLoss> profitLosses =
         await _profitLossCalculator.getProfitFromTransactions(
       transactions,
-      coinId: coinId,
+      coinId: coinId.id,
       fiatCoinId: fiatCoinId,
     );
 
     await _profitLossCacheProvider.insert(
       ProfitLossCache(
-        coinId: coinId,
+        coinId: coinId.id,
         profitLosses: profitLosses,
         fiatCoinId: fiatCoinId,
         lastUpdated: DateTime.now(),

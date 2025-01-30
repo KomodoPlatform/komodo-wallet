@@ -84,7 +84,7 @@ class TransactionHistoryBloc
 
     try {
       add(const TransactionHistoryStartedLoading());
-      final transactions = await _repo.fetch(coin);
+      final transactions = await _repo.fetch(coin.id);
       if (isClosed) {
         return;
       }

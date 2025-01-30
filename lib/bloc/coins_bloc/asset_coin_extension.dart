@@ -20,6 +20,7 @@ extension AssetCoinExtension on Asset {
     return Coin(
       type: type,
       abbr: id.id,
+      id: id,
       name: id.name,
       logoImageUrl: '',
       explorerUrl: config.valueOrNull<String>('explorer_url') ?? '',

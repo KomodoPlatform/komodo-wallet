@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -11,6 +13,7 @@ class Coin {
   Coin({
     required this.type,
     required this.abbr,
+    required this.id,
     required this.name,
     required this.explorerUrl,
     required this.explorerTxUrl,
@@ -41,6 +44,7 @@ class Coin {
 
   final String abbr;
   final String name;
+  final AssetId id;
   final String? logoImageUrl;
   final String? coingeckoId;
   final String? coinpaprikaId;
@@ -211,6 +215,7 @@ class Coin {
     return Coin(
       type: type,
       abbr: abbr,
+      id: assetId,
       name: name,
       explorerUrl: explorerUrl,
       explorerTxUrl: explorerTxUrl,
@@ -236,9 +241,23 @@ class Coin {
     );
   }
 
+  AssetId get assetId => AssetId(
+        id: abbr,
+        name: name,
+        symbol: AssetSymbol(
+          assetConfigId: abbr,
+          coinGeckoId: coingeckoId,
+          coinPaprikaId: coinpaprikaId,
+        ),
+        chainId: AssetChainId(chainId: 0),
+        derivationPath: derivationPath ?? '',
+        subClass: type.toCoinSubClass(),
+      );
+
   Coin copyWith({
     CoinType? type,
     String? abbr,
+    AssetId? id,
     String? name,
     String? explorerUrl,
     String? explorerTxUrl,
@@ -269,6 +288,7 @@ class Coin {
     return Coin(
       type: type ?? this.type,
       abbr: abbr ?? this.abbr,
+      id: id ?? this.id,
       name: name ?? this.name,
       logoImageUrl: logoImageUrl ?? this.logoImageUrl,
       explorerUrl: explorerUrl ?? this.explorerUrl,

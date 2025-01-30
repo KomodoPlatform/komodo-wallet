@@ -45,19 +45,6 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
 }
 
 extension CoinKdfAssetConversionExtension on Coin {
-  AssetId get assetId => AssetId(
-        id: abbr,
-        name: name,
-        symbol: AssetSymbol(
-          assetConfigId: abbr,
-          coinGeckoId: coingeckoId,
-          coinPaprikaId: coinpaprikaId,
-        ),
-        chainId: AssetChainId(chainId: 0),
-        derivationPath: derivationPath ?? '',
-        subClass: type.toCoinSubClass(),
-      );
-
   Asset toErc20Asset({
     bool isCustomToken = false,
     int chainId = 0,

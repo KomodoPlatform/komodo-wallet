@@ -80,6 +80,18 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     final newCoin = Coin(
       isCustomCoin: true,
       abbr: '$ticker-${network.ticker}',
+      id: AssetId(
+        id: '$ticker-${network.ticker}',
+        name: ticker,
+        symbol: AssetSymbol(
+          assetConfigId: '$ticker-${network.ticker}',
+          coinGeckoId: tokenApi?['id'],
+          coinPaprikaId: tokenApi?['id'],
+        ),
+        chainId: AssetChainId(chainId: 0),
+        subClass: network, 
+        derivationPath: '',
+      ),
       decimals: decimals,
       name: tokenApi?['name'] ?? ticker,
       parentCoin: platformCoin,
@@ -118,7 +130,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   Future<Decimal> _getBalance(Coin coin) async {
     await _coinsRepo.activateCoinsSync([coin]);
-    final balanceInfo = await _coinsRepo.getBalanceInfo(coin.abbr);
+    final balanceInfo = await _coinsRepo.getBalanceInfo(coin.id);
     await _coinsRepo.deactivateCoinsSync([coin]);
 
     return balanceInfo?.spendable ?? Decimal.zero;
