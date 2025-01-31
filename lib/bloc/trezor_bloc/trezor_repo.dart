@@ -29,6 +29,7 @@ import 'package:web_dex/model/hd_account/hd_account.dart';
 import 'package:web_dex/model/hw_wallet/trezor_connection_status.dart';
 import 'package:web_dex/model/hw_wallet/trezor_status.dart';
 import 'package:web_dex/model/hw_wallet/trezor_task.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 

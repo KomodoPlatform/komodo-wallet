@@ -29,7 +29,7 @@ class InvestmentRepository {
       // affect the total investment calculation.
       try {
         final profitLoss = await _profitLossRepository.getProfitLoss(
-          coin.abbr,
+          coin.id,
           'USDT',
           walletId,
         );

@@ -1,17 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_event.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_state.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/convert_address/convert_address_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw/trezor_withdraw_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/validateaddress/validateaddress_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/fee/fee_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
 import 'package:web_dex/model/coin.dart';
@@ -31,10 +30,10 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   WithdrawFormBloc({
     required Coin coin,
     required CoinsRepo coinsRepository,
-    required Mm2Api api,
+    required KomodoDefiSdk kdfSdk,
     required this.goBack,
   })  : _coinsRepo = coinsRepository,
-        _mm2Api = api,
+        _kdfSdk = kdfSdk,
         super(WithdrawFormState.initial(coin, coinsRepository)) {
     on<WithdrawFormAddressChanged>(_onAddressChanged);
     on<WithdrawFormAmountChanged>(_onAmountChanged);
@@ -55,9 +54,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     on<WithdrawFormMemoUpdated>(_onMemoUpdated);
   }
 
-  // will use actual CoinsRepo when implemented
   final CoinsRepo _coinsRepo;
-  final Mm2Api _mm2Api;
+  final KomodoDefiSdk _kdfSdk;
   final VoidCallback goBack;
 
   // Event handlers
@@ -274,15 +272,12 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     WithdrawFormConvertAddress event,
     Emitter<WithdrawFormState> emitter,
   ) async {
-    final result = await _mm2Api.convertLegacyAddress(
-      ConvertAddressRequest(
-        coin: state.coin.abbr,
-        from: state.address,
-        isErc: state.coin.isErcType,
-      ),
+    final result = await _kdfSdk.client.rpc.wallet.convertAddress(
+      coinSubClass: state.coin.type.toCoinSubClass(),
+      fromAddress: state.address,
     );
 
-    add(WithdrawFormAddressChanged(address: result ?? ''));
+    add(WithdrawFormAddressChanged(address: result.address));
   }
 
   Future<void> _onSendRawTransaction(
@@ -303,30 +298,26 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       return;
     }
 
-    final response = await _mm2Api.sendRawTransaction(
-      SendRawTransactionRequest(
+    try {
+      final response = await _kdfSdk.client.rpc.withdraw.sendRawTransaction(
         coin: state.withdrawDetails.coin,
         txHex: state.withdrawDetails.txHex,
-      ),
-    );
-
-    final BaseError? responseError = response.error;
-    final String? txHash = response.txHash;
-
-    if (responseError != null) {
+      );
+      final String txHash = response.txHash;
+      if (txHash.isEmpty) {
+        emitter(state.copyWith(
+          isSending: false,
+          sendError: TextError(error: LocaleKeys.somethingWrong.tr()),
+          step: WithdrawFormStep.failed,
+        ));
+        return;
+      }
+      emitter(state.copyWith(step: WithdrawFormStep.success));
+    } catch (e) {
       log(
-        'WithdrawFormBloc: sendRawTransaction error: ${responseError.message}',
+        'WithdrawFormBloc: sendRawTransaction error: $e',
         isError: true,
       );
-      emitter(state.copyWith(
-        isSending: false,
-        sendError: responseError,
-        step: WithdrawFormStep.failed,
-      ));
-      return;
-    }
-
-    if (txHash == null) {
       emitter(state.copyWith(
         isSending: false,
         sendError: TextError(error: LocaleKeys.somethingWrong.tr()),
@@ -334,7 +325,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       ));
       return;
     }
-    emitter(state.copyWith(step: WithdrawFormStep.success));
   }
 
   void _onStepReverted(
@@ -407,12 +397,37 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       return false;
     }
 
-    final Map<String, dynamic>? validateRawResponse =
-        await _mm2Api.validateAddress(
-      state.coin.abbr,
-      state.address,
-    );
-    if (validateRawResponse == null) {
+    try {
+      final validateResponse = await _kdfSdk.client.rpc.wallet.validateAddress(
+        assetId: state.coin.abbr,
+        address: state.address,
+      );
+
+      final reason = validateResponse.reason ?? '';
+      final isNonMixed = _isErcNonMixedCase(reason);
+      final isValid = validateResponse.isValid;
+
+      if (isNonMixed) {
+        emitter(state.copyWith(
+          isSending: false,
+          addressError: MixedCaseAddressError(),
+        ));
+        return false;
+      } else if (!isValid) {
+        emitter(state.copyWith(
+          isSending: false,
+          addressError: TextError(
+              error: LocaleKeys.invalidAddress.tr(args: [state.coin.abbr])),
+        ));
+        return false;
+      }
+
+      emitter(state.copyWith(
+        addressError: TextError.empty(),
+        amountError: state.amountError,
+      ));
+      return true;
+    } catch (e) {
       emitter(state.copyWith(
         isSending: false,
         addressError: TextError(
@@ -420,34 +435,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       ));
       return false;
     }
-
-    final ValidateAddressResponse validateResponse =
-        ValidateAddressResponse.fromJson(validateRawResponse);
-
-    final reason = validateResponse.reason ?? '';
-    final isNonMixed = _isErcNonMixedCase(reason);
-    final isValid = validateResponse.isValid;
-
-    if (isNonMixed) {
-      emitter(state.copyWith(
-        isSending: false,
-        addressError: MixedCaseAddressError(),
-      ));
-      return false;
-    } else if (!isValid) {
-      emitter(state.copyWith(
-        isSending: false,
-        addressError: TextError(
-            error: LocaleKeys.invalidAddress.tr(args: [state.coin.abbr])),
-      ));
-      return false;
-    }
-
-    emitter(state.copyWith(
-      addressError: TextError.empty(),
-      amountError: state.amountError,
-    ));
-    return true;
   }
 
   bool _isErcNonMixedCase(String error) {

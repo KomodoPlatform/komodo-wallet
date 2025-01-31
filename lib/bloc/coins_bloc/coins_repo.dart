@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
@@ -67,17 +66,19 @@ class CoinsRepo {
   }
 
   void flushCache() {
+    // Intentionally avoid flushing the prices cache - prices are independent
+    // of the user's session and should be updated on a regular basis.
     _addressCache.clear();
     _balancesCache.clear();
   }
 
   List<Coin> getKnownCoins() {
-    final assets = _kdfSdk.assets.available;
+    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
     return assets.values.map(_assetToCoinWithoutAddress).toList();
   }
 
   Map<String, Coin> getKnownCoinsMap() {
-    final assets = _kdfSdk.assets.available;
+    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
     return Map.fromEntries(
       assets.values.map(
         (asset) => MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),
@@ -85,10 +86,28 @@ class CoinsRepo {
     );
   }
 
+  Coin? getCoinFromId(AssetId id) {
+    final asset = _kdfSdk.assets.available[id];
+    if (asset == null) return null;
+    return _assetToCoinWithoutAddress(asset);
+  }
+
+  @Deprecated('Use KomodoDefiSdk assets or getCoinFromId instead. '
+      'This uses the deprecated assetsFromTicker method that uses a separate '
+      'cache that does not update with custom token activation.')
   Coin? getCoin(String coinId) {
+    if (coinId.isEmpty) return null;
+
     try {
-      final asset = _kdfSdk.assets.assetsFromTicker(coinId).single;
-      return _assetToCoinWithoutAddress(asset);
+      final assets = _kdfSdk.assets.assetsFromTicker(coinId);
+      if (assets.isEmpty || assets.length > 1) {
+        log(
+          'Coin "$coinId" not found. ${assets.length} results returned',
+          isError: true,
+        ).ignore();
+        return null;
+      }
+      return _assetToCoinWithoutAddress(assets.single);
     } catch (_) {
       return null;
     }
@@ -155,9 +174,14 @@ class CoinsRepo {
 
     Coin? parentCoin;
     if (asset.id.isChildAsset) {
-      final parentCoinId = asset.id.parentId!.id;
-      final parentAsset = _kdfSdk.assets.assetsFromTicker(parentCoinId).single;
-      parentCoin = _assetToCoinWithoutAddress(parentAsset);
+      final parentCoinId = asset.id.parentId!;
+      final parentAsset = _kdfSdk.assets.available[parentCoinId];
+      if (parentAsset == null) {
+        log('Parent coin $parentCoinId not found.', isError: true).ignore();
+        parentCoin = null;
+      } else {
+        parentCoin = _assetToCoinWithoutAddress(parentAsset);
+      }
     }
 
     return coin.copyWith(
@@ -170,33 +194,59 @@ class CoinsRepo {
 
   /// Attempts to get the balance of a coin. If the coin is not found, it will
   /// return a zero balance.
-  Future<kdf_rpc.BalanceInfo> tryGetBalanceInfo(String abbr) async {
+  Future<kdf_rpc.BalanceInfo> tryGetBalanceInfo(AssetId coinId) async {
     try {
-      final assets = _kdfSdk.assets.findAssetsByTicker(abbr).nonNulls;
-      if (assets.isEmpty) {
-        throw Exception("Asset $abbr not found");
+      final asset = _kdfSdk.assets.available[coinId];
+      if (asset == null) {
+        throw ArgumentError.value(coinId, 'coinId', 'Coin $coinId not found');
       }
 
-      if (assets.length == 1) {
-        final pubkeys = await _kdfSdk.pubkeys.getPubkeys(assets.single);
-        return pubkeys.balance;
-      }
-
-      final balances = await Future.wait(
-        assets.map((asset) => _kdfSdk.pubkeys.getPubkeys(asset)),
-      );
-      return balances.fold<kdf_rpc.BalanceInfo>(
-        kdf_rpc.BalanceInfo.zero(),
-        (a, b) => a + b.balance,
-      );
+      final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
+      return pubkeys.balance;
     } catch (e, s) {
       log(
-        'Failed to get coin $abbr balance: $e',
+        'Failed to get coin $coinId balance: $e',
         isError: true,
         path: 'coins_repo => tryGetBalanceInfo',
         trace: s,
       ).ignore();
       return kdf_rpc.BalanceInfo.zero();
+    }
+  }
+
+  Future<void> activateAssetsSync(List<Asset> assets) async {
+    if (!await _kdfSdk.auth.isSignedIn()) return;
+    final enabledAssets = await getEnabledCoinsMap();
+
+    for (final asset in assets) {
+      try {
+        if (enabledAssets.containsKey(asset.id.id)) {
+          continue;
+        }
+
+        final coin = asset.toCoin();
+        await _broadcastAsset(coin.copyWith(state: CoinState.activating));
+
+        if (coin.parentCoin != null) {
+          await _activateParentAsset(coin);
+        }
+        // ignore: deprecated_member_use
+        final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
+        if (!progress.isSuccess) {
+          throw StateError('Failed to activate coin ${asset.id.id}');
+        }
+
+        await _broadcastAsset(coin.copyWith(state: CoinState.active));
+      } catch (e, s) {
+        log(
+          'Error activating coin: ${asset.id.id} \n$e',
+          isError: true,
+          trace: s,
+        ).ignore();
+        await _broadcastAsset(
+          asset.toCoin().copyWith(state: CoinState.suspended),
+        );
+      }
     }
   }
 
@@ -210,14 +260,24 @@ class CoinsRepo {
           continue;
         }
 
-        final asset = _kdfSdk.assets.findAssetsByTicker(coin.abbr).single;
+        final asset = _kdfSdk.assets.available[coin.id];
+        if (asset == null) {
+          log(
+            'Coin ${coin.id} not found. Skipping activation.',
+            isError: true,
+          ).ignore();
+          continue;
+        }
         await _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
         if (coin.parentCoin != null) {
           await _activateParentAsset(coin);
         }
         // ignore: deprecated_member_use
-        await _kdfSdk.assets.activateAsset(asset).last;
+        final progress = await _kdfSdk.assets.activateAsset(asset).last;
+        if (!progress.isSuccess) {
+          throw StateError('Failed to activate coin ${coin.abbr}');
+        }
 
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
       } catch (e, s) {
@@ -232,12 +292,14 @@ class CoinsRepo {
   }
 
   Future<void> _activateParentAsset(Coin coin) async {
-    final parentAsset =
-        _kdfSdk.assets.findAssetsByTicker(coin.parentCoin!.abbr).single;
+    final parentAsset = _kdfSdk.assets.available[coin.parentCoin!.id];
+    if (parentAsset == null) {
+      throw ArgumentError('Parent asset ${coin.parentCoin!.id} not found');
+    }
+
     await _broadcastAsset(
       coin.parentCoin!.copyWith(state: CoinState.activating),
     );
-    // ignore: deprecated_member_use
     await _kdfSdk.assets.activateAsset(parentAsset).last;
     await _broadcastAsset(
       coin.parentCoin!.copyWith(state: CoinState.active),
@@ -406,7 +468,7 @@ class CoinsRepo {
       // Coins with the same coingeckoId supposedly have same usd price
       // (e.g. KMD == KMD-BEP20)
       final Iterable<Coin> samePriceCoins =
-          getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
+          (getKnownCoins()).where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
         prices[coin.abbr] = CexPrice(
@@ -419,8 +481,12 @@ class CoinsRepo {
     return prices;
   }
 
-  Future<Balance?> getBalanceInfo(String abbr) async {
-    final pubkeys = await getSdkAsset(_kdfSdk, abbr).getPubkeys();
+  Future<Balance?> getBalanceInfo(AssetId coinId) async {
+    final asset = _kdfSdk.assets.available[coinId];
+    if (asset == null) {
+      throw ArgumentError.value(coinId, 'getBalanceInfo', 'Asset not found');
+    }
+    final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
     return pubkeys.balance;
   }
 
@@ -446,7 +512,7 @@ class CoinsRepo {
         walletCoinsCopy.values.where((coin) => coin.isActive).toList();
 
     final newBalances =
-        await Future.wait(coins.map((coin) => tryGetBalanceInfo(coin.abbr)));
+        await Future.wait(coins.map((coin) => tryGetBalanceInfo(coin.id)));
 
     for (int i = 0; i < coins.length; i++) {
       final newBalance = newBalances[i].total.toDouble();

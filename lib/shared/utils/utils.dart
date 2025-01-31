@@ -651,6 +651,7 @@ enum HashExplorerType {
   tx,
 }
 
+@Deprecated('Please use KomodoDefiSdk AssetsManager instead.')
 Asset getSdkAsset(KomodoDefiSdk? sdk, String abbr) {
   if (sdk == null) {
     throw Exception('getSdkAsset: SDK is null');

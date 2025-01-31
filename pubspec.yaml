@@ -185,13 +185,13 @@ dependencies:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_sdk
-      ref: dev
+      ref: feature/custom-token-import
 
   komodo_defi_types:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_types
-      ref: dev
+      ref: feature/custom-token-import
 
 dev_dependencies:
   integration_test: # SDK

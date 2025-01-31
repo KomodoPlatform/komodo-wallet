@@ -141,7 +141,7 @@ class PortfolioGrowthBloc
     final List<Coin> coins = List.from(event.coins);
     for (final coin in event.coins) {
       final isCoinSupported = await portfolioGrowthRepository
-          .isCoinChartSupported(coin.abbr, event.fiatCoinId);
+          .isCoinChartSupported(coin.id, event.fiatCoinId);
       if (!isCoinSupported) {
         coins.remove(coin);
       }

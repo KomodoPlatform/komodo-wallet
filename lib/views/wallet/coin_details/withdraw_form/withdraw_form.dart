@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_transaction_completed_dialog.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form_index.dart';
@@ -28,7 +28,7 @@ class WithdrawForm extends StatelessWidget {
       create: (BuildContext context) => WithdrawFormBloc(
         coin: coin,
         coinsRepository: RepositoryProvider.of<CoinsRepo>(context),
-        api: RepositoryProvider.of<Mm2Api>(context),
+        kdfSdk: RepositoryProvider.of<KomodoDefiSdk>(context),
         goBack: onBackButtonPressed,
       ),
       child: isBitrefillIntegrationEnabled

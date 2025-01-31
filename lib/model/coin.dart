@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -11,6 +13,7 @@ class Coin {
   Coin({
     required this.type,
     required this.abbr,
+    required this.id,
     required this.name,
     required this.explorerUrl,
     required this.explorerTxUrl,
@@ -18,6 +21,7 @@ class Coin {
     required this.protocolType,
     required this.protocolData,
     required this.isTestCoin,
+    required this.logoImageUrl,
     required this.coingeckoId,
     required this.fallbackSwapContract,
     required this.priority,
@@ -29,6 +33,7 @@ class Coin {
     this.usdPrice,
     this.coinpaprikaId,
     this.activeByDefault = false,
+    this.isCustomCoin = false,
     required String? swapContractAddress,
     required bool walletOnly,
     required this.mode,
@@ -39,6 +44,8 @@ class Coin {
 
   final String abbr;
   final String name;
+  final AssetId id;
+  final String? logoImageUrl;
   final String? coingeckoId;
   final String? coinpaprikaId;
   final CoinType type;
@@ -52,6 +59,7 @@ class Coin {
   final int decimals;
   CexPrice? usdPrice;
   final bool isTestCoin;
+  bool isCustomCoin;
   String? address;
   List<HdAccount>? accounts;
   final double _balance;
@@ -207,12 +215,15 @@ class Coin {
     return Coin(
       type: type,
       abbr: abbr,
+      id: assetId,
       name: name,
       explorerUrl: explorerUrl,
       explorerTxUrl: explorerTxUrl,
       explorerAddressUrl: explorerAddressUrl,
       protocolType: protocolType,
       isTestCoin: isTestCoin,
+      isCustomCoin: isCustomCoin,
+      logoImageUrl: logoImageUrl,
       coingeckoId: coingeckoId,
       fallbackSwapContract: fallbackSwapContract,
       priority: priority,
@@ -230,14 +241,29 @@ class Coin {
     );
   }
 
+  AssetId get assetId => AssetId(
+        id: abbr,
+        name: name,
+        symbol: AssetSymbol(
+          assetConfigId: abbr,
+          coinGeckoId: coingeckoId,
+          coinPaprikaId: coinpaprikaId,
+        ),
+        chainId: AssetChainId(chainId: 0),
+        derivationPath: derivationPath ?? '',
+        subClass: type.toCoinSubClass(),
+      );
+
   Coin copyWith({
     CoinType? type,
     String? abbr,
+    AssetId? id,
     String? name,
     String? explorerUrl,
     String? explorerTxUrl,
     String? explorerAddressUrl,
     String? protocolType,
+    String? logoImageUrl,
     ProtocolData? protocolData,
     bool? isTestCoin,
     String? coingeckoId,
@@ -262,7 +288,9 @@ class Coin {
     return Coin(
       type: type ?? this.type,
       abbr: abbr ?? this.abbr,
+      id: id ?? this.id,
       name: name ?? this.name,
+      logoImageUrl: logoImageUrl ?? this.logoImageUrl,
       explorerUrl: explorerUrl ?? this.explorerUrl,
       explorerTxUrl: explorerTxUrl ?? this.explorerTxUrl,
       explorerAddressUrl: explorerAddressUrl ?? this.explorerAddressUrl,
@@ -289,129 +317,6 @@ class Coin {
       ..enabledType = enabledType ?? this.enabledType
       ..sendableBalance = sendableBalance ?? this.sendableBalance;
   }
-}
-
-CoinType? getCoinType(String? jsonType, String coinAbbr) {
-  // anchor: protocols support
-  for (CoinType value in CoinType.values) {
-    switch (value) {
-      case CoinType.utxo:
-        if (jsonType == 'UTXO') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.smartChain:
-        if (jsonType == 'Smart Chain') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.erc20:
-        if (jsonType == 'ERC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.bep20:
-        if (jsonType == 'BEP-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.qrc20:
-        if (jsonType == 'QRC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.ftm20:
-        if (jsonType == 'FTM-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.arb20:
-        if (jsonType == 'Arbitrum') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.etc:
-        if (jsonType == 'Ethereum Classic') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.avx20:
-        if (jsonType == 'AVX-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.mvr20:
-        if (jsonType == 'Moonriver') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.hco20:
-        if (jsonType == 'HecoChain') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.plg20:
-        if (jsonType == 'Matic') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.sbch:
-        if (jsonType == 'SmartBCH') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.ubiq:
-        if (jsonType == 'Ubiq') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.hrc20:
-        if (jsonType == 'HRC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.krc20:
-        if (jsonType == 'KRC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.cosmos:
-        if (jsonType == 'TENDERMINT' && coinAbbr != 'IRIS') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.iris:
-        if (jsonType == 'TENDERMINTTOKEN' || coinAbbr == 'IRIS') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.slp:
-        if (jsonType == 'SLP') {
-          return value;
-        } else {
-          continue;
-        }
-    }
-  }
-  return null;
 }
 
 class ProtocolData {

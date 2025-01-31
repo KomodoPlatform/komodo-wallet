@@ -39,7 +39,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
 
     try {
       final profitLosses = await profitLossRepository.getProfitLoss(
-        event.coin.abbr,
+        event.coin.id,
         'USDT',
         event.walletId,
       );
@@ -96,7 +96,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
         // affect the total investment calculation.
         try {
           return await profitLossRepository.getProfitLoss(
-            coin.abbr,
+            coin.id,
             'USDT',
             event.walletId,
           );

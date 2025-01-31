@@ -11,6 +11,7 @@ import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -73,7 +74,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsStarted event,
     Emitter<CoinsState> emit,
   ) async {
-    emit(state.copyWith(coins: _coinsRepo.getKnownCoinsMap()));
+    emit(state.copyWith(coins: await _coinsRepo.getKnownCoinsMap()));
 
     add(CoinsPricesUpdated());
     _updatePricesTimer?.cancel();
@@ -407,17 +408,29 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       case WalletType.hdwallet:
         coin = await _activateIguanaCoin(coin);
       case WalletType.trezor:
-        final asset = _kdfSdk.assets.assetsFromTicker(coin.abbr).single;
-        final accounts = await _trezorBloc.activateCoin(asset);
-        final state =
-            accounts.isNotEmpty ? CoinState.active : CoinState.suspended;
-        coin = coin.copyWith(state: state, accounts: accounts);
+        coin = await _activateTrezorCoin(coin, coinId);
       case WalletType.metamask:
       case WalletType.keplr:
       case null:
         break;
     }
 
+    return coin;
+  }
+
+  Future<Coin> _activateTrezorCoin(Coin coin, String coinId) async {
+    final asset = _kdfSdk.assets.assetsFromTicker(coin.abbr);
+    if (asset.length != 1) {
+      log(
+        'Failed to activate coin $coinId: ${asset.length} assets found',
+        isError: true,
+      );
+    }
+
+    final accounts = await _trezorBloc.activateCoin(asset.single);
+    final state =
+        accounts.isNotEmpty ? CoinState.active : CoinState.suspended;
+    coin = coin.copyWith(state: state, accounts: accounts);
     return coin;
   }
 
