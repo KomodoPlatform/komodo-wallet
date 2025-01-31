@@ -240,18 +240,18 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     TakerSetDefaults event,
     Emitter<TakerState> emit,
   ) async {
-    if (state.sellCoin == null) await _setDefaultSellCoin();
-  }
-
-  Future<void> _setDefaultSellCoin() async {
-    final Coin? defaultCoin = _coinsRepo.getCoin(defaultDexCoin);
-    add(TakerSetSellCoin(defaultCoin));
+    if (state.sellCoin == null) {
+      final Coin? defaultCoin = _coinsRepo.getCoin(defaultDexCoin);
+      add(TakerSetSellCoin(defaultCoin, setOnlyIfNotSet: true));
+    }
   }
 
   Future<void> _onSetSellCoin(
     TakerSetSellCoin event,
     Emitter<TakerState> emit,
   ) async {
+    if (event.setOnlyIfNotSet && state.sellCoin != null) return;
+
     emit(state.copyWith(
       sellCoin: () => event.coin,
       showCoinSelector: () => false,

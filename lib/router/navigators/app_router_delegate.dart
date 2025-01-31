@@ -104,6 +104,11 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
     routingState.selectedMenu = MainMenuValue.dex;
     routingState.dexState.action = path.action;
     routingState.dexState.uuid = path.uuid;
+    routingState.dexState.fromCurrency = path.fromCurrency;
+    routingState.dexState.fromAmount = path.fromAmount;
+    routingState.dexState.toCurrency = path.toCurrency;
+    routingState.dexState.toAmount = path.toAmount;
+    routingState.dexState.orderType = path.orderType;
   }
 
   void _setNewMarketMakerBotRoutePath(MarketMakerBotRoutePath path) {
@@ -165,7 +170,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       );
     }
 
-    return DexRoutePath.dex();
+    return DexRoutePath.dex(
+      fromAmount: routingState.dexState.fromAmount,
+      fromCurrency: routingState.dexState.fromCurrency,
+      toAmount: routingState.dexState.toAmount,
+      toCurrency: routingState.dexState.toCurrency,
+      orderType: routingState.dexState.orderType,
+    );
   }
 
   AppRoutePath get _currentMarketMakerBotConfiguration {

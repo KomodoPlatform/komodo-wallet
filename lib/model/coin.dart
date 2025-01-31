@@ -455,6 +455,12 @@ CoinType? getCoinType(String? jsonType, String coinAbbr) {
         } else {
           continue;
         }
+      case CoinType.arb20:
+        if (jsonType == 'Arbitrum') {
+          return value;
+        } else {
+          continue;
+        }
       case CoinType.etc:
         if (jsonType == 'Ethereum Classic') {
           return value;

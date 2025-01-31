@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-const coinImagesFolder = 'coin_icons/png/';
+const coinImagesFolder = 'assets/coin_icons/png/';
 const mediaCdnUrl = 'https://komodoplatform.github.io/coins/icons/';
 
 final Map<String, bool> _assetExistenceCache = {};

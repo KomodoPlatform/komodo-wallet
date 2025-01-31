@@ -45,6 +45,7 @@ Map<String, int> priorityCoinsAbbrMap = {
   'DASH': 11,
   'MATIC': 10,
   'FTM': 10,
+  'ARB': 10,
   'AVAX': 10,
   'HT': 10,
   'MOVR': 10,

@@ -107,6 +107,8 @@ String getProtocolIcon(Coin coin) {
       return 'qtum';
     case CoinType.ftm20:
       return 'ftm';
+    case CoinType.arb20:
+      return 'arb';
     case CoinType.etc:
       return 'etc';
     case CoinType.avx20:

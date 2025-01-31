@@ -29,6 +29,7 @@ class Currency {
         (t == CoinType.avx20 && symbol == 'AVAX') ||
         (t == CoinType.etc && symbol == 'ETC') ||
         (t == CoinType.ftm20 && symbol == 'FTM') ||
+        (t == CoinType.arb20 && symbol == 'ARB') ||
         (t == CoinType.hrc20 && symbol == 'ONE') ||
         (t == CoinType.plg20 && symbol == 'MATIC') ||
         (t == CoinType.mvr20 && symbol == 'MOVR')) return symbol;
@@ -155,6 +156,8 @@ abstract class BaseFiatProvider {
         return 'ETC';
       case CoinType.ftm20:
         return 'FTM';
+      case CoinType.arb20:
+        return 'ARB';
       case CoinType.hrc20:
         return 'HARMONY';
       case CoinType.plg20:
@@ -261,6 +264,8 @@ abstract class BaseFiatProvider {
         return CoinType.etc;
       case "FTM":
         return CoinType.ftm20;
+      case "ARB":
+        return CoinType.arb20;
       case "HARMONY":
         return CoinType.hrc20;
       case "MATIC":

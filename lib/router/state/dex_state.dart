@@ -4,10 +4,21 @@ import 'package:web_dex/router/state/menu_state_interface.dart';
 class DexState extends ChangeNotifier implements IResettableOnLogout {
   DexState()
       : _action = DexAction.none,
-        _uuid = '';
+        _uuid = '',
+        _fromCurrency = '',
+        _fromAmount = '',
+        _toCurrency = '',
+        _toAmount = '',
+        _orderType = '';
 
   DexAction _action;
   String _uuid;
+
+  String _fromCurrency;
+  String _fromAmount;
+  String _toCurrency;
+  String _toAmount;
+  String _orderType;
 
   set action(DexAction action) {
     if (_action == action) {
@@ -35,6 +46,36 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
 
   String get uuid => _uuid;
 
+  String get fromCurrency => _fromCurrency;
+  set fromCurrency(String fromCurrency) {
+    _fromCurrency = fromCurrency;
+    notifyListeners();
+  }
+
+  String get fromAmount => _fromAmount;
+  set fromAmount(String fromAmount) {
+    _fromAmount = fromAmount;
+    notifyListeners();
+  }
+
+  String get toCurrency => _toCurrency;
+  set toCurrency(String toCurrency) {
+    _toCurrency = toCurrency;
+    notifyListeners();
+  }
+
+  String get toAmount => _toAmount;
+  set toAmount(String toAmount) {
+    _toAmount = toAmount;
+    notifyListeners();
+  }
+
+  String get orderType => _orderType;
+  set orderType(String orderType) {
+    _orderType = orderType;
+    notifyListeners();
+  }
+
   @override
   void reset() {
     action = DexAction.none;
@@ -42,7 +83,15 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
 
   @override
   void resetOnLogOut() {
-    action = DexAction.none;
+    reset();
+  }
+
+  void clearDexParams() {
+    _fromCurrency = '';
+    _fromAmount = '';
+    _toCurrency = '';
+    _toAmount = '';
+    _orderType = '';
   }
 }
 

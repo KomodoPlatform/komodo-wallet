@@ -39,16 +39,33 @@ class FiatRoutePath implements AppRoutePath {
 }
 
 class DexRoutePath implements AppRoutePath {
-  DexRoutePath.dex()
-      : location = '/${firstUriSegment.dex}',
+  DexRoutePath.dex({
+    this.fromCurrency = '',
+    this.fromAmount = '',
+    this.toCurrency = '',
+    this.toAmount = '',
+    this.orderType = '',
+  })  : location = '/${firstUriSegment.dex}',
         uuid = '';
+
   DexRoutePath.swapDetails(this.action, this.uuid)
-      : location = '/${firstUriSegment.dex}/trading_details/$uuid';
+      : location = '/${firstUriSegment.dex}/trading_details/$uuid',
+        fromCurrency = '',
+        fromAmount = '',
+        toCurrency = '',
+        toAmount = '',
+        orderType = '';
 
   @override
   final String location;
   final String uuid;
   DexAction action = DexAction.none;
+
+  final String fromCurrency;
+  final String fromAmount;
+  final String toCurrency;
+  final String toAmount;
+  final String orderType;
 }
 
 class BridgeRoutePath implements AppRoutePath {

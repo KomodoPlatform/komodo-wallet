@@ -526,7 +526,11 @@ class MakerFormBloc implements BlocBase {
     if (amountStr.isEmpty) {
       amount = null;
     } else {
-      amount = Rational.parse(amountStr);
+      try {
+        amount = Rational.parse(amountStr);
+      } catch (_) {
+        amount = null;
+      }
     }
 
     isMaxActive = false;
@@ -544,7 +548,11 @@ class MakerFormBloc implements BlocBase {
     if (amountStr.isEmpty) {
       amount = null;
     } else {
-      amount = Rational.parse(amountStr);
+      try {
+        amount = Rational.parse(amountStr);
+      } catch (_) {
+        amount = null;
+      }
     }
 
     if (amount == buyAmount) return;

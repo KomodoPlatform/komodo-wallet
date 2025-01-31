@@ -122,6 +122,8 @@ String getCoinTypeName(CoinType type) {
       return 'Smart Chain';
     case CoinType.ftm20:
       return 'FTM-20';
+    case CoinType.arb20:
+      return 'ARB-20';
     case CoinType.etc:
       return 'ETC';
     case CoinType.avx20:
@@ -163,6 +165,8 @@ String getCoinTypeNameLong(CoinType type) {
       return 'Smart Chain';
     case CoinType.ftm20:
       return 'Fantom';
+    case CoinType.arb20:
+      return 'Arbitrum';
     case CoinType.etc:
       return 'Ethereum Classic';
     case CoinType.avx20:

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc_event.dart';
 import 'package:web_dex/blocs/blocs.dart';
@@ -35,7 +36,9 @@ class LogOutPopup extends StatelessWidget {
           const SizedBox(height: 12),
           if (currentWalletBloc.wallet?.config.type == WalletType.iguana)
             SelectableText(
-              LocaleKeys.logoutPopupDescription.tr(),
+              kIsWalletOnly
+                  ? LocaleKeys.logoutPopupDescriptionWalletOnly.tr()
+                  : LocaleKeys.logoutPopupDescription.tr(),
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,

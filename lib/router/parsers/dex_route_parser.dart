@@ -14,6 +14,15 @@ class _DexRouteParser implements BaseRouteParser {
       }
     }
 
+    if (uri.pathSegments.length == 1) {
+      return DexRoutePath.dex(
+        fromCurrency: uri.queryParameters['from_currency'] ?? '',
+        fromAmount: uri.queryParameters['from_amount'] ?? '',
+        toCurrency: uri.queryParameters['to_currency'] ?? '',
+        toAmount: uri.queryParameters['to_amount'] ?? '',
+        orderType: uri.queryParameters['order_type'] ?? '',
+      );
+    }
     return DexRoutePath.dex();
   }
 }
