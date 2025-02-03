@@ -20,7 +20,7 @@ enum TimePeriod {
         return '1M';
       case TimePeriod.oneYear:
         return '1Y';
-      }
+    }
   }
 
   Duration get duration {
@@ -35,6 +35,6 @@ enum TimePeriod {
         return const Duration(days: 30);
       case TimePeriod.oneYear:
         return const Duration(days: 365);
-      }
+    }
   }
 }

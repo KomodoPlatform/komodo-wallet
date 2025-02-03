@@ -5,6 +5,7 @@ import 'package:web_dex/shared/utils/utils.dart';
 class HtmlParser extends StatefulWidget {
   const HtmlParser(
     this.html, {
+    super.key,
     this.textStyle,
     this.linkStyle,
   });
@@ -42,18 +43,22 @@ class _HtmlParserState extends State<HtmlParser> {
           // ignore: unnecessary_string_escapes
           RegExp('<a[^>]+href=\'(.*?)\'[^>]*>(.*)?<\/a>').firstMatch(chunk);
       if (linkMatch == null) {
-        children.add(TextSpan(
-          text: chunk,
-          style: textStyle,
-        ));
+        children.add(
+          TextSpan(
+            text: chunk,
+            style: textStyle,
+          ),
+        );
       } else {
         children.add(_buildClickable(linkMatch));
       }
     }
 
-    return SelectableText.rich(TextSpan(
-      children: children,
-    ));
+    return SelectableText.rich(
+      TextSpan(
+        children: children,
+      ),
+    );
   }
 
   List<String> _splitLinks(String text) {
@@ -70,7 +75,8 @@ class _HtmlParserState extends State<HtmlParser> {
   }
 
   InlineSpan _buildClickable(RegExpMatch match) {
-    recognizers.add(TapGestureRecognizer()..onTap = () => launchURL(match[1]!));
+    recognizers
+        .add(TapGestureRecognizer()..onTap = () => launchURLString(match[1]!));
 
     return TextSpan(
       text: match[2],

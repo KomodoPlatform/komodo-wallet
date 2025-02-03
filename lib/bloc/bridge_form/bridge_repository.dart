@@ -16,7 +16,7 @@ class BridgeRepository {
   final KomodoDefiSdk _kdfSdk;
   final CoinsRepo _coinsRepository;
 
-  Future<CoinsByTicker?> getSellCoins( CoinsByTicker? tickers) async {
+  Future<CoinsByTicker?> getSellCoins(CoinsByTicker? tickers) async {
     if (tickers == null) return null;
 
     final List<OrderBookDepth>? depths = await _getDepths(tickers);
@@ -26,9 +26,11 @@ class BridgeRepository {
         tickers.entries.fold({}, (previousValue, entry) {
       final List<Coin> coins = previousValue[entry.key] ?? [];
       final List<OrderBookDepth> tickerDepths = depths
-          .where((depth) =>
-              (abbr2Ticker(depth.source.abbr) == entry.key) &&
-              (abbr2Ticker(depth.target.abbr) == entry.key))
+          .where(
+            (depth) =>
+                (abbr2Ticker(depth.source.abbr) == entry.key) &&
+                (abbr2Ticker(depth.target.abbr) == entry.key),
+          )
           .toList();
 
       if (tickerDepths.isEmpty) return previousValue;
@@ -66,7 +68,9 @@ class BridgeRepository {
       return multiProtocolCoins;
     } else {
       return removeTokensWithEmptyOrderbook(
-          multiProtocolCoins, orderBookDepths);
+        multiProtocolCoins,
+        orderBookDepths,
+      );
     }
   }
 

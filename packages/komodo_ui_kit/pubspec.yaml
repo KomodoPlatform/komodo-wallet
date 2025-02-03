@@ -12,6 +12,20 @@ dependencies:
   app_theme:
     path: ../../app_theme/
 
+  komodo_defi_types:
+    # path: sdk/packages/komodo_defi_types # Requires symlink to the SDK in the root of the project
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/komodo_defi_types
+      ref: dev
+
+  komodo_ui:
+    # path: ../../sdk/packages/komodo_ui # Requires symlink to the SDK in the root of the project
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/komodo_ui
+      ref: dev
+
 dev_dependencies:
   flutter_lints: ^2.0.0 # flutter.dev
 
@@ -22,6 +36,6 @@ flutter:
     - lib/src/custom_icons/Custom.ttf
 
   fonts:
-  - family: Custom
-    fonts:
-      - asset: lib/src/custom_icons/Custom.ttf
+    - family: Custom
+      fonts:
+        - asset: lib/src/custom_icons/Custom.ttf

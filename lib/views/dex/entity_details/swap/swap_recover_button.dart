@@ -119,9 +119,10 @@ class _SwapRecoverButtonState extends State<SwapRecoverButton> {
           padding: const EdgeInsets.only(top: 5.0),
           child: InkWell(
             child: Text(
-                '${LocaleKeys.transactionHash.tr()}: ${response.result.txHash}'),
+              '${LocaleKeys.transactionHash.tr()}: ${response.result.txHash}',
+            ),
             onTap: () {
-              launchURL(url);
+              launchURLString(url);
             },
           ),
         ),

@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -348,8 +348,8 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
               isMobile: true,
               selectWidget: setPageType,
               onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
-                  ? null
-                  : () => _goToSwap(context, coin),
+                  ? () => _goToSwap(context, coin)
+                  : null,
               coin: coin,
             ),
           ),
@@ -430,7 +430,7 @@ class _CoinDetailsMarketMetricsTabBar extends StatelessWidget {
               ]),
             ],
           ),
-        )
+        ),
       ],
     );
   }

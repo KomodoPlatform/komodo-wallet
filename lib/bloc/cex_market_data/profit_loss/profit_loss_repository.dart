@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
@@ -57,6 +58,7 @@ class ProfitLossRepository {
     required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
     required Mm2Api mm2Api,
+    required KomodoDefiSdk sdk,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
@@ -65,6 +67,7 @@ class ProfitLossRepository {
         coinsRepository: coinsRepository,
         cacheTableName: 'mock_${cacheTableName}_${demoMode.name}',
         mm2Api: mm2Api,
+        sdk: sdk,
       );
     }
 

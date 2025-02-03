@@ -277,7 +277,8 @@ class CoinDetailsSendButton extends StatelessWidget {
       textStyle: themeData.textTheme.labelLarge
           ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
       backgroundColor: themeData.colorScheme.tertiary,
-      onPressed: coin.isSuspended || coin.balance == 0
+      onPressed: coin.isSuspended
+          //TODO!.sdk || coin.balance == 0
           ? null
           : () {
               selectWidget(CoinPageType.send);

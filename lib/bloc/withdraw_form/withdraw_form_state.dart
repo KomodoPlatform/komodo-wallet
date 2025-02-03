@@ -1,207 +1,198 @@
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:flutter/foundation.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/withdraw/fee/fee_request.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/hd_account/hd_account.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class WithdrawFormState extends Equatable {
+  final Asset asset;
+  final AssetPubkeys? pubkeys;
+  final WithdrawFormStep step;
+
+  // Form fields
+  final String recipientAddress;
+  final String amount;
+  final PubkeyInfo? selectedSourceAddress;
+  final bool isMaxAmount;
+  final bool isCustomFee;
+  final bool isCustomFeeEnabled;
+  final FeeInfo? customFee;
+  final String? memo;
+  final bool isIbcTransfer;
+  final String? ibcChannel;
+
+  // Transaction state
+  final WithdrawalPreview? preview;
+  final bool isSending;
+  final WithdrawalResult? result;
+
+  // Validation errors
+  final TextError? recipientAddressError; // Basic address validation
+  final bool isMixedCaseAddress; // EVM mixed case specific error
+  final TextError? amountError; // Amount validation (insufficient funds etc)
+  final TextError? customFeeError; // Fee validation for custom fees
+  final TextError? ibcChannelError; // IBC channel validation
+
+  // Network/Transaction errors
+  final TextError? previewError; // Errors during preview generation
+  final TextError? transactionError; // Errors during transaction submission
+  final TextError? networkError; // Network connectivity errors
+
+  bool get isCustomFeeSupported =>
+      asset.protocol is UtxoProtocol || asset.protocol is Erc20Protocol;
+
+  bool get hasPreviewError => previewError != null;
+  bool get hasTransactionError => transactionError != null;
+  bool get hasAddressError =>
+      recipientAddressError != null || isMixedCaseAddress;
+  bool get hasValidationErrors =>
+      hasAddressError ||
+      amountError != null ||
+      customFeeError != null ||
+      ibcChannelError != null;
+
   const WithdrawFormState({
-    required this.coin,
+    required this.asset,
+    this.pubkeys,
     required this.step,
-    required this.address,
+    required this.recipientAddress,
     required this.amount,
-    required this.senderAddresses,
-    required this.selectedSenderAddress,
-    required bool isMaxAmount,
-    required this.customFee,
-    required this.withdrawDetails,
-    required this.isSending,
-    required this.trezorProgressStatus,
-    required this.sendError,
-    required this.addressError,
-    required this.amountError,
-    required this.utxoCustomFeeError,
-    required this.gasLimitError,
-    required this.gasPriceError,
-    required this.isCustomFeeEnabled,
-    required this.memo,
-    required CoinsRepo coinsRepository,
-  })  : _isMaxAmount = isMaxAmount,
-        _coinsRepo = coinsRepository;
-
-  static WithdrawFormState initial(Coin coin, CoinsRepo coinsRepository) {
-    final List<HdAddress> initSenderAddresses = coin.nonEmptyHdAddresses();
-    final String selectedSenderAddress =
-        initSenderAddresses.isNotEmpty ? initSenderAddresses.first.address : '';
-
-    return WithdrawFormState(
-      coin: coin,
-      step: WithdrawFormStep.fill,
-      address: '',
-      amount: '',
-      senderAddresses: initSenderAddresses,
-      selectedSenderAddress: selectedSenderAddress,
-      isMaxAmount: false,
-      customFee: FeeRequest(type: ''),
-      withdrawDetails: WithdrawDetails.empty(),
-      isSending: false,
-      isCustomFeeEnabled: false,
-      trezorProgressStatus: null,
-      sendError: TextError.empty(),
-      addressError: TextError.empty(),
-      amountError: TextError.empty(),
-      utxoCustomFeeError: TextError.empty(),
-      gasLimitError: TextError.empty(),
-      gasPriceError: TextError.empty(),
-      memo: null,
-      coinsRepository: coinsRepository,
-    );
-  }
+    this.selectedSourceAddress,
+    this.isMaxAmount = false,
+    this.isCustomFee = false,
+    this.isCustomFeeEnabled = false,
+    this.customFee,
+    this.memo,
+    this.isIbcTransfer = false,
+    this.ibcChannel,
+    this.preview,
+    this.isSending = false,
+    this.result,
+    // Error states
+    this.recipientAddressError,
+    this.isMixedCaseAddress = false,
+    this.amountError,
+    this.customFeeError,
+    this.ibcChannelError,
+    this.previewError,
+    this.transactionError,
+    this.networkError,
+  });
 
   WithdrawFormState copyWith({
-    Coin? coin,
-    String? address,
-    String? amount,
+    Asset? asset,
+    ValueGetter<AssetPubkeys?>? pubkeys,
     WithdrawFormStep? step,
-    FeeRequest? customFee,
-    List<HdAddress>? senderAddresses,
-    String? selectedSenderAddress,
+    String? recipientAddress,
+    String? amount,
+    ValueGetter<PubkeyInfo?>? selectedSourceAddress,
     bool? isMaxAmount,
-    BaseError? sendError,
-    BaseError? addressError,
-    BaseError? amountError,
-    BaseError? utxoCustomFeeError,
-    BaseError? gasLimitError,
-    BaseError? gasPriceError,
-    WithdrawDetails? withdrawDetails,
-    bool? isSending,
+    bool? isCustomFee,
     bool? isCustomFeeEnabled,
-    String? trezorProgressStatus,
-    String? memo,
-    CoinsRepo? coinsRepository,
+    ValueGetter<FeeInfo?>? customFee,
+    ValueGetter<String?>? memo,
+    bool? isIbcTransfer,
+    ValueGetter<String?>? ibcChannel,
+    ValueGetter<WithdrawalPreview?>? preview,
+    bool? isSending,
+    ValueGetter<WithdrawalResult?>? result,
+    // Error states
+    ValueGetter<TextError?>? recipientAddressError,
+    bool? isMixedCaseAddress,
+    ValueGetter<TextError?>? amountError,
+    ValueGetter<TextError?>? customFeeError,
+    ValueGetter<TextError?>? ibcChannelError,
+    ValueGetter<TextError?>? previewError,
+    ValueGetter<TextError?>? transactionError,
+    ValueGetter<TextError?>? networkError,
   }) {
     return WithdrawFormState(
-      coin: coin ?? this.coin,
-      address: address ?? this.address,
-      amount: amount ?? this.amount,
+      asset: asset ?? this.asset,
+      pubkeys: pubkeys != null ? pubkeys() : this.pubkeys,
       step: step ?? this.step,
-      customFee: customFee ?? this.customFee,
+      recipientAddress: recipientAddress ?? this.recipientAddress,
+      amount: amount ?? this.amount,
+      selectedSourceAddress: selectedSourceAddress != null
+          ? selectedSourceAddress()
+          : this.selectedSourceAddress,
       isMaxAmount: isMaxAmount ?? this.isMaxAmount,
-      senderAddresses: senderAddresses ?? this.senderAddresses,
-      selectedSenderAddress:
-          selectedSenderAddress ?? this.selectedSenderAddress,
-      sendError: sendError ?? this.sendError,
-      withdrawDetails: withdrawDetails ?? this.withdrawDetails,
-      isSending: isSending ?? this.isSending,
-      addressError: addressError ?? this.addressError,
-      amountError: amountError ?? this.amountError,
-      gasLimitError: gasLimitError ?? this.gasLimitError,
-      gasPriceError: gasPriceError ?? this.gasPriceError,
-      utxoCustomFeeError: utxoCustomFeeError ?? this.utxoCustomFeeError,
+      isCustomFee: isCustomFee ?? this.isCustomFee,
       isCustomFeeEnabled: isCustomFeeEnabled ?? this.isCustomFeeEnabled,
-      trezorProgressStatus: trezorProgressStatus,
-      memo: memo ?? this.memo,
-      coinsRepository: coinsRepository ?? _coinsRepo,
+      customFee: customFee != null ? customFee() : this.customFee,
+      memo: memo != null ? memo() : this.memo,
+      isIbcTransfer: isIbcTransfer ?? this.isIbcTransfer,
+      ibcChannel: ibcChannel != null ? ibcChannel() : this.ibcChannel,
+      preview: preview != null ? preview() : this.preview,
+      isSending: isSending ?? this.isSending,
+      result: result != null ? result() : this.result,
+      recipientAddressError: recipientAddressError != null
+          ? recipientAddressError()
+          : this.recipientAddressError,
+      isMixedCaseAddress: isMixedCaseAddress ?? this.isMixedCaseAddress,
+      amountError: amountError != null ? amountError() : this.amountError,
+      customFeeError:
+          customFeeError != null ? customFeeError() : this.customFeeError,
+      ibcChannelError:
+          ibcChannelError != null ? ibcChannelError() : this.ibcChannelError,
+      previewError: previewError != null ? previewError() : this.previewError,
+      transactionError:
+          transactionError != null ? transactionError() : this.transactionError,
+      networkError: networkError != null ? networkError() : this.networkError,
     );
   }
 
-  final Coin coin;
-  final String address;
-  final String amount;
-  final WithdrawFormStep step;
-  final List<HdAddress> senderAddresses;
-  final String selectedSenderAddress;
-  final FeeRequest customFee;
-  final WithdrawDetails withdrawDetails;
-  final bool isSending;
-  final bool isCustomFeeEnabled;
-  final String? trezorProgressStatus;
-  final BaseError sendError;
-  final BaseError addressError;
-  final BaseError amountError;
-  final BaseError utxoCustomFeeError;
-  final BaseError gasLimitError;
-  final BaseError gasPriceError;
-  final bool _isMaxAmount;
-  final String? memo;
-  final CoinsRepo _coinsRepo;
+  WithdrawParameters toWithdrawParameters() {
+    return WithdrawParameters(
+      asset: asset.id.id,
+      toAddress: recipientAddress,
+      amount: isMaxAmount ? null : Decimal.parse(amount),
+      fee: isCustomFeeEnabled ? customFee : null,
+      from: selectedSourceAddress?.derivationPath != null
+          ? WithdrawalSource.hdDerivationPath(
+              selectedSourceAddress!.derivationPath!,
+            )
+          : null,
+      memo: memo,
+      ibcTransfer: isIbcTransfer ? true : null,
+      isMax: isMaxAmount,
+    );
+  }
+
+  //TODO!
+  double? get usdFeePrice => 0.0;
+
+  //TODO!
+  double? get usdAmountPrice => 0.0;
+
+  //TODO!
+  bool get isFeePriceExpensive => false;
 
   @override
   List<Object?> get props => [
-        coin,
-        address,
-        amount,
+        asset,
+        pubkeys,
         step,
-        senderAddresses,
-        selectedSenderAddress,
-        isMaxAmount,
-        customFee,
-        withdrawDetails,
-        isSending,
-        isCustomFeeEnabled,
-        trezorProgressStatus,
-        sendError,
-        addressError,
-        amountError,
-        utxoCustomFeeError,
-        gasLimitError,
-        gasPriceError,
-        memo,
-      ];
-
-  bool get isMaxAmount =>
-      _isMaxAmount || amount == doubleToString(senderAddressBalance);
-  double get amountToSendDouble => double.tryParse(amount) ?? 0;
-  String get amountToSendString {
-    if (isMaxAmount && coin.abbr == withdrawDetails.feeCoin) {
-      return doubleToString(
-        amountToSendDouble - double.parse(withdrawDetails.feeValue),
-      );
-    }
-    return amount;
-  }
-
-  double get senderAddressBalance {
-    switch (coin.enabledType) {
-      case WalletType.trezor:
-        return coin.getHdAddress(selectedSenderAddress)?.balance.spendable ??
-            0.0;
-      default:
-        return coin.sendableBalance;
-    }
-  }
-
-  bool get hasAddressError => addressError.message.isNotEmpty;
-  bool get hasAmountError => amountError.message.isNotEmpty;
-  bool get hasSendError => sendError.message.isNotEmpty;
-  bool get hasGasLimitError => gasLimitError.message.isNotEmpty;
-  bool get hasGasPriceError => gasPriceError.message.isNotEmpty;
-  bool get hasUtxoFeeError => utxoCustomFeeError.message.isNotEmpty;
-
-  double? get usdAmountPrice => _coinsRepo.getUsdPriceByAmount(
+        recipientAddress,
         amount,
-        coin.abbr,
-      );
-
-  double? get usdFeePrice => _coinsRepo.getUsdPriceByAmount(
-        withdrawDetails.feeValue,
-        withdrawDetails.feeCoin,
-      );
-
-  bool get isFeePriceExpensive {
-    final usdFeePrice = this.usdFeePrice;
-    final usdAmountPrice = this.usdAmountPrice;
-
-    if (usdFeePrice == null || usdAmountPrice == null || usdAmountPrice == 0) {
-      return false;
-    }
-
-    return usdFeePrice / usdAmountPrice >= 0.05;
-  }
+        selectedSourceAddress,
+        isMaxAmount,
+        isCustomFee,
+        isCustomFeeEnabled,
+        customFee,
+        memo,
+        isIbcTransfer,
+        ibcChannel,
+        preview,
+        isSending,
+        result,
+        recipientAddressError,
+        isMixedCaseAddress,
+        amountError,
+        customFeeError,
+        ibcChannelError,
+        previewError,
+        transactionError,
+        networkError,
+      ];
 }

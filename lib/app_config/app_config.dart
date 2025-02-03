@@ -18,6 +18,13 @@ const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
 // TODO: Remove this flag after the feature is finalized
 const bool isBitrefillIntegrationEnabled = false;
 
+/// Const to define if trading is enabled in the app. Trading is only permitted
+/// with test coins for development purposes while the regulatory compliance
+/// framework is being developed.
+///
+///! You are solely responsible for any losses/damage that may occur. Komodo
+///! Platform does not condone the use of this app for trading purposes and
+///! unequivocally forbids it.
 const bool kIsWalletOnly = !kDebugMode;
 
 const Duration kPerformanceLogInterval = Duration(minutes: 1);

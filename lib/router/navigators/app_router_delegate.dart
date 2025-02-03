@@ -37,7 +37,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
           materialPageContext = context;
           return GestureDetector(
             onTap: () => runDropdownDismiss(context),
-            child: MainLayout(),
+            child: const MainLayout(),
           );
         },
       ),
@@ -53,19 +53,19 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
   }
 
   void runDropdownDismiss(BuildContext context) {
-      // Taker form
-      context.read<TakerBloc>().add(TakerCoinSelectorOpen(false));
-      context.read<TakerBloc>().add(TakerOrderSelectorOpen(false));
+    // Taker form
+    context.read<TakerBloc>().add(TakerCoinSelectorOpen(false));
+    context.read<TakerBloc>().add(TakerOrderSelectorOpen(false));
 
-      // Maker form
-      final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-      makerFormBloc.showSellCoinSelect = false;
-      makerFormBloc.showBuyCoinSelect = false;
+    // Maker form
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+    makerFormBloc.showSellCoinSelect = false;
+    makerFormBloc.showBuyCoinSelect = false;
 
-      // Bridge form
-      context.read<BridgeBloc>().add(const BridgeShowTickerDropdown(false));
-      context.read<BridgeBloc>().add(const BridgeShowSourceDropdown(false));
-      context.read<BridgeBloc>().add(const BridgeShowTargetDropdown(false));
+    // Bridge form
+    context.read<BridgeBloc>().add(const BridgeShowTickerDropdown(false));
+    context.read<BridgeBloc>().add(const BridgeShowSourceDropdown(false));
+    context.read<BridgeBloc>().add(const BridgeShowTargetDropdown(false));
   }
 
   @override

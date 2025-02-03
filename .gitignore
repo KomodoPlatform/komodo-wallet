@@ -1,3 +1,6 @@
+# First-party
+sdk/
+
 # Miscellaneous
 *.class
 *.log

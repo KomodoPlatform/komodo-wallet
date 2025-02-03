@@ -29,7 +29,7 @@ class CustomNumericTextFormField extends StatelessWidget {
   final String filteringRegExp;
   final int? errorMaxLines;
   final InputValidationMode validationMode;
-  final void Function(String)? onChanged;
+  final void Function(String?)? onChanged;
 
   final FocusNode? focusNode;
   final void Function(FocusNode)? onFocus;

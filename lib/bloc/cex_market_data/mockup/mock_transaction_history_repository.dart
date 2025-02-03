@@ -15,7 +15,8 @@ class MockTransactionHistoryRepo extends TransactionHistoryRepo {
     required Client client,
     required this.performanceMode,
     required this.demoDataGenerator,
-  }) : super();
+    required super.sdk,
+  });
 
   // TODO: SDK Port needed, not sure about this part
   Future<List<Transaction>> fetchTransactions(Coin coin) async {

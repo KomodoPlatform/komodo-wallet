@@ -16,9 +16,9 @@ class FaucetCubit extends Cubit<FaucetState> {
   Future<void> callFaucet() async {
     emit(const FaucetLoading());
     try {
-      // Temporary band-aid fix to faucet to support HD wallet - currently 
+      // Temporary band-aid fix to faucet to support HD wallet - currently
       // defaults to calling faucet on all addresses
-      // TODO: maybe add faucet button per address, or ask user if they want 
+      // TODO: maybe add faucet button per address, or ask user if they want
       // to faucet all addresses at once (or offer both options)
       final asset = kdfSdk.assets.assetsFromTicker(coinAbbr).single;
       final addresses = (await asset.getPubkeys(kdfSdk)).keys;

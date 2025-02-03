@@ -6,4 +6,3 @@ extension WaitAllFutures<T> on List<Future<T>> {
   /// See Dart docs on error handling in lists of futures: [Future.wait]
   Future<List<T>> awaitAll() => Future.wait<T>(this);
 }
-

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/launch_native_explorer_button.dart';
@@ -68,21 +68,19 @@ class TransactionTable extends StatelessWidget {
   Widget _buildTransactionList(BuildContext context) {
     return BlocBuilder<TransactionHistoryBloc, TransactionHistoryState>(
       builder: (BuildContext ctx, TransactionHistoryState state) {
-        if (state.transactions.isEmpty) {
-          if (coin.isActivating || state.loading) {
-            return const SliverToBoxAdapter(
-              child: UiSpinnerList(),
-            );
-          }
+        if (state.transactions.isEmpty && state.loading) {
+          return const SliverToBoxAdapter(
+            child: UiSpinnerList(),
+          );
+        }
 
-          if (state.error != null) {
-            return SliverToBoxAdapter(
-              child: _ErrorMessage(
-                text: state.error!.message,
-                textColor: theme.currentGlobal.colorScheme.error,
-              ),
-            );
-          }
+        if (state.error != null) {
+          return SliverToBoxAdapter(
+            child: _ErrorMessage(
+              text: state.error!.message,
+              textColor: theme.currentGlobal.colorScheme.error,
+            ),
+          );
         }
 
         return _TransactionsListWrapper(

@@ -8,41 +8,43 @@ import 'package:web_dex/shared/widgets/copied_text.dart';
 import 'package:web_dex/shared/widgets/details_dropdown.dart';
 
 class FillFormError extends StatelessWidget {
-  const FillFormError();
+  const FillFormError({super.key});
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-        builder: (ctx, state) {
-      if (!state.hasSendError) {
-        return const SizedBox();
-      }
-      final BaseError sendError = state.sendError;
-      return Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            child: SelectableText(
-              sendError.message,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-          ),
-          if (sendError is ErrorWithDetails)
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: DetailsDropdown(
-                summary: LocaleKeys.showMore.tr(),
-                content: SingleChildScrollView(
-                  controller: ScrollController(),
-                  child: CopiedText(
-                      copiedValue: (sendError as ErrorWithDetails).details),
+      builder: (ctx, state) {
+        if (!state.hasTransactionError) {
+          return const SizedBox();
+        }
+        final BaseError sendError = state.transactionError!;
+        return Column(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: SelectableText(
+                sendError.message,
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
                 ),
               ),
-            )
-        ],
-      );
-    });
+            ),
+            if (sendError is ErrorWithDetails)
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: DetailsDropdown(
+                  summary: LocaleKeys.showMore.tr(),
+                  content: SingleChildScrollView(
+                    controller: ScrollController(),
+                    child: CopiedText(
+                      copiedValue: (sendError as ErrorWithDetails).details,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
   }
 }

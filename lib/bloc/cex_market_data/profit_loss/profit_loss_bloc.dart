@@ -208,12 +208,13 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
             useCache: useCache,
           );
 
-          profitLosses.removeRange(
-            0,
-            profitLosses.indexOf(
-              profitLosses.firstWhere((element) => element.profitLoss != 0),
-            ),
+          final startIndex = profitLosses.indexOf(
+            profitLosses.firstWhere((element) => element.profitLoss != 0),
           );
+
+          if (startIndex == -1) {
+            profitLosses.removeRange(0, startIndex);
+          }
 
           return profitLosses.toChartData();
         } catch (e) {

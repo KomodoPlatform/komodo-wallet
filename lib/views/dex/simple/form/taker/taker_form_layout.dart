@@ -56,7 +56,7 @@ class _TakerFormDesktopLayout extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    TakerFormContent(),
+                    const TakerFormContent(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 52, 16, 0),
                       child: TakerSellCoinsTable(),
@@ -95,11 +95,11 @@ class _TakerFormMobileLayout extends StatelessWidget {
         constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
         child: Stack(
           children: [
-            Column(
+            const Column(
               children: [
                 TakerFormContent(),
-                const SizedBox(height: 22),
-                const TakerOrderbook(),
+                SizedBox(height: 22),
+                TakerOrderbook(),
               ],
             ),
             Padding(

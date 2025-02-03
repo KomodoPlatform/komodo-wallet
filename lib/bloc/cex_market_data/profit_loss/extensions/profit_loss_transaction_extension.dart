@@ -1,4 +1,4 @@
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 extension ProfitLossTransactionExtension on Transaction {
   /// The total amount of the coin transferred in the transaction as a double.

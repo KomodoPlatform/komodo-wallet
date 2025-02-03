@@ -1,5 +1,6 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
@@ -93,7 +94,8 @@ class WalletConfig {
   factory WalletConfig.fromJson(Map<String, dynamic> json) {
     return WalletConfig(
       type: WalletType.fromJson(
-          json['type'] as String? ?? WalletType.iguana.name),
+        json['type'] as String? ?? WalletType.iguana.name,
+      ),
       seedPhrase: json['seed_phrase'] as String? ?? '',
       pubKey: json['pub_key'] as String?,
       activatedCoins:

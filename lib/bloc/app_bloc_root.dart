@@ -67,9 +67,9 @@ import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 class AppBlocRoot extends StatelessWidget {
   const AppBlocRoot({
-    Key? key,
     required this.storedPrefs,
     required this.komodoDefiSdk,
+    super.key,
   });
 
   final StoredSettings storedPrefs;
@@ -135,6 +135,7 @@ class AppBlocRoot extends StatelessWidget {
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
       mm2Api: mm2Api,
+      sdk: komodoDefiSdk,
     );
 
     final portfolioGrowthRepo = PortfolioGrowthRepository.withDefaults(
@@ -143,6 +144,7 @@ class AppBlocRoot extends StatelessWidget {
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
       mm2Api: mm2Api,
+      sdk: komodoDefiSdk,
     );
 
     _clearCachesIfPerformanceModeChanged(
@@ -158,10 +160,11 @@ class AppBlocRoot extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-            create: (_) => NftsRepo(
-                  api: mm2Api.nft,
-                  coinsRepo: coinsRepository,
-                )),
+          create: (_) => NftsRepo(
+            api: mm2Api.nft,
+            coinsRepo: coinsRepository,
+          ),
+        ),
         RepositoryProvider(create: (_) => tradingEntitiesBloc),
         RepositoryProvider(create: (_) => dexRepository),
         RepositoryProvider(
@@ -219,7 +222,7 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider<TransactionHistoryBloc>(
             create: (BuildContext ctx) => TransactionHistoryBloc(
-              repo: transactionsRepo,
+              sdk: komodoDefiSdk,
             ),
           ),
           BlocProvider<SettingsBloc>(

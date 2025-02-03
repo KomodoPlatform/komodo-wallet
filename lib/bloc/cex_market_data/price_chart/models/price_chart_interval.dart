@@ -20,7 +20,7 @@ enum PriceChartPeriod {
         return '1M';
       case PriceChartPeriod.oneYear:
         return '1Y';
-      }
+    }
   }
 
   String get intervalString {
@@ -35,6 +35,6 @@ enum PriceChartPeriod {
         return '1M';
       case PriceChartPeriod.oneYear:
         return '1y';
-      }
+    }
   }
 }

@@ -8,6 +8,7 @@ import 'package:web_dex/views/wallet/coin_details/constants.dart';
 
 class FillFormTrezorSenderAddress extends StatelessWidget {
   const FillFormTrezorSenderAddress({
+    super.key,
     required this.coin,
     required this.addresses,
     required this.selectedAddress,
@@ -26,7 +27,7 @@ class FillFormTrezorSenderAddress extends StatelessWidget {
       onChanged: (String address) {
         context
             .read<WithdrawFormBloc>()
-            .add(WithdrawFormSenderAddressChanged(address: address));
+            .add(WithdrawFormRecipientChanged(address));
       },
       maxWidth: withdrawWidth,
       maxHeight: 300,

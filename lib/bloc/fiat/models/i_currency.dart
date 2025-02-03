@@ -10,11 +10,13 @@ abstract class ICurrency {
 
   /// Returns true if the currency is a fiat currency (e.g. USD)
   bool get isFiat;
+
   /// Returns true if the currency is a crypto currency (e.g. BTC)
   bool get isCrypto;
 
   /// Returns the abbreviation of the currency (e.g. BTC, USD).
   String getAbbr() => symbol;
+
   /// Returns the full name of the currency (e.g. Bitcoin).
   String formatNameShort() => name;
 }

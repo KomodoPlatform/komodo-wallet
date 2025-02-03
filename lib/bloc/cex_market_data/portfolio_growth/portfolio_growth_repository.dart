@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/mock_portfolio_growth_repository.dart';
@@ -12,7 +13,7 @@ import 'package:web_dex/bloc/cex_market_data/models/models.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
@@ -36,6 +37,7 @@ class PortfolioGrowthRepository {
     required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
     required Mm2Api mm2Api,
+    required KomodoDefiSdk sdk,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
@@ -43,6 +45,7 @@ class PortfolioGrowthRepository {
         performanceMode: demoMode,
         coinsRepository: coinsRepository,
         mm2Api: mm2Api,
+        sdk: sdk,
       );
     }
 

@@ -1,4 +1,5 @@
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 
@@ -14,7 +15,10 @@ extension AssetCoinExtension on Asset {
     final CoinType? type = _getCoinTypeFromProtocol(protocol);
     if (type == null) {
       throw ArgumentError.value(
-          protocol.subClass, 'protocol type', 'Unsupported protocol type');
+        protocol.subClass,
+        'protocol type',
+        'Unsupported protocol type',
+      );
     }
 
     // temporary measure to get metadata, like `wallet_only`, that isn't exposed

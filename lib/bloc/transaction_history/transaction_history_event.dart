@@ -1,6 +1,6 @@
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 abstract class TransactionHistoryEvent {
   const TransactionHistoryEvent();
@@ -8,11 +8,6 @@ abstract class TransactionHistoryEvent {
 
 class TransactionHistorySubscribe extends TransactionHistoryEvent {
   const TransactionHistorySubscribe({required this.coin});
-  final Coin coin;
-}
-
-class TransactionHistoryUnsubscribe extends TransactionHistoryEvent {
-  const TransactionHistoryUnsubscribe({required this.coin});
   final Coin coin;
 }
 

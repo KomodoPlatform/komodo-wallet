@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-const coinImagesFolder = 'packages/komodo_defi_framework/assets/coin_icons/png/';
+const coinImagesFolder =
+    'packages/komodo_defi_framework/assets/coin_icons/png/';
 // NB: ENSURE IT STAYS IN SYNC WITH MAIN PROJECT in `lib/src/utils/utils.dart`.
 const mediaCdnUrl = 'https://komodoplatform.github.io/coins/icons/';
 
@@ -67,7 +68,12 @@ Future<bool> checkIfAssetExists(String abbr) async {
   }
 }
 
+const _deprecatedCoinIconMessage =
+    'CoinIcon is deprecated. Use AssetIcon from the SDK\'s `komodo_ui` package instead.';
+
+@Deprecated(_deprecatedCoinIconMessage)
 class CoinIcon extends StatelessWidget {
+  @Deprecated(_deprecatedCoinIconMessage)
   const CoinIcon(
     this.coinAbbr, {
     this.size = 20,
@@ -77,6 +83,7 @@ class CoinIcon extends StatelessWidget {
 
   /// Convenience constructor for creating a coin icon from a symbol aka
   /// abbreviation. This avoids having to call [abbr2Ticker] manually.
+  @Deprecated(_deprecatedCoinIconMessage)
   CoinIcon.ofSymbol(
     String symbol, {
     this.size = 20,

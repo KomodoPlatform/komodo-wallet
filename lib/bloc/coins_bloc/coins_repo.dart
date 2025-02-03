@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
@@ -420,7 +419,7 @@ class CoinsRepo {
   }
 
   Future<Balance?> getBalanceInfo(String abbr) async {
-    final pubkeys = await getSdkAsset(_kdfSdk, abbr).getPubkeys();
+    final pubkeys = await getSdkAsset(_kdfSdk, abbr).getPubkeys(_kdfSdk);
     return pubkeys.balance;
   }
 

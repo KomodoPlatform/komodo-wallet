@@ -1,131 +1,78 @@
-import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';
-import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
-abstract class WithdrawFormEvent extends Equatable {
+sealed class WithdrawFormEvent {
   const WithdrawFormEvent();
-
-  @override
-  List<Object?> get props => [];
 }
 
-class WithdrawFormAddressChanged extends WithdrawFormEvent {
-  const WithdrawFormAddressChanged({required this.address});
+class WithdrawFormRecipientChanged extends WithdrawFormEvent {
   final String address;
-
-  @override
-  List<Object?> get props => [address];
+  const WithdrawFormRecipientChanged(this.address);
 }
 
 class WithdrawFormAmountChanged extends WithdrawFormEvent {
-  const WithdrawFormAmountChanged({required this.amount});
   final String amount;
-
-  @override
-  List<Object?> get props => [amount];
+  const WithdrawFormAmountChanged(this.amount);
 }
 
-class WithdrawFormCustomFeeChanged extends WithdrawFormEvent {
-  const WithdrawFormCustomFeeChanged({required this.amount});
-  final String amount;
-
-  @override
-  List<Object?> get props => [amount];
+class WithdrawFormSourceChanged extends WithdrawFormEvent {
+  final PubkeyInfo address;
+  const WithdrawFormSourceChanged(this.address);
 }
 
-class WithdrawFormCustomEvmFeeChanged extends WithdrawFormEvent {
-  const WithdrawFormCustomEvmFeeChanged({this.gasPrice, this.gas});
-  final String? gasPrice;
-  final int? gas;
-
-  @override
-  List<Object?> get props => [gasPrice, gas];
-}
-
-class WithdrawFormSenderAddressChanged extends WithdrawFormEvent {
-  const WithdrawFormSenderAddressChanged({required this.address});
-  final String address;
-
-  @override
-  List<Object?> get props => [address];
-}
-
-class WithdrawFormMaxTapped extends WithdrawFormEvent {
-  const WithdrawFormMaxTapped({required this.isEnabled});
+class WithdrawFormMaxAmountEnabled extends WithdrawFormEvent {
   final bool isEnabled;
-
-  @override
-  List<Object?> get props => [isEnabled];
-}
-
-class WithdrawFormWithdrawSuccessful extends WithdrawFormEvent {
-  const WithdrawFormWithdrawSuccessful({required this.details});
-  final WithdrawDetails details;
-
-  @override
-  List<Object?> get props => [details];
-}
-
-class WithdrawFormWithdrawFailed extends WithdrawFormEvent {
-  const WithdrawFormWithdrawFailed({required this.error});
-  final BaseError error;
-
-  @override
-  List<Object?> get props => [error];
-}
-
-class WithdrawFormTrezorStatusUpdated extends WithdrawFormEvent {
-  const WithdrawFormTrezorStatusUpdated({required this.status});
-  final TrezorProgressStatus? status;
-
-  @override
-  List<Object?> get props => [status];
-}
-
-class WithdrawFormSendRawTx extends WithdrawFormEvent {
-  const WithdrawFormSendRawTx();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class WithdrawFormCustomFeeDisabled extends WithdrawFormEvent {
-  const WithdrawFormCustomFeeDisabled();
-
-  @override
-  List<Object?> get props => [];
+  const WithdrawFormMaxAmountEnabled(this.isEnabled);
 }
 
 class WithdrawFormCustomFeeEnabled extends WithdrawFormEvent {
-  const WithdrawFormCustomFeeEnabled();
-
-  @override
-  List<Object?> get props => [];
+  final bool isEnabled;
+  const WithdrawFormCustomFeeEnabled(this.isEnabled);
 }
 
-class WithdrawFormConvertAddress extends WithdrawFormEvent {
-  const WithdrawFormConvertAddress();
+class WithdrawFormCustomFeeChanged extends WithdrawFormEvent {
+  final FeeInfo fee;
+  const WithdrawFormCustomFeeChanged(this.fee);
+}
 
-  @override
-  List<Object?> get props => [];
+class WithdrawFormMemoChanged extends WithdrawFormEvent {
+  final String? memo;
+  const WithdrawFormMemoChanged(this.memo);
+}
+
+class WithdrawFormPreviewSubmitted extends WithdrawFormEvent {
+  const WithdrawFormPreviewSubmitted();
 }
 
 class WithdrawFormSubmitted extends WithdrawFormEvent {
   const WithdrawFormSubmitted();
 }
 
+class WithdrawFormCancelled extends WithdrawFormEvent {
+  const WithdrawFormCancelled();
+}
+
 class WithdrawFormReset extends WithdrawFormEvent {
   const WithdrawFormReset();
 }
 
-class WithdrawFormStepReverted extends WithdrawFormEvent {
-  const WithdrawFormStepReverted({required this.step});
-  final WithdrawFormStep step;
+class WithdrawFormIbcTransferEnabled extends WithdrawFormEvent {
+  final bool isEnabled;
+  WithdrawFormIbcTransferEnabled(this.isEnabled);
 }
 
-class WithdrawFormMemoUpdated extends WithdrawFormEvent {
-  const WithdrawFormMemoUpdated({required this.text});
-  final String? text;
+class WithdrawFormIbcChannelChanged extends WithdrawFormEvent {
+  final String channel;
+  WithdrawFormIbcChannelChanged(this.channel);
+}
+
+class WithdrawFormSourcesLoadRequested extends WithdrawFormEvent {
+  const WithdrawFormSourcesLoadRequested();
+}
+
+class WithdrawFormStepReverted extends WithdrawFormEvent {
+  const WithdrawFormStepReverted();
+}
+
+class WithdrawFormConvertAddressRequested extends WithdrawFormEvent {
+  const WithdrawFormConvertAddressRequested();
 }

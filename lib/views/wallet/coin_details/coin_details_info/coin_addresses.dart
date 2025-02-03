@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -30,91 +30,97 @@ class CoinAddresses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
-    return BlocBuilder<AuthBloc, AuthBlocState>(builder: (context, state) {
-      return BlocProvider(
-        create: (context) => CoinAddressesBloc(
-          kdfSdk,
-          coin.abbr,
-        )..add(const LoadAddressesEvent()),
-        child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
-          builder: (context, state) {
-            return SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  Card(
-                    margin: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    color: theme.custom.dexPageTheme.frontPlate,
-                    child: Padding(
-                      padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _Header(
-                            status: state.status,
-                            createAddressStatus: state.createAddressStatus,
-                            hideZeroBalance: state.hideZeroBalance,
-                            cantCreateNewAddressReasons:
-                                state.cantCreateNewAddressReasons,
-                          ),
-                          const SizedBox(height: 12),
-                          ...state.addresses.asMap().entries.map(
-                            (entry) {
-                              final index = entry.key;
-                              final address = entry.value;
-                              if (state.hideZeroBalance &&
-                                  !address.balance.hasBalance) {
-                                return const SizedBox();
-                              }
+    return BlocBuilder<AuthBloc, AuthBlocState>(
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => CoinAddressesBloc(
+            kdfSdk,
+            coin.abbr,
+          )..add(const LoadAddressesEvent()),
+          child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
+            builder: (context, state) {
+              return SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Card(
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      color: theme.custom.dexPageTheme.frontPlate,
+                      child: Padding(
+                        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _Header(
+                              status: state.status,
+                              createAddressStatus: state.createAddressStatus,
+                              hideZeroBalance: state.hideZeroBalance,
+                              cantCreateNewAddressReasons:
+                                  state.cantCreateNewAddressReasons,
+                            ),
+                            const SizedBox(height: 12),
+                            ...state.addresses.asMap().entries.map(
+                              (entry) {
+                                final index = entry.key;
+                                final address = entry.value;
+                                if (state.hideZeroBalance &&
+                                    !address.balance.hasBalance) {
+                                  return const SizedBox();
+                                }
 
-                              return AddressCard(
-                                address: address,
-                                index: index,
-                                coin: coin,
-                              );
-                            },
-                          ).toList(),
-                          if (state.status == FormStatus.submitting)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20.0),
-                              child: Center(child: CircularProgressIndicator()),
-                            ),
-                          if (state.status == FormStatus.failure ||
-                              state.createAddressStatus == FormStatus.failure)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 20.0),
-                              child: Center(
+                                return AddressCard(
+                                  address: address,
+                                  index: index,
+                                  coin: coin,
+                                );
+                              },
+                            ).toList(),
+                            if (state.status == FormStatus.submitting)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 20.0),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              ),
+                            if (state.status == FormStatus.failure ||
+                                state.createAddressStatus == FormStatus.failure)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20.0),
+                                child: Center(
                                   child: Text(
-                                      state.errorMessage ??
-                                          LocaleKeys.somethingWrong.tr(),
-                                      style: TextStyle(
-                                          color: theme.currentGlobal.colorScheme
-                                              .error))),
-                            ),
-                        ],
+                                    state.errorMessage ??
+                                        LocaleKeys.somethingWrong.tr(),
+                                    style: TextStyle(
+                                      color:
+                                          theme.currentGlobal.colorScheme.error,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  if (isMobile)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: CreateButton(
-                        status: state.status,
-                        createAddressStatus: state.createAddressStatus,
-                        cantCreateNewAddressReasons:
-                            state.cantCreateNewAddressReasons,
+                    if (isMobile)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: CreateButton(
+                          status: state.status,
+                          createAddressStatus: state.createAddressStatus,
+                          cantCreateNewAddressReasons:
+                              state.cantCreateNewAddressReasons,
+                        ),
                       ),
-                    ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    });
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 }
 

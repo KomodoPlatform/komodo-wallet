@@ -37,8 +37,13 @@ class DexRepository {
   }
 
   Future<DataFromService<TradePreimage, BaseError>> getTradePreimage(
-      String base, String rel, Rational price, String swapMethod,
-      [Rational? volume, bool max = false]) async {
+    String base,
+    String rel,
+    Rational price,
+    String swapMethod, [
+    Rational? volume,
+    bool max = false,
+  ]) async {
     final request = TradePreimageRequest(
       base: base,
       rel: rel,
@@ -48,7 +53,8 @@ class DexRepository {
       max: max,
     );
     final ApiResponse<TradePreimageRequest, TradePreimageResponseResult,
-        Map<String, dynamic>> response = await _mm2Api.getTradePreimage(request);
+            Map<String, dynamic>> response =
+        await _mm2Api.getTradePreimage(request);
 
     final Map<String, dynamic>? error = response.error;
     final TradePreimageResponseResult? result = response.result;
@@ -62,8 +68,11 @@ class DexRepository {
     }
     try {
       return DataFromService(
-          data: mapTradePreimageResponseResultToTradePreimage(
-              result, response.request));
+        data: mapTradePreimageResponseResultToTradePreimage(
+          result,
+          response.request,
+        ),
+      );
     } catch (e, s) {
       log(
         e.toString(),
@@ -127,8 +136,10 @@ class DexRepository {
       log('Error parsing best_orders response: $e', trace: s, isError: true);
 
       return BestOrders(
-          error: TextError(
-              error: 'Something went wrong! Unexpected response format.'));
+        error: TextError(
+          error: 'Something went wrong! Unexpected response format.',
+        ),
+      );
     }
   }
 

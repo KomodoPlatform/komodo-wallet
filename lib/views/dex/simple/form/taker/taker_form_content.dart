@@ -24,6 +24,8 @@ import 'package:web_dex/views/dex/simple/form/taker/taker_form_exchange_info.dar
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 
 class TakerFormContent extends StatelessWidget {
+  const TakerFormContent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return FormPlate(
@@ -43,11 +45,16 @@ class TakerFormContent extends StatelessWidget {
               final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
               final knownCoins = coinsRepo.getKnownCoins();
               final buyCoin = knownCoins.firstWhereOrNull(
-                  (element) => element.abbr == selectedOrder.coin);
+                (element) => element.abbr == selectedOrder.coin,
+              );
               if (buyCoin == null) return false;
 
-              takerBloc.add(TakerSetSellCoin(buyCoin,
-                  autoSelectOrderAbbr: takerBloc.state.sellCoin?.abbr),);
+              takerBloc.add(
+                TakerSetSellCoin(
+                  buyCoin,
+                  autoSelectOrderAbbr: takerBloc.state.sellCoin?.abbr,
+                ),
+              );
               return true;
             },
             topWidget: const TakerFormSellItem(),
@@ -95,7 +102,7 @@ class _FormControls extends StatelessWidget {
 }
 
 class ResetSwapFormButton extends StatelessWidget {
-  const ResetSwapFormButton();
+  const ResetSwapFormButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -109,41 +116,43 @@ class ResetSwapFormButton extends StatelessWidget {
 }
 
 class TradeButton extends StatelessWidget {
-  const TradeButton();
+  const TradeButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
-        builder: (context, systemHealthState) {
-      final bool isSystemClockValid =
-          systemHealthState is SystemHealthLoadSuccess &&
-              systemHealthState.isValid;
+      builder: (context, systemHealthState) {
+        final bool isSystemClockValid =
+            systemHealthState is SystemHealthLoadSuccess &&
+                systemHealthState.isValid;
 
-      return BlocSelector<TakerBloc, TakerState, bool>(
-        selector: (state) => state.inProgress,
-        builder: (context, inProgress) {
-          final bool disabled = inProgress || !isSystemClockValid;
+        return BlocSelector<TakerBloc, TakerState, bool>(
+          selector: (state) => state.inProgress,
+          builder: (context, inProgress) {
+            final bool disabled = inProgress || !isSystemClockValid;
 
-          return Opacity(
-            opacity: disabled ? 0.8 : 1,
-            child: UiPrimaryButton(
-              key: const Key('take-order-button'),
-              text: LocaleKeys.swapNow.tr(),
-              prefix: inProgress ? const TradeButtonSpinner() : null,
-              onPressed: disabled
-                  ? null
-                  : () => context.read<TakerBloc>().add(TakerFormSubmitClick()),
-              height: isMobile ? 52 : 40,
-            ),
-          );
-        },
-      );
-    });
+            return Opacity(
+              opacity: disabled ? 0.8 : 1,
+              child: UiPrimaryButton(
+                key: const Key('take-order-button'),
+                text: LocaleKeys.swapNow.tr(),
+                prefix: inProgress ? const TradeButtonSpinner() : null,
+                onPressed: disabled
+                    ? null
+                    : () =>
+                        context.read<TakerBloc>().add(TakerFormSubmitClick()),
+                height: isMobile ? 52 : 40,
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
 
 class TradeButtonSpinner extends StatelessWidget {
-  const TradeButtonSpinner();
+  const TradeButtonSpinner({super.key});
 
   @override
   Widget build(BuildContext context) {

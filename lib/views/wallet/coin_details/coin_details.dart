@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
@@ -37,16 +38,14 @@ class _CoinDetailsState extends State<CoinDetails> {
   void initState() {
     _txHistoryBloc = context.read<TransactionHistoryBloc>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context
-          .read<TransactionHistoryBloc>()
-          .add(TransactionHistorySubscribe(coin: widget.coin));
+      _txHistoryBloc.add(TransactionHistorySubscribe(coin: widget.coin));
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    _txHistoryBloc.add(TransactionHistoryUnsubscribe(coin: widget.coin));
+    // _txHistoryBloc.add(TransactionHistoryUnsubscribe(coin: widget.coin));
     super.dispose();
   }
 
@@ -70,9 +69,9 @@ class _CoinDetailsState extends State<CoinDetails> {
 
       case CoinPageType.send:
         return WithdrawForm(
-          coin: widget.coin,
+          asset: widget.coin.toSdkAsset(context.read<KomodoDefiSdk>()),
+          onSuccess: _openInfo,
           onBackButtonPressed: _openInfo,
-          onSuccess: () => _setPageType(CoinPageType.info),
         );
 
       case CoinPageType.receive:

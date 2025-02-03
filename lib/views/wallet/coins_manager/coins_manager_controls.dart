@@ -73,9 +73,9 @@ class CoinsManagerFilters extends StatelessWidget {
         fontSize: 12,
         fontWeight: FontWeight.w500,
       ),
-      onChanged: (String text) => context
+      onChanged: (String? text) => context
           .read<CoinsManagerBloc>()
-          .add(CoinsManagerSearchUpdate(text: text)),
+          .add(CoinsManagerSearchUpdate(text: text ?? '')),
     );
   }
 }
