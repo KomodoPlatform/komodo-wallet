@@ -94,29 +94,29 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: "9c75bb7b2d3a556cec4119ad29fdb7fa93fe599e"
+      ref: "feature/custom-token-import"
+      resolved-ref: c4c73373e2d6a0059dfb91c46fded0f01911918f
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.1.0+1"
   komodo_defi_types:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: "9c75bb7b2d3a556cec4119ad29fdb7fa93fe599e"
+      ref: "feature/custom-token-import"
+      resolved-ref: c4c73373e2d6a0059dfb91c46fded0f01911918f
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.0.1"
   komodo_ui:
     dependency: "direct main"
     description:
       path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: "9c75bb7b2d3a556cec4119ad29fdb7fa93fe599e"
+      ref: "feature/custom-token-import"
+      resolved-ref: c4c73373e2d6a0059dfb91c46fded0f01911918f
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.1.0+1"
   lints:
     dependency: transitive
     description:

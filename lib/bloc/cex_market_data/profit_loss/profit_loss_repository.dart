@@ -58,7 +58,6 @@ class ProfitLossRepository {
     required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
     required Mm2Api mm2Api,
-    required KomodoDefiSdk sdk,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
@@ -67,7 +66,6 @@ class ProfitLossRepository {
         coinsRepository: coinsRepository,
         cacheTableName: 'mock_${cacheTableName}_${demoMode.name}',
         mm2Api: mm2Api,
-        sdk: sdk,
       );
     }
 

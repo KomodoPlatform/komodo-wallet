@@ -135,7 +135,6 @@ class AppBlocRoot extends StatelessWidget {
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
       mm2Api: mm2Api,
-      sdk: komodoDefiSdk,
     );
 
     final portfolioGrowthRepo = PortfolioGrowthRepository.withDefaults(
@@ -144,7 +143,6 @@ class AppBlocRoot extends StatelessWidget {
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
       mm2Api: mm2Api,
-      sdk: komodoDefiSdk,
     );
 
     _clearCachesIfPerformanceModeChanged(

@@ -17,14 +17,14 @@ dependencies:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_types
-      ref: dev
+      ref: feature/custom-token-import
 
   komodo_ui:
     # path: ../../sdk/packages/komodo_ui # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_ui
-      ref: dev
+      ref: feature/custom-token-import
 
 dev_dependencies:
   flutter_lints: ^2.0.0 # flutter.dev

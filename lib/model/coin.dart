@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
@@ -325,6 +326,7 @@ class Coin {
 extension LegacyCoinToSdkAsset on Coin {
   Asset toSdkAsset(KomodoDefiSdk sdk) => getSdkAsset(sdk, abbr);
 }
+
 class ProtocolData {
   ProtocolData({
     required this.platform,

@@ -36,7 +36,6 @@ class PortfolioGrowthRepository {
     required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
     required Mm2Api mm2Api,
-    required KomodoDefiSdk sdk,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
@@ -44,7 +43,6 @@ class PortfolioGrowthRepository {
         performanceMode: demoMode,
         coinsRepository: coinsRepository,
         mm2Api: mm2Api,
-        sdk: sdk,
       );
     }
 

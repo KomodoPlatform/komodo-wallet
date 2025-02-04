@@ -229,9 +229,11 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     if (state is! NftWithdrawFillState) return;
 
     try {
-      final result = await _kdfSdk.client.rpc.wallet.convertAddress(
-        fromAddress: state.address,
-        coinSubClass: state.nft.parentCoin.type.toCoinSubClass(),
+      final subclass = state.nft.parentCoin.type.toCoinSubClass();
+      final result = await _kdfSdk.client.rpc.address.convertAddress(
+        from: state.address,
+        coin: subclass.ticker,
+        toFormat: AddressFormat.fromCoinSubClass(subclass),
       );
       add(NftWithdrawAddressChanged(result.address));
     } catch (e) {
