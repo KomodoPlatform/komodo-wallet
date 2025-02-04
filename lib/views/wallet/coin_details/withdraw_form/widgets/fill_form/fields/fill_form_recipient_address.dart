@@ -6,14 +6,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/qr_scanner.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/buttons/convert_address_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class FillFormRecipientAddress extends StatefulWidget {
+  const FillFormRecipientAddress({super.key});
+
   @override
   State<FillFormRecipientAddress> createState() =>
       _FillFormRecipientAddressState();
@@ -26,15 +28,14 @@ class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<WithdrawFormBloc, WithdrawFormState, BaseError>(
+    return BlocSelector<WithdrawFormBloc, WithdrawFormState, BaseError?>(
       selector: (state) {
-        return state.addressError;
+        //TODO! return state.addressError;
+        return state.amountError;
       },
       builder: (context, addressError) {
         return BlocSelector<WithdrawFormBloc, WithdrawFormState, String>(
-          selector: (state) {
-            return state.address;
-          },
+          selector: (state) => state.recipientAddress,
           builder: (context, address) {
             _addressController
               ..text = address
@@ -51,40 +52,45 @@ class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
                     setState(() {
                       _previousTextSelection = _addressController.selection;
                     });
-                    context.read<WithdrawFormBloc>().add(
-                        WithdrawFormAddressChanged(address: address ?? ''));
+                    context
+                        .read<WithdrawFormBloc>()
+                        .add(WithdrawFormRecipientChanged(address ?? ''));
                   },
                   validator: (String? value) {
-                    if (addressError.message.isEmpty) return null;
+                    if (addressError?.message.isEmpty ?? true) return null;
                     if (addressError is MixedCaseAddressError) {
                       return null;
                     }
-                    return addressError.message;
+                    return addressError!.message;
                   },
                   validationMode: InputValidationMode.aggressive,
                   inputFormatters: [LengthLimitingTextInputFormatter(256)],
                   hintText: LocaleKeys.recipientAddress.tr(),
                   hintTextStyle: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500),
-                  suffixIcon:
-                      (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
-                          ? IconButton(
-                              icon: const Icon(Icons.qr_code_scanner),
-                              onPressed: () async {
-                                final address = await Navigator.push<String>(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const QrScanner()),
-                                );
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  suffixIcon: (!kIsWeb &&
+                          (Platform.isAndroid || Platform.isIOS))
+                      ? IconButton(
+                          icon: const Icon(Icons.qr_code_scanner),
+                          onPressed: () async {
+                            final address = await Navigator.push<String>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const QrCodeReaderOverlay(),
+                              ),
+                            );
 
-                                if (context.mounted) {
-                                  context.read<WithdrawFormBloc>().add(
-                                      WithdrawFormAddressChanged(
-                                          address: address ?? ''));
-                                }
-                              },
-                            )
-                          : null,
+                            if (context.mounted) {
+                              context.read<WithdrawFormBloc>().add(
+                                    WithdrawFormRecipientChanged(address ?? ''),
+                                  );
+                            }
+                          },
+                        )
+                      : null,
                 ),
                 if (addressError is MixedCaseAddressError)
                   _ErrorAddressRow(
@@ -121,7 +127,7 @@ class _ErrorAddressRow extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.only(left: 6.0),
             child: ConvertAddressButton(),
-          )
+          ),
         ],
       ),
     );

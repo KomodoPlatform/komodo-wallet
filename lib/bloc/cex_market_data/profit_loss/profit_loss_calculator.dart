@@ -2,7 +2,7 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/extensions/profit_loss_transaction_extension.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/price_stamped_transaction.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 class ProfitLossCalculator {
   ProfitLossCalculator(this._cexRepository);

@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2.dart';
@@ -22,7 +23,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_balance/my_balance_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_orders/my_orders_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_orders/my_orders_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.dart';
@@ -59,12 +59,20 @@ class Mm2Api {
   Mm2Api({
     required MM2 mm2,
     required CoinsRepo coinsRepo,
-  }) : _mm2 = mm2 {
+    required KomodoDefiSdk sdk,
+  })  : _sdk = sdk,
+        _mm2 = mm2 {
     trezor = Mm2ApiTrezor(_mm2.call);
     nft = Mm2ApiNft(_mm2.call, coinsRepo);
   }
 
   final MM2 _mm2;
+
+  // Ideally we will transition cleanly over to the SDK, but for methods
+  // which are deeply intertwined with the app and are broken by HD wallet
+  // changes, we will tie into the SDK here.
+  final KomodoDefiSdk _sdk;
+
   late Mm2ApiTrezor trezor;
   late Mm2ApiNft nft;
   VersionResponse? _versionResponse;
@@ -83,34 +91,12 @@ class Mm2Api {
     }
   }
 
+  @Deprecated('Use balance from KomoDefiSdk instead')
   Future<String?> getBalance(String abbr) async {
-    dynamic response;
-    try {
-      response = await _mm2.call(MyBalanceReq(coin: abbr));
-    } catch (e, s) {
-      log(
-        'Error getting balance $abbr: ${e.toString()}',
-        path: 'api => getBalance => _call',
-        trace: s,
-        isError: true,
-      );
-      return null;
-    }
+    final sdkAsset = _sdk.assets.assetsFromTicker(abbr).single;
+    final addresses = await sdkAsset.getPubkeys(_sdk);
 
-    Map<String, dynamic> json;
-    try {
-      json = jsonDecode(response);
-    } catch (e, s) {
-      log(
-        'Error parsing of get balance $abbr response: ${e.toString()}',
-        path: 'api => getBalance => jsonDecode',
-        trace: s,
-        isError: true,
-      );
-      return null;
-    }
-
-    return json['balance'];
+    return addresses.balance.total.toString();
   }
 
   Future<MaxTakerVolResponse?> _fallbackToBalanceTaker(String abbr) async {

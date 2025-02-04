@@ -23,14 +23,25 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
       throw TransactionFetchException('Asset $assetId not found');
     }
 
-    final transactionHistory = await _sdk.transactions.getTransactionHistory(
-      asset,
-      pagination: const PagePagination(
-        pageNumber: 1,
-        itemsPerPage: 200,
-      ),
-    );
-    return transactionHistory.transactions;
+    try {
+      final transactionHistory = await _sdk.transactions.getTransactionHistory(
+        asset,
+        pagination: fromId == null
+            ? const PagePagination(
+                pageNumber: 1,
+                // TODO: Handle cases with more than 2000 transactions and/or
+                // adopt a pagination strategy. Migrate form
+                itemsPerPage: 2000,
+              )
+            : TransactionBasedPagination(
+                fromId: fromId,
+                itemCount: 2000,
+              ),
+      );
+      return transactionHistory.transactions;
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Fetches transactions for the provided [coin] where the transaction

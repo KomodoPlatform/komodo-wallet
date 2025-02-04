@@ -2,14 +2,16 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/fee_type.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/custom_fee/custom_fee_field_evm.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/custom_fee/custom_fee_field_utxo.dart';
 
 class FillFormCustomFee extends StatefulWidget {
+  const FillFormCustomFee({super.key});
+
   @override
   State<FillFormCustomFee> createState() => _FillFormCustomFeeState();
 }
@@ -29,20 +31,21 @@ class _FillFormCustomFeeState extends State<FillFormCustomFee> {
       radius: 18,
       onTap: () {
         final bool newOpenState = !_isOpen;
-        context.read<WithdrawFormBloc>().add(newOpenState
-            ? const WithdrawFormCustomFeeEnabled()
-            : const WithdrawFormCustomFeeDisabled());
+        context
+            .read<WithdrawFormBloc>()
+            .add(WithdrawFormCustomFeeEnabled(_isOpen));
         setState(() {
           _isOpen = newOpenState;
         });
       },
       child: Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(18)),
-            color: Colors.transparent,
-          ),
-          child: _isOpen ? _Expanded() : _Collapsed()),
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+          color: Colors.transparent,
+        ),
+        child: _isOpen ? _Expanded() : _Collapsed(),
+      ),
     );
   }
 }
@@ -56,9 +59,9 @@ class _Collapsed extends StatelessWidget {
           width: double.infinity,
           height: 25,
           decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(18)),
-              border:
-                  Border.all(color: theme.custom.specificButtonBorderColor)),
+            borderRadius: const BorderRadius.all(Radius.circular(18)),
+            border: Border.all(color: theme.custom.specificButtonBorderColor),
+          ),
           child: const Padding(
             padding: EdgeInsets.only(left: 13, right: 13),
             child: _Header(
@@ -79,9 +82,9 @@ class _Expanded extends StatelessWidget {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(18)),
-              border:
-                  Border.all(color: theme.custom.specificButtonBorderColor)),
+            borderRadius: const BorderRadius.all(Radius.circular(18)),
+            border: Border.all(color: theme.custom.specificButtonBorderColor),
+          ),
           child: Padding(
             padding: const EdgeInsets.only(left: 13, right: 13),
             child: Column(
@@ -167,10 +170,12 @@ class _FeeAmount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-        builder: (ctx, state) {
-      final isUtxo = state.customFee.type == feeType.utxoFixed;
+      builder: (ctx, state) {
+        // TODO! Handle both fixed and perkb
+        final isUtxo = state.customFee is FeeInfoUtxoFixed;
 
-      return isUtxo ? CustomFeeFieldUtxo() : CustomFeeFieldEVM();
-    });
+        return isUtxo ? const CustomFeeFieldUtxo() : const CustomFeeFieldEVM();
+      },
+    );
   }
 }

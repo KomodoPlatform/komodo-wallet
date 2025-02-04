@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_dex/common/screen.dart';
@@ -25,16 +25,19 @@ export 'package:web_dex/shared/utils/prominent_colors.dart';
 void copyToClipBoard(BuildContext context, String str) {
   final themeData = Theme.of(context);
   try {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: const Duration(seconds: 2),
-      content: Text(
-        LocaleKeys.clipBoard.tr(),
-        style: themeData.textTheme.bodyLarge!.copyWith(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text(
+          LocaleKeys.clipBoard.tr(),
+          style: themeData.textTheme.bodyLarge!.copyWith(
             color: themeData.brightness == Brightness.dark
                 ? themeData.hintColor
-                : themeData.primaryColor),
+                : themeData.primaryColor,
+          ),
+        ),
       ),
-    ));
+    );
   } catch (_) {}
 
   Clipboard.setData(ClipboardData(text: str));
@@ -171,6 +174,7 @@ String getAddressExplorerUrl(Coin coin, String address) {
   return '$explorerUrl$explorerAddressUrl$address';
 }
 
+@Deprecated('Use the Protocol class\'s explorer URL methods')
 void viewHashOnExplorer(Coin coin, String address, HashExplorerType type) {
   late String url;
   switch (type) {
@@ -181,10 +185,34 @@ void viewHashOnExplorer(Coin coin, String address, HashExplorerType type) {
       url = getTxExplorerUrl(coin, address);
       break;
   }
-  launchURL(url);
+  launchURLString(url);
 }
 
-Future<void> launchURL(
+extension AssetExplorerUrls on Asset {
+  Uri? txExplorerUrl(String? txHash) {
+    return txHash == null ? null : protocol.explorerTxUrl(txHash);
+  }
+
+  Uri? addressExplorerUrl(String? address) {
+    return address == null ? null : protocol.explorerAddressUrl(address);
+  }
+}
+
+Future<void> openUrl(Uri uri, {bool? inSeparateTab}) async {
+  if (!await canLaunchUrl(uri)) {
+    throw Exception('Could not launch $uri');
+  }
+  await launchUrl(
+    uri,
+    mode: inSeparateTab == null
+        ? LaunchMode.platformDefault
+        : inSeparateTab == true
+            ? LaunchMode.externalApplication
+            : LaunchMode.inAppWebView,
+  );
+}
+
+Future<void> launchURLString(
   String url, {
   bool? inSeparateTab,
 }) async {
@@ -652,7 +680,7 @@ enum HashExplorerType {
 }
 
 @Deprecated('Please use KomodoDefiSdk AssetsManager instead.')
-Asset getSdkAsset(KomodoDefiSdk? sdk, String abbr) {
+Asset getSdkAsset(KomodoDefiSdk sdk, String abbr) {
   if (sdk == null) {
     throw Exception('getSdkAsset: SDK is null');
   }

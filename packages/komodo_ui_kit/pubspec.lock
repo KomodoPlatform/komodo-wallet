@@ -20,10 +20,10 @@ packages:
     dependency: transitive
     description:
       name: clock
-      sha256: cb6d7f03e1de671e34607e909a7213e31d7752be4fb66a86d29fe1eb14bfb5cf
+      sha256: fddb70d9b5277016c77a80201021d40a2247104d9f4aa7bab7157b7e3f05b84b
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.2"
   collection:
     dependency: transitive
     description:
@@ -32,6 +32,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.0"
+  decimal:
+    dependency: transitive
+    description:
+      name: decimal
+      sha256: "4140a688f9e443e2f4de3a1162387bf25e1ac6d51e24c9da263f245210f41440"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      sha256: "567c64b3cb4cf82397aac55f4f0cbd3ca20d77c6c03bedbc4ceaddc08904aef7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.7"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -45,6 +61,19 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  flutter_web_plugins:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  freezed_annotation:
+    dependency: transitive
+    description:
+      name: freezed_annotation
+      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.4"
   intl:
     dependency: "direct main"
     description:
@@ -53,6 +82,41 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.0"
+  komodo_defi_rpc_methods:
+    dependency: transitive
+    description:
+      path: "packages/komodo_defi_rpc_methods"
+      ref: dev
+      resolved-ref: "9c75bb7b2d3a556cec4119ad29fdb7fa93fe599e"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
+    version: "0.2.0+0"
+  komodo_defi_types:
+    dependency: "direct main"
+    description:
+      path: "packages/komodo_defi_types"
+      ref: dev
+      resolved-ref: "9c75bb7b2d3a556cec4119ad29fdb7fa93fe599e"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
+    version: "0.2.0+0"
+  komodo_ui:
+    dependency: "direct main"
+    description:
+      path: "packages/komodo_ui"
+      ref: dev
+      resolved-ref: "9c75bb7b2d3a556cec4119ad29fdb7fa93fe599e"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
+    version: "0.2.0+0"
   lints:
     dependency: transitive
     description:
@@ -77,14 +141,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
+  mobile_scanner:
+    dependency: transitive
+    description:
+      name: mobile_scanner
+      sha256: "8b4d42bbdd5cbba78462e7074d99d413fd6ca998bceb1fa77f54423ead7014f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.5"
   path:
     dependency: transitive
     description:
       name: path
-      sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
+      sha256: "75cca69d1490965be98c73ceaea117e8a04dd21217b37b292c9ddbec0d955bc5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.0"
+    version: "1.9.1"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -93,6 +165,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      sha256: cb808fb6f1a839e6fc5f7d8cb3b0a10e1db48b3be102de73938c627f0b636336
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -106,6 +186,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  web:
+    dependency: transitive
+    description:
+      name: web
+      sha256: cd3543bd5798f6ad290ea73d210f423502e71900302dde696f8bff84bf89a1cb
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
 sdks:
-  dart: ">=3.4.0 <4.0.0"
-  flutter: ">=2.5.0"
+  dart: ">=3.4.4 <4.0.0"
+  flutter: ">=3.22.0"

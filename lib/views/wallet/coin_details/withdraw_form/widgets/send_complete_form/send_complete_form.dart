@@ -2,6 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -13,7 +14,7 @@ import 'package:web_dex/views/wallet/coin_details/constants.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_item.dart';
 
 class SendCompleteForm extends StatelessWidget {
-  const SendCompleteForm();
+  const SendCompleteForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,10 @@ class SendCompleteForm extends StatelessWidget {
 
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
       builder: (context, WithdrawFormState state) {
+        final feeValue = state.result?.fee;
+
+        if (state.result == null) return const SizedBox.shrink();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -36,7 +41,7 @@ class SendCompleteForm extends StatelessWidget {
                 children: [
                   SendConfirmItem(
                     title: LocaleKeys.recipientAddress.tr(),
-                    value: state.withdrawDetails.toAddress,
+                    value: state.result!.toAddress,
                     centerAlign: true,
                   ),
                   const SizedBox(height: 7),
@@ -45,34 +50,37 @@ class SendCompleteForm extends StatelessWidget {
                     children: [
                       const SizedBox(height: 10),
                       SelectableText(
-                        '-${state.amount} ${Coin.normalizeAbbr(state.coin.abbr)}',
+                        '-${state.amount} ${Coin.normalizeAbbr(state.asset.id.id)}',
                         style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.w700,
-                            color: theme.custom.headerFloatBoxColor),
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                          color: theme.custom.headerFloatBoxColor,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       SelectableText(
                         '\$${state.usdAmountPrice ?? 0}',
                         style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: theme.custom.headerFloatBoxColor),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: theme.custom.headerFloatBoxColor,
+                        ),
                       ),
                     ],
                   ),
-                  if (state.hasSendError)
-                    _SendCompleteError(error: state.sendError),
+                  if (state.hasTransactionError)
+                    _SendCompleteError(error: state.transactionError!),
                 ],
               ),
             ),
-            _TransactionHash(
-              feeValue: state.withdrawDetails.feeValue,
-              feeCoin: state.withdrawDetails.feeCoin,
-              txHash: state.withdrawDetails.txHash,
-              usdFeePrice: state.usdFeePrice,
-              isFeePriceExpensive: state.isFeePriceExpensive,
-            ),
+            if (state.result?.txHash != null)
+              _TransactionHash(
+                feeValue: feeValue!.formatTotal(),
+                feeCoin: feeValue.coin,
+                txHash: state.result!.txHash,
+                usdFeePrice: state.usdFeePrice,
+                isFeePriceExpensive: state.isFeePriceExpensive,
+              ),
           ],
         );
       },
@@ -149,18 +157,20 @@ class _BuildMemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocSelector<WithdrawFormBloc, WithdrawFormState, String?>(
-        selector: (state) {
-      return state.memo;
-    }, builder: (context, memo) {
-      if (memo == null || memo.isEmpty) return const SizedBox.shrink();
+      selector: (state) {
+        return state.memo;
+      },
+      builder: (context, memo) {
+        if (memo == null || memo.isEmpty) return const SizedBox.shrink();
 
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 21),
-        child: SendConfirmItem(
-          title: '${LocaleKeys.memo.tr()}:',
-          value: memo,
-        ),
-      );
-    });
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 21),
+          child: SendConfirmItem(
+            title: '${LocaleKeys.memo.tr()}:',
+            value: memo,
+          ),
+        );
+      },
+    );
   }
 }

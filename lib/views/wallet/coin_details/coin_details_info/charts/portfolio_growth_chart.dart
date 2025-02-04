@@ -2,6 +2,7 @@ import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
@@ -89,8 +90,14 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                     NumberFormat.currency(symbol: '\$', decimalDigits: 2)
                         .format(totalValue),
                   ),
-                  availableCoins:
-                      widget.initialCoins.map((coin) => coin.abbr).toList(),
+                  availableCoins: widget.initialCoins
+                      .map(
+                        (coin) => getSdkAsset(
+                          context.read<KomodoDefiSdk>(),
+                          coin.abbr,
+                        ).id,
+                      )
+                      .toList(),
                   selectedCoinId: _singleCoinOrNull?.abbr,
                   onCoinSelected: _isCoinPage ? null : _showSpecificCoin,
                   centreAmount: totalValue,

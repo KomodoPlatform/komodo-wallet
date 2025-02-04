@@ -76,7 +76,7 @@ class FiatBuyOrderInfo extends Equatable {
       network: data['network'] as String? ?? '',
       paymentCode: data['payment_code'] as String? ?? '',
       checkoutUrl: data['checkout_url'] as String? ?? '',
-      createdAt: assertString(data['created_at']) ??  '',
+      createdAt: assertString(data['created_at']) ?? '',
       error: data['errors'] != null
           ? FiatBuyOrderError.fromJson(data['errors'] as Map<String, dynamic>)
           : const FiatBuyOrderError.none(),

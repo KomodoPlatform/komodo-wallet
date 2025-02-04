@@ -8,6 +8,7 @@ import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/hd_account/hd_account.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 class Coin {
   Coin({
@@ -83,6 +84,7 @@ class Coin {
 
   double sendableBalance = 0;
 
+  @Deprecated('Use the balance manager from the SDK')
   double get balance {
     switch (enabledType) {
       case WalletType.trezor:
@@ -194,7 +196,8 @@ class Coin {
     if (address.isEmpty) return null;
 
     return addresses.firstWhereOrNull(
-        (HdAddress hdAddress) => hdAddress.address == address);
+      (HdAddress hdAddress) => hdAddress.address == address,
+    );
   }
 
   static bool checkSegwitByAbbr(String abbr) => abbr.contains('-segwit');
@@ -319,6 +322,9 @@ class Coin {
   }
 }
 
+extension LegacyCoinToSdkAsset on Coin {
+  Asset toSdkAsset(KomodoDefiSdk sdk) => getSdkAsset(sdk, abbr);
+}
 class ProtocolData {
   ProtocolData({
     required this.platform,
@@ -344,8 +350,9 @@ class ProtocolData {
 class CoinNode {
   const CoinNode({required this.url, required this.guiAuth});
   static CoinNode fromJson(Map<String, dynamic> json) => CoinNode(
-      url: json['url'],
-      guiAuth: (json['gui_auth'] ?? json['komodo_proxy']) ?? false);
+        url: json['url'],
+        guiAuth: (json['gui_auth'] ?? json['komodo_proxy']) ?? false,
+      );
   final bool guiAuth;
   final String url;
 

@@ -16,7 +16,8 @@ mixin SwapHistorySortingMixin {
   }
 
   List<Swap> sortSwaps(
-    BuildContext context, List<Swap> swaps, {
+    BuildContext context,
+    List<Swap> swaps, {
     required SortData<HistoryListSortType> sortData,
   }) {
     final direction = sortData.sortDirection;
@@ -87,10 +88,12 @@ mixin SwapHistorySortingMixin {
   }
 
   List<Swap> _sortByPrice(
-    BuildContext context, List<Swap> swaps, {
+    BuildContext context,
+    List<Swap> swaps, {
     required SortDirection sortDirection,
   }) {
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     swaps.sort(
       (first, second) => sortByDouble(
         tradingEntitiesBloc.getPriceFromAmount(

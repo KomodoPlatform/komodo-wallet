@@ -403,7 +403,7 @@
     "missingDerivationPath": "Missing derivation path configuration",
     "protocolNotSupported": "Protocol does not support multiple addresses",
     "derivationModeNotSupported": "Current wallet mode does not support multiple addresses",
-    "hdWalletModeSwitchTitle": "HD Wallet?",
+    "hdWalletModeSwitchTitle": "Multi-address Wallet?",
     "hdWalletModeSwitchSubtitle": "Enabling HD wallet allows you to create multiple addresses for each coin. However, your addresses and balances will change. You can easily switch between the modes when logging in.",
     "hdWalletModeSwitchTooltip": "HD wallets require a valid BIP39 seed phrase.",
     "noActiveWallet": "No active wallet - please sign in first",

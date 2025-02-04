@@ -141,9 +141,12 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
     return TableRow(
       children: [
         SizedBox(
-            height: 30,
-            child: Text('${LocaleKeys.status.tr()}:',
-                style: Theme.of(context).textTheme.bodyLarge)),
+          height: 30,
+          child: Text(
+            '${LocaleKeys.status.tr()}:',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
         Text(status),
       ],
     );
@@ -154,9 +157,12 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
     return TableRow(
       children: [
         SizedBox(
-            height: 30,
-            child: Text('${LocaleKeys.orderId.tr()}:',
-                style: Theme.of(context).textTheme.bodyLarge)),
+          height: 30,
+          child: Text(
+            '${LocaleKeys.orderId.tr()}:',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
           child: InkWell(
@@ -173,15 +179,20 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
 
   TableRow _buildCreatedAt() {
     final String createdAt = DateFormat('dd MMM yyyy, HH:mm').format(
-        DateTime.fromMillisecondsSinceEpoch(
-            widget.makerOrderStatus.order.createdAt * 1000));
+      DateTime.fromMillisecondsSinceEpoch(
+        widget.makerOrderStatus.order.createdAt * 1000,
+      ),
+    );
 
     return TableRow(
       children: [
         SizedBox(
-            height: 30,
-            child: Text('${LocaleKeys.createdAt.tr()}:',
-                style: Theme.of(context).textTheme.bodyLarge)),
+          height: 30,
+          child: Text(
+            '${LocaleKeys.createdAt.tr()}:',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
         Text(createdAt),
       ],
     );
@@ -195,9 +206,12 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
     return TableRow(
       children: [
         SizedBox(
-            height: 30,
-            child: Text('${LocaleKeys.price.tr()}:',
-                style: Theme.of(context).textTheme.bodyLarge)),
+          height: 30,
+          child: Text(
+            '${LocaleKeys.price.tr()}:',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
         Row(
           children: [
             Text(
@@ -207,7 +221,7 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
             const SizedBox(
               width: 5,
             ),
-            Text(order.rel)
+            Text(order.rel),
           ],
         ),
       ],
@@ -220,7 +234,8 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
       _inProgress = true;
     });
 
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     final String? error = await tradingEntitiesBloc
         .cancelOrder(widget.makerOrderStatus.order.uuid);
 

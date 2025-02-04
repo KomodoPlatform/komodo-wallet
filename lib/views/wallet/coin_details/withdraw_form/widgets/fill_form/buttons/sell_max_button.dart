@@ -5,7 +5,7 @@ import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class SellMaxButton extends StatefulWidget {
-  const SellMaxButton();
+  const SellMaxButton({super.key});
 
   @override
   State<StatefulWidget> createState() => _SellMaxButtonState();
@@ -27,7 +27,7 @@ class _SellMaxButtonState extends State<SellMaxButton> {
           }),
           onTap: () => context
               .read<WithdrawFormBloc>()
-              .add(WithdrawFormMaxTapped(isEnabled: !state.isMaxAmount)),
+              .add(WithdrawFormMaxAmountEnabled(!state.isMaxAmount)),
           borderRadius: BorderRadius.circular(7),
           child: Container(
             width: 46,

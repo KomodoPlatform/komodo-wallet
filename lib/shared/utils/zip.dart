@@ -9,7 +9,7 @@ Uint8List createZipOfSingleFile({
   final fileNameWithExtension = '$fileName.txt';
 
   final originalBytes = utf8.encode(fileContent);
-  // use `raw: true` to exclude zlip header and trailer data that causes 
+  // use `raw: true` to exclude zlip header and trailer data that causes
   // zip decompression to fail
   final compressedBytes =
       Uint8List.fromList(ZLibCodec(raw: true).encode(originalBytes));

@@ -42,32 +42,45 @@ final class FiatFormState extends Equatable with FormzMixin {
 
   /// The selected fiat currency to use to purchase [selectedCoin].
   final CurrencyInput selectedFiat;
+
   /// The selected crypto currency to purchase.
   final CurrencyInput selectedCoin;
+
   /// The amount of [selectedFiat] to use to purchase [selectedCoin].
   final FiatAmountInput fiatAmount;
+
   /// The selected payment method to use to purchase [selectedCoin].
   final FiatPaymentMethod selectedPaymentMethod;
+
   /// The account reference to use to purchase [selectedCoin].
   final String accountReference;
+
   /// The crypto receive address to use to purchase [selectedCoin].
   final String coinReceiveAddress;
+
   /// The callback url to return to once checkout is completed.
   final String checkoutUrl;
+
   /// The order id for the fiat purchase (Only supported by Banxa).
   final String orderId;
+
   /// The current status of the form (loading, success, failure).
   final FiatFormStatus status;
-  /// The list of payment methods available for the [selectedFiat], 
+
+  /// The list of payment methods available for the [selectedFiat],
   /// [selectedCoin], and [fiatAmount].
   final Iterable<FiatPaymentMethod> paymentMethods;
+
   /// The list of fiat currencies that can be used to purchase [selectedCoin].
   final Iterable<ICurrency> fiatList;
+
   /// The list of crypto currencies that can be purchased.
   final Iterable<ICurrency> coinList;
+
   /// The current status of the fiat order.
   final FiatOrderStatus fiatOrderStatus;
-  /// The current mode of the fiat form (onramp, offramp). This is currently 
+
+  /// The current mode of the fiat form (onramp, offramp). This is currently
   /// used to determine the tab to show. The implementation will likely change
   /// once the order history tab is implemented
   final FiatMode fiatMode;
@@ -75,8 +88,10 @@ final class FiatFormState extends Equatable with FormzMixin {
   /// Gets the transaction limit from the selected payment method
   FiatTransactionLimit? get transactionLimit =>
       selectedPaymentMethod.transactionLimits.firstOrNull;
+
   /// The minimum fiat amount that is allowed for the selected payment method
   double? get minFiatAmount => transactionLimit?.min;
+
   /// The maximum fiat amount that is allowed for the selected payment method
   double? get maxFiatAmount => transactionLimit?.max;
   bool get isLoadingCurrencies => fiatList.length < 2 || coinList.length < 2;
@@ -84,7 +99,7 @@ final class FiatFormState extends Equatable with FormzMixin {
   bool get canSubmit =>
       !isLoading &&
       accountReference.isNotEmpty &&
-      status != FiatFormStatus.failure && 
+      status != FiatFormStatus.failure &&
       !fiatOrderStatus.isSubmitting &&
       isValid;
 

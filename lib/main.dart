@@ -76,7 +76,7 @@ Future<void> main() async {
         mm2: mm2,
         trezorBloc: trezor,
       );
-      final mm2Api = Mm2Api(mm2: mm2, coinsRepo: coinsRepo);
+      final mm2Api = Mm2Api(mm2: mm2, coinsRepo: coinsRepo, sdk: komodoDefiSdk);
       final walletsRepository = WalletsRepository(
         komodoDefiSdk,
         mm2Api,

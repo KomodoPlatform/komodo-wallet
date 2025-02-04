@@ -1,4 +1,5 @@
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 

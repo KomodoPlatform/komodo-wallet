@@ -7,7 +7,8 @@ ThemeData get themeGlobalDark {
   SnackBarThemeData snackBarThemeLight() => const SnackBarThemeData(
         elevation: 12.0,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(4))),
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+        ),
         actionTextColor: Colors.green,
         behavior: SnackBarBehavior.floating,
       );
@@ -32,16 +33,29 @@ ThemeData get themeGlobalDark {
 
   final TextTheme textTheme = TextTheme(
     headlineMedium: const TextStyle(
-        fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+      color: textColor,
+    ),
     headlineSmall: const TextStyle(
-        fontSize: 40, fontWeight: FontWeight.w700, color: textColor),
+      fontSize: 40,
+      fontWeight: FontWeight.w700,
+      color: textColor,
+    ),
     titleLarge: const TextStyle(
-        fontSize: 26.0, color: textColor, fontWeight: FontWeight.w700),
+      fontSize: 26.0,
+      color: textColor,
+      fontWeight: FontWeight.w700,
+    ),
     titleSmall: const TextStyle(fontSize: 18.0, color: textColor),
     bodyMedium: const TextStyle(
-        fontSize: 16.0, color: textColor, fontWeight: FontWeight.w300),
+      fontSize: 16.0,
+      color: textColor,
+      fontWeight: FontWeight.w300,
+    ),
     labelLarge: const TextStyle(fontSize: 16.0, color: textColor),
-    bodyLarge: TextStyle(fontSize: 14.0, color: textColor.withValues(alpha: 0.5)),
+    bodyLarge:
+        TextStyle(fontSize: 14.0, color: textColor.withValues(alpha: 0.5)),
     bodySmall: TextStyle(
       fontSize: 12.0,
       color: textColor.withValues(alpha: 0.8),
@@ -80,7 +94,8 @@ ThemeData get themeGlobalDark {
     snackBarTheme: snackBarThemeLight(),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: const Color.fromRGBO(57, 161, 238, 1),
-      selectionColor: const Color.fromRGBO(57, 161, 238, 1).withValues(alpha: 0.3),
+      selectionColor:
+          const Color.fromRGBO(57, 161, 238, 1).withValues(alpha: 0.3),
       selectionHandleColor: const Color.fromRGBO(57, 161, 238, 1),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -157,8 +172,9 @@ ThemeData get themeGlobalDark {
     ),
     textTheme: textTheme,
     scrollbarTheme: ScrollbarThemeData(
-      thumbColor:
-          WidgetStateProperty.all<Color?>(colorScheme.primary.withValues(alpha: 0.8)),
+      thumbColor: WidgetStateProperty.all<Color?>(
+        colorScheme.primary.withValues(alpha: 0.8),
+      ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       // remove icons shift

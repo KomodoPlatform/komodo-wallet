@@ -19,7 +19,7 @@ class SimpleCopyableLink extends StatelessWidget {
     return CopyableLink(
       text: text,
       valueToCopy: valueToCopy,
-      onLinkTap: link == null ? null : () => launchURL(link),
+      onLinkTap: link == null ? null : () => launchURLString(link),
     );
   }
 }

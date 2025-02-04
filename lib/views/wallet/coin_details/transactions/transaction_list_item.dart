@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/ui/custom_tooltip.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
@@ -61,15 +61,15 @@ class _TransactionListRowState extends State<TransactionListRow> {
         },
         hoverColor: Theme.of(context).primaryColor.withAlpha(20),
         child: Container(
-            color: _hasFocus
-                ? Theme.of(context).colorScheme.tertiary
-                : Colors.transparent,
-            margin: EdgeInsets.symmetric(vertical: isMobile ? 5 : 0),
-            padding: isMobile
-                ? const EdgeInsets.only(bottom: 12)
-                : const EdgeInsets.all(6),
-            child:
-                isMobile ? _buildMobileRow(context) : _buildNormalRow(context)),
+          color: _hasFocus
+              ? Theme.of(context).colorScheme.tertiary
+              : Colors.transparent,
+          margin: EdgeInsets.symmetric(vertical: isMobile ? 5 : 0),
+          padding: isMobile
+              ? const EdgeInsets.only(bottom: 12)
+              : const EdgeInsets.all(6),
+          child: isMobile ? _buildMobileRow(context) : _buildNormalRow(context),
+        ),
         onTap: () => widget.setTransaction(widget.transaction),
       ),
     );
@@ -102,11 +102,12 @@ class _TransactionListRowState extends State<TransactionListRow> {
         Text(
           '${Coin.normalizeAbbr(widget.transaction.assetId.id)} $formatted',
           style: TextStyle(
-              color: _isReceived
-                  ? theme.custom.increaseColor
-                  : theme.custom.decreaseColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w500),
+            color: _isReceived
+                ? theme.custom.increaseColor
+                : theme.custom.decreaseColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -127,7 +128,7 @@ class _TransactionListRowState extends State<TransactionListRow> {
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
             ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -193,14 +194,15 @@ class _TransactionListRowState extends State<TransactionListRow> {
       children: [
         Expanded(flex: 4, child: _buildAddress()),
         Expanded(
-            flex: 4,
-            child: Text(
-              _isReceived ? LocaleKeys.receive.tr() : LocaleKeys.send.tr(),
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
-            )),
+          flex: 4,
+          child: Text(
+            _isReceived ? LocaleKeys.receive.tr() : LocaleKeys.send.tr(),
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+          ),
+        ),
         Expanded(flex: 4, child: _buildBalanceChanges()),
         Expanded(flex: 4, child: _buildUsdChanges()),
         Expanded(flex: 3, child: _buildMemoAndDate()),
@@ -213,32 +215,33 @@ class _TransactionListRowState extends State<TransactionListRow> {
     if (memo == null || memo.isEmpty) return const SizedBox();
 
     return CustomTooltip(
-        maxWidth: 200,
-        tooltip: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${LocaleKeys.memo.tr()}:',
-              style: theme.currentGlobal.textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 6),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 120),
-              child: SingleChildScrollView(
-                controller: ScrollController(),
-                child: Text(
-                  memo,
-                  style: const TextStyle(fontSize: 14),
-                ),
+      maxWidth: 200,
+      tooltip: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${LocaleKeys.memo.tr()}:',
+            style: theme.currentGlobal.textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 6),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 120),
+            child: SingleChildScrollView(
+              controller: ScrollController(),
+              child: Text(
+                memo,
+                style: const TextStyle(fontSize: 14),
               ),
             ),
-          ],
-        ),
-        child: Icon(
-          Icons.note,
-          size: 14,
-          color: theme.currentGlobal.colorScheme.onSurface,
-        ));
+          ),
+        ],
+      ),
+      child: Icon(
+        Icons.note,
+        size: 14,
+        color: theme.currentGlobal.colorScheme.onSurface,
+      ),
+    );
   }
 
   Widget _buildUsdChanges() {
@@ -250,11 +253,12 @@ class _TransactionListRowState extends State<TransactionListRow> {
     return Text(
       '$_sign \$${formatAmt((usdChanges ?? 0).abs())}',
       style: TextStyle(
-          color: _isReceived
-              ? theme.custom.increaseColor
-              : theme.custom.decreaseColor,
-          fontSize: 14,
-          fontWeight: FontWeight.w500),
+        color: _isReceived
+            ? theme.custom.increaseColor
+            : theme.custom.decreaseColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
     );
   }
 

@@ -2,7 +2,8 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -28,10 +29,11 @@ class TransactionDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final EdgeInsets padding = EdgeInsets.only(
-        top: isMobile ? 16 : 0,
-        left: 16,
-        right: 16,
-        bottom: isMobile ? 20 : 30);
+      top: isMobile ? 16 : 0,
+      left: 16,
+      right: 16,
+      bottom: isMobile ? 20 : 30,
+    );
     final scrollController = ScrollController();
 
     return DexScrollbar(
@@ -124,8 +126,11 @@ class TransactionDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildAddress(BuildContext context,
-      {required String title, required String address}) {
+  Widget _buildAddress(
+    BuildContext context, {
+    required String title,
+    required String address,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -238,7 +243,7 @@ class TransactionDetails extends StatelessWidget {
                 color: theme.custom.defaultGradientButtonTextColor,
               ),
           onPressed: () {
-            launchURL(getTxExplorerUrl(coin, transaction.txHash ?? ''));
+            launchURLString(getTxExplorerUrl(coin, transaction.txHash ?? ''));
           },
           text: LocaleKeys.viewOnExplorer.tr(),
         ),
@@ -259,7 +264,7 @@ class TransactionDetails extends StatelessWidget {
   }
 
   Widget _buildFee(BuildContext context) {
-    final String? fee = transaction.fee?.amount.toString();
+    final String? fee = transaction.fee?.formatTotal();
     final String formattedFee =
         getNumberWithoutExponent(double.parse(fee ?? '').abs().toString());
     final coinsBloc = context.read<CoinsBloc>();

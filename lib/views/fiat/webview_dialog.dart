@@ -18,7 +18,7 @@ class WebViewDialog {
     // `flutter_inappwebview` does not yet support Linux, so use `url_launcher`
     // to launch the URL in the default browser.
     if (!kIsWeb && !kIsWasm && Platform.isLinux) {
-      return launchURL(url);
+      return launchURLString(url);
     }
 
     final webviewSettings = settings ??

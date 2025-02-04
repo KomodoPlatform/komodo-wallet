@@ -1,4 +1,4 @@
-import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_init/trezor_balance_init_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_init/trezor_balance_init_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/balance/trezor_balance_status/trezor_balance_status_request.dart';

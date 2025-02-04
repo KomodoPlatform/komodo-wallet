@@ -1,7 +1,10 @@
 import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart' hide TextDirection;
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart';
@@ -46,12 +49,17 @@ class PriceChartPage extends StatelessWidget {
                       state.data.firstOrNull?.data.lastOrNull?.usdValue ?? 0,
                     ),
                   ),
-                  availableCoins: state.availableCoins.keys.toList(),
+                  availableCoins: state.availableCoins.keys
+                      .map(
+                        (e) => getSdkAsset(context.read<KomodoDefiSdk>(), e).id,
+                      )
+                      .toList(),
                   selectedCoinId: state.data.firstOrNull?.info.ticker,
                   onCoinSelected: (coinId) {
                     context.read<PriceChartBloc>().add(
                           PriceChartCoinsSelected(
-                              coinId == null ? [] : [coinId]),
+                            coinId == null ? [] : [coinId],
+                          ),
                         );
                   },
                   centreAmount:
@@ -67,13 +75,14 @@ class PriceChartPage extends StatelessWidget {
                   },
                   customCoinItemBuilder: (coinId) {
                     final coin = state.availableCoins[coinId];
-                    return CoinSelectItem(
-                      coinId: coinId,
+                    return SelectItem<AssetId>(
+                      id: coinId.id,
+                      value: coinId,
                       trailing: TrendPercentageText(
                         investmentReturnPercentage:
                             coin?.selectedPeriodIncreasePercentage ?? 0,
                       ),
-                      name: coin?.name ?? coinId,
+                      title: coin?.name ?? coinId.name,
                     );
                   },
                 ),

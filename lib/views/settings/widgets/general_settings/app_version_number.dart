@@ -59,7 +59,6 @@ class _BundledCoinsCommitConfig extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -104,8 +103,10 @@ class _ApiVersion extends StatelessWidget {
               final String? commitHash = _tryParseCommitHash(snapshot.data);
               if (commitHash == null) return const SizedBox.shrink();
 
-              return SelectableText('${LocaleKeys.api.tr()}: $commitHash',
-                  style: _textStyle);
+              return SelectableText(
+                '${LocaleKeys.api.tr()}: $commitHash',
+                style: _textStyle,
+              );
             },
           ),
         ),

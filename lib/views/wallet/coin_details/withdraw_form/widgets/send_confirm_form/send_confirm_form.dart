@@ -2,6 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui/utils.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -13,7 +14,7 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_con
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_item.dart';
 
 class SendConfirmForm extends StatelessWidget {
-  const SendConfirmForm();
+  const SendConfirmForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +26,15 @@ class SendConfirmForm extends StatelessWidget {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
       builder: (context, WithdrawFormState state) {
         final amountString =
-            '${truncateDecimal(state.amountToSendString, decimalRange)} ${Coin.normalizeAbbr(state.withdrawDetails.coin)}';
-        final feeString =
-            '${truncateDecimal(state.withdrawDetails.feeValue, decimalRange)} ${Coin.normalizeAbbr(state.withdrawDetails.feeCoin)}';
+            '${truncateDecimal(state.amount, decimalRange)} ${Coin.normalizeAbbr(state.result!.coin)}';
+
+        // Use the new formatting extension for fees
+        final feeString = state.preview?.fee.formatTotal(
+          precision: decimalRange,
+        );
+
+        // Use the isExpensive helper for warnings
+        final isFeePriceExpensive = state.preview?.fee.isHighFee ?? false;
 
         return Container(
           width: isMobile ? double.infinity : withdrawWidth,
@@ -38,7 +45,7 @@ class SendConfirmForm extends StatelessWidget {
             children: [
               SendConfirmItem(
                 title: '${LocaleKeys.recipientAddress.tr()}:',
-                value: state.withdrawDetails.toAddress,
+                value: state.result!.toAddress,
                 centerAlign: false,
               ),
               const SizedBox(height: 26),
@@ -50,9 +57,9 @@ class SendConfirmForm extends StatelessWidget {
               const SizedBox(height: 26),
               SendConfirmItem(
                 title: '${LocaleKeys.fee.tr()}:',
-                value: feeString,
+                value: feeString ?? '',
                 usdPrice: state.usdFeePrice ?? 0,
-                isWarningShown: state.isFeePriceExpensive,
+                isWarningShown: isFeePriceExpensive,
               ),
               if (state.memo != null)
                 Padding(

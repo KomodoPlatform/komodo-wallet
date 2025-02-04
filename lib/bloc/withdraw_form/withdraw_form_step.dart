@@ -2,10 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 enum WithdrawFormStep {
-  failed,
   fill,
   confirm,
-  success;
+  success,
+  failed;
+
+  static WithdrawFormStep initial() => WithdrawFormStep.fill;
 
   String get title {
     switch (this) {

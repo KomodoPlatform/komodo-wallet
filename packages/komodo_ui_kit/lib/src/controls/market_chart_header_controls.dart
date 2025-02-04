@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/src/controls/selected_coin_graph_control.dart';
-import 'package:komodo_ui_kit/src/inputs/coin_search_dropdown.dart';
 import 'package:komodo_ui_kit/src/inputs/time_period_selector.dart';
 import 'package:komodo_ui_kit/src/utils/gap.dart';
 
@@ -8,7 +9,7 @@ class MarketChartHeaderControls extends StatelessWidget {
   final Widget title;
   final Widget? leadingIcon;
   final Widget leadingText;
-  final List<String> availableCoins;
+  final List<AssetId> availableCoins;
   final String? selectedCoinId;
   final void Function(String?)? onCoinSelected;
   final double centreAmount;
@@ -16,7 +17,7 @@ class MarketChartHeaderControls extends StatelessWidget {
   final List<Duration> timePeriods;
   final Duration selectedPeriod;
   final void Function(Duration?) onPeriodChanged;
-  final CoinSelectItem Function(String coinId)? customCoinItemBuilder;
+  final SelectItem<AssetId> Function(AssetId coinId)? customCoinItemBuilder;
   final bool emptySelectAllowed;
 
   const MarketChartHeaderControls({

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:komodo_ui_kit/src/buttons/divided_button.dart';
-import 'package:komodo_ui_kit/src/display/trend_percentage_text.dart';
+import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/src/images/coin_icon.dart';
-import 'package:komodo_ui_kit/src/inputs/coin_search_dropdown.dart';
 
 class SelectedCoinGraphControl extends StatelessWidget {
   const SelectedCoinGraphControl({
@@ -26,9 +25,9 @@ class SelectedCoinGraphControl extends StatelessWidget {
   /// A list of coin IDs that are available for selection.
   ///
   /// Must be non-null and not empty if [onCoinSelected] is non-null.
-  final List<String>? availableCoins;
+  final List<AssetId>? availableCoins;
 
-  final CoinSelectItem Function(String)? customCoinItemBuilder;
+  final SelectItem<AssetId> Function(AssetId)? customCoinItemBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +49,7 @@ class SelectedCoinGraphControl extends StatelessWidget {
                   customCoinItemBuilder: customCoinItemBuilder,
                 );
                 if (selectedCoin != null) {
-                  onCoinSelected?.call(selectedCoin.coinId);
+                  onCoinSelected?.call(selectedCoin.id);
                 }
               },
         children: [

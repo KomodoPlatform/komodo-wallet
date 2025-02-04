@@ -36,7 +36,8 @@ class TradePairListItem extends StatelessWidget {
     final buyCoin = config.relCoinId;
     final buyAmount = order?.relAmountAvailable ?? pair.relCoinAmount;
     final String date = order != null ? getFormattedDate(order.createdAt) : '-';
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     final double fillProgress = order != null
         ? tradingEntitiesBloc.getProgressFillSwap(pair.order!)
         : 0;
@@ -198,6 +199,7 @@ class _OrderItemDesktop extends StatelessWidget {
 
 class TableActionsButtonList extends StatelessWidget {
   const TableActionsButtonList({
+    super.key,
     required this.actions,
   });
 

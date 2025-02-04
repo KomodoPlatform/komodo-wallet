@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/shared/constants.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 final List<TextInputFormatter> currencyInputFormatters = [
   DecimalTextInputFormatter(decimalRange: decimalRange),
@@ -14,7 +14,6 @@ final List<TextInputFormatter> currencyInputFormatters = [
 ];
 
 class DurationLocalization {
-
   DurationLocalization({
     required this.milliseconds,
     required this.seconds,
@@ -29,7 +28,9 @@ class DurationLocalization {
 
 /// unit test: [testDurationFormat]
 String durationFormat(
-    Duration duration, DurationLocalization durationLocalization,) {
+  Duration duration,
+  DurationLocalization durationLocalization,
+) {
   final int hh = duration.inHours;
   final int mm = duration.inMinutes.remainder(60);
   final int ss = duration.inSeconds.remainder(60);
@@ -177,7 +178,10 @@ String formatDexAmt(dynamic amount) {
       return cutTrailingZeros((amount as double).toStringAsFixed(8));
     case Rational:
       return cutTrailingZeros(
-          (amount as Rational).toDecimal(scaleOnInfinitePrecision: 12).toStringAsFixed(8),);
+        (amount as Rational)
+            .toDecimal(scaleOnInfinitePrecision: 12)
+            .toStringAsFixed(8),
+      );
     case String:
       return cutTrailingZeros(double.parse(amount).toStringAsFixed(8));
     case int:
@@ -333,8 +337,11 @@ void formatAmountInput(TextEditingController controller, Rational? value) {
 /// print(result2); // Output: "12...890"
 /// ```
 /// unit tests: [testTruncateHash]
-String truncateMiddleSymbols(String text,
-    [int? startSymbolsCount, int endCount = 7,]) {
+String truncateMiddleSymbols(
+  String text, [
+  int? startSymbolsCount,
+  int endCount = 7,
+]) {
   final int startCount = startSymbolsCount ?? (text.startsWith('0x') ? 6 : 4);
   if (text.length <= startCount + endCount + 3) return text;
   final String firstPart = text.substring(0, startCount);

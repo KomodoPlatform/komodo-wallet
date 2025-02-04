@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:komodo_defi_types/types.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -14,50 +15,129 @@ import 'package:web_dex/shared/utils/utils.dart';
 class TransactionHistoryBloc
     extends Bloc<TransactionHistoryEvent, TransactionHistoryState> {
   TransactionHistoryBloc({
-    required TransactionHistoryRepo repo,
-  })  : _repo = repo,
+    required KomodoDefiSdk sdk,
+  })  : _sdk = sdk,
         super(const TransactionHistoryState.initial()) {
-    on<TransactionHistorySubscribe>(_onSubscribe);
-    on<TransactionHistoryUnsubscribe>(_onUnsubscribe);
+    on<TransactionHistorySubscribe>(_onSubscribe, transformer: restartable());
     on<TransactionHistoryStartedLoading>(_onStartedLoading);
     on<TransactionHistoryUpdated>(_onUpdated);
     on<TransactionHistoryFailure>(_onFailure);
   }
 
-  final TransactionHistoryRepo _repo;
-  Timer? _updateTransactionsTimer;
-  final _updateTime = const Duration(seconds: 10);
+  final KomodoDefiSdk _sdk;
+  StreamSubscription<List<Transaction>>? _historySubscription;
+  StreamSubscription<Transaction>? _newTransactionsSubscription;
+
+  // TODO: Remove or move to SDK
+  final Set<String> _processedTxIds = {};
+
+  @override
+  Future<void> close() async {
+    await _historySubscription?.cancel();
+    await _newTransactionsSubscription?.cancel();
+    return super.close();
+  }
 
   Future<void> _onSubscribe(
     TransactionHistorySubscribe event,
     Emitter<TransactionHistoryState> emit,
   ) async {
-    if (!hasTxHistorySupport(event.coin)) {
-      return;
-    }
+    if (!hasTxHistorySupport(event.coin)) return;
+
+    await _historySubscription?.cancel();
+    await _newTransactionsSubscription?.cancel();
+    _processedTxIds.clear();
+
     emit(const TransactionHistoryState.initial());
-    await _update(event.coin);
-    _stopTimers();
-    _updateTransactionsTimer = Timer.periodic(_updateTime, (_) async {
-      await _update(event.coin);
-    });
+
+    try {
+      add(const TransactionHistoryStartedLoading());
+      final asset = getSdkAsset(_sdk, event.coin.abbr);
+
+      // Subscribe to historical transactions
+      _historySubscription =
+          _sdk.transactions.getTransactionsStreamed(asset).listen(
+        (newTransactions) {
+          // Filter out any transactions we've already processed
+          final uniqueTransactions = newTransactions.where((tx) {
+            final isNew = !_processedTxIds.contains(tx.internalId);
+            if (isNew) {
+              _processedTxIds.add(tx.internalId);
+            }
+            return isNew;
+          }).toList();
+
+          if (uniqueTransactions.isEmpty) return;
+
+          final updatedTransactions = List<Transaction>.of(state.transactions)
+            ..addAll(uniqueTransactions)
+            ..sort(_sortTransactions);
+
+          if (event.coin.isErcType) {
+            _flagTransactions(updatedTransactions, event.coin);
+          }
+
+          add(TransactionHistoryUpdated(transactions: updatedTransactions));
+        },
+        onError: (error) {
+          add(
+            TransactionHistoryFailure(
+              error: TextError(error: LocaleKeys.somethingWrong.tr()),
+            ),
+          );
+        },
+        onDone: () {
+          // Once historical load is complete, start watching for new transactions
+          _subscribeToNewTransactions(asset, event.coin);
+        },
+      );
+    } catch (e) {
+      add(
+        TransactionHistoryFailure(
+          error: TextError(error: LocaleKeys.somethingWrong.tr()),
+        ),
+      );
+    }
   }
 
-  void _onUnsubscribe(
-    TransactionHistoryUnsubscribe event,
-    Emitter<TransactionHistoryState> emit,
-  ) {
-    _stopTimers();
+  void _subscribeToNewTransactions(Asset asset, Coin coin) {
+    _newTransactionsSubscription =
+        _sdk.transactions.watchTransactions(asset).listen(
+      (newTransaction) {
+        if (_processedTxIds.contains(newTransaction.internalId)) return;
+
+        _processedTxIds.add(newTransaction.internalId);
+
+        final updatedTransactions = List<Transaction>.of(state.transactions)
+          ..add(newTransaction)
+          ..sort(_sortTransactions);
+
+        if (coin.isErcType) {
+          _flagTransactions(updatedTransactions, coin);
+        }
+
+        add(TransactionHistoryUpdated(transactions: updatedTransactions));
+      },
+      onError: (error) {
+        add(
+          TransactionHistoryFailure(
+            error: TextError(error: LocaleKeys.somethingWrong.tr()),
+          ),
+        );
+      },
+    );
   }
 
   void _onUpdated(
     TransactionHistoryUpdated event,
     Emitter<TransactionHistoryState> emit,
   ) {
-    emit(state.copyWith(
-      transactions: event.transactions,
-      loading: false,
-    ));
+    emit(
+      state.copyWith(
+        transactions: event.transactions,
+        loading: false,
+      ),
+    );
   }
 
   void _onStartedLoading(
@@ -71,79 +151,126 @@ class TransactionHistoryBloc
     TransactionHistoryFailure event,
     Emitter<TransactionHistoryState> emit,
   ) {
-    emit(state.copyWith(
-      loading: false,
-      error: event.error,
-    ));
-  }
-
-  Future<void> _update(Coin coin) async {
-    if (isClosed) {
-      return;
-    }
-
-    try {
-      add(const TransactionHistoryStartedLoading());
-      final transactions = await _repo.fetch(coin.id);
-      if (isClosed) {
-        return;
-      }
-
-      if (transactions == null) {
-        add(
-          TransactionHistoryFailure(
-            error: TextError(error: LocaleKeys.somethingWrong.tr()),
-          ),
-        );
-        return;
-      }
-
-      transactions.sort(_sortTransactions);
-      _flagTransactions(transactions, coin);
-
-      add(TransactionHistoryUpdated(transactions: transactions));
-    } catch (e) {
-      add(
-        TransactionHistoryFailure(
-          error: TextError(error: LocaleKeys.somethingWrong.tr()),
-        ),
-      );
-      return;
-    }
-  }
-
-  @override
-  Future<void> close() {
-    _stopTimers();
-
-    return super.close();
-  }
-
-  void _stopTimers() {
-    _updateTransactionsTimer?.cancel();
-    _updateTransactionsTimer = null;
+    emit(
+      state.copyWith(
+        loading: false,
+        error: event.error,
+      ),
+    );
   }
 }
 
 int _sortTransactions(Transaction tx1, Transaction tx2) {
-  if (tx2.timestamp == DateTime.fromMillisecondsSinceEpoch(0)) {
+  if (tx2.timestamp == DateTime.now()) {
     return 1;
-  } else if (tx1.timestamp == DateTime.fromMillisecondsSinceEpoch(0)) {
+  } else if (tx1.timestamp == DateTime.now()) {
     return -1;
   }
   return tx2.timestamp.compareTo(tx1.timestamp);
 }
 
 void _flagTransactions(List<Transaction> transactions, Coin coin) {
-  // First response to https://trezor.io/support/a/address-poisoning-attacks,
-  // need to be refactored.
-  // ref: https://github.com/KomodoPlatform/komodowallet/issues/1091
-
   if (!coin.isErcType) return;
+  transactions
+      .removeWhere((tx) => tx.balanceChanges.totalAmount.toDouble() == 0.0);
+}
 
-  for (final Transaction tx in List.from(transactions)) {
-    if (tx.balanceChanges.totalAmount.toDouble() == 0.0) {
-      transactions.remove(tx);
-    }
-  }
+class Pagination {
+  Pagination({
+    this.fromId,
+    this.pageNumber,
+  });
+  final String? fromId;
+  final int? pageNumber;
+
+  Map<String, dynamic> toJson() => {
+        if (fromId != null) 'FromId': fromId,
+        if (pageNumber != null) 'PageNumber': pageNumber,
+      };
+}
+
+/// Represents different ways to paginate transaction history
+sealed class TransactionPagination {
+  const TransactionPagination();
+
+  /// Get the limit of transactions to return, if applicable
+  int? get limit;
+}
+
+/// Standard page-based pagination
+class PagePagination extends TransactionPagination {
+  const PagePagination({
+    required this.pageNumber,
+    required this.itemsPerPage,
+  });
+
+  final int pageNumber;
+  final int itemsPerPage;
+
+  @override
+  int get limit => itemsPerPage;
+}
+
+/// Pagination from a specific transaction ID
+class TransactionBasedPagination extends TransactionPagination {
+  const TransactionBasedPagination({
+    required this.fromId,
+    required this.itemCount,
+  });
+
+  final String fromId;
+  final int itemCount;
+
+  @override
+  int get limit => itemCount;
+}
+
+/// Pagination by block range
+class BlockRangePagination extends TransactionPagination {
+  const BlockRangePagination({
+    required this.fromBlock,
+    required this.toBlock,
+    this.maxItems,
+  });
+
+  final int fromBlock;
+  final int toBlock;
+  final int? maxItems;
+
+  @override
+  int? get limit => maxItems;
+}
+
+/// Pagination by timestamp range
+class TimestampRangePagination extends TransactionPagination {
+  const TimestampRangePagination({
+    required this.fromTimestamp,
+    required this.toTimestamp,
+    this.maxItems,
+  });
+
+  final DateTime fromTimestamp;
+  final DateTime toTimestamp;
+  final int? maxItems;
+
+  @override
+  int? get limit => maxItems;
+}
+
+/// Contract-specific pagination (e.g., for ERC20 token transfers)
+class ContractEventPagination extends TransactionPagination {
+  const ContractEventPagination({
+    required this.contractAddress,
+    required this.fromBlock,
+    this.toBlock,
+    this.maxItems,
+  });
+
+  final String contractAddress;
+  final int fromBlock;
+  final int? toBlock;
+  final int? maxItems;
+
+  @override
+  int? get limit => maxItems;
 }
