@@ -74,7 +74,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsStarted event,
     Emitter<CoinsState> emit,
   ) async {
-    emit(state.copyWith(coins: await _coinsRepo.getKnownCoinsMap()));
+    emit(state.copyWith(coins: _coinsRepo.getKnownCoinsMap()));
 
     add(CoinsPricesUpdated());
     _updatePricesTimer?.cancel();
@@ -353,7 +353,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     await _kdfSdk.addActivatedCoins(coins);
     for (final coin in coins) {
-      await _currentWalletBloc.addCoin(state.coins[coin]!);
+      final sdkCoin = state.coins[coin] ?? _coinsRepo.getCoin(coin);
+      await _currentWalletBloc.addCoin(sdkCoin!);
     }
     final enableFutures = coins.map((coin) => _activateCoin(coin)).toList();
     final results = <Coin>[];
@@ -379,10 +380,13 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
           .map(
-            (coin) => state.coins[coin]?.copyWith(
-              state: CoinState.activating,
-              enabledType: _currentUserCache?.wallet.config.type,
-            ),
+            (coin) {
+              final sdkCoin = state.coins[coin] ?? _coinsRepo.getCoin(coin);
+              return sdkCoin?.copyWith(
+                state: CoinState.activating,
+                enabledType: _currentUserCache?.wallet.config.type,
+              );
+            },
           )
           .where((coin) => coin != null)
           .cast<Coin>(),
@@ -397,7 +401,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   Future<Coin> _activateCoin(String coinId) async {
-    Coin coin = state.coins[coinId]!;
+    Coin? coin = state.coins[coinId] ?? _coinsRepo.getCoin(coinId);
+    if (coin == null) {
+      throw ArgumentError.value(coinId, 'coinId', 'Coin not found');
+    }
     final isLoggedIn = _currentUserCache != null;
     if (!isLoggedIn || coin.isActive) {
       return coin;
@@ -419,7 +426,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   Future<Coin> _activateTrezorCoin(Coin coin, String coinId) async {
-    final asset = _kdfSdk.assets.assetsFromTicker(coin.abbr);
+    final asset = _kdfSdk.assets.findAssetsByTicker(coin.abbr);
     if (asset.length != 1) {
       log(
         'Failed to activate coin $coinId: ${asset.length} assets found',
@@ -428,8 +435,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     final accounts = await _trezorBloc.activateCoin(asset.single);
-    final state =
-        accounts.isNotEmpty ? CoinState.active : CoinState.suspended;
+    final state = accounts.isNotEmpty ? CoinState.active : CoinState.suspended;
     coin = coin.copyWith(state: state, accounts: accounts);
     return coin;
   }
@@ -459,7 +465,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     final List<String> coins = currentWallet.config.activatedCoins
-        .map((abbr) => state.coins[abbr])
+        .map((abbr) => state.coins[abbr] ?? _coinsRepo.getCoin(abbr))
         .whereType<Coin>()
         .map((coin) => coin.abbr)
         .toList();

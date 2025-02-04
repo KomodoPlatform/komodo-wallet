@@ -5,6 +5,7 @@ import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
 import 'package:web_dex/bloc/custom_token_import/data/custom_token_import_repository.dart';
 import 'package:web_dex/model/coin_type.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 class CustomTokenImportBloc
     extends Bloc<CustomTokenImportEvent, CustomTokenImportState> {
@@ -78,7 +79,13 @@ class CustomTokenImportBloc
           formErrorMessage: () => null,
         ),
       );
-    } catch (e) {
+    } catch (e, s) {
+      log(
+        'Error fetching custom token: ${e.toString()}',
+        path: 'CustomTokenImportBloc._onSubmitFetchCustomToken',
+        isError: true,
+        trace: s,
+      );
       emit(
         state.copyWith(
           formStatus: () => FormStatus.failure,
@@ -104,7 +111,13 @@ class CustomTokenImportBloc
           importErrorMessage: () => null,
         ),
       );
-    } catch (e) {
+    } catch (e, s) {
+      log(
+        'Error importing custom token: ${e.toString()}',
+        path: 'CustomTokenImportBloc._onSubmitImportCustomToken',
+        isError: true,
+        trace: s,
+      );
       emit(
         state.copyWith(
           importStatus: () => FormStatus.failure,

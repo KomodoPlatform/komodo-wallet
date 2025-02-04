@@ -35,9 +35,10 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   Future<Coin> fetchCustomToken(CoinSubClass network, String address) async {
     final platformCoin = await _activatePlatformCoin(network);
     final convertAddressResponse =
-        await _kdfSdk.client.rpc.wallet.convertAddress(
-      fromAddress: address,
-      coinSubClass: network,
+        await _kdfSdk.client.rpc.address.convertAddress(
+      from: address,
+      coin: network.ticker,
+      toFormat: AddressFormat.fromCoinSubClass(network),
     );
     final contractAddress = convertAddressResponse.address;
     final knownCoin = (_coinsRepo.getKnownCoins()).firstWhereOrNull(
@@ -89,7 +90,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
           coinPaprikaId: tokenApi?['id'],
         ),
         chainId: AssetChainId(chainId: 0),
-        subClass: network, 
+        subClass: network,
         derivationPath: '',
       ),
       decimals: decimals,
