@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 import 'models/price_chart_data.dart';
@@ -7,13 +8,15 @@ import 'price_chart_event.dart';
 import 'price_chart_state.dart';
 
 class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
-  PriceChartBloc(this.cexPriceRepository) : super(const PriceChartState()) {
+  PriceChartBloc(this.cexPriceRepository, this.sdk)
+      : super(const PriceChartState()) {
     on<PriceChartStarted>(_onStarted);
     on<PriceChartPeriodChanged>(_onIntervalChanged);
     on<PriceChartCoinsSelected>(_onSymbolChanged);
   }
 
   final BinanceRepository cexPriceRepository;
+  final KomodoDefiSdk sdk;
   final KomodoPriceRepository _komodoPriceRepository = KomodoPriceRepository(
     cexPriceProvider: KomodoPriceProvider(),
   );
@@ -30,6 +33,9 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
       if (state.availableCoins.isEmpty) {
         final coins = (await cexPriceRepository.getCoinList())
             .where((coin) => coin.currencies.contains('USDT'))
+            // filter out assets that are not in the known coins list to 
+            // prevent errors when using the SDK with the `.single` property
+            .where((coin) => sdk.assets.assetsFromTicker(coin.id).length == 1)
             .map((coin) async {
           double? dayChangePercent = coinPrices[coin.symbol]?.change24h;
 

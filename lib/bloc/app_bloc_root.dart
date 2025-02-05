@@ -191,8 +191,10 @@ class AppBlocRoot extends StatelessWidget {
             )..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(
-            create: (context) => PriceChartBloc(binanceRepository)
-              ..add(
+            create: (context) => PriceChartBloc(
+              binanceRepository,
+              komodoDefiSdk,
+            )..add(
                 const PriceChartStarted(
                   symbols: ['KMD'],
                   period: Duration(days: 30),
@@ -395,7 +397,7 @@ class _MyAppViewState extends State<_MyAppView> {
     _currentPrecacheOperation = Completer<void>();
 
     try {
-      final coins = (await coinsRepo.getKnownCoinsMap()).keys;
+      final coins = (coinsRepo.getKnownCoinsMap()).keys;
 
       await for (final abbr in Stream.fromIterable(coins)) {
         // TODO: Test if necessary to complete prematurely with error if build
