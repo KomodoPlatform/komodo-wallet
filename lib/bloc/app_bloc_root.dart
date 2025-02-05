@@ -193,8 +193,10 @@ class AppBlocRoot extends StatelessWidget {
             )..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(
-            create: (context) => PriceChartBloc(binanceRepository)
-              ..add(
+            create: (context) => PriceChartBloc(
+              binanceRepository,
+              komodoDefiSdk,
+            )..add(
                 const PriceChartStarted(
                   symbols: ['KMD'],
                   period: Duration(days: 30),
