@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin_utils.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 class CustomTokenImportDialog extends StatefulWidget {
   const CustomTokenImportDialog({Key? key}) : super(key: key);
@@ -150,10 +151,7 @@ class ImportFormPage extends StatelessWidget {
       builder: (context, state) {
         final initialState = state.formStatus == FormStatus.initial;
 
-        final isSubmitEnabled = initialState &&
-            state.network != null &&
-            state.address != null &&
-            state.address!.isNotEmpty;
+        final isSubmitEnabled = initialState && state.address.isNotEmpty;
 
         return BasePage(
           title: LocaleKeys.importCustomToken.tr(),
@@ -257,6 +255,9 @@ class ImportSubmitPage extends StatelessWidget {
       },
       builder: (context, state) {
         final newCoin = state.coin;
+        final newCoinBalance = formatAmt(state.coinBalance.toDouble());
+        final newCoinUsdBalance =
+            '\$${formatAmt(state.coinBalanceUsd.toDouble())}';
 
         final isSubmitEnabled = state.importStatus != FormStatus.submitting &&
             state.importStatus != FormStatus.success &&
@@ -295,12 +296,12 @@ class ImportSubmitPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CoinIcon.ofSymbol(
-                            newCoin.abbr,
+                            newCoin.id.id,
                             size: 80,
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            newCoin.abbr,
+                            newCoin.id.id,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 32),
@@ -313,17 +314,17 @@ class ImportSubmitPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '${newCoin.balance} ${newCoin.abbr} (${newCoin.getFormattedUsdBalance})',
+                            '$newCoinBalance ${newCoin.id.id} ($newCoinUsdBalance)',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],
                       ),
                     ),
-                    if (state.importErrorMessage != null)
+                    if (state.importErrorMessage.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(
-                          state.importErrorMessage ?? '',
+                          state.importErrorMessage,
                           textAlign: TextAlign.start,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,

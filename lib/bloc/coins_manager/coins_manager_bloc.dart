@@ -217,7 +217,7 @@ Future<List<Coin>> _getDeactivatedCoins(
   WalletType walletType,
 ) async {
   final Map<String, Coin> enabledCoins = await coinsRepo.getEnabledCoinsMap();
-  final Map<String, Coin> disabledCoins = (await coinsRepo.getKnownCoinsMap())
+  final Map<String, Coin> disabledCoins = coinsRepo.getKnownCoinsMap()
     ..removeWhere((key, coin) => enabledCoins.containsKey(key));
 
   switch (walletType) {

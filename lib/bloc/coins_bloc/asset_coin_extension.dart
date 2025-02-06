@@ -1,5 +1,5 @@
-import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 
@@ -17,13 +17,18 @@ extension AssetCoinExtension on Asset {
     // by the SDK (and might be phased out completely later on)
     // TODO: Remove this once the SDK exposes all the necessary metadata
     final config = protocol.config;
+    final logoImageUrl = config.valueOrNull<String>('logo_image_url');
+    final isCustomToken =
+        (config.valueOrNull<bool>('is_custom_token') ?? false) ||
+            logoImageUrl != null;
 
     return Coin(
       type: type,
       abbr: id.id,
       id: id,
       name: id.name,
-      logoImageUrl: '',
+      logoImageUrl: logoImageUrl ?? '',
+      isCustomCoin: isCustomToken,
       explorerUrl: config.valueOrNull<String>('explorer_url') ?? '',
       explorerTxUrl: config.valueOrNull<String>('explorer_tx_url') ?? '',
       explorerAddressUrl:
@@ -42,6 +47,9 @@ extension AssetCoinExtension on Asset {
       derivationPath: id.derivationPath,
     );
   }
+
+  String? get contractAddress => protocol.config
+      .valueOrNull('protocol', 'protocol_data', 'contract_address');
 }
 
 extension CoinTypeExtension on CoinSubClass {

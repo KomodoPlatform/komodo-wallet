@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -113,26 +115,23 @@ class CoinsRepo {
     }
   }
 
-  Future<List<Coin>> getWalletCoins() async {
+  Future<Coin?> getEnabledCoin(String coinId) async {
+    final enabledAssets = _kdfSdk.assets.assetsFromTicker(coinId);
+    if (enabledAssets.length != 1) {
+      return null;
+    }
     final currentUser = await _kdfSdk.auth.currentUser;
     if (currentUser == null) {
-      return [];
+      return null;
     }
 
-    final activatedCoins = currentUser.wallet.config.activatedCoins;
-    final knownCoins = getKnownCoinsMap();
-    return activatedCoins
-        .map((String coinId) => knownCoins[coinId])
-        .where((Coin? coin) => coin != null)
-        .cast<Coin>()
-        .toList();
-  }
-
-  Future<Coin?> getEnabledCoin(String coinId) async {
-    final enabledAssets = await getEnabledCoinsMap();
-    final coin = enabledAssets[coinId];
-    if (coin == null) return null;
-    return coin;
+    final coin = _assetToCoinWithoutAddress(enabledAssets.single);
+    final coinAddress = await getFirstPubkey(coin.abbr);
+    return coin.copyWith(
+      address: coinAddress,
+      state: CoinState.active,
+      enabledType: currentUser.wallet.config.type,
+    );
   }
 
   Future<List<Coin>> getEnabledCoins() async {
@@ -215,21 +214,11 @@ class CoinsRepo {
   }
 
   Future<void> activateAssetsSync(List<Asset> assets) async {
-    if (!await _kdfSdk.auth.isSignedIn()) return;
-    final enabledAssets = await getEnabledCoinsMap();
-
     for (final asset in assets) {
+      final coin = asset.toCoin();
       try {
-        if (enabledAssets.containsKey(asset.id.id)) {
-          continue;
-        }
-
-        final coin = asset.toCoin();
         await _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
-        if (coin.parentCoin != null) {
-          await _activateParentAsset(coin);
-        }
         // ignore: deprecated_member_use
         final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
         if (!progress.isSuccess) {
@@ -246,20 +235,22 @@ class CoinsRepo {
         await _broadcastAsset(
           asset.toCoin().copyWith(state: CoinState.suspended),
         );
+      } finally {
+        // Register outside of the try-catch to ensure icon is available even
+        // in a suspended or failing activation status.
+        if (coin.logoImageUrl?.isNotEmpty == true) {
+          CoinIcon.registerCustomIcon(
+            coin.id.id,
+            NetworkImage(coin.logoImageUrl!),
+          );
+        }
       }
     }
   }
 
   Future<void> activateCoinsSync(List<Coin> coins) async {
-    if (!await _kdfSdk.auth.isSignedIn()) return;
-    final enabledAssets = await getEnabledCoinsMap();
-
     for (final coin in coins) {
       try {
-        if (enabledAssets.containsKey(coin.abbr)) {
-          continue;
-        }
-
         final asset = _kdfSdk.assets.available[coin.id];
         if (asset == null) {
           log(
@@ -268,11 +259,9 @@ class CoinsRepo {
           ).ignore();
           continue;
         }
+
         await _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
-        if (coin.parentCoin != null) {
-          await _activateParentAsset(coin);
-        }
         // ignore: deprecated_member_use
         final progress = await _kdfSdk.assets.activateAsset(asset).last;
         if (!progress.isSuccess) {
@@ -287,23 +276,17 @@ class CoinsRepo {
           trace: s,
         ).ignore();
         await _broadcastAsset(coin.copyWith(state: CoinState.suspended));
+      } finally {
+        // Register outside of the try-catch to ensure icon is available even
+        // in a suspended or failing activation status.
+        if (coin.logoImageUrl?.isNotEmpty == true) {
+          CoinIcon.registerCustomIcon(
+            coin.id.id,
+            NetworkImage(coin.logoImageUrl!),
+          );
+        }
       }
     }
-  }
-
-  Future<void> _activateParentAsset(Coin coin) async {
-    final parentAsset = _kdfSdk.assets.available[coin.parentCoin!.id];
-    if (parentAsset == null) {
-      throw ArgumentError('Parent asset ${coin.parentCoin!.id} not found');
-    }
-
-    await _broadcastAsset(
-      coin.parentCoin!.copyWith(state: CoinState.activating),
-    );
-    await _kdfSdk.assets.activateAsset(parentAsset).last;
-    await _broadcastAsset(
-      coin.parentCoin!.copyWith(state: CoinState.active),
-    );
   }
 
   Future<void> deactivateCoinsSync(List<Coin> coins) async {

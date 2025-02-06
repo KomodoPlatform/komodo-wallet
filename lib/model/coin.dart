@@ -288,6 +288,7 @@ class Coin {
     WalletType? enabledType,
     double? balance,
     double? sendableBalance,
+    bool? isCustomCoin,
   }) {
     return Coin(
       type: type ?? this.type,
@@ -316,6 +317,7 @@ class Coin {
       walletOnly: walletOnly ?? _walletOnly,
       mode: mode ?? this.mode,
       balance: balance ?? _balance,
+      isCustomCoin: isCustomCoin ?? this.isCustomCoin,
     )
       ..address = address ?? this.address
       ..enabledType = enabledType ?? this.enabledType

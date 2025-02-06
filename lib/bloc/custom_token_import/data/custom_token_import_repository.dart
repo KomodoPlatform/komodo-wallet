@@ -1,28 +1,18 @@
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
-import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/model/cex_price.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 abstract class ICustomTokenImportRepository {
-  Future<Coin> fetchCustomToken(CoinSubClass network, String address);
-
+  Future<Asset> fetchCustomToken(CoinSubClass network, String address);
   Future<void> importCustomToken(Asset asset);
-
-  /// Method for importing custom tokens using the legacy [Coin] model.
-  @Deprecated('Use importCustomToken instead, using the new Asset model')
-  Future<void> importCustomTokenLegacy(Coin coin);
 }
 
 class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
@@ -32,8 +22,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   final KomodoDefiSdk _kdfSdk;
 
   @override
-  Future<Coin> fetchCustomToken(CoinSubClass network, String address) async {
-    final platformCoin = await _activatePlatformCoin(network);
+  Future<Asset> fetchCustomToken(CoinSubClass network, String address) async {
     final convertAddressResponse =
         await _kdfSdk.client.rpc.address.convertAddress(
       from: address,
@@ -41,29 +30,24 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       toFormat: AddressFormat.fromCoinSubClass(network),
     );
     final contractAddress = convertAddressResponse.address;
-    final knownCoin = (_coinsRepo.getKnownCoins()).firstWhereOrNull(
-      (coin) => coin.protocolData?.contractAddress == contractAddress,
+    final knownCoin = _kdfSdk.assets.available.values.firstWhereOrNull(
+      (asset) => asset.contractAddress == contractAddress,
     );
     if (knownCoin == null) {
       return await _createNewCoin(
         contractAddress,
         network,
         address,
-        platformCoin,
       );
     }
 
-    final updatedBalance = await _getBalance(knownCoin);
-    return knownCoin.copyWith(
-      balance: updatedBalance.toDouble(),
-    );
+    return knownCoin;
   }
 
-  Future<Coin> _createNewCoin(
+  Future<Asset> _createNewCoin(
     String contractAddress,
     CoinSubClass network,
     String address,
-    Coin platformCoin,
   ) async {
     final response = await _kdfSdk.client.rpc.utility.getTokenInfo(
       contractAddress: contractAddress,
@@ -71,19 +55,24 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       protocolType: network.formatted,
     );
 
+    final platformAssets = _kdfSdk.assets.findAssetsByTicker(network.ticker);
+    if (platformAssets.length != 1) {
+      throw Exception('Platform asset not found. ${platformAssets.length} '
+          'results returned.');
+    }
+    final platformAsset = platformAssets.single;
+    final platformConfig = platformAsset.protocol.config;
     final String ticker = response.info.symbol;
-    final int decimals = response.info.decimals;
     final tokenApi = await fetchTokenInfoFromApi(network, contractAddress);
-    final double? price =
-        tokenApi?['market_data']?['current_price']?['usd'] as double?;
-    final CoinType coinType = network.toCoinType();
 
-    final newCoin = Coin(
-      isCustomCoin: true,
-      abbr: '$ticker-${network.ticker}',
+    final coinId = '$ticker-${network.ticker}';
+    final logoImageUrl = tokenApi?['image']?['large'] ??
+        tokenApi?['image']?['small'] ??
+        tokenApi?['image']?['thumb'];
+    final newCoin = Asset(
       id: AssetId(
-        id: '$ticker-${network.ticker}',
-        name: ticker,
+        id: coinId,
+        name: tokenApi?['name'] ?? ticker,
         symbol: AssetSymbol(
           assetConfigId: '$ticker-${network.ticker}',
           coinGeckoId: tokenApi?['id'],
@@ -93,57 +82,38 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         subClass: network,
         derivationPath: '',
       ),
-      decimals: decimals,
-      name: tokenApi?['name'] ?? ticker,
-      parentCoin: platformCoin,
-      protocolType: 'ERC20',
-      type: coinType,
-      protocolData: ProtocolData(
-        platform: platformCoin.abbr,
-        contractAddress: address,
-      ),
-      logoImageUrl: tokenApi?['image']?['large'] ??
-          tokenApi?['image']?['small'] ??
-          tokenApi?['image']?['thumb'],
-      coingeckoId: tokenApi?['id'],
-      usdPrice: price == null ? null : CexPrice(ticker: ticker, price: price),
-      explorerUrl: platformCoin.explorerUrl,
-      explorerTxUrl: platformCoin.explorerTxUrl,
-      explorerAddressUrl: platformCoin.explorerAddressUrl,
-      swapContractAddress: platformCoin.swapContractAddress,
-      fallbackSwapContract: platformCoin.fallbackSwapContract,
-      state: CoinState.inactive,
-      mode: CoinMode.standard,
-      isTestCoin: false,
-      walletOnly: false,
-      priority: 0,
+      protocol: Erc20Protocol.fromJson({
+        'type': network.formatted,
+        'chain_id': 0,
+        'nodes': [],
+        'swap_contract_address':
+            platformConfig.valueOrNull<String>('swap_contract_address'),
+        'fallback_swap_contract':
+            platformConfig.valueOrNull<String>('fallback_swap_contract'),
+        'protocol': {
+          'protocol_data': {
+            'platform': network.ticker,
+            'contract_address': address,
+          },
+        },
+        'logo_image_url': logoImageUrl,
+        'explorer_url': platformConfig.valueOrNull<String>('explorer_url'),
+        'explorer_url_tx':
+            platformConfig.valueOrNull<String>('explorer_url_tx'),
+        'explorer_url_address':
+            platformConfig.valueOrNull<String>('explorer_url_address'),
+      }).copyWith(isCustomToken: true),
     );
 
     CoinIcon.registerCustomIcon(
-        newCoin.abbr,
-        NetworkImage(
-          tokenApi?['image']?['large'] ??
-              'assets/coin_icons/png/${ticker.toLowerCase()}.png',
-        ));
+      newCoin.id.id,
+      NetworkImage(
+        tokenApi?['image']?['large'] ??
+            'assets/coin_icons/png/${ticker.toLowerCase()}.png',
+      ),
+    );
 
     return newCoin;
-  }
-
-  Future<Decimal> _getBalance(Coin coin) async {
-    await _coinsRepo.activateCoinsSync([coin]);
-    final balanceInfo = await _coinsRepo.getBalanceInfo(coin.id);
-    await _coinsRepo.deactivateCoinsSync([coin]);
-
-    return balanceInfo?.spendable ?? Decimal.zero;
-  }
-
-  Future<Coin> _activatePlatformCoin(CoinSubClass network) async {
-    final platformCoinAbbr = network.ticker;
-    final platformCoin = _coinsRepo.getCoin(platformCoinAbbr);
-    if (platformCoin == null) throw "$platformCoinAbbr platform coin not found";
-
-    await _coinsRepo.activateCoinsSync([platformCoin]);
-    return platformCoin;
   }
 
   @override
@@ -162,7 +132,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     }
 
     final url = Uri.parse(
-        'https://api.coingecko.com/api/v3/coins/$platform/contract/$contractAddress');
+      'https://api.coingecko.com/api/v3/coins/$platform/'
+      'contract/$contractAddress',
+    );
 
     try {
       final response = await http.get(url);
@@ -174,8 +146,10 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     }
   }
 
-  // TODO: replace with coin config field? This should be equivalent to the
-  // coinbase id field in the config, since coinbase API is being used
+  // this does not appear to match the coingecko id field in the coins config.
+  // notable differences are bep20, matic, and hrc20
+  // these could possibly be mapped with another field, or it should be changed
+  // to the subclass formatted/ticker fields
   String? getNetworkApiName(CoinSubClass coinType) {
     switch (coinType) {
       case CoinSubClass.erc20:
@@ -203,11 +177,5 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       default:
         return null;
     }
-  }
-
-  @override
-  Future<void> importCustomTokenLegacy(Coin coin) {
-    final asset = coin.toErc20Asset();
-    return importCustomToken(asset);
   }
 }

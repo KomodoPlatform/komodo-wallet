@@ -25,6 +25,7 @@ class CustomTokenImportButton extends StatelessWidget {
             return BlocProvider<CustomTokenImportBloc>(
               create: (context) => CustomTokenImportBloc(
                 KdfCustomTokenImportRepository(kdfSdk, coinsRepo),
+                coinsRepo,
               )..add(const ResetFormStatusEvent()),
               child: const CustomTokenImportDialog(),
             );

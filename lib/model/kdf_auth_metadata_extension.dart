@@ -1,8 +1,5 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 
 extension KdfAuthMetadataExtension on KomodoDefiSdk {
@@ -42,41 +39,5 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
 
   Future<void> setWalletType(WalletType type) async {
     await auth.setOrRemoveActiveUserKeyValue('type', type.name);
-  }
-}
-
-extension CoinKdfAssetConversionExtension on Coin {
-  Asset toErc20Asset({
-    bool isCustomToken = false,
-    int chainId = 0,
-  }) {
-    return Asset(
-      id: AssetId(
-        id: abbr,
-        name: name,
-        symbol: AssetSymbol(
-          assetConfigId: abbr,
-          coinGeckoId: coingeckoId,
-          coinPaprikaId: coinpaprikaId,
-        ),
-        chainId: AssetChainId(chainId: chainId),
-        derivationPath: derivationPath ?? '',
-        subClass: type.toCoinSubClass(),
-      ),
-      protocol: Erc20Protocol.fromJson({
-        'type': parentCoin?.type.toCoinSubClass().formatted ??
-            type.toCoinSubClass().formatted,
-        'chain_id': chainId,
-        'nodes': [],
-        'swap_contract_address': swapContractAddress,
-        'fallback_swap_contract': fallbackSwapContract,
-        'protocol': {
-          'protocol_data': {
-            'platform': parentCoin?.abbr,
-            'contract_address': protocolData?.contractAddress,
-          },
-        }
-      }).copyWith(isCustomToken: true),
-    );
   }
 }
