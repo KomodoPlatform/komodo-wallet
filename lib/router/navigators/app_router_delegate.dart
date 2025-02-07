@@ -38,7 +38,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
           return GestureDetector(
             onTap: () => runDropdownDismiss(context),
             child: MainLayout(
-              key: ValueKey('${isMobile}_${routingState.selectedMenu}'),
+              key: ValueKey('${routingState.selectedMenu}'),
             ),
           );
         },

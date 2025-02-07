@@ -33,8 +33,10 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
       if (state.availableCoins.isEmpty) {
         final coins = (await cexPriceRepository.getCoinList())
             .where((coin) => coin.currencies.contains('USDT'))
-            // filter out assets that are not in the known coins list to 
-            // prevent errors when using the SDK with the `.single` property
+            // `cexPriceRepository.getCoinList()` returns coins from a CEX
+            // (e.g. Binance), some of which are not in our known/available
+            // assets/coins list. This filter ensures that we only attempt to
+            // fetch and display data for supported coins
             .where((coin) => sdk.assets.assetsFromTicker(coin.id).length == 1)
             .map((coin) async {
           double? dayChangePercent = coinPrices[coin.symbol]?.change24h;
