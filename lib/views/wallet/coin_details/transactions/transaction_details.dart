@@ -264,9 +264,7 @@ class TransactionDetails extends StatelessWidget {
   }
 
   Widget _buildFee(BuildContext context) {
-    final String? fee = transaction.fee?.formatTotal();
-    final String formattedFee =
-        getNumberWithoutExponent(double.parse(fee ?? '').abs().toString());
+    final String formattedFee = transaction.fee?.formatTotal() ?? '';
     final coinsBloc = context.read<CoinsBloc>();
     final double? usd =
         coinsBloc.state.getUsdPriceByAmount(formattedFee, _feeCoin);
