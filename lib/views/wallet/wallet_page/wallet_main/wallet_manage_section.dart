@@ -1,7 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/authorize_mode.dart';
@@ -62,7 +64,7 @@ class WalletManageSection extends StatelessWidget {
                       children: [
                         UiPrimaryButton(
                           buttonKey: const Key('add-assets-button'),
-                          onPressed: _onAddAssetsPress,
+                          onPressed: () => _onAddAssetsPress(context),
                           text: LocaleKeys.addAssets.tr(),
                           height: 30.0,
                           width: 110,
@@ -77,7 +79,7 @@ class WalletManageSection extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 3.0),
                           child: UiPrimaryButton(
                             buttonKey: const Key('remove-assets-button'),
-                            onPressed: _onRemoveAssetsPress,
+                            onPressed: () => _onRemoveAssetsPress(context),
                             text: LocaleKeys.removeAssets.tr(),
                             height: 30.0,
                             width: 125,
@@ -147,7 +149,7 @@ class WalletManageSection extends StatelessWidget {
                       children: [
                         UiPrimaryButton(
                           buttonKey: const Key('add-assets-button'),
-                          onPressed: _onAddAssetsPress,
+                          onPressed: () => _onAddAssetsPress(context),
                           text: LocaleKeys.addAssets.tr(),
                           height: 25.0,
                           width: 110,
@@ -162,7 +164,7 @@ class WalletManageSection extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 3.0),
                           child: UiPrimaryButton(
                             buttonKey: const Key('remove-assets-button'),
-                            onPressed: _onRemoveAssetsPress,
+                            onPressed: () => _onRemoveAssetsPress(context),
                             text: LocaleKeys.remove.tr(),
                             height: 25.0,
                             width: 80,
@@ -199,11 +201,17 @@ class WalletManageSection extends StatelessWidget {
     );
   }
 
-  void _onAddAssetsPress() {
+  void _onAddAssetsPress(BuildContext context) {
+    context
+        .read<CoinsManagerBloc>()
+        .add(const CoinsManagerCoinsListReset(CoinsManagerAction.add));
     routingState.walletState.action = coinsManagerRouteAction.addAssets;
   }
 
-  void _onRemoveAssetsPress() {
+  void _onRemoveAssetsPress(BuildContext context) {
+    context
+        .read<CoinsManagerBloc>()
+        .add(const CoinsManagerCoinsListReset(CoinsManagerAction.remove));
     routingState.walletState.action = coinsManagerRouteAction.removeAssets;
   }
 }

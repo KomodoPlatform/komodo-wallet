@@ -17,8 +17,8 @@ class CoinsManagerState extends Equatable {
   final bool isSwitching;
 
   static CoinsManagerState initial({
-    required CoinsManagerAction action,
     required List<Coin> coins,
+    CoinsManagerAction action = CoinsManagerAction.add,
   }) {
     return CoinsManagerState(
       action: action,

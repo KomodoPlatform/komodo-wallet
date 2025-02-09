@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show Bloc, Emitter;
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -16,12 +16,12 @@ part 'coins_manager_state.dart';
 class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   CoinsManagerBloc({
     required CoinsRepo coinsRepo,
-    required CoinsManagerAction action,
-    required CurrentWalletBloc currentWalletBloc,
+    required KomodoDefiSdk sdk,
   })  : _coinsRepo = coinsRepo,
-        _currentWalletBloc = currentWalletBloc,
-        super(CoinsManagerState.initial(action: action, coins: [])) {
+        _sdk = sdk,
+        super(CoinsManagerState.initial(coins: [])) {
     on<CoinsManagerCoinsUpdate>(_onCoinsUpdate);
+    on<CoinsManagerCoinsListReset>(_onResetCoinsList);
     on<CoinsManagerCoinTypeSelect>(_onCoinTypeSelect);
     on<CoinsManagerCoinsSwitch>(_onCoinsSwitch);
     on<CoinsManagerCoinSelect>(_onCoinSelect);
@@ -31,7 +31,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   }
 
   final CoinsRepo _coinsRepo;
-  final CurrentWalletBloc _currentWalletBloc;
+  final KomodoDefiSdk _sdk;
 
   List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
     Map<String, Coin> coinMap = {};
@@ -57,7 +57,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     final List<FilterFunction> filters = [];
 
     List<Coin> list = mergeCoinLists(
-      await _getOriginalCoinList(_coinsRepo, state.action, _currentWalletBloc),
+      await _getOriginalCoinList(_coinsRepo, event.action, _sdk),
       state.coins,
     );
 
@@ -72,7 +72,21 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       list = filter(list);
     }
 
-    emit(state.copyWith(coins: list));
+    emit(state.copyWith(coins: list, action: event.action));
+  }
+
+  Future<void> _onResetCoinsList(
+    CoinsManagerCoinsListReset event,
+    Emitter<CoinsManagerState> emit,
+  ) async {
+    emit(CoinsManagerState.initial(coins: [], action: event.action));
+    final List<Coin> coins = await _getOriginalCoinList(
+      _coinsRepo,
+      event.action,
+      _sdk,
+    )
+      ..sort((a, b) => a.abbr.compareTo(b.abbr));
+    emit(state.copyWith(coins: coins, action: event.action));
   }
 
   void _onCoinTypeSelect(
@@ -85,7 +99,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     emit(state.copyWith(selectedCoinTypes: newTypes));
 
-    add(const CoinsManagerCoinsUpdate());
+    add(CoinsManagerCoinsUpdate(state.action));
   }
 
   Future<void> _onCoinsSwitch(
@@ -143,7 +157,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     Emitter<CoinsManagerState> emit,
   ) {
     emit(state.copyWith(selectedCoinTypes: []));
-    add(const CoinsManagerCoinsUpdate());
+    add(CoinsManagerCoinsUpdate(state.action));
   }
 
   FutureOr<void> _onSearchUpdate(
@@ -151,7 +165,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     Emitter<CoinsManagerState> emit,
   ) {
     emit(state.copyWith(searchPhrase: event.text));
-    add(const CoinsManagerCoinsUpdate());
+    add(CoinsManagerCoinsUpdate(state.action));
   }
 
   List<Coin> _filterByPhrase(List<Coin> coins) {
@@ -191,34 +205,29 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 Future<List<Coin>> _getOriginalCoinList(
   CoinsRepo coinsRepo,
   CoinsManagerAction action,
-  CurrentWalletBloc currentWalletBloc,
+  KomodoDefiSdk sdk,
 ) async {
-  final WalletType? walletType = currentWalletBloc.wallet?.config.type;
+  final WalletType? walletType = (await sdk.currentWallet())?.config.type;
   if (walletType == null) return [];
 
   switch (action) {
     case CoinsManagerAction.add:
-      return await _getDeactivatedCoins(coinsRepo, walletType);
+      return await _getDeactivatedCoins(coinsRepo, sdk, walletType);
     case CoinsManagerAction.remove:
-      return await _getActivatedCoins(coinsRepo);
+      return await coinsRepo.getWalletCoins();
     case CoinsManagerAction.none:
       return [];
   }
 }
 
-Future<List<Coin>> _getActivatedCoins(CoinsRepo coinsRepo) async {
-  return (await coinsRepo.getEnabledCoins())
-      .where((coin) => !coin.isActivating)
-      .toList();
-}
-
 Future<List<Coin>> _getDeactivatedCoins(
   CoinsRepo coinsRepo,
+  KomodoDefiSdk sdk,
   WalletType walletType,
 ) async {
-  final Map<String, Coin> enabledCoins = await coinsRepo.getEnabledCoinsMap();
-  final Map<String, Coin> disabledCoins = (coinsRepo.getKnownCoinsMap())
-    ..removeWhere((key, coin) => enabledCoins.containsKey(key));
+  final Iterable<String> enabledCoins = await sdk.assets.getEnabledCoins();
+  final Map<String, Coin> disabledCoins = coinsRepo.getKnownCoinsMap()
+    ..removeWhere((key, coin) => enabledCoins.contains(key));
 
   switch (walletType) {
     case WalletType.iguana:
