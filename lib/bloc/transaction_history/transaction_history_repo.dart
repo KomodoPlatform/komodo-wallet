@@ -3,18 +3,23 @@ import 'dart:async';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
-class TransactionHistoryRepo {
-  TransactionHistoryRepo({
+abstract class TransactionHistoryRepo {
+  Future<List<Transaction>?> fetch(Coin coin);
+  Future<List<Transaction>> fetchTransactions(Coin coin);
+  Future<List<Transaction>> fetchCompletedTransactions(Coin coin);
+}
+
+class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
+  SdkTransactionHistoryRepository({
     required KomodoDefiSdk sdk,
   }) : _sdk = sdk;
   final KomodoDefiSdk _sdk;
 
-  Future<List<Transaction>?> fetch(Coin coin, [String? fromId]) async {
-    final asset = getSdkAsset(_sdk, coin.abbr);
-
+  @override
+  Future<List<Transaction>?> fetch(Coin coin) async {
     try {
+      final asset = _sdk.assets.available[coin.id]!;
       final transactionHistory = await _sdk.transactions.getTransactionHistory(
         asset,
         pagination: fromId == null
@@ -37,6 +42,7 @@ class TransactionHistoryRepo {
 
   /// Fetches transactions for the provided [coin] where the transaction
   /// timestamp is not 0 (transaction is completed and/or confirmed).
+  @override
   Future<List<Transaction>> fetchCompletedTransactions(Coin coin) async {
     final List<Transaction> transactions = (await fetch(coin) ?? [])
       ..sort(
@@ -47,6 +53,11 @@ class TransactionHistoryRepo {
             transaction.timestamp == DateTime.fromMillisecondsSinceEpoch(0),
       );
     return transactions;
+  }
+
+  @override
+  Future<List<Transaction>> fetchTransactions(Coin coin) async {
+    return await fetch(coin) ?? [];
   }
 }
 

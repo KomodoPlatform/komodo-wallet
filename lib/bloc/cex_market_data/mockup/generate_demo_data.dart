@@ -1,10 +1,10 @@
 import 'dart:math';
 
+import 'package:decimal/decimal.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
-import 'package:web_dex/model/withdraw_details/fee_details.dart';
 
 // similar to generator implementation to allow for const constructor
 final _ohlcvCache = <CexCoinPair, List<Ohlc>>{};
@@ -110,7 +110,7 @@ class DemoDataGenerator {
         transactions.add(transaction);
       }
 
-      totalBalance += double.parse(transaction.myBalanceChange);
+      totalBalance += transaction.balanceChanges.netChange.toDouble();
       if (totalBalance <= 0) {
         totalBalance = targetFinalBalance;
         break;
@@ -131,22 +131,23 @@ class DemoDataGenerator {
     double totalBalance,
     List<Transaction> transactions,
   ) {
-    double adjustmentFactor = targetFinalBalance / totalBalance;
+    final Decimal adjustmentFactor =
+        Decimal.parse((targetFinalBalance / totalBalance).toString());
     final adjustedTransactions = <Transaction>[];
     for (var transaction in transactions) {
+      final netChange = transaction.balanceChanges.netChange;
+      final received = transaction.balanceChanges.receivedByMe;
+      final spent = transaction.balanceChanges.spentByMe;
+      final totalAmount = transaction.balanceChanges.totalAmount;
+
       adjustedTransactions.add(
         transaction.copyWith(
-          myBalanceChange:
-              (double.parse(transaction.myBalanceChange) * adjustmentFactor)
-                  .toString(),
-          receivedByMe:
-              (double.parse(transaction.receivedByMe) * adjustmentFactor)
-                  .toString(),
-          spentByMe: (double.parse(transaction.spentByMe) * adjustmentFactor)
-              .toString(),
-          totalAmount:
-              (double.parse(transaction.totalAmount) * adjustmentFactor)
-                  .toString(),
+          balanceChanges: BalanceChanges(
+            netChange: netChange * adjustmentFactor,
+            receivedByMe: received * adjustmentFactor,
+            spentByMe: spent * adjustmentFactor,
+            totalAmount: totalAmount * adjustmentFactor,
+          ),
         ),
       );
     }
@@ -193,25 +194,29 @@ Transaction fromTradeAmount(
   final random = Random(42);
 
   return Transaction(
+    id: uuid.v4(),
     blockHeight: random.nextInt(100000) + 100000,
-    coin: coinId,
-    confirmations: random.nextInt(3) + 1,
-    feeDetails: FeeDetails(
-      type: "fixed",
-      coin: "USDT",
-      amount: "1.0",
-      totalFee: "1.0",
+    assetId: AssetId(
+      chainId: AssetChainId(chainId: 0),
+      derivationPath: '',
+      id: coinId,
+      name: coinId,
+      subClass: CoinSubClass.smartChain,
+      symbol: AssetSymbol(assetConfigId: coinId),
     ),
-    from: ["address1"],
+    confirmations: random.nextInt(3) + 1,
+    from: const ["address1"],
     internalId: uuid.v4(),
-    myBalanceChange: isBuy ? tradeAmount.toString() : (-tradeAmount).toString(),
-    receivedByMe: !isBuy ? tradeAmount.toString() : '0',
-    spentByMe: isBuy ? tradeAmount.toString() : '0',
-    timestamp: closeTimestamp ~/ 1000,
-    to: ["address2"],
-    totalAmount: tradeAmount.toString(),
+    balanceChanges: BalanceChanges(
+      netChange: Decimal.parse(
+          isBuy ? tradeAmount.toString() : (-tradeAmount).toString()),
+      receivedByMe: Decimal.parse(!isBuy ? tradeAmount.toString() : '0'),
+      spentByMe: Decimal.parse(isBuy ? tradeAmount.toString() : '0'),
+      totalAmount: Decimal.parse(tradeAmount.toString()),
+    ),
+    timestamp: DateTime.fromMillisecondsSinceEpoch(closeTimestamp),
+    to: const ["address2"],
     txHash: uuid.v4(),
-    txHex: "hexstring",
     memo: "memo",
   );
 }
