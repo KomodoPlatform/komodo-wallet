@@ -126,7 +126,7 @@ class AppBlocRoot extends StatelessWidget {
             demoDataGenerator: DemoDataCache.withDefaults(),
           )
         : */
-        TransactionHistoryRepo(sdk: komodoDefiSdk);
+        SdkTransactionHistoryRepository(sdk: komodoDefiSdk);
 
     final profitLossRepo = ProfitLossRepository.withDefaults(
       transactionHistoryRepo: transactionsRepo,
@@ -136,7 +136,6 @@ class AppBlocRoot extends StatelessWidget {
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
       mm2Api: mm2Api,
-      sdk: komodoDefiSdk,
     );
 
     final portfolioGrowthRepo = PortfolioGrowthRepository.withDefaults(
@@ -145,7 +144,6 @@ class AppBlocRoot extends StatelessWidget {
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
       mm2Api: mm2Api,
-      sdk: komodoDefiSdk,
     );
 
     _clearCachesIfPerformanceModeChanged(

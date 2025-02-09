@@ -141,7 +141,18 @@ class DemoDataGenerator {
       final totalAmount = transaction.balanceChanges.totalAmount;
 
       adjustedTransactions.add(
-        transaction.copyWith(
+        Transaction(
+          id: transaction.id,
+          timestamp: transaction.timestamp,
+          assetId: transaction.assetId,
+          blockHeight: transaction.blockHeight,
+          from: transaction.from,
+          internalId: transaction.internalId,
+          confirmations: transaction.confirmations,
+          to: transaction.to,
+          txHash: transaction.txHash,
+          fee: transaction.fee,
+          memo: transaction.memo,
           balanceChanges: BalanceChanges(
             netChange: netChange * adjustmentFactor,
             receivedByMe: received * adjustmentFactor,

@@ -26,7 +26,6 @@ class MockPortfolioGrowthRepository extends PortfolioGrowthRepository {
     required this.performanceMode,
     required CoinsRepo coinsRepository,
     required Mm2Api mm2Api,
-    required KomodoDefiSdk sdk,
   }) : super(
           cexRepository: BinanceRepository(
             binanceProvider: const BinanceProvider(),
@@ -36,7 +35,6 @@ class MockPortfolioGrowthRepository extends PortfolioGrowthRepository {
             client: Client(),
             performanceMode: performanceMode,
             demoDataGenerator: DemoDataCache.withDefaults(),
-            sdk: sdk,
           ),
           cacheProvider: HiveLazyBoxProvider<String, GraphCache>(
             name: GraphType.balanceGrowth.tableName,

@@ -1,5 +1,5 @@
-import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 
@@ -28,6 +28,7 @@ extension AssetCoinExtension on Asset {
     return Coin(
       type: type,
       abbr: id.id,
+      id: id,
       name: id.name,
       explorerUrl: config.valueOrNull<String>('explorer_url') ?? '',
       explorerTxUrl: config.valueOrNull<String>('explorer_tx_url') ?? '',
@@ -91,6 +92,51 @@ extension AssetCoinExtension on Asset {
         return CoinType.krc20;
       default:
         return CoinType.utxo;
+    }
+  }
+}
+
+extension CoinSubClassExtension on CoinType {
+  CoinSubClass toCoinSubClass() {
+    switch (this) {
+      case CoinType.ftm20:
+        return CoinSubClass.ftm20;
+      case CoinType.arb20:
+        return CoinSubClass.arbitrum;
+      case CoinType.slp:
+        return CoinSubClass.slp;
+      case CoinType.qrc20:
+        return CoinSubClass.qrc20;
+      case CoinType.avx20:
+        return CoinSubClass.avx20;
+      case CoinType.smartChain:
+        return CoinSubClass.smartChain;
+      case CoinType.mvr20:
+        return CoinSubClass.moonriver;
+      case CoinType.etc:
+        return CoinSubClass.ethereumClassic;
+      case CoinType.hco20:
+        return CoinSubClass.hecoChain;
+      case CoinType.hrc20:
+        return CoinSubClass.hrc20;
+      case CoinType.iris:
+        return CoinSubClass.tendermintToken;
+      case CoinType.cosmos:
+        return CoinSubClass.tendermint;
+      case CoinType.ubiq:
+        return CoinSubClass.ubiq;
+      case CoinType.bep20:
+        return CoinSubClass.bep20;
+      case CoinType.plg20:
+        return CoinSubClass.matic;
+      case CoinType.utxo:
+        return CoinSubClass.utxo;
+      case CoinType.sbch:
+        return CoinSubClass.smartBch;
+      case CoinType.erc20:
+        return CoinSubClass.erc20;
+      case CoinType.krc20:
+        return CoinSubClass.krc20;
     }
   }
 }

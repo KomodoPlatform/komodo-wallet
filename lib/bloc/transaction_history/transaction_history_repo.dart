@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/model/coin.dart';
 
+/// Throws [TransactionFetchException] if the transaction history could not be
+/// fetched.
 abstract class TransactionHistoryRepo {
-  Future<List<Transaction>?> fetch(Coin coin);
-  Future<List<Transaction>> fetchTransactions(Coin coin);
-  Future<List<Transaction>> fetchCompletedTransactions(Coin coin);
+  Future<List<Transaction>?> fetch(AssetId assetId);
+  Future<List<Transaction>> fetchCompletedTransactions(AssetId assetId);
 }
 
 class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
@@ -17,9 +17,14 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
   final KomodoDefiSdk _sdk;
 
   @override
-  Future<List<Transaction>?> fetch(Coin coin) async {
+  Future<List<Transaction>?> fetch(AssetId assetId, {String? fromId}) async {
+    final asset = _sdk.assets.available[assetId];
+    if (asset == null) {
+      throw TransactionFetchException('Asset $assetId not found');
+    }
+
     try {
-      final asset = _sdk.assets.available[coin.id]!;
+      final asset = _sdk.assets.available[assetId]!;
       final transactionHistory = await _sdk.transactions.getTransactionHistory(
         asset,
         pagination: fromId == null
@@ -43,21 +48,14 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
   /// Fetches transactions for the provided [coin] where the transaction
   /// timestamp is not 0 (transaction is completed and/or confirmed).
   @override
-  Future<List<Transaction>> fetchCompletedTransactions(Coin coin) async {
-    final List<Transaction> transactions = (await fetch(coin) ?? [])
-      ..sort(
-        (a, b) => a.timestamp.compareTo(b.timestamp),
-      )
+  Future<List<Transaction>> fetchCompletedTransactions(AssetId assetId) async {
+    final List<Transaction> transactions = (await fetch(assetId) ?? [])
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp))
       ..removeWhere(
         (transaction) =>
             transaction.timestamp == DateTime.fromMillisecondsSinceEpoch(0),
       );
     return transactions;
-  }
-
-  @override
-  Future<List<Transaction>> fetchTransactions(Coin coin) async {
-    return await fetch(coin) ?? [];
   }
 }
 

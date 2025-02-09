@@ -151,7 +151,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     final List<Coin> coins = List.from(event.coins);
     for (final coin in event.coins) {
       final isCoinSupported = await _profitLossRepository.isCoinChartSupported(
-        coin.abbr,
+        coin.id,
         event.fiatCoinId,
         allowInactiveCoins: allowInactiveCoins,
       );
@@ -202,7 +202,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         // from breaking the entire portfolio chart.
         try {
           final profitLosses = await _profitLossRepository.getProfitLoss(
-            coin.abbr,
+            coin.id,
             event.fiatCoinId,
             event.walletId,
             useCache: useCache,
