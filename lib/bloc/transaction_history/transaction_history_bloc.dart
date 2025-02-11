@@ -63,7 +63,10 @@ class TransactionHistoryBloc
 
     try {
       add(const TransactionHistoryStartedLoading());
-      final asset = getSdkAsset(_sdk, event.coin.abbr);
+      final asset = _sdk.assets.available[event.coin.id];
+      if (asset == null) {
+        throw Exception('Asset ${event.coin.id} not found in known coins list');
+      }
 
       // Subscribe to historical transactions
       _historySubscription =
@@ -98,11 +101,18 @@ class TransactionHistoryBloc
           );
         },
         onDone: () {
+          add(TransactionHistoryUpdated(transactions: state.transactions));
           // Once historical load is complete, start watching for new transactions
           _subscribeToNewTransactions(asset, event.coin);
         },
       );
-    } catch (e) {
+    } catch (e, s) {
+      log(
+        'Error loading transaction history: $e',
+        isError: true,
+        path: 'transaction_history_bloc->_onSubscribe',
+        trace: s,
+      );
       add(
         TransactionHistoryFailure(
           error: TextError(error: LocaleKeys.somethingWrong.tr()),
