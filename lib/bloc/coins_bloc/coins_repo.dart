@@ -436,15 +436,6 @@ class CoinsRepo {
     return prices;
   }
 
-  Future<Balance?> getBalanceInfo(AssetId coinId) async {
-    final asset = _kdfSdk.assets.available[coinId];
-    if (asset == null) {
-      throw ArgumentError.value(coinId, 'getBalanceInfo', 'Asset not found');
-    }
-    final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
-    return pubkeys.balance;
-  }
-
   Future<Map<String, Coin>> updateTrezorBalances(
     Map<String, Coin> walletCoins,
   ) async {
@@ -459,9 +450,7 @@ class CoinsRepo {
     return walletCoinsCopy;
   }
 
-  Stream<Coin> updateIguanaBalances(
-    Map<String, Coin> walletCoins,
-  ) async* {
+  Stream<Coin> updateIguanaBalances(Map<String, Coin> walletCoins) async* {
     final walletCoinsCopy = Map<String, Coin>.from(walletCoins);
     final coins =
         walletCoinsCopy.values.where((coin) => coin.isActive).toList();

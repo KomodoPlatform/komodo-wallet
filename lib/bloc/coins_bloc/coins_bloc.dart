@@ -30,10 +30,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     // TODO: move auth listener to ui layer: bloclistener fires auth events
     on<CoinsBalanceMonitoringStarted>(_onCoinsBalanceMonitoringStarted);
     on<CoinsBalanceMonitoringStopped>(_onCoinsBalanceMonitoringStopped);
-    on<CoinsBalancesRefreshed>(_onCoinsRefreshed, transformer: sequential());
+    on<CoinsBalancesRefreshed>(_onCoinsRefreshed, transformer: droppable());
     on<CoinsActivated>(_onCoinsActivated, transformer: concurrent());
     on<CoinsDeactivated>(_onCoinsDeactivated, transformer: concurrent());
-    on<CoinsPricesUpdated>(_onPricesUpdated, transformer: sequential());
+    on<CoinsPricesUpdated>(_onPricesUpdated, transformer: droppable());
     on<CoinsSessionStarted>(_onLogin, transformer: droppable());
     on<CoinsSessionEnded>(_onLogout, transformer: droppable());
     on<CoinsSuspendedReactivated>(
@@ -161,7 +161,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     _updateBalancesTimer?.cancel();
     _updateBalancesTimer = Timer.periodic(
-      const Duration(seconds: 30),
+      const Duration(minutes: 1),
       (timer) {
         add(CoinsBalancesRefreshed());
       },
