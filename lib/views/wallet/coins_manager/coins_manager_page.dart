@@ -22,8 +22,9 @@ class CoinsManagerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(action == CoinsManagerAction.add ||
-        action == CoinsManagerAction.remove);
+    assert(
+      action == CoinsManagerAction.add || action == CoinsManagerAction.remove,
+    );
 
     final title = action == CoinsManagerAction.add
         ? LocaleKeys.addAssets.tr()

@@ -21,7 +21,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
         _sdk = sdk,
         super(CoinsManagerState.initial(coins: [])) {
     on<CoinsManagerCoinsUpdate>(_onCoinsUpdate);
-    on<CoinsManagerCoinsListReset>(_onResetCoinsList);
+    on<CoinsManagerCoinsListReset>(_onCoinsListReset);
     on<CoinsManagerCoinTypeSelect>(_onCoinTypeSelect);
     on<CoinsManagerCoinsSwitch>(_onCoinsSwitch);
     on<CoinsManagerCoinSelect>(_onCoinSelect);
@@ -75,7 +75,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     emit(state.copyWith(coins: list, action: event.action));
   }
 
-  Future<void> _onResetCoinsList(
+  Future<void> _onCoinsListReset(
     CoinsManagerCoinsListReset event,
     Emitter<CoinsManagerState> emit,
   ) async {

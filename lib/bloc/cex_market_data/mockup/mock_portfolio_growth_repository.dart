@@ -1,6 +1,5 @@
 import 'package:http/http.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/generator.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/mock_transaction_history_repository.dart';

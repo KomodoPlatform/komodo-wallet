@@ -52,7 +52,9 @@ void testGenerateDemoData() {
         final goodTransactions =
             await generator.generateTransactions('BTC', PerformanceMode.good);
         final badTransactions = await generator.generateTransactions(
-            'BTC', PerformanceMode.veryBad);
+          'BTC',
+          PerformanceMode.veryBad,
+        );
 
         double goodBalance = generator.initialBalance;
         double badBalance = generator.initialBalance;
@@ -70,7 +72,9 @@ void testGenerateDemoData() {
 
       test('generateTransactions produces valid transaction objects', () async {
         final transactions = await generator.generateTransactions(
-            'BTC', PerformanceMode.mediocre);
+          'BTC',
+          PerformanceMode.mediocre,
+        );
 
         for (final tx in transactions) {
           expect(tx.assetId.id, equals('BTC'));

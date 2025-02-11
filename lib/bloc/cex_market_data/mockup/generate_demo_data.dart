@@ -220,7 +220,8 @@ Transaction fromTradeAmount(
     internalId: uuid.v4(),
     balanceChanges: BalanceChanges(
       netChange: Decimal.parse(
-          isBuy ? tradeAmount.toString() : (-tradeAmount).toString()),
+        isBuy ? tradeAmount.toString() : (-tradeAmount).toString(),
+      ),
       receivedByMe: Decimal.parse(!isBuy ? tradeAmount.toString() : '0'),
       spentByMe: Decimal.parse(isBuy ? tradeAmount.toString() : '0'),
       totalAmount: Decimal.parse(tradeAmount.toString()),

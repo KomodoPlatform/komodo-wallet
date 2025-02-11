@@ -37,7 +37,7 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
             // (e.g. Binance), some of which are not in our known/available
             // assets/coins list. This filter ensures that we only attempt to
             // fetch and display data for supported coins
-            .where((coin) => sdk.assets.assetsFromTicker(coin.id).length >= 1)
+            .where((coin) => sdk.assets.assetsFromTicker(coin.id).isNotEmpty)
             .map((coin) async {
           double? dayChangePercent = coinPrices[coin.symbol]?.change24h;
 
