@@ -57,11 +57,11 @@ class TransactionHistoryBloc
       return;
     }
 
-    await _historySubscription?.cancel();
-    await _newTransactionsSubscription?.cancel();
-    _processedTxIds.clear();
-
     try {
+      await _historySubscription?.cancel();
+      await _newTransactionsSubscription?.cancel();
+      _processedTxIds.clear();
+
       add(const TransactionHistoryStartedLoading());
       final asset = _sdk.assets.available[event.coin.id];
       if (asset == null) {
@@ -101,7 +101,9 @@ class TransactionHistoryBloc
           );
         },
         onDone: () {
-          add(TransactionHistoryUpdated(transactions: state.transactions));
+          if (state.error == null && state.loading) {
+            add(TransactionHistoryUpdated(transactions: state.transactions));
+          }
           // Once historical load is complete, start watching for new transactions
           _subscribeToNewTransactions(asset, event.coin);
         },
