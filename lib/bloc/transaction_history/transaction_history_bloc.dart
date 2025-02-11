@@ -42,13 +42,24 @@ class TransactionHistoryBloc
     TransactionHistorySubscribe event,
     Emitter<TransactionHistoryState> emit,
   ) async {
-    if (!hasTxHistorySupport(event.coin)) return;
+    emit(const TransactionHistoryState.initial());
+
+    if (!hasTxHistorySupport(event.coin)) {
+      emit(
+        state.copyWith(
+          loading: false,
+          error: TextError(
+            error: 'Transaction history is not supported for this coin.',
+          ),
+          transactions: const [],
+        ),
+      );
+      return;
+    }
 
     await _historySubscription?.cancel();
     await _newTransactionsSubscription?.cancel();
     _processedTxIds.clear();
-
-    emit(const TransactionHistoryState.initial());
 
     try {
       add(const TransactionHistoryStartedLoading());

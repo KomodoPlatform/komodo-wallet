@@ -394,7 +394,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
           availableBalanceState: () => AvailableBalanceState.loading));
     }
 
-    if (!_isLoggedIn) {
+    if (!_isLoggedIn || !state.sellCoin!.isActive) {
       emitter(state.copyWith(
           availableBalanceState: () => AvailableBalanceState.unavailable));
     } else {
