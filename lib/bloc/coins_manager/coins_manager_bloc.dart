@@ -215,16 +215,10 @@ Future<List<Coin>> _getOriginalCoinList(
     case CoinsManagerAction.add:
       return await _getDeactivatedCoins(coinsRepo, sdk, walletType);
     case CoinsManagerAction.remove:
-      return await _getActivatedCoins(coinsRepo);
+      return await coinsRepo.getWalletCoins();
     case CoinsManagerAction.none:
       return [];
   }
-}
-
-Future<List<Coin>> _getActivatedCoins(CoinsRepo coinsRepo) async {
-  return (await coinsRepo.getEnabledCoins())
-      .where((coin) => !coin.isActivating)
-      .toList();
 }
 
 Future<List<Coin>> _getDeactivatedCoins(

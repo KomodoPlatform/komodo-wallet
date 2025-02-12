@@ -115,6 +115,18 @@ class CoinsRepo {
     }
   }
 
+  Future<List<Coin>> getWalletCoins() async {
+    final currentUser = await _kdfSdk.auth.currentUser;
+    if (currentUser == null) {
+      return [];
+    }
+
+    final activatedCoins = await _kdfSdk.assets.getActivatedAssets();
+    return activatedCoins
+        .map((Asset asset) => _assetToCoinWithoutAddress(asset))
+        .toList();
+  }
+
   Future<Coin?> getEnabledCoin(String coinId) async {
     final enabledAssets = _kdfSdk.assets.assetsFromTicker(coinId);
     if (enabledAssets.length != 1) {
