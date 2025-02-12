@@ -27,7 +27,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         await _kdfSdk.client.rpc.address.convertAddress(
       from: address,
       coin: network.ticker,
-      toFormat: AddressFormat.fromCoinSubClass(network),
+      toFormat: AddressFormat.fromCoinSubClass(CoinSubClass.erc20),
     );
     final contractAddress = convertAddressResponse.address;
     final knownCoin = _kdfSdk.assets.available.values.firstWhereOrNull(
@@ -52,7 +52,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     final response = await _kdfSdk.client.rpc.utility.getTokenInfo(
       contractAddress: contractAddress,
       platform: network.ticker,
-      protocolType: network.formatted,
+      protocolType: CoinSubClass.erc20.formatted,
     );
 
     final platformAssets = _kdfSdk.assets.findAssetsByTicker(network.ticker);
