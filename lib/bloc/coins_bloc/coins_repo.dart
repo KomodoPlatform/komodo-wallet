@@ -110,7 +110,7 @@ class CoinsRepo {
       return [];
     }
 
-    final activatedCoins = currentUser.wallet.config.activatedCoins;
+    final activatedCoins = await _kdfSdk.assets.getEnabledCoins();
     final knownCoins = getKnownCoinsMap();
     return activatedCoins
         .map((String coinId) => knownCoins[coinId])

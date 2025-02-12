@@ -229,9 +229,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       await _currentWalletBloc.removeCoin(coin.abbr);
       await _mm2Api.disableCoin(coin.abbr);
 
-      final newWalletCoins = Map<String, Coin>.from(state.walletCoins);
-      state.walletCoins.remove(coin.abbr);
-      final newCoins = Map<String, Coin>.from(state.coins);
+      final newWalletCoins = Map<String, Coin>.of(state.walletCoins)
+        ..remove(coin.abbr);
+      final newCoins = Map<String, Coin>.of(state.coins);
       newCoins[coin.abbr]!.state = CoinState.inactive;
       emit(state.copyWith(walletCoins: newWalletCoins, coins: newCoins));
 
@@ -350,20 +350,31 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     // in the list at once, rather than one at a time as they are activated
     _prePopulateListWithActivatingCoins(coins, emit);
 
-    await _kdfSdk.addActivatedCoins(coins);
-    for (final coin in coins) {
-      await _currentWalletBloc.addCoin(state.coins[coin]!);
+    try {
+      await _kdfSdk.addActivatedCoins(coins);
+      await Future.wait(
+        coins.map((coin) => _currentWalletBloc.addCoin(state.coins[coin]!)),
+      );
+    } catch (e, s) {
+      log(
+        'Failed to activate coins in SDK: $e',
+        isError: true,
+        path: 'coins_bloc => _activateCoins',
+        trace: s,
+      ).ignore();
+      // Update state to reflect failure
+      return [];
     }
+
     final enableFutures = coins.map((coin) => _activateCoin(coin)).toList();
     final results = <Coin>[];
     await for (final coin
         in Stream<Coin>.fromFutures(enableFutures).asBroadcastStream()) {
       results.add(coin);
-      final currentState = state;
       emit(
-        currentState.copyWith(
-          walletCoins: {...currentState.walletCoins, coin.abbr: coin},
-          coins: {...currentState.coins, coin.abbr: coin},
+        state.copyWith(
+          walletCoins: {...state.walletCoins, coin.abbr: coin},
+          coins: {...state.coins, coin.abbr: coin},
         ),
       );
     }
@@ -407,7 +418,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       case WalletType.hdwallet:
         coin = await _activateIguanaCoin(coin);
       case WalletType.trezor:
-        final asset = _kdfSdk.assets.assetsFromTicker(coin.abbr).single;
+        final asset = _kdfSdk.assets.available[coin.id];
+        if (asset == null) {
+          log('Failed to find asset for coin: ${coin.id}', isError: true);
+          return coin.copyWith(state: CoinState.suspended);
+        }
         final accounts = await _trezorBloc.activateCoin(asset);
         final state =
             accounts.isNotEmpty ? CoinState.active : CoinState.suspended;
