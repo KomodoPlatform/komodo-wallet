@@ -77,8 +77,8 @@ class CustomTokenImportBloc
 
       await _coinsRepo.activateAssetsSync([tokenData]);
 
-      final balanceInfo = await _coinsRepo.getBalanceInfo(tokenData.id);
-      final balance = balanceInfo?.spendable ?? Decimal.zero;
+      final balanceInfo = await _coinsRepo.tryGetBalanceInfo(tokenData.id);
+      final balance = balanceInfo.spendable;
       final usdBalance =
           _coinsRepo.getUsdPriceByAmount(balance.toString(), tokenData.id.id);
 

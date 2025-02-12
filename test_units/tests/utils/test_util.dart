@@ -3,8 +3,12 @@ import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 
-Coin setCoin(
-    {double? usdPrice, double? change24h, String? coinAbbr, double? balance}) {
+Coin setCoin({
+  double? usdPrice,
+  double? change24h,
+  String? coinAbbr,
+  double? balance,
+}) {
   return Coin(
     abbr: coinAbbr ?? 'KMD',
     id: AssetId(

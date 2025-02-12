@@ -17,34 +17,38 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
   final KomodoDefiSdk _sdk;
 
   @override
-  Future<List<Transaction>> fetch(AssetId assetId, [String? fromId]) async {
+  Future<List<Transaction>?> fetch(AssetId assetId, {String? fromId}) async {
     final asset = _sdk.assets.available[assetId];
     if (asset == null) {
       throw TransactionFetchException('Asset $assetId not found');
     }
 
-    final transactionHistory = await _sdk.transactions.getTransactionHistory(
-      asset,
-      pagination: fromId == null
-          ? const PagePagination(
-              pageNumber: 1,
-              // TODO: Handle cases with more than 2000 transactions and/or
-              // adopt a pagination strategy. Migrate form
-              itemsPerPage: 2000,
-            )
-          : TransactionBasedPagination(
-              fromId: fromId,
-              itemCount: 2000,
-            ),
-    );
-    return transactionHistory.transactions;
+    try {
+      final transactionHistory = await _sdk.transactions.getTransactionHistory(
+        asset,
+        pagination: fromId == null
+            ? const PagePagination(
+                pageNumber: 1,
+                // TODO: Handle cases with more than 2000 transactions and/or
+                // adopt a pagination strategy. Migrate form
+                itemsPerPage: 2000,
+              )
+            : TransactionBasedPagination(
+                fromId: fromId,
+                itemCount: 2000,
+              ),
+      );
+      return transactionHistory.transactions;
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Fetches transactions for the provided [coin] where the transaction
   /// timestamp is not 0 (transaction is completed and/or confirmed).
   @override
   Future<List<Transaction>> fetchCompletedTransactions(AssetId assetId) async {
-    final List<Transaction> transactions = (await fetch(assetId))
+    final List<Transaction> transactions = (await fetch(assetId) ?? [])
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp))
       ..removeWhere(
         (transaction) =>

@@ -14,7 +14,7 @@ final class TransactionHistoryState extends Equatable {
   final BaseError? error;
 
   @override
-  List<Object?> get props => [transactions, loading];
+  List<Object?> get props => [transactions, loading, error];
 
   const TransactionHistoryState.initial()
       : transactions = const [],
