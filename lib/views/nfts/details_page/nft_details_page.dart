@@ -41,8 +41,10 @@ class NftDetailsPage extends StatelessWidget {
         }
         final nfts = context.read<NftMainBloc>().state.nfts;
         final NftToken? nft = nfts.values
-            .firstWhereOrNull((list) =>
-                list?.firstWhereOrNull((token) => token.uuid == uuid) != null)
+            .firstWhereOrNull(
+              (list) =>
+                  list?.firstWhereOrNull((token) => token.uuid == uuid) != null,
+            )
             ?.firstWhereOrNull((token) => token.uuid == uuid);
         final mm2Api = RepositoryProvider.of<Mm2Api>(context);
         final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);

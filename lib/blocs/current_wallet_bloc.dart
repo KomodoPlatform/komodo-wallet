@@ -77,7 +77,9 @@ class CurrentWalletBloc implements BlocBase {
       final mnemonic = await _kdfSdk.auth.getMnemonicPlainText(password);
 
       wallet.config.seedPhrase = await _encryptionTool.encryptData(
-          password, mnemonic.plaintextMnemonic ?? '');
+        password,
+        mnemonic.plaintextMnemonic ?? '',
+      );
     }
 
     final String data = jsonEncode(wallet.config);

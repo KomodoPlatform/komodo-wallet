@@ -85,10 +85,12 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
         isError: true,
         trace: s,
       ).ignore();
-      emit(state.copyWith(
-        error: () => TextError(error: LocaleKeys.somethingWrong.tr()),
-        inProgress: () => false,
-      ));
+      emit(
+        state.copyWith(
+          error: () => TextError(error: LocaleKeys.somethingWrong.tr()),
+          inProgress: () => false,
+        ),
+      );
       return;
     }
 
@@ -97,27 +99,33 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
     final InitTrezorResult? responseResult = response.result;
 
     if (responseError != null) {
-      emit(state.copyWith(
-        error: () => TextError(error: responseError),
-        inProgress: () => false,
-      ));
+      emit(
+        state.copyWith(
+          error: () => TextError(error: responseError),
+          inProgress: () => false,
+        ),
+      );
       await _logout();
       return;
     }
     if (responseResult == null) {
-      emit(state.copyWith(
-        error: () => TextError(error: LocaleKeys.somethingWrong.tr()),
-        inProgress: () => false,
-      ));
+      emit(
+        state.copyWith(
+          error: () => TextError(error: LocaleKeys.somethingWrong.tr()),
+          inProgress: () => false,
+        ),
+      );
       await _logout();
       return;
     }
 
     add(const TrezorInitSubscribeStatus());
-    emit(state.copyWith(
-      taskId: () => responseResult.taskId,
-      inProgress: () => false,
-    ));
+    emit(
+      state.copyWith(
+        taskId: () => responseResult.taskId,
+        inProgress: () => false,
+      ),
+    );
   }
 
   Future<void> _onSubscribeStatus(
@@ -155,9 +163,12 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
 
     final InitTrezorStatusData? initTrezorStatus = response.result;
     if (initTrezorStatus == null) {
-      emit(state.copyWith(
+      emit(
+        state.copyWith(
           error: () =>
-              TextError(error: 'Something went wrong. Empty init status.')));
+              TextError(error: 'Something went wrong. Empty init status.'),
+        ),
+      );
 
       await _logout();
       return;
@@ -242,11 +253,13 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
       await _trezorRepo.initCancel(taskId);
     }
     _logout();
-    emit(state.copyWith(
-      taskId: () => null,
-      status: () => null,
-      error: () => null,
-    ));
+    emit(
+      state.copyWith(
+        taskId: () => null,
+        status: () => null,
+        error: () => null,
+      ),
+    );
   }
 
   FutureOr<void> _onAuthModeChange(
@@ -258,9 +271,10 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
 
   /// KDF has to be running with a seed/wallet to init a trezor, so this signs
   /// into a static 'hidden' wallet to init trezor
-  Future<void> _loginToTrezorWallet(
-      {String walletName = 'My Trezor',
-      String password = 'hidden-login'}) async {
+  Future<void> _loginToTrezorWallet({
+    String walletName = 'My Trezor',
+    String password = 'hidden-login',
+  }) async {
     final bool mm2SignedIn = await _kdfSdk.auth.isSignedIn();
     if (state.kdfUser != null && mm2SignedIn) {
       return;

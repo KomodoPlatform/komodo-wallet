@@ -58,17 +58,21 @@ class TrezorRepo {
   }
 
   Future<void> sendPin(String pin, TrezorTask trezorTask) async {
-    await _api.pin(TrezorPinRequest(
-      pin: pin,
-      task: trezorTask,
-    ));
+    await _api.pin(
+      TrezorPinRequest(
+        pin: pin,
+        task: trezorTask,
+      ),
+    );
   }
 
   Future<void> sendPassphrase(String passphrase, TrezorTask trezorTask) async {
-    await _api.passphrase(TrezorPassphraseRequest(
-      passphrase: passphrase,
-      task: trezorTask,
-    ));
+    await _api.passphrase(
+      TrezorPassphraseRequest(
+        passphrase: passphrase,
+        task: trezorTask,
+      ),
+    );
   }
 
   Future<void> initCancel(int taskId) async {

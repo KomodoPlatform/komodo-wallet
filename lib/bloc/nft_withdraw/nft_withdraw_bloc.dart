@@ -52,12 +52,14 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     if (state is! NftWithdrawFillState) return;
     if (state.isSending) return;
 
-    emit(state.copyWith(
-      isSending: () => true,
-      addressError: () => null,
-      amountError: () => null,
-      sendError: () => null,
-    ));
+    emit(
+      state.copyWith(
+        isSending: () => true,
+        addressError: () => null,
+        amountError: () => null,
+        sendError: () => null,
+      ),
+    );
     final NftToken nft = state.nft;
     final String address = state.address;
     final int? amount = state.amount;
@@ -69,11 +71,13 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final BaseError? amountError =
         _validateAmount(amount, int.parse(nft.amount), nft.contractType);
     if (addressError != null || amountError != null) {
-      emit(state.copyWith(
-        isSending: () => false,
-        addressError: () => addressError,
-        amountError: () => amountError,
-      ));
+      emit(
+        state.copyWith(
+          isSending: () => false,
+          addressError: () => addressError,
+          amountError: () => amountError,
+        ),
+      );
       return;
     }
 
@@ -83,12 +87,14 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
       final NftTransactionDetails result = response.result;
 
-      emit(NftWithdrawConfirmState(
-        nft: state.nft,
-        isSending: false,
-        txDetails: result,
-        sendError: null,
-      ));
+      emit(
+        NftWithdrawConfirmState(
+          nft: state.nft,
+          isSending: false,
+          txDetails: result,
+          sendError: null,
+        ),
+      );
     } on ApiError catch (e) {
       emit(state.copyWith(sendError: () => e, isSending: () => false));
     } on TransportError catch (e) {
@@ -102,14 +108,18 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
   }
 
   Future<void> _onConfirmSend(
-      NftWithdrawConfirmSendEvent event, Emitter<NftWithdrawState> emit) async {
+    NftWithdrawConfirmSendEvent event,
+    Emitter<NftWithdrawState> emit,
+  ) async {
     final state = this.state;
     if (state is! NftWithdrawConfirmState) return;
 
-    emit(state.copyWith(
-      isSending: () => true,
-      sendError: () => null,
-    ));
+    emit(
+      state.copyWith(
+        isSending: () => true,
+        sendError: () => null,
+      ),
+    );
     final txDetails = state.txDetails;
 
     final SendRawTransactionResponse response =
@@ -117,30 +127,38 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final BaseError? responseError = response.error;
     final String? txHash = response.txHash;
     if (txHash == null) {
-      emit(state.copyWith(
-        isSending: () => false,
-        sendError: () =>
-            responseError ?? TextError(error: LocaleKeys.somethingWrong),
-      ));
+      emit(
+        state.copyWith(
+          isSending: () => false,
+          sendError: () =>
+              responseError ?? TextError(error: LocaleKeys.somethingWrong),
+        ),
+      );
     } else {
-      emit(NftWithdrawSuccessState(
-        txHash: txHash,
-        nft: state.nft,
-        timestamp: txDetails.timestamp,
-        to: txDetails.to.first,
-      ));
+      emit(
+        NftWithdrawSuccessState(
+          txHash: txHash,
+          nft: state.nft,
+          timestamp: txDetails.timestamp,
+          to: txDetails.to.first,
+        ),
+      );
     }
   }
 
   void _onAddressChanged(
-      NftWithdrawAddressChanged event, Emitter<NftWithdrawState> emit) {
+    NftWithdrawAddressChanged event,
+    Emitter<NftWithdrawState> emit,
+  ) {
     final state = this.state;
     if (state is! NftWithdrawFillState) return;
-    emit(state.copyWith(
-      address: () => event.address,
-      addressError: () => null,
-      sendError: () => null,
-    ));
+    emit(
+      state.copyWith(
+        address: () => event.address,
+        addressError: () => null,
+        sendError: () => null,
+      ),
+    );
   }
 
   void _onAmountChanged(
@@ -150,11 +168,13 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final state = this.state;
     if (state is! NftWithdrawFillState) return;
 
-    emit(state.copyWith(
-      amount: () => event.amount,
-      amountError: () => null,
-      sendError: () => null,
-    ));
+    emit(
+      state.copyWith(
+        amount: () => event.amount,
+        amountError: () => null,
+        sendError: () => null,
+      ),
+    );
   }
 
   Future<BaseError?> _validateAddress(
@@ -193,22 +213,27 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     }
     if (amount > totalAmount) {
       return TextError(
-          error: LocaleKeys.maxCount.tr(args: [totalAmount.toString()]));
+        error: LocaleKeys.maxCount.tr(args: [totalAmount.toString()]),
+      );
     }
     return null;
   }
 
   FutureOr<void> _onShowFillForm(
-      NftWithdrawShowFillStep event, Emitter<NftWithdrawState> emit) {
+    NftWithdrawShowFillStep event,
+    Emitter<NftWithdrawState> emit,
+  ) {
     final state = this.state;
 
     if (state is NftWithdrawConfirmState) {
-      emit(NftWithdrawFillState(
-        address: state.txDetails.to.first,
-        amount: int.tryParse(state.txDetails.amount),
-        isSending: false,
-        nft: state.nft,
-      ));
+      emit(
+        NftWithdrawFillState(
+          address: state.txDetails.to.first,
+          amount: int.tryParse(state.txDetails.amount),
+          isSending: false,
+          nft: state.nft,
+        ),
+      );
     } else {
       emit(NftWithdrawFillState.initial(state.nft));
     }
@@ -224,7 +249,9 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
   }
 
   Future<void> _onConvertAddress(
-      NftWithdrawConvertAddress event, Emitter<NftWithdrawState> emit) async {
+    NftWithdrawConvertAddress event,
+    Emitter<NftWithdrawState> emit,
+  ) async {
     final state = this.state;
     if (state is! NftWithdrawFillState) return;
 
@@ -237,10 +264,12 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       );
       add(NftWithdrawAddressChanged(result.address));
     } catch (e) {
-      emit(state.copyWith(
-        address: () => '',
-        addressError: () => TextError(error: e.toString()),
-      ));
+      emit(
+        state.copyWith(
+          address: () => '',
+          addressError: () => TextError(error: e.toString()),
+        ),
+      );
     }
   }
 

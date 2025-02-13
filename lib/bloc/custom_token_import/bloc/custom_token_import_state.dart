@@ -18,7 +18,7 @@ class CustomTokenImportState extends Equatable {
     required this.evmNetworks,
   });
 
-CustomTokenImportState.defaults({
+  CustomTokenImportState.defaults({
     this.network = CoinSubClass.erc20,
     this.address = '',
     this.formStatus = FormStatus.initial,
@@ -27,7 +27,7 @@ CustomTokenImportState.defaults({
     this.importErrorMessage = '',
     this.coin,
     this.evmNetworks = const [],
-  }) : coinBalance = Decimal.zero,
+  })  : coinBalance = Decimal.zero,
         coinBalanceUsd = Decimal.zero;
 
   final FormStatus formStatus;
