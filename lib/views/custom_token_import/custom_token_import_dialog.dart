@@ -54,7 +54,7 @@ class CustomTokenImportDialogState extends State<CustomTokenImportDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
         width: 450,
-        height: 450,
+        height: 358,
         child: PageView(
           controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
@@ -90,6 +90,7 @@ class BasePage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -122,7 +123,7 @@ class BasePage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Expanded(child: child),
+          Flexible(child: child),
         ],
       ),
     );
@@ -157,6 +158,7 @@ class ImportFormPage extends StatelessWidget {
           title: LocaleKeys.importCustomToken.tr(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
@@ -216,7 +218,7 @@ class ImportFormPage extends StatelessWidget {
                   border: const OutlineInputBorder(),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 24),
               UiPrimaryButton(
                 onPressed: isSubmitEnabled
                     ? () {
@@ -273,14 +275,16 @@ class ImportSubmitPage extends StatelessWidget {
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: newCoin == null
                 ? [
-                    Expanded(
+                    Flexible(
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Image.asset(
                             '$assetsPath/logo/not_found.png',
-                            height: 300,
+                            height: 250,
                             filterQuality: FilterQuality.high,
                           ),
                           Text(
@@ -291,9 +295,10 @@ class ImportSubmitPage extends StatelessWidget {
                     ),
                   ]
                 : [
-                    Expanded(
+                    Flexible(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           CoinIcon.ofSymbol(
                             newCoin.id.id,
@@ -317,12 +322,13 @@ class ImportSubmitPage extends StatelessWidget {
                             '$newCoinBalance ${newCoin.id.id} ($newCoinUsdBalance)',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
+                          const SizedBox(height: 8),
                         ],
                       ),
                     ),
                     if (state.importErrorMessage.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Text(
                           state.importErrorMessage,
                           textAlign: TextAlign.start,
