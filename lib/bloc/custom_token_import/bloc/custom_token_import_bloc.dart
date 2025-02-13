@@ -72,9 +72,14 @@ class CustomTokenImportBloc
     emit(state.copyWith(formStatus: FormStatus.submitting));
 
     try {
+      final networkAsset = _coinsRepo.getCoin(state.network.ticker);
+      if (networkAsset == null) {
+        throw Exception('Network asset ${state.network.formatted} not found');
+      }
+
+      await _coinsRepo.activateCoinsSync([networkAsset]);
       final tokenData =
           await repository.fetchCustomToken(state.network, state.address);
-
       await _coinsRepo.activateAssetsSync([tokenData]);
 
       final balanceInfo = await _coinsRepo.tryGetBalanceInfo(tokenData.id);
@@ -92,6 +97,8 @@ class CustomTokenImportBloc
           formErrorMessage: '',
         ),
       );
+
+      await _coinsRepo.deactivateCoinsSync([tokenData.toCoin()]);
     } catch (e, s) {
       log(
         'Error fetching custom token: ${e.toString()}',
