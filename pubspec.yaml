@@ -72,8 +72,8 @@ dependencies:
 
   # Upgraded Firebase, needs secure code review
 
-  firebase_analytics: 10.10.5
-  firebase_core: 2.31.0
+  firebase_analytics: 11.4.2
+  firebase_core: 3.11.0
 
   ## ---- Fluttercommunity.dev
 
