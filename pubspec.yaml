@@ -57,7 +57,7 @@ dependencies:
   url_launcher: 6.3.0 # flutter.dev
   crypto: 3.0.3 # dart.dev
   cross_file: 0.3.4+2 # flutter.dev
-  video_player: 2.7.0 # flutter.dev
+  video_player: 2.9.2 # flutter.dev
 
   ## ---- google.com
 

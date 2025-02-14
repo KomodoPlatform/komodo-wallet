@@ -6,7 +6,7 @@ inputs:
   java-version:
     description: "Java version to use"
     required: false
-    default: "17"
+    default: "21"
   keystore-base64:
     description: "Base64 encoded Android keystore file"
     required: false
