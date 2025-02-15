@@ -8,7 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  http: ^1.3.0 # dart.dev
+  http: 1.3.0 # dart.dev
 
   equatable: 2.0.7
 

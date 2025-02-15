@@ -49,18 +49,18 @@ dependencies:
 
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
-  dragon_logs: 1.0.4 # Secure code review PR URL: TODO
+  dragon_logs: 1.1.0
 
   ## ---- Dart.dev, Flutter.dev
-  args: ^2.6.0 # dart.dev
-  flutter_markdown: ^0.7.6+2 # flutter.dev
-  http: ^1.3.0 # dart.dev
-  intl: ^0.20.2 # dart.dev
-  js: 0.6.7 # dart.dev
-  url_launcher: ^6.3.1 # flutter.dev
-  crypto: ^3.0.6 # dart.dev
+  args: 2.6.0 # dart.dev
+  flutter_markdown: 0.7.6+2 # flutter.dev
+  http: 1.3.0 # dart.dev
+  intl: 0.20.2 # dart.dev
+  js: ">=0.6.7 <=0.7.2" # dart.dev
+  url_launcher: 6.3.1 # flutter.dev
+  crypto: 3.0.6 # dart.dev
   cross_file: 0.3.4+2 # flutter.dev
-  video_player: ^2.9.2 # flutter.dev
+  video_player: 2.9.2 # flutter.dev
 
   ## ---- google.com
 
@@ -75,8 +75,8 @@ dependencies:
 
   # Upgraded Firebase, needs secure code review
 
-  firebase_analytics: ^11.4.2
-  firebase_core: ^3.11.0
+  firebase_analytics: 11.4.2
+  firebase_core: 3.11.0
 
   ## ---- Fluttercommunity.dev
 
@@ -84,29 +84,28 @@ dependencies:
   equatable: 2.0.7 # sdk depends on hosted version, and not from git
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  package_info_plus: ^8.2.1
+  package_info_plus: 8.2.1
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  share_plus: ^10.1.4
+  share_plus: 10.1.4
 
   ## ---- 3d party
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  bip39: ^1.0.6
+  bip39: 1.0.6
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  encrypt: ^5.0.1
+  encrypt: 5.0.3
 
-  # Consider newly added, needs secure code review
-  flutter_svg: ^2.0.7
-
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  qr_flutter: ^4.0.0
-
-  easy_localization: ^3.0.7+1 # last reviewed 3.0.2 via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+  flutter_svg: 2.0.17
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  universal_html: ^2.2.2
+  qr_flutter: 4.1.0
+
+  easy_localization: 3.0.7+1 # last reviewed 3.0.2 via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+  universal_html: 2.2.4
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   hive:
@@ -123,29 +122,29 @@ dependencies:
       ref: 0cbaab793be77b19b4740bc85d7ea6461b9762b4 #1.1.0
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  badges: ^3.1.2
+  badges: 3.1.2
 
-  flutter_slidable: ^4.0.0
+  flutter_slidable: 4.0.0
 
   # Embedded web view
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/3
-  flutter_inappwebview: ^6.1.5 # Android, iOS, macOS, Web (currently broke, open issue)
+  flutter_inappwebview: 6.1.5 # Android, iOS, macOS, Web (currently broke, open issue)
 
   # Newly added, not yet reviewed
-  formz: ^0.8.0
+  formz: 0.8.0
 
   # TODO: review required
-  dragon_charts_flutter: ^0.1.1-dev.1
-  bloc_concurrency: ^0.3.0
-  file_picker: ^8.1.2 # Updated from git ref @5.1.4
+  dragon_charts_flutter: 0.1.1-dev.1
+  bloc_concurrency: 0.3.0
+  file_picker: 8.3.7
 
   # TODO: review required - SDK integration
-  path_provider: ^2.1.5 # flutter.dev
-  shared_preferences: ^2.5.2 # flutter.dev
-  decimal: ^3.2.1 # transitive dependency that is required to fix breaking changes in rational package
-  rational: ^2.2.3 # sdk depends on decimal ^3.0.2, which depends on rational ^2.0.0
-  uuid: ^4.5.1 # sdk depends on this version
-  flutter_bloc: ^9.0.0 # sdk depends on this version, and hosted instead of git reference
+  path_provider: 2.1.5 # flutter.dev
+  shared_preferences: 2.5.2 # flutter.dev
+  decimal: 3.2.1 # transitive dependency that is required to fix breaking changes in rational package
+  rational: 2.2.3 # sdk depends on decimal ^3.0.2, which depends on rational ^2.0.0
+  uuid: 4.5.1 # sdk depends on this version
+  flutter_bloc: 9.0.0 # sdk depends on this version, and hosted instead of git reference
   komodo_defi_sdk: # TODO: change to pub.dev version?
     path: sdk/packages/komodo_defi_sdk # Requires symlink to the SDK in the root of the project
     # git:
@@ -180,9 +179,8 @@ dev_dependencies:
   flutter_lints: ^5.0.0 # flutter.dev
 
 dependency_overrides:
-  # Temporary until 1st party `dragon_logs` package is migrated to the SDK
+  # Temporary until Flutter's pinned version is updated
   intl: ^0.20.2
-  share_plus: ^10.1.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,5 +1,5 @@
 name: komodo_ui_kit
-description: Komodo AtomicDEX's UIKit Flutter package.
+description: Komodo Wallet's UI Kit Flutter package.
 publish_to: none
 
 environment:
