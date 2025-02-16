@@ -18,26 +18,28 @@ class WalletPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CoinsBloc, CoinsState>(builder: (context, state) {
-      final Coin? coin = state.walletCoins[coinAbbr ?? ''];
-      if (coin != null && coin.enabledType != null) {
-        return CoinDetails(
-          key: Key(coin.abbr),
-          coin: coin,
-          onBackButtonPressed: _onBackButtonPressed,
-        );
-      }
+    return BlocBuilder<CoinsBloc, CoinsState>(
+      builder: (context, state) {
+        final Coin? coin = state.walletCoins[coinAbbr ?? ''];
+        if (coin != null) {
+          return CoinDetails(
+            key: Key(coin.abbr),
+            coin: coin,
+            onBackButtonPressed: _onBackButtonPressed,
+          );
+        }
 
-      final action = this.action;
-      if (action != CoinsManagerAction.none) {
-        return CoinsManagerPage(
-          action: action,
-          closePage: _onBackButtonPressed,
-        );
-      }
+        final action = this.action;
+        if (action != CoinsManagerAction.none) {
+          return CoinsManagerPage(
+            action: action,
+            closePage: _onBackButtonPressed,
+          );
+        }
 
-      return const WalletMain();
-    });
+        return const WalletMain();
+      },
+    );
   }
 
   void _onBackButtonPressed() {

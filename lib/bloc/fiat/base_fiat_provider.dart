@@ -211,6 +211,7 @@ abstract class BaseFiatProvider {
     // ZILLIQA
   }
 
+  // TODO: migrate to SDK [CoinSubClass] ticker/formatted getters
   CoinType? getCoinType(String chain) {
     switch (chain) {
       case 'BTC':

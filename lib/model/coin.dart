@@ -23,6 +23,7 @@ class Coin {
     required this.protocolType,
     required this.protocolData,
     required this.isTestCoin,
+    required this.logoImageUrl,
     required this.coingeckoId,
     required this.fallbackSwapContract,
     required this.priority,
@@ -34,6 +35,7 @@ class Coin {
     this.usdPrice,
     this.coinpaprikaId,
     this.activeByDefault = false,
+    this.isCustomCoin = false,
     required String? swapContractAddress,
     required bool walletOnly,
     required this.mode,
@@ -45,6 +47,7 @@ class Coin {
   final String abbr;
   final String name;
   final AssetId id;
+  final String? logoImageUrl;
   final String? coingeckoId;
   final String? coinpaprikaId;
   final CoinType type;
@@ -58,6 +61,7 @@ class Coin {
   final int decimals;
   CexPrice? usdPrice;
   final bool isTestCoin;
+  bool isCustomCoin;
   String? address;
   List<HdAccount>? accounts;
   final double _balance;
@@ -222,6 +226,8 @@ class Coin {
       explorerAddressUrl: explorerAddressUrl,
       protocolType: protocolType,
       isTestCoin: isTestCoin,
+      isCustomCoin: isCustomCoin,
+      logoImageUrl: logoImageUrl,
       coingeckoId: coingeckoId,
       fallbackSwapContract: fallbackSwapContract,
       priority: priority,
@@ -261,6 +267,7 @@ class Coin {
     String? explorerTxUrl,
     String? explorerAddressUrl,
     String? protocolType,
+    String? logoImageUrl,
     ProtocolData? protocolData,
     bool? isTestCoin,
     String? coingeckoId,
@@ -281,12 +288,14 @@ class Coin {
     WalletType? enabledType,
     double? balance,
     double? sendableBalance,
+    bool? isCustomCoin,
   }) {
     return Coin(
       type: type ?? this.type,
       abbr: abbr ?? this.abbr,
       id: id ?? this.id,
       name: name ?? this.name,
+      logoImageUrl: logoImageUrl ?? this.logoImageUrl,
       explorerUrl: explorerUrl ?? this.explorerUrl,
       explorerTxUrl: explorerTxUrl ?? this.explorerTxUrl,
       explorerAddressUrl: explorerAddressUrl ?? this.explorerAddressUrl,
@@ -308,6 +317,7 @@ class Coin {
       walletOnly: walletOnly ?? _walletOnly,
       mode: mode ?? this.mode,
       balance: balance ?? _balance,
+      isCustomCoin: isCustomCoin ?? this.isCustomCoin,
     )
       ..address = address ?? this.address
       ..enabledType = enabledType ?? this.enabledType
@@ -317,129 +327,6 @@ class Coin {
 
 extension LegacyCoinToSdkAsset on Coin {
   Asset toSdkAsset(KomodoDefiSdk sdk) => getSdkAsset(sdk, abbr);
-}
-
-CoinType? getCoinType(String? jsonType, String coinAbbr) {
-  // anchor: protocols support
-  for (CoinType value in CoinType.values) {
-    switch (value) {
-      case CoinType.utxo:
-        if (jsonType == 'UTXO') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.smartChain:
-        if (jsonType == 'Smart Chain') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.erc20:
-        if (jsonType == 'ERC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.bep20:
-        if (jsonType == 'BEP-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.qrc20:
-        if (jsonType == 'QRC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.ftm20:
-        if (jsonType == 'FTM-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.arb20:
-        if (jsonType == 'Arbitrum') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.etc:
-        if (jsonType == 'Ethereum Classic') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.avx20:
-        if (jsonType == 'AVX-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.mvr20:
-        if (jsonType == 'Moonriver') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.hco20:
-        if (jsonType == 'HecoChain') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.plg20:
-        if (jsonType == 'Matic') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.sbch:
-        if (jsonType == 'SmartBCH') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.ubiq:
-        if (jsonType == 'Ubiq') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.hrc20:
-        if (jsonType == 'HRC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.krc20:
-        if (jsonType == 'KRC-20') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.cosmos:
-        if (jsonType == 'TENDERMINT' && coinAbbr != 'IRIS') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.iris:
-        if (jsonType == 'TENDERMINTTOKEN' || coinAbbr == 'IRIS') {
-          return value;
-        } else {
-          continue;
-        }
-      case CoinType.slp:
-        if (jsonType == 'SLP') {
-          return value;
-        } else {
-          continue;
-        }
-    }
-  }
-  return null;
 }
 
 class ProtocolData {

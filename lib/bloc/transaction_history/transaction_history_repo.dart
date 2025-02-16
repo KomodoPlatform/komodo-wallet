@@ -24,7 +24,6 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
     }
 
     try {
-      final asset = _sdk.assets.available[assetId]!;
       final transactionHistory = await _sdk.transactions.getTransactionHistory(
         asset,
         pagination: fromId == null

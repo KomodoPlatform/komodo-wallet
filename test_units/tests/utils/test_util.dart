@@ -26,6 +26,7 @@ Coin setCoin({
     ),
     accounts: null,
     activeByDefault: true,
+    logoImageUrl: null,
     coingeckoId: "komodo",
     coinpaprikaId: "kmd-komodo",
     derivationPath: "m/44'/141'/0'",
