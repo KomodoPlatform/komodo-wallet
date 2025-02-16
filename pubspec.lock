@@ -655,44 +655,56 @@ packages:
   komodo_coins:
     dependency: transitive
     description:
-      path: "sdk/packages/komodo_coins"
-      relative: true
-    source: path
+      path: "packages/komodo_coins"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_defi_framework:
     dependency: transitive
     description:
-      path: "sdk/packages/komodo_defi_framework"
-      relative: true
-    source: path
+      path: "packages/komodo_defi_framework"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0"
   komodo_defi_local_auth:
     dependency: transitive
     description:
-      path: "sdk/packages/komodo_defi_local_auth"
-      relative: true
-    source: path
+      path: "packages/komodo_defi_local_auth"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_defi_rpc_methods:
     dependency: transitive
     description:
-      path: "sdk/packages/komodo_defi_rpc_methods"
-      relative: true
-    source: path
+      path: "packages/komodo_defi_rpc_methods"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_defi_sdk:
     dependency: "direct main"
     description:
-      path: "sdk/packages/komodo_defi_sdk"
-      relative: true
-    source: path
+      path: "packages/komodo_defi_sdk"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_defi_types:
     dependency: "direct main"
     description:
-      path: "sdk/packages/komodo_defi_types"
-      relative: true
-    source: path
+      path: "packages/komodo_defi_types"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_persistence_layer:
     dependency: "direct main"
@@ -704,9 +716,11 @@ packages:
   komodo_ui:
     dependency: "direct main"
     description:
-      path: "sdk/packages/komodo_ui"
-      relative: true
-    source: path
+      path: "packages/komodo_ui"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_ui_kit:
     dependency: "direct main"
@@ -718,9 +732,11 @@ packages:
   komodo_wallet_build_transformer:
     dependency: transitive
     description:
-      path: "sdk/packages/komodo_wallet_build_transformer"
-      relative: true
-    source: path
+      path: "packages/komodo_wallet_build_transformer"
+      ref: dev
+      resolved-ref: "6ce8fce61ccd9ceebc9920f7e1c60e7081ab20ff"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   leak_tracker:
     dependency: transitive

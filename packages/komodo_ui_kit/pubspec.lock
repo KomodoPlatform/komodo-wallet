@@ -93,23 +93,29 @@ packages:
   komodo_defi_rpc_methods:
     dependency: transitive
     description:
-      path: "../../sdk/packages/komodo_defi_rpc_methods"
-      relative: true
-    source: path
+      path: "packages/komodo_defi_rpc_methods"
+      ref: dev
+      resolved-ref: "8d0a162e6b77a5ebfff230c70ac0c8cf09352528"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_defi_types:
     dependency: "direct main"
     description:
-      path: "../../sdk/packages/komodo_defi_types"
-      relative: true
-    source: path
+      path: "packages/komodo_defi_types"
+      ref: dev
+      resolved-ref: "8d0a162e6b77a5ebfff230c70ac0c8cf09352528"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   komodo_ui:
     dependency: "direct main"
     description:
-      path: "../../sdk/packages/komodo_ui"
-      relative: true
-    source: path
+      path: "packages/komodo_ui"
+      ref: dev
+      resolved-ref: "8d0a162e6b77a5ebfff230c70ac0c8cf09352528"
+      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
+    source: git
     version: "0.2.0+0"
   lints:
     dependency: transitive
@@ -189,5 +195,5 @@ packages:
     source: hosted
     version: "1.1.0"
 sdks:
-  dart: ">=3.7.0 <4.0.0"
+  dart: ">=3.7.0-0 <4.0.0"
   flutter: ">=3.29.0"
