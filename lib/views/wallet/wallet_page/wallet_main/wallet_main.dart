@@ -13,7 +13,6 @@ import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/common/screen.dart';
@@ -181,8 +180,8 @@ class _WalletMainState extends State<WalletMain>
     final portfolioGrowthBloc = context.read<PortfolioGrowthBloc>();
     final profitLossBloc = context.read<ProfitLossBloc>();
     final assetOverviewBloc = context.read<AssetOverviewBloc>();
-    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
-    final walletCoins = await coinsRepository.getWalletCoins();
+    final walletCoins =
+        context.read<CoinsBloc>().state.walletCoins.values.toList();
 
     portfolioGrowthBloc.add(
       PortfolioGrowthLoadRequested(
@@ -311,7 +310,10 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return WalletManageSection(
       withBalance: withBalance,
       onSearchChange: onSearchChange,

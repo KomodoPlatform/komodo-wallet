@@ -477,7 +477,7 @@ class QrCode extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: QrImage(
+          child: QrImageView(
             data: address,
             backgroundColor: Theme.of(context).textTheme.bodyMedium!.color!,
             foregroundColor: theme.custom.dexPageTheme.emptyPlace,

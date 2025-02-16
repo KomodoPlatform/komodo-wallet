@@ -12,7 +12,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/active_swaps/active_swaps_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/cancel_order/cancel_order_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/convert_address/convert_address_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/directly_connected_peers/get_directly_connected_peers.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/directly_connected_peers/get_directly_connected_peers_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/disable_coin/disable_coin_req.dart';
@@ -587,21 +586,6 @@ class Mm2Api {
       return VersionResponse(result: versionResult);
     } catch (e) {
       rethrow;
-    }
-  }
-
-  Future<String?> convertLegacyAddress(ConvertAddressRequest request) async {
-    try {
-      final JsonMap responseJson = await _mm2.call(request);
-      return responseJson['result']?['address'] as String?;
-    } catch (e, s) {
-      log(
-        'Convert address error: $e',
-        path: 'api => convertLegacyAddress',
-        trace: s,
-        isError: true,
-      ).ignore();
-      return null;
     }
   }
 

@@ -1,19 +1,20 @@
 name: komodo_ui_kit
-description: Komodo AtomicDEX's UIKit Flutter package.
+description: Komodo Wallet's UI Kit Flutter package.
 publish_to: none
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ^3.29.0
 
 dependencies:
   flutter:
     sdk: flutter
-  intl: 0.19.0 # flutter.dev
+  intl: ^0.20.2 # flutter.dev
   app_theme:
     path: ../../app_theme/
 
   komodo_defi_types:
-    # path: sdk/packages/komodo_defi_types # Requires symlink to the SDK in the root of the project
+    # path: ../../sdk/packages/komodo_defi_types # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_types
@@ -27,7 +28,7 @@ dependencies:
       ref: dev
 
 dev_dependencies:
-  flutter_lints: ^2.0.0 # flutter.dev
+  flutter_lints: ^5.0.0 # flutter.dev
 
 flutter:
   uses-material-design: true

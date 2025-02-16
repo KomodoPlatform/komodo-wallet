@@ -50,8 +50,15 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       return;
     }
 
+    final sanitizedParameters = event.parameters.map((key, value) {
+      return MapEntry(key, value is Object ? value : value.toString());
+    });
+
     try {
-      await _instance.logEvent(name: event.name, parameters: event.parameters);
+      await _instance.logEvent(
+        name: event.name,
+        parameters: sanitizedParameters,
+      );
     } catch (e, s) {
       log(
         e.toString(),

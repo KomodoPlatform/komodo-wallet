@@ -4,14 +4,14 @@ version: 0.0.1
 publish_to: none # publishable packages should not have git dependencies
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
 
 # Add regular dependencies here.
 dependencies:
-  http: 1.2.2 # dart.dev
+  http: 1.3.0 # dart.dev
 
   equatable: 2.0.7
-      
+
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   hive:
     git:
@@ -20,5 +20,5 @@ dependencies:
       ref: 470473ffc1ba39f6c90f31ababe0ee63b76b69fe #2.2.3
 
 dev_dependencies:
-  flutter_lints: ^2.0.0 # flutter.dev
+  flutter_lints: ^5.0.0 # flutter.dev
   test: ^1.24.0
