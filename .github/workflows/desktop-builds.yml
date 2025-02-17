@@ -41,7 +41,7 @@ jobs:
 
       # macOS setup
       - name: Setup ${{ matrix.platform }} environment
-        if: ${{ matrix.platform == 'macOS' }}
+        if: ${{ matrix.platform == 'macos' }}
         uses: ./.github/actions/releases/setup-macos
         with:
           p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
