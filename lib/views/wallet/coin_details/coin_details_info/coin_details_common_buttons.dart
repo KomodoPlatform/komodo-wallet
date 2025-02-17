@@ -175,14 +175,6 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
               context: context,
             ),
           ),
-        if (coin.hasFaucet)
-          Container(
-            margin: const EdgeInsets.only(left: 21),
-            constraints: const BoxConstraints(maxWidth: 120),
-            child: FaucetButton(
-              onPressed: () => selectWidget(CoinPageType.faucet),
-            ),
-          ),
         if (isBitrefillIntegrationEnabled)
           Container(
             margin: const EdgeInsets.only(left: 21),

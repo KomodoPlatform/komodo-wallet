@@ -18,14 +18,18 @@ import 'package:web_dex/shared/widgets/coin_type_tag.dart';
 import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
+import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
+import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 
 class CoinAddresses extends StatelessWidget {
   const CoinAddresses({
     super.key,
     required this.coin,
+    required this.setPageType,
   });
 
   final Coin coin;
+  final void Function(CoinPageType) setPageType;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +78,7 @@ class CoinAddresses extends StatelessWidget {
                                   address: address,
                                   index: index,
                                   coin: coin,
+                                  setPageType: setPageType,
                                 );
                               },
                             ).toList(),
@@ -171,11 +176,13 @@ class AddressCard extends StatelessWidget {
     required this.address,
     required this.index,
     required this.coin,
+    required this.setPageType,
   });
 
   final PubkeyInfo address;
   final int index;
   final Coin coin;
+  final void Function(CoinPageType) setPageType;
 
   @override
   Widget build(BuildContext context) {
@@ -220,6 +227,10 @@ class AddressCard extends StatelessWidget {
                   AddressCopyButton(address: address.address),
                   QrButton(coin: coin, address: address),
                   SwapAddressTag(address: address),
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.only(right: 350.0),
+                    child: FaucetButton(address: address, onPressed: () => setPageType(CoinPageType.faucet)),
+                  ))
                 ],
               ),
         trailing: isMobile ? null : _Balance(address: address, coin: coin),
