@@ -13,7 +13,7 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw
 class WithdrawForm extends StatefulWidget {
   final Asset asset;
   final VoidCallback onSuccess;
-  final VoidCallback? onBackButtonPressed; // Add this
+  final VoidCallback? onBackButtonPressed;
 
   const WithdrawForm({
     required this.asset,

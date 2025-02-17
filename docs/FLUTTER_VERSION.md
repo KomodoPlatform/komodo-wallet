@@ -4,13 +4,13 @@ This project aims to keep the Flutter version up-to-date with the latest stable 
 
 ## Current version
 
-3.27.1
+3.29.0
 
 ## Pin Flutter version
 
 ```bash
 cd ~/flutter
-git checkout 3.27.1
+git checkout 3.29.0
 flutter doctor
 ```
 

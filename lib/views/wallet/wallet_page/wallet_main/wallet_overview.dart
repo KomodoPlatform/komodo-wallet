@@ -58,7 +58,7 @@ class WalletOverview extends StatelessWidget {
                         size: 16,
                       ),
                       const SizedBox(width: 4),
-                      Text('$assetCount ${LocaleKeys.asset.tr()}'),
+                      Text('$assetCount ${LocaleKeys.assets.tr()}'),
                     ],
                   ),
                 ),

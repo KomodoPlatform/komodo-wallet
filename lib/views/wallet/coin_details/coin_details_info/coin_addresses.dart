@@ -76,7 +76,7 @@ class CoinAddresses extends StatelessWidget {
                                   coin: coin,
                                 );
                               },
-                            ).toList(),
+                            ),
                             if (state.status == FormStatus.submitting)
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 20.0),
@@ -126,12 +126,11 @@ class CoinAddresses extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   const _Header({
-    Key? key,
     required this.status,
     required this.createAddressStatus,
     required this.hideZeroBalance,
     required this.cantCreateNewAddressReasons,
-  }) : super(key: key);
+  });
 
   final FormStatus status;
   final FormStatus createAddressStatus;
@@ -397,11 +396,11 @@ class HideZeroBalanceCheckbox extends StatelessWidget {
 
 class CreateButton extends StatelessWidget {
   const CreateButton({
-    Key? key,
+    super.key,
     required this.status,
     required this.createAddressStatus,
     required this.cantCreateNewAddressReasons,
-  }) : super(key: key);
+  });
 
   final FormStatus status;
   final FormStatus createAddressStatus;
@@ -414,6 +413,8 @@ class CreateButton extends StatelessWidget {
     return Tooltip(
       message: tooltipMessage,
       child: UiPrimaryButton(
+        height: 40,
+        borderRadius: 20,
         backgroundColor: isMobile ? theme.custom.dexPageTheme.emptyPlace : null,
         text: createAddressStatus == FormStatus.submitting
             ? '${LocaleKeys.creating.tr()}...'
@@ -465,10 +466,10 @@ class QrCode extends StatelessWidget {
   final String coinAbbr;
 
   const QrCode({
-    Key? key,
+    super.key,
     required this.address,
     required this.coinAbbr,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

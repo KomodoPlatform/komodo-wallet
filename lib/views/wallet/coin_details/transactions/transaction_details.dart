@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -264,10 +263,11 @@ class TransactionDetails extends StatelessWidget {
   }
 
   Widget _buildFee(BuildContext context) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+
     final String formattedFee = transaction.fee?.formatTotal() ?? '';
-    final coinsBloc = context.read<CoinsBloc>();
     final double? usd =
-        coinsBloc.state.getUsdPriceByAmount(formattedFee, _feeCoin);
+        coinsRepository.getUsdPriceByAmount(formattedFee, _feeCoin);
     final String formattedUsd = formatAmt(usd ?? 0);
 
     final String title = LocaleKeys.fees.tr();

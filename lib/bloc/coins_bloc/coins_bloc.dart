@@ -42,6 +42,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       transformer: droppable(),
     );
     on<CoinsWalletCoinUpdated>(_onWalletCoinUpdated, transformer: sequential());
+    on<CoinsPubkeysRequested>(
+      _onCoinsPubkeysRequested,
+      transformer: concurrent(),
+    );
   }
 
   final KomodoDefiSdk _kdfSdk;
@@ -68,6 +72,38 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     _reActivateSuspendedTimer?.cancel();
 
     await super.close();
+  }
+
+  Future<void> _onCoinsPubkeysRequested(
+    CoinsPubkeysRequested event,
+    Emitter<CoinsState> emit,
+  ) async {
+    try {
+      // Get current coin
+      final coin = state.coins[event.coinId];
+      if (coin == null) return;
+
+      // Get pubkeys from the SDK through the repo
+      final asset = _kdfSdk.assets.assetsFromTicker(event.coinId).single;
+      final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
+
+      // Update state with new pubkeys
+      emit(
+        state.copyWith(
+          pubkeys: {
+            ...state.pubkeys,
+            event.coinId: pubkeys,
+          },
+        ),
+      );
+    } catch (e, s) {
+      log(
+        'Failed to get pubkeys for ${event.coinId}: $e',
+        isError: true,
+        path: 'coins_bloc => _onCoinsPubkeysRequested',
+        trace: s,
+      ).ignore();
+    }
   }
 
   Future<void> _onCoinsStarted(
@@ -122,7 +158,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     final coin = event.coin;
-    final walletCoins = Map<String, Coin>.from(state.walletCoins);
+    final walletCoins = Map<String, Coin>.of(state.walletCoins);
 
     if (coin.isActivating || coin.isActive || coin.isSuspended) {
       await _kdfSdk.addActivatedCoins([coin.abbr]);
@@ -257,7 +293,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       return;
     }
 
-    final coins = Map<String, Coin>.from(state.coins);
+    final coins = Map<String, Coin>.of(state.coins);
     for (final entry in state.coins.entries) {
       final coin = entry.value;
       final CexPrice? usdPrice = prices[abbr2Ticker(coin.abbr)];
@@ -314,7 +350,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         case WalletType.iguana:
         case WalletType.hdwallet:
           coin.reset();
-          final newWalletCoins = Map<String, Coin>.from(state.walletCoins);
+          final newWalletCoins = Map<String, Coin>.of(state.walletCoins);
           newWalletCoins.remove(coin.abbr.toUpperCase());
           emit(state.copyWith(walletCoins: newWalletCoins));
           log('${coin.name} has been removed', path: 'coins_bloc => _onLogout')
