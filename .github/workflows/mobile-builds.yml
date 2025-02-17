@@ -35,7 +35,7 @@ jobs:
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps
 
-      - name: Setup ${{ matrix.platform }} environment
+      - name: Setup iOS environment
         if: ${{ matrix.platform == 'iOS' }}
         uses: ./.github/actions/releases/setup-ios
         with:
@@ -47,7 +47,7 @@ jobs:
           api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
 
-      - name: Setup ${{ matrix.platform }} environment
+      - name: Setup Android environment
         if: ${{ matrix.platform == 'Android' }}
         uses: ./.github/actions/releases/setup-android
         with:
