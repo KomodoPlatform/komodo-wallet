@@ -6,6 +6,7 @@ abstract class  LocaleKeys {
   static const noKmdAddress = 'noKmdAddress';
   static const dex = 'dex';
   static const asset = 'asset';
+  static const assets = 'assets';
   static const price = 'price';
   static const volume = 'volume';
   static const history = 'history';

@@ -16,7 +16,6 @@ class WithdrawFormState extends Equatable {
   final PubkeyInfo? selectedSourceAddress;
   final bool isMaxAmount;
   final bool isCustomFee;
-  final bool isCustomFeeEnabled;
   final FeeInfo? customFee;
   final String? memo;
   final bool isIbcTransfer;
@@ -61,7 +60,6 @@ class WithdrawFormState extends Equatable {
     this.selectedSourceAddress,
     this.isMaxAmount = false,
     this.isCustomFee = false,
-    this.isCustomFeeEnabled = false,
     this.customFee,
     this.memo,
     this.isIbcTransfer = false,
@@ -89,7 +87,6 @@ class WithdrawFormState extends Equatable {
     ValueGetter<PubkeyInfo?>? selectedSourceAddress,
     bool? isMaxAmount,
     bool? isCustomFee,
-    bool? isCustomFeeEnabled,
     ValueGetter<FeeInfo?>? customFee,
     ValueGetter<String?>? memo,
     bool? isIbcTransfer,
@@ -118,7 +115,6 @@ class WithdrawFormState extends Equatable {
           : this.selectedSourceAddress,
       isMaxAmount: isMaxAmount ?? this.isMaxAmount,
       isCustomFee: isCustomFee ?? this.isCustomFee,
-      isCustomFeeEnabled: isCustomFeeEnabled ?? this.isCustomFeeEnabled,
       customFee: customFee != null ? customFee() : this.customFee,
       memo: memo != null ? memo() : this.memo,
       isIbcTransfer: isIbcTransfer ?? this.isIbcTransfer,
@@ -147,7 +143,7 @@ class WithdrawFormState extends Equatable {
       asset: asset.id.id,
       toAddress: recipientAddress,
       amount: isMaxAmount ? null : Decimal.parse(amount),
-      fee: isCustomFeeEnabled ? customFee : null,
+      fee: isCustomFee ? customFee : null,
       from: selectedSourceAddress?.derivationPath != null
           ? WithdrawalSource.hdDerivationPath(
               selectedSourceAddress!.derivationPath!,
@@ -178,7 +174,6 @@ class WithdrawFormState extends Equatable {
         selectedSourceAddress,
         isMaxAmount,
         isCustomFee,
-        isCustomFeeEnabled,
         customFee,
         memo,
         isIbcTransfer,

@@ -4,63 +4,98 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class CoinsListHeader extends StatelessWidget {
-  const CoinsListHeader({Key? key}) : super(key: key);
+  const CoinsListHeader({
+    super.key,
+    required this.isAuth,
+  });
+
+  final bool isAuth;
 
   @override
   Widget build(BuildContext context) {
     return isMobile
-        ? const _CoinsListHeaderMobile()
-        : const _CoinsListHeaderDesktop();
+        ? const SizedBox.shrink()
+        : _CoinsListHeaderDesktop(isAuth: isAuth);
   }
 }
 
 class _CoinsListHeaderDesktop extends StatelessWidget {
-  const _CoinsListHeaderDesktop({Key? key}) : super(key: key);
+  const _CoinsListHeaderDesktop({
+    required this.isAuth,
+  });
+
+  final bool isAuth;
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(fontSize: 14, fontWeight: FontWeight.w500);
+    // final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
+    //       fontWeight: FontWeight.w500,
+    //     );
+    final style = Theme.of(context).textTheme.labelSmall;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(0, 0, 16, 4),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
+    if (isAuth) {
+      return Row(
         children: [
+          // Expand button space
+          SizedBox(width: 32),
+
+          // Asset header
+          Container(
+            constraints: const BoxConstraints(maxWidth: 180),
+            width: double.infinity,
+            alignment: Alignment.centerLeft,
+            child: Text(LocaleKeys.asset.tr(), style: style),
+          ),
+
+          const Spacer(),
+
+          // Balance header
           Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 20.0),
-              child: Text(LocaleKeys.asset.tr(), style: style),
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(LocaleKeys.balance.tr(), style: style),
             ),
           ),
-          Expanded(
-            flex: 5,
-            child: Text(LocaleKeys.balance.tr(), style: style),
-          ),
-          Expanded(
-            flex: 2,
+
+          // 24h change header
+          Container(
+            width: 68,
+            alignment: Alignment.centerLeft,
             child: Text(LocaleKeys.change24hRevert.tr(), style: style),
           ),
-          Expanded(
-            flex: 2,
-            child: Text(LocaleKeys.price.tr(), style: style),
+
+          const Spacer(),
+
+          // // More actions space
+          const SizedBox(width: 48),
+        ],
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      child: Row(
+        children: [
+          // Asset header
+          Text(LocaleKeys.asset.tr(), style: style),
+
+          const Spacer(flex: 4),
+
+          // Balance header
+          Text(LocaleKeys.balance.tr(), style: style),
+
+          const Spacer(flex: 2),
+
+          // 24h change header
+          Padding(
+            padding: const EdgeInsets.only(right: 48),
+            child: Text(LocaleKeys.change24hRevert.tr(), style: style),
           ),
-          Expanded(
-            flex: 2,
-            child: Text(LocaleKeys.trend.tr(), style: style),
-          ),
+
+          const Spacer(flex: 2),
         ],
       ),
     );
-  }
-}
-
-class _CoinsListHeaderMobile extends StatelessWidget {
-  const _CoinsListHeaderMobile({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
   }
 }

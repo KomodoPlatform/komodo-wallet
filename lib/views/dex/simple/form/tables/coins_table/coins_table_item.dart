@@ -34,7 +34,7 @@ class CoinsTableItem<T> extends StatelessWidget {
             subtitleText: subtitleText,
           ),
           const SizedBox(width: 8),
-          if (coin.isActive) CoinBalance(coin: coin),
+          if (coin.isActive) CoinBalance(coin: coin, isVertical: true),
         ],
       ),
     );

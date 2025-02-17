@@ -77,3 +77,13 @@ final class CoinsWalletCoinUpdated extends CoinsEvent {
   @override
   List<Object> get props => [coin];
 }
+
+// TODO! Refactor to remove this so that the pubkeys are loaded with the coins
+class CoinsPubkeysRequested extends CoinsEvent {
+  const CoinsPubkeysRequested(this.coinId);
+
+  final String coinId;
+
+  @override
+  List<Object> get props => [coinId];
+}
