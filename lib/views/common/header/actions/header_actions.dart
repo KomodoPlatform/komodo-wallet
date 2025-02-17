@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -32,13 +33,12 @@ List<Widget>? getHeaderActions(BuildContext context) {
       ),
     Padding(
       padding: headerActionsPadding,
-      child: StreamBuilder<Iterable<Coin>>(
-        initialData: coinsBloc.walletCoinsMap.values,
-        stream: coinsBloc.outWalletCoins,
-        builder: (context, snapshot) {
+      child: BlocBuilder<CoinsBloc, CoinsState>(
+        builder: (context, state) {
           return ActionTextButton(
             text: LocaleKeys.balance.tr(),
-            secondaryText: '\$${formatAmt(_getTotalBalance(snapshot.data!))}',
+            secondaryText:
+                '\$${formatAmt(_getTotalBalance(state.walletCoins.values))}',
             onTap: null,
           );
         },

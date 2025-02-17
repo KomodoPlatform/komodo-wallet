@@ -4,14 +4,13 @@ import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc_event.dart';
-import 'package:web_dex/bloc/wallets_bloc/wallets_repo.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/import_swaps/import_swaps_request.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/utils/encryption_tool.dart';
 
-Future<void> initDebugData(AuthBloc authBloc) async {
+Future<void> initDebugData(
+  AuthBloc authBloc,
+  WalletsRepository walletsRepository,
+) async {
   try {
     final String testWalletStr =
         await rootBundle.loadString('assets/debug_data.json');
@@ -21,16 +20,23 @@ Future<void> initDebugData(AuthBloc authBloc) async {
       return;
     }
 
-    final Wallet? debugWallet = await _createDebugWallet(
-      newWalletJson,
-      hasBackup: true,
-    );
-    if (debugWallet == null) {
-      return;
-    }
     if (newWalletJson['automateLogin'] == true) {
+      final Wallet? debugWallet = await _createDebugWallet(
+        walletsRepository,
+        newWalletJson,
+        hasBackup: true,
+      );
+      if (debugWallet == null) {
+        return;
+      }
+
       authBloc.add(
-          AuthReLogInEvent(seed: newWalletJson['seed'], wallet: debugWallet));
+        AuthRestoreRequested(
+          seed: newWalletJson['seed'],
+          wallet: debugWallet,
+          password: newWalletJson["password"],
+        ),
+      );
     }
   } catch (e) {
     return;
@@ -38,39 +44,28 @@ Future<void> initDebugData(AuthBloc authBloc) async {
 }
 
 Future<Wallet?> _createDebugWallet(
+  WalletsRepository walletsBloc,
   Map<String, dynamic> walletJson, {
   bool hasBackup = false,
 }) async {
-  final wallets = await walletsRepo.getAll();
+  final wallets = walletsBloc.wallets;
   final Wallet? existedDebugWallet =
-      wallets.firstWhereOrNull((w) => w.name == walletJson['name']);
+      wallets?.firstWhereOrNull((w) => w.name == walletJson['name']);
   if (existedDebugWallet != null) return existedDebugWallet;
 
-  final EncryptionTool encryptionTool = EncryptionTool();
   final String name = walletJson['name'];
-  final String seed = walletJson['seed'];
-  final String password = walletJson['password'];
   final List<String> activatedCoins =
       List<String>.from(walletJson['activated_coins'] ?? <String>[]);
 
-  final String encryptedSeed = await encryptionTool.encryptData(password, seed);
-
-  final Wallet wallet = Wallet(
+  return Wallet(
     id: const Uuid().v1(),
     name: name,
     config: WalletConfig(
-      seedPhrase: encryptedSeed,
       activatedCoins: activatedCoins,
       hasBackup: hasBackup,
+      seedPhrase: walletJson['seed'],
     ),
   );
-  final bool isSuccess = await walletsRepo.save(wallet);
-  return isSuccess ? wallet : null;
-}
-
-Future<void> importSwapsData(List<dynamic> swapsJson) async {
-  final ImportSwapsRequest request = ImportSwapsRequest(swaps: swapsJson);
-  await mm2Api.importSwaps(request);
 }
 
 Future<List<dynamic>?> loadDebugSwaps() async {

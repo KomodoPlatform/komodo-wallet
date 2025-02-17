@@ -29,7 +29,7 @@ class PageMenuRouterDelegate extends RouterDelegate<AppRoutePath>
       case MainMenuValue.fiat:
         return isMobile ? const FiatPage() : empty;
       case MainMenuValue.dex:
-        return isMobile ? DexPage() : empty;
+        return isMobile ? const DexPage() : empty;
       case MainMenuValue.bridge:
         return isMobile ? const BridgePage() : empty;
       case MainMenuValue.marketMakerBot:

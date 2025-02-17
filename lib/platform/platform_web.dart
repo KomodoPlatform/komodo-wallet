@@ -26,6 +26,3 @@ external void reloadPage();
 
 @JS('changeTheme')
 external void changeHtmlTheme(int themeIndex);
-
-@JS('zip_encode')
-external Future<String?> zipEncode(String fileName, String fileContent);

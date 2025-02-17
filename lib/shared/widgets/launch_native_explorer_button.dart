@@ -20,7 +20,7 @@ class LaunchNativeExplorerButton extends StatelessWidget {
       width: 160,
       height: 30,
       onPressed: () {
-        launchURL(getNativeExplorerUrlByCoin(coin, address));
+        launchURLString(getNativeExplorerUrlByCoin(coin, address));
       },
       text: LocaleKeys.viewOnExplorer.tr(),
     );

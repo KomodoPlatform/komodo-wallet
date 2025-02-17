@@ -14,6 +14,11 @@ class ThemeModeChanged extends SettingsEvent {
   final ThemeMode mode;
 }
 
+class TestCoinsEnabledChanged extends SettingsEvent {
+  const TestCoinsEnabledChanged({required this.testCoinsEnabled});
+  final bool testCoinsEnabled;
+}
+
 class MarketMakerBotSettingsChanged extends SettingsEvent {
   const MarketMakerBotSettingsChanged(this.settings);
 

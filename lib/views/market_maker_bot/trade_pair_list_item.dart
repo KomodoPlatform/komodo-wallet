@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
 import 'package:vector_math/vector_math_64.dart' as vector_math;
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
@@ -31,10 +32,12 @@ class TradePairListItem extends StatelessWidget {
     final config = pair.config;
     final order = pair.order;
     final sellCoin = config.baseCoinId;
-    final sellAmount = order?.baseAmountAvailable ?? Rational.zero;
+    final sellAmount = order?.baseAmountAvailable ?? pair.baseCoinAmount;
     final buyCoin = config.relCoinId;
-    final buyAmount = order?.relAmountAvailable ?? Rational.zero;
+    final buyAmount = order?.relAmountAvailable ?? pair.relCoinAmount;
     final String date = order != null ? getFormattedDate(order.createdAt) : '-';
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     final double fillProgress = order != null
         ? tradingEntitiesBloc.getProgressFillSwap(pair.order!)
         : 0;
@@ -108,6 +111,8 @@ class _OrderItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
@@ -194,6 +199,7 @@ class _OrderItemDesktop extends StatelessWidget {
 
 class TableActionsButtonList extends StatelessWidget {
   const TableActionsButtonList({
+    super.key,
     required this.actions,
   });
 

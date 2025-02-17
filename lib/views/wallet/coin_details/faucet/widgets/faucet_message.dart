@@ -16,7 +16,11 @@ class FaucetMessage extends StatelessWidget {
     final textStyle = TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w700,
-        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6));
+        color: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.color
+            ?.withValues(alpha: 0.6));
     return Center(
       child: Container(
           padding: const EdgeInsets.all(20),

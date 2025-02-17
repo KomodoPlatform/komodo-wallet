@@ -7,6 +7,7 @@ class UiCheckbox extends StatelessWidget {
     this.checkboxKey,
     this.onChanged,
     this.text = '',
+    this.textWidget,
     this.size = 18,
     this.textColor,
     this.borderColor,
@@ -16,6 +17,7 @@ class UiCheckbox extends StatelessWidget {
   final Key? checkboxKey;
   final bool value;
   final String text;
+  final Text? textWidget;
   final double size;
   final Color? borderColor;
   final Color? textColor;
@@ -34,6 +36,7 @@ class UiCheckbox extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(2),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
@@ -61,17 +64,18 @@ class UiCheckbox extends StatelessWidget {
                       )
                     : const SizedBox.shrink(),
               ),
-              if (text.isNotEmpty)
+              if (textWidget != null || text.isNotEmpty)
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8, right: 2),
-                    child: Text(
-                      text,
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelLarge
-                          ?.copyWith(fontSize: 14, color: textColor),
-                    ),
+                    child: textWidget ??
+                        Text(
+                          text,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(fontSize: 14, color: textColor),
+                        ),
                   ),
                 ),
             ],

@@ -22,15 +22,12 @@ Future<void> testMainMenu(WidgetTester tester) async {
   );
 
   await goto.walletPage(tester);
-  await tester.pumpAndSettle();
   expect(find.byKey(const Key('wallet-page-coins-list')), findsOneWidget);
 
   await goto.dexPage(tester);
-  await tester.pumpAndSettle();
   expect(find.byKey(const Key('dex-page')), findsOneWidget);
 
   await goto.bridgePage(tester);
-  await tester.pumpAndSettle();
   expect(
     find.byKey(const Key('bridge-page')),
     findsOneWidget,
@@ -38,17 +35,16 @@ Future<void> testMainMenu(WidgetTester tester) async {
   );
 
   await goto.nftsPage(tester);
-  await tester.pumpAndSettle();
   expect(find.byKey(const Key('nft-page')), findsOneWidget);
 
   await goto.settingsPage(tester);
-  await tester.pumpAndSettle();
   expect(general, findsOneWidget);
   expect(security, findsOneWidget);
   expect(feedback, findsOneWidget);
 
-  await goto.supportPage(tester);
-  await tester.pumpAndSettle();
+  // TODO: restore if/when support page is added back to a menu
+  // await goto.supportPage(tester);
+  // await tester.pumpAndSettle();
 
   await pause(msg: 'END TEST MENU');
 }
@@ -56,16 +52,20 @@ Future<void> testMainMenu(WidgetTester tester) async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Run menu tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    await acceptAlphaWarning(tester);
-    print('ACCEPT ALPHA WARNING');
-    await restoreWalletToTest(tester);
-    await testMainMenu(tester);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Run menu tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      await acceptAlphaWarning(tester);
+      print('ACCEPT ALPHA WARNING');
+      await restoreWalletToTest(tester);
+      await testMainMenu(tester);
+      await tester.pumpAndSettle();
 
-    print('END MAIN MENU TESTS');
-  }, semanticsEnabled: false);
+      print('END MAIN MENU TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

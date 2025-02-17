@@ -1,8 +1,12 @@
-name: Deploy to Firebase Hosting on merge
+# Deploys a Release Candidate build to Firebase Hosting (https://walletrc.web.app) when pushing/merging commits into the `dev` branch.
+name: Deploy RC to Firebase Hosting on merge
+run-name: ${{ github.actor }} is deploying RC build to Firebase 🚀
+
 on:
   push:
     branches:
       - dev
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -21,74 +25,16 @@ jobs:
       - name: Setup GH Actions
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Get stable flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.x'
-          channel: 'stable'
-
-      - name: Prepare build directory
-        run: |
-          flutter clean
-          rm -rf build/*
-          rm -rf web/src/mm2/*
-          rm -rf web/src/kdfi/*
-          rm -rf web/dist/*
-
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Flutter and dependencies
+        uses: ./.github/actions/flutter-deps
 
       - name: Fetch packages and generate assets
-        run: |
-          echo "Running \`flutter build\` to generate assets for the deployment build"
-          flutter pub get > /dev/null 2>&1
-          flutter build web --release > /dev/null 2>&1 || true
-          flutter pub get > /dev/null 2>&1
-          echo "Done fetching packages and generating assets"
-
-      - name: Build Komodo Wallet web
-        run: |
-          flutter doctor -v
-          flutter build web --csp --profile --no-web-resources-cdn
-
+        uses: ./.github/actions/generate-assets
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Validate build
-        run: |
-          # Check that the web build folder contains a file with format build/web/dist/*.wasm
-          if [ ! -f build/web/dist/*.wasm ]; then
-            echo "Error: Web build failed. No wasm file found in build/web/dist/"
-
-            echo "Listing files in build/web recursively"
-            ls -R build/web
-
-            echo "Listing files in web recursively"
-            ls -R web
-
-            exit 1 
-          fi
-          # Check that the index.html is present and that it is equal to the source index.html
-          if ! cmp -s web/index.html build/web/index.html; then
-            echo "Error: Web build failed. index.html is not equal to the source index.html"
-            exit 1
-          fi
-          # Check that the index.html has uncommitted changes to ensure that the placeholder was replaced with the generated content
-          if git diff --exit-code web/index.html; then
-            echo "Error: Web build failed. index.html has no uncommitted changes which indicates an issue with the \`template.html\` to \`index.html\` generation"
-            exit 1
-          fi
-          # Decode the AssetManifest.bin and check for the coin icon presence
-          if [ ! -f build/web/assets/AssetManifest.bin ]; then
-            echo "Error: AssetManifest.bin file not found."
-            exit 1
-          fi
-          if ! strings build/web/assets/AssetManifest.bin | grep -q "assets/coin_icons/png/kmd.png"; then
-            echo "Error: Coin icon not found in AssetManifest.bin"
-            exit 1
-          fi
+        uses: ./.github/actions/validate-build
 
       - name: Deploy Komodo Wallet Web dev preview (`dev` branch)
         if: github.ref == 'refs/heads/dev'
@@ -100,8 +46,8 @@ jobs:
           target: walletrc
           projectId: komodo-wallet-official
 
-      - name: Deploy Komodo Wallet Web RC (`master` branch)
-        if: github.ref == 'refs/heads/master'
+      - name: Deploy Komodo Wallet Web RC (`main` branch)
+        if: github.ref == 'refs/heads/main'
         uses: FirebaseExtended/action-hosting-deploy@v0.7.1
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
@@ -109,3 +55,4 @@ jobs:
           channelId: live
           target: prodrc
           projectId: komodo-wallet-official
+

@@ -9,6 +9,8 @@ import 'package:web_dex/shared/ui/custom_numeric_text_form_field.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/buttons/sell_max_button.dart';
 
 class FillFormAmount extends StatefulWidget {
+  const FillFormAmount({super.key});
+
   @override
   State<FillFormAmount> createState() => _FillFormAmountState();
 }
@@ -48,14 +50,10 @@ class _FillFormAmountState extends State<FillFormAmount> {
             });
             context
                 .read<WithdrawFormBloc>()
-                .add(WithdrawFormAmountChanged(amount: amount ?? ''));
+                .add(WithdrawFormAmountChanged(amount ?? ''));
           },
           validationMode: InputValidationMode.aggressive,
-          validator: (_) {
-            final String amountError = state.amountError.message;
-            if (amountError.isEmpty) return null;
-            return amountError;
-          },
+          validator: (_) => state.amountError?.message,
         );
       },
     );

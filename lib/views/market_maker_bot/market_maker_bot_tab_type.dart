@@ -4,19 +4,19 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/views/market_maker_bot/tab_type_enum.dart';
 
-enum MarketMakerBotTabType implements TabTypeEnum {
+enum MarketMakerBotTabType implements ITabTypeEnum {
   marketMaker,
-  orders,
   inProgress,
+  orders,
   history;
 
   @override
-  String name(DexTabBarBloc bloc) {
+  String name(DexTabBarState bloc) {
     switch (this) {
       case marketMaker:
         return LocaleKeys.makeMarket.tr();
       case orders:
-        return '${LocaleKeys.orders.tr()} (${bloc.ordersCount})';
+        return '${LocaleKeys.orders.tr()} (${bloc.tradeBotOrdersCount})';
       case inProgress:
         return '${LocaleKeys.inProgress.tr()} (${bloc.inProgressCount})';
       case history:
@@ -40,7 +40,7 @@ enum MarketMakerBotTabType implements TabTypeEnum {
 
   /// This is a temporary solution to avoid changing the entire DEX flow to add
   /// the market maker bot tab.
-  // TODO(Francois): separate the tab widget logic from the page logic
+  // TODO: separate the tab widget logic from the page logic
   DexListType toDexListType() {
     switch (this) {
       case marketMaker:

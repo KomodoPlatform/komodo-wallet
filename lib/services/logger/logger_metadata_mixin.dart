@@ -22,7 +22,7 @@ mixin LoggerMetadataMixin {
     );
   }
 
-  FutureOr<String?> apiVersion() {
+  FutureOr<String?> apiVersion(Mm2Api mm2Api) {
     if (_apiVersion != null) return _apiVersion;
 
     return Future<String?>(

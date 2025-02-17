@@ -20,7 +20,7 @@ class UploadButton extends StatelessWidget {
       text: buttonText,
       width: double.infinity,
       textColor: themeData.colorScheme.primary,
-      borderColor: themeData.colorScheme.primary.withOpacity(0.3),
+      borderColor: themeData.colorScheme.primary.withValues(alpha: 0.3),
       backgroundColor: Theme.of(context).colorScheme.surface,
     );
   }

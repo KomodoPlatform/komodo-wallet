@@ -6,7 +6,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/launch_native_explorer_button.dart';
@@ -68,13 +68,13 @@ class TransactionTable extends StatelessWidget {
   Widget _buildTransactionList(BuildContext context) {
     return BlocBuilder<TransactionHistoryBloc, TransactionHistoryState>(
       builder: (BuildContext ctx, TransactionHistoryState state) {
-        if (coin.isActivating || state is TransactionHistoryInitialState) {
+        if (state.transactions.isEmpty && state.loading) {
           return const SliverToBoxAdapter(
             child: UiSpinnerList(),
           );
         }
 
-        if (state is TransactionHistoryFailureState) {
+        if (state.error != null) {
           return SliverToBoxAdapter(
             child: _ErrorMessage(
               text: LocaleKeys.connectionToServersFailing.tr(args: [coin.name]),
@@ -83,25 +83,11 @@ class TransactionTable extends StatelessWidget {
           );
         }
 
-        if (state is TransactionHistoryInProgressState) {
-          return _TransactionsListWrapper(
-            coinAbbr: coin.abbr,
-            setTransaction: setTransaction,
-            transactions: state.transactions,
-            isInProgress: true,
-          );
-        }
-
-        if (state is TransactionHistoryLoadedState) {
-          return _TransactionsListWrapper(
-            coinAbbr: coin.abbr,
-            setTransaction: setTransaction,
-            transactions: state.transactions,
-            isInProgress: false,
-          );
-        }
-        return const SliverToBoxAdapter(
-          child: SizedBox(),
+        return _TransactionsListWrapper(
+          coinAbbr: coin.abbr,
+          setTransaction: setTransaction,
+          transactions: state.transactions,
+          isInProgress: state.loading,
         );
       },
     );

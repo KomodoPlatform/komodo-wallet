@@ -1,12 +1,17 @@
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
+part of 'coins_manager_bloc.dart';
 
 abstract class CoinsManagerEvent {
   const CoinsManagerEvent();
 }
 
+class CoinsManagerCoinsListReset extends CoinsManagerEvent {
+  const CoinsManagerCoinsListReset(this.action);
+  final CoinsManagerAction action;
+}
+
 class CoinsManagerCoinsUpdate extends CoinsManagerEvent {
-  const CoinsManagerCoinsUpdate();
+  const CoinsManagerCoinsUpdate(this.action);
+  final CoinsManagerAction action;
 }
 
 class CoinsManagerCoinTypeSelect extends CoinsManagerEvent {

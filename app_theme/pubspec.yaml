@@ -1,11 +1,11 @@
 name: app_theme
 description: App theme.
 version: 0.0.1
-homepage:
+# homepage:
 
 environment:
-  sdk: ">=2.16.0 <3.0.0"
-  flutter: ">=2.5.0"
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ^3.29.0
 
 dependencies:
   flutter:

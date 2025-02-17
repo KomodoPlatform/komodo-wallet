@@ -46,7 +46,7 @@ class MarketMakerOrderListBloc
         ),
       );
 
-      return emit.forEach(
+      return await emit.forEach(
         Stream.periodic(event.updateInterval)
             .asyncMap((_) => _orderListRepository.getTradePairs()),
         onData: (orders) {
@@ -169,7 +169,9 @@ List<TradePair> _applyFilters(
         return false;
       }
       if ((shownSides != null && shownSides.isNotEmpty) &&
-          !shownSides.contains(order.order!.orderType)) return false;
+          !shownSides.contains(order.order!.orderType)) {
+        return false;
+      }
     }
 
     return true;

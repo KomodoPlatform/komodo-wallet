@@ -1,8 +1,10 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/swap.dart';
@@ -12,7 +14,6 @@ import 'package:web_dex/shared/widgets/focusable_widget.dart';
 import 'package:web_dex/views/dex/entities_list/common/coin_amount_mobile.dart';
 import 'package:web_dex/views/dex/entities_list/common/entity_item_status_wrapper.dart';
 import 'package:web_dex/views/dex/entities_list/common/trade_amount_desktop.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class HistoryItem extends StatefulWidget {
   const HistoryItem(this.swap, {Key? key, required this.onClick})
@@ -39,6 +40,8 @@ class _HistoryItemState extends State<HistoryItem> {
     final bool isSuccessful = !widget.swap.isFailed;
     final bool isTaker = widget.swap.isTaker;
     final bool isRecoverable = widget.swap.recoverable;
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,6 +104,8 @@ class _HistoryItemState extends State<HistoryItem> {
     setState(() {
       _isRecovering = true;
     });
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     await tradingEntitiesBloc.recoverFundsOfSwap(widget.swap.uuid);
     setState(() {
       _isRecovering = false;
@@ -142,6 +147,8 @@ class _HistoryItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

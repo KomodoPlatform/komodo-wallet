@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/maker/maker_form_buy_switcher.dart';
 import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
@@ -15,6 +16,7 @@ class MakerFormBuyItem extends StatefulWidget {
 class _MakerFormBuyItemState extends State<MakerFormBuyItem> {
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<Coin?>(
         initialData: makerFormBloc.buyCoin,
         stream: makerFormBloc.outBuyCoin,

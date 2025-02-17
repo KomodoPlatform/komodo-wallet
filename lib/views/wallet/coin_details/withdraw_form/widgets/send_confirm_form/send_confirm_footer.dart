@@ -7,7 +7,7 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_con
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class SendConfirmFooter extends StatelessWidget {
-  const SendConfirmFooter();
+  const SendConfirmFooter({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +21,9 @@ class SendConfirmFooter extends StatelessWidget {
                   child: Center(child: UiSpinner()),
                 )
               : SendConfirmButtons(
-                  hasSendError: state.hasSendError,
+                  hasSendError: state.hasTransactionError,
                   onBackTap: () => context.read<WithdrawFormBloc>().add(
-                        const WithdrawFormStepReverted(
-                            step: WithdrawFormStep.confirm),
+                        const WithdrawFormStepReverted(),
                       ),
                 ),
         );

@@ -1,63 +1,43 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:app_theme/app_theme.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/shared/constants.dart';
-import 'package:http/http.dart' as http;
 export 'package:web_dex/shared/utils/extensions/async_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
-
-Future<bool> systemClockIsValid() async {
-  try {
-    final response = await http
-        .get(Uri.parse('https://worldtimeapi.org/api/timezone/UTC'))
-        .timeout(const Duration(seconds: 20));
-
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      final apiTimeStr = jsonResponse['datetime'];
-      final apiTime = DateTime.parse(apiTimeStr).toUtc();
-      final localTime = DateTime.now().toUtc();
-      final difference = apiTime.difference(localTime).abs().inSeconds;
-
-      return difference < 60;
-    } else {
-      log('Failed to get time from API');
-      return true; // Do not block the usage
-    }
-  } catch (e) {
-    log('Failed to validate system clock');
-    return true; // Do not block the usage
-  }
-}
 
 void copyToClipBoard(BuildContext context, String str) {
   final themeData = Theme.of(context);
   try {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: const Duration(seconds: 2),
-      content: Text(
-        LocaleKeys.clipBoard.tr(),
-        style: themeData.textTheme.bodyLarge!.copyWith(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text(
+          LocaleKeys.clipBoard.tr(),
+          style: themeData.textTheme.bodyLarge!.copyWith(
             color: themeData.brightness == Brightness.dark
                 ? themeData.hintColor
-                : themeData.primaryColor),
+                : themeData.primaryColor,
+          ),
+        ),
       ),
-    ));
+    );
   } catch (_) {}
 
   Clipboard.setData(ClipboardData(text: str));
@@ -85,8 +65,12 @@ void copyToClipBoard(BuildContext context, String str) {
 /// unit tests: [testCustomDoubleToString]
 String doubleToString(double dv, [int fractions = 8]) {
   final Rational r = Rational.parse(dv.toString());
-  if (r.isInteger) return r.toStringAsFixed(0);
-  String sv = r.toStringAsFixed(fractions > 20 ? 20 : fractions);
+  if (r.isInteger) {
+    return r.toDecimal(scaleOnInfinitePrecision: 24).toStringAsFixed(0);
+  }
+  String sv = r
+      .toDecimal(scaleOnInfinitePrecision: 24)
+      .toStringAsFixed(fractions > 20 ? 20 : fractions);
   final dot = sv.indexOf('.');
   // Looks like we already have [cutTrailingZeros]
   sv = sv.replaceFirst(RegExp(r'0+$'), '', dot);
@@ -190,6 +174,7 @@ String getAddressExplorerUrl(Coin coin, String address) {
   return '$explorerUrl$explorerAddressUrl$address';
 }
 
+@Deprecated('Use the Protocol class\'s explorer URL methods')
 void viewHashOnExplorer(Coin coin, String address, HashExplorerType type) {
   late String url;
   switch (type) {
@@ -200,10 +185,34 @@ void viewHashOnExplorer(Coin coin, String address, HashExplorerType type) {
       url = getTxExplorerUrl(coin, address);
       break;
   }
-  launchURL(url);
+  launchURLString(url);
 }
 
-Future<void> launchURL(
+extension AssetExplorerUrls on Asset {
+  Uri? txExplorerUrl(String? txHash) {
+    return txHash == null ? null : protocol.explorerTxUrl(txHash);
+  }
+
+  Uri? addressExplorerUrl(String? address) {
+    return address == null ? null : protocol.explorerAddressUrl(address);
+  }
+}
+
+Future<void> openUrl(Uri uri, {bool? inSeparateTab}) async {
+  if (!await canLaunchUrl(uri)) {
+    throw Exception('Could not launch $uri');
+  }
+  await launchUrl(
+    uri,
+    mode: inSeparateTab == null
+        ? LaunchMode.platformDefault
+        : inSeparateTab == true
+            ? LaunchMode.externalApplication
+            : LaunchMode.inAppWebView,
+  );
+}
+
+Future<void> launchURLString(
   String url, {
   bool? inSeparateTab,
 }) async {
@@ -223,7 +232,7 @@ Future<void> launchURL(
   }
 }
 
-void log(
+Future<void> log(
   String message, {
   String? path,
   StackTrace? trace,
@@ -235,11 +244,16 @@ void log(
   //   final String errorTrace = getInfoFromStackTrace(trace);
   //   logger.write('$errorTrace: $errorOrUsefulData');
   // }
-  if (isTestMode && isError) {
+  const isTestEnv = isTestMode || kDebugMode;
+  if (isTestEnv && isError) {
     // ignore: avoid_print
     print('path: $path');
     // ignore: avoid_print
     print('error: $message');
+    if (trace != null) {
+      // ignore: avoid_print
+      print('trace: $trace');
+    }
   }
 
   try {
@@ -260,19 +274,19 @@ void log(
 }
 
 /// Returns the ticker from the coin abbreviation.
-/// 
+///
 /// Parameters:
 /// - [abbr] (String): The abbreviation of the coin, including suffixes like the
-/// coin token type (e.g. 'ETH-ERC20', 'BNB-BEP20') and whether the coin is 
+/// coin token type (e.g. 'ETH-ERC20', 'BNB-BEP20') and whether the coin is
 /// a test or OLD coin (e.g. 'ETH_OLD', 'BNB-TEST').
-/// 
+///
 /// Return Value:
 /// - (String): The ticker of the coin, with the suffixes removed.
-/// 
+///
 /// Example Usage:
 /// ```dart
 /// String abbr = 'ETH-ERC20';
-/// 
+///
 /// String ticker = abbr2Ticker(abbr);
 /// print(ticker); // Output: "ETH"
 /// ```
@@ -609,7 +623,7 @@ String? assertString(dynamic value) {
     case double:
       return value.toString();
     default:
-      return value;
+      return value as String?;
   }
 }
 
@@ -618,9 +632,33 @@ int? assertInt(dynamic value) {
 
   switch (value.runtimeType) {
     case String:
-      return int.parse(value);
+      return int.parse(value as String);
     default:
-      return value;
+      return value as int?;
+  }
+}
+
+double assertDouble(dynamic value) {
+  if (value == null) return double.nan;
+
+  switch (value.runtimeType) {
+    case double:
+      return value as double;
+    case int:
+      return (value as int).toDouble();
+    case String:
+      return double.tryParse(value as String) ?? double.nan;
+    case bool:
+      return (value as bool) ? 1.0 : 0.0;
+    case num:
+      return (value as num).toDouble();
+    default:
+      try {
+        return double.parse(value.toString());
+      } catch (e, s) {
+        log('Error converting to double: $e', trace: s, isError: true);
+        return double.nan;
+      }
   }
 }
 
@@ -636,17 +674,12 @@ Future<void> pauseWhile(
   }
 }
 
-Future<void> waitMM2StatusChange(MM2Status status, MM2 mm2,
-    {int waitingTime = 3000}) async {
-  final int start = DateTime.now().millisecondsSinceEpoch;
-
-  while (await mm2.status() != status &&
-      DateTime.now().millisecondsSinceEpoch - start < waitingTime) {
-    await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-  }
-}
-
 enum HashExplorerType {
   address,
   tx,
+}
+
+Asset getSdkAsset(KomodoDefiSdk sdk, String abbr) {
+  // ignore: deprecated_member_use
+  return sdk.assets.assetsFromTicker(abbr).single;
 }

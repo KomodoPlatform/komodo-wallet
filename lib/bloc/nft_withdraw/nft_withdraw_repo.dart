@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api_nft.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_request.dart';
@@ -16,9 +15,9 @@ import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class NftWithdrawRepo {
-  const NftWithdrawRepo({required Mm2ApiNft api}) : _api = api;
+  const NftWithdrawRepo({required Mm2Api api}) : _api = api;
 
-  final Mm2ApiNft _api;
+  final Mm2Api _api;
   Future<WithdrawNftResponse> withdraw({
     required NftToken nft,
     required String address,
@@ -32,7 +31,7 @@ class NftWithdrawRepo {
       tokenId: nft.tokenId,
       amount: amount,
     );
-    final Map<String, dynamic> json = await _api.withdraw(request);
+    final Map<String, dynamic> json = await _api.nft.withdraw(request);
     if (json['error'] != null) {
       log(json['error'] ?? 'unknown error',
           path: 'nft_main_repo => getNfts', isError: true);
@@ -58,7 +57,7 @@ class NftWithdrawRepo {
       String coin, String txHex) async {
     try {
       final request = SendRawTransactionRequest(coin: coin, txHex: txHex);
-      final response = await coinsRepo.sendRawTransaction(request);
+      final response = await _api.sendRawTransaction(request);
       return response;
     } catch (e) {
       return SendRawTransactionResponse(
@@ -73,7 +72,7 @@ class NftWithdrawRepo {
   ) async {
     try {
       final Map<String, dynamic>? responseRaw =
-          await coinsRepo.validateCoinAddress(coin, address);
+          await _api.validateAddress(coin.abbr, address);
       if (responseRaw == null) {
         throw ApiError(message: LocaleKeys.somethingWrong.tr());
       }

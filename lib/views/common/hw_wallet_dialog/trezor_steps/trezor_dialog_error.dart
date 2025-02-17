@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
-import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_event.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/hw_wallet/trezor_status_error.dart';
@@ -53,7 +52,7 @@ class TrezorDialogError extends StatelessWidget {
       return _parseErrorMessage(error);
     }
     if (error is BaseError) {
-      return error.text;
+      return error.message;
     }
 
     return error.toString();

@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/bloc/bitrefill/models/embedded_bitrefill_url.dart';
+import 'package:web_dex/shared/utils/window/window.dart';
 
 class BitrefillProvider {
   /// A map of supported coin abbreviations to their corresponding Bitrefill
@@ -58,14 +57,7 @@ class BitrefillProvider {
 
   /// Returns the URL of the Bitrefill widget page without any query parameters.
   String baseEmbeddedBitrefillUrl() {
-    if (kIsWeb) {
-      final String baseUrl =
-          '${html.window.location.origin}/assets/assets/web_pages/bitrefill_widget.html';
-      return baseUrl;
-    }
-
-    return kDebugMode
-        ? 'http://localhost:42069/assets/web_pages/bitrefill_widget.html'
-        : 'https://app.komodoplatform.com/assets/assets/web_pages/bitrefill_widget.html';
+    return '${getOriginUrl()}/assets/assets/'
+        'web_pages/bitrefill_widget.html';
   }
 }

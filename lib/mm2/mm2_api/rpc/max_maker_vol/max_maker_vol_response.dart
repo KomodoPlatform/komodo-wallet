@@ -4,14 +4,18 @@ class MaxMakerVolResponse {
     required this.balance,
   });
 
-  final MaxMakerVolResponseValue volume;
-  final MaxMakerVolResponseValue balance;
-
   factory MaxMakerVolResponse.fromJson(Map<String, dynamic> json) =>
       MaxMakerVolResponse(
-        volume: MaxMakerVolResponseValue.fromJson(json['volume']),
-        balance: MaxMakerVolResponseValue.fromJson(json['balance']),
+        volume: MaxMakerVolResponseValue.fromJson(
+          Map<String, dynamic>.from(json['volume'] as Map? ?? {}),
+        ),
+        balance: MaxMakerVolResponseValue.fromJson(
+          Map<String, dynamic>.from(json['balance'] as Map? ?? {}),
+        ),
       );
+
+  final MaxMakerVolResponseValue volume;
+  final MaxMakerVolResponseValue balance;
 }
 
 class MaxMakerVolResponseValue {
@@ -19,10 +23,10 @@ class MaxMakerVolResponseValue {
     required this.decimal,
   });
 
-  final String decimal;
-
   factory MaxMakerVolResponseValue.fromJson(Map<String, dynamic> json) =>
-      MaxMakerVolResponseValue(decimal: json['decimal']);
+      MaxMakerVolResponseValue(decimal: json['decimal'] as String);
+
+  final String decimal;
 
   Map<String, String> toJson() => <String, String>{
         'decimal': decimal,

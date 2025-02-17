@@ -12,11 +12,19 @@ const String allWalletsStorageKey = 'all-wallets';
 const String defaultDexCoin = 'KMD';
 const List<Locale> localeList = [Locale('en')];
 const String assetsPath = 'assets';
+const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
 
 // Temporary feature flag to allow merging of the PR
 // TODO: Remove this flag after the feature is finalized
 const bool isBitrefillIntegrationEnabled = false;
 
+/// Const to define if trading is enabled in the app. Trading is only permitted
+/// with test coins for development purposes while the regulatory compliance
+/// framework is being developed.
+///
+///! You are solely responsible for any losses/damage that may occur. Komodo
+///! Platform does not condone the use of this app for trading purposes and
+///! unequivocally forbids it.
 const bool kIsWalletOnly = !kDebugMode;
 
 const Duration kPerformanceLogInterval = Duration(minutes: 1);
@@ -24,14 +32,8 @@ const Duration kPerformanceLogInterval = Duration(minutes: 1);
 // This information is here because it is not contextual and is branded.
 // Names of their own are not localized. Also, the application is initialized before
 // the localization package is initialized.
-String get appTitle => "Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX";
-String get appShortTitle => "Komodo Wallet";
-
-// We're using a hardcoded seed for the hidden login instead
-// of generating it on the fly. This will allow us to access
-// previously connected Trezor wallet accounts data and speed up
-// the reactivation of its coins.
-String get seedForHiddenLogin => 'hidden-login';
+String get appTitle => 'Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX';
+String get appShortTitle => 'Komodo Wallet';
 
 Map<String, int> priorityCoinsAbbrMap = {
   'KMD': 30,
@@ -116,8 +118,8 @@ List<String> get enabledByDefaultCoins => [
       'BNB',
       'AVAX',
       'FTM',
-      if (kDebugMode || kProfileMode) 'DOC',
-      if (kDebugMode || kProfileMode) 'MARTY',
+      if (kDebugMode) 'DOC',
+      if (kDebugMode) 'MARTY',
     ];
 
 List<String> get enabledByDefaultTrezorCoins => [

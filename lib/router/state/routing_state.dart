@@ -66,7 +66,9 @@ class RoutingState {
     if (_mainMenu.selectedMenu != menu) return true;
     if (_mainMenu.selectedMenu == menu &&
         menu == MainMenuValue.settings &&
-        !isMobile) return false;
+        !isMobile) {
+      return false;
+    }
     return true;
   }
 

@@ -107,7 +107,13 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         );
       },
       onError: (e, s) {
-        logger.log('Failed to load portfolio profit/loss: $e', isError: true);
+        logger
+            .log(
+              'Failed to load portfolio profit/loss: $e',
+              isError: true,
+              trace: s,
+            )
+            .ignore();
         return ProfitLossLoadFailure(
           error: TextError(error: 'Failed to load portfolio profit/loss: $e'),
           selectedPeriod: event.selectedPeriod,
@@ -143,17 +149,16 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     bool allowInactiveCoins = true,
   }) async {
     final List<Coin> coins = List.from(event.coins);
-    await coins.removeWhereAsync(
-      (Coin coin) async {
-        final isCoinSupported =
-            await _profitLossRepository.isCoinChartSupported(
-          coin.abbr,
-          event.fiatCoinId,
-          allowInactiveCoins: allowInactiveCoins,
-        );
-        return coin.isTestCoin || !isCoinSupported;
-      },
-    );
+    for (final coin in event.coins) {
+      final isCoinSupported = await _profitLossRepository.isCoinChartSupported(
+        coin.id,
+        event.fiatCoinId,
+        allowInactiveCoins: allowInactiveCoins,
+      );
+      if (coin.isTestCoin || !isCoinSupported) {
+        coins.remove(coin);
+      }
+    }
     return coins;
   }
 
@@ -197,18 +202,19 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         // from breaking the entire portfolio chart.
         try {
           final profitLosses = await _profitLossRepository.getProfitLoss(
-            coin.abbr,
+            coin.id,
             event.fiatCoinId,
             event.walletId,
             useCache: useCache,
           );
 
-          profitLosses.removeRange(
-            0,
-            profitLosses.indexOf(
-              profitLosses.firstWhere((element) => element.profitLoss != 0),
-            ),
+          final startIndex = profitLosses.indexOf(
+            profitLosses.firstWhere((element) => element.profitLoss != 0),
           );
+
+          if (startIndex == -1) {
+            profitLosses.removeRange(0, startIndex);
+          }
 
           return profitLosses.toChartData();
         } catch (e) {

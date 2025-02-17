@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_repository.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_status.dart';
@@ -24,16 +25,28 @@ class MarketMakerBotBloc
   )   : _botRepository = marketMaketBotRepository,
         _orderRepository = orderRepository,
         super(const MarketMakerBotState.initial()) {
-    on<MarketMakerBotStartRequested>(_onStartRequested);
-    on<MarketMakerBotStopRequested>(_onStopRequested);
-    on<MarketMakerBotOrderUpdateRequested>(_onOrderUpdateRequested);
-    on<MarketMakerBotOrderCancelRequested>(_onOrderCancelRequested);
+    on<MarketMakerBotStartRequested>(
+      _onStartRequested,
+      transformer: restartable(),
+    );
+    on<MarketMakerBotStopRequested>(
+      _onStopRequested,
+      transformer: restartable(),
+    );
+    on<MarketMakerBotOrderUpdateRequested>(
+      _onOrderUpdateRequested,
+      transformer: sequential(),
+    );
+    on<MarketMakerBotOrderCancelRequested>(
+      _onOrderCancelRequested,
+      transformer: sequential(),
+    );
   }
 
   final MarketMakerBotRepository _botRepository;
   final MarketMakerBotOrderListRepository _orderRepository;
 
-  void _onStartRequested(
+  Future<void> _onStartRequested(
     MarketMakerBotStartRequested event,
     Emitter<MarketMakerBotState> emit,
   ) async {
@@ -56,7 +69,7 @@ class MarketMakerBotBloc
     }
   }
 
-  void _onStopRequested(
+  Future<void> _onStopRequested(
     MarketMakerBotStopRequested event,
     Emitter<MarketMakerBotState> emit,
   ) async {
@@ -76,7 +89,7 @@ class MarketMakerBotBloc
     }
   }
 
-  void _onOrderUpdateRequested(
+  Future<void> _onOrderUpdateRequested(
     MarketMakerBotOrderUpdateRequested event,
     Emitter<MarketMakerBotState> emit,
   ) async {
@@ -85,7 +98,7 @@ class MarketMakerBotBloc
     try {
       // Add the trade pair to stored settings immediately to provide feedback
       // and updates to the user.
-      _botRepository.addTradePairToStoredSettings(event.tradePair);
+      await _botRepository.addTradePairToStoredSettings(event.tradePair);
 
       // Cancel the order immediately to provide feedback to the user that
       // the bot is being updated, since the restart process may take some time.
@@ -111,7 +124,7 @@ class MarketMakerBotBloc
     }
   }
 
-  void _onOrderCancelRequested(
+  Future<void> _onOrderCancelRequested(
     MarketMakerBotOrderCancelRequested event,
     Emitter<MarketMakerBotState> emit,
   ) async {
@@ -166,7 +179,7 @@ class MarketMakerBotBloc
         }
         return;
       }
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
     }
   }
 }

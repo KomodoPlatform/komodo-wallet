@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
+import 'package:web_dex/shared/utils/zip.dart';
 
 class FileLoaderNativeDesktop implements FileLoader {
   const FileLoaderNativeDesktop();
@@ -15,18 +15,16 @@ class FileLoaderNativeDesktop implements FileLoader {
   }) async {
     switch (type) {
       case LoadFileType.text:
-        _saveAsTextFile(fileName, data);
-        return;
+        await _saveAsTextFile(fileName, data);
       case LoadFileType.compressed:
-        _saveAsCompressedFile(fileName, data);
-        return;
+        await _saveAsCompressedFile(fileName, data);
     }
   }
 
   @override
   Future<void> upload({
-    required Function(String name, String content) onUpload,
-    required Function(String) onError,
+    required void Function(String name, String content) onUpload,
+    required void Function(String) onError,
     LoadFileType? fileType,
   }) async {
     try {
@@ -63,10 +61,8 @@ class FileLoaderNativeDesktop implements FileLoader {
         await FilePicker.platform.saveFile(fileName: '$fileName.zip');
     if (fileFullPath == null) return;
 
-    final List<int> fileBytes = utf8.encode(data);
-
-    // Using ZLibCodec for compression
-    final compressedBytes = ZLibEncoder().convert(fileBytes);
+    final compressedBytes =
+        createZipOfSingleFile(fileName: fileName, fileContent: data);
 
     final File compressedFile = File(fileFullPath);
     await compressedFile.writeAsBytes(compressedBytes);

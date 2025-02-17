@@ -7,7 +7,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/ui/ui_primary_button.dart';
 
 class ConvertAddressButton extends StatelessWidget {
-  const ConvertAddressButton();
+  const ConvertAddressButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class ConvertAddressButton extends StatelessWidget {
       ),
       onPressed: () => context
           .read<WithdrawFormBloc>()
-          .add(const WithdrawFormConvertAddress()),
+          .add(const WithdrawFormConvertAddressRequested()),
     );
   }
 }

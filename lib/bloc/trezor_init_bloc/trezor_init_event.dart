@@ -1,13 +1,12 @@
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/hw_wallet/init_trezor.dart';
+part of 'trezor_init_bloc.dart';
 
 abstract class TrezorInitEvent {
   const TrezorInitEvent();
 }
 
 class TrezorInitUpdateAuthMode extends TrezorInitEvent {
-  const TrezorInitUpdateAuthMode(this.authMode);
-  final AuthorizeMode authMode;
+  const TrezorInitUpdateAuthMode(this.kdfUser);
+  final KdfUser? kdfUser;
 }
 
 class TrezorInit extends TrezorInitEvent {
@@ -27,9 +26,9 @@ class TrezorInitUpdateStatus extends TrezorInitEvent {
 }
 
 class TrezorInitSuccess extends TrezorInitEvent {
-  const TrezorInitSuccess(this.details);
+  const TrezorInitSuccess(this.status);
 
-  final TrezorDeviceDetails details;
+  final InitTrezorStatusData status;
 }
 
 class TrezorInitSendPin extends TrezorInitEvent {

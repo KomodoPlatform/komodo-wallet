@@ -53,7 +53,7 @@ class _SellPriceField extends StatelessWidget {
 
       final amount = state.sellAmount ?? Rational.zero;
       return Text(
-        getFormattedFiatAmount(coin.abbr, amount),
+        getFormattedFiatAmount(context, coin.abbr, amount),
         style: textStyle,
       );
     });

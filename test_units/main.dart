@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 
+import 'tests/cex_market_data/binance_repository_test.dart';
 import 'tests/cex_market_data/charts_test.dart';
 import 'tests/cex_market_data/generate_demo_data_test.dart';
 import 'tests/cex_market_data/profit_loss_repository_test.dart';
@@ -81,6 +82,7 @@ void main() {
 
   group('CexMarketData: ', () {
     testCharts();
+    testFailingBinanceRepository();
     testProfitLossRepository();
     testGenerateDemoData();
   });

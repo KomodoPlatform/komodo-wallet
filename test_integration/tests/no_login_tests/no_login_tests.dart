@@ -12,20 +12,32 @@ import 'no_login_wallet_access_test.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Run no login mode tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    print('ACCEPT ALPHA WARNING');
-    await acceptAlphaWarning(tester);
+  noLoginWidgetTests();
+}
 
-    await pause(msg: 'START NO LOGIN MODE TESTS');
-    await testNoLoginWalletAccess(tester);
-    // No Login taker form test should be always ran last here
-    await testNoLoginTakerForm(tester);
+void noLoginWidgetTests({
+  bool skip = false,
+  int retryLimit = 0,
+  Duration timeout = const Duration(minutes: 10),
+}) {
+  return testWidgets(
+    'Run no login mode tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
 
-    await pause(sec: 5, msg: 'END NO LOGIN MODE TESTS');
-    await Future<void>.delayed(const Duration(seconds: 5));
-    await tester.pumpAndSettle();
-  }, semanticsEnabled: false);
+      await acceptAlphaWarning(tester);
+      await pause(msg: 'START NO LOGIN MODE TESTS');
+      await testNoLoginWalletAccess(tester);
+      // No Login taker form test should be always ran last here
+      await testNoLoginTakerForm(tester);
+
+      await pause(sec: 5, msg: 'END NO LOGIN MODE TESTS');
+    },
+    semanticsEnabled: false,
+    retry: retryLimit,
+    timeout: Timeout(timeout),
+    skip: skip,
+  );
 }

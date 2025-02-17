@@ -5,13 +5,14 @@ import 'package:flutter/foundation.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
-import 'package:web_dex/bloc/fiat/ramp/ramp_purchase_watcher.dart';
+import 'package:web_dex/bloc/fiat/models/models.dart';
 
-const komodoLogoUrl = 'https://komodoplatform.com/assets/img/logo-dark.png';
+const komodoLogoUrl = 'https://app.komodoplatform.com/icons/logo_icon.png';
 
 class RampFiatProvider extends BaseFiatProvider {
-  final String providerId = "Ramp";
-  final String apiEndpoint = "/api/v1/ramp";
+  RampFiatProvider();
+  final String providerId = 'Ramp';
+  final String apiEndpoint = '/api/v1/ramp';
 
   String get orderDomain =>
       kDebugMode ? 'https://app.demo.ramp.network' : 'https://app.ramp.network';
@@ -22,20 +23,18 @@ class RampFiatProvider extends BaseFiatProvider {
   @override
   String get providerIconPath => '$assetsPath/fiat/providers/ramp_icon.svg';
 
-  RampFiatProvider();
-
   @override
   String getProviderId() {
     return providerId;
   }
 
-  String getFullCoinCode(Currency target) {
-    return '${getCoinChainId(target)}_${target.symbol}';
+  String getFullCoinCode(ICurrency target) {
+    return '${getCoinChainId(target as CryptoCurrency)}_${target.symbol}';
   }
 
-  Future _getPaymentMethods(
+  Future<dynamic> _getPaymentMethods(
     String source,
-    Currency target, {
+    ICurrency target, {
     String? sourceAmount,
   }) =>
       apiRequest(
@@ -47,15 +46,15 @@ class RampFiatProvider extends BaseFiatProvider {
         body: {
           'fiatCurrency': source,
           'cryptoAssetSymbol': getFullCoinCode(target),
-          "fiatValue": double.tryParse(sourceAmount!),
+          'fiatValue': double.tryParse(sourceAmount!),
         },
       );
 
-  Future _getPricesWithPaymentMethod(
+  Future<dynamic> _getPricesWithPaymentMethod(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
-    Map<String, dynamic> paymentMethod,
+    FiatPaymentMethod paymentMethod,
   ) =>
       apiRequest(
         'POST',
@@ -70,7 +69,7 @@ class RampFiatProvider extends BaseFiatProvider {
         },
       );
 
-  Future _getFiats() => apiRequest(
+  Future<dynamic> _getFiats() => apiRequest(
         'GET',
         apiEndpoint,
         queryParams: {
@@ -78,7 +77,7 @@ class RampFiatProvider extends BaseFiatProvider {
         },
       );
 
-  Future _getCoins({String? currencyCode}) => apiRequest(
+  Future<dynamic> _getCoins({String? currencyCode}) => apiRequest(
         'GET',
         apiEndpoint,
         queryParams: {
@@ -88,41 +87,38 @@ class RampFiatProvider extends BaseFiatProvider {
       );
 
   @override
-  Stream<FiatOrderStatus> watchOrderStatus([String? orderId]) {
-    assert(
-      orderId == null || orderId.isEmpty == true,
-      'Ramp Order ID is only available after the user starts the checkout.',
-    );
-
-    final rampOrderWatcher = RampPurchaseWatcher();
-
-    return rampOrderWatcher.watchOrderStatus();
-  }
-
-  @override
-  Future<List<Currency>> getFiatList() async {
+  Future<List<ICurrency>> getFiatList() async {
     final response = await _getFiats();
     final data = response as List<dynamic>;
     return data
         .where((item) => item['onrampAvailable'] as bool)
-        .map((item) => Currency(
-              item['fiatCurrency'] as String,
-              item['name'] as String,
-              isFiat: true,
-            ))
+        .map(
+          (item) => FiatCurrency(
+            item['fiatCurrency'] as String,
+            item['name'] as String,
+          ),
+        )
         .toList();
   }
 
   @override
-  Future<List<Currency>> getCoinList() async {
+  Future<List<ICurrency>> getCoinList() async {
     final response = await _getCoins();
     final data = response['assets'] as List<dynamic>;
     return data
         .map((item) {
-          return Currency(item['symbol'] as String, item['name'] as String,
-              chainType: getCoinType(item['chain'] as String), isFiat: false);
+          final coinType = getCoinType(item['chain'] as String);
+          if (coinType == null) {
+            return null;
+          }
+          return CryptoCurrency(
+            item['symbol'] as String,
+            item['name'] as String,
+            coinType,
+          );
         })
-        .where((item) => item.chainType != null)
+        .where((e) => e != null)
+        .cast<ICurrency>()
         .toList();
   }
 
@@ -135,13 +131,13 @@ class RampFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getPaymentMethodsList(
+  Future<List<FiatPaymentMethod>> getPaymentMethodsList(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
   ) async {
     try {
-      List<Map<String, dynamic>> paymentMethodsList = [];
+      final List<FiatPaymentMethod> paymentMethodsList = [];
 
       final paymentMethodsFuture =
           _getPaymentMethods(source, target, sourceAmount: sourceAmount);
@@ -149,7 +145,7 @@ class RampFiatProvider extends BaseFiatProvider {
 
       final results = await Future.wait([paymentMethodsFuture, coinsFuture]);
 
-      final paymentMethods = results[0];
+      final paymentMethods = results[0] as Map<String, dynamic>;
       final coins = results[1] as Map<String, dynamic>;
 
       final asset = paymentMethods['asset'];
@@ -162,43 +158,45 @@ class RampFiatProvider extends BaseFiatProvider {
           asset == null ? null : asset['maxPurchaseAmount'];
 
       if (asset != null) {
-        paymentMethods.forEach((key, value) {
-          if (key != "asset") {
+        paymentMethods.forEach((String key, dynamic value) {
+          if (key != 'asset') {
             final method = {
-              "id": key,
-              "name": _formatMethodName(key),
-              "transaction_fees": [
+              'id': key,
+              'name': _formatMethodName(key),
+              'transaction_fees': [
                 {
-                  "fees": [
+                  'fees': [
                     {
-                      "amount":
-                          value["baseRampFee"] / double.tryParse(sourceAmount)
+                      'amount':
+                          value['baseRampFee'] / double.tryParse(sourceAmount),
                     },
                   ],
                 }
               ],
-              "transaction_limits": [
+              'transaction_limits': [
                 {
-                  "fiat_code": source,
-                  "min": (assetMinPurchaseAmount != null &&
+                  'fiat_code': source,
+                  'min': (assetMinPurchaseAmount != null &&
                               assetMinPurchaseAmount != -1
                           ? assetMinPurchaseAmount
                           : globalMinPurchaseAmount)
                       .toString(),
-                  "max": (assetMaxPurchaseAmount != null &&
+                  'max': (assetMaxPurchaseAmount != null &&
                               assetMaxPurchaseAmount != -1
                           ? assetMaxPurchaseAmount
                           : globalMaxPurchaseAmount)
                       .toString(),
                 }
               ],
-              "price_info": {
-                'coin_amount':
-                    getCryptoAmount(value['cryptoAmount'], asset['decimals']),
-                "fiat_amount": value['fiatValue'].toString(),
-              }
+              'price_info': {
+                'coin_amount': getCryptoAmount(
+                  value['cryptoAmount'] as String,
+                  asset['decimals'] as int,
+                ),
+                'fiat_amount': value['fiatValue'].toString(),
+              },
             };
-            paymentMethodsList.add(method);
+            paymentMethodsList.add(FiatPaymentMethod.fromJson(method));
           }
         });
       }
@@ -210,12 +208,12 @@ class RampFiatProvider extends BaseFiatProvider {
     }
   }
 
-  double _getPaymentMethodFee(Map<String, dynamic> paymentMethod) {
-    return paymentMethod['transaction_fees'][0]['fees'][0]['amount'];
+  double _getPaymentMethodFee(FiatPaymentMethod paymentMethod) {
+    return paymentMethod.transactionFees.first.fees.first.amount;
   }
 
   double _getFeeAdjustedPrice(
-    Map<String, dynamic> paymentMethod,
+    FiatPaymentMethod paymentMethod,
     double price,
   ) {
     return price / (1 - _getPaymentMethodFee(paymentMethod));
@@ -227,11 +225,11 @@ class RampFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<Map<String, dynamic>> getPaymentMethodPrice(
+  Future<FiatPriceInfo> getPaymentMethodPrice(
     String source,
-    Currency target,
+    ICurrency target,
     String sourceAmount,
-    Map<String, dynamic> paymentMethod,
+    FiatPaymentMethod paymentMethod,
   ) async {
     final response = await _getPricesWithPaymentMethod(
       source,
@@ -240,7 +238,7 @@ class RampFiatProvider extends BaseFiatProvider {
       paymentMethod,
     );
     final asset = response['asset'];
-    final prices = asset['price'];
+    final prices = asset['price'] as Map<String, dynamic>? ?? {};
     if (!prices.containsKey(source)) {
       return Future.error(
         'Price information not available for the currency: $source',
@@ -251,19 +249,22 @@ class RampFiatProvider extends BaseFiatProvider {
       'fiat_code': source,
       'coin_code': target.symbol,
       'spot_price_including_fee':
-          _getFeeAdjustedPrice(paymentMethod, prices[source]).toString(),
+          _getFeeAdjustedPrice(paymentMethod, prices[source] as double)
+              .toString(),
       'coin_amount': getCryptoAmount(
-          response[paymentMethod['id']]['cryptoAmount'], asset['decimals']),
+        response[paymentMethod.id]['cryptoAmount'] as String,
+        asset['decimals'] as int,
+      ),
     };
 
-    return Map<String, dynamic>.from(priceInfo);
+    return FiatPriceInfo.fromJson(priceInfo);
   }
 
   @override
-  Future<Map<String, dynamic>> buyCoin(
+  Future<FiatBuyOrderInfo> buyCoin(
     String accountReference,
     String source,
-    Currency target,
+    ICurrency target,
     String walletAddress,
     String paymentMethodId,
     String sourceAmount,
@@ -273,32 +274,31 @@ class RampFiatProvider extends BaseFiatProvider {
       'hostApiKey': hostId,
       'hostAppName': appShortTitle,
       'hostLogoUrl': komodoLogoUrl,
-      "userAddress": walletAddress,
-      "finalUrl": returnUrlOnSuccess,
-      "defaultFlow": 'ONRAMP',
-      "enabledFlows": '[ONRAMP]',
-      "fiatCurrency": source,
-      "fiatValue": sourceAmount,
-      "defaultAsset": getFullCoinCode(target),
+      'userAddress': walletAddress,
+      'finalUrl': returnUrlOnSuccess,
+      'defaultFlow': 'ONRAMP',
+      'enabledFlows': '[ONRAMP]',
+      'fiatCurrency': source,
+      'fiatValue': sourceAmount,
+      'defaultAsset': getFullCoinCode(target),
       // if(coinsBloc.walletCoins.isNotEmpty)
       //   "swapAsset": coinsBloc.walletCoins.map((e) => e.abbr).toList().toString(),
       // "swapAsset": fullAssetCode, // This limits the crypto asset list at the redirect page
     };
 
     final queryString = payload.entries.map((entry) {
-      return '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value.toString())}';
+      return '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value)}';
     }).join('&');
 
     final checkoutUrl = '$orderDomain?$queryString';
+    return FiatBuyOrderInfo.fromCheckoutUrl(checkoutUrl);
+  }
 
-    final orderInfo = {
-      'data': {
-        'order': {
-          'checkout_url': checkoutUrl,
-        },
-      },
-    };
-
-    return Map<String, dynamic>.from(orderInfo);
+  @override
+  Stream<FiatOrderStatus> watchOrderStatus(String orderId) {
+    throw UnsupportedError(
+      'Ramp integration relies on console.log and/or postMessage '
+      'callbacks from a webpage',
+    );
   }
 }

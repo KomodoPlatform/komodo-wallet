@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/blocs/coins_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/nft.dart';
@@ -11,7 +11,7 @@ part 'nft_receive_state.dart';
 
 class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
   NftReceiveBloc({
-    required CoinsBloc coinsRepo,
+    required CoinsRepo coinsRepo,
     required CurrentWalletBloc currentWalletBloc,
   })  : _coinsRepo = coinsRepo,
         _currentWalletBloc = currentWalletBloc,
@@ -21,7 +21,7 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
     on<NftReceiveEventChangedAddress>(_onChangeAddress);
   }
 
-  final CoinsBloc _coinsRepo;
+  final CoinsRepo _coinsRepo;
   final CurrentWalletBloc _currentWalletBloc;
   NftBlockchains? chain;
 
@@ -40,7 +40,8 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
         }
 
         if (coin.address?.isEmpty ?? true) {
-          final activationErrors = await activateCoinIfNeeded(coin.abbr);
+          final activationErrors =
+              await activateCoinIfNeeded(coin.abbr, _coinsRepo);
           if (activationErrors.isNotEmpty) {
             return emit(
               NftReceiveFailure(

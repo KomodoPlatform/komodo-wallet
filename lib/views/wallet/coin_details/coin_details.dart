@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
@@ -37,25 +38,21 @@ class _CoinDetailsState extends State<CoinDetails> {
   void initState() {
     _txHistoryBloc = context.read<TransactionHistoryBloc>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context
-          .read<TransactionHistoryBloc>()
-          .add(TransactionHistorySubscribe(coin: widget.coin));
+      _txHistoryBloc.add(TransactionHistorySubscribe(coin: widget.coin));
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    _txHistoryBloc.add(TransactionHistoryUnsubscribe(coin: widget.coin));
+    // _txHistoryBloc.add(TransactionHistoryUnsubscribe(coin: widget.coin));
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Iterable<Coin>>(
-      initialData: coinsBloc.walletCoinsMap.values,
-      stream: coinsBloc.outWalletCoins,
-      builder: (context, AsyncSnapshot<Iterable<Coin>> snapshot) {
+    return BlocBuilder<CoinsBloc, CoinsState>(
+      builder: (context, state) {
         return _buildContent();
       },
     );
@@ -72,9 +69,9 @@ class _CoinDetailsState extends State<CoinDetails> {
 
       case CoinPageType.send:
         return WithdrawForm(
-          coin: widget.coin,
+          asset: widget.coin.toSdkAsset(context.read<KomodoDefiSdk>()),
+          onSuccess: _openInfo,
           onBackButtonPressed: _openInfo,
-          onSuccess: () => _setPageType(CoinPageType.info),
         );
 
       case CoinPageType.receive:

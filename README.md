@@ -27,7 +27,6 @@ Current production version is available here: https://app.komodoplatform.com
 - [Project setup](docs/PROJECT_SETUP.md)
 - [Firebase Setup](docs/FIREBASE_SETUP.md)
 - [Coins config, update](docs/COINS_CONFIG.md)
-- [API module, update](docs/UPDATE_API_MODULE.md)
 - [App version, update](docs/UPDATE_APP_VERSION.md)
 - [Run the App](docs/BUILD_RUN_APP.md)
 - [Build release version of the App](docs/BUILD_RELEASE.md)

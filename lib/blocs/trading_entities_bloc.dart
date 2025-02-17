@@ -2,28 +2,37 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
 import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/cancel_order/cancel_order_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_response.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_response.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
-import 'package:web_dex/services/swaps_service/swaps_service.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 class TradingEntitiesBloc implements BlocBase {
-  TradingEntitiesBloc() {
-    _authModeListener = authRepo.authMode.listen((mode) => _authMode = mode);
-  }
+  TradingEntitiesBloc(
+    KomodoDefiSdk kdfSdk,
+    Mm2Api mm2Api,
+    MyOrdersService myOrdersService,
+  )   : _mm2Api = mm2Api,
+        _myOrdersService = myOrdersService,
+        _kdfSdk = kdfSdk;
 
-  AuthorizeMode? _authMode;
-  StreamSubscription<AuthorizeMode>? _authModeListener;
+  final KomodoDefiSdk _kdfSdk;
+  final MyOrdersService _myOrdersService;
+  final Mm2Api _mm2Api;
+  StreamSubscription<KdfUser?>? _authModeListener;
   List<MyOrder> _myOrders = [];
   List<Swap> _swaps = [];
   Timer? timer;
@@ -52,8 +61,10 @@ class TradingEntitiesBloc implements BlocBase {
   }
 
   Future<void> fetch() async {
-    myOrders = await myOrdersService.getOrders() ?? [];
-    swaps = await swapsService.getRecentSwaps(MyRecentSwapsRequest()) ?? [];
+    if (!await _kdfSdk.auth.isSignedIn()) return;
+
+    myOrders = await _myOrdersService.getOrders() ?? [];
+    swaps = await getRecentSwaps(MyRecentSwapsRequest()) ?? [];
   }
 
   @override
@@ -61,20 +72,12 @@ class TradingEntitiesBloc implements BlocBase {
     _authModeListener?.cancel();
   }
 
-  bool get _shouldFetchDexUpdates {
-    if (_authMode == AuthorizeMode.noLogin) return false;
-    if (_authMode == AuthorizeMode.hiddenLogin) return false;
-    if (currentWalletBloc.wallet?.isHW == true) return false;
-
-    return true;
-  }
-
   void runUpdate() {
     bool updateInProgress = false;
 
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
-      if (!_shouldFetchDexUpdates) return;
       if (updateInProgress) return;
+      // TODO!: do not run for hidden login or HW
 
       updateInProgress = true;
       await fetch();
@@ -82,13 +85,9 @@ class TradingEntitiesBloc implements BlocBase {
     });
   }
 
-  Future<RecoverFundsOfSwapResponse?> recoverFundsOfSwap(String uuid) async {
-    return swapsService.recoverFundsOfSwap(uuid);
-  }
-
   Future<String?> cancelOrder(String uuid) async {
     final Map<String, dynamic> response =
-        await mm2Api.cancelOrder(CancelOrderRequest(uuid: uuid));
+        await _mm2Api.cancelOrder(CancelOrderRequest(uuid: uuid));
     return response['error'];
   }
 
@@ -134,5 +133,39 @@ class TradingEntitiesBloc implements BlocBase {
   Future<void> cancelAllOrders() async {
     final futures = myOrders.map((o) => cancelOrder(o.uuid));
     Future.wait(futures);
+  }
+
+  Future<List<Swap>?> getRecentSwaps(MyRecentSwapsRequest request) async {
+    final MyRecentSwapsResponse? response =
+        await _mm2Api.getMyRecentSwaps(request);
+    if (response == null) {
+      return null;
+    }
+
+    return response.result.swaps;
+  }
+
+  Future<RecoverFundsOfSwapResponse?> recoverFundsOfSwap(String uuid) async {
+    final RecoverFundsOfSwapRequest request =
+        RecoverFundsOfSwapRequest(uuid: uuid);
+    final RecoverFundsOfSwapResponse? response =
+        await _mm2Api.recoverFundsOfSwap(request);
+    if (response != null) {
+      log(
+        response.toJson().toString(),
+        path: 'swaps_service => recoverFundsOfSwap',
+      );
+    }
+    return response;
+  }
+
+  Future<Rational?> getMaxTakerVolume(String coinAbbr) async {
+    final MaxTakerVolResponse? response =
+        await _mm2Api.getMaxTakerVolume(MaxTakerVolRequest(coin: coinAbbr));
+    if (response == null) {
+      return null;
+    }
+
+    return fract2rat(response.result.toJson());
   }
 }

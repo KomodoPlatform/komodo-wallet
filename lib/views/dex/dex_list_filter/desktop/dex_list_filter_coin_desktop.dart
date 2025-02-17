@@ -1,13 +1,15 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/model/swap.dart';
+import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 
 class DexListFilterCoinDesktop extends StatelessWidget {
   const DexListFilterCoinDesktop({
@@ -28,6 +30,8 @@ class DexListFilterCoinDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     switch (listType) {
       case DexListType.orders:
         return StreamBuilder<List<MyOrder>>(
@@ -42,8 +46,9 @@ class DexListFilterCoinDesktop extends StatelessWidget {
               label: label,
               onCoinSelect: onCoinSelect,
               value: coinAbbr,
-              items: _getItems(coinAbbrMap),
+              items: _getItems(context, coinAbbrMap),
               selectedItemBuilder: (context) => _getItems(
+                context,
                 coinAbbrMap,
                 selected: true,
               ),
@@ -67,8 +72,9 @@ class DexListFilterCoinDesktop extends StatelessWidget {
               label: label,
               onCoinSelect: onCoinSelect,
               value: coinAbbr,
-              items: _getItems(coinAbbrMap),
+              items: _getItems(context, coinAbbrMap),
               selectedItemBuilder: (context) => _getItems(
+                context,
                 coinAbbrMap,
                 selected: true,
               ),
@@ -81,6 +87,7 @@ class DexListFilterCoinDesktop extends StatelessWidget {
   }
 
   List<DropdownMenuItem<String>> _getItems(
+    BuildContext context,
     Map<String, List<String>> coinAbbrMap, {
     bool selected = false,
   }) {
@@ -89,7 +96,7 @@ class DexListFilterCoinDesktop extends StatelessWidget {
 
     return selected
         ? coinAbbrList.map((abbr) {
-            return _buildSelectedItem(abbr);
+            return _buildSelectedItem(context, abbr);
           }).toList()
         : coinAbbrList.map((abbr) {
             final int pairsCount = getCoinPairsCountFromCoinAbbrMap(
@@ -97,15 +104,17 @@ class DexListFilterCoinDesktop extends StatelessWidget {
               abbr,
               anotherCoinAbbr,
             );
-            return _buildItem(abbr, pairsCount);
+            return _buildItem(context, abbr, pairsCount);
           }).toList();
   }
 
   DropdownMenuItem<String> _buildItem(
+    BuildContext context,
     String coinAbbr,
     int pairsCount,
   ) {
-    final Coin? coin = coinsBloc.getCoin(coinAbbr);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final Coin? coin = coinsRepository.getCoin(coinAbbr);
     if (coin == null) return const DropdownMenuItem<String>(child: SizedBox());
 
     return DropdownMenuItem<String>(
@@ -129,8 +138,10 @@ class DexListFilterCoinDesktop extends StatelessWidget {
     );
   }
 
-  DropdownMenuItem<String> _buildSelectedItem(String coinAbbr) {
-    final Coin? coin = coinsBloc.getCoin(coinAbbr);
+  DropdownMenuItem<String> _buildSelectedItem(
+      BuildContext context, String coinAbbr) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final Coin? coin = coinsRepository.getCoin(coinAbbr);
     if (coin == null) return const DropdownMenuItem<String>(child: SizedBox());
 
     return DropdownMenuItem<String>(

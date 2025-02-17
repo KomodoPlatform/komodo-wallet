@@ -1,7 +1,8 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
@@ -41,6 +42,7 @@ class _BuyAmountFiat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
     return StreamBuilder<Rational?>(
       initialData: makerFormBloc.buyAmount,
@@ -51,7 +53,7 @@ class _BuyAmountFiat extends StatelessWidget {
         final amount = snapshot.data ?? Rational.zero;
 
         return Text(
-          getFormattedFiatAmount(coin.abbr, amount),
+          getFormattedFiatAmount(context, coin.abbr, amount),
           style: textStyle,
         );
       },
@@ -71,6 +73,7 @@ class _BuyAmountInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<Rational?>(
       initialData: makerFormBloc.buyAmount,
       stream: makerFormBloc.outBuyAmount,

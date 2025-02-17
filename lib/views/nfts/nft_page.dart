@@ -35,8 +35,8 @@ class NftPage extends StatelessWidget {
             providers: [
               RepositoryProvider<NftTxnRepository>(
                 create: (context) => NftTxnRepository(
-                  api: mm2Api.nft,
-                  coinsRepo: coinsRepo,
+                  api: RepositoryProvider.of<Mm2Api>(context).nft,
+                  coinsRepo: RepositoryProvider.of<CoinsRepo>(context),
                 ),
               ),
             ],

@@ -1,6 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -22,7 +23,7 @@ class NftTxnCopiedText extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).extension<ColorSchemeExtension>()!;
     final textScheme = Theme.of(context).extension<TextThemeExtension>()!;
-    final coin = _coin;
+    final coin = _coin(context);
     final textStyle = textScheme.bodyXS.copyWith(color: colorScheme.s70);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,8 +43,9 @@ class NftTxnCopiedText extends StatelessWidget {
     );
   }
 
-  Coin? get _coin {
-    return coinsBloc.getCoin(transaction.chain.coinAbbr());
+  Coin? _coin(BuildContext context) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    return coinsRepository.getCoin(transaction.chain.coinAbbr());
   }
 
   String get _exploreValue {

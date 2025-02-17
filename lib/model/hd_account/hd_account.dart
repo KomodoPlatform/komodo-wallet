@@ -17,6 +17,16 @@ class HdAccount {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'account_index': accountIndex,
+      'derivation_path': derivationPath,
+      'total_balance': totalBalance?.toJson(),
+      'addresses':
+          addresses.map((HdAddress address) => address.toJson()).toList(),
+    };
+  }
+
   final int accountIndex;
   final String? derivationPath;
   final HdBalance? totalBalance;
@@ -38,6 +48,15 @@ class HdAddress {
       chain: json['chain'],
       balance: HdBalance.fromJson(json['balance']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'address': address,
+      'derivation_path': derivationPath,
+      'chain': chain,
+      'balance': balance.toJson(),
+    };
   }
 
   final String address;
@@ -78,6 +97,13 @@ class HdBalance {
       spendable: balances.spendable,
       unspendable: balances.unspendable,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'spendable': spendable,
+      'unspendable': unspendable,
+    };
   }
 
   double spendable;

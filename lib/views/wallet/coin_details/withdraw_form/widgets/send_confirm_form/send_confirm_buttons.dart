@@ -9,8 +9,11 @@ import 'package:web_dex/shared/ui/ui_primary_button.dart';
 import 'package:web_dex/views/wallet/coin_details/constants.dart';
 
 class SendConfirmButtons extends StatelessWidget {
-  const SendConfirmButtons(
-      {required this.hasSendError, required this.onBackTap});
+  const SendConfirmButtons({
+    super.key,
+    required this.hasSendError,
+    required this.onBackTap,
+  });
   final bool hasSendError;
   final VoidCallback onBackTap;
   @override
@@ -33,31 +36,33 @@ class _MobileButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     const height = 52.0;
 
-    return Row(children: [
-      Expanded(
-        child: AppDefaultButton(
-          key: const Key('confirm-back-button'),
-          height: height + 6,
-          padding: const EdgeInsets.symmetric(vertical: 0),
-          onPressed: onBackTap,
-          text: LocaleKeys.back.tr(),
-        ),
-      ),
-      if (!hasError)
+    return Row(
+      children: [
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: UiPrimaryButton(
-              key: const Key('confirm-agree-button'),
-              height: height,
-              onPressed: () => context
-                  .read<WithdrawFormBloc>()
-                  .add(const WithdrawFormSendRawTx()),
-              text: LocaleKeys.confirm.tr(),
-            ),
+          child: AppDefaultButton(
+            key: const Key('confirm-back-button'),
+            height: height + 6,
+            padding: const EdgeInsets.symmetric(vertical: 0),
+            onPressed: onBackTap,
+            text: LocaleKeys.back.tr(),
           ),
         ),
-    ]);
+        if (!hasError)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: UiPrimaryButton(
+                key: const Key('confirm-agree-button'),
+                height: height,
+                onPressed: () => context
+                    .read<WithdrawFormBloc>()
+                    .add(const WithdrawFormSubmitted()),
+                text: LocaleKeys.confirm.tr(),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }
 
@@ -92,10 +97,10 @@ class _DesktopButtons extends StatelessWidget {
               height: height,
               onPressed: () => context
                   .read<WithdrawFormBloc>()
-                  .add(const WithdrawFormSendRawTx()),
+                  .add(const WithdrawFormSubmitted()),
               text: LocaleKeys.confirm.tr(),
             ),
-          )
+          ),
       ],
     );
   }

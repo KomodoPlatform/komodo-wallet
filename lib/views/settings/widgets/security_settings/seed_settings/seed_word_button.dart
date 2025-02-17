@@ -32,10 +32,10 @@ class SeedWordButton extends StatelessWidget {
             child: InkWell(
               onTap: onPressed,
               borderRadius: BorderRadius.circular(15),
-              hoverColor: color.withOpacity(0.05),
-              highlightColor: color.withOpacity(0.1),
-              focusColor: color.withOpacity(0.2),
-              splashColor: color.withOpacity(0.4),
+              hoverColor: color.withValues(alpha: 0.05),
+              highlightColor: color.withValues(alpha: 0.1),
+              focusColor: color.withValues(alpha: 0.2),
+              splashColor: color.withValues(alpha: 0.4),
               child: Stack(
                 children: [
                   Container(

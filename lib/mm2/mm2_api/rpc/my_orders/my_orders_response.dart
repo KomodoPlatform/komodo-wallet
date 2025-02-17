@@ -8,7 +8,9 @@ class MyOrdersResponse {
 
   factory MyOrdersResponse.fromJson(Map<String, dynamic> json) =>
       MyOrdersResponse(
-        result: MyOrdersResponseResult.fromJson(json['result']),
+        result: MyOrdersResponseResult.fromJson(
+          Map<String, dynamic>.from(json['result'] as Map? ?? {}),
+        ),
       );
 
   MyOrdersResponseResult result;
@@ -27,22 +29,26 @@ class MyOrdersResponseResult {
   factory MyOrdersResponseResult.fromJson(Map<String, dynamic> json) =>
       MyOrdersResponseResult(
         makerOrders: Map<dynamic, dynamic>.from(json['maker_orders']).map(
-            (dynamic k, dynamic v) =>
-                MapEntry<String, MakerOrder>(k, MakerOrder.fromJson(v))),
+          (dynamic k, dynamic v) =>
+              MapEntry<String, MakerOrder>(k, MakerOrder.fromJson(v)),
+        ),
         takerOrders: Map<dynamic, dynamic>.from(json['taker_orders']).map(
-            (dynamic k, dynamic v) =>
-                MapEntry<String, TakerOrder>(k, TakerOrder.fromJson(v))),
+          (dynamic k, dynamic v) =>
+              MapEntry<String, TakerOrder>(k, TakerOrder.fromJson(v)),
+        ),
       );
 
   Map<String, MakerOrder> makerOrders;
   Map<String, TakerOrder> takerOrders;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'maker_orders': Map<dynamic, dynamic>.from(makerOrders)
-            .map<dynamic, dynamic>((dynamic k, dynamic v) =>
-                MapEntry<String, dynamic>(k, v.toJson())),
-        'taker_orders': Map<dynamic, dynamic>.from(takerOrders)
-            .map<dynamic, dynamic>((dynamic k, dynamic v) =>
-                MapEntry<String, dynamic>(k, v.toJson())),
+        'maker_orders':
+            Map<dynamic, dynamic>.from(makerOrders).map<dynamic, dynamic>(
+          (dynamic k, dynamic v) => MapEntry<String, dynamic>(k, v.toJson()),
+        ),
+        'taker_orders':
+            Map<dynamic, dynamic>.from(takerOrders).map<dynamic, dynamic>(
+          (dynamic k, dynamic v) => MapEntry<String, dynamic>(k, v.toJson()),
+        ),
       };
 }

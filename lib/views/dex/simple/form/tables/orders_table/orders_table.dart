@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/views/dex/common/front_plate.dart';
 import 'package:web_dex/views/dex/simple/form/tables/orders_table/orders_table_content.dart';
@@ -26,7 +26,8 @@ class _OrdersTableState extends State<OrdersTable> {
     return BlocSelector<TakerBloc, TakerState, BestOrder?>(
         selector: (state) => state.selectedOrder,
         builder: (context, selectedOrder) {
-          final coin = coinsBloc.getCoin(selectedOrder?.coin ?? '');
+          final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+          final coin = coinsRepository.getCoin(selectedOrder?.coin ?? '');
           final controller = TradeOrderController(
             order: selectedOrder,
             coin: coin,

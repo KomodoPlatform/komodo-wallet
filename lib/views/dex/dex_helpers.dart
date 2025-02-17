@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/dex_form_error.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
@@ -33,15 +34,20 @@ class FiatAmount extends StatelessWidget {
         Theme.of(context).textTheme.bodySmall?.merge(style);
 
     return Text(
-      getFormattedFiatAmount(coin.abbr, amount),
+      getFormattedFiatAmount(context, coin.abbr, amount),
       style: textStyle,
     );
   }
 }
 
-String getFormattedFiatAmount(String coinAbbr, Rational amount,
-    [int digits = 8]) {
-  final Coin? coin = coinsBloc.getCoin(coinAbbr);
+String getFormattedFiatAmount(
+  BuildContext context,
+  String coinAbbr,
+  Rational amount, [
+  int digits = 8,
+]) {
+  final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+  final Coin? coin = coinsRepository.getCoin(coinAbbr);
   if (coin == null) return '';
   return '≈\$${formatAmt(getFiatAmount(coin, amount))}';
 }
@@ -67,7 +73,9 @@ List<Swap> applyFiltersForSwap(
     }
     if (statuses != null && statuses.isNotEmpty) {
       if (statuses.contains(TradingStatus.successful) &&
-          statuses.contains(TradingStatus.failed)) return true;
+          statuses.contains(TradingStatus.failed)) {
+        return true;
+      }
       if (statuses.contains(TradingStatus.successful)) {
         return swap.isSuccessful;
       }
@@ -76,7 +84,9 @@ List<Swap> applyFiltersForSwap(
 
     if (shownSides != null &&
         shownSides.isNotEmpty &&
-        !shownSides.contains(swap.type)) return false;
+        !shownSides.contains(swap.type)) {
+      return false;
+    }
 
     return true;
   }).toList();
@@ -95,9 +105,13 @@ List<MyOrder> applyFiltersForOrders(
     if (buyCoin != null && order.rel != buyCoin) return false;
     if (startDate != null && order.createdAt < startDate / 1000) return false;
     if (endDate != null &&
-        order.createdAt > (endDate + millisecondsIn24H) / 1000) return false;
+        order.createdAt > (endDate + millisecondsIn24H) / 1000) {
+      return false;
+    }
     if ((shownSides != null && shownSides.isNotEmpty) &&
-        !shownSides.contains(order.orderType)) return false;
+        !shownSides.contains(order.orderType)) {
+      return false;
+    }
 
     return true;
   }).toList();
@@ -149,26 +163,6 @@ int getCoinPairsCountFromCoinAbbrMap(Map<String, List<String>> coinAbbrMap,
       .length;
 }
 
-void removeSuspendedCoinOrders(
-    List<BestOrder> orders, AuthorizeMode authorizeMode) {
-  if (authorizeMode == AuthorizeMode.noLogin) return;
-  orders.removeWhere((BestOrder order) {
-    final Coin? coin = coinsBloc.getCoin(order.coin);
-    if (coin == null) return true;
-
-    return coin.isSuspended;
-  });
-}
-
-void removeWalletOnlyCoinOrders(List<BestOrder> orders) {
-  orders.removeWhere((BestOrder order) {
-    final Coin? coin = coinsBloc.getCoin(order.coin);
-    if (coin == null) return true;
-
-    return coin.walletOnly;
-  });
-}
-
 /// Compares the rate of a decentralized exchange (DEX) with a centralized exchange (CEX) in percentage.
 ///
 /// The comparison is based on the provided exchange rates and a given [rate] of the DEX.
@@ -214,16 +208,19 @@ double compareToCex(double baseUsdPrice, double relUsdPrice, Rational rate) {
   return (dexRate - cexRate) * 100 / cexRate;
 }
 
-Future<List<DexFormError>> activateCoinIfNeeded(String? abbr) async {
+Future<List<DexFormError>> activateCoinIfNeeded(
+  String? abbr,
+  CoinsRepo coinsRepository,
+) async {
   final List<DexFormError> errors = [];
   if (abbr == null) return errors;
 
-  final Coin? coin = coinsBloc.getCoin(abbr);
+  final Coin? coin = coinsRepository.getCoin(abbr);
   if (coin == null) return errors;
 
   if (!coin.isActive) {
     try {
-      await coinsBloc.activateCoins([coin]);
+      await coinsRepository.activateCoinsSync([coin]);
     } catch (e) {
       errors.add(DexFormError(
           error: '${LocaleKeys.unableToActiveCoin.tr(args: [coin.abbr])}: $e'));
@@ -232,7 +229,7 @@ Future<List<DexFormError>> activateCoinIfNeeded(String? abbr) async {
     final Coin? parentCoin = coin.parentCoin;
     if (parentCoin != null && !parentCoin.isActive) {
       try {
-        await coinsBloc.activateCoins([parentCoin]);
+        await coinsRepository.activateCoinsSync([parentCoin]);
       } catch (e) {
         errors.add(DexFormError(
             error:
@@ -244,13 +241,14 @@ Future<List<DexFormError>> activateCoinIfNeeded(String? abbr) async {
   return errors;
 }
 
-Future<void> reInitTradingForms() async {
+Future<void> reInitTradingForms(BuildContext context) async {
   // If some of the DEX or Bridge forms were modified by user during
   // interaction in 'no-login' mode, their blocs may link to special
   // instances of [Coin], initialized in that mode.
   // After login to iguana wallet,
   // we must replace them with regular [Coin] instances, and
   // auto-activate corresponding coins if needed
+  final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
   await makerFormBloc.reInitForm();
 }
 

@@ -128,7 +128,7 @@ class _AutoScrollTextState extends State<AutoScrollText>
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
             color: isTextAnimatable && animationDebugMode
-                ? Colors.purple.withOpacity(0.5)
+                ? Colors.purple.withValues(alpha: 0.5)
                 : null,
           ),
           width: double.infinity,
@@ -267,7 +267,8 @@ class _AutoScrollTextState extends State<AutoScrollText>
     );
 
     if (mustHighlightBackground) {
-      style = style.copyWith(backgroundColor: Colors.red.withOpacity(0.3));
+      style =
+          style.copyWith(backgroundColor: Colors.red.withValues(alpha: 0.3));
     }
 
     return _renderedTextStyle = style;

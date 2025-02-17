@@ -6,12 +6,13 @@ import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/shared/ui/ui_primary_button.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/wallet/coin_details/constants.dart';
 
 class FailedPage extends StatelessWidget {
-  const FailedPage();
+  const FailedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +61,10 @@ class _SendErrorHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
       children: [
-        Text(LocaleKeys.errorDescription.tr(),
-            style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          LocaleKeys.errorDescription.tr(),
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
       ],
     );
   }
@@ -72,17 +75,23 @@ class _SendErrorBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<WithdrawFormBloc, WithdrawFormState, String>(
-      selector: (state) => state.sendError.message,
-      builder: (BuildContext context, String errorText) {
-        final iconColor =
-            Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(.7);
+    return BlocSelector<WithdrawFormBloc, WithdrawFormState, TextError?>(
+      // TODO: Confirm this is the correct error
+      selector: (state) => state.transactionError,
+      builder: (BuildContext context, error) {
+        final iconColor = Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.color
+            ?.withValues(alpha: .7);
 
         return Material(
           color: theme.custom.buttonColorDefault,
           borderRadius: BorderRadius.circular(18),
           child: InkWell(
-            onTap: () => copyToClipBoard(context, errorText),
+            onTap: error == null
+                ? null
+                : () => copyToClipBoard(context, error.error),
             borderRadius: BorderRadius.circular(18),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -92,7 +101,7 @@ class _SendErrorBody extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(child: _MultilineText(errorText)),
+                    Expanded(child: _MultilineText(error?.error ?? '')),
                     const SizedBox(width: 16),
                     Icon(
                       Icons.copy_rounded,

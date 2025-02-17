@@ -141,9 +141,7 @@ class Swap extends Equatable {
         return 0;
       case SwapStatus.negotiated:
         return 0;
-      default:
     }
-    return 0;
   }
 
   static String getSwapStatusString(SwapStatus status) {

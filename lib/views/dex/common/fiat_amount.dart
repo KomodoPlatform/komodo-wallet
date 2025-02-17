@@ -16,7 +16,7 @@ class DexFiatAmountText extends StatelessWidget {
         Theme.of(context).textTheme.bodySmall?.merge(style);
 
     return Text(
-      getFormattedFiatAmount(coin.abbr, amount),
+      getFormattedFiatAmount(context, coin.abbr, amount),
       style: textStyle,
     );
   }

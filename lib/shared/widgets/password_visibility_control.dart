@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 /// #644: We want the password to be obscured most of the time
@@ -87,7 +88,7 @@ class _PasswordVisibilityControlState extends State<PasswordVisibilityControl> {
                   .textTheme
                   .bodyMedium
                   ?.color
-                  ?.withOpacity(0.7)),
+                  ?.withValues(alpha: 0.7)),
         ),
       ),
     );

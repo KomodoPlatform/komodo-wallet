@@ -22,7 +22,7 @@ class FillFormTitle extends StatelessWidget {
                   .textTheme
                   .bodyMedium
                   ?.color
-                  ?.withOpacity(.4),
+                  ?.withValues(alpha: .4),
             ),
             children: [
               TextSpan(

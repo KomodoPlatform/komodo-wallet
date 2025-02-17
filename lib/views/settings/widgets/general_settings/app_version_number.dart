@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/app_config/package_information.dart';
-import 'package:web_dex/bloc/runtime_coin_updates/coin_config_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 
@@ -60,12 +59,6 @@ class _BundledCoinsCommitConfig extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final configBlocState = context.watch<CoinConfigBloc>().state;
-
-    final runtimeCoinUpdatesCommit = (configBlocState is CoinConfigLoadSuccess)
-        ? configBlocState.updatedCommitHash
-        : null;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -83,7 +76,8 @@ class _BundledCoinsCommitConfig extends StatelessWidget {
           },
         ),
         SelectableText(
-          '${LocaleKeys.updated.tr()}: ${_tryParseCommitHash(runtimeCoinUpdatesCommit) ?? LocaleKeys.notUpdated.tr()}',
+          // TODO!: add sdk getter for updated commit hash
+          '${LocaleKeys.updated.tr()}: ${LocaleKeys.updated.tr()}',
           style: _textStyle,
         ),
       ],
@@ -96,6 +90,8 @@ class _ApiVersion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mm2Api = RepositoryProvider.of<Mm2Api>(context);
+
     return Row(
       children: [
         Flexible(
@@ -107,8 +103,10 @@ class _ApiVersion extends StatelessWidget {
               final String? commitHash = _tryParseCommitHash(snapshot.data);
               if (commitHash == null) return const SizedBox.shrink();
 
-              return SelectableText('${LocaleKeys.api.tr()}: $commitHash',
-                  style: _textStyle);
+              return SelectableText(
+                '${LocaleKeys.api.tr()}: $commitHash',
+                style: _textStyle,
+              );
             },
           ),
         ),

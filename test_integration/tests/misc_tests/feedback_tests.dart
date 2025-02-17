@@ -7,13 +7,13 @@ import 'package:web_dex/main.dart' as app;
 
 import '../../common/goto.dart' as goto;
 import '../../common/pause.dart';
-import '../../common/tester_utils.dart';
+import '../../common/widget_tester_action_extensions.dart';
 import '../../helpers/accept_alpha_warning.dart';
 
 Future<void> testFeedbackForm(WidgetTester tester) async {
   await goto.settingsPage(tester);
   await tester.pumpAndSettle();
-  await testerTap(tester, find.byKey(const Key('settings-menu-item-feedback')));
+  await tester.tapAndPump(find.byKey(const Key('settings-menu-item-feedback')));
   await tester.pumpAndSettle();
   tester.ensureVisible(find.byKey(const Key('feedback-email-field')));
   tester.ensureVisible(find.byKey(const Key('feedback-message-field')));

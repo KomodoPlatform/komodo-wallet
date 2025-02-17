@@ -6,10 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_event.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -101,8 +100,9 @@ class _Dropdown extends StatelessWidget {
       bloc: bloc,
       builder: (context, state) {
         final List<CoinType> selectedCoinTypes = bloc.state.selectedCoinTypes;
-        final List<CoinType> listTypes =
-            CoinType.values.where(_filterTypes).toList();
+        final List<CoinType> listTypes = CoinType.values
+            .where((CoinType type) => _filterTypes(context, type))
+            .toList();
         onTap(CoinType type) =>
             bloc.add(CoinsManagerCoinTypeSelect(type: type));
 
@@ -139,14 +139,17 @@ class _Dropdown extends StatelessWidget {
     );
   }
 
-  bool _filterTypes(CoinType type) {
-    switch (currentWalletBloc.wallet?.config.type) {
+  bool _filterTypes(BuildContext context, CoinType type) {
+    final coinsBloc = context.read<CoinsBloc>();
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+    switch (currentWallet?.config.type) {
       case WalletType.iguana:
-        return coinsBloc.knownCoins
+      case WalletType.hdwallet:
+        return coinsBloc.state.coins.values
                 .firstWhereOrNull((coin) => coin.type == type) !=
             null;
       case WalletType.trezor:
-        return coinsBloc.knownCoins.firstWhereOrNull(
+        return coinsBloc.state.coins.values.firstWhereOrNull(
                 (coin) => coin.type == type && coin.hasTrezorSupport) !=
             null;
       case WalletType.metamask:

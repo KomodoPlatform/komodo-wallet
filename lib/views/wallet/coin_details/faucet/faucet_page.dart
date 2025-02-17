@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/faucet_view.dart';
 
 import 'cubit/faucet_cubit.dart';
@@ -18,9 +19,9 @@ class FaucetPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     return BlocProvider(
-      create: (context) =>
-          FaucetCubit(coinAbbr: coinAbbr, coinAddress: coinAddress),
+      create: (context) => FaucetCubit(coinAbbr: coinAbbr, kdfSdk: kdfSdk),
       child: FaucetView(
         onBackButtonPressed: onBackButtonPressed,
       ),

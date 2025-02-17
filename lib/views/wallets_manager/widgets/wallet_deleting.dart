@@ -1,10 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class WalletDeleting extends StatefulWidget {
   const WalletDeleting({
@@ -20,7 +19,7 @@ class WalletDeleting extends StatefulWidget {
 }
 
 class _WalletDeletingState extends State<WalletDeleting> {
-  bool _isDeleting = false;
+  // final bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -93,28 +92,31 @@ class _WalletDeletingState extends State<WalletDeleting> {
             borderColor: theme.custom.specificButtonBorderColor,
           ),
         ),
-        const SizedBox(width: 8.0),
-        Flexible(
-          child: UiPrimaryButton(
-            text: LocaleKeys.delete.tr(),
-            onPressed: _isDeleting ? null : _deleteWallet,
-            prefix: _isDeleting ? const UiSpinner() : null,
-            height: 40,
-            width: 150,
-          ),
-        )
+        // TODO!: uncomment once re-implemented
+        // const SizedBox(width: 8.0),
+        // Flexible(
+        //   child: UiPrimaryButton(
+        //     text: LocaleKeys.delete.tr(),
+        //     onPressed: _isDeleting ? null : _deleteWallet,
+        //     prefix: _isDeleting ? const UiSpinner() : null,
+        //     height: 40,
+        //     width: 150,
+        //   ),
+        // )
       ],
     );
   }
 
-  Future<void> _deleteWallet() async {
-    setState(() {
-      _isDeleting = true;
-    });
-    await walletsBloc.deleteWallet(widget.wallet);
-    setState(() {
-      _isDeleting = false;
-    });
-    widget.close();
-  }
+  // TODO!: uncomment once re-implemented
+  // Future<void> _deleteWallet() async {
+  //   setState(() {
+  //     _isDeleting = true;
+  //   });
+  //   final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+  //   await walletsRepository.deleteWallet(widget.wallet);
+  //   setState(() {
+  //     _isDeleting = false;
+  //   });
+  //   widget.close();
+  // }
 }

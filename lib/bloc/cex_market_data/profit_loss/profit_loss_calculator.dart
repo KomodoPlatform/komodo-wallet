@@ -2,12 +2,11 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/extensions/profit_loss_transaction_extension.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/price_stamped_transaction.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 class ProfitLossCalculator {
-  final CexRepository _cexRepository;
-
   ProfitLossCalculator(this._cexRepository);
+  final CexRepository _cexRepository;
 
   /// Get the running profit/loss for a coin based on the transactions.
   /// ProfitLoss = Proceeds - CostBasis
@@ -19,7 +18,6 @@ class ProfitLossCalculator {
   /// [fiatCoinId] is id of the fiat currency tether to convert the [coinId] to.
   /// E.g. 'USDT'. This can be any supported coin id, but the idea is to convert
   /// the coin to a fiat currency to calculate the profit/loss in fiat.
-  /// [cexRepository] is the repository to fetch the fiat price of the coin.
   ///
   /// Returns the list of [ProfitLoss] for the coin.
   Future<List<ProfitLoss>> getProfitFromTransactions(
@@ -31,7 +29,7 @@ class ProfitLossCalculator {
       return <ProfitLoss>[];
     }
 
-    transactions.sort((a, b) => a.timestampDate.compareTo(b.timestampDate));
+    transactions.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final todayAtMidnight = _getDateAtMidnight(DateTime.now());
     final transactionDates = _getTransactionDates(transactions);
@@ -49,15 +47,13 @@ class ProfitLossCalculator {
     Map<DateTime, double> usdPrices,
   ) {
     return transactions.map((transaction) {
-      final usdPrice =
-          usdPrices[_getDateAtMidnight(transaction.timestampDate)]!;
+      final usdPrice = usdPrices[_getDateAtMidnight(transaction.timestamp)]!;
       return UsdPriceStampedTransaction(transaction, usdPrice);
     }).toList();
   }
 
   List<DateTime> _getTransactionDates(List<Transaction> transactions) {
-    return transactions.map((tx) => tx.timestampDate).toList()
-      ..add(DateTime.now());
+    return transactions.map((tx) => tx.timestamp).toList()..add(DateTime.now());
   }
 
   DateTime _getDateAtMidnight(DateTime date) {
@@ -69,7 +65,7 @@ class ProfitLossCalculator {
     List<DateTime> dates,
   ) async {
     final cleanCoinId = coinId.split('-').firstOrNull?.toUpperCase() ?? '';
-    return await _cexRepository.getCoinFiatPrices(cleanCoinId, dates);
+    return _cexRepository.getCoinFiatPrices(cleanCoinId, dates);
   }
 
   List<ProfitLoss> _calculateProfitLosses(
@@ -79,10 +75,10 @@ class ProfitLossCalculator {
     var state = _ProfitLossState();
     final profitLosses = <ProfitLoss>[];
 
-    for (var transaction in transactions) {
+    for (final transaction in transactions) {
       if (transaction.totalAmountAsDouble == 0) continue;
 
-      if (transaction.isReceived) {
+      if (transaction.amount.toDouble() > 0) {
         state = _processBuyTransaction(state, transaction);
       } else {
         state = _processSellTransaction(state, transaction);
@@ -106,12 +102,12 @@ class ProfitLossCalculator {
     UsdPriceStampedTransaction transaction,
   ) {
     final newHolding =
-        (holdings: transaction.balanceChange, price: transaction.priceUsd);
+        (holdings: transaction.amount.toDouble(), price: transaction.priceUsd);
     return _ProfitLossState(
       holdings: [...state.holdings, newHolding],
       realizedProfitLoss: state.realizedProfitLoss,
       totalInvestment: state.totalInvestment + transaction.balanceChangeUsd,
-      currentHoldings: state.currentHoldings + transaction.balanceChange,
+      currentHoldings: state.currentHoldings + transaction.amount.toDouble(),
     );
   }
 
@@ -119,15 +115,15 @@ class ProfitLossCalculator {
     _ProfitLossState state,
     UsdPriceStampedTransaction transaction,
   ) {
-    if (state.currentHoldings < transaction.balanceChange) {
+    if (state.currentHoldings < transaction.amount.toDouble()) {
       throw Exception('Attempting to sell more than currently held');
     }
 
     // Balance change is negative for sales, so we use the abs value to
     // calculate the cost basis (formula assumes positive "total" value).
-    var remainingToSell = transaction.balanceChange.abs();
+    var remainingToSell = transaction.amount.toDouble().abs();
     var costBasis = 0.0;
-    var newHoldings =
+    final newHoldings =
         List<({double holdings, double price})>.from(state.holdings);
 
     while (remainingToSell > 0) {
@@ -153,7 +149,7 @@ class ProfitLossCalculator {
     // Balance change is negative for a sale, so subtract the abs value (
     // or add the positive value) to get the new holdings.
     final double newCurrentHoldings =
-        state.currentHoldings - transaction.balanceChange.abs();
+        state.currentHoldings - transaction.amount.toDouble().abs();
     final double newTotalInvestment = state.totalInvestment - costBasis;
 
     return _ProfitLossState(
@@ -175,8 +171,7 @@ class ProfitLossCalculator {
 }
 
 class RealisedProfitLossCalculator extends ProfitLossCalculator {
-  RealisedProfitLossCalculator(CexRepository cexRepository)
-      : super(cexRepository);
+  RealisedProfitLossCalculator(super.cexRepository);
 
   @override
   double _calculateProfitLoss(
@@ -188,8 +183,7 @@ class RealisedProfitLossCalculator extends ProfitLossCalculator {
 }
 
 class UnRealisedProfitLossCalculator extends ProfitLossCalculator {
-  UnRealisedProfitLossCalculator(CexRepository cexRepository)
-      : super(cexRepository);
+  UnRealisedProfitLossCalculator(super.cexRepository);
 
   @override
   double _calculateProfitLoss(
@@ -203,15 +197,14 @@ class UnRealisedProfitLossCalculator extends ProfitLossCalculator {
 }
 
 class _ProfitLossState {
-  final List<({double holdings, double price})> holdings;
-  final double realizedProfitLoss;
-  final double totalInvestment;
-  final double currentHoldings;
-
   _ProfitLossState({
     List<({double holdings, double price})>? holdings,
     this.realizedProfitLoss = 0.0,
     this.totalInvestment = 0.0,
     this.currentHoldings = 0.0,
   }) : holdings = holdings ?? [];
+  final List<({double holdings, double price})> holdings;
+  final double realizedProfitLoss;
+  final double totalInvestment;
+  final double currentHoldings;
 }

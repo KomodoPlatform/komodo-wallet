@@ -15,16 +15,19 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 ///
 /// The `UiTextFormField` can be customized using various parameters such as
 /// `hintText`, `controller`, `inputFormatters`, `textInputAction`, and more.
+
 class UiTextFormField extends StatefulWidget {
   const UiTextFormField({
     super.key,
     this.initialValue,
     this.hintText,
+    this.labelText,
     this.controller,
     this.inputFormatters,
     this.textInputAction,
     this.style,
     this.hintTextStyle,
+    this.labelStyle,
     this.inputContentPadding,
     this.keyboardType,
     this.validator,
@@ -48,7 +51,7 @@ class UiTextFormField extends StatefulWidget {
     this.maxLength,
     this.maxLengthEnforcement,
     this.counterText,
-    this.labelStyle,
+    this.helperText,
     this.enabledBorder,
     this.focusedBorder,
     this.errorStyle,
@@ -57,6 +60,8 @@ class UiTextFormField extends StatefulWidget {
 
   final String? initialValue;
   final String? hintText;
+  final String? labelText;
+  final String? helperText;
   final TextEditingController? controller;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputAction? textInputAction;
@@ -79,7 +84,7 @@ class UiTextFormField extends StatefulWidget {
   final FocusNode? focusNode;
   final void Function(FocusNode)? onFocus;
   final Color? fillColor;
-  final void Function(String)? onChanged;
+  final void Function(String?)? onChanged;
   final void Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
   final Widget? suffix;
@@ -96,17 +101,18 @@ class UiTextFormField extends StatefulWidget {
 }
 
 class _UiTextFormFieldState extends State<UiTextFormField> {
-  String? _hintText;
   String? _errorText;
   String? _displayedErrorText;
-  FocusNode _focusNode = FocusNode();
+  late FocusNode _focusNode;
   bool _hasFocusExitedOnce = false;
   bool _shouldValidate = false;
+  TextEditingController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _hintText = widget.hintText;
+    _controller =
+        widget.controller ?? TextEditingController(text: widget.initialValue);
     _errorText = widget.errorText;
     _displayedErrorText = widget.errorText;
 
@@ -115,10 +121,8 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       _hasFocusExitedOnce = true;
       _shouldValidate = true;
     }
-    if (widget.focusNode != null) {
-      _focusNode = widget.focusNode!;
-    }
 
+    _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_handleFocusChange);
   }
 
@@ -127,41 +131,45 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     super.didUpdateWidget(oldWidget);
 
     if (widget.errorText != oldWidget.errorText) {
-      setState(() {
-        _errorText = widget.errorText;
-        _displayedErrorText = widget.errorText;
-        if (_errorText?.isNotEmpty == true) {
-          _hasFocusExitedOnce = true;
-          _shouldValidate = true;
-        }
-      });
+      _errorText = widget.errorText;
+      _displayedErrorText = widget.errorText;
+      if (_errorText?.isNotEmpty == true) {
+        _hasFocusExitedOnce = true;
+        _shouldValidate = true;
+      }
+    }
+
+    if (widget.initialValue != oldWidget.initialValue &&
+        widget.controller == null) {
+      _controller?.text = widget.initialValue ?? '';
     }
   }
 
-  @override
-  void dispose() {
-    _focusNode.removeListener(_handleFocusChange);
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  /// Handles the focus change events.
   void _handleFocusChange() {
+    if (!mounted) return;
+
+    final shouldUpdate = !_focusNode.hasFocus &&
+        (widget.validationMode == InputValidationMode.eager ||
+            widget.validationMode == InputValidationMode.passive);
+
+    if (shouldUpdate) {
+      _hasFocusExitedOnce = true;
+      _shouldValidate = true;
+      // Schedule validation for the next frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _validateAndUpdateError(_controller?.text);
+          });
+        }
+      });
+    }
+
     setState(() {
-      _hintText = _focusNode.hasFocus ? null : widget.hintText;
       if (widget.onFocus != null) {
         widget.onFocus!(_focusNode);
       }
-      if (!_focusNode.hasFocus) {
-        if (!_hasFocusExitedOnce) {
-          _hasFocusExitedOnce = true;
-        }
-        if (widget.validationMode == InputValidationMode.eager ||
-            widget.validationMode == InputValidationMode.lazy) {
-          _shouldValidate = true;
-          _performValidation();
-        }
-      }
+
       if (_focusNode.hasFocus &&
           widget.validationMode == InputValidationMode.aggressive) {
         _shouldValidate = true;
@@ -169,46 +177,73 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     });
   }
 
+  // Separate validation logic from state updates
+  String? _validateAndUpdateError(String? value) {
+    final error = widget.validator?.call(value) ?? widget.errorText;
+    _errorText = error;
+    _displayedErrorText =
+        _hasFocusExitedOnce || _focusNode.hasFocus ? _errorText : null;
+    return error;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final widgetStyle = widget.style;
-    var style = TextStyle(
+    final theme = Theme.of(context);
+
+    final defaultStyle = TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      color: Theme.of(context).textTheme.bodyMedium?.color,
+      color: theme.textTheme.bodyMedium?.color,
     );
-    if (widgetStyle != null) {
-      style = style.merge(widgetStyle);
-    }
+    final style = widget.style?.merge(defaultStyle) ?? defaultStyle;
 
-    final TextStyle? hintTextStyle = Theme.of(context)
-        .inputDecorationTheme
-        .hintStyle
-        ?.merge(widget.hintTextStyle);
+    final defaultLabelStyle = theme.inputDecorationTheme.labelStyle ??
+        TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
+        );
+    final labelStyle =
+        widget.labelStyle?.merge(defaultLabelStyle) ?? defaultLabelStyle;
 
-    final TextStyle? labelStyle = Theme.of(context)
-        .inputDecorationTheme
-        .labelStyle
-        ?.merge(widget.labelStyle);
+    final defaultHintStyle = theme.inputDecorationTheme.hintStyle ??
+        TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
+        );
+    final hintStyle =
+        widget.hintTextStyle?.merge(defaultHintStyle) ?? defaultHintStyle;
 
-    final TextStyle? errorStyle = Theme.of(context)
-        .inputDecorationTheme
-        .errorStyle
-        ?.merge(widget.errorStyle);
+    final defaultErrorStyle = theme.inputDecorationTheme.errorStyle ??
+        TextStyle(
+          fontSize: 12,
+          color: theme.colorScheme.error,
+        );
+    final errorStyle =
+        widget.errorStyle?.merge(defaultErrorStyle) ?? defaultErrorStyle;
 
     return TextFormField(
+      controller: _controller,
       maxLength: widget.maxLength,
       maxLengthEnforcement: widget.maxLengthEnforcement,
-      initialValue: widget.initialValue,
-      controller: widget.controller,
       inputFormatters: widget.inputFormatters,
-      validator: (value) => _performValidation(value),
+      validator: (value) {
+        // Don't update state during build, just return the validation result
+        final error = widget.validator?.call(value) ?? widget.errorText;
+        return _shouldValidate ? error : null;
+      },
       onChanged: (value) {
-        if (widget.onChanged != null) {
-          widget.onChanged!(value);
-        }
+        widget.onChanged?.call(value);
         if (_shouldValidate) {
-          _performValidation(value);
+          // Schedule state update for the next frame
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _validateAndUpdateError(value);
+              });
+            }
+          });
         }
       },
       onFieldSubmitted: widget.onFieldSubmitted,
@@ -228,13 +263,15 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       enabled: widget.enabled,
       decoration: InputDecoration(
         fillColor: widget.fillColor,
-        hintText: _hintText,
-        hintStyle: hintTextStyle,
-        contentPadding: widget.inputContentPadding,
+        filled: widget.fillColor != null,
+        hintText: widget.hintText,
+        hintStyle: hintStyle,
+        contentPadding: widget.inputContentPadding ??
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         counterText: widget.counterText,
-        labelText: widget.hintText,
-        labelStyle:
-            _hintText != null && !_hasValue ? hintTextStyle : labelStyle,
+        labelText: widget.labelText ?? widget.hintText,
+        labelStyle: labelStyle,
+        helperText: widget.helperText,
         errorText: _displayedErrorText,
         errorStyle: errorStyle,
         prefixIcon: widget.prefixIcon,
@@ -245,26 +282,5 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
         focusedBorder: widget.focusedBorder,
       ),
     );
-  }
-
-  /// Checks if the field has a value.
-  bool get _hasValue =>
-      (widget.controller?.text.isNotEmpty ?? false) ||
-      (widget.initialValue?.isNotEmpty ?? false);
-
-  /// Performs validation based on the validator function and updates error state.
-  String? _performValidation([String? value]) {
-    final error = widget.validator?.call(value ?? widget.controller?.text) ??
-        widget.errorText;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _errorText = error;
-          _displayedErrorText =
-              _hasFocusExitedOnce || _focusNode.hasFocus ? _errorText : null;
-        });
-      }
-    });
-    return error;
   }
 }

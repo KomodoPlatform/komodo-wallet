@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/change_password_section.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/plate_seed_backup.dart';
 
 class SecuritySettingsMainPage extends StatelessWidget {
@@ -13,8 +12,9 @@ class SecuritySettingsMainPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PlateSeedBackup(onViewSeedPressed: onViewSeedPressed),
-        const SizedBox(height: 12),
-        const ChangePasswordSection(),
+        // TODO!: re-enable once implemented
+        // const SizedBox(height: 12),
+        // const ChangePasswordSection(),
       ],
     );
   }

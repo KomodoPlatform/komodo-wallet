@@ -2,11 +2,13 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -16,13 +18,12 @@ import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/utils/balances_formatter.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:web_dex/shared/widgets/segwit_icon.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/views/dex/simple/form/taker/taker_form_exchange_rate.dart';
 import 'package:web_dex/views/dex/simple/form/taker/taker_form_total_fees.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class TakerOrderConfirmation extends StatefulWidget {
   const TakerOrderConfirmation({Key? key}) : super(key: key);
@@ -34,6 +35,7 @@ class TakerOrderConfirmation extends StatefulWidget {
 class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
   @override
   Widget build(BuildContext context) {
+    final coinsBloc = RepositoryProvider.of<CoinsRepo>(context);
     return Container(
       padding: EdgeInsets.only(top: isMobile ? 18.0 : 9.00),
       constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
@@ -317,6 +319,8 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     context.read<TakerBloc>().add(TakerClear());
     routingState.dexState.setDetailsAction(uuid);
 
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     await tradingEntitiesBloc.fetch();
   }
 }

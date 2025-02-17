@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
@@ -30,32 +31,36 @@ class _MobileButtons extends StatelessWidget {
     final WithdrawFormBloc withdrawFormBloc = context.read<WithdrawFormBloc>();
     final WithdrawFormState state = withdrawFormBloc.state;
 
-    return Row(children: [
-      Expanded(
-        child: AppDefaultButton(
-          key: const Key('send-complete-view-on-explorer'),
-          height: height + 6,
-          padding: const EdgeInsets.symmetric(vertical: 0),
-          onPressed: () => viewHashOnExplorer(
-            state.coin,
-            state.withdrawDetails.txHash,
-            HashExplorerType.tx,
+    final txHash = state.result?.txHash;
+
+    final explorerUrl =
+        txHash == null ? null : state.asset.protocol.explorerTxUrl(txHash);
+
+    return Row(
+      children: [
+        if (explorerUrl != null)
+          Expanded(
+            child: AppDefaultButton(
+              key: const Key('send-complete-view-on-explorer'),
+              height: height + 6,
+              padding: const EdgeInsets.symmetric(vertical: 0),
+              onPressed: () => launchUrl(explorerUrl),
+              text: LocaleKeys.viewOnExplorer.tr(),
+            ),
           ),
-          text: LocaleKeys.viewOnExplorer.tr(),
-        ),
-      ),
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: UiPrimaryButton(
-            key: const Key('send-complete-done'),
-            height: height,
-            onPressed: () => withdrawFormBloc.add(const WithdrawFormReset()),
-            text: LocaleKeys.done.tr(),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: UiPrimaryButton(
+              key: const Key('send-complete-done'),
+              height: height,
+              onPressed: () => withdrawFormBloc.add(const WithdrawFormReset()),
+              text: LocaleKeys.done.tr(),
+            ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -73,15 +78,16 @@ class _DesktopButtons extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        AppDefaultButton(
-          key: const Key('send-complete-view-on-explorer'),
-          width: width,
-          height: height + 6,
-          padding: const EdgeInsets.symmetric(vertical: 0),
-          onPressed: () => viewHashOnExplorer(
-              state.coin, state.withdrawDetails.txHash, HashExplorerType.tx),
-          text: LocaleKeys.viewOnExplorer.tr(),
-        ),
+        if (state.result?.txHash != null)
+          AppDefaultButton(
+            key: const Key('send-complete-view-on-explorer'),
+            width: width,
+            height: height + 6,
+            padding: const EdgeInsets.symmetric(vertical: 0),
+            onPressed: () =>
+                openUrl(state.asset.txExplorerUrl(state.result?.txHash)!),
+            text: LocaleKeys.viewOnExplorer.tr(),
+          ),
         Padding(
           padding: const EdgeInsets.only(left: space),
           child: UiPrimaryButton(
@@ -91,7 +97,7 @@ class _DesktopButtons extends StatelessWidget {
             onPressed: () => _sendCompleteDone(context),
             text: LocaleKeys.done.tr(),
           ),
-        )
+        ),
       ],
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/tables/nothing_found.dart';
 import 'package:web_dex/views/dex/simple/form/tables/orders_table/grouped_list_view.dart';
@@ -18,11 +20,14 @@ class CoinsTableContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Coin>>(
-      stream: coinsBloc.outKnownCoins,
-      initialData: coinsBloc.knownCoins,
-      builder: (context, snapshot) {
-        final coins = prepareCoinsForTable(coinsBloc.knownCoins, searchString);
+    return BlocBuilder<CoinsBloc, CoinsState>(
+      builder: (context, state) {
+        final coins = prepareCoinsForTable(
+          context,
+          state.coins.values.toList(),
+          searchString,
+          testCoinsEnabled: context.read<SettingsBloc>().state.testCoinsEnabled,
+        );
         if (coins.isEmpty) return const NothingFound();
 
         return GroupedListView<Coin>(

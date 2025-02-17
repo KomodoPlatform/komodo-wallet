@@ -1,10 +1,11 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -77,6 +78,7 @@ class _AccountSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
     return Container(
       constraints: const BoxConstraints(minWidth: minWidth),
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
@@ -84,24 +86,24 @@ class _AccountSwitcher extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          StreamBuilder<Wallet?>(
-              stream: currentWalletBloc.outWallet,
-              builder: (context, snapshot) {
-                return Container(
-                  constraints: const BoxConstraints(maxWidth: maxWidth),
-                  child: Text(
-                    currentWalletBloc.wallet?.name ?? '',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Theme.of(context).textTheme.labelLarge?.color,
-                    ),
-                    textAlign: TextAlign.end,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          BlocBuilder<AuthBloc, AuthBlocState>(
+            builder: (context, state) {
+              return Container(
+                constraints: const BoxConstraints(maxWidth: maxWidth),
+                child: Text(
+                  currentWallet?.name ?? '',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Theme.of(context).textTheme.labelLarge?.color,
                   ),
-                );
-              }),
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            },
+          ),
           const SizedBox(width: 6),
           const _AccountIcon(),
         ],

@@ -1,9 +1,12 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -37,6 +40,9 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
 
   @override
   Widget build(BuildContext context) {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+
     return Container(
       padding: isMobile
           ? const EdgeInsets.only(top: 18.0)
@@ -50,8 +56,9 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
             final preimage = preimageSnapshot.data;
             if (preimage == null) return const UiSpinner();
 
-            final Coin? sellCoin = coinsBloc.getCoin(preimage.request.base);
-            final Coin? buyCoin = coinsBloc.getCoin(preimage.request.rel);
+            final Coin? sellCoin =
+                coinsRepository.getCoin(preimage.request.base);
+            final Coin? buyCoin = coinsRepository.getCoin(preimage.request.rel);
             final Rational? sellAmount = preimage.request.volume;
             final Rational buyAmount =
                 (sellAmount ?? Rational.zero) * preimage.request.price;
@@ -294,8 +301,12 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       _inProgress = true;
     });
 
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     final TextError? error = await makerFormBloc.makeOrder();
 
+    final tradingEntitiesBloc =
+        // ignore: use_build_context_synchronously
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     await tradingEntitiesBloc.fetch();
 
     // Delay helps to avoid buttons enabled/disabled state blinking

@@ -3,16 +3,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/validators.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class PasswordUpdatePage extends StatefulWidget {
   const PasswordUpdatePage({Key? key}) : super(key: key);
@@ -44,7 +45,7 @@ class _PasswordUpdatePageState extends State<PasswordUpdatePage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withOpacity(.3),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: .3),
           borderRadius: BorderRadius.circular(18.0)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -173,6 +174,7 @@ class _FormViewState extends State<_FormView> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
+    final currentWalletBloc = RepositoryProvider.of<CurrentWalletBloc>(context);
     final Wallet? wallet = currentWalletBloc.wallet;
     if (wallet == null) return;
     final String password = _newController.text;
@@ -233,6 +235,7 @@ class _CurrentFieldState extends State<_CurrentField> {
 
   @override
   Widget build(BuildContext context) {
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
     return _PasswordField(
       hintText: LocaleKeys.currentPassword.tr(),
       controller: widget.controller,
@@ -248,7 +251,6 @@ class _CurrentFieldState extends State<_CurrentField> {
           return result;
         }
 
-        final Wallet? currentWallet = currentWalletBloc.wallet;
         if (currentWallet == null) return LocaleKeys.walletNotFound.tr();
 
         _validateSeed(currentWallet, password);
@@ -261,11 +263,13 @@ class _CurrentFieldState extends State<_CurrentField> {
   }
 
   Future<void> _validateSeed(Wallet currentWallet, String password) async {
-    _seedError = '';
-    final seed = await currentWallet.getSeed(password);
-    if (seed.isNotEmpty) return;
-    _seedError = LocaleKeys.invalidPasswordError.tr();
-    widget.formKey.currentState?.validate();
+    // TODO!: determine if this needs to be reimplemented in the sdk or if it
+    // can be removed entirely.
+    // _seedError = '';
+    // final seed = await currentWallet.getSeed(password);
+    // if (seed.isNotEmpty) return;
+    // _seedError = LocaleKeys.invalidPasswordError.tr();
+    // widget.formKey.currentState?.validate();
   }
 }
 

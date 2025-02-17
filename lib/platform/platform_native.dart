@@ -15,7 +15,3 @@ String wasmVersion() => '';
 
 void changeTheme(int themeModeIndex) {}
 void changeHtmlTheme(int themeIndex) {}
-
-Future<String?> zipEncode(String fileName, String fileContent) async {
-  return null;
-}

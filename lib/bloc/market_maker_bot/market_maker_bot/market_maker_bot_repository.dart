@@ -24,7 +24,7 @@ class MarketMakerBotRepository {
   Future<void> start({
     required int botId,
     int retries = 10,
-    int delay = 2000,
+    Duration delay = const Duration(milliseconds: 2000),
   }) async {
     final requestParams = await loadStoredConfig();
     final request = MarketMakerBotRequest(
@@ -33,7 +33,7 @@ class MarketMakerBotRepository {
       params: requestParams,
     );
 
-    if (requestParams.tradeCoinPairs?.isEmpty == true) {
+    if (requestParams.tradeCoinPairs?.isEmpty ?? true) {
       throw ArgumentError('No trade pairs configured');
     }
 
@@ -49,10 +49,10 @@ class MarketMakerBotRepository {
   Future<void> stop({
     required int botId,
     int retries = 10,
-    int delay = 2000,
+    Duration delay = const Duration(milliseconds: 2000),
   }) async {
     try {
-      MarketMakerBotRequest request = MarketMakerBotRequest(
+      final MarketMakerBotRequest request = MarketMakerBotRequest(
         id: botId,
         method: MarketMakerBotMethod.stop.value,
       );
@@ -77,7 +77,7 @@ class MarketMakerBotRepository {
     TradeCoinPairConfig tradePair, {
     required int botId,
     int retries = 10,
-    int delay = 2000,
+    Duration delay = const Duration(milliseconds: 2000),
   }) async* {
     yield MarketMakerBotStatus.stopping;
     await stop(botId: botId, retries: retries, delay: delay);
@@ -92,7 +92,7 @@ class MarketMakerBotRepository {
       ]);
     }
 
-    if (requestParams.tradeCoinPairs?.isEmpty == true) {
+    if (requestParams.tradeCoinPairs?.isEmpty ?? true) {
       yield MarketMakerBotStatus.stopped;
     } else {
       yield MarketMakerBotStatus.starting;
@@ -116,7 +116,7 @@ class MarketMakerBotRepository {
     Iterable<TradeCoinPairConfig> tradeCoinPairConfig, {
     required int botId,
     int retries = 10,
-    int delay = 2000,
+    Duration delay = const Duration(milliseconds: 2000),
   }) async* {
     yield MarketMakerBotStatus.stopping;
     await stop(botId: botId, retries: retries, delay: delay);
@@ -129,7 +129,7 @@ class MarketMakerBotRepository {
       requestParams.tradeCoinPairs?.remove(tradePair.name);
     }
 
-    if (requestParams.tradeCoinPairs?.isEmpty == true) {
+    if (requestParams.tradeCoinPairs?.isEmpty ?? true) {
       yield MarketMakerBotStatus.stopped;
     } else {
       // yield MarketMakerBotStatus.starting;
@@ -170,10 +170,10 @@ class MarketMakerBotRepository {
   Future<void> _startStopBotWithExponentialBackoff(
     MarketMakerBotRequest request, {
     required int retries,
-    required int delay,
+    required Duration delay,
   }) async {
     final isStartRequest = request.method == MarketMakerBotMethod.start.value;
-    final isTradePairsEmpty = request.params?.tradeCoinPairs?.isEmpty == true;
+    final isTradePairsEmpty = request.params?.tradeCoinPairs?.isEmpty ?? true;
     if (isStartRequest && isTradePairsEmpty) {
       throw ArgumentError('No trade pairs configured');
     }
@@ -190,12 +190,12 @@ class MarketMakerBotRepository {
         if (e is RpcException) {
           if (request.method == MarketMakerBotMethod.start.value &&
               e.error.errorType == RpcErrorType.alreadyStarted) {
-            log('Market maker bot already started', isError: true);
+            log('Market maker bot already started', isError: true).ignore();
             return;
           } else if (request.method == MarketMakerBotMethod.stop.value &&
                   e.error.errorType == RpcErrorType.alreadyStopped ||
               e.error.errorType == RpcErrorType.alreadyStopping) {
-            log('Market maker bot already stopped', isError: true);
+            log('Market maker bot already stopped', isError: true).ignore();
             return;
           }
         }
@@ -205,8 +205,8 @@ class MarketMakerBotRepository {
           isError: true,
           trace: s,
           path: 'MarketMakerBotBloc',
-        );
-        await Future.delayed(Duration(milliseconds: delay));
+        ).ignore();
+        await Future<void>.delayed(delay);
         retries--;
         delay *= 2;
       }
@@ -244,7 +244,7 @@ class MarketMakerBotRepository {
   /// The settings are updated in the settings repository.
   /// Throws an [Exception] if the settings cannot be updated.
   ///
-  /// The [tradePair] to remove from the existing settings.
+  /// The [tradePairsToRemove] to remove from the existing settings.
   Future<void> removeTradePairsFromStoredSettings(
     List<TradeCoinPairConfig> tradePairsToRemove,
   ) async {

@@ -23,8 +23,9 @@ class ContractAddressButton extends StatelessWidget {
         onTap: coin.explorerUrl.isEmpty
             ? null
             : () {
-                launchURL(
-                    '${coin.explorerUrl}address/${coin.protocolData?.contractAddress ?? ''}');
+                launchURLString(
+                  '${coin.explorerUrl}address/${coin.protocolData?.contractAddress ?? ''}',
+                );
               },
         child: isMobile
             ? _ContractAddressMobile(coin)
@@ -91,7 +92,7 @@ class _ContractAddressDesktop extends StatelessWidget {
                   height: 16,
                   child: _ContractAddressCopyButton(coin),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -133,12 +134,14 @@ class _ContractAddressValue extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.w500, fontSize: 11),
         ),
         Flexible(
-          child: TruncatedMiddleText(coin.protocolData?.contractAddress ?? '',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              )),
+          child: TruncatedMiddleText(
+            coin.protocolData?.contractAddress ?? '',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
+          ),
         ),
       ],
     );
@@ -176,8 +179,11 @@ class _ContractAddressTitle extends StatelessWidget {
       style: Theme.of(context).textTheme.titleSmall!.copyWith(
             fontSize: 9,
             fontWeight: FontWeight.w500,
-            color:
-                Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(.45),
+            color: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.color
+                ?.withValues(alpha: .45),
           ),
     );
   }

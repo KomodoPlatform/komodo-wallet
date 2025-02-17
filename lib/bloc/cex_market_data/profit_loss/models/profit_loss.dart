@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/extensions/profit_loss_transaction_extension.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 /// Represents a profit/loss for a specific coin.
 class ProfitLoss extends Equatable {
@@ -80,15 +80,15 @@ class ProfitLoss extends Equatable {
   ) {
     return ProfitLoss(
       profitLoss: runningProfitLoss,
-      coin: transaction.coin,
+      coin: transaction.assetId.id,
       fiatPrice: fiatPrice,
       internalId: transaction.internalId,
-      myBalanceChange: transaction.balanceChange,
+      myBalanceChange: transaction.amount.toDouble(),
       receivedAmountFiatPrice: transaction.amountReceived * fiatPrice.value,
       spentAmountFiatPrice: transaction.amountSpent * fiatPrice.value,
-      timestamp: transaction.timestampDate,
       totalAmount: transaction.totalAmountAsDouble,
-      txHash: transaction.txHash,
+      timestamp: transaction.timestamp,
+      txHash: transaction.txHash ?? '',
     );
   }
 

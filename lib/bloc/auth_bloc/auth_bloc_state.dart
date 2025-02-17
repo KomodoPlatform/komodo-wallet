@@ -1,12 +1,16 @@
-import 'package:equatable/equatable.dart';
-import 'package:web_dex/model/authorize_mode.dart';
+part of 'auth_bloc.dart';
 
 class AuthBlocState extends Equatable {
-  const AuthBlocState({required this.mode});
+  const AuthBlocState({required this.mode, this.currentUser});
 
   factory AuthBlocState.initial() =>
       const AuthBlocState(mode: AuthorizeMode.noLogin);
+
+  final KdfUser? currentUser;
   final AuthorizeMode mode;
+
+  bool get isSignedIn => currentUser != null;
+
   @override
-  List<Object> get props => [mode];
+  List<Object?> get props => [mode, currentUser];
 }

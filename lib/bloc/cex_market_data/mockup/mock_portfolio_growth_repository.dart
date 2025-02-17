@@ -7,6 +7,7 @@ import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/cex_market_data/models/graph_cache.dart';
 import 'package:web_dex/bloc/cex_market_data/models/graph_type.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 
 class MockPortfolioGrowthRepository extends PortfolioGrowthRepository {
@@ -17,10 +18,14 @@ class MockPortfolioGrowthRepository extends PortfolioGrowthRepository {
     required super.transactionHistoryRepo,
     required super.cacheProvider,
     required this.performanceMode,
+    required super.coinsRepository,
   });
 
-  MockPortfolioGrowthRepository.withDefaults({required this.performanceMode})
-      : super(
+  MockPortfolioGrowthRepository.withDefaults({
+    required this.performanceMode,
+    required CoinsRepo coinsRepository,
+    required Mm2Api mm2Api,
+  }) : super(
           cexRepository: BinanceRepository(
             binanceProvider: const BinanceProvider(),
           ),
@@ -33,5 +38,6 @@ class MockPortfolioGrowthRepository extends PortfolioGrowthRepository {
           cacheProvider: HiveLazyBoxProvider<String, GraphCache>(
             name: GraphType.balanceGrowth.tableName,
           ),
+          coinsRepository: coinsRepository,
         );
 }

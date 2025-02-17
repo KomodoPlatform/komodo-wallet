@@ -39,9 +39,10 @@ class CoinSelectInput extends FormzInput<Coin?, CoinSelectValidationError> {
       return CoinSelectValidationError.empty;
     }
 
-    if (!value.isActive) {
-      return CoinSelectValidationError.inactive;
-    }
+    // not applicable, since only enabled coins should be shown /selectable
+    // if (!value.isActive) {
+    //   return CoinSelectValidationError.inactive;
+    // }
 
     if (value.balance <= minBalance) {
       return CoinSelectValidationError.insufficientBalance;

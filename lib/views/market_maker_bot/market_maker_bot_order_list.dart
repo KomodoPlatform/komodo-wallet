@@ -16,17 +16,17 @@ import 'package:web_dex/views/market_maker_bot/trade_pair_list_item.dart';
 
 class MarketMakerBotOrdersList extends StatefulWidget {
   const MarketMakerBotOrdersList({
-    super.key,
     required this.entitiesFilterData,
+    super.key,
     this.onEdit,
     this.onCancel,
     this.onCancelAll,
   });
 
   final TradingEntitiesFilter? entitiesFilterData;
-  final Function(TradePair)? onEdit;
-  final Function(TradePair)? onCancel;
-  final Function(List<TradePair>)? onCancelAll;
+  final void Function(TradePair)? onEdit;
+  final void Function(TradePair)? onCancel;
+  final void Function(List<TradePair>)? onCancelAll;
 
   @override
   State<MarketMakerBotOrdersList> createState() =>
@@ -70,7 +70,6 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
 
         return BlocBuilder<MarketMakerBotBloc, MarketMakerBotState>(
           builder: (context, botState) => Column(
-            mainAxisSize: MainAxisSize.max,
             children: [
               if (!isMobile)
                 Column(
@@ -152,7 +151,6 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
                               backgroundColor: Colors.transparent,
                               border: Border.all(
                                 color: const Color.fromRGBO(234, 234, 234, 1),
-                                width: 1.0,
                               ),
                               textStyle: const TextStyle(fontSize: 12),
                               onPressed: botState.isUpdating
@@ -166,7 +164,6 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
                               backgroundColor: Colors.transparent,
                               border: Border.all(
                                 color: const Color.fromRGBO(234, 234, 234, 1),
-                                width: 1.0,
                               ),
                               textStyle: const TextStyle(fontSize: 12),
                               onPressed: botState.isUpdating

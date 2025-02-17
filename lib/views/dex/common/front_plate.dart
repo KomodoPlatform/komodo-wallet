@@ -11,7 +11,7 @@ class FrontPlate extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(18);
     final shadow = BoxShadow(
-      color: Colors.black.withOpacity(0.25),
+      color: Colors.black.withValues(alpha: 0.25),
       spreadRadius: 0,
       blurRadius: 4,
       offset: const Offset(0, 4),

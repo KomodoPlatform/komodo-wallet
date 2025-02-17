@@ -1,3 +1,6 @@
+# First-party
+sdk/
+
 # Miscellaneous
 *.class
 *.log
@@ -35,8 +38,11 @@
 .pub/
 /build/
 contrib/coins_config.json
+devtools_options.yaml
 
 # Web related
+web/index.html
+web/src/*
 web/dist/*.js
 web/dist/*.wasm
 web/dist/*LICENSE.txt
@@ -63,8 +69,6 @@ airdex-build.tar.gz
 
 # js
 node_modules
-
-assets/config/test_wallet.json
 assets/**/debug_data.json
 contrib/coins_config.json
 
@@ -82,11 +86,8 @@ macos/kdf
 # Android C++ files
 android/app/.cxx/
 
-# Coins asset files 
-assets/config/coins.json
-assets/config/coins_config.json
-assets/config/coins_ci.json
-assets/coin_icons/
-
 # Python
 venv/
+
+# FVM Version Cache
+.fvm/

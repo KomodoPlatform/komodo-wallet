@@ -1,34 +1,38 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/widgets/segwit_icon.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 
 class WithdrawFormHeader extends StatelessWidget {
   const WithdrawFormHeader({
-    this.isIndicatorShown = true,
-    required this.coin,
+    required this.asset,
+    this.onBackButtonPressed,
+    super.key,
   });
-  final bool isIndicatorShown;
-  final Coin coin;
+
+  final Asset asset;
+  final VoidCallback? onBackButtonPressed;
+
+  bool get _isSegwit => asset.id.id.toLowerCase().contains('segwit');
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, WithdrawFormState state) {
+      builder: (context, state) {
         return PageHeader(
           title: state.step.title,
-          widgetTitle: coin.mode == CoinMode.segwit
+          widgetTitle: _isSegwit
               ? const Padding(
                   padding: EdgeInsets.only(left: 6.0),
                   child: SegwitIcon(height: 22),
                 )
               : null,
           backText: LocaleKeys.backToWallet.tr(),
-          onBackButtonPressed: context.read<WithdrawFormBloc>().goBack,
+          onBackButtonPressed: onBackButtonPressed,
         );
       },
     );

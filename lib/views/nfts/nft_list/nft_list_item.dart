@@ -113,7 +113,7 @@ class _NftAmount extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return Card(
-      color: Theme.of(context).cardColor.withOpacity(0.8),
+      color: Theme.of(context).cardColor.withValues(alpha: 0.8),
       shape: const CircleBorder(),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -147,7 +147,7 @@ class _NftData extends StatelessWidget {
         nft.collectionName != null && nft.name != nft.collectionName;
 
     return GridTileBar(
-      backgroundColor: Theme.of(context).cardColor.withOpacity(0.9),
+      backgroundColor: Theme.of(context).cardColor.withValues(alpha: 0.9),
       title: _tileText(nft.name),
       subtitle: !mustShowSubtitle ? null : _tileText(nft.collectionName!),
       trailing: const Icon(Icons.more_vert),

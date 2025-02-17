@@ -34,8 +34,10 @@ class EmbeddedBitrefillUrl {
   /// This defaults to 'Komodo Platform'.
   final String companyName;
 
-  /// Whether to show payment info when opening the Bitrefill widget.
-  /// The default is false.
+  /// Whether to display the recipient address, amount, and QR code in the
+  /// payment widget. This can be useful for the user to verify the payment
+  /// details before making the payment. This is false by default, however, to
+  /// reduce the visual clutter during the payment process.
   final bool showPaymentInfo;
 
   /// The refund address to use when opening the Bitrefill widget.
@@ -55,6 +57,7 @@ class EmbeddedBitrefillUrl {
       'theme': theme,
       'language': language,
       'company_name': companyName,
+      'show_payment_info': showPaymentInfo ? 'true' : 'false',
     };
 
     if (paymentMethods != null) {

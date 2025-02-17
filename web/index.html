@@ -1,12 +1,150 @@
-NB! This file is generated automatically as part of the build process in `./packages/komodo_wallet_build_transformer`.
-Do not edit it manually.
+<!doctype html>
+<html lang="en">
 
-If you need to manually rebuild the file, you can run the following command:
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description"
+        content="Start using Komodo Wallet from your web browser on any device or operating system. HODL and trade popular cryptocurrencies — BTC, ETH, DOGE, LTC, and more.">
+    <title>Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX</title><!-- Open Graph Protocol -->
+    <meta property="og:site_name" content="Komodo Wallet" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX" />
+    <meta property="og:description"
+        content="Start using Komodo Wallet from your web browser on any device or operating system. HODL and trade popular cryptocurrencies — BTC, ETH, DOGE, LTC, and more." />
+    <meta property="og:image" content="https://app.komodoplatform.com/thumbnail.jpg" /><!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX" />
+    <meta name="twitter:description"
+        content="Start using Komodo Wallet from your web browser on any device or operating system. HODL and trade popular cryptocurrencies — BTC, ETH, DOGE, LTC, and more." />
+    <meta name="twitter:site" content="@komodoplatform" />
+    <meta name="twitter:image" content="https://app.komodoplatform.com/thumbnail.jpg" /><!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Komodo Wallet">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="msapplication-TileColor" content="#0175c2">
+    <meta name="msapplication-config" content="/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <!-- Preload coin configs. This will no longer be needed in the near future when build-time coins are removed -->
+    <link rel="preload" as="fetch" href="assets/packages/komodo_defi_framework/assets/config/coins.json" crossorigin>
+    <link rel="preload" as="fetch" href="assets/packages/komodo_defi_framework/assets/config/coins_config.json"
+        crossorigin>
+    <script src="/assets/packages/flutter_inappwebview_web/assets/web/web_support.js" defer="defer"></script>
+    <script src="/services/theme_checker/theme_checker.js"></script>
+    <link rel="prefetch" href="/icons/logo_icon.png" as="image"><!-- Preconnects -->
+    <link rel="preconnect" href="https://www.gstatic.com" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://worldtimeapi.org" /><!-- Preload resources -->
+    <link rel="preload" as="fetch"
+        href="https://cache.defi-stats.komodo.earth/api/v3/prices/tickers_v2.json?expire_at=600" crossorigin>
+    <script type="application/ld+json">{
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Komodo Wallet",
+            "url": "https://app.komodoplatform.com",
+            "description": "Start using Komodo Wallet from your web browser on any device or operating system. HODL and trade popular cryptocurrencies — BTC, ETH, DOGE, LTC, and more.",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "All",
+            maintainer: {
+                "@type": "Organization",
+                "name": "Komodo Platform",
+                "url": "https://komodoplatform.com",
+                "email": "info@komodoplatform.com",
+                "logo": "https://komodoplatform.com/assets/img/logo-dark.png",
+                "sameAs": [
+                    "https://twitter.com/komodoplatform",
+                    "https://www.linkedin.com/company/komodoplatform",
+                    "https://www.reddit.com/r/komodoplatform",
+                    "https://www.youtube.com/channel/UCtp7YrrEnZbW97sgPldyvKg",
+                    "https://www.github.com/KomodoPlatform"
+                    ],
+                "description": "Komodo is an open, composable blockchain platform. With a unique multi-chain design, Komodo is focused on providing fully composable blockchain solutions for independent developers, startups, and enterprise businesses alike.",
+              }
+        }</script>
+</head>
 
-```bash
-npm install && npm run build
-```
+<body>
+    <script src="flutter_bootstrap.js" async></script><!-- Background -->
+    <style>
+        body.light {
+            background-color: #e6ebeb
+        }
 
-If you are seeing this message in your browser, it means that the build steps have not been run. Please run `flutter
-clean && flutter pub get` and then try again. If issues persist, please ensure you are using the latest Flutter SDK and
-have set up your environment correctly as per our docs.
+        body.dark {
+            background-color: #121420
+        }
+    </style>
+    <script>var queryParams = new URLSearchParams(window.location.search), theme = queryParams.get("brightness"); theme ||= window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light", document.body.classList.add(theme)</script>
+    <!-- Loading indicator -->
+    <div id="loading">
+        <style>
+            body {
+                inset: 0;
+                overflow: hidden;
+                margin: 0;
+                padding: 0;
+                position: fixed
+            }
+
+            #loading {
+                align-items: center;
+                display: flex;
+                height: 100%;
+                justify-content: center;
+                width: 100%
+            }
+
+            #loading img {
+                animation: 1s ease-in-out 0s infinite alternate breathe;
+                opacity: .9;
+                transition: opacity .4s
+            }
+
+            #loading.main_done img {
+                opacity: 1
+            }
+
+            #loading.init_done img {
+                animation: .33s ease-in-out 0s 1 forwards zooooom;
+                opacity: .05
+            }
+
+            @keyframes breathe {
+                from {
+                    transform: scale(1)
+                }
+
+                to {
+                    transform: scale(.95)
+                }
+            }
+
+            @keyframes zooooom {
+                from {
+                    transform: scale(1)
+                }
+
+                to {
+                    transform: scale(.01)
+                }
+            }
+        </style><img src="/icons/logo_icon.png" width="192" height="192"
+            alt="Komodo Wallet is starting... Please wait." />
+    </div>
+    <script
+        async="false">window.addEventListener("DOMContentLoaded", (d => { console.log("DOM fully loaded and parsed"), window.init_wasm && !0 !== window.is_mm2_preload_busy && (window.is_mm2_preload_busy = !0, window.init_wasm().then((() => { window.is_mm2_preloaded = !0 })).finally((() => { window.is_mm2_preload_busy = !1 }))) }))</script>
+    <!-- App -->
+    <div id="main-content" style="position:absolute;width:100%;height:100%;display:none">
+        <!-- Flutter app will be injected here -->
+    </div>
+</body>
+
+</html>

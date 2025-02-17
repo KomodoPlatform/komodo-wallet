@@ -21,6 +21,7 @@ class WalletsManager extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (walletType) {
       case WalletType.iguana:
+      case WalletType.hdwallet:
         return IguanaWalletsManager(
           close: close,
           onSuccess: onSuccess,

@@ -1,6 +1,7 @@
 // Using relative imports in this "package" to make it easier to track external
 // dependencies when moving or copying this "package" to another project.
 import 'package:komodo_cex_market_data/src/binance/data/binance_provider.dart';
+import 'package:komodo_cex_market_data/src/binance/data/binance_provider_interface.dart';
 import 'package:komodo_cex_market_data/src/binance/models/binance_exchange_info_reduced.dart';
 import 'package:komodo_cex_market_data/src/cex_repository.dart';
 import 'package:komodo_cex_market_data/src/models/models.dart';
@@ -18,10 +19,10 @@ BinanceRepository binanceRepository = BinanceRepository(
 /// This class provides methods to fetch legacy tickers and OHLC candle data.
 class BinanceRepository implements CexRepository {
   /// Creates a new [BinanceRepository] instance.
-  BinanceRepository({required BinanceProvider binanceProvider})
+  BinanceRepository({required IBinanceProvider binanceProvider})
       : _binanceProvider = binanceProvider;
 
-  final BinanceProvider _binanceProvider;
+  final IBinanceProvider _binanceProvider;
 
   List<CexCoin>? _cachedCoinsList;
 
@@ -50,7 +51,7 @@ class BinanceRepository implements CexRepository {
       try {
         return await callback(binanceApiEndpoint.elementAt(i));
       } catch (e) {
-        if (i >= binanceApiEndpoint.length) {
+        if (i >= (binanceApiEndpoint.length - 1)) {
           rethrow;
         }
       }

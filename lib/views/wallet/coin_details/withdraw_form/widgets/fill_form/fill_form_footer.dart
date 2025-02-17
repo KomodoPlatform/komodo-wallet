@@ -9,6 +9,8 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_for
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class FillFormFooter extends StatelessWidget {
+  const FillFormFooter({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
@@ -16,7 +18,10 @@ class FillFormFooter extends StatelessWidget {
         return ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: withdrawWidth),
           child: state.isSending
-              ? FillFormPreloader(state.trezorProgressStatus)
+              ?
+              //TODO(@takenagain): Trezor SDK support
+              // FillFormPreloader(state.trezorProgressStatus)
+              const FillFormPreloader('Sending')
               : UiBorderButton(
                   key: const Key('send-enter-button'),
                   backgroundColor: Theme.of(context).colorScheme.surface,

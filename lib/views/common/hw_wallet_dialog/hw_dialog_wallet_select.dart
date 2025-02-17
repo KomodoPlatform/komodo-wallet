@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
-import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/hw_wallet/hw_wallet.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';

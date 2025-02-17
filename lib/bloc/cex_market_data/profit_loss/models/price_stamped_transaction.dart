@@ -1,5 +1,5 @@
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 class PriceStampedTransaction extends Transaction {
   final FiatValue fiatValue;
@@ -8,30 +8,26 @@ class PriceStampedTransaction extends Transaction {
     required Transaction transaction,
     required this.fiatValue,
   }) : super(
-          blockHeight: transaction.blockHeight,
-          coin: transaction.coin,
-          confirmations: transaction.confirmations,
-          feeDetails: transaction.feeDetails,
-          from: transaction.from,
+          id: transaction.id,
           internalId: transaction.internalId,
-          myBalanceChange: transaction.myBalanceChange,
-          receivedByMe: transaction.receivedByMe,
-          spentByMe: transaction.spentByMe,
+          assetId: transaction.assetId,
           timestamp: transaction.timestamp,
+          confirmations: transaction.confirmations,
+          blockHeight: transaction.blockHeight,
+          from: transaction.from,
           to: transaction.to,
-          totalAmount: transaction.totalAmount,
+          fee: transaction.fee,
           txHash: transaction.txHash,
-          txHex: transaction.txHex,
           memo: transaction.memo,
+          balanceChanges: transaction.balanceChanges,
         );
 }
 
 class UsdPriceStampedTransaction extends PriceStampedTransaction {
   double get priceUsd => fiatValue.value;
   double get totalAmountUsd =>
-      (double.parse(totalAmount) * fiatValue.value).abs();
-  double get balanceChangeUsd =>
-      double.parse(myBalanceChange) * fiatValue.value;
+      (balanceChanges.totalAmount.toDouble() * fiatValue.value).abs();
+  double get balanceChangeUsd => amount.toDouble() * fiatValue.value;
 
   UsdPriceStampedTransaction(Transaction transaction, double priceUsd)
       : super(

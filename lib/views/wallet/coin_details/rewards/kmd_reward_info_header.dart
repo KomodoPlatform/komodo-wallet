@@ -74,7 +74,7 @@ class KmdRewardInfoHeader extends StatelessWidget {
             style: const TextStyle(color: Colors.blue),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                launchURL('https://www.coingecko.com');
+                launchURLString('https://www.coingecko.com');
               },
           ),
           const TextSpan(text: ', '),
@@ -83,7 +83,7 @@ class KmdRewardInfoHeader extends StatelessWidget {
             style: const TextStyle(color: Colors.blue),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                launchURL('https://exchangeratesapi.io');
+                launchURLString('https://exchangeratesapi.io');
               },
           ),
           const TextSpan(text: ')'),

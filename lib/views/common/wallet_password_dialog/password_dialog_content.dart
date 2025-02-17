@@ -1,11 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 
 class PasswordDialogContent extends StatefulWidget {
@@ -98,25 +99,13 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
   }
 
   Future<void> _onContinue() async {
-    final Wallet? wallet = widget.wallet ?? currentWalletBloc.wallet;
-    if (wallet == null) return;
+    final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+    if (currentWallet == null) return;
     final String password = _passwordController.text;
 
     setState(() => _inProgress = true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final String seed = await wallet.getSeed(password);
-      if (seed.isEmpty) {
-        if (mounted) {
-          setState(() {
-            _error = LocaleKeys.invalidPasswordError.tr();
-            _inProgress = false;
-          });
-        }
-
-        return;
-      }
-
       widget.onSuccess(password);
 
       if (mounted) setState(() => _inProgress = false);

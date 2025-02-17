@@ -3,7 +3,7 @@ import 'dart:math';
 String generatePassword() {
   final List<String> passwords = [];
 
-  final rng = Random();
+  final rng = Random.secure();
 
   const String lowerCase = 'abcdefghijklmnopqrstuvwxyz';
   const String upperCase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -27,7 +27,9 @@ String generatePassword() {
     if (tab.contains(lowerCase) &&
         tab.contains(upperCase) &&
         tab.contains(digit) &&
-        tab.contains(punctuation)) break;
+        tab.contains(punctuation)) {
+      break;
+    }
   }
 
   for (int i = 0; i < tab.length; i++) {
@@ -55,7 +57,8 @@ bool validateRPCPassword(String src) {
   // Password must contain one digit, one lowercase letter, one uppercase letter,
   // one special character and its length must be between 8 and 32 characters
   final RegExp exp = RegExp(
-      r'^(?:(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])).{8,32}$');
+    r'^(?:(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])).{8,32}$',
+  );
   if (!src.contains(exp)) return false;
 
   // Password can't contain same character three time in a row,

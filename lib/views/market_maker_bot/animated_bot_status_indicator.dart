@@ -56,7 +56,7 @@ class _AnimatedBotStatusIndicatorState extends State<AnimatedBotStatusIndicator>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _getStatusColor(widget.status)
-                    .withOpacity(_getOpacity(widget.status)),
+                    .withValues(alpha: _getOpacity(widget.status)),
               ),
             );
           },

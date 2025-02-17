@@ -6,7 +6,6 @@ library komodo_ui_kit;
 // Buttons
 // This category includes various button widgets used throughout the UI,
 // providing different styles and functionalities.
-export 'src/buttons/divided_button.dart'; // New button
 export 'src/buttons/hyperlink.dart';
 export 'src/buttons/language_switcher/language_switcher.dart';
 export 'src/buttons/multiselect_dropdown/filter_container.dart';
@@ -36,7 +35,6 @@ export 'src/custom_icons/custom_icons.dart';
 // Display
 // Widgets primarily focused on displaying data and information.
 export 'src/display/statistic_card.dart';
-export 'src/display/trend_percentage_text.dart';
 // Dividers
 // Widgets for dividing content or adding scrollbars.
 export 'src/dividers/ui_divider.dart';

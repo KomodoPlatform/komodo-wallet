@@ -22,12 +22,14 @@ import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/services/mappers/trade_preimage_mappers.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
-final dexRepository = DexRepository();
-
 class DexRepository {
+  DexRepository(this._mm2Api);
+
+  final Mm2Api _mm2Api;
+
   Future<SellResponse> sell(SellRequest request) async {
     try {
-      final Map<String, dynamic> response = await mm2Api.sell(request);
+      final Map<String, dynamic> response = await _mm2Api.sell(request);
       return SellResponse.fromJson(response);
     } catch (e) {
       return SellResponse(error: TextError.fromString(e.toString()));
@@ -35,8 +37,13 @@ class DexRepository {
   }
 
   Future<DataFromService<TradePreimage, BaseError>> getTradePreimage(
-      String base, String rel, Rational price, String swapMethod,
-      [Rational? volume, bool max = false]) async {
+    String base,
+    String rel,
+    Rational price,
+    String swapMethod, [
+    Rational? volume,
+    bool max = false,
+  ]) async {
     final request = TradePreimageRequest(
       base: base,
       rel: rel,
@@ -46,7 +53,8 @@ class DexRepository {
       max: max,
     );
     final ApiResponse<TradePreimageRequest, TradePreimageResponseResult,
-        Map<String, dynamic>> response = await mm2Api.getTradePreimage(request);
+            Map<String, dynamic>> response =
+        await _mm2Api.getTradePreimage(request);
 
     final Map<String, dynamic>? error = response.error;
     final TradePreimageResponseResult? result = response.result;
@@ -60,8 +68,11 @@ class DexRepository {
     }
     try {
       return DataFromService(
-          data: mapTradePreimageResponseResultToTradePreimage(
-              result, response.request));
+        data: mapTradePreimageResponseResultToTradePreimage(
+          result,
+          response.request,
+        ),
+      );
     } catch (e, s) {
       log(
         e.toString(),
@@ -76,7 +87,7 @@ class DexRepository {
 
   Future<Rational?> getMaxTakerVolume(String coinAbbr) async {
     final MaxTakerVolResponse? response =
-        await mm2Api.getMaxTakerVolume(MaxTakerVolRequest(coin: coinAbbr));
+        await _mm2Api.getMaxTakerVolume(MaxTakerVolRequest(coin: coinAbbr));
     if (response == null) {
       return null;
     }
@@ -86,7 +97,7 @@ class DexRepository {
 
   Future<Rational?> getMinTradingVolume(String coinAbbr) async {
     final MinTradingVolResponse? response =
-        await mm2Api.getMinTradingVol(MinTradingVolRequest(coin: coinAbbr));
+        await _mm2Api.getMinTradingVol(MinTradingVolRequest(coin: coinAbbr));
     if (response == null) {
       return null;
     }
@@ -101,7 +112,7 @@ class DexRepository {
   Future<BestOrders> getBestOrders(BestOrdersRequest request) async {
     Map<String, dynamic>? response;
     try {
-      response = await mm2Api.getBestOrders(request);
+      response = await _mm2Api.getBestOrders(request);
     } catch (e) {
       return BestOrders(error: TextError.fromString(e.toString()));
     }
@@ -125,14 +136,16 @@ class DexRepository {
       log('Error parsing best_orders response: $e', trace: s, isError: true);
 
       return BestOrders(
-          error: TextError(
-              error: 'Something went wrong! Unexpected response format.'));
+        error: TextError(
+          error: 'Something went wrong! Unexpected response format.',
+        ),
+      );
     }
   }
 
   Future<Swap> getSwapStatus(String swapUuid) async {
     final response =
-        await mm2Api.getSwapStatus(MySwapStatusReq(uuid: swapUuid));
+        await _mm2Api.getSwapStatus(MySwapStatusReq(uuid: swapUuid));
 
     if (response['error'] != null) {
       throw TextError(error: response['error']);

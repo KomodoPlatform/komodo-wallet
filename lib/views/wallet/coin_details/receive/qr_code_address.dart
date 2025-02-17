@@ -23,7 +23,7 @@ class QRCodeAddress extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.circular(18.0),
-      child: QrImage(
+      child: QrImageView(
         size: size,
         foregroundColor: foregroundColor,
         backgroundColor: backgroundColor,

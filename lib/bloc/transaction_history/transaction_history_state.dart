@@ -1,34 +1,35 @@
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 
-abstract class TransactionHistoryState extends Equatable {}
+final class TransactionHistoryState extends Equatable {
+  const TransactionHistoryState({
+    required this.transactions,
+    required this.loading,
+    required this.error,
+  });
 
-class TransactionHistoryInitialState extends TransactionHistoryState {
-  @override
-  List<Object?> get props => [];
-}
-
-class TransactionHistoryInProgressState extends TransactionHistoryState {
-  TransactionHistoryInProgressState({required this.transactions});
   final List<Transaction> transactions;
+  final bool loading;
+  final BaseError? error;
 
   @override
-  List<Object?> get props => [transactions];
-}
+  List<Object?> get props => [transactions, loading, error];
 
-class TransactionHistoryLoadedState extends TransactionHistoryState {
-  TransactionHistoryLoadedState({required this.transactions});
-  final List<Transaction> transactions;
+  const TransactionHistoryState.initial()
+      : transactions = const [],
+        loading = false,
+        error = null;
 
-  @override
-  List<Object?> get props => [transactions];
-}
-
-class TransactionHistoryFailureState extends TransactionHistoryState {
-  TransactionHistoryFailureState({required this.error});
-  final BaseError error;
-
-  @override
-  List<Object?> get props => [error];
+  TransactionHistoryState copyWith({
+    List<Transaction>? transactions,
+    bool? loading,
+    BaseError? error,
+  }) {
+    return TransactionHistoryState(
+      transactions: transactions ?? this.transactions,
+      loading: loading ?? this.loading,
+      error: error ?? this.error,
+    );
+  }
 }

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc_state.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
@@ -26,6 +26,7 @@ class MakerFormLayout extends StatefulWidget {
 class _MakerFormLayoutState extends State<MakerFormLayout> {
   @override
   void initState() {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     makerFormBloc.setDefaultSellCoin();
     _consumeRouteParameters();
 
@@ -33,10 +34,13 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
   }
 
   void _consumeRouteParameters() {
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+
     if (routingState.dexState.orderType != 'taker') {
       if (routingState.dexState.fromCurrency.isNotEmpty) {
         final Coin? sellCoin =
-            coinsBloc.getCoin(routingState.dexState.fromCurrency);
+            coinsRepository.getCoin(routingState.dexState.fromCurrency);
 
         if (sellCoin != null) {
           makerFormBloc.sellCoin = sellCoin;
@@ -49,7 +53,7 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
 
       if (routingState.dexState.toCurrency.isNotEmpty) {
         final Coin? buyCoin =
-            coinsBloc.getCoin(routingState.dexState.toCurrency);
+            coinsRepository.getCoin(routingState.dexState.toCurrency);
 
         if (buyCoin != null) {
           makerFormBloc.buyCoin = buyCoin;
@@ -67,6 +71,8 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
   @override
   Widget build(BuildContext context) {
     final DexTabBarBloc bloc = context.read<DexTabBarBloc>();
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+
     return BlocListener<AuthBloc, AuthBlocState>(
       listener: (context, state) {
         if (state.mode == AuthorizeMode.noLogin) {
@@ -79,7 +85,7 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
         builder: (context, snapshot) {
           if (snapshot.data == true) {
             return MakerOrderConfirmation(
-              onCreateOrder: () => bloc.add(const TabChanged(1)),
+              onCreateOrder: () => bloc.add(const TabChanged(2)),
               onCancel: () {
                 makerFormBloc.showConfirmation = false;
               },

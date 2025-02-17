@@ -1,11 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:web_dex/services/file_loader/file_loader.dart';
+import 'package:web_dex/shared/utils/zip.dart';
 
 class FileLoaderNativeIOS implements FileLoader {
   const FileLoaderNativeIOS();
@@ -19,10 +19,8 @@ class FileLoaderNativeIOS implements FileLoader {
     switch (type) {
       case LoadFileType.text:
         await _saveAsTextFile(fileName: fileName, data: data);
-        break;
       case LoadFileType.compressed:
         await _saveAsCompressedFile(fileName: fileName, data: data);
-        break;
     }
   }
 
@@ -45,10 +43,8 @@ class FileLoaderNativeIOS implements FileLoader {
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, '$fileName.zip');
 
-    final List<int> fileBytes = utf8.encode(data);
-
-    // Using ZLibCodec for compression
-    final compressedBytes = ZLibEncoder().convert(fileBytes);
+    final compressedBytes =
+        createZipOfSingleFile(fileName: fileName, fileContent: data);
 
     final File compressedFile = File(filePath);
     await compressedFile.writeAsBytes(compressedBytes);
@@ -58,8 +54,8 @@ class FileLoaderNativeIOS implements FileLoader {
 
   @override
   Future<void> upload({
-    required Function(String name, String content) onUpload,
-    required Function(String) onError,
+    required void Function(String name, String content) onUpload,
+    required void Function(String) onError,
     LoadFileType? fileType,
   }) async {
     try {

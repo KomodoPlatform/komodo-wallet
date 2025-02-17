@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -25,7 +26,8 @@ class ReceiveAddress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (currentWalletBloc.wallet?.config.type == WalletType.trezor) {
+    final currentWallet = context.watch<AuthBloc>().state.currentUser?.wallet;
+    if (currentWallet?.config.type == WalletType.trezor) {
       return ReceiveAddressTrezor(
         coin: coin,
         selectedAddress: selectedAddress,

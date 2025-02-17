@@ -49,7 +49,7 @@ class _BridgeTickersListState extends State<BridgeTickersList> {
         border: Border.all(width: 1, color: theme.currentGlobal.primaryColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 4),

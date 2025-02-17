@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/common/wallet_password_dialog/password_dialog_content.dart';
@@ -10,7 +11,8 @@ Future<String?> walletPasswordDialog(
   BuildContext context, {
   Wallet? wallet,
 }) async {
-  wallet ??= currentWalletBloc.wallet;
+  final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+  wallet ??= currentWallet;
   late PopupDispatcher popupManager;
   bool isOpen = false;
   String? password;

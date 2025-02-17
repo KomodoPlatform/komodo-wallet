@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
+import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
+import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
+import 'package:web_dex/bloc/taker_form/taker_event.dart';
+import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/settings_menu_value.dart';
@@ -25,25 +30,44 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
   Widget build(BuildContext context) {
     updateScreenType(context);
 
+    final MaterialPage<dynamic> page1 = MaterialPage<dynamic>(
+      key: const ValueKey('MainPage'),
+      child: Builder(
+        builder: (context) {
+          materialPageContext = context;
+          return GestureDetector(
+            onTap: () => runDropdownDismiss(context),
+            child: MainLayout(
+              key: ValueKey('${routingState.selectedMenu}'),
+            ),
+          );
+        },
+      ),
+    );
+
+    final List<Page<dynamic>> pages = <Page<dynamic>>[page1];
+
     return Navigator(
       key: navigatorKey,
-      pages: [
-        MaterialPage<dynamic>(
-          key: const ValueKey('MainPage'),
-          child: Builder(
-            builder: (context) {
-              materialPageContext = context;
-              return GestureDetector(
-                onTap: () =>
-                    globalCancelBloc.runDropdownDismiss(context: context),
-                child: MainLayout(),
-              );
-            },
-          ),
-        ),
-      ],
-      onPopPage: (route, dynamic result) => route.didPop(result),
+      pages: pages,
+      onDidRemovePage: (Page<Object?> page) => pages.remove(page),
     );
+  }
+
+  void runDropdownDismiss(BuildContext context) {
+    // Taker form
+    context.read<TakerBloc>().add(TakerCoinSelectorOpen(false));
+    context.read<TakerBloc>().add(TakerOrderSelectorOpen(false));
+
+    // Maker form
+    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+    makerFormBloc.showSellCoinSelect = false;
+    makerFormBloc.showBuyCoinSelect = false;
+
+    // Bridge form
+    context.read<BridgeBloc>().add(const BridgeShowTickerDropdown(false));
+    context.read<BridgeBloc>().add(const BridgeShowSourceDropdown(false));
+    context.read<BridgeBloc>().add(const BridgeShowTargetDropdown(false));
   }
 
   @override

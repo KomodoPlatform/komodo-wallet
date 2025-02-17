@@ -1,7 +1,10 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
 import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/common/screen.dart';
@@ -16,7 +19,6 @@ import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_info_header.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_list_item.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class KmdRewardsInfo extends StatefulWidget {
   const KmdRewardsInfo({
@@ -127,65 +129,69 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
               ),
               const Spacer(),
               Container(
-                  width: 350,
-                  height: 177,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      gradient: theme.custom.userRewardBoxColor,
-                      boxShadow: [
-                        BoxShadow(
-                            offset: const Offset(0, 7),
-                            blurRadius: 10,
-                            color: theme.custom.rewardBoxShadowColor)
-                      ]),
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              LocaleKeys.rewardBoxTitle.tr(),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                              ),
+                width: 350,
+                height: 177,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  gradient: theme.custom.userRewardBoxColor,
+                  boxShadow: [
+                    BoxShadow(
+                      offset: const Offset(0, 7),
+                      blurRadius: 10,
+                      color: theme.custom.rewardBoxShadowColor,
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            LocaleKeys.rewardBoxTitle.tr(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
                             ),
-                            Text(
-                              LocaleKeys.rewardBoxSubTitle.tr(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.color
-                                    ?.withOpacity(0.4),
-                              ),
+                          ),
+                          Text(
+                            LocaleKeys.rewardBoxSubTitle.tr(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color
+                                  ?.withValues(alpha: 0.4),
                             ),
-                            const SizedBox(
-                              height: 30.0,
-                            ),
-                            UiBorderButton(
-                              width: 160,
-                              height: 38,
-                              text: LocaleKeys.rewardBoxReadMore.tr(),
-                              onPressed: () {
-                                launchURL(
-                                    'https://support.komodoplatform.com/support/solutions/articles/29000024428-komodo-5-active-user-reward-all-you-need-to-know');
-                              },
-                            )
-                          ],
-                        ),
+                          ),
+                          const SizedBox(
+                            height: 30.0,
+                          ),
+                          UiBorderButton(
+                            width: 160,
+                            height: 38,
+                            text: LocaleKeys.rewardBoxReadMore.tr(),
+                            onPressed: () {
+                              launchURLString(
+                                'https://support.komodoplatform.com/support/solutions/articles/29000024428-komodo-5-active-user-reward-all-you-need-to-know',
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      const Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: RewardBackground(),
-                      )
-                    ],
-                  ))
+                    ),
+                    const Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: RewardBackground(),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -221,79 +227,85 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16.0),
-                color: Theme.of(context).colorScheme.surface),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    width: double.infinity,
-                    height: 177,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        gradient: theme.custom.userRewardBoxColor,
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0, 7),
-                              blurRadius: 10,
-                              color: theme.custom.rewardBoxShadowColor)
-                        ]),
-                    child: Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                LocaleKeys.rewardBoxTitle.tr(),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              Text(
-                                LocaleKeys.rewardBoxSubTitle.tr(),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.color
-                                      ?.withOpacity(0.3),
-                                ),
-                              ),
-                              const SizedBox(height: 24.0),
-                              UiBorderButton(
-                                width: 160,
-                                height: 38,
-                                text: LocaleKeys.rewardBoxReadMore.tr(),
-                                onPressed: () {
-                                  launchURL(
-                                      'https://support.komodoplatform.com/support/solutions/articles/29000024428-komodo-5-active-user-reward-all-you-need-to-know');
-                                },
-                              )
-                            ],
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            color: Theme.of(context).colorScheme.surface,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 177,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  gradient: theme.custom.userRewardBoxColor,
+                  boxShadow: [
+                    BoxShadow(
+                      offset: const Offset(0, 7),
+                      blurRadius: 10,
+                      color: theme.custom.rewardBoxShadowColor,
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            LocaleKeys.rewardBoxTitle.tr(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                            ),
                           ),
-                        ),
-                        const Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: RewardBackground(),
-                        )
-                      ],
-                    )),
-                const SizedBox(height: 20.0),
-                _buildTotal(),
-                _buildMessage(),
-                const SizedBox(height: 20),
-                _buildControls(context),
-              ],
-            )),
-        Flexible(child: _buildContent(context))
+                          Text(
+                            LocaleKeys.rewardBoxSubTitle.tr(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color
+                                  ?.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          const SizedBox(height: 24.0),
+                          UiBorderButton(
+                            width: 160,
+                            height: 38,
+                            text: LocaleKeys.rewardBoxReadMore.tr(),
+                            onPressed: () {
+                              launchURLString(
+                                'https://support.komodoplatform.com/support/solutions/articles/29000024428-komodo-5-active-user-reward-all-you-need-to-know',
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: RewardBackground(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20.0),
+              _buildTotal(),
+              _buildMessage(),
+              const SizedBox(height: 20),
+              _buildControls(context),
+            ],
+          ),
+        ),
+        Flexible(child: _buildContent(context)),
       ],
     );
   }
@@ -301,27 +313,27 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
   Widget _buildRewardList(BuildContext context) {
     final scrollController = ScrollController();
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            isDesktop ? _buildRewardListHeader(context) : const SizedBox(),
-            const SizedBox(height: 10),
-            Flexible(
-              child: DexScrollbar(
-                scrollController: scrollController,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    children:
-                        (_rewards ?? []).map(_buildRewardLstItem).toList(),
-                  ),
+      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          isDesktop ? _buildRewardListHeader(context) : const SizedBox(),
+          const SizedBox(height: 10),
+          Flexible(
+            child: DexScrollbar(
+              scrollController: scrollController,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  children: (_rewards ?? []).map(_buildRewardLstItem).toList(),
                 ),
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildRewardListHeader(BuildContext context) {
@@ -403,6 +415,8 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
       _successMessage = '';
     });
 
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final kmdRewardsBloc = RepositoryProvider.of<KmdRewardsBloc>(context);
     final BlocResponse<String, BaseError> response =
         await kmdRewardsBloc.claim(context);
     final BaseError? error = response.error;
@@ -414,13 +428,14 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
       return;
     }
 
-    await coinsBloc.updateBalances(); // consider refactoring (add timeout?)
+    // ignore: use_build_context_synchronously
+    context.read<CoinsBloc>().add(CoinsBalancesRefreshed());
     await _updateInfoUntilSuccessOrTimeOut(30000);
 
     final String reward =
         doubleToString(double.tryParse(response.result!) ?? 0);
     final double? usdPrice =
-        coinsBloc.getUsdPriceByAmount(response.result!, 'KMD');
+        coinsRepository.getUsdPriceByAmount(response.result!, 'KMD');
     final String formattedUsdPrice = cutTrailingZeros(formatAmt(usdPrice ?? 0));
     setState(() {
       _isClaiming = false;
@@ -429,7 +444,9 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
   }
 
   bool _rewardsEquals(
-      List<KmdRewardItem> previous, List<KmdRewardItem> current) {
+    List<KmdRewardItem> previous,
+    List<KmdRewardItem> current,
+  ) {
     if (previous.length != current.length) return false;
 
     for (int i = 0; i < previous.length; i++) {
@@ -460,10 +477,12 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
   }
 
   Future<void> _updateRewardsInfo() async {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    final kmdRewardsBloc = RepositoryProvider.of<KmdRewardsBloc>(context);
     final double? total = await kmdRewardsBloc.getTotal(context);
     final List<KmdRewardItem> currentRewards = await kmdRewardsBloc.getInfo();
     final double? totalUsd =
-        coinsBloc.getUsdPriceByAmount((total ?? 0).toString(), 'KMD');
+        coinsRepository.getUsdPriceByAmount((total ?? 0).toString(), 'KMD');
 
     if (!mounted) return;
     setState(() {

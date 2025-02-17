@@ -1,7 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -39,9 +40,9 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
         children: [
           UiTextFormField(
             hintText: LocaleKeys.searchAssets.tr(),
-            onChanged: (String searchPhrase) {
+            onChanged: (String? searchPhrase) {
               setState(() {
-                _searchPhrase = searchPhrase;
+                _searchPhrase = searchPhrase ?? '';
               });
             },
           ),
@@ -64,39 +65,47 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
   }
 
   Widget _buildSwapCoinList() {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<Swap>>(
-        stream: tradingEntitiesBloc.outSwaps,
-        initialData: tradingEntitiesBloc.swaps,
-        builder: (context, snapshot) {
-          final list = snapshot.data ?? [];
-          final filtered = widget.listType == DexListType.history
-              ? list.where((s) => s.isCompleted).toList()
-              : list.where((s) => !s.isCompleted).toList();
-          final Map<String, List<String>> coinAbbrMap =
-              getCoinAbbrMapFromSwapList(filtered, widget.isSellCoin);
+      stream: tradingEntitiesBloc.outSwaps,
+      initialData: tradingEntitiesBloc.swaps,
+      builder: (context, snapshot) {
+        final list = snapshot.data ?? [];
+        final filtered = widget.listType == DexListType.history
+            ? list.where((s) => s.isCompleted).toList()
+            : list.where((s) => !s.isCompleted).toList();
+        final Map<String, List<String>> coinAbbrMap =
+            getCoinAbbrMapFromSwapList(filtered, widget.isSellCoin);
 
-          return _buildCoinList(coinAbbrMap);
-        });
+        return _buildCoinList(coinAbbrMap);
+      },
+    );
   }
 
   Widget _buildOrderCoinList() {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<MyOrder>>(
-        stream: tradingEntitiesBloc.outMyOrders,
-        initialData: tradingEntitiesBloc.myOrders,
-        builder: (context, snapshot) {
-          final list = snapshot.data ?? [];
-          final Map<String, List<String>> coinAbbrMap =
-              getCoinAbbrMapFromOrderList(list, widget.isSellCoin);
+      stream: tradingEntitiesBloc.outMyOrders,
+      initialData: tradingEntitiesBloc.myOrders,
+      builder: (context, snapshot) {
+        final list = snapshot.data ?? [];
+        final Map<String, List<String>> coinAbbrMap =
+            getCoinAbbrMapFromOrderList(list, widget.isSellCoin);
 
-          return _buildCoinList(coinAbbrMap);
-        });
+        return _buildCoinList(coinAbbrMap);
+      },
+    );
   }
 
   Widget _buildCoinList(Map<String, List<String>> coinAbbrMap) {
     final List<String> coinAbbrList = (_searchPhrase.isEmpty
             ? coinAbbrMap.keys.toList()
-            : coinAbbrMap.keys.where((String coinAbbr) =>
-                coinAbbr.toLowerCase().contains(_searchPhrase)))
+            : coinAbbrMap.keys.where(
+                (String coinAbbr) =>
+                    coinAbbr.toLowerCase().contains(_searchPhrase),
+              ))
         .where((abbr) => abbr != widget.anotherCoin)
         .toList();
 
@@ -107,28 +116,29 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
       isMobile: isMobile,
       scrollController: scrollController,
       child: ListView.builder(
-          controller: scrollController,
-          shrinkWrap: true,
-          itemCount: coinAbbrList.length,
-          itemBuilder: (BuildContext context, int i) {
-            final coinAbbr = coinAbbrList[i];
-            final String? anotherCoinAbbr = widget.anotherCoin;
-            final coinPairsCount = getCoinPairsCountFromCoinAbbrMap(
-              coinAbbrMap,
-              coinAbbr,
-              anotherCoinAbbr,
-            );
+        controller: scrollController,
+        shrinkWrap: true,
+        itemCount: coinAbbrList.length,
+        itemBuilder: (BuildContext context, int i) {
+          final coinAbbr = coinAbbrList[i];
+          final String? anotherCoinAbbr = widget.anotherCoin;
+          final coinPairsCount = getCoinPairsCountFromCoinAbbrMap(
+            coinAbbrMap,
+            coinAbbr,
+            anotherCoinAbbr,
+          );
 
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                18,
-                5.0,
-                18,
-                lastIndex == i ? 20.0 : 0.0,
-              ),
-              child: _buildCoinListItem(coinAbbr, coinPairsCount),
-            );
-          }),
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              18,
+              5.0,
+              18,
+              lastIndex == i ? 20.0 : 0.0,
+            ),
+            child: _buildCoinListItem(coinAbbr, coinPairsCount),
+          );
+        },
+      ),
     );
   }
 
@@ -148,7 +158,8 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
               Padding(
                 padding: const EdgeInsets.only(left: 5.0),
                 child: Text(
-                    '${Coin.normalizeAbbr(coinAbbr)} ${isSegwit ? ' (segwit)' : ''}'),
+                  '${Coin.normalizeAbbr(coinAbbr)} ${isSegwit ? ' (segwit)' : ''}',
+                ),
               ),
               const Spacer(),
               Text('($pairCount)'),

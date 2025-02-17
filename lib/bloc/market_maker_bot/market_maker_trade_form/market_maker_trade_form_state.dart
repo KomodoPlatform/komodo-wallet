@@ -39,7 +39,7 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
   MarketMakerTradeFormState.initial()
       : sellCoin = const CoinSelectInput.pure(),
         buyCoin = const CoinSelectInput.pure(),
-        minimumTradeVolume = const TradeVolumeInput.pure(0.01),
+        minimumTradeVolume = const TradeVolumeInput.pure(0.1),
         maximumTradeVolume = const TradeVolumeInput.pure(0.9),
         sellAmount = const CoinTradeAmountInput.pure(),
         buyAmount = const CoinTradeAmountInput.pure(),

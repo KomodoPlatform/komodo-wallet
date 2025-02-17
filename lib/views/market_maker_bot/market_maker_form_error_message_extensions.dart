@@ -18,8 +18,6 @@ extension TradeMarginValidationErrorText on TradeMarginValidationError {
         return LocaleKeys.postitiveNumberRequired.tr();
       case TradeMarginValidationError.greaterThanMaximum:
         return LocaleKeys.mustBeLessThan.tr(args: [maxValue.toString()]);
-      default:
-        return null;
     }
   }
 }
@@ -56,8 +54,6 @@ extension AmountValidationErrorText on AmountValidationError {
             .tr(args: [coin?.balance.toString() ?? '0', coin?.abbr ?? '']);
       case AmountValidationError.lessThanMinimum:
         return LocaleKeys.mmBotMinimumTradeVolume.tr(args: ["0.00000001"]);
-      default:
-        return null;
     }
   }
 }

@@ -2,7 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/bridge/bridge_protocol_label.dart';
@@ -34,10 +34,11 @@ class _BridgeTargetProtocolSelectorTileState
   bool get noSelected => widget.coin == null && widget.bestOrder == null;
 
   Coin? get coin {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final widgetCoin = widget.coin;
     if (widgetCoin != null) return widgetCoin;
     final bestOrder = widget.bestOrder;
-    if (bestOrder != null) return coinsBloc.getCoin(bestOrder.coin);
+    if (bestOrder != null) return coinsRepository.getCoin(bestOrder.coin);
     return null;
   }
 

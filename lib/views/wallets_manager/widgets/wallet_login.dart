@@ -1,13 +1,15 @@
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletLogIn extends StatefulWidget {
   const WalletLogIn({
@@ -33,6 +35,27 @@ class _WalletLogInState extends State<WalletLogIn> {
   final _backKeyButton = GlobalKey();
   final TextEditingController _passwordController = TextEditingController();
   bool _inProgress = false;
+  bool _isHdMode = true;
+  KdfUser? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKdfUser();
+  }
+
+  Future<void> _fetchKdfUser() async {
+    final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    final users = await kdfSdk.auth.getUsers();
+    final user = users
+        .firstWhereOrNull((user) => user.walletId.name == widget.wallet.name);
+
+    if (user != null) {
+      setState(() {
+        _user = user;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -41,19 +64,20 @@ class _WalletLogInState extends State<WalletLogIn> {
   }
 
   void _submitLogin() async {
-    final Wallet? wallet =
-        walletsBloc.wallets.firstWhereOrNull((w) => w.id == widget.wallet.id);
-    if (wallet == null) return;
-
     setState(() {
       _errorDisplay = true;
       _inProgress = true;
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.wallet.config.type =
+          _isHdMode && _user != null && _user!.isBip39Seed == true
+              ? WalletType.hdwallet
+              : WalletType.iguana;
+
       widget.onLogin(
         _passwordController.text,
-        wallet,
+        widget.wallet,
       );
 
       if (mounted) setState(() => _inProgress = false);
@@ -74,6 +98,14 @@ class _WalletLogInState extends State<WalletLogIn> {
           height: 20,
         ),
         _buildPasswordField(),
+        const SizedBox(height: 20),
+        if (_user != null && _user!.isBip39Seed == true)
+          HDWalletModeSwitch(
+            value: _isHdMode,
+            onChanged: (value) {
+              setState(() => _isHdMode = value);
+            },
+          ),
         const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0),

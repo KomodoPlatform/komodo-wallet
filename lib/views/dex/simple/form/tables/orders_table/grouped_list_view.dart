@@ -1,7 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
@@ -25,7 +26,7 @@ class GroupedListView<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    final groupedItems = _groupList(items);
+    final groupedItems = _groupList(context, items);
 
     // Add right padding to the last column if there are grouped items
     // to align the grouped and non-grouped
@@ -57,7 +58,7 @@ class GroupedListView<T> extends StatelessWidget {
                       initiallyExpanded: false,
                       title: CoinsTableItem<T>(
                         data: group.value.first,
-                        coin: _createHeaderCoinData(group.value),
+                        coin: _createHeaderCoinData(context, group.value),
                         onSelect: onSelect,
                         isGroupHeader: true,
                         subtitleText: LocaleKeys.nNetworks
@@ -90,42 +91,42 @@ class GroupedListView<T> extends StatelessWidget {
       padding: padding,
       child: CoinsTableItem<T>(
         data: item,
-        coin: getCoin(item),
+        coin: getCoin(context, item),
         onSelect: onSelect,
       ),
     );
   }
 
-  Coin _createHeaderCoinData(List<T> list) {
-    final firstCoin = getCoin(list.first);
+  Coin _createHeaderCoinData(BuildContext context, List<T> list) {
+    final firstCoin = getCoin(context, list.first);
     double totalBalance = list.fold(0, (sum, item) {
-      final coin = getCoin(item);
+      final coin = getCoin(context, item);
       return sum + coin.balance;
     });
 
     final coin = firstCoin.dummyCopyWithoutProtocolData();
-
-    coin.balance = totalBalance;
-
-    return coin;
+    return coin.copyWith(balance: totalBalance);
   }
 
-  Map<String, List<T>> _groupList(List<T> list) {
+  Map<String, List<T>> _groupList(BuildContext context, List<T> list) {
     Map<String, List<T>> grouped = {};
     for (final item in list) {
-      final coin = getCoin(item);
+      final coin = getCoin(context, item);
       grouped.putIfAbsent(coin.name, () => []).add(item);
     }
     return grouped;
   }
 
-  Coin getCoin(T item) {
+  Coin getCoin(BuildContext context, T item) {
+    final coinsState = RepositoryProvider.of<CoinsBloc>(context).state;
     if (item is Coin) {
       return item as Coin;
     } else if (item is coin_dropdown.CoinSelectItem) {
-      return coinsBloc.getCoin(item.coinId)!;
+      return (coinsState.walletCoins[item.coinId] ??
+          coinsState.coins[item.coinId])!;
     } else {
-      return coinsBloc.getCoin((item as BestOrder).coin)!;
+      final String coinId = (item as BestOrder).coin;
+      return (coinsState.walletCoins[coinId] ?? coinsState.coins[coinId])!;
     }
   }
 }

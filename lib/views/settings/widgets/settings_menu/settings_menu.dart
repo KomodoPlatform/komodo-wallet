@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/settings_menu_value.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -21,11 +22,9 @@ class SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Wallet?>(
-      stream: currentWalletBloc.outWallet,
-      initialData: currentWalletBloc.wallet,
-      builder: (context, snapshot) {
-        final showSecurity = snapshot.data?.isHW == false;
+    return BlocBuilder<AuthBloc, AuthBlocState>(
+      builder: (context, state) {
+        final showSecurity = state.currentUser?.wallet.isHW == false;
 
         final Set<SettingsMenuValue> menuItems = <SettingsMenuValue>{
           SettingsMenuValue.general,

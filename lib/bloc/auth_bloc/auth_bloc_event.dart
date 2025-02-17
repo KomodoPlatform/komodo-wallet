@@ -1,22 +1,42 @@
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/wallet.dart';
+part of 'auth_bloc.dart';
 
 abstract class AuthBlocEvent {
   const AuthBlocEvent();
 }
 
-class AuthChangedEvent extends AuthBlocEvent {
-  const AuthChangedEvent({required this.mode});
+class AuthModeChanged extends AuthBlocEvent {
+  const AuthModeChanged({required this.mode, required this.currentUser});
+
   final AuthorizeMode mode;
+  final KdfUser? currentUser;
 }
 
-class AuthLogOutEvent extends AuthBlocEvent {
-  const AuthLogOutEvent();
+class AuthSignOutRequested extends AuthBlocEvent {
+  const AuthSignOutRequested();
 }
 
-class AuthReLogInEvent extends AuthBlocEvent {
-  const AuthReLogInEvent({required this.seed, required this.wallet});
+class AuthSignInRequested extends AuthBlocEvent {
+  const AuthSignInRequested({required this.wallet, required this.password});
 
-  final String seed;
   final Wallet wallet;
+  final String password;
+}
+
+class AuthRegisterRequested extends AuthBlocEvent {
+  const AuthRegisterRequested({required this.wallet, required this.password});
+
+  final Wallet wallet;
+  final String password;
+}
+
+class AuthRestoreRequested extends AuthBlocEvent {
+  const AuthRestoreRequested({
+    required this.wallet,
+    required this.password,
+    required this.seed,
+  });
+
+  final Wallet wallet;
+  final String password;
+  final String seed;
 }

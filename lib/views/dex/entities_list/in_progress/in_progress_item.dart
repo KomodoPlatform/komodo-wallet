@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/swap.dart';
@@ -28,6 +29,8 @@ class InProgressItem extends StatelessWidget {
     final Rational buyAmount = swap.buyAmount;
     final String date = getFormattedDate(swap.myInfo.startedAt);
     final bool isTaker = swap.isTaker;
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     final String typeText = tradingEntitiesBloc.getTypeString(isTaker);
 
     return Column(
@@ -109,6 +112,8 @@ class _InProgressItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [

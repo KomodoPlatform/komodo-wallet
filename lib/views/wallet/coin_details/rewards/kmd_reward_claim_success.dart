@@ -43,7 +43,8 @@ class KmdRewardClaimSuccess extends StatelessWidget {
           Text(
             LocaleKeys.youClaimed.tr(),
             style: TextStyle(
-              color: themeData.textTheme.bodyMedium?.color?.withOpacity(0.4),
+              color:
+                  themeData.textTheme.bodyMedium?.color?.withValues(alpha: 0.4),
               fontWeight: FontWeight.w700,
               fontSize: 14,
             ),
@@ -60,7 +61,8 @@ class KmdRewardClaimSuccess extends StatelessWidget {
           SelectableText(
             '\$$formattedUsd',
             style: TextStyle(
-              color: themeData.textTheme.bodyMedium?.color?.withOpacity(0.7),
+              color:
+                  themeData.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
               fontWeight: FontWeight.w500,
               fontSize: 14,
             ),

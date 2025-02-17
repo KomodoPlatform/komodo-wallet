@@ -28,7 +28,7 @@ class PercentageInput extends StatefulWidget {
 
 class _PercentageInputState extends State<PercentageInput> {
   late TextEditingController _controller;
-  String _lastEmittedValue = '';
+  String? _lastEmittedValue;
   bool _shouldUpdateText = true;
 
   @override
@@ -60,11 +60,11 @@ class _PercentageInputState extends State<PercentageInput> {
     }
   }
 
-  void _handlePercentageChanged(String value) {
+  void _handlePercentageChanged(String? value) {
     if (value != _lastEmittedValue) {
       _lastEmittedValue = value;
       _shouldUpdateText = false;
-      widget.onChanged?.call(value);
+      widget.onChanged?.call(value ?? '');
       _shouldUpdateText = true;
     }
   }
@@ -97,7 +97,7 @@ class _PercentageInputState extends State<PercentageInput> {
                             widget.maxFractionDigits.toString() +
                             r'})?$',
                       ),
-                      replacementString: _lastEmittedValue,
+                      replacementString: _lastEmittedValue ?? '',
                     ),
                     _DecimalInputFormatter(),
                   ],

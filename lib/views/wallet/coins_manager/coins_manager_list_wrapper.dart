@@ -1,13 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_event.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_state.dart';
-import 'package:web_dex/blocs/blocs.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/shared/widgets/information_popup.dart';
@@ -16,7 +17,6 @@ import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_list.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_list_header.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_selected_types_list.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class CoinsManagerListWrapper extends StatefulWidget {
   const CoinsManagerListWrapper({Key? key}) : super(key: key);
@@ -49,7 +49,12 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       },
       child: BlocBuilder<CoinsManagerBloc, CoinsManagerState>(
         builder: (BuildContext context, CoinsManagerState state) {
-          final List<Coin> sortedCoins = _sortCoins([...state.coins]);
+          List<Coin> sortedCoins = _sortCoins([...state.coins]);
+
+          if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
+            sortedCoins = removeTestCoins(sortedCoins);
+          }
+
           final bool isAddAssets = state.action == CoinsManagerAction.add;
 
           return Column(
@@ -109,6 +114,8 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
   }
 
   void _onCoinSelect(Coin coin) {
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     final bloc = context.read<CoinsManagerBloc>();
     if (bloc.state.action == CoinsManagerAction.remove &&
         tradingEntitiesBloc.isCoinBusy(coin.abbr)) {
