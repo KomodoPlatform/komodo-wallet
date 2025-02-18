@@ -29,7 +29,7 @@ runs:
         flutter doctor
 
     - name: Setup Linux code signing
-      if: inputs.gpg-key != ''
+      if: inputs.gpg-key != '' && 'KomodoPlatform/komodo-wallet' == github.repository
       shell: bash
       run: |
         echo "${{ inputs.gpg-key }}" | base64 --decode | gpg --import --batch --yes

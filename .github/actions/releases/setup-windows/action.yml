@@ -28,7 +28,7 @@ runs:
         flutter doctor
 
     - name: Setup Windows code signing
-      if: inputs.pfx-base64 != ''
+      if: inputs.pfx-base64 != '' && 'KomodoPlatform/komodo-wallet' == github.repository
       shell: pwsh
       run: |
         echo "${{ inputs.pfx-base64 }}" | base64 --decode > signing_certificate.pfx

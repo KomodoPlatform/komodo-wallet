@@ -34,7 +34,7 @@ runs:
       uses: android-actions/setup-android@v3
 
     - name: Setup Android keystore
-      if: inputs.keystore-base64 != ''
+      if: inputs.keystore-base64 != '' && 'KomodoPlatform/komodo-wallet' == github.repository
       shell: bash
       run: |
         echo "${{ inputs.keystore-base64 }}" | base64 --decode > android/app/upload-keystore.jks

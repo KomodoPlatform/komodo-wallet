@@ -53,16 +53,17 @@ runs:
         pod install
 
     - name: Import macOS certificates
-      if: inputs.p12-file-base64 != ''
+      if: inputs.p12-file-base64 != '' && 'KomodoPlatform/komodo-wallet' == github.repository
       uses: apple-actions/import-codesign-certs@v3
       with:
-        p12-file-base64: ${{ inputs.p12-file-base64 }}
-        p12-password: ${{ inputs.p12-password }}
         keychain: ${{ github.run_id }}
         keychain-password: ${{ github.run_id }}
+        create-keychain: false
+        p12-file-base64: ${{ inputs.p12-file-base64 }}
+        p12-password: ${{ inputs.p12-password }}
 
     - name: Download macOS provisioning profile
-      if: inputs.issuer-id != ''
+      if: inputs.issuer-id != ' && 'KomodoPlatform/komodo-wallet' == github.repository'
       uses: apple-actions/download-provisioning-profiles@v1
       with:
         bundle-id: ${{ inputs.bundle-id }}
