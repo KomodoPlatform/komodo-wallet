@@ -6,18 +6,13 @@ on [FLUTTER_VERSION.md](FLUTTER_VERSION.md).
 While it should be possible to go a few bugfixes versions over that version without issues,
 it's generally intended to use that exact version.
 
-There are two main ways to get an older copy of Flutter.
+To install the Flutter SDK, you can use the [Flutter extension for VS Code](https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter) (recommended), or download and install the Flutter bundle yourself from the [SDK Archive](https://docs.flutter.dev/release/archive), or use the [Flutter Version Manager (FVM)](https://fvm.app/documentation/getting-started/installation). The [official guide](https://docs.flutter.dev/get-started/install/linux/web) goes into further detail.
 
-The first way is by cloning the official repository and then pinning to an older version.
+## Use VS Code to install
 
-1. Clone Flutter with
+The recommended approach is to install the [Flutter extension for VSCode](https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter) (or the [Flutter extension for Android Studio/IntelliJ](https://plugins.jetbrains.com/plugin/9212-flutter)) and installing the Flutter SDK via the extension to simplify the process.
 
-   ```bash
-   cd ~
-   git clone https://github.com/flutter/flutter.git
-   ```
-
-2. [Pin Flutter version](FLUTTER_VERSION.md#pin-flutter-version)
+## Download and install
 
 The second way is via downloading the desired version from the SDK Archives.
 Here are [Windows](https://docs.flutter.dev/release/archive?tab=windows), [Mac](https://docs.flutter.dev/release/archive?tab=macos)
@@ -25,8 +20,6 @@ and [Linux](https://docs.flutter.dev/release/archive?tab=linux) download links.
 Remember to extract the file into a convenient place, such as `~/flutter`.
 
 Choose the option that is more convenient for you at the time.
-
-If you opt for the SDK Archive, you easily change to use the [Pin Flutter version](FLUTTER_VERSION.md#pin-flutter-version) later if you prefer.
 
 Add the flutter binaries subfolder `flutter/bin` to your system PATH. This process differs for each OS:
 
@@ -55,9 +48,9 @@ You might need to logout and re-login (or source the shell configuration file, i
 
 On macOS and Linux it should also be possible to confirm it's been added to the PATH correctly by running `which flutter`.
 
-## Alternative: FVM
+## Use Flutter Version Manager (FVM)
 
-The recommended method of handling multiple Flutter versions is to use [FVM](https://fvm.app/documentation/getting-started/installation).
+The recommended method of handling multiple Flutter versions is to use [FVM](https://fvm.app/documentation/getting-started/installation). To install FVM and use the stable version of the Flutter SDK in the current directory, run the following commands:
 
 ```bash
 curl -fsSL https://fvm.app/install.sh | bash

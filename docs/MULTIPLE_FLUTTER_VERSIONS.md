@@ -1,6 +1,6 @@
 # Handle multiple Flutter versions
 
-## FVM
+## Flutter Version Manager (FVM)
 
 The recommended method of handling multiple Flutter versions is to use [FVM](https://fvm.app/documentation/getting-started/installation).
 
@@ -15,22 +15,22 @@ fvm use stable
 
 ### 1. Clone new Flutter instance alongside with the existing one
 
-```
+```bash
 cd ~
 git clone https://github.com/flutter/flutter.git flutter_web
 cd ./flutter_web
-git checkout 3.23.4
+git checkout 3.29.0
 ```
 
 ### pen (or create) `.zshrc` file in your home directory
 
-```
+```bash
 nano ~/.zshrc
 ```
 
 Add line:
 
-```
+```bash
 alias flutter_web="$HOME/flutter_web/bin/flutter"
 ```
 
@@ -38,7 +38,7 @@ Save and close.
 
 ### 3. Check if newly installed Flutter version is accessible from terminal
 
-```
+```bash
 cd ~
 flutter_web doctor
 ```
@@ -55,8 +55,32 @@ flutter_web doctor
 
 ----
 
-## Windows TBD
+## Windows
+
+The following steps installs [fvm](https://fvm.app/docs/getting_started/installation) as a standalone application and uses it to manage both local and global Flutter SDKs. The recommended approach is to download and install a global version of Flutter SDK and use fvm to manage local Flutter SDKs, but this approach works for most scenarios.
+
+### 1. Install [Chocolatey](https://chocolatey.org/install), a windows package manager, if not installed yet
+
+```PowerShell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
+
+### 2. Install [fvm](https://fvm.app/docs/getting_started/installation) using Chocolatey
+
+```PowerShell
+choco install fvm
+fvm use stable
+fvm flutter doctor -v
+```
 
 ----
 
-## Linux TBD
+## Linux
+
+The following steps installs [fvm](https://fvm.app/docs/getting_started/installation) as a standalone application and uses it to manage both local and global Flutter SDKs. The recommended approach is to download and install a global version of Flutter SDK and use fvm to manage local Flutter SDKs, but this approach works for most scenarios.
+
+Install [fvm](https://fvm.app/docs/getting_started/installation) using the installation script, `install.sh`.
+
+```bash
+curl -fsSL https://fvm.app/install.sh | bash
+```
