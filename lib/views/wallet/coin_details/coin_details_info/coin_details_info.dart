@@ -189,7 +189,7 @@ class _DesktopContent extends StatelessWidget {
           const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
-          if (selectedTransaction == null) CoinAddresses(coin: coin),
+          if (selectedTransaction == null) CoinAddresses(coin: coin, setPageType: setPageType),
           const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
@@ -292,7 +292,7 @@ class _MobileContent extends StatelessWidget {
         const SliverToBoxAdapter(
           child: SizedBox(height: 20),
         ),
-        if (selectedTransaction == null) CoinAddresses(coin: coin),
+        if (selectedTransaction == null) CoinAddresses(coin: coin, setPageType: setPageType,),
         const SliverToBoxAdapter(
           child: SizedBox(height: 20),
         ),
@@ -353,10 +353,7 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
               coin: coin,
             ),
           ),
-          if (coin.hasFaucet)
-            FaucetButton(
-              onPressed: () => setPageType(CoinPageType.faucet),
-            ),
+          
           _CoinDetailsMarketMetricsTabBar(coin: coin),
         ],
       ),
