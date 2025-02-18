@@ -107,7 +107,7 @@ Run `flutter config --enable-windows-desktop` to enable Windows desktop support.
 
 If you are using Windows 10, please ensure that [Microsoft WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2?form=MA13LH) is installed for Webview support. Windows 11 ships with it, but Windows 10 users might need to install it.
 
-Please ensure the following pre-requisites are installed:
+Please ensure the following prerequisites are installed:
 
 - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) | Community 17.13.0 (Windows only), with the `Desktop development with C++` workload installed.
 - [Nuget CLI](https://www.nuget.org/downloads) is required for Windows desktop builds. Install with winget

@@ -37,7 +37,7 @@ For Linux:
    export PATH="$PATH:$HOME/flutter/bin"
    ```
 
-For Windows, follow the instructions below (from [flutter.dev](https://docs.flutter.dev/get-started/install/windows#update-your-path))::
+For Windows, follow the instructions below (from [flutter.dev](https://docs.flutter.dev/get-started/install/windows#update-your-path)):
 
 - From the Start search bar, enter `env` and select **Edit environment variables for your account**.
 - Under **User variables** check if there is an entry called **Path**:

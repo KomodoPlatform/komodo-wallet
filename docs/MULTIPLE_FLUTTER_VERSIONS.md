@@ -22,7 +22,7 @@ cd ./flutter_web
 git checkout 3.29.0
 ```
 
-### pen (or create) `.zshrc` file in your home directory
+### Open (or create) `.zshrc` file in your home directory
 
 ```bash
 nano ~/.zshrc
@@ -36,7 +36,7 @@ alias flutter_web="$HOME/flutter_web/bin/flutter"
 
 Save and close.
 
-### 3. Check if newly installed Flutter version is accessible from terminal
+### 3. Check if the newly installed Flutter version is accessible from terminal
 
 ```bash
 cd ~
