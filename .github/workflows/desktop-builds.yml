@@ -40,7 +40,7 @@ jobs:
         uses: ./.github/actions/flutter-deps
 
       # macOS setup
-      - name: Setup ${{ matrix.platform }} environment
+      - name: Setup macOS environment
         if: ${{ matrix.platform == 'macos' }}
         uses: ./.github/actions/releases/setup-macos
         with:
@@ -53,7 +53,7 @@ jobs:
           api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
 
       # Linux setup
-      - name: Setup ${{ matrix.platform }} environment
+      - name: Setup Linux environment
         if: ${{ matrix.platform == 'linux' }}
         uses: ./.github/actions/releases/setup-linux
         with:
@@ -61,7 +61,7 @@ jobs:
           gpg-key-id: ${{ secrets.LINUX_GPG_KEY_ID }}
 
       # Windows setup
-      - name: Setup ${{ matrix.platform }} environment
+      - name: Setup Windows environment
         if: ${{ matrix.platform == 'windows' }}
         uses: ./.github/actions/releases/setup-windows
         with:
@@ -72,7 +72,6 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BUILD_PLATFORM: ${{ matrix.platform }}
 
       - name: Build for ${{ matrix.platform }}
         env:

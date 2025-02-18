@@ -39,6 +39,9 @@ runs:
       with:
         xcode-version: ${{ inputs.xcode-version }}
 
+    # Download iOS platform to avoid the missing platform error from xcode 15
+    # https://github.com/flutter/flutter/issues/129558
+    # https://developer.apple.com/documentation/xcode/installing-additional-simulator-runtimes#Install-and-manage-Simulator-runtimes-from-the-command-line
     - name: Install iOS dependencies
       shell: bash
       run: |
