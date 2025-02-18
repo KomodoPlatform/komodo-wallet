@@ -1,22 +1,4 @@
 {
-    "api": {
-        "api_commit_hash": "8206c6ef61ee5c0f697fab5fcfd7256e3ebe13ac",
-        "branch": "main",
-        "fetch_at_build_enabled": true,
-        "source_urls": [
-            "https://api.github.com/repos/KomodoPlatform/komodo-defi-framework",
-            "https://sdk.devbuilds.komodo.earth"
-        ],
-        "platforms": {
-            "web": {
-                "matching_keyword": "wasm",
-                "valid_zip_sha256_checksums": [
-                    "f82e330a8d9bc1c2011604648233922cf216a732858c5a6a935ad77a286b1993"
-                ],
-                "path": "web/src/mm2"
-            }
-        }
-    },
     "coins": {
         "fetch_at_build_enabled": true,
         "update_commit_on_build": true,

@@ -17,7 +17,7 @@ jobs:
         name: [web-app-linux-profile, web-app-macos]
         include:
           - name: web-app-linux-profile
-            os: [self-hosted, linux]
+            os: ubuntu-latest
             browser: chrome
             display: "headless"
             resolution: "1600,1024"
@@ -28,7 +28,7 @@ jobs:
               ./memory_profile.json
 
           - name: web-app-macos
-            os: [self-hosted, macos]
+            os: macos-latest
             browser: safari
             display: "headless" # has no affect with safaridriver
             resolution: "1600,1024" # has no affect with safaridriver

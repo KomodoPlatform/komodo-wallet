@@ -72,15 +72,6 @@ node_modules
 assets/**/debug_data.json
 contrib/coins_config.json
 
-# api native library
-libmm2.a
-windows/**/mm2.exe
-linux/mm2/mm2
-macos/mm2
-libkdf.a
-windows/**/kdf.exe
-linux/mm2/kdf
-macos/kdf
 **/.api_last_updated*
 
 # Android C++ files
@@ -91,3 +82,4 @@ venv/
 
 # FVM Version Cache
 .fvm/
+/macos/build

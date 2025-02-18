@@ -7,8 +7,8 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  unit_tests_:
-    runs-on: [self-hosted, Linux]
+  unit_tests:
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Validate build
         uses: ./.github/actions/validate-build
 
@@ -30,7 +30,7 @@ jobs:
         id: unit_tests
         continue-on-error: false
         timeout-minutes: 15
-        env: 
+        env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           flutter test test_units/main.dart
@@ -40,4 +40,4 @@ jobs:
         timeout-minutes: 15
         uses: ./.github/actions/code-coverage
         with:
-          test_file: 'test_units/main.dart'
+          test_file: "test_units/main.dart"

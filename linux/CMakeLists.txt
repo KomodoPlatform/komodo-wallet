@@ -136,8 +136,3 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
-
-install(CODE "
-  configure_file(\"${CMAKE_CURRENT_SOURCE_DIR}/mm2/mm2\" \"${CMAKE_INSTALL_PREFIX}/mm2\" COPYONLY)
-  "
-)

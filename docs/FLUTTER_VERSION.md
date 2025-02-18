@@ -8,7 +8,7 @@ This project aims to keep the Flutter version up-to-date with the latest stable 
 
 ## Pin Flutter version
 
-```
+```bash
 cd ~/flutter
 git checkout 3.29.0
 flutter doctor
