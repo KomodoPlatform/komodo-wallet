@@ -58,7 +58,7 @@ runs:
         p12-password: ${{ inputs.p12-password }}
 
     - name: Download iOS provisioning profile
-      if: inputs.issuer-id != ''  && 'KomodoPlatform/komodo-wallet' == github.repository
+      if: inputs.issuer-id != '' && 'KomodoPlatform/komodo-wallet' == github.repository
       uses: apple-actions/download-provisioning-profiles@v1
       with:
         bundle-id: ${{ inputs.bundle-id }}

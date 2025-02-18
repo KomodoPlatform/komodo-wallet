@@ -34,7 +34,7 @@ runs:
         rm -rf build/*
 
         # Run flutter build and capture its output and exit status
-        # Allow error messages from `flutter pub get` to be printed for debugging 
+        # Allow error messages from `flutter pub get` to be printed for debugging
         # in case there are legitimate, unexpected errors.
         flutter pub get > /dev/null
         output=$(flutter build ${{ inputs.BUILD_PLATFORM }} --release 2>&1)

@@ -20,7 +20,7 @@ runs:
       uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
         sdk-version: 26100
-    
+
     - name: Install Windows build dependencies
       shell: pwsh
       run: |

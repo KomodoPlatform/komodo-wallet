@@ -38,6 +38,7 @@ runs:
       shell: bash
       run: |
         echo "${{ inputs.keystore-base64 }}" | base64 --decode > android/app/upload-keystore.jks
+        rm -f android/key.properties # Remove existing file to avoid duplication on successive runs
         echo "storeFile=upload-keystore.jks" >> android/key.properties
         echo "keyAlias=${{ inputs.key-alias }}" >> android/key.properties
         echo "storePassword=${{ inputs.store-password }}" >> android/key.properties
