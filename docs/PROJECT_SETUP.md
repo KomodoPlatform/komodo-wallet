@@ -15,16 +15,18 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
     - [VS Code](https://code.visualstudio.com/)
       - install and enable `Dart` and `Flutter` extensions
       - enable `Dart: Use recommended settings` via the Command Pallette
-    - [Android Studio](https://developer.android.com/studio) - Flamingo | 2024.1.2
+    - [Android Studio](https://developer.android.com/studio) - Ladybug | 2024.2.2
       - install and enable `Dart` and `Flutter` plugins
       - SDK Manager -> SDK Tools:
-        - [x] Android SDK Build-Tools 35
-        - [x] NDK (Side by side) 27.1
-        - [x] Android command line tools (latest)
-        - [x] CMake 3.30.3 (latest)
-    - [xCode](https://developer.apple.com/xcode/) - 15.4 (macOS only)
-    - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) - Community 17.11.3 (Windows only)
+        - [x] Android SDK Build-Tools - (latest) 35.0.1
+        - [x] NDK (Side by side) - (latest) 28.0
+        - [x] Android command line tools - (latest) 19.0.0
+        - [x] CMake - (latest) 3.31.5
+    - [xCode](https://developer.apple.com/xcode/) | 16.2 (macOS only)
+    - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) | Community 17.13.0 (Windows only)
       - `Desktop development with C++` workload required
+      - [Nuget CLI](https://www.nuget.org/downloads) required for Windows desktop builds
+      - [Enable long paths in Windows registry](BUILD_RUN_APP.md#windows-desktop)
 
  3. Run `flutter doctor` and make sure all checks (except version) pass
  4. [Clone project repository](CLONE_REPOSITORY.md)
