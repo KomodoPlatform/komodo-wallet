@@ -150,21 +150,21 @@ dependencies:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_sdk
-      ref: dev
+      ref: chore/kdf-2.4.0-update
 
   komodo_defi_types:
     # path: sdk/packages/komodo_defi_types # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_types
-      ref: dev
+      ref: chore/kdf-2.4.0-update
 
   komodo_ui:
     # path: sdk/packages/komodo_ui # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_ui
-      ref: dev
+      ref: chore/kdf-2.4.0-update
 
 dev_dependencies:
   integration_test: # SDK
