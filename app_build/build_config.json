@@ -1,7 +1,7 @@
 {
     "api": {
-        "api_commit_hash": "8206c6ef61ee5c0f697fab5fcfd7256e3ebe13ac",
-        "branch": "main",
+        "api_commit_hash": "58df97c4a22c8c2ef52d4d517370f8f2fffaf3b7",
+        "branch": "dev",
         "fetch_at_build_enabled": true,
         "source_urls": [
             "https://api.github.com/repos/KomodoPlatform/komodo-defi-framework",
