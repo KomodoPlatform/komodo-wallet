@@ -1,6 +1,6 @@
 # Komodo Coin Updater
 
-This package provides the funcionality to update the coins list and configuration files for the Komodo Platform at runtime.
+This package provides the functionality to update the coins list and configuration files for the Komodo Platform at runtime.
 
 ## Usage
 
