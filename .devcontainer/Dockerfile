@@ -1,10 +1,9 @@
 FROM docker.io/ubuntu:22.04
 
 ENV FLUTTER_VERSION="3.29.0"
-ENV HOME="/workspaces"
 ENV USER="komodo"
 ENV USER_ID=1000
-ENV PATH=$PATH:$HOME/flutter/bin
+ENV PATH=$PATH:/opt/flutter/bin
 ENV PATH=$PATH:/android-ndk/bin
 ENV ANDROID_HOME=/opt/android-sdk-linux \
     LANG=en_US.UTF-8 \
@@ -32,8 +31,8 @@ RUN apt update && apt install -y sudo && \
     useradd -u $USER_ID -m $USER && \ 
     usermod -aG sudo $USER && \ 
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-    mkdir -p $HOME && \
-    chown -R $USER:$USER $HOME && \
+    mkdir -p /workspaces && \ 
+    chown -R $USER:$USER /workspaces && \ 
     chown -R $USER:$USER /opt
 
 RUN apt-get update -y && \
@@ -69,7 +68,6 @@ RUN apt-get update -y && \
     apt-get clean
 
 USER $USER
-WORKDIR $HOME
 
 RUN set -e -o xtrace \
     && cd /opt \
@@ -106,8 +104,9 @@ RUN set -e -o xtrace \
     "platforms;android-$ANDROID_PLATFORM_VERSION" \
     "build-tools;$ANDROID_BUILD_TOOLS_VERSION"
 
-RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
-    tar -xvf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C ${HOME} && \
+RUN cd /opt && \
+    curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
+    tar -xvf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C /opt && \
     rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
     flutter config --no-analytics && \
     flutter precache && \
