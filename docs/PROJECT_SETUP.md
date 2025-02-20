@@ -14,7 +14,7 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
  2. Install IDEs
     - [VS Code](https://code.visualstudio.com/)
       - install and enable `Dart` and `Flutter` extensions
-      - enable `Dart: Use recommended settings` via the Command Pallette
+      - enable `Dart: Use recommended settings` via the Command Palette
     - [Android Studio](https://developer.android.com/studio) - Flamingo | 2024.1.2
       - install and enable `Dart` and `Flutter` plugins
       - SDK Manager -> SDK Tools:
@@ -48,6 +48,6 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
       - Windows/macOS: Install [Docker Desktop for Windows/macOS](https://www.docker.com/products/docker-desktop), and if you are using WSL in Windows, please ensure that the [WSL 2 back-end](https://aka.ms/vscode-remote/containers/docker-wsl2) is installed and configured.
 2. Install [VS Code](https://code.visualstudio.com/)
       - install and enable `Dart` and `Flutter` extensions
-      - enable `Dart: Use recommended settings` via the Command Pallette
+      - enable `Dart: Use recommended settings` via the Command Palette
 3. Install the VSCode [Dev Container extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 4. Open the command palette (Ctrl+Shift+P) and run `Remote-Containers: Reopen in Container`
