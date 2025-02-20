@@ -1,33 +1,30 @@
 {
     "name": "flutter_docker",
     "context": "..",
-    "dockerFile": "komodo-wallet-android-dev.dockerfile",
+    "dockerFile": "Dockerfile",
     "remoteUser": "komodo",
-    "postAttachCommand": "sh .devcontainer/dev-setup.sh",
-    "runArgs": [
-        "--privileged"
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/home/komodo/workspace,type=bind,consistency=delegated"
     ],
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/komodo/workspace,type=bind,consistency=delegated",
     "workspaceFolder": "/home/komodo/workspace",
-    "hostRequirements": {
-        "cpus": 4,
-        "memory": "16gb",
-        "storage": "32gb"
-    },
+    "postCreateCommand": "sudo chown -R komodo:komodo /home/komodo/workspace && sudo chmod -R u+w /home/komodo/workspace",
+    "postAttachCommand": "flutter pub get",
+    "runArgs": [
+        "--privileged",
+        "-v",
+        "/dev/bus/usb:/dev/bus/usb"
+    ],
+    "forwardPorts": [
+        8081,
+        5037
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
-                "FelixAngelov.bloc",
                 "Dart-Code.dart-code",
-                "Dart-Code.flutter",
-                "DavidAnson.vscode-markdownlint",
-                "pflannery.vscode-versionlens",
-                "GitHub.copilot",
-                "GitHub.copilot-chat"
+                "Dart-Code.flutter"
             ],
             "settings": {
-                "terminal.integrated.shell.linux": null,
-                "extensions.verifySignature": false, // https://github.com/microsoft/vscode/issues/174632
                 "dart.showTodos": true,
                 "dart.debugExternalPackageLibraries": true,
                 "dart.promptToGetPackages": false,
