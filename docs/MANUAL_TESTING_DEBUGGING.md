@@ -6,7 +6,7 @@ In order to simplify login during debug session `Debug login` button provided in
 
 Please create `assets/debug_data.json` file with wallet credentials to use it.
 
-File structure example bellow:
+File structure example below:
 
 ```json
 {
