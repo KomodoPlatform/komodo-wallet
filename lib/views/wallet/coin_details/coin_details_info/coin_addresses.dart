@@ -207,6 +207,16 @@ class AddressCard extends StatelessWidget {
                       AddressText(address: address.address),
                       const SizedBox(width: 8),
                       SwapAddressTag(address: address),
+                      ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: 80,
+                        maxWidth: isMobile ? 100 : 160,
+                      ),
+                      child: FaucetButton(
+                        address: address,
+                        onPressed: () => setPageType(CoinPageType.faucet),
+                      ),
+                    ),
                       const Spacer(),
                       AddressCopyButton(address: address.address),
                       QrButton(
@@ -220,18 +230,27 @@ class AddressCard extends StatelessWidget {
                   const SizedBox(height: 4),
                 ],
               )
-            : Row(
-                children: [
-                  AddressText(address: address.address),
-                  const SizedBox(width: 8),
-                  AddressCopyButton(address: address.address),
-                  QrButton(coin: coin, address: address),
-                  SwapAddressTag(address: address),
-                  Expanded(child: Padding(
-                    padding: const EdgeInsets.only(right: 350.0),
-                    child: FaucetButton(address: address, onPressed: () => setPageType(CoinPageType.faucet)),
-                  ))
-                ],
+            : SizedBox(
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    AddressText(address: address.address),
+                    const SizedBox(width: 8),
+                    AddressCopyButton(address: address.address),
+                    QrButton(coin: coin, address: address),
+                    SwapAddressTag(address: address),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: 80,
+                        maxWidth: isMobile ? 100 : 160,
+                      ),
+                      child: FaucetButton(
+                        address: address,
+                        onPressed: () => setPageType(CoinPageType.faucet),
+                      ),
+                    ),
+                  ],
+                ),
               ),
         trailing: isMobile ? null : _Balance(address: address, coin: coin),
       ),

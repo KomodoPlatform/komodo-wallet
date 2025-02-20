@@ -18,32 +18,44 @@ class FaucetButton extends StatelessWidget {
   final PubkeyInfo address;
 
   @override
-  Widget build(BuildContext context) {
-    final ThemeData themeData = Theme.of(context);
+Widget build(BuildContext context) {
+  final ThemeData themeData = Theme.of(context);
+  debugPrint("FaucetButton is being built! isActiveForSwap: ${address.isActiveForSwap}");
 
-    return address.isActiveForSwap
-        ? Padding(
-            padding: EdgeInsets.only(left: isMobile ? 4 : 8),
+  return address.isActiveForSwap
+      ? Padding(
+          padding: EdgeInsets.only(left: isMobile ? 4 : 8),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              vertical: isMobile ? 6 : 8,
+              horizontal: isMobile ? 8 : 12.0,
+            ),
+            decoration: BoxDecoration(
+              color: themeData.colorScheme.tertiary,
+              borderRadius: BorderRadius.circular(16.0),
+            ),
             child: UiPrimaryButton(
               key: const Key('coin-details-faucet-button'),
-              height: isMobile ? 24.0 : 32.0,
+              height: isMobile ? 12.0 : 18.0,
               backgroundColor: themeData.colorScheme.tertiary,
               onPressed: onPressed,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 6),
+                    padding: const EdgeInsets.only(right: 4),
                     child: Icon(Icons.local_drink_rounded, color: Colors.blue, size: isMobile ? 14 : 16),
                   ),
                   Text(
                     LocaleKeys.faucet.tr(),
-                    style: TextStyle(fontSize: isMobile ? 10 : 12, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: isMobile ? 9 : 12, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
             ),
-          )
-        : const SizedBox.shrink();
-  }
+          ),
+        )
+      : const SizedBox.shrink();
+}
+
 }
