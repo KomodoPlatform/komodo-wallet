@@ -28,6 +28,6 @@ docker build $PLATFORM_FLAG -f .docker/komodo-wallet-android.dockerfile . -t kom
 # Use the provided arguments for flutter build
 # Build a second time if needed, as asset downloads will require a rebuild on the first attempt
 docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
-  -u $(id -u):$(id -g) \
+  -u "$(id -u):$(id -g)" \
   komodo/komodo-wallet:latest sh -c \
   "flutter build $BUILD_TARGET --$BUILD_MODE || flutter build $BUILD_TARGET --$BUILD_MODE"

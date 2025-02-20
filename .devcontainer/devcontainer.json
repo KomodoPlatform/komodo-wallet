@@ -3,11 +3,8 @@
     "context": "..",
     "dockerFile": "Dockerfile",
     "remoteUser": "komodo",
-    "mounts": [
-        "source=${localWorkspaceFolder},target=/home/komodo/workspace,type=bind,consistency=delegated"
-    ],
-    "workspaceFolder": "/home/komodo/workspace",
-    "postCreateCommand": "sudo chown -R komodo:komodo /home/komodo/workspace && sudo chmod -R u+w /home/komodo/workspace",
+    "workspaceFolder": "/workspaces/komodo-wallet",
+    "postCreateCommand": "sudo chown -R komodo:komodo /workspaces/komodo-wallet",
     "postAttachCommand": "flutter pub get",
     "runArgs": [
         "--privileged",

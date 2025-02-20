@@ -1,7 +1,7 @@
 FROM docker.io/ubuntu:22.04
 
 ENV FLUTTER_VERSION="3.29.0"
-ENV HOME="/home/komodo"
+ENV HOME="/workspaces"
 ENV USER="komodo"
 ENV USER_ID=1000
 ENV PATH=$PATH:$HOME/flutter/bin
@@ -32,6 +32,7 @@ RUN apt update && apt install -y sudo && \
     useradd -u $USER_ID -m $USER && \ 
     usermod -aG sudo $USER && \ 
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    mkdir -p $HOME && \
     chown -R $USER:$USER $HOME && \
     chown -R $USER:$USER /opt
 
@@ -113,5 +114,5 @@ RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable
     yes "y" | flutter doctor --android-licenses && \
     flutter doctor && \
     flutter update-packages && \
-    mkdir -p /home/komodo/workspace && \
-    chown -R $USER:$USER /home/komodo/workspace
+    mkdir -p /workspaces/komodo-wallet && \
+    chown -R $USER_ID:$USER_ID /workspaces/komodo-wallet
