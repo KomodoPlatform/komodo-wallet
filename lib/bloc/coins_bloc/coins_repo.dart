@@ -226,6 +226,13 @@ class CoinsRepo {
   }
 
   Future<void> activateAssetsSync(List<Asset> assets) async {
+    final isSignedIn = await _kdfSdk.auth.isSignedIn();
+    if (!isSignedIn) {
+      final coinIdList = assets.map((e) => e.id.id).join(', ');
+      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      return;
+    }
+
     for (final asset in assets) {
       final coin = asset.toCoin();
       try {
@@ -261,6 +268,13 @@ class CoinsRepo {
   }
 
   Future<void> activateCoinsSync(List<Coin> coins) async {
+    final isSignedIn = await _kdfSdk.auth.isSignedIn();
+    if (!isSignedIn) {
+      final coinIdList = coins.map((e) => e.abbr).join(', ');
+      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      return;
+    }
+
     for (final coin in coins) {
       try {
         final asset = _kdfSdk.assets.available[coin.id];
@@ -286,6 +300,7 @@ class CoinsRepo {
           'Error activating coin: ${coin.abbr} \n$e',
           isError: true,
           trace: s,
+          path: 'coins_repo->activateCoinsSync',
         ).ignore();
         await _broadcastAsset(coin.copyWith(state: CoinState.suspended));
       } finally {
