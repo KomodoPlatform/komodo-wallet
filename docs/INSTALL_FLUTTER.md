@@ -50,11 +50,4 @@ On macOS and Linux it should also be possible to confirm it's been added to the 
 
 ## Use Flutter Version Manager (FVM)
 
-The recommended method of handling multiple Flutter versions is to use [FVM](https://fvm.app/documentation/getting-started/installation). To install FVM and use the stable version of the Flutter SDK in the current directory, run the following commands:
-
-```bash
-curl -fsSL https://fvm.app/install.sh | bash
-
-# Configure the Flutter version to use in the current directory (e.g. ~/komodo-wallet)
-fvm use stable
-```
+Should you need to install and manage multiple versions of the Flutter SDK, it is recommended to use [FVM](https://fvm.app/documentation/getting-started/installation). See [MULTIPLE_FLUTTER_VERSIONS.md](MULTIPLE_FLUTTER_VERSIONS.md) for more details.
