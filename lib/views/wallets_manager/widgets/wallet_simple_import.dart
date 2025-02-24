@@ -1,8 +1,10 @@
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
+    show MnemonicFailedReason;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
@@ -291,12 +293,31 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   }
 
   String? _validateSeed(String? seed) {
-    if (seed == null || seed.isEmpty) {
-      return LocaleKeys.walletCreationEmptySeedError.tr();
-    } else if ((_isHdMode || !_allowCustomSeed) &&
-        !bip39.validateMnemonic(seed)) {
-      return LocaleKeys.walletCreationBip39SeedError.tr();
+    final maybeFailedReason =
+        context.read<KomodoDefiSdk>().mnemonicValidator.validateMnemonic(
+              seed ?? '',
+              minWordCount: 12,
+              maxWordCount: 24,
+              isHd: _isHdMode,
+              allowCustomSeed: _allowCustomSeed,
+            );
+
+    if (maybeFailedReason == null) {
+      return null;
     }
-    return null;
+
+    return switch (maybeFailedReason) {
+      MnemonicFailedReason.empty =>
+        LocaleKeys.walletCreationEmptySeedError.tr(),
+      MnemonicFailedReason.customNotSupportedForHd =>
+        LocaleKeys.walletCreationBip39SeedError.tr(),
+      MnemonicFailedReason.customNotAllowed =>
+        LocaleKeys.customSeedWarningText.tr(),
+      MnemonicFailedReason.invalidLength =>
+        // TODO: Add this string has placeholders for min/max counts, which we
+        // specify as "12" and "24"
+        // LocaleKeys.seedPhraseCheckingEnterWord.tr(args: ['12', '24']),
+        LocaleKeys.walletCreationBip39SeedError.tr(),
+    };
   }
 }

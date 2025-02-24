@@ -190,23 +190,16 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   void _createWallet({
     required String name,
     required String password,
-    required String seed,
     WalletType? walletType,
   }) {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
     final Wallet newWallet = Wallet.fromName(
       name: name,
       walletType: walletType ?? WalletType.iguana,
     );
 
     context.read<AuthBloc>().add(
-          AuthRestoreRequested(
-            wallet: newWallet,
-            password: password,
-            seed: seed,
-          ),
+          AuthRegisterRequested(wallet: newWallet, password: password),
         );
   }
 

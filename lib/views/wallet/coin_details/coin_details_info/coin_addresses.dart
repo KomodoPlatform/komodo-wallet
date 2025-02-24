@@ -19,7 +19,7 @@ import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
 
-class CoinAddresses extends StatelessWidget {
+class CoinAddresses extends StatefulWidget {
   const CoinAddresses({
     super.key,
     required this.coin,
@@ -28,15 +28,34 @@ class CoinAddresses extends StatelessWidget {
   final Coin coin;
 
   @override
-  Widget build(BuildContext context) {
+  State<CoinAddresses> createState() => _CoinAddressesState();
+}
+
+class _CoinAddressesState extends State<CoinAddresses> {
+  late final CoinAddressesBloc _addressesBloc;
+
+  @override
+  void initState() {
+    super.initState();
     final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    _addressesBloc = CoinAddressesBloc(
+      kdfSdk,
+      widget.coin.abbr,
+    )..add(const LoadAddressesEvent());
+  }
+
+  @override
+  void dispose() {
+    _addressesBloc.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
-        return BlocProvider(
-          create: (context) => CoinAddressesBloc(
-            kdfSdk,
-            coin.abbr,
-          )..add(const LoadAddressesEvent()),
+        return BlocProvider.value(
+          value: _addressesBloc,
           child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
             builder: (context, state) {
               return SliverToBoxAdapter(
@@ -73,7 +92,7 @@ class CoinAddresses extends StatelessWidget {
                                 return AddressCard(
                                   address: address,
                                   index: index,
-                                  coin: coin,
+                                  coin: widget.coin,
                                 );
                               },
                             ),
