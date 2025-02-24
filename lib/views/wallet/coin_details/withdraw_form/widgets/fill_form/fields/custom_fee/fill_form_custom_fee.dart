@@ -21,7 +21,7 @@ class _FillFormCustomFeeState extends State<FillFormCustomFee> {
 
   @override
   void initState() {
-    _isOpen = context.read<WithdrawFormBloc>().state.isCustomFeeEnabled;
+    _isOpen = context.read<WithdrawFormBloc>().state.isCustomFee;
     super.initState();
   }
 

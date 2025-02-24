@@ -7,9 +7,7 @@ import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/ui/ui_simple_border_button.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
+import 'package:web_dex/shared/widgets/coin_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_change.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_price.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
@@ -83,7 +81,7 @@ class CoinListItemDesktop extends StatelessWidget {
                           coin: coin,
                           isReEnabling: coin.isActivating,
                         )
-                      : _CoinBalance(
+                      : CoinBalance(
                           key: Key('balance-asset-${coin.abbr}'),
                           coin: coin,
                         ),
@@ -120,57 +118,6 @@ class CoinListItemDesktop extends StatelessWidget {
   }
 }
 
-class _CoinBalance extends StatelessWidget {
-  const _CoinBalance({
-    Key? key,
-    required this.coin,
-  }) : super(key: key);
-
-  final Coin coin;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Flexible(
-          flex: 2,
-          child: AutoScrollText(
-            key: Key('coin-balance-asset-${coin.abbr.toLowerCase()}'),
-            text: doubleToString(coin.balance),
-            style: const TextStyle(
-              fontSize: _fontSize,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        Text(
-          ' ${Coin.normalizeAbbr(coin.abbr)}',
-          style: const TextStyle(
-            fontSize: _fontSize,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const Text(' (',
-            style: TextStyle(
-              fontSize: _fontSize,
-              fontWeight: FontWeight.w500,
-            )),
-        Flexible(
-          child: CoinFiatBalance(
-            coin,
-            isAutoScrollEnabled: true,
-          ),
-        ),
-        const Text(')',
-            style: TextStyle(
-              fontSize: _fontSize,
-              fontWeight: FontWeight.w500,
-            )),
-      ],
-    );
-  }
-}
-
 class _SuspendedMessage extends StatelessWidget {
   const _SuspendedMessage({
     super.key,
@@ -188,15 +135,16 @@ class _SuspendedMessage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Opacity(
-            opacity: 0.6,
-            child: Text(
-              LocaleKeys.activationFailedMessage.tr(),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: _fontSize,
-                fontWeight: FontWeight.w500,
-              ),
-            )),
+          opacity: 0.6,
+          child: Text(
+            LocaleKeys.activationFailedMessage.tr(),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontSize: _fontSize,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
         const SizedBox(width: 12),
         Padding(
           padding: const EdgeInsets.only(top: 1.0),

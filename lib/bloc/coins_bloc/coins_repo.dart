@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -73,12 +75,12 @@ class CoinsRepo {
   }
 
   List<Coin> getKnownCoins() {
-    final assets = _kdfSdk.assets.available;
+    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
     return assets.values.map(_assetToCoinWithoutAddress).toList();
   }
 
   Map<String, Coin> getKnownCoinsMap() {
-    final assets = _kdfSdk.assets.available;
+    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
     return Map.fromEntries(
       assets.values.map(
         (asset) => MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),
@@ -96,9 +98,18 @@ class CoinsRepo {
       'This uses the deprecated assetsFromTicker method that uses a separate '
       'cache that does not update with custom token activation.')
   Coin? getCoin(String coinId) {
+    if (coinId.isEmpty) return null;
+
     try {
-      final asset = _kdfSdk.assets.assetsFromTicker(coinId).single;
-      return _assetToCoinWithoutAddress(asset);
+      final assets = _kdfSdk.assets.assetsFromTicker(coinId);
+      if (assets.isEmpty || assets.length > 1) {
+        log(
+          'Coin "$coinId" not found. ${assets.length} results returned',
+          isError: true,
+        ).ignore();
+        return null;
+      }
+      return _assetToCoinWithoutAddress(assets.single);
     } catch (_) {
       return null;
     }
@@ -110,20 +121,29 @@ class CoinsRepo {
       return [];
     }
 
-    final activatedCoins = currentUser.wallet.config.activatedCoins;
-    final knownCoins = getKnownCoinsMap();
+    final activatedCoins = await _kdfSdk.assets.getActivatedAssets();
     return activatedCoins
-        .map((String coinId) => knownCoins[coinId])
-        .where((Coin? coin) => coin != null)
-        .cast<Coin>()
+        .map((Asset asset) => _assetToCoinWithoutAddress(asset))
         .toList();
   }
 
   Future<Coin?> getEnabledCoin(String coinId) async {
-    final enabledAssets = await getEnabledCoinsMap();
-    final coin = enabledAssets[coinId];
-    if (coin == null) return null;
-    return coin;
+    final enabledAssets = _kdfSdk.assets.assetsFromTicker(coinId);
+    if (enabledAssets.length != 1) {
+      return null;
+    }
+    final currentUser = await _kdfSdk.auth.currentUser;
+    if (currentUser == null) {
+      return null;
+    }
+
+    final coin = _assetToCoinWithoutAddress(enabledAssets.single);
+    final coinAddress = await getFirstPubkey(coin.abbr);
+    return coin.copyWith(
+      address: coinAddress,
+      state: CoinState.active,
+      enabledType: currentUser.wallet.config.type,
+    );
   }
 
   Future<List<Coin>> getEnabledCoins() async {
@@ -205,16 +225,58 @@ class CoinsRepo {
     }
   }
 
+  Future<void> activateAssetsSync(List<Asset> assets) async {
+    final isSignedIn = await _kdfSdk.auth.isSignedIn();
+    if (!isSignedIn) {
+      final coinIdList = assets.map((e) => e.id.id).join(', ');
+      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      return;
+    }
+
+    for (final asset in assets) {
+      final coin = asset.toCoin();
+      try {
+        await _broadcastAsset(coin.copyWith(state: CoinState.activating));
+
+        // ignore: deprecated_member_use
+        final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
+        if (!progress.isSuccess) {
+          throw StateError('Failed to activate coin ${asset.id.id}');
+        }
+
+        await _broadcastAsset(coin.copyWith(state: CoinState.active));
+      } catch (e, s) {
+        log(
+          'Error activating coin: ${asset.id.id} \n$e',
+          isError: true,
+          trace: s,
+        ).ignore();
+        await _broadcastAsset(
+          asset.toCoin().copyWith(state: CoinState.suspended),
+        );
+      } finally {
+        // Register outside of the try-catch to ensure icon is available even
+        // in a suspended or failing activation status.
+        if (coin.logoImageUrl?.isNotEmpty == true) {
+          CoinIcon.registerCustomIcon(
+            coin.id.id,
+            NetworkImage(coin.logoImageUrl!),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> activateCoinsSync(List<Coin> coins) async {
-    if (!await _kdfSdk.auth.isSignedIn()) return;
-    final enabledAssets = await getEnabledCoinsMap();
+    final isSignedIn = await _kdfSdk.auth.isSignedIn();
+    if (!isSignedIn) {
+      final coinIdList = coins.map((e) => e.abbr).join(', ');
+      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      return;
+    }
 
     for (final coin in coins) {
       try {
-        if (enabledAssets.containsKey(coin.abbr)) {
-          continue;
-        }
-
         final asset = _kdfSdk.assets.available[coin.id];
         if (asset == null) {
           log(
@@ -223,11 +285,9 @@ class CoinsRepo {
           ).ignore();
           continue;
         }
+
         await _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
-        if (coin.parentCoin != null) {
-          await _activateParentAsset(coin);
-        }
         // ignore: deprecated_member_use
         final progress = await _kdfSdk.assets.activateAsset(asset).last;
         if (!progress.isSuccess) {
@@ -240,25 +300,20 @@ class CoinsRepo {
           'Error activating coin: ${coin.abbr} \n$e',
           isError: true,
           trace: s,
+          path: 'coins_repo->activateCoinsSync',
         ).ignore();
         await _broadcastAsset(coin.copyWith(state: CoinState.suspended));
+      } finally {
+        // Register outside of the try-catch to ensure icon is available even
+        // in a suspended or failing activation status.
+        if (coin.logoImageUrl?.isNotEmpty == true) {
+          CoinIcon.registerCustomIcon(
+            coin.id.id,
+            NetworkImage(coin.logoImageUrl!),
+          );
+        }
       }
     }
-  }
-
-  Future<void> _activateParentAsset(Coin coin) async {
-    final parentAsset = _kdfSdk.assets.available[coin.parentCoin!.id];
-    if (parentAsset == null) {
-      throw ArgumentError('Parent asset ${coin.parentCoin!.id} not found');
-    }
-
-    await _broadcastAsset(
-      coin.parentCoin!.copyWith(state: CoinState.activating),
-    );
-    await _kdfSdk.assets.activateAsset(parentAsset).last;
-    await _broadcastAsset(
-      coin.parentCoin!.copyWith(state: CoinState.active),
-    );
   }
 
   Future<void> deactivateCoinsSync(List<Coin> coins) async {
@@ -423,7 +478,7 @@ class CoinsRepo {
       // Coins with the same coingeckoId supposedly have same usd price
       // (e.g. KMD == KMD-BEP20)
       final Iterable<Coin> samePriceCoins =
-          getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
+          (getKnownCoins()).where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
         prices[coin.abbr] = CexPrice(

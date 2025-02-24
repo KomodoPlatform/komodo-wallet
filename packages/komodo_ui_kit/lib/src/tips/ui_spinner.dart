@@ -17,9 +17,10 @@ class UiSpinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: height,
       width: width,
+      alignment: Alignment.center,
       child: CircularProgressIndicator(
         color: color,
         strokeWidth: strokeWidth,

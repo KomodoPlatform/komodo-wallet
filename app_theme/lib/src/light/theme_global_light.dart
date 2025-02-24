@@ -65,8 +65,8 @@ ThemeData get themeGlobalLight {
     iconTheme: IconThemeData(color: colorScheme.primary),
     progressIndicatorTheme:
         ProgressIndicatorThemeData(color: colorScheme.primary),
-    dialogBackgroundColor: const Color.fromRGBO(255, 255, 255, 1),
     dialogTheme: const DialogTheme(
+      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(16),

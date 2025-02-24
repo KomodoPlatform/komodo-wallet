@@ -26,7 +26,7 @@ linter:
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 
     # Turned off to avoid redundant dependecies (already included to other dependencies),
-    # and reduce amount of work on secure code review 
+    # and reduce amount of work on secure code review
     depend_on_referenced_packages: false
     # Converting all (97) widgets to const will require significant amount of testing,
     # debugging and refactoring, so disabled for now.
@@ -36,6 +36,5 @@ linter:
     # to all code created/updated in your PRs. This will help to keep the code clean
     # and consistent by making the formatting deterministic and consistent.
     # require_trailing_commas: true
-
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/views/custom_token_import/custom_token_import_button.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_filters_dropdown.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_select_all_button.dart';
 
@@ -21,6 +22,8 @@ class CoinsManagerFilters extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSearchField(context),
+          const SizedBox(height: 8),
+          const CustomTokenImportButton(),
           Padding(
             padding: const EdgeInsets.only(top: 14.0),
             child: Row(
@@ -42,7 +45,7 @@ class CoinsManagerFilters extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
@@ -50,6 +53,13 @@ class CoinsManagerFilters extends StatelessWidget {
               height: 45,
               child: _buildSearchField(context),
             ),
+            const SizedBox(width: 20),
+            Container(
+              constraints: const BoxConstraints(maxWidth: 240),
+              height: 45,
+              child: const CustomTokenImportButton(),
+            ),
+            const Spacer(),
             CoinsManagerFiltersDropdown(),
           ],
         ),

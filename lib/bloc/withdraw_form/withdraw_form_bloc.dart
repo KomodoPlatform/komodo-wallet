@@ -254,7 +254,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     // If enabling custom fees, set a default fee or reuse from `_getDefaultFee()`
     emit(
       state.copyWith(
-        isCustomFeeEnabled: event.isEnabled,
+        isCustomFee: event.isEnabled,
         customFee: event.isEnabled ? () => _getDefaultFee() : () => null,
         customFeeError: () => null,
       ),

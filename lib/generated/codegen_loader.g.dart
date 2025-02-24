@@ -6,6 +6,7 @@ abstract class  LocaleKeys {
   static const noKmdAddress = 'noKmdAddress';
   static const dex = 'dex';
   static const asset = 'asset';
+  static const assets = 'assets';
   static const price = 'price';
   static const volume = 'volume';
   static const history = 'history';
@@ -601,6 +602,13 @@ abstract class  LocaleKeys {
   static const mmBotFirstTradePreview = 'mmBotFirstTradePreview';
   static const mmBotFirstTradeEstimate = 'mmBotFirstTradeEstimate';
   static const mmBotFirstOrderVolume = 'mmBotFirstOrderVolume';
+  static const importCustomToken = 'importCustomToken';
+  static const importTokenWarning = 'importTokenWarning';
+  static const importToken = 'importToken';
+  static const selectNetwork = 'selectNetwork';
+  static const tokenNotFound = 'tokenNotFound';
+  static const tokenContractAddress = 'tokenContractAddress';
+  static const decimals = 'decimals';
   static const onlySendToThisAddress = 'onlySendToThisAddress';
   static const scanTheQrCode = 'scanTheQrCode';
   static const swapAddress = 'swapAddress';

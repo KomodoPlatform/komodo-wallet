@@ -13,7 +13,6 @@ import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/common/screen.dart';
@@ -27,8 +26,7 @@ import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_growth_chart.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_profit_loss_chart.dart';
+import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/animated_portfolio_charts.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/active_coins_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/all_coins_list.dart';
@@ -38,7 +36,7 @@ import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dar
 import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
 
 class WalletMain extends StatefulWidget {
-  const WalletMain({Key? key = const Key('wallet-page')}) : super(key: key);
+  const WalletMain({super.key = const Key('wallet-page')});
 
   @override
   State<WalletMain> createState() => _WalletMainState();
@@ -120,39 +118,12 @@ class _WalletMainState extends State<WalletMain>
                               height: 340,
                               child: PriceChartPage(key: Key('price-chart')),
                             )
-                          else ...[
-                            Card(
-                              child: TabBar(
-                                controller: _tabController,
-                                tabs: [
-                                  Tab(text: LocaleKeys.portfolioGrowth.tr()),
-                                  Tab(text: LocaleKeys.profitAndLoss.tr()),
-                                ],
-                              ),
+                          else
+                            AnimatedPortfolioCharts(
+                              key: const Key('animated_portfolio_charts'),
+                              tabController: _tabController,
+                              walletCoinsFiltered: walletCoinsFiltered,
                             ),
-                            SizedBox(
-                              height: 340,
-                              child: TabBarView(
-                                controller: _tabController,
-                                children: [
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 340,
-                                    child: PortfolioGrowthChart(
-                                      initialCoins: walletCoinsFiltered,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 340,
-                                    child: PortfolioProfitLossChart(
-                                      initialCoins: walletCoinsFiltered,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
                           const Gap(8),
                         ],
                       ),
@@ -181,8 +152,8 @@ class _WalletMainState extends State<WalletMain>
     final portfolioGrowthBloc = context.read<PortfolioGrowthBloc>();
     final profitLossBloc = context.read<ProfitLossBloc>();
     final assetOverviewBloc = context.read<AssetOverviewBloc>();
-    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
-    final walletCoins = await coinsRepository.getWalletCoins();
+    final walletCoins =
+        context.read<CoinsBloc>().state.walletCoins.values.toList();
 
     portfolioGrowthBloc.add(
       PortfolioGrowthLoadRequested(
@@ -305,13 +276,18 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  double get minExtent => 120;
+  final double minExtent = 110;
   @override
-  double get maxExtent => 120;
+  final double maxExtent = 114;
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    // return SizedBox.expand();
+
     return WalletManageSection(
       withBalance: withBalance,
       onSearchChange: onSearchChange,

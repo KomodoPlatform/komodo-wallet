@@ -12,7 +12,7 @@ RUN cd /app && \
 
 FROM komodo/android-sdk:34 AS final
 
-ENV FLUTTER_VERSION="3.22.3"
+ENV FLUTTER_VERSION="3.29.0"
 ENV FLUTTER_HOME="/home/komodo/.flutter-sdk"
 ENV USER="komodo"
 ENV PATH=$PATH:$FLUTTER_HOME/bin

@@ -9,6 +9,7 @@ const mediaCdnUrl = 'https://komodoplatform.github.io/coins/icons/';
 
 final Map<String, bool> _assetExistenceCache = {};
 final Map<String, bool> _cdnExistenceCache = {};
+final Map<String, ImageProvider> _customIconsCache = {};
 List<String>? _cachedFileList;
 
 String _getImagePath(String abbr) {
@@ -95,6 +96,41 @@ class CoinIcon extends StatelessWidget {
   final double size;
   final bool suspended;
 
+  /// Registers a custom icon for a given coin abbreviation.
+  ///
+  /// The [imageProvider] will be used instead of the default asset or CDN images
+  /// when displaying the icon for the specified [coinAbbr].
+  ///
+  /// Example:
+  /// ```dart
+  /// // Register a custom icon from an asset
+  /// CoinIcon.registerCustomIcon(
+  ///   'MYCOIN',
+  ///   AssetImage('assets/my_custom_coin.png'),
+  /// );
+  ///
+  /// // Register a custom icon from memory
+  /// CoinIcon.registerCustomIcon(
+  ///   'MYCOIN',
+  ///   MemoryImage(customIconBytes),
+  /// );
+  /// ```
+  static void registerCustomIcon(String coinAbbr, ImageProvider imageProvider) {
+    final normalizedAbbr = abbr2Ticker(coinAbbr).toLowerCase();
+    _customIconsCache[normalizedAbbr] = imageProvider;
+  }
+
+  /// Removes a custom icon registration for the specified coin abbreviation.
+  static void removeCustomIcon(String coinAbbr) {
+    final normalizedAbbr = abbr2Ticker(coinAbbr).toLowerCase();
+    _customIconsCache.remove(normalizedAbbr);
+  }
+
+  /// Clears all custom icon registrations.
+  static void clearCustomIcons() {
+    _customIconsCache.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Opacity(
@@ -114,6 +150,7 @@ class CoinIcon extends StatelessWidget {
     _assetExistenceCache.clear();
     _cdnExistenceCache.clear();
     _cachedFileList = null;
+    _customIconsCache.clear();
   }
 
   /// Pre-loads the coin icon image into the cache.
@@ -129,6 +166,26 @@ class CoinIcon extends StatelessWidget {
     bool throwExceptions = false,
   }) async {
     try {
+      final normalizedAbbr = abbr2Ticker(abbr).toLowerCase();
+
+      // Check for custom icon first
+      if (_customIconsCache.containsKey(normalizedAbbr)) {
+        if (context.mounted) {
+          await precacheImage(
+            _customIconsCache[normalizedAbbr]!,
+            context,
+            onError: (e, stackTrace) {
+              if (throwExceptions) {
+                throw Exception(
+                  'Failed to pre-cache custom image for coin $abbr: $e',
+                );
+              }
+            },
+          );
+        }
+        return;
+      }
+
       bool? assetExists, cdnExists;
 
       final filePath = _getImagePath(abbr);
@@ -184,10 +241,22 @@ class CoinIconResolverWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check local asset first
-    final filePath = _getImagePath(coinAbbr);
+    final normalizedAbbr = abbr2Ticker(coinAbbr).toLowerCase();
 
-    // if (await checkIfAssetExists(coinAbbr)) {
+    // Check for custom icon first
+    if (_customIconsCache.containsKey(normalizedAbbr)) {
+      return Image(
+        image: _customIconsCache[normalizedAbbr]!,
+        filterQuality: FilterQuality.high,
+        errorBuilder: (context, error, stackTrace) {
+          debugPrint('Error loading custom icon for $coinAbbr: $error');
+          return Icon(Icons.monetization_on_outlined, size: size);
+        },
+      );
+    }
+
+    // Check local asset
+    final filePath = _getImagePath(coinAbbr);
 
     _assetExistenceCache[filePath] = true;
     return Image.asset(
@@ -209,7 +278,6 @@ class CoinIconResolverWidget extends StatelessWidget {
     );
   }
 }
-
 // DUPLICATED FROM MAIN PROJECT in `lib/shared/utils/utils.dart`.
 // NB: ENSURE IT STAYS IN SYNC.
 

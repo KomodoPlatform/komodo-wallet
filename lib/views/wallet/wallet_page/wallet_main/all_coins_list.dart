@@ -7,7 +7,7 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/wallet_coins_list.dart';
 
-class AllCoinsList extends StatelessWidget {
+class AllCoinsList extends StatefulWidget {
   const AllCoinsList({
     Key? key,
     required this.searchPhrase,
@@ -19,25 +19,66 @@ class AllCoinsList extends StatelessWidget {
   final Function(Coin) onCoinItemTap;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<CoinsBloc, CoinsState>(builder: (context, state) {
-      final List<Coin> coins = state.coins.values.toList();
+  _AllCoinsListState createState() => _AllCoinsListState();
+}
 
-      if (coins.isEmpty) {
-        return const SliverToBoxAdapter(child: UiSpinner());
-      }
+class _AllCoinsListState extends State<AllCoinsList> {
+  List<Coin> displayedCoins = [];
 
-      List<Coin> displayedCoins =
-          sortByPriority(filterCoinsByPhrase(coins, searchPhrase)).toList();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateDisplayedCoins();
+  }
 
+  @override
+  void didUpdateWidget(AllCoinsList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchPhrase != widget.searchPhrase) {
+      _updateDisplayedCoins();
+    }
+  }
+
+  void _updateDisplayedCoins() {
+    final coins = context.read<CoinsBloc>().state.coins.values.toList();
+    if (coins.isNotEmpty) {
+      List<Coin> filteredCoins =
+          sortByPriority(filterCoinsByPhrase(coins, widget.searchPhrase))
+              .toList();
       if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
-        displayedCoins = removeTestCoins(displayedCoins);
+        filteredCoins = removeTestCoins(filteredCoins);
       }
+      setState(() {
+        displayedCoins = filteredCoins;
+      });
+    }
+  }
 
-      return WalletCoinsList(
-        coins: displayedCoins,
-        onCoinItemTap: onCoinItemTap,
-      );
-    });
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<CoinsBloc, CoinsState>(
+      listenWhen: (previous, current) => previous.coins != current.coins,
+      listener: (context, state) {
+        _updateDisplayedCoins();
+      },
+      builder: (context, state) {
+        return state.coins.isEmpty
+            ? const SliverToBoxAdapter(child: UiSpinner())
+            : displayedCoins.isEmpty
+                ? SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'No coins found',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  )
+                : WalletCoinsList(
+                    coins: displayedCoins,
+                    onCoinItemTap: widget.onCoinItemTap,
+                  );
+      },
+    );
   }
 }

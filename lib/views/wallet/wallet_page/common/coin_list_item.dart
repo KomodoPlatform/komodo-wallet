@@ -14,7 +14,7 @@ class CoinListItem extends StatelessWidget {
 
   final Coin coin;
   final Color backgroundColor;
-  final Function(Coin) onTap;
+  final void Function(Coin) onTap;
 
   @override
   Widget build(BuildContext context) {

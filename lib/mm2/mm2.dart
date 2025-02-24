@@ -10,7 +10,16 @@ final MM2 mm2 = MM2();
 
 final class MM2 {
   MM2() {
-    _kdfSdk = KomodoDefiSdk(config: const KomodoDefiSdkConfig());
+    _kdfSdk = KomodoDefiSdk(
+      config: const KomodoDefiSdkConfig(
+        // Syncing pre-activation coin states is not yet implemented,
+        // so we disable it for now.
+        // TODO: sync pre-activation of coins (show activating coins in list)
+        preActivateHistoricalAssets: false,
+        preActivateDefaultAssets: false,
+        preActivateCustomTokenAssets: true,
+      ),
+    );
   }
 
   late final KomodoDefiSdk _kdfSdk;
