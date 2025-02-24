@@ -92,9 +92,6 @@ dependencies:
   ## ---- 3d party
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  bip39: 1.0.6
-
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   encrypt: 5.0.3
 
   flutter_svg: 2.0.17
