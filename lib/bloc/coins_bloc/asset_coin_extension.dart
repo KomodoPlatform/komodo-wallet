@@ -21,6 +21,9 @@ extension AssetCoinExtension on Asset {
     final isCustomToken =
         (config.valueOrNull<bool>('is_custom_token') ?? false) ||
             logoImageUrl != null;
+    // TODO: Remove this once the SDK exposes all the necessary metadata
+    // This is the logic from the previous _getCoinMode function
+    final isSegwit = id.id.toLowerCase().contains('-segwit');
 
     return Coin(
       type: type,
@@ -40,10 +43,10 @@ extension AssetCoinExtension on Asset {
       swapContractAddress: config.valueOrNull<String>('swap_contract_address'),
       fallbackSwapContract:
           config.valueOrNull<String>('fallback_swap_contract'),
-      priority: 0, // Default priority
+      priority: 0,
       state: CoinState.inactive,
       walletOnly: config.valueOrNull<bool>('wallet_only') ?? false,
-      mode: CoinMode.standard,
+      mode: isSegwit ? CoinMode.segwit : CoinMode.standard,
       derivationPath: id.derivationPath,
     );
   }

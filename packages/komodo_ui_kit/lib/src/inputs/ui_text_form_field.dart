@@ -223,6 +223,8 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     final errorStyle =
         widget.errorStyle?.merge(defaultErrorStyle) ?? defaultErrorStyle;
 
+    final fillColor = widget.fillColor ?? theme.inputDecorationTheme.fillColor;
+
     return TextFormField(
       controller: _controller,
       maxLength: widget.maxLength,
@@ -262,8 +264,8 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       focusNode: _focusNode,
       enabled: widget.enabled,
       decoration: InputDecoration(
-        fillColor: widget.fillColor,
-        filled: widget.fillColor != null,
+        fillColor: fillColor,
+        filled: fillColor != null,
         hintText: widget.hintText,
         hintStyle: hintStyle,
         contentPadding: widget.inputContentPadding ??
