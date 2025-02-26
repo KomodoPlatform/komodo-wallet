@@ -14,7 +14,6 @@ class WalletImportWrapper extends StatefulWidget {
   final void Function({
     required String name,
     required String password,
-    required String seed,
   }) onCreate;
   final void Function({
     required String name,

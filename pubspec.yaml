@@ -60,7 +60,7 @@ dependencies:
   url_launcher: 6.3.1 # flutter.dev
   crypto: 3.0.6 # dart.dev
   cross_file: 0.3.4+2 # flutter.dev
-  video_player: 2.9.2 # flutter.dev
+  video_player: 2.9.3 # flutter.dev
 
   ## ---- google.com
 
@@ -75,36 +75,33 @@ dependencies:
 
   # Upgraded Firebase, needs secure code review
 
-  firebase_analytics: 11.4.2
-  firebase_core: 3.11.0
+  firebase_analytics: 11.4.4
+  firebase_core: 3.12.1
 
   ## ---- Fluttercommunity.dev
 
   # does not require review, since hosted and git versions are the same
   equatable: 2.0.7 # sdk depends on hosted version, and not from git
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  package_info_plus: 8.2.1
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
+  package_info_plus: 8.3.0
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
   share_plus: 10.1.4
 
   ## ---- 3d party
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  bip39: 1.0.6
-
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
   encrypt: 5.0.3
 
   flutter_svg: 2.0.17
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
   qr_flutter: 4.1.0
 
   easy_localization: 3.0.7+1 # last reviewed 3.0.2 via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
   universal_html: 2.2.4
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
@@ -121,7 +118,7 @@ dependencies:
       path: hive_flutter/
       ref: 0cbaab793be77b19b4740bc85d7ea6461b9762b4 #1.1.0
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
   badges: 3.1.2
 
   flutter_slidable: 4.0.0
@@ -136,7 +133,7 @@ dependencies:
   # TODO: review required
   dragon_charts_flutter: 0.1.1-dev.1
   bloc_concurrency: 0.3.0
-  file_picker: 8.3.7
+  file_picker: 9.0.1
 
   # TODO: review required - SDK integration
   path_provider: 2.1.5 # flutter.dev

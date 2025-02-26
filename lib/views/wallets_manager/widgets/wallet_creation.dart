@@ -25,7 +25,6 @@ class WalletCreation extends StatefulWidget {
   final void Function({
     required String name,
     required String password,
-    required String seed,
     WalletType? walletType,
   }) onCreate;
   final void Function() onCancel;
@@ -146,12 +145,9 @@ class _WalletCreationState extends State<WalletCreation> {
     setState(() => _inProgress = true);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final String seed = generateSeed();
-
       widget.onCreate(
         name: _nameController.text,
         password: _passwordController.text,
-        seed: seed,
         walletType: _isHdMode ? WalletType.hdwallet : WalletType.iguana,
       );
     });
