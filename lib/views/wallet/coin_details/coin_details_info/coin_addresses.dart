@@ -238,6 +238,7 @@ class AddressCard extends StatelessWidget {
                     AddressCopyButton(address: address.address),
                     QrButton(coin: coin, address: address),
                     SwapAddressTag(address: address),
+                    if (coin.hasFaucet)
                     ConstrainedBox(
                       constraints: BoxConstraints(
                         minWidth: 80,
