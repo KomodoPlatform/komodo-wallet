@@ -1,8 +1,13 @@
-# Handle multiple Flutter versions
+# Flutter Version Manager (FVM)
 
-## FVM
+Should you need to install and manage multiple versions of the Flutter SDK, it is recommended to use [FVM](https://fvm.app/documentation/getting-started/installation). See [MULTIPLE_FLUTTER_VERSIONS.md](MULTIPLE_FLUTTER_VERSIONS.md) for more details. [FVM](https://fvm.app/documentation/getting-started/installation). See the overview from the [FVM documentation](https://fvm.app/documentation/getting-started) for more information:
+> FVM helps with the need for consistent app builds by referencing the Flutter SDK version used on a per-project basis. It also allows you to have multiple Flutter versions installed to quickly validate and test upcoming Flutter releases with your apps without waiting for Flutter installation every time.
 
-The recommended method of handling multiple Flutter versions is to use [FVM](https://fvm.app/documentation/getting-started/installation).
+## macOS and Linux
+
+The following steps install [FVM](https://fvm.app/documentation/getting-started/installation) as a standalone application and use it to manage both local and global Flutter SDKs. The approach recommended by the FVM maintainers is to download and install a global version of Flutter SDK and use FVM to manage local Flutter SDKs, but this approach works for most use-cases.
+
+Install [FVM](https://fvm.app/documentation/getting-started/installation) using the installation script, `install.sh`.
 
 ```bash
 curl -fsSL https://fvm.app/install.sh | bash
@@ -11,52 +16,24 @@ curl -fsSL https://fvm.app/install.sh | bash
 fvm use stable
 ```
 
-## macOS
-
-### 1. Clone new Flutter instance alongside with the existing one
-
-```
-cd ~
-git clone https://github.com/flutter/flutter.git flutter_web
-cd ./flutter_web
-git checkout 3.23.4
-```
-
-### pen (or create) `.zshrc` file in your home directory
-
-```
-nano ~/.zshrc
-```
-
-Add line:
-
-```
-alias flutter_web="$HOME/flutter_web/bin/flutter"
-```
-
-Save and close.
-
-### 3. Check if newly installed Flutter version is accessible from terminal
-
-```
-cd ~
-flutter_web doctor
-```
-
-### 4. Add new Flutter version to VSCode
-
-- Settings (⌘,) -> Extensions -> Dart -> SDK -> Flutter Sdk Paths -> Add Item -> `~/flutter_web`
-- ⌘⇧P -> Developer: Reload window
-- ⌘⇧P -> Flutter: Change SDK
-
-### 5. Add to Android Studio
-
-- Settings (⌘,) -> Languages & Frameworks -> Flutter -> SDK -> Flutter SDK Path -> `~/flutter_web`
-
 ----
 
-## Windows TBD
+## Windows
+
+The following steps install [FVM](https://fvm.app/documentation/getting-started/installation) as a standalone application and use it to manage both local and global Flutter SDKs. The approach recommended by the FVM maintainers is to download and install a global version of Flutter SDK and use FVM to manage local Flutter SDKs, but this approach works for most use-cases.
+
+### 1. Install [Chocolatey](https://chocolatey.org/install), a windows package manager, if not installed yet
+
+```PowerShell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
+
+### 2. Install [FVM](https://fvm.app/documentation/getting-started/installation) using Chocolatey
+
+```PowerShell
+choco install fvm
+fvm use stable
+fvm flutter doctor -v
+```
 
 ----
-
-## Linux TBD
