@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -23,11 +23,11 @@ class WalletFileData {
 
 class WalletImportByFile extends StatefulWidget {
   const WalletImportByFile({
-    Key? key,
+    super.key,
     required this.fileData,
     required this.onImport,
     required this.onCancel,
-  }) : super(key: key);
+  });
   final WalletFileData fileData;
 
   final void Function({
@@ -178,6 +178,10 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
     super.dispose();
   }
 
+  // TODO? Investigate if using this instead of a getter may have limitations
+  // or issues with multi-instance support
+  late final KomodoDefiSdk _sdk = context.read<KomodoDefiSdk>();
+
   Future<void> _onImport() async {
     final EncryptionTool encryptionTool = EncryptionTool();
     final String? fileData = await encryptionTool.decryptData(
@@ -207,7 +211,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       if (!_isValidData) return;
 
       if ((_isHdMode || !_allowCustomSeed) &&
-          !bip39.validateMnemonic(decryptedSeed)) {
+          !_sdk.mnemonicValidator.validateBip39(decryptedSeed)) {
         setState(() {
           _commonError = LocaleKeys.walletCreationBip39SeedError.tr();
         });

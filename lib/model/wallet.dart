@@ -28,7 +28,7 @@ class Wallet {
   /// [hasBackup] - Whether the wallet has been backed up. Defaults to false.
   factory Wallet.fromName({
     required String name,
-    WalletType walletType = WalletType.iguana,
+    WalletType walletType = WalletType.hdwallet,
     List<String>? activatedCoins,
     bool hasBackup = false,
   }) {

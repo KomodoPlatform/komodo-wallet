@@ -1,8 +1,8 @@
 import 'package:app_theme/app_theme.dart';
-import 'package:bip39/bip39.dart' show validateMnemonic;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
@@ -308,7 +308,10 @@ class _SeedPlace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCustom = !validateMnemonic(seedPhrase);
+    final isCustom = !context
+        .read<KomodoDefiSdk>()
+        .mnemonicValidator
+        .validateBip39(seedPhrase);
     if (isCustom) return _SeedField(seedPhrase: seedPhrase);
     return _WordsList(seedPhrase: seedPhrase);
   }
@@ -470,7 +473,10 @@ class _SeedPhraseConfirmButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<SecuritySettingsBloc>();
-    final isCustom = !validateMnemonic(seedPhrase);
+    final isCustom = !context
+        .read<KomodoDefiSdk>()
+        .mnemonicValidator
+        .validateBip39(seedPhrase);
     if (isCustom) return const SizedBox.shrink();
 
     void onPressed() => bloc.add(const SeedConfirmEvent());

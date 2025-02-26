@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_theme/app_theme.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -151,8 +150,6 @@ Map<String, dynamic>? rat2fract(Rational? rat, [bool toLog = true]) {
     return null;
   }
 }
-
-String generateSeed() => bip39.generateMnemonic();
 
 String getTxExplorerUrl(Coin coin, String txHash) {
   final String explorerUrl = coin.explorerUrl;

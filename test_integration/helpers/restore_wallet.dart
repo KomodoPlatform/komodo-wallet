@@ -1,8 +1,9 @@
 // ignore_for_file: avoid_print
 
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
+    show MnemonicValidator;
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/wallet.dart';
 
@@ -13,6 +14,9 @@ import 'get_funded_wif.dart';
 
 Future<void> restoreWalletToTest(WidgetTester tester) async {
   print('🔍 RESTORE WALLET: Starting wallet restoration test');
+
+  final validator = MnemonicValidator();
+  await validator.init();
 
   // Restores wallet to be used in following tests
   final String testSeed = getFundedWif();
@@ -60,7 +64,9 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
   await tester.tapAndPump(eulaCheckBox);
   await tester.tapAndPump(tocCheckBox);
 
-  if (!bip39.validateMnemonic(testSeed)) {
+  final isCustomSeed = validator.validateBip39(testSeed);
+
+  if (isCustomSeed) {
     print('🔍 RESTORE WALLET: Handling custom seed input');
     await tester.tapAndPump(allowCustomSeedCheckbox);
     await tester.enterText(customSeedDialogInput, confirmCustomSeedText);

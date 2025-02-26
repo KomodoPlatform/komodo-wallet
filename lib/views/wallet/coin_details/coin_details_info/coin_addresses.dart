@@ -21,7 +21,7 @@ import 'package:web_dex/views/wallet/common/address_text.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 
-class CoinAddresses extends StatelessWidget {
+class CoinAddresses extends StatefulWidget {
   const CoinAddresses({
     super.key,
     required this.coin,
@@ -32,15 +32,34 @@ class CoinAddresses extends StatelessWidget {
   final void Function(CoinPageType) setPageType;
 
   @override
-  Widget build(BuildContext context) {
+  State<CoinAddresses> createState() => _CoinAddressesState();
+}
+
+class _CoinAddressesState extends State<CoinAddresses> {
+  late final CoinAddressesBloc _addressesBloc;
+
+  @override
+  void initState() {
+    super.initState();
     final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    _addressesBloc = CoinAddressesBloc(
+      kdfSdk,
+      widget.coin.abbr,
+    )..add(const LoadAddressesEvent());
+  }
+
+  @override
+  void dispose() {
+    _addressesBloc.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
-        return BlocProvider(
-          create: (context) => CoinAddressesBloc(
-            kdfSdk,
-            coin.abbr,
-          )..add(const LoadAddressesEvent()),
+        return BlocProvider.value(
+          value: _addressesBloc,
           child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
             builder: (context, state) {
               return SliverToBoxAdapter(
@@ -77,8 +96,8 @@ class CoinAddresses extends StatelessWidget {
                                 return AddressCard(
                                   address: address,
                                   index: index,
-                                  coin: coin,
-                                  setPageType: setPageType,
+                                  coin: widget.coin,
+                                  setPageType: widget.setPageType,
                                 );
                               },
                             ),
@@ -207,15 +226,15 @@ class AddressCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       SwapAddressTag(address: address),
                       ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: 80,
-                        maxWidth: isMobile ? 100 : 160,
+                        constraints: BoxConstraints(
+                          minWidth: 80,
+                          maxWidth: isMobile ? 100 : 160,
+                        ),
+                        child: FaucetButton(
+                          address: address,
+                          onPressed: () => setPageType(CoinPageType.faucet),
+                        ),
                       ),
-                      child: FaucetButton(
-                        address: address,
-                        onPressed: () => setPageType(CoinPageType.faucet),
-                      ),
-                    ),
                       const Spacer(),
                       AddressCopyButton(address: address.address),
                       QrButton(
@@ -239,16 +258,16 @@ class AddressCard extends StatelessWidget {
                     QrButton(coin: coin, address: address),
                     SwapAddressTag(address: address),
                     if (coin.hasFaucet)
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: 80,
-                        maxWidth: isMobile ? 100 : 160,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: 80,
+                          maxWidth: isMobile ? 100 : 160,
+                        ),
+                        child: FaucetButton(
+                          address: address,
+                          onPressed: () => setPageType(CoinPageType.faucet),
+                        ),
                       ),
-                      child: FaucetButton(
-                        address: address,
-                        onPressed: () => setPageType(CoinPageType.faucet),
-                      ),
-                    ),
                   ],
                 ),
               ),
