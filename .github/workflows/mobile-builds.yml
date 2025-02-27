@@ -60,7 +60,8 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BUILD_COMMAND: ${{ matrix.build_command }}
+          # Use default value for BUILD_COMMAND, as iOS does not appear to run 
+          # the build transformer required to generate the required assets.
 
       - name: Build for ${{ matrix.platform }}
         env:
