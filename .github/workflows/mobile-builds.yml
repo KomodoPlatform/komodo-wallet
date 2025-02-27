@@ -19,12 +19,12 @@ jobs:
         include:
           - platform: iOS
             runner: macos-latest
-            build_command: flutter build ios --release --no-codesign || flutter build ios --release --no-codesign -v
+            build_command: flutter build ios --release --no-codesign
             artifact_path: build/ios/iphoneos/Runner.app
             artifact_name: komodo-wallet-ios-unsigned.app
           - platform: Android
             runner: ubuntu-latest
-            build_command: flutter build apk --release || flutter build apk --release -v
+            build_command: flutter build apk --release
             artifact_path: build/app/outputs/flutter-apk/app-release.apk
             artifact_name: komodo-wallet-android-unsigned.apk
 
@@ -60,6 +60,7 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_COMMAND: ${{ matrix.build_command }}
 
       - name: Build for ${{ matrix.platform }}
         env:

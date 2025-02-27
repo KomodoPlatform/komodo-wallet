@@ -19,17 +19,17 @@ jobs:
         include:
           - platform: macos
             runner: macos-latest
-            build_command: flutter build macos --release || flutter build macos --release -v
+            build_command: flutter build macos --release
             artifact_path: build/macos/Build/Products/Release/*.app
             artifact_name: komodo-wallet-macos
           - platform: windows
             runner: windows-latest
-            build_command: flutter build windows --release || flutter build windows --release -v
+            build_command: flutter build windows --release
             artifact_path: build/windows/x64/runner/Release/*
             artifact_name: komodo-wallet-windows
           - platform: linux
             runner: ubuntu-latest
-            build_command: flutter build linux --release || flutter build linux --release -v
+            build_command: flutter build linux --release
             artifact_path: build/linux/x64/release/bundle/*
             artifact_name: komodo-wallet-linux
 
@@ -72,6 +72,7 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_COMMAND: ${{ matrix.build_command }}
 
       - name: Build for ${{ matrix.platform }}
         env:
