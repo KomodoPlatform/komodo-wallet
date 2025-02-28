@@ -1,8 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 
@@ -12,9 +13,9 @@ part 'nft_receive_state.dart';
 class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
   NftReceiveBloc({
     required CoinsRepo coinsRepo,
-    required CurrentWalletBloc currentWalletBloc,
+    required KomodoDefiSdk sdk,
   })  : _coinsRepo = coinsRepo,
-        _currentWalletBloc = currentWalletBloc,
+        _sdk = sdk,
         super(NftReceiveInitial()) {
     on<NftReceiveEventInitial>(_onInitial);
     on<NftReceiveEventRefresh>(_onRefresh);
@@ -22,7 +23,7 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
   }
 
   final CoinsRepo _coinsRepo;
-  final CurrentWalletBloc _currentWalletBloc;
+  final KomodoDefiSdk _sdk;
   NftBlockchains? chain;
 
   Future<void> _onInitial(NftReceiveEventInitial event, Emitter emit) async {
@@ -32,7 +33,7 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
       var coin = _coinsRepo.getCoin(abbr);
 
       if (coin != null) {
-        final walletConfig = _currentWalletBloc.wallet?.config;
+        final walletConfig = (await _sdk.currentWallet())?.config;
         if (walletConfig?.hasBackup == false && !coin.isTestCoin) {
           return emit(
             NftReceiveHasBackup(),

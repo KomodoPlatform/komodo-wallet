@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -39,7 +39,7 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
   }
 
   String? get walletId =>
-      RepositoryProvider.of<CurrentWalletBloc>(context).wallet?.id;
+      RepositoryProvider.of<AuthBloc>(context).state.currentUser?.walletId.name;
 
   @override
   Widget build(BuildContext context) {

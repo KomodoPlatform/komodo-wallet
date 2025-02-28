@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
@@ -23,13 +22,6 @@ class CurrentWalletBloc implements BlocBase {
   final EncryptionTool _encryptionTool;
   final FileLoader _fileLoader;
 
-  Wallet? _wallet;
-  // ignore: unnecessary_getters_setters
-  Wallet? get wallet => _wallet;
-  set wallet(Wallet? wallet) {
-    _wallet = wallet;
-  }
-
   @override
   void dispose() {}
 
@@ -42,31 +34,6 @@ class CurrentWalletBloc implements BlocBase {
     throw UnimplementedError(
       'Update password operation is not currently supported',
     );
-  }
-
-  Future<bool> addCoin(Coin coin) async {
-    final String coinAbbr = coin.abbr;
-    final Wallet? wallet = this.wallet;
-    if (wallet == null) {
-      return false;
-    }
-    if (wallet.config.activatedCoins.contains(coinAbbr)) {
-      return false;
-    }
-    wallet.config.activatedCoins.add(coinAbbr);
-    this.wallet = wallet;
-    return true;
-  }
-
-  Future<bool> removeCoin(String coinAbbr) async {
-    final Wallet? wallet = this.wallet;
-    if (wallet == null) {
-      return false;
-    }
-
-    wallet.config.activatedCoins.remove(coinAbbr);
-    this.wallet = wallet;
-    return true;
   }
 
   Future<void> downloadCurrentWallet(String password) async {
@@ -93,7 +60,6 @@ class CurrentWalletBloc implements BlocBase {
     );
 
     await confirmBackup();
-    this.wallet = wallet;
   }
 
   Future<void> confirmBackup() async {
@@ -102,6 +68,5 @@ class CurrentWalletBloc implements BlocBase {
 
     wallet.config.hasBackup = true;
     await _kdfSdk.confirmSeedBackup();
-    this.wallet = wallet;
   }
 }

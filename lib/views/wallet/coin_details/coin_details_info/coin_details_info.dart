@@ -55,7 +55,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   Transaction? _selectedTransaction;
 
   String? get _walletId =>
-      RepositoryProvider.of<CurrentWalletBloc>(context).wallet?.id;
+      RepositoryProvider.of<AuthBloc>(context).state.currentUser?.walletId.name;
 
   @override
   void initState() {
