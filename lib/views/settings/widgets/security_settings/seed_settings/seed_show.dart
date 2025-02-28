@@ -78,8 +78,8 @@ class SeedShow extends StatelessWidget {
 class _PrivateKeysList extends StatelessWidget {
   const _PrivateKeysList({
     required this.privKeys,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final Map<Coin, String> privKeys;
 
@@ -400,11 +400,11 @@ class _WordsList extends StatelessWidget {
 
 class _SelectableSeedWord extends StatelessWidget {
   const _SelectableSeedWord({
-    Key? key,
+    super.key,
     required this.isSeedShown,
     required this.initialValue,
     required this.index,
-  }) : super(key: key);
+  });
 
   final bool isSeedShown;
   final String initialValue;
@@ -418,20 +418,11 @@ class _SelectableSeedWord extends StatelessWidget {
       color:
           Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.4),
     );
-    final TextEditingController seedWordController = TextEditingController()
-      ..text = isSeedShown ? initialValue : '••••••';
+    final text = isSeedShown ? initialValue : '••••••';
 
     return Focus(
       descendantsAreFocusable: true,
       skipTraversal: true,
-      onFocusChange: (value) {
-        if (value) {
-          seedWordController.selection = TextSelection(
-            baseOffset: 0,
-            extentOffset: seedWordController.value.text.length,
-          );
-        }
-      },
       child: FractionallySizedBox(
         widthFactor: isMobile ? 0.5 : 0.25,
         child: Row(
@@ -451,9 +442,9 @@ class _SelectableSeedWord extends StatelessWidget {
                 constraints: const BoxConstraints(maxHeight: 31),
                 child: DryIntrinsicWidth(
                   child: UiTextFormField(
+                    initialValue: text,
                     obscureText: !isSeedShown,
                     readOnly: true,
-                    controller: seedWordController,
                   ),
                 ),
               ),
