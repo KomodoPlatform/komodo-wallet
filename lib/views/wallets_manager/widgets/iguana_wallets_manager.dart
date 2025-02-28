@@ -182,6 +182,8 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       _action = WalletsManagerAction.none;
       _existWalletAction = WalletsManagerExistWalletAction.none;
     });
+
+    context.read<AuthBloc>().add(const AuthStateClearRequested());
   }
 
   void _createWallet({

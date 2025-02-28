@@ -4,11 +4,17 @@ abstract class AuthBlocEvent {
   const AuthBlocEvent();
 }
 
+
+
 class AuthModeChanged extends AuthBlocEvent {
   const AuthModeChanged({required this.mode, required this.currentUser});
 
   final AuthorizeMode mode;
   final KdfUser? currentUser;
+}
+
+class AuthStateClearRequested extends AuthBlocEvent {
+  const AuthStateClearRequested();
 }
 
 class AuthSignOutRequested extends AuthBlocEvent {

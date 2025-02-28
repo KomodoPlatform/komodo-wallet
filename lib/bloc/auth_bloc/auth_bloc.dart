@@ -21,6 +21,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   AuthBloc(this._kdfSdk, this._walletsRepository)
       : super(AuthBlocState.initial()) {
     on<AuthModeChanged>(_onAuthChanged);
+    on<AuthStateClearRequested>(_onClearState);
     on<AuthSignOutRequested>(_onLogout);
     on<AuthSignInRequested>(_onLogIn);
     on<AuthRegisterRequested>(_onRegister);
@@ -29,11 +30,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
   final KomodoDefiSdk _kdfSdk;
   final WalletsRepository _walletsRepository;
-  StreamSubscription<KdfUser?>? _authorizationSubscription;
+  StreamSubscription<KdfUser?>? _authChangesSubscription;
 
   @override
   Future<void> close() async {
-    await _authorizationSubscription?.cancel();
+    await _authChangesSubscription?.cancel();
     await super.close();
   }
 
@@ -44,6 +45,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     log('Logging out from a wallet', path: 'auth_bloc => _logOut').ignore();
     emit(AuthBlocState.loading());
     await _kdfSdk.auth.signOut();
+    await _authChangesSubscription?.cancel();
     emit(AuthBlocState.initial());
   }
 
@@ -89,7 +91,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         path: 'auth_bloc -> onLogin',
       ).ignore();
       emit(AuthBlocState.error(e.toString()));
-      await _authorizationSubscription?.cancel();
+      await _authChangesSubscription?.cancel();
     }
   }
 
@@ -98,6 +100,14 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     Emitter<AuthBlocState> emit,
   ) async {
     emit(AuthBlocState(mode: event.mode, currentUser: event.currentUser));
+  }
+
+  Future<void> _onClearState(
+    AuthStateClearRequested event,
+    Emitter<AuthBlocState> emit,
+  ) async {
+    await _authChangesSubscription?.cancel();
+    emit(AuthBlocState.initial());
   }
 
   Future<void> _onRegister(
@@ -121,14 +131,17 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         ),
       );
 
-      final KdfUser? currentUser = await _kdfSdk.auth.currentUser;
-      if (!await _kdfSdk.auth.isSignedIn() || currentUser == null) {
+      if (!await _kdfSdk.auth.isSignedIn()) {
         throw Exception('Registration failed: user is not signed in');
       }
 
       log('registered  from a wallet', path: 'auth_bloc => _register').ignore();
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: false);
+      final currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('Registration failed: user is not signed in');
+      }
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
@@ -139,7 +152,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         path: 'auth_bloc -> onRegister',
       ).ignore();
       emit(AuthBlocState.error(e.toString()));
-      await _authorizationSubscription?.cancel();
+      await _authChangesSubscription?.cancel();
     }
   }
 
@@ -165,14 +178,17 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         ),
       );
 
-      final currentUser = await _kdfSdk.auth.currentUser;
-      if (!await _kdfSdk.auth.isSignedIn() || currentUser == null) {
+      if (!await _kdfSdk.auth.isSignedIn()) {
         throw Exception('Registration failed: user is not signed in');
       }
 
       log('restored  from a wallet', path: 'auth_bloc => _restore').ignore();
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
+      final currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('Registration failed: user is not signed in');
+      }
       emit(AuthBlocState.loggedIn(currentUser));
 
       // Delete legacy wallet on successful restoration & login to avoid
@@ -191,7 +207,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         path: 'auth_bloc -> onRestore',
       ).ignore();
       emit(AuthBlocState.error(e.toString()));
-      await _authorizationSubscription?.cancel();
+      await _authChangesSubscription?.cancel();
     }
   }
 
@@ -212,8 +228,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   }
 
   void _listenToAuthStateChanges() {
-    _authorizationSubscription?.cancel();
-    _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
+    _authChangesSubscription?.cancel();
+    _authChangesSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
       final AuthorizeMode event =
           user != null ? AuthorizeMode.logIn : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));
