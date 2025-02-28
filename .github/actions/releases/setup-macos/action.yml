@@ -1,0 +1,73 @@
+---
+name: "Setup macOS Build Environment"
+description: "Configures Flutter and dependencies for macOS builds"
+
+inputs:
+  xcode-version:
+    description: "Xcode version to use"
+    required: false
+    default: "latest-stable"
+  p12-file-base64:
+    description: "Base64-encoded P12 certificate file"
+    required: false
+  p12-password:
+    description: "P12 certificate password"
+    required: false
+  bundle-id:
+    description: "App bundle identifier"
+    required: false
+    default: "com.komodo.wallet"
+  profile-type:
+    description: "Provisioning profile type"
+    required: false
+    default: "MAC_APP_STORE"
+  issuer-id:
+    description: "App Store Connect issuer ID"
+    required: false
+  api-key-id:
+    description: "App Store Connect API key ID"
+    required: false
+  api-private-key:
+    description: "App Store Connect API private key"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Xcode version
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ inputs.xcode-version }}
+
+    - name: Setup Xcode command line tools
+      shell: bash
+      run: |
+        sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+        sudo xcodebuild -license accept
+
+    - name: Install macOS build dependencies
+      shell: bash
+      run: |
+        flutter pub get
+        cd macos
+        pod install
+
+    - name: Import macOS certificates
+      if: inputs.p12-file-base64 != '' && 'KomodoPlatform/komodo-wallet' == github.repository
+      uses: apple-actions/import-codesign-certs@v3
+      with:
+        keychain: ${{ github.run_id }}
+        keychain-password: ${{ github.run_id }}
+        create-keychain: false
+        p12-file-base64: ${{ inputs.p12-file-base64 }}
+        p12-password: ${{ inputs.p12-password }}
+
+    - name: Download macOS provisioning profile
+      if: inputs.issuer-id != '' && 'KomodoPlatform/komodo-wallet' == github.repository
+      uses: apple-actions/download-provisioning-profiles@v1
+      with:
+        bundle-id: ${{ inputs.bundle-id }}
+        profile-type: ${{ inputs.profile-type }}
+        issuer-id: ${{ inputs.issuer-id }}
+        api-key-id: ${{ inputs.api-key-id }}
+        api-private-key: ${{ inputs.api-private-key }}

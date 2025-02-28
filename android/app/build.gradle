@@ -27,11 +27,11 @@ android {
 
     compileSdk 35
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '21'
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -44,12 +44,6 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 
-        externalNativeBuild {
-            cmake {
-                // mm2_lib.a requires libc++
-                cppFlags "-std=c++17 -stdlib=libc++"
-            }
-        }
         ndk {
             //noinspection ChromeOsAbiSupport
             abiFilters 'armeabi-v7a', 'arm64-v8a'
@@ -62,12 +56,6 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
         }
     }
 }

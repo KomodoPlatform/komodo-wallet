@@ -44,7 +44,7 @@ class WalletsManagerEvent extends AnalyticsEventData {
   }
 
   @override
-  Map<String, dynamic> get parameters => {
+  Map<String, Object> get parameters => {
         'source': source,
         'method': method,
       };

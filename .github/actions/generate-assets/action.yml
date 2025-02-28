@@ -5,6 +5,10 @@ inputs:
   GITHUB_TOKEN:
     description: "The GitHub API public readonly token"
     required: true
+  BUILD_COMMAND:
+    description: "The flutter build command to run to generate assets for the deployment build"
+    required: false
+    default: "flutter build web --release"
 runs:
   using: "composite"
   steps:
@@ -25,13 +29,15 @@ runs:
         # Run flutter build once to download coin icons and config files. 
         # This step is expected to "fail", since flutter build has to run again 
         # after the assets are downloaded to register them in AssetManifest.bin
-        flutter pub get > /dev/null 2>&1
-        flutter build web --release > /dev/null 2>&1 || true
+        flutter pub get > /dev/null 2>&1 || true
+        ${{ inputs.BUILD_COMMAND }} > /dev/null 2>&1 || true
         rm -rf build/*
 
         # Run flutter build and capture its output and exit status
-        flutter pub get > /dev/null 2>&1
-        output=$(flutter build web --release)
+        # Allow error messages from `flutter pub get` to be printed for debugging
+        # in case there are legitimate, unexpected errors.
+        flutter pub get > /dev/null
+        output=$(${{ inputs.BUILD_COMMAND }} 2>&1)
         exit_status=$?
 
         # Check if the exit status is non-zero (indicating an error)

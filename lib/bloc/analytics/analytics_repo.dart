@@ -6,7 +6,7 @@ import 'package:web_dex/firebase_options.dart';
 
 abstract class AnalyticsEventData {
   late String name;
-  Map<String, dynamic> get parameters;
+  Map<String, Object> get parameters;
 }
 
 abstract class AnalyticsRepo {

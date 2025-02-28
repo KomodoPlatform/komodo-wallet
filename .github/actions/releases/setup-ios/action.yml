@@ -1,0 +1,68 @@
+---
+name: "Setup iOS Build Environment"
+description: "Configures Xcode and iOS signing requirements"
+
+inputs:
+  xcode-version:
+    description: "Xcode version to use"
+    required: false
+    default: "latest-stable"
+  p12-file-base64:
+    description: "Base64-encoded P12 certificate file"
+    required: false
+  p12-password:
+    description: "P12 certificate password"
+    required: false
+  bundle-id:
+    description: "App bundle identifier"
+    required: false
+    default: "com.komodo.wallet"
+  profile-type:
+    description: "Provisioning profile type"
+    required: false
+    default: "IOS_APP_STORE"
+  issuer-id:
+    description: "App Store Connect issuer ID"
+    required: false
+  api-key-id:
+    description: "App Store Connect API key ID"
+    required: false
+  api-private-key:
+    description: "App Store Connect API private key"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Xcode version
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ inputs.xcode-version }}
+
+    # Download iOS platform to avoid the missing platform error from xcode 15
+    # https://github.com/flutter/flutter/issues/129558
+    # https://developer.apple.com/documentation/xcode/installing-additional-simulator-runtimes#Install-and-manage-Simulator-runtimes-from-the-command-line
+    - name: Install iOS dependencies
+      shell: bash
+      run: |
+        xcodebuild -downloadPlatform iOS
+        flutter pub get
+        cd ios
+        pod install
+
+    - name: Import iOS certificates
+      if: inputs.p12-file-base64 != '' && 'KomodoPlatform/komodo-wallet' == github.repository
+      uses: apple-actions/import-codesign-certs@v3
+      with:
+        p12-file-base64: ${{ inputs.p12-file-base64 }}
+        p12-password: ${{ inputs.p12-password }}
+
+    - name: Download iOS provisioning profile
+      if: inputs.issuer-id != '' && 'KomodoPlatform/komodo-wallet' == github.repository
+      uses: apple-actions/download-provisioning-profiles@v1
+      with:
+        bundle-id: ${{ inputs.bundle-id }}
+        profile-type: ${{ inputs.profile-type }}
+        issuer-id: ${{ inputs.issuer-id }}
+        api-key-id: ${{ inputs.api-key-id }}
+        api-private-key: ${{ inputs.api-private-key }}

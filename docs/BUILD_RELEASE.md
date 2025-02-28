@@ -1,6 +1,6 @@
 # Build Release version of the App
 
-### Environment setup
+## Environment setup
 
 Before building the app, make sure you have all the necessary tools installed. Follow the instructions in the [Environment Setup](./PROJECT_SETUP.md) document. Alternatively, you can use the Docker image as described here: (TODO!).
 
@@ -35,7 +35,7 @@ flutter build apk
 
 ## Docker builds
 
-### Build for Web
+### Build for web
 
 ```bash
 sh .docker/build.sh web release

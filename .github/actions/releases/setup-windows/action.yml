@@ -1,0 +1,38 @@
+---
+name: "Setup Windows Build Environment"
+description: "Configures Flutter and dependencies for Windows builds"
+
+inputs:
+  pfx-base64:
+    description: "Base64-encoded PFX certificate file"
+    required: false
+  pfx-password:
+    description: "PFX certificate password"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Visual Studio
+      uses: microsoft/setup-msbuild@v1.3
+
+    - name: Install Windows SDK
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+      with:
+        sdk-version: 26100
+
+    - name: Install Windows build dependencies
+      shell: pwsh
+      run: |
+        flutter pub get
+        flutter doctor
+
+    - name: Setup Windows code signing
+      if: inputs.pfx-base64 != '' && 'KomodoPlatform/komodo-wallet' == github.repository
+      shell: pwsh
+      run: |
+        echo "${{ inputs.pfx-base64 }}" | base64 --decode > signing_certificate.pfx
+        $pfxPassword = '${{ inputs.pfx-password }}'
+        $certPassword = ConvertTo-SecureString -String $pfxPassword -Force -AsPlainText
+        Import-PfxCertificate -FilePath signing_certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $certPassword
+        Remove-Item signing_certificate.pfx

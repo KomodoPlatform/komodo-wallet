@@ -1,0 +1,87 @@
+name: Desktop Builds
+run-name: Building desktop apps 🖥️
+
+on:
+  pull_request:
+    branches: [dev, main, release/*, hotfix/*, feature/*]
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  build_desktop:
+    name: Build Desktop (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos
+            runner: macos-latest
+            build_command: flutter build macos --release
+            artifact_path: build/macos/Build/Products/Release/*.app
+            artifact_name: komodo-wallet-macos
+          - platform: windows
+            runner: windows-latest
+            build_command: flutter build windows --release
+            artifact_path: build/windows/x64/runner/Release/*
+            artifact_name: komodo-wallet-windows
+          - platform: linux
+            runner: ubuntu-latest
+            build_command: flutter build linux --release
+            artifact_path: build/linux/x64/release/bundle/*
+            artifact_name: komodo-wallet-linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Flutter and dependencies
+        uses: ./.github/actions/flutter-deps
+
+      # macOS setup
+      - name: Setup macOS environment
+        if: ${{ matrix.platform == 'macos' }}
+        uses: ./.github/actions/releases/setup-macos
+        with:
+          p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
+          p12-password: ${{ secrets.MACOS_P12_PASSWORD }}
+          bundle-id: "com.komodo.komodowallet"
+          profile-type: "MAC_APP_DEVELOPMENT"
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      # Linux setup
+      - name: Setup Linux environment
+        if: ${{ matrix.platform == 'linux' }}
+        uses: ./.github/actions/releases/setup-linux
+        with:
+          gpg-key: ${{ secrets.LINUX_GPG_KEY }}
+          gpg-key-id: ${{ secrets.LINUX_GPG_KEY_ID }}
+
+      # Windows setup
+      - name: Setup Windows environment
+        if: ${{ matrix.platform == 'windows' }}
+        uses: ./.github/actions/releases/setup-windows
+        with:
+          pfx-base64: ${{ secrets.WINDOWS_PFX_BASE64 }}
+          pfx-password: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+
+      - name: Fetch packages and generate assets
+        uses: ./.github/actions/generate-assets
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_COMMAND: ${{ matrix.build_command }}
+
+      - name: Build for ${{ matrix.platform }}
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ${{ matrix.build_command }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ matrix.artifact_path }}
+          name: ${{ matrix.artifact_name }}.zip
+          retention-days: 5
