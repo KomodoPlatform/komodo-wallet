@@ -126,7 +126,6 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
         return WalletImportWrapper(
           key: const Key('wallet-import'),
           onImport: _importWallet,
-          onCreate: _createWallet,
           onCancel: _cancel,
         );
       case WalletsManagerAction.create:
