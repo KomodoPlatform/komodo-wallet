@@ -40,3 +40,12 @@ class AuthRestoreRequested extends AuthBlocEvent {
   final String password;
   final String seed;
 }
+
+class AuthSeedBackupConfirmed extends AuthBlocEvent {
+  const AuthSeedBackupConfirmed();
+}
+
+class AuthWalletDownloadRequested extends AuthBlocEvent {
+  const AuthWalletDownloadRequested({required this.password});
+  final String password;
+}

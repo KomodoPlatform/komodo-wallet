@@ -5,7 +5,6 @@ import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/show_priv_key/show_priv_key_request.dart';
@@ -37,7 +36,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     return BlocProvider<SecuritySettingsBloc>(
       create: (_) => SecuritySettingsBloc(
         SecuritySettingsState.initialState(),
-        RepositoryProvider.of<CurrentWalletBloc>(context),
       ),
       child: BlocBuilder<SecuritySettingsBloc, SecuritySettingsState>(
         builder: (BuildContext context, SecuritySettingsState state) {

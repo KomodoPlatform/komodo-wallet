@@ -21,7 +21,6 @@ import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/mm2/mm2.dart';
@@ -29,11 +28,9 @@ import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
-import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -58,14 +55,6 @@ Future<void> main() async {
 
       final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
 
-      // This is necessary for now, as the runtime coin updates is reliant on the
-      // [CoinsBloc] to be initialized before it can be used. This is a temporary
-      // solution that should be removed once the CoinsBloc is refactored
-      final currentWalletRepo = CurrentWalletBloc(
-        kdfSdk: komodoDefiSdk,
-        encryptionTool: EncryptionTool(),
-        fileLoader: FileLoader.fromPlatform(),
-      );
       final trezorRepo = TrezorRepo(
         api: Mm2ApiTrezor(mm2.call),
         kdfSdk: komodoDefiSdk,
@@ -96,7 +85,6 @@ Future<void> main() async {
           child: MultiRepositoryProvider(
             providers: [
               RepositoryProvider(create: (_) => komodoDefiSdk),
-              RepositoryProvider(create: (_) => currentWalletRepo),
               RepositoryProvider(create: (_) => mm2Api),
               RepositoryProvider(create: (_) => coinsRepo),
               RepositoryProvider(create: (_) => trezorRepo),

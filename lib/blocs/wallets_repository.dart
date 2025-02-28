@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -7,15 +8,21 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/services/storage/base_storage.dart';
+import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class WalletsRepository {
-  WalletsRepository(this._kdfSdk, this._mm2Api, this._legacyWalletStorage);
+  WalletsRepository(this._kdfSdk, this._mm2Api, this._legacyWalletStorage)
+      : _encryptionTool = EncryptionTool(),
+        _fileLoader = FileLoader.fromPlatform();
 
   final KomodoDefiSdk _kdfSdk;
   final Mm2Api _mm2Api;
   final BaseStorage _legacyWalletStorage;
+  final EncryptionTool _encryptionTool;
+  final FileLoader _fileLoader;
 
   List<Wallet>? _cachedWallets;
   List<Wallet>? get wallets => _cachedWallets;
@@ -81,5 +88,28 @@ class WalletsRepository {
     for (final coin in coinsToDeactivate) {
       await _mm2Api.disableCoin(coin);
     }
+  }
+
+  @Deprecated(
+      'Use the KomodoDefiSdk.auth.getMnemonicEncrypted method instead. ')
+  Future<void> downloadEncryptedWallet(Wallet wallet, String password) async {
+    if (wallet.config.seedPhrase.isEmpty) {
+      final mnemonic = await _kdfSdk.auth.getMnemonicPlainText(password);
+
+      wallet.config.seedPhrase = await _encryptionTool.encryptData(
+        password,
+        mnemonic.plaintextMnemonic ?? '',
+      );
+    }
+
+    final String data = jsonEncode(wallet.config);
+    final String encryptedData =
+        await _encryptionTool.encryptData(password, data);
+
+    await _fileLoader.save(
+      fileName: wallet.name,
+      data: encryptedData,
+      type: LoadFileType.text,
+    );
   }
 }
