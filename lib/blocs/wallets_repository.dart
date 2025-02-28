@@ -14,9 +14,14 @@ import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class WalletsRepository {
-  WalletsRepository(this._kdfSdk, this._mm2Api, this._legacyWalletStorage)
-      : _encryptionTool = EncryptionTool(),
-        _fileLoader = FileLoader.fromPlatform();
+  WalletsRepository(
+    this._kdfSdk,
+    this._mm2Api,
+    this._legacyWalletStorage, {
+    EncryptionTool? encryptionTool,
+    FileLoader? fileLoader,
+  })  : _encryptionTool = encryptionTool ?? EncryptionTool(),
+        _fileLoader = fileLoader ?? FileLoader.fromPlatform();
 
   final KomodoDefiSdk _kdfSdk;
   final Mm2Api _mm2Api;
@@ -90,26 +95,31 @@ class WalletsRepository {
     }
   }
 
-  @Deprecated(
-      'Use the KomodoDefiSdk.auth.getMnemonicEncrypted method instead. ')
+  @Deprecated('Use the KomodoDefiSdk.auth.getMnemonicEncrypted method instead.')
   Future<void> downloadEncryptedWallet(Wallet wallet, String password) async {
-    if (wallet.config.seedPhrase.isEmpty) {
-      final mnemonic = await _kdfSdk.auth.getMnemonicPlainText(password);
-
-      wallet.config.seedPhrase = await _encryptionTool.encryptData(
-        password,
-        mnemonic.plaintextMnemonic ?? '',
+    try {
+      if (wallet.config.seedPhrase.isEmpty) {
+        final mnemonic = await _kdfSdk.auth.getMnemonicPlainText(password);
+        wallet.config.seedPhrase = await _encryptionTool.encryptData(
+          password,
+          mnemonic.plaintextMnemonic ?? '',
+        );
+      }
+      final String data = jsonEncode(wallet.config);
+      final String encryptedData =
+          await _encryptionTool.encryptData(password, data);
+      final String sanitizedFileName = _sanitizeFileName(wallet.name);
+      await _fileLoader.save(
+        fileName: sanitizedFileName,
+        data: encryptedData,
+        type: LoadFileType.text,
       );
+    } catch (e) {
+      throw Exception('Failed to download encrypted wallet: ${e.toString()}');
     }
+  }
 
-    final String data = jsonEncode(wallet.config);
-    final String encryptedData =
-        await _encryptionTool.encryptData(password, data);
-
-    await _fileLoader.save(
-      fileName: wallet.name,
-      data: encryptedData,
-      type: LoadFileType.text,
-    );
+  String _sanitizeFileName(String fileName) {
+    return fileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
   }
 }
