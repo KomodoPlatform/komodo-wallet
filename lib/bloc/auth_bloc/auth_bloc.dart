@@ -84,13 +84,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
-      log(
-        'Failed to login wallet ${event.wallet.name}',
-        isError: true,
-        trace: s,
-        path: 'auth_bloc -> onLogin',
-      ).ignore();
-      emit(AuthBlocState.error(e.toString()));
+      final error = 'Failed to login wallet ${event.wallet.name}';
+      log(error, isError: true, trace: s, path: 'auth_bloc -> onLogin')
+          .ignore();
+      emit(AuthBlocState.error(error));
       await _authChangesSubscription?.cancel();
     }
   }
@@ -145,13 +142,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
-      log(
-        'Failed to register wallet ${event.wallet.name}',
-        isError: true,
-        trace: s,
-        path: 'auth_bloc -> onRegister',
-      ).ignore();
-      emit(AuthBlocState.error(e.toString()));
+      final error = 'Failed to register wallet ${event.wallet.name}';
+      log(error, isError: true, trace: s, path: 'auth_bloc -> onRegister')
+          .ignore();
+      emit(AuthBlocState.error(error));
       await _authChangesSubscription?.cancel();
     }
   }
@@ -200,13 +194,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
       _listenToAuthStateChanges();
     } catch (e, s) {
-      log(
-        'Failed to restore existing wallet ${event.wallet.name}',
-        isError: true,
-        trace: s,
-        path: 'auth_bloc -> onRestore',
-      ).ignore();
-      emit(AuthBlocState.error(e.toString()));
+      final error = 'Failed to restore existing wallet ${event.wallet.name}';
+      log(error, isError: true, trace: s, path: 'auth_bloc -> onRestore')
+          .ignore();
+      emit(AuthBlocState.error(error));
       await _authChangesSubscription?.cancel();
     }
   }

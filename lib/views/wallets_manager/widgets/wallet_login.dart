@@ -61,7 +61,7 @@ class _WalletLogInState extends State<WalletLogIn> {
     super.dispose();
   }
 
-  Future<void> _submitLogin() async {
+  void _submitLogin() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.wallet.config.type =
           _isHdMode && _user != null && _user!.isBip39Seed == true
@@ -79,6 +79,7 @@ class _WalletLogInState extends State<WalletLogIn> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
+        // TODO: expand to parse SDK errors and show more specific messages
         final errorMessage = state.errorMessage != null
             ? LocaleKeys.invalidPasswordError.tr()
             : null;
@@ -178,7 +179,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           suffixIcon: PasswordVisibilityControl(
             onVisibilityChange: onVisibilityChange,
           ),
-          onFieldSubmitted: (_) => widget.onFieldSubmitted,
+          onFieldSubmitted: (_) => widget.onFieldSubmitted?.call(),
         ),
       ],
     );
