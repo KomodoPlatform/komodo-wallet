@@ -4,8 +4,6 @@ abstract class AuthBlocEvent {
   const AuthBlocEvent();
 }
 
-
-
 class AuthModeChanged extends AuthBlocEvent {
   const AuthModeChanged({required this.mode, required this.currentUser});
 
