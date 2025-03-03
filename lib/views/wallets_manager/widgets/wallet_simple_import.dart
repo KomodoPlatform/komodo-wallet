@@ -60,7 +60,9 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _isHdMode = true;
 
   bool get _isButtonEnabled {
-    return _eulaAndTosChecked && !_inProgress;
+    final isFormValid = _refreshFormValidationState();
+
+    return _eulaAndTosChecked && !_inProgress && isFormValid;
   }
 
   @override
@@ -128,12 +130,20 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
           _allowCustomSeed = value;
         });
 
-        if (_seedController.text.isNotEmpty &&
-            _nameController.text.isNotEmpty) {
-          _formKey.currentState!.validate();
-        }
+        _refreshFormValidationState();
       },
     );
+  }
+
+  bool _refreshFormValidationState() {
+    final nameHasValue = _nameController.text.isNotEmpty;
+    final seedHasValue = _seedController.text.isNotEmpty;
+
+    if (seedHasValue && nameHasValue) {
+      return _formKey.currentState!.validate();
+    }
+
+    return false;
   }
 
   Widget _buildFields() {
@@ -186,7 +196,12 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         HDWalletModeSwitch(
           value: _isHdMode,
           onChanged: (value) {
-            setState(() => _isHdMode = value);
+            setState(() {
+              _isHdMode = value;
+              _allowCustomSeed = false;
+            });
+
+            _refreshFormValidationState();
           },
         ),
         const SizedBox(height: 20),
@@ -293,6 +308,10 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   }
 
   String? _validateSeed(String? seed) {
+    if (_allowCustomSeed) {
+      return null;
+    }
+
     final maybeFailedReason =
         context.read<KomodoDefiSdk>().mnemonicValidator.validateMnemonic(
               seed ?? '',
@@ -309,15 +328,18 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     return switch (maybeFailedReason) {
       MnemonicFailedReason.empty =>
         LocaleKeys.walletCreationEmptySeedError.tr(),
-      MnemonicFailedReason.customNotSupportedForHd =>
-        LocaleKeys.walletCreationBip39SeedError.tr(),
+      MnemonicFailedReason.customNotSupportedForHd => _isHdMode
+          ? LocaleKeys.walletCreationHdBip39SeedError.tr()
+          : LocaleKeys.walletCreationBip39SeedError.tr(),
       MnemonicFailedReason.customNotAllowed =>
         LocaleKeys.customSeedWarningText.tr(),
       MnemonicFailedReason.invalidLength =>
         // TODO: Add this string has placeholders for min/max counts, which we
         // specify as "12" and "24"
         // LocaleKeys.seedPhraseCheckingEnterWord.tr(args: ['12', '24']),
-        LocaleKeys.walletCreationBip39SeedError.tr(),
+        _isHdMode
+            ? LocaleKeys.walletCreationHdBip39SeedError.tr()
+            : LocaleKeys.walletCreationBip39SeedError.tr(),
     };
   }
 }
