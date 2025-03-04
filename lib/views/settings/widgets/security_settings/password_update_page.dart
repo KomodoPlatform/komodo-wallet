@@ -7,7 +7,6 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -16,7 +15,7 @@ import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 
 class PasswordUpdatePage extends StatefulWidget {
-  const PasswordUpdatePage({Key? key}) : super(key: key);
+  const PasswordUpdatePage({super.key});
 
   @override
   State<PasswordUpdatePage> createState() => _PasswordUpdatePageState();
@@ -102,7 +101,7 @@ class _PasswordUpdatePageState extends State<PasswordUpdatePage> {
 }
 
 class _FormView extends StatefulWidget {
-  const _FormView({Key? key, required this.onSuccess}) : super(key: key);
+  const _FormView({super.key, required this.onSuccess});
 
   final VoidCallback onSuccess;
 
@@ -171,27 +170,29 @@ class _FormViewState extends State<_FormView> {
   }
 
   Future<void> _onUpdate() async {
-    if (!(_formKey.currentState?.validate() ?? false)) {
-      return;
-    }
-    final currentWalletBloc = RepositoryProvider.of<CurrentWalletBloc>(context);
-    final Wallet? wallet = currentWalletBloc.wallet;
-    if (wallet == null) return;
-    final String password = _newController.text;
+    // TODO! re-implement along with password change feature
+    // if (!(_formKey.currentState?.validate() ?? false)) {
+    //   return;
+    // }
+    // final currentWalletBloc = RepositoryProvider.of<CurrentWalletBloc>(context);
+    // final Wallet? wallet = currentWalletBloc.wallet;
+    // if (wallet == null) return;
+    // final String password = _newController.text;
 
-    if (_oldController.text == password) {
-      setState(() {
-        _error = LocaleKeys.usedSamePassword.tr();
-      });
-      return;
-    }
+    // if (_oldController.text == password) {
+    //   setState(() {
+    //     _error = LocaleKeys.usedSamePassword.tr();
+    //   });
+    //   return;
+    // }
 
-    final bool isPasswordUpdated = await currentWalletBloc.updatePassword(
-      _oldController.text,
-      password,
-      wallet,
-    );
-
+    // final bool isPasswordUpdated = await currentWalletBloc.updatePassword(
+    //   _oldController.text,
+    //   password,
+    //   wallet,
+    // );
+    final isPasswordUpdated = true;
+    // ignore: dead_code
     if (!isPasswordUpdated) {
       setState(() {
         _error = LocaleKeys.passwordNotAccepted.tr();
@@ -365,7 +366,7 @@ class _PasswordField extends StatelessWidget {
 }
 
 class _SuccessView extends StatelessWidget {
-  const _SuccessView({Key? key, required this.back}) : super(key: key);
+  const _SuccessView({super.key, required this.back});
 
   final VoidCallback back;
 

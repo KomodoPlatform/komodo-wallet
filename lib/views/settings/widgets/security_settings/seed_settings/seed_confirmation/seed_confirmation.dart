@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/common/screen.dart';
@@ -113,6 +114,7 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
     if (result == widget.seedPhrase) {
       final settingsBloc = context.read<SecuritySettingsBloc>();
       settingsBloc.add(const SeedConfirmedEvent());
+      context.read<AuthBloc>().add(AuthSeedBackupConfirmed());
       return;
     }
     setState(() {

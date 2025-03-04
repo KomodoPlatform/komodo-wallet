@@ -6,7 +6,6 @@ import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/cex_price.dart';
@@ -22,7 +21,6 @@ part 'coins_state.dart';
 class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   CoinsBloc(
     this._kdfSdk,
-    this._currentWalletBloc,
     this._coinsRepo,
     this._trezorBloc,
     this._mm2Api,
@@ -49,7 +47,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   final KomodoDefiSdk _kdfSdk;
-  final CurrentWalletBloc _currentWalletBloc;
   final CoinsRepo _coinsRepo;
   final Mm2Api _mm2Api;
   // TODO: refactor to use repository - pin/password input events need to be
@@ -172,7 +169,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     if (coin.isInactive) {
       walletCoins.remove(coin.abbr);
-      await _currentWalletBloc.removeCoin(coin.abbr);
       await _kdfSdk.removeActivatedCoins([coin.abbr]);
       emit(
         state.copyWith(
@@ -263,7 +259,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       coin.reset();
 
       await _kdfSdk.removeActivatedCoins([coin.abbr]);
-      await _currentWalletBloc.removeCoin(coin.abbr);
       await _mm2Api.disableCoin(coin.abbr);
 
       final newWalletCoins = Map<String, Coin>.of(state.walletCoins)
@@ -387,14 +382,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     try {
       await _kdfSdk.addActivatedCoins(coins);
-      await Future.wait(
-        coins.map((coin) async {
-          final sdkCoin = state.coins[coin] ?? _coinsRepo.getCoin(coin);
-          if (sdkCoin != null) {
-            await _currentWalletBloc.addCoin(sdkCoin);
-          }
-        }),
-      );
     } catch (e, s) {
       log(
         'Failed to activate coins in SDK: $e',

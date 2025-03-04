@@ -12,7 +12,6 @@ import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -55,7 +54,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   Transaction? _selectedTransaction;
 
   String? get _walletId =>
-      RepositoryProvider.of<CurrentWalletBloc>(context).wallet?.id;
+      RepositoryProvider.of<AuthBloc>(context).state.currentUser?.walletId.name;
 
   @override
   void initState() {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -177,7 +176,7 @@ class _SaveAndRememberButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
-    final currentWalletBloc = context.read<CurrentWalletBloc>();
+    final authBloc = context.read<AuthBloc>();
     final hasBackup = currentWallet?.config.hasBackup == true;
     final text = hasBackup
         ? LocaleKeys.viewSeedPhrase.tr()
@@ -207,7 +206,7 @@ class _SaveAndRememberButtons extends StatelessWidget {
             final String? password = await walletPasswordDialog(context);
             if (password == null) return;
 
-            currentWalletBloc.downloadCurrentWallet(password);
+            authBloc.add(AuthWalletDownloadRequested(password: password));
           },
           width: isMobile ? double.infinity : 187,
           height: isMobile ? 52 : 40,

@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 
 class SecuritySettingsBloc
     extends Bloc<SecuritySettingsEvent, SecuritySettingsState> {
-  SecuritySettingsBloc(super.state, this.currentWalletBloc) {
+  SecuritySettingsBloc(super.state) {
     on<ResetEvent>(_onReset);
     on<ShowSeedEvent>(_onShowSeed);
     on<SeedConfirmEvent>(_onSeedConfirm);
@@ -17,7 +16,6 @@ class SecuritySettingsBloc
     on<ShowSeedCopiedEvent>(_onSeedCopied);
   }
 
-  final CurrentWalletBloc currentWalletBloc;
 
   void _onReset(
     ResetEvent event,
@@ -41,14 +39,10 @@ class SecuritySettingsBloc
     ShowSeedWordsEvent event,
     Emitter<SecuritySettingsState> emit,
   ) async {
-    final isSeedSaved = state.isSeedSaved || event.isShow;
-    if (isSeedSaved) {
-      await currentWalletBloc.confirmBackup();
-    }
     final newState = state.copyWith(
       step: SecuritySettingsStep.seedShow,
       showSeedWords: event.isShow,
-      isSeedSaved: isSeedSaved,
+      isSeedSaved: state.isSeedSaved || event.isShow,
     );
     emit(newState);
   }
@@ -81,7 +75,6 @@ class SecuritySettingsBloc
     SeedConfirmedEvent event,
     Emitter<SecuritySettingsState> emit,
   ) async {
-    await currentWalletBloc.confirmBackup();
     final newState = state.copyWith(
       step: SecuritySettingsStep.seedSuccess,
       showSeedWords: false,
@@ -93,7 +86,6 @@ class SecuritySettingsBloc
     ShowSeedCopiedEvent event,
     Emitter<SecuritySettingsState> emit,
   ) async {
-    await currentWalletBloc.confirmBackup();
     emit(state.copyWith(isSeedSaved: true));
   }
 }

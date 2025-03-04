@@ -6,13 +6,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_mode.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -67,8 +67,7 @@ class _FiatFormState extends State<FiatForm> {
   void initState() {
     super.initState();
 
-    _isLoggedIn =
-        RepositoryProvider.of<CurrentWalletBloc>(context).wallet != null;
+    _isLoggedIn = RepositoryProvider.of<AuthBloc>(context).state.isSignedIn;
 
     context.read<FiatFormBloc>()
       ..add(const LoadCurrencyListsRequested())

@@ -6,15 +6,10 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_simple_import.dart'
 class WalletImportWrapper extends StatefulWidget {
   const WalletImportWrapper({
     Key? key,
-    required this.onCreate,
     required this.onImport,
     required this.onCancel,
   }) : super(key: key);
 
-  final void Function({
-    required String name,
-    required String password,
-  }) onCreate;
   final void Function({
     required String name,
     required String password,

@@ -26,6 +26,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     on<AuthSignInRequested>(_onLogIn);
     on<AuthRegisterRequested>(_onRegister);
     on<AuthRestoreRequested>(_onRestore);
+    on<AuthSeedBackupConfirmed>(_onSeedBackupConfirmed);
+    on<AuthWalletDownloadRequested>(_onWalletDownloadRequested);
   }
 
   final KomodoDefiSdk _kdfSdk;
@@ -216,6 +218,39 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     }
 
     return false;
+  }
+
+  Future<void> _onSeedBackupConfirmed(
+    AuthSeedBackupConfirmed event,
+    Emitter<AuthBlocState> emit,
+  ) async {
+    // emit the current user again to pull in the updated seed backup status
+    // and make the backup notification banner disappear
+    await _kdfSdk.confirmSeedBackup();
+    emit(
+      AuthBlocState(
+        mode: AuthorizeMode.logIn,
+        currentUser: await _kdfSdk.auth.currentUser,
+      ),
+    );
+  }
+
+  Future<void> _onWalletDownloadRequested(
+    AuthWalletDownloadRequested event,
+    Emitter<AuthBlocState> emit,
+  ) async {
+    final Wallet? wallet = (await _kdfSdk.auth.currentUser)?.wallet;
+    if (wallet == null) return;
+
+    await _walletsRepository.downloadEncryptedWallet(wallet, event.password);
+
+    await _kdfSdk.confirmSeedBackup();
+    emit(
+      AuthBlocState(
+        mode: AuthorizeMode.logIn,
+        currentUser: await _kdfSdk.auth.currentUser,
+      ),
+    );
   }
 
   void _listenToAuthStateChanges() {

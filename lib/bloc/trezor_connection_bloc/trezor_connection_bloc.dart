@@ -6,7 +6,6 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_event.dart';
 import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_state.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/model/hw_wallet/trezor_connection_status.dart';
 import 'package:web_dex/model/wallet.dart';
 
@@ -15,9 +14,7 @@ class TrezorConnectionBloc
   TrezorConnectionBloc({
     required TrezorRepo trezorRepo,
     required KomodoDefiSdk kdfSdk,
-    required CurrentWalletBloc walletRepo,
   })  : _kdfSdk = kdfSdk,
-        _walletRepo = walletRepo,
         _trezorRepo = trezorRepo,
         super(TrezorConnectionState.initial()) {
     _trezorConnectionStatusListener = trezorRepo.connectionStatusStream
@@ -32,23 +29,20 @@ class TrezorConnectionBloc
   }
 
   void _onAuthModeChanged(KdfUser? user) {
-    if (user != null) {
-      final Wallet? currentWallet = _walletRepo.wallet;
-      if (currentWallet == null) return;
-      if (currentWallet.config.type != WalletType.trezor) return;
-
-      final String? pubKey = user.walletId.pubkeyHash;
-      if (pubKey == null) return;
-
-      _trezorRepo.subscribeOnConnectionStatus(pubKey);
-    } else {
-      _trezorRepo.unsubscribeFromConnectionStatus();
+    if (user == null) {
+      return _trezorRepo.unsubscribeFromConnectionStatus();
     }
+
+    if (user.wallet.config.type != WalletType.trezor) return;
+
+    final String? pubKey = user.walletId.pubkeyHash;
+    if (pubKey == null) return;
+
+    _trezorRepo.subscribeOnConnectionStatus(pubKey);
   }
 
   final KomodoDefiSdk _kdfSdk;
   final TrezorRepo _trezorRepo;
-  final CurrentWalletBloc _walletRepo;
   late StreamSubscription<TrezorConnectionStatus>
       _trezorConnectionStatusListener;
   late StreamSubscription<KdfUser?> _authModeListener;
