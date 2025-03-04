@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
-
-import '../profit_loss_cache.dart';
+import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
 
 class ProfitLossCacheAdapter extends TypeAdapter<ProfitLossCache> {
   @override
@@ -19,13 +18,16 @@ class ProfitLossCacheAdapter extends TypeAdapter<ProfitLossCache> {
       lastUpdated: fields[2] as DateTime,
       profitLosses: (fields[3] as List).cast(),
       walletId: fields[4] as String,
+      // Load conditionally, and set a default value for backwards compatibility
+      // with existing data
+      isHdWallet: fields.containsKey(5) ? fields[5] as bool : false,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfitLossCache obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.coinId)
       ..writeByte(1)
@@ -35,7 +37,9 @@ class ProfitLossCacheAdapter extends TypeAdapter<ProfitLossCache> {
       ..writeByte(3)
       ..write(obj.profitLosses)
       ..writeByte(4)
-      ..write(obj.walletId);
+      ..write(obj.walletId)
+      ..writeByte(5)
+      ..write(obj.isHdWallet);
   }
 
   @override

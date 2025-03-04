@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
@@ -12,7 +13,6 @@ import 'package:web_dex/bloc/cex_market_data/models/graph_type.dart';
 import 'package:web_dex/bloc/cex_market_data/models/models.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/coin.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
@@ -23,10 +23,12 @@ class PortfolioGrowthRepository {
     required TransactionHistoryRepo transactionHistoryRepo,
     required PersistenceProvider<String, GraphCache> cacheProvider,
     required CoinsRepo coinsRepository,
+    required KomodoDefiSdk sdk,
   })  : _transactionHistoryRepository = transactionHistoryRepo,
         _cexRepository = cexRepository,
         _graphCache = cacheProvider,
-        _coinsRepository = coinsRepository;
+        _coinsRepository = coinsRepository,
+        _sdk = sdk;
 
   /// Create a new instance of the repository with default dependencies.
   /// The default dependencies are the [BinanceRepository] and the
@@ -35,14 +37,14 @@ class PortfolioGrowthRepository {
     required TransactionHistoryRepo transactionHistoryRepo,
     required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
-    required Mm2Api mm2Api,
+    required KomodoDefiSdk sdk,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
       return MockPortfolioGrowthRepository.withDefaults(
         performanceMode: demoMode,
         coinsRepository: coinsRepository,
-        mm2Api: mm2Api,
+        sdk: sdk,
       );
     }
 
@@ -53,6 +55,7 @@ class PortfolioGrowthRepository {
         name: GraphType.balanceGrowth.tableName,
       ),
       coinsRepository: coinsRepository,
+      sdk: sdk,
     );
   }
 
@@ -66,6 +69,7 @@ class PortfolioGrowthRepository {
   final PersistenceProvider<String, GraphCache> _graphCache;
 
   final CoinsRepo _coinsRepository;
+  final KomodoDefiSdk _sdk;
 
   static Future<void> ensureInitialized() async {
     Hive
@@ -94,8 +98,6 @@ class PortfolioGrowthRepository {
   /// Returns the growth [ChartData] for the coin ([List] of [Point]).
   Future<ChartData> getCoinGrowthChart(
     AssetId coinId, {
-    // avoid the possibility of accidentally swapping the order of these
-    // required parameters by using named parameters
     required String fiatCoinId,
     required String walletId,
     DateTime? startAt,
@@ -103,12 +105,18 @@ class PortfolioGrowthRepository {
     bool useCache = true,
     bool ignoreTransactionFetchErrors = true,
   }) async {
+    final currentUser = await _sdk.auth.currentUser;
+    if (currentUser == null) {
+      throw Exception('User is not logged in');
+    }
+
     if (useCache) {
       final String compoundKey = GraphCache.getPrimaryKey(
-        coinId.id,
-        fiatCoinId,
-        GraphType.balanceGrowth,
-        walletId,
+        coinId: coinId.id,
+        fiatCoinId: fiatCoinId,
+        graphType: GraphType.balanceGrowth,
+        walletId: walletId,
+        isHdWallet: currentUser.isHd,
       );
       final GraphCache? cachedGraph = await _graphCache.get(compoundKey);
       final cacheExists = cachedGraph != null;
@@ -145,6 +153,7 @@ class PortfolioGrowthRepository {
           graph: List.empty(),
           graphType: GraphType.balanceGrowth,
           walletId: walletId,
+          isHdWallet: currentUser.isHd,
         ),
       );
       return List.empty();
@@ -190,6 +199,7 @@ class PortfolioGrowthRepository {
         graph: portfolowGrowthChart,
         graphType: GraphType.balanceGrowth,
         walletId: walletId,
+        isHdWallet: currentUser.isHd,
       ),
     );
 
@@ -219,6 +229,7 @@ class PortfolioGrowthRepository {
     List<Coin> coins, {
     required String fiatCoinId,
     required String walletId,
+    required bool isHdWallet,
     bool useCache = true,
     DateTime? startAt,
     DateTime? endAt,

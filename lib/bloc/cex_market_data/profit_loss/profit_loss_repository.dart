@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
@@ -15,7 +16,6 @@ import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cach
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class ProfitLossRepository {
@@ -26,38 +26,23 @@ class ProfitLossRepository {
     required TransactionHistoryRepo transactionHistoryRepo,
     required ProfitLossCalculator profitLossCalculator,
     required CoinsRepo coinsRepository,
+    required KomodoDefiSdk sdk,
   })  : _transactionHistoryRepo = transactionHistoryRepo,
         _cexRepository = cexRepository,
         _profitLossCacheProvider = profitLossCacheProvider,
         _profitLossCalculator = profitLossCalculator,
-        _coinsRepository = coinsRepository;
-
-  final PersistenceProvider<String, ProfitLossCache> _profitLossCacheProvider;
-  final cex.CexRepository _cexRepository;
-  final TransactionHistoryRepo _transactionHistoryRepo;
-  final ProfitLossCalculator _profitLossCalculator;
-  final CoinsRepo _coinsRepository;
-
-  static Future<void> ensureInitialized() async {
-    Hive
-      ..registerAdapter(FiatValueAdapter())
-      ..registerAdapter(ProfitLossAdapter())
-      ..registerAdapter(ProfitLossCacheAdapter());
-  }
-
-  Future<void> clearCache() async {
-    await _profitLossCacheProvider.deleteAll();
-  }
+        _coinsRepository = coinsRepository,
+        _sdk = sdk;
 
   /// Return a new instance of [ProfitLossRepository] with default values.
   ///
   /// If [demoMode] is provided, it will return a [MockProfitLossRepository].
   factory ProfitLossRepository.withDefaults({
-    String cacheTableName = 'profit_loss',
     required TransactionHistoryRepo transactionHistoryRepo,
     required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
-    required Mm2Api mm2Api,
+    required KomodoDefiSdk sdk,
+    String cacheTableName = 'profit_loss',
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
@@ -65,7 +50,7 @@ class ProfitLossRepository {
         performanceMode: demoMode,
         coinsRepository: coinsRepository,
         cacheTableName: 'mock_${cacheTableName}_${demoMode.name}',
-        mm2Api: mm2Api,
+        sdk: sdk,
       );
     }
 
@@ -76,7 +61,26 @@ class ProfitLossRepository {
       cexRepository: cexRepository,
       profitLossCalculator: RealisedProfitLossCalculator(cexRepository),
       coinsRepository: coinsRepository,
+      sdk: sdk,
     );
+  }
+
+  final PersistenceProvider<String, ProfitLossCache> _profitLossCacheProvider;
+  final cex.CexRepository _cexRepository;
+  final TransactionHistoryRepo _transactionHistoryRepo;
+  final ProfitLossCalculator _profitLossCalculator;
+  final CoinsRepo _coinsRepository;
+  final KomodoDefiSdk _sdk;
+
+  static Future<void> ensureInitialized() async {
+    Hive
+      ..registerAdapter(FiatValueAdapter())
+      ..registerAdapter(ProfitLossAdapter())
+      ..registerAdapter(ProfitLossCacheAdapter());
+  }
+
+  Future<void> clearCache() async {
+    await _profitLossCacheProvider.deleteAll();
   }
 
   /// Check if the coin is supported by the CEX API for charting.
@@ -135,11 +139,17 @@ class ProfitLossRepository {
     String walletId, {
     bool useCache = true,
   }) async {
+    final currentUser = await _sdk.auth.currentUser;
+    if (currentUser == null) {
+      return <ProfitLoss>[];
+    }
+
     if (useCache) {
       final String compoundKey = ProfitLossCache.getPrimaryKey(
-        coinId.id,
-        fiatCoinId,
-        walletId,
+        coinId: coinId.id,
+        fiatCurrency: fiatCoinId,
+        walletId: walletId,
+        isHdWallet: currentUser.isHd,
       );
       final ProfitLossCache? profitLossCache =
           await _profitLossCacheProvider.get(compoundKey);
@@ -159,11 +169,7 @@ class ProfitLossRepository {
     }
 
     final transactions =
-        await _transactionHistoryRepo.fetchCompletedTransactions(
-      // TODO: Refactor referenced coinsBloc method to a repository.
-      // NB: Even though the class is called [CoinsBloc], it is not a Bloc.
-      coinId,
-    );
+        await _transactionHistoryRepo.fetchCompletedTransactions(coinId);
 
     if (transactions.isEmpty) {
       await _profitLossCacheProvider.insert(
@@ -173,6 +179,7 @@ class ProfitLossRepository {
           fiatCoinId: fiatCoinId,
           lastUpdated: DateTime.now(),
           walletId: walletId,
+          isHdWallet: currentUser.isHd,
         ),
       );
       return <ProfitLoss>[];
@@ -192,6 +199,7 @@ class ProfitLossRepository {
         fiatCoinId: fiatCoinId,
         lastUpdated: DateTime.now(),
         walletId: walletId,
+        isHdWallet: currentUser.isHd,
       ),
     );
 

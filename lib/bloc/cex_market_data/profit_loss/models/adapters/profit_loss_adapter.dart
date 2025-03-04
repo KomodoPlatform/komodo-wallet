@@ -1,7 +1,6 @@
 import 'package:hive/hive.dart';
-
-import '../fiat_value.dart';
-import '../profit_loss.dart';
+import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
+import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 
 class ProfitLossAdapter extends TypeAdapter<ProfitLoss> {
   @override

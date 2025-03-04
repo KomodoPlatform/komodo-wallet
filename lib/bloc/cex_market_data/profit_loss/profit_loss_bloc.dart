@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
@@ -15,10 +16,8 @@ part 'profit_loss_event.dart';
 part 'profit_loss_state.dart';
 
 class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
-  ProfitLossBloc({
-    required ProfitLossRepository profitLossRepository,
-  })  : _profitLossRepository = profitLossRepository,
-        super(const ProfitLossInitial()) {
+  ProfitLossBloc(this._profitLossRepository, this._sdk)
+      : super(const ProfitLossInitial()) {
     // Use the restartable transformer for load events to avoid overlapping
     // events if the user rapidly changes the period (i.e. faster than the
     // previous event can complete).
@@ -26,12 +25,12 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       _onLoadPortfolioProfitLoss,
       transformer: restartable(),
     );
-
     on<ProfitLossPortfolioPeriodChanged>(_onPortfolioPeriodChanged);
     on<ProfitLossPortfolioChartClearRequested>(_onClearPortfolioProfitLoss);
   }
 
   final ProfitLossRepository _profitLossRepository;
+  final KomodoDefiSdk _sdk;
 
   void _onClearPortfolioProfitLoss(
     ProfitLossPortfolioChartClearRequested event,
@@ -47,18 +46,18 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     List<Coin> coins = await _removeUnsupportedCons(event);
     // Charts for individual coins (coin details) are parsed here as well,
     // and should be hidden if not supported.
-    if (coins.isEmpty && event.coins.length <= 1) {
-      return emit(
-        PortfolioProfitLossChartUnsupported(
-          selectedPeriod: event.selectedPeriod,
-        ),
-      );
-    }
+      if (coins.isEmpty && event.coins.length <= 1) {
+        return emit(
+          PortfolioProfitLossChartUnsupported(
+            selectedPeriod: event.selectedPeriod,
+          ),
+        );
+      }
 
-    await _getProfitLossChart(event, coins, useCache: true)
-        .then(emit.call)
-        .catchError((e, _) {
-      logger.log('Failed to load portfolio profit/loss: $e', isError: true);
+      await _getProfitLossChart(event, coins, useCache: true)
+          .then(emit.call)
+          .catchError((e, _) {
+        logger.log('Failed to load portfolio profit/loss: $e', isError: true);
       if (state is! PortfolioProfitLossChartLoadSuccess) {
         emit(
           ProfitLossLoadFailure(
@@ -66,24 +65,26 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
             selectedPeriod: event.selectedPeriod,
           ),
         );
-      }
-    });
+        }
+      });
 
-    // Fetch the un-cached version of the chart to update the cache.
-    coins = await _removeUnsupportedCons(event, allowInactiveCoins: false);
-    if (coins.isNotEmpty) {
-      await _getProfitLossChart(event, coins, useCache: false)
-          .then(emit.call)
-          .catchError((e, _) {
-        // Ignore un-cached errors, as a transaction loading exception should not
-        // make the graph disappear with a load failure emit, as the cached data
+      // Fetch the un-cached version of the chart to update the cache.
+      coins = await _removeUnsupportedCons(event, allowInactiveCoins: false);
+      if (coins.isNotEmpty) {
+        await _getProfitLossChart(event, coins, useCache: false)
+            .then(emit.call)
+            .catchError((e, _) {
+          // Ignore un-cached errors, as a transaction loading exception should not
+          // make the graph disappear with a load failure emit, as the cached data
         // is already displayed. The periodic updates will still try to fetch the
         // data and update the graph.
       });
     }
 
     await emit.forEach(
-      Stream.periodic(event.updateFrequency).asyncMap((_) async {
+      // computation is omitted, so null-valued events are emitted on a set 
+      // interval.
+      Stream<Object?>.periodic(event.updateFrequency).asyncMap((_) async {
         return _getSortedProfitLossChartForCoins(
           event,
           useCache: false,
@@ -196,6 +197,11 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     ProfitLossPortfolioChartLoadRequested event, {
     bool useCache = true,
   }) async {
+    final currentWallet = await _sdk.auth.currentUser;
+    if (currentWallet == null) {
+      throw Exception('No wallet found');
+    }
+
     final chartsList = await Future.wait(
       event.coins.map((coin) async {
         // Catch any errors and return an empty chart to prevent a single coin
@@ -218,10 +224,12 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
 
           return profitLosses.toChartData();
         } catch (e) {
-          logger.log(
-            'Failed to load cached profit/loss for coin ${coin.abbr}: $e',
-            isError: true,
-          );
+          logger
+              .log(
+                'Failed to load cached profit/loss for coin ${coin.abbr}: $e',
+                isError: true,
+              )
+              .ignore();
           return ChartData.empty();
         }
       }),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -19,6 +20,7 @@ class PortfolioGrowthBloc
   PortfolioGrowthBloc({
     required this.portfolioGrowthRepository,
     required this.coinsRepository,
+    required this.sdk,
   }) : super(const PortfolioGrowthInitial()) {
     // Use the restartable transformer for period change events to avoid
     // overlapping events if the user rapidly changes the period (i.e. faster
@@ -36,6 +38,7 @@ class PortfolioGrowthBloc
 
   final PortfolioGrowthRepository portfolioGrowthRepository;
   final CoinsRepo coinsRepository;
+  final KomodoDefiSdk sdk;
 
   void _onClearPortfolioGrowth(
     PortfolioGrowthClearRequested event,
@@ -114,12 +117,14 @@ class PortfolioGrowthBloc
         isError: true,
         trace: s,
         path: 'portfolio_growth_bloc => _onLoadPortfoliowGrowth',
-      );
+      ).ignore();
     }
 
     await emit.forEach(
-      Stream.periodic(event.updateFrequency)
-          .asyncMap((_) async => await _fetchPortfolioGrowthChart(event)),
+      // computation is omitted, so null-valued events are emitted on a set 
+      // interval.
+      Stream<Object?>.periodic(event.updateFrequency)
+          .asyncMap((_) async => _fetchPortfolioGrowthChart(event)),
       onData: (data) =>
           _handlePortfolioGrowthUpdate(data, event.selectedPeriod),
       onError: (e, _) {
@@ -150,12 +155,11 @@ class PortfolioGrowthBloc
   }
 
   Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
-    final List<Coin> coinsCopy = List.from(coins);
+    final coinsCopy = List<Coin>.of(coins);
+    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
     for (final coin in coins) {
-      final updatedCoin = await coinsRepository.getEnabledCoin(coin.abbr);
-      if (updatedCoin == null ||
-          updatedCoin.isActivating ||
-          !updatedCoin.isActive) {
+      if (!activeCoinsMap.contains(coin.id)) {
         coinsCopy.remove(coin);
       }
     }
@@ -167,11 +171,17 @@ class PortfolioGrowthBloc
     PortfolioGrowthLoadRequested event, {
     required bool useCache,
   }) async {
+    final currentUser = await sdk.auth.currentUser;
+    if (currentUser == null) {
+      return state;
+    }
+
     final chart = await portfolioGrowthRepository.getPortfolioGrowthChart(
       coins,
       fiatCoinId: event.fiatCoinId,
       walletId: event.walletId,
       useCache: useCache,
+      isHdWallet: currentUser.isHd,
     );
 
     if (useCache && chart.isEmpty) {
@@ -192,11 +202,16 @@ class PortfolioGrowthBloc
     try {
       final supportedCoins = await _removeUnsupportedCoins(event);
       final coins = await _removeInactiveCoins(supportedCoins);
+      final currentUser = await sdk.auth.currentUser;
+      if (currentUser == null) {
+        return ChartData.empty();
+      }
       return await portfolioGrowthRepository.getPortfolioGrowthChart(
         coins,
         fiatCoinId: event.fiatCoinId,
         walletId: event.walletId,
         useCache: false,
+        isHdWallet: currentUser.isHd,
       );
     } catch (e, s) {
       log(

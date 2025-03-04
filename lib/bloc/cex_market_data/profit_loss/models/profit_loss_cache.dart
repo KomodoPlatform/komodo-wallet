@@ -13,6 +13,7 @@ class ProfitLossCache extends Equatable
     required this.lastUpdated,
     required this.profitLosses,
     required this.walletId,
+    required this.isHdWallet,
   });
 
   /// The komodo coin abbreviation from the coins repository (e.g. BTC, KMD, etc.).
@@ -26,6 +27,10 @@ class ProfitLossCache extends Equatable
   /// The wallet ID associated with the profit/loss data.
   final String walletId;
 
+  /// Whether the wallet is an HD wallet. Same [walletId] can be use for both
+  /// HD and non-HD wallets, but the profit/loss data will be different.
+  final bool isHdWallet;
+
   /// The timestamp of the last update in seconds since epoch. (e.g. [DateTime.now().millisecondsSinceEpoch ~/ 1000])
   final DateTime lastUpdated;
 
@@ -33,13 +38,19 @@ class ProfitLossCache extends Equatable
   final List<ProfitLoss> profitLosses;
 
   @override
-  get primaryKey => getPrimaryKey(coinId, fiatCoinId, walletId);
+  String get primaryKey => getPrimaryKey(
+        coinId: coinId,
+        fiatCurrency: fiatCoinId,
+        walletId: walletId,
+        isHdWallet: isHdWallet,
+      );
 
-  static String getPrimaryKey(
-    String coinId,
-    String fiatCurrency,
-    String walletId,
-  ) =>
+  static String getPrimaryKey({
+    required String coinId,
+    required String fiatCurrency,
+    required String walletId,
+    required bool isHdWallet,
+  }) =>
       '$coinId-$fiatCurrency-$walletId';
 
   @override

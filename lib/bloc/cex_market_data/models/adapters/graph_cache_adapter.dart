@@ -21,13 +21,16 @@ class GraphCacheAdapter extends TypeAdapter<GraphCache> {
       graph: (fields[3] as List<dynamic>).cast<Point<double>>(),
       graphType: GraphType.fromName(fields[4] as String),
       walletId: fields[5] as String,
+      // Load conditionally, and set a default value for backwards compatibility
+      // with existing data
+      isHdWallet: fields.containsKey(6) ? fields[6] as bool : false,
     );
   }
 
   @override
   void write(BinaryWriter writer, GraphCache obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.coinId)
       ..writeByte(1)
@@ -39,7 +42,9 @@ class GraphCacheAdapter extends TypeAdapter<GraphCache> {
       ..writeByte(4)
       ..write(obj.graphType.name)
       ..writeByte(5)
-      ..write(obj.walletId);
+      ..write(obj.walletId)
+      ..writeByte(6)
+      ..write(obj.isHdWallet);
   }
 
   @override
