@@ -62,12 +62,20 @@ class Coin {
   CexPrice? usdPrice;
   final bool isTestCoin;
   bool isCustomCoin;
+
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.')
   String? address;
+
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset account management instead.')
   List<HdAccount>? accounts;
+
   final double _balance;
   final String? _swapContractAddress;
   String? fallbackSwapContract;
+
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s WalletManager to determine wallet type.')
   WalletType? enabledType;
+
   final bool _walletOnly;
   final int priority;
   Coin? parentCoin;
@@ -83,9 +91,10 @@ class Coin {
   bool get isActivating => state == CoinState.activating;
   bool get isInactive => state == CoinState.inactive;
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset.sendableBalance instead. This value is not updated after initial load and may be inaccurate.')
   double sendableBalance = 0;
 
-  @Deprecated('Use the balance manager from the SDK')
+  @Deprecated('$_urgentDeprecationNotice Use the balance manager from the SDK. This balance value is not updated after initial load and may be inaccurate.')
   double get balance {
     switch (enabledType) {
       case WalletType.trezor:
@@ -95,6 +104,7 @@ class Coin {
     }
   }
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset balance tracking instead. This balance value is not updated after initial load and may be inaccurate.')
   double? get _totalHdBalance {
     if (accounts == null) return null;
 
@@ -115,6 +125,7 @@ class Coin {
     return amount * usdPrice!.price;
   }
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset price and balance methods instead. This value uses potentially outdated balance and price information.')
   double? get usdBalance {
     if (usdPrice == null) return null;
     if (balance == 0) return 0;
@@ -127,6 +138,7 @@ class Coin {
     return '\$${formatAmt(calculateUsdAmount(amount))}';
   }
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset balance methods. This getter uses outdated balance information.')
   String get getFormattedUsdBalance => amountToFormattedUsd(balance);
 
   String get typeName => getCoinTypeName(type);
@@ -141,6 +153,7 @@ class Coin {
   bool get isTxMemoSupported =>
       type == CoinType.iris || type == CoinType.cosmos;
 
+  @Deprecated('TODO: Adapt SDK to cater for this use case and remove this method.')
   String? get defaultAddress {
     switch (enabledType) {
       case WalletType.trezor:
@@ -165,6 +178,7 @@ class Coin {
     return false;
   }
 
+  @Deprecated('TODO: Adapt SDK to cater for this use case and remove this method.')
   String? get _defaultTrezorAddress {
     if (enabledType != WalletType.trezor) return null;
     if (accounts == null) return null;
@@ -174,6 +188,7 @@ class Coin {
     return accounts!.first.addresses.first.address;
   }
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This value is not updated after initial load and may be inaccurate.')
   List<HdAddress> nonEmptyHdAddresses() {
     final List<HdAddress>? allAddresses = accounts?.first.addresses;
     if (allAddresses == null) return [];
@@ -183,11 +198,13 @@ class Coin {
     return nonEmpty;
   }
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset derivation methods instead. This method does not work for multiple addresses per coin.')
   String? getDerivationPath(String address) {
     final HdAddress? hdAddress = getHdAddress(address);
     return hdAddress?.derivationPath;
   }
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This method does not work for multiple addresses per coin.')
   HdAddress? getHdAddress(String? address) {
     if (address == null) return null;
     if (enabledType == WalletType.iguana) return null;
@@ -209,6 +226,7 @@ class Coin {
     return 'Coin($abbr);';
   }
 
+  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset state management instead.')
   void reset() {
     enabledType = null;
     accounts = null;
@@ -382,3 +400,5 @@ extension CoinListExtension on List<Coin> {
     return Map.fromEntries(map((coin) => MapEntry(coin.abbr, coin)));
   }
 }
+
+const String _urgentDeprecationNotice ='(URGENT) This must be fixed before the next release.';

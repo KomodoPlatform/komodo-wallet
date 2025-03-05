@@ -3,11 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/blocs/update_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/alpha_version_alert_service/alpha_version_alert_service.dart';
@@ -47,11 +45,6 @@ class _MainLayoutState extends State<MainLayout> {
         if (state.mode == AuthorizeMode.noLogin) {
           routingState.resetOnLogOut();
         }
-        // This is necessary until current wallet bloc can be phased out
-        // completely. AuthBloc adds metadata to the current user & wallet
-        // after the sign-in/register events, so current wallet bloc has to be
-        // updated to have the metadata reflect where it needs to
-        context.read<CurrentWalletBloc>().wallet = state.currentUser?.wallet;
       },
       child: Scaffold(
         key: scaffoldKey,

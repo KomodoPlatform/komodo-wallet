@@ -34,7 +34,7 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
   }
 
   Future<void> confirmSeedBackup({bool hasBackup = true}) async {
-    await auth.setOrRemoveActiveUserKeyValue('has_backup', true);
+    await auth.setOrRemoveActiveUserKeyValue('has_backup', hasBackup);
   }
 
   Future<void> setWalletType(WalletType type) async {

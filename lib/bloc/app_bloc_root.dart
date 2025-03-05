@@ -45,7 +45,6 @@ import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_bloc.dart';
 import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
-import 'package:web_dex/blocs/current_wallet_bloc.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/orderbook_bloc.dart';
@@ -112,7 +111,6 @@ class AppBlocRoot extends StatelessWidget {
       mm2Api,
       myOrdersService,
     );
-    final currentWalletBloc = RepositoryProvider.of<CurrentWalletBloc>(context);
     final dexRepository = DexRepository(mm2Api);
     final trezorRepo = RepositoryProvider.of<TrezorRepo>(context);
     final trezorBloc = RepositoryProvider.of<TrezorCoinsBloc>(context);
@@ -185,7 +183,6 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider(
             create: (context) => CoinsBloc(
               komodoDefiSdk,
-              currentWalletBloc,
               coinsRepository,
               trezorBloc,
               mm2Api,
@@ -261,7 +258,6 @@ class AppBlocRoot extends StatelessWidget {
             create: (_) => TrezorConnectionBloc(
               trezorRepo: trezorRepo,
               kdfSdk: komodoDefiSdk,
-              walletRepo: RepositoryProvider.of<CurrentWalletBloc>(context),
             ),
             lazy: false,
           ),
