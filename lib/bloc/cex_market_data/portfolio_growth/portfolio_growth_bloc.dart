@@ -4,13 +4,13 @@ import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 part 'portfolio_growth_event.dart';
 part 'portfolio_growth_state.dart';
@@ -39,6 +39,7 @@ class PortfolioGrowthBloc
   final PortfolioGrowthRepository portfolioGrowthRepository;
   final CoinsRepo coinsRepository;
   final KomodoDefiSdk sdk;
+  final _log = Logger('portfolio-growth-bloc');
 
   void _onClearPortfolioGrowth(
     PortfolioGrowthClearRequested event,
@@ -111,29 +112,21 @@ class PortfolioGrowthBloc
           // data and update the graph.
         });
       }
-    } catch (e, s) {
-      log(
-        'Failed to load portfolio growth: $e',
-        isError: true,
-        trace: s,
-        path: 'portfolio_growth_bloc => _onLoadPortfoliowGrowth',
-      ).ignore();
+    } catch (error, stackTrace) {
+      _log.severe('Failed to load portfolio growth', error, stackTrace);
     }
 
     await emit.forEach(
-      // computation is omitted, so null-valued events are emitted on a set 
+      // computation is omitted, so null-valued events are emitted on a set
       // interval.
       Stream<Object?>.periodic(event.updateFrequency)
           .asyncMap((_) async => _fetchPortfolioGrowthChart(event)),
       onData: (data) =>
           _handlePortfolioGrowthUpdate(data, event.selectedPeriod),
-      onError: (e, _) {
-        log(
-          'Failed to load portfolio growth: $e',
-          isError: true,
-        );
+      onError: (error, stackTrace) {
+        _log.severe('Failed to load portfolio growth', error, stackTrace);
         return GrowthChartLoadFailure(
-          error: TextError(error: e.toString()),
+          error: TextError(error: 'Failed to load portfolio growth'),
           selectedPeriod: event.selectedPeriod,
         );
       },
@@ -213,13 +206,8 @@ class PortfolioGrowthBloc
         useCache: false,
         isHdWallet: currentUser.isHd,
       );
-    } catch (e, s) {
-      log(
-        'Empty growth chart on periodic update: $e',
-        isError: true,
-        trace: s,
-        path: 'PortfolioGrowthBloc',
-      ).ignore();
+    } catch (error, stackTrace) {
+      _log.severe('Empty growth chart on periodic update', error, stackTrace);
       return ChartData.empty();
     }
   }

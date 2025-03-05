@@ -229,6 +229,7 @@ Future<void> launchURLString(
   }
 }
 
+// TODO: deprecate
 Future<void> log(
   String message, {
   String? path,
