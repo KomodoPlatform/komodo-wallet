@@ -43,9 +43,10 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     ProfitLossPortfolioChartLoadRequested event,
     Emitter<ProfitLossState> emit,
   ) async {
-    List<Coin> coins = await _removeUnsupportedCons(event);
-    // Charts for individual coins (coin details) are parsed here as well,
-    // and should be hidden if not supported.
+    try {
+      List<Coin> coins = await _removeUnsupportedCons(event);
+      // Charts for individual coins (coin details) are parsed here as well,
+      // and should be hidden if not supported.
       if (coins.isEmpty && event.coins.length <= 1) {
         return emit(
           PortfolioProfitLossChartUnsupported(
@@ -58,13 +59,14 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
           .then(emit.call)
           .catchError((e, _) {
         logger.log('Failed to load portfolio profit/loss: $e', isError: true);
-      if (state is! PortfolioProfitLossChartLoadSuccess) {
-        emit(
-          ProfitLossLoadFailure(
-            error: TextError(error: 'Failed to load portfolio profit/loss: $e'),
-            selectedPeriod: event.selectedPeriod,
-          ),
-        );
+        if (state is! PortfolioProfitLossChartLoadSuccess) {
+          emit(
+            ProfitLossLoadFailure(
+              error:
+                  TextError(error: 'Failed to load portfolio profit/loss: $e'),
+              selectedPeriod: event.selectedPeriod,
+            ),
+          );
         }
       });
 
@@ -76,9 +78,20 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
             .catchError((e, _) {
           // Ignore un-cached errors, as a transaction loading exception should not
           // make the graph disappear with a load failure emit, as the cached data
-        // is already displayed. The periodic updates will still try to fetch the
-        // data and update the graph.
-      });
+          // is already displayed. The periodic updates will still try to fetch the
+          // data and update the graph.
+        });
+      }
+    } catch (e) {
+      logger
+          .log('Failed to load portfolio profit/loss: $e', isError: true)
+          .ignore();
+      emit(
+        ProfitLossLoadFailure(
+          error: TextError(error: 'Failed to load portfolio profit/loss: $e'),
+          selectedPeriod: event.selectedPeriod,
+        ),
+      );
     }
 
     await emit.forEach(

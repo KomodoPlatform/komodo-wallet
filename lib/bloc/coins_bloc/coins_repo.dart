@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
@@ -94,9 +95,7 @@ class CoinsRepo {
     return _assetToCoinWithoutAddress(asset);
   }
 
-  @Deprecated('Use KomodoDefiSdk assets or getCoinFromId instead. '
-      'This uses the deprecated assetsFromTicker method that uses a separate '
-      'cache that does not update with custom token activation.')
+  @Deprecated('Use KomodoDefiSdk assets or getCoinFromId instead.')
   Coin? getCoin(String coinId) {
     if (coinId.isEmpty) return null;
 
@@ -128,16 +127,23 @@ class CoinsRepo {
   }
 
   Future<Coin?> getEnabledCoin(String coinId) async {
-    final enabledAssets = _kdfSdk.assets.assetsFromTicker(coinId);
-    if (enabledAssets.length != 1) {
-      return null;
-    }
     final currentUser = await _kdfSdk.auth.currentUser;
     if (currentUser == null) {
       return null;
     }
 
-    final coin = _assetToCoinWithoutAddress(enabledAssets.single);
+    final enabledAssets = await _kdfSdk.assets.getEnabledCoins();
+    final enabledAsset = enabledAssets.firstWhereOrNull(
+      (asset) => asset == coinId,
+    );
+    if (enabledAsset == null) {
+      return null;
+    }
+
+    final coin = getCoin(enabledAsset);
+    if (coin == null) {
+      return null;
+    }
     final coinAddress = await getFirstPubkey(coin.abbr);
     return coin.copyWith(
       address: coinAddress,
@@ -229,7 +235,8 @@ class CoinsRepo {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       final coinIdList = assets.map((e) => e.id.id).join(', ');
-      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      log('No wallet signed in. Skipping activation of [$coinIdList}]')
+          .ignore();
       return;
     }
 
@@ -247,8 +254,9 @@ class CoinsRepo {
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
       } catch (e, s) {
         log(
-          'Error activating coin: ${asset.id.id} \n$e',
+          'Error activating asset: ${asset.id.id} \n$e',
           isError: true,
+          path: 'coins_repo => activateAssetsSync',
           trace: s,
         ).ignore();
         await _broadcastAsset(
@@ -271,7 +279,8 @@ class CoinsRepo {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       final coinIdList = coins.map((e) => e.abbr).join(', ');
-      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      log('No wallet signed in. Skipping activation of [$coinIdList}]')
+          .ignore();
       return;
     }
 
@@ -478,7 +487,7 @@ class CoinsRepo {
       // Coins with the same coingeckoId supposedly have same usd price
       // (e.g. KMD == KMD-BEP20)
       final Iterable<Coin> samePriceCoins =
-          (getKnownCoins()).where((coin) => coin.coingeckoId == coingeckoId);
+          getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
         prices[coin.abbr] = CexPrice(
