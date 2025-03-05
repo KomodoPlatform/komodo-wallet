@@ -27,7 +27,7 @@ class FaucetButton extends StatefulWidget {
 }
 
 class _FaucetButtonState extends State<FaucetButton> {
-  bool _dialogShown = false;
+  static String? _activeAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +35,10 @@ class _FaucetButtonState extends State<FaucetButton> {
 
     return BlocConsumer<FaucetBloc, FaucetState>(
       listenWhen: (previous, current) {
-        return previous is! FaucetLoading && current is FaucetLoading;
+        return _activeAddress == widget.address.address;
       },
       listener: (context, state) {
-        if (state is FaucetLoading && !_dialogShown) {
-          _dialogShown = true;
+        if (state is FaucetLoading) {
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -50,11 +49,13 @@ class _FaucetButtonState extends State<FaucetButton> {
                 coinAddress: widget.address.address,
                 onClose: () {
                   Navigator.of(dialogContext).pop();
-                  _dialogShown = false;
+                  Future.delayed(Duration(milliseconds: 300), () {
+                    _activeAddress = null;
+                  });
                 },
               ),
             ),
-          ).then((_) => _dialogShown = false);
+          );
         }
       },
       builder: (context, state) {
@@ -66,19 +67,19 @@ class _FaucetButtonState extends State<FaucetButton> {
               borderRadius: BorderRadius.circular(16.0),
             ),
             child: UiPrimaryButton(
-              key: const Key('coin-details-faucet-button'),
+              key: Key('coin-details-faucet-button-${widget.address.address}'),
               height: isMobile ? 24.0 : 32.0,
               backgroundColor: themeData.colorScheme.tertiary,
-              onPressed: state is FaucetLoading
-                  ? null
-                  : () {
-                      print(
-                          "🔥 Faucet button clicked for ${widget.coinAbbr} - ${widget.address.address}");
-                      context.read<FaucetBloc>().add(FaucetRequested(
-                            coinAbbr: widget.coinAbbr,
-                            address: widget.address.address,
-                          ));
-                    },
+              onPressed: () {
+                if (_activeAddress != null) {
+                  return;
+                }
+                _activeAddress = widget.address.address;
+                context.read<FaucetBloc>().add(FaucetRequested(
+                  coinAbbr: widget.coinAbbr,
+                  address: widget.address.address,
+                ));
+              },
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   vertical: isMobile ? 6.0 : 8.0,
@@ -105,3 +106,4 @@ class _FaucetButtonState extends State<FaucetButton> {
     );
   }
 }
+
