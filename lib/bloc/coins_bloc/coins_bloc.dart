@@ -244,6 +244,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
             .copyWith(walletCoins: {...state.walletCoins, coin.abbr: coin}),
       );
     }
+
+    add(CoinsBalancesRefreshed());
   }
 
   Future<void> _onCoinsDeactivated(
