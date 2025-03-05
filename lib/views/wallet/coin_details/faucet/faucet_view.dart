@@ -4,47 +4,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/3p_api/faucet/faucet_response.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
-import 'package:web_dex/views/common/pages/page_layout.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/cubit/faucet_cubit.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/cubit/faucet_state.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/widgets/faucet_message.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/views/wallet/coin_details/faucet/cubit/faucet_state.dart';
+import 'package:web_dex/bloc/faucet_button/faucet_button_bloc.dart';
 
 class FaucetView extends StatelessWidget {
-  const FaucetView({Key? key, required this.onBackButtonPressed})
-      : super(key: key);
+  const FaucetView({
+    Key? key,
+    required this.coinAbbr,
+    required this.coinAddress,
+    required this.onClose,
+  }) : super(key: key);
 
-  final VoidCallback onBackButtonPressed;
+  final String coinAbbr;
+  final String coinAddress;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FaucetCubit, FaucetState>(
-      builder: (context, state) {
-        if (state is FaucetInitial) {
-          context.read<FaucetCubit>().callFaucet();
-        }
-        final scrollController = ScrollController();
-        return PageLayout(
-          header: PageHeader(
-            title: title(state),
-            backText: LocaleKeys.backToWallet.tr(),
-            onBackButtonPressed: onBackButtonPressed,
-          ),
-          content: Flexible(
-            child: DexScrollbar(
-              scrollController: scrollController,
-              child: SingleChildScrollView(
-                controller: scrollController,
-                child: _StatesOfPage(
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        padding: const EdgeInsets.all(16),
+        child: BlocBuilder<FaucetBloc, FaucetState>(
+          builder: (context, state) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _DialogHeader(title: title(state), onClose: onClose),
+                _StatesOfPage(
                   state: state,
-                  onBackButtonPressed: onBackButtonPressed,
+                  onClose: onClose,
                 ),
-              ),
-            ),
-          ),
-        );
-      },
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -62,10 +60,35 @@ class FaucetView extends StatelessWidget {
   }
 }
 
+class _DialogHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback onClose;
+
+  const _DialogHeader({required this.title, required this.onClose});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: onClose,
+        ),
+      ],
+    );
+  }
+}
+
 class _StatesOfPage extends StatelessWidget {
   final FaucetState state;
-  final VoidCallback onBackButtonPressed;
-  const _StatesOfPage({required this.state, required this.onBackButtonPressed});
+  final VoidCallback onClose;
+  const _StatesOfPage({required this.state, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -80,14 +103,14 @@ class _StatesOfPage extends StatelessWidget {
             : theme.custom.headerFloatBoxColor,
         icon: isDenied ? Icons.close_rounded : Icons.check_rounded,
         message: localState.response.message,
-        onBackButtonPressed: onBackButtonPressed,
+        onClose: onClose,
       );
     } else if (localState is FaucetError) {
       return _FaucetResult(
         color: theme.custom.decreaseColor,
         icon: Icons.close_rounded,
         message: localState.message,
-        onBackButtonPressed: onBackButtonPressed,
+        onClose: onClose,
       );
     }
 
@@ -116,14 +139,14 @@ class _FaucetResult extends StatelessWidget {
   final Color color;
   final IconData icon;
   final String message;
-  final VoidCallback onBackButtonPressed;
+  final VoidCallback onClose;
 
   const _FaucetResult({
     Key? key,
     required this.color,
     required this.icon,
     required this.message,
-    required this.onBackButtonPressed,
+    required this.onClose,
   }) : super(key: key);
 
   @override
@@ -148,7 +171,7 @@ class _FaucetResult extends StatelessWidget {
           child: UiPrimaryButton(
             text: LocaleKeys.close.tr(),
             width: 324,
-            onPressed: onBackButtonPressed,
+            onPressed: onClose,
           ),
         ),
         const SizedBox(height: 20),

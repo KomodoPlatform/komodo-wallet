@@ -57,94 +57,95 @@ class _CoinAddressesState extends State<CoinAddresses> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
-      builder: (context, state) {
-        return BlocProvider.value(
-          value: _addressesBloc,
-          child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
-            builder: (context, state) {
-              return SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    Card(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      color: theme.custom.dexPageTheme.frontPlate,
-                      child: Padding(
-                        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _Header(
-                              status: state.status,
-                              createAddressStatus: state.createAddressStatus,
-                              hideZeroBalance: state.hideZeroBalance,
-                              cantCreateNewAddressReasons:
-                                  state.cantCreateNewAddressReasons,
-                            ),
-                            const SizedBox(height: 12),
-                            ...state.addresses.asMap().entries.map(
-                              (entry) {
-                                final index = entry.key;
-                                final address = entry.value;
-                                if (state.hideZeroBalance &&
-                                    !address.balance.hasBalance) {
-                                  return const SizedBox();
-                                }
-
-                                return AddressCard(
-                                  address: address,
-                                  index: index,
-                                  coin: widget.coin,
-                                  setPageType: widget.setPageType,
-                                );
-                              },
-                            ),
-                            if (state.status == FormStatus.submitting)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20.0),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
+        builder: (context, state) {
+          return BlocProvider.value(
+            value: _addressesBloc,
+            child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
+              builder: (context, state) {
+                return SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      Card(
+                        margin: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        color: theme.custom.dexPageTheme.frontPlate,
+                        child: Padding(
+                          padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _Header(
+                                status: state.status,
+                                createAddressStatus: state.createAddressStatus,
+                                hideZeroBalance: state.hideZeroBalance,
+                                cantCreateNewAddressReasons:
+                                    state.cantCreateNewAddressReasons,
                               ),
-                            if (state.status == FormStatus.failure ||
-                                state.createAddressStatus == FormStatus.failure)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 20.0),
-                                child: Center(
-                                  child: Text(
-                                    state.errorMessage ??
-                                        LocaleKeys.somethingWrong.tr(),
-                                    style: TextStyle(
-                                      color:
-                                          theme.currentGlobal.colorScheme.error,
+                              const SizedBox(height: 12),
+                              ...state.addresses.asMap().entries.map(
+                                (entry) {
+                                  final index = entry.key;
+                                  final address = entry.value;
+                                  if (state.hideZeroBalance &&
+                                      !address.balance.hasBalance) {
+                                    return const SizedBox();
+                                  }
+
+                                  return AddressCard(
+                                    address: address,
+                                    index: index,
+                                    coin: widget.coin,
+                                    setPageType: widget.setPageType,
+                                  );
+                                },
+                              ),
+                              if (state.status == FormStatus.submitting)
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                                  child: Center(
+                                      child: CircularProgressIndicator()),
+                                ),
+                              if (state.status == FormStatus.failure ||
+                                  state.createAddressStatus ==
+                                      FormStatus.failure)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 20.0),
+                                  child: Center(
+                                    child: Text(
+                                      state.errorMessage ??
+                                          LocaleKeys.somethingWrong.tr(),
+                                      style: TextStyle(
+                                        color: theme
+                                            .currentGlobal.colorScheme.error,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    if (isMobile)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: CreateButton(
-                          status: state.status,
-                          createAddressStatus: state.createAddressStatus,
-                          cantCreateNewAddressReasons:
-                              state.cantCreateNewAddressReasons,
+                      if (isMobile)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: CreateButton(
+                            status: state.status,
+                            createAddressStatus: state.createAddressStatus,
+                            cantCreateNewAddressReasons:
+                                state.cantCreateNewAddressReasons,
+                          ),
                         ),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      );
   }
 }
 
@@ -224,17 +225,18 @@ class AddressCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       AddressText(address: address.address),
                       const SizedBox(width: 8),
+                      if (coin.hasFaucet)
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: 80,
+                            maxWidth: isMobile ? 100 : 160,
+                          ),
+                          child: FaucetButton(
+                            coinAbbr: coin.abbr,
+                            address: address,
+                          ),
+                        ),
                       SwapAddressTag(address: address),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: 80,
-                          maxWidth: isMobile ? 100 : 160,
-                        ),
-                        child: FaucetButton(
-                          address: address,
-                          onPressed: () => setPageType(CoinPageType.faucet),
-                        ),
-                      ),
                       const Spacer(),
                       AddressCopyButton(address: address.address),
                       QrButton(
@@ -256,7 +258,6 @@ class AddressCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     AddressCopyButton(address: address.address),
                     QrButton(coin: coin, address: address),
-                    SwapAddressTag(address: address),
                     if (coin.hasFaucet)
                       ConstrainedBox(
                         constraints: BoxConstraints(
@@ -264,10 +265,11 @@ class AddressCard extends StatelessWidget {
                           maxWidth: isMobile ? 100 : 160,
                         ),
                         child: FaucetButton(
+                          coinAbbr: coin.abbr,
                           address: address,
-                          onPressed: () => setPageType(CoinPageType.faucet),
                         ),
                       ),
+                    SwapAddressTag(address: address),
                   ],
                 ),
               ),
