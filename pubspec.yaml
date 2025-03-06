@@ -209,7 +209,6 @@ flutter:
     - assets/fiat/fiat_icons_square/
     - assets/fiat/providers/
     - assets/packages/flutter_inappwebview_web/assets/web/
-    - app_build/build_config.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

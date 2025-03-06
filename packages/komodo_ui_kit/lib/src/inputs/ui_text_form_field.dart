@@ -130,7 +130,8 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
   void didUpdateWidget(covariant UiTextFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.errorText != oldWidget.errorText) {
+    final error = widget.validator?.call(_controller?.text) ?? widget.errorText;
+    if (error != oldWidget.errorText) {
       _errorText = widget.errorText;
       _displayedErrorText = widget.errorText;
       if (_errorText?.isNotEmpty == true) {

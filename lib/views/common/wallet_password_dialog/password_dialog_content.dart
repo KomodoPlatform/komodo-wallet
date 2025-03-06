@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -9,15 +10,17 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 
+// TODO: refactor this widget, and other seed viewing/backup related widgets
+// to use a dedicated bloc for seed access attempts (view and download)
 class PasswordDialogContent extends StatefulWidget {
   const PasswordDialogContent({
-    Key? key,
     required this.onSuccess,
     required this.onCancel,
+    super.key,
     this.wallet,
-  }) : super(key: key);
+  });
 
-  final Function(String) onSuccess;
+  final void Function(String) onSuccess;
 
   final VoidCallback onCancel;
   final Wallet? wallet;
@@ -54,14 +57,12 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
           Container(
             padding: const EdgeInsets.only(top: 24),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 UiTextFormField(
                   key: const Key('confirmation-showing-seed-phrase'),
                   controller: _passwordController,
                   autocorrect: false,
-                  enableInteractiveSelection: true,
                   obscureText: _isObscured,
                   inputFormatters: [LengthLimitingTextInputFormatter(40)],
                   errorMaxLines: 6,
@@ -89,7 +90,7 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
                     text: LocaleKeys.cancel.tr(),
                     onPressed: widget.onCancel,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -106,9 +107,28 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
     setState(() => _inProgress = true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+      try {
+        final seed = await sdk.auth.getMnemonicPlainText(password);
+        if (seed.plaintextMnemonic?.isEmpty ?? true) {
+          _setInvalidPasswordState();
+          return;
+        }
+      } catch (_) {
+        _setInvalidPasswordState();
+        return;
+      }
+
       widget.onSuccess(password);
 
       if (mounted) setState(() => _inProgress = false);
+    });
+  }
+
+  void _setInvalidPasswordState() {
+    setState(() {
+      _error = LocaleKeys.invalidPasswordError.tr();
+      _inProgress = false;
     });
   }
 }

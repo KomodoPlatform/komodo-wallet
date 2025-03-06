@@ -11,6 +11,10 @@ class AuthModeChanged extends AuthBlocEvent {
   final KdfUser? currentUser;
 }
 
+class AuthStateClearRequested extends AuthBlocEvent {
+  const AuthStateClearRequested();
+}
+
 class AuthSignOutRequested extends AuthBlocEvent {
   const AuthSignOutRequested();
 }

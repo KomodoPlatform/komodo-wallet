@@ -38,7 +38,6 @@ class IguanaWalletsManager extends StatefulWidget {
 class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   bool _isLoading = false;
   WalletsManagerAction _action = WalletsManagerAction.none;
-  String? _errorText;
   Wallet? _selectedWallet;
   WalletsManagerExistWalletAction _existWalletAction =
       WalletsManagerExistWalletAction.none;
@@ -117,7 +116,6 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
             wallet: selectedWallet,
             onLogin: _logInToWallet,
             onCancel: _cancel,
-            errorText: _errorText,
           );
       }
     }
@@ -179,11 +177,12 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
 
   void _cancel() {
     setState(() {
-      _errorText = null;
       _selectedWallet = null;
       _action = WalletsManagerAction.none;
       _existWalletAction = WalletsManagerExistWalletAction.none;
     });
+
+    context.read<AuthBloc>().add(const AuthStateClearRequested());
   }
 
   void _createWallet({
@@ -225,7 +224,6 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   Future<void> _logInToWallet(String password, Wallet wallet) async {
     setState(() {
       _isLoading = true;
-      _errorText = null;
     });
 
     final AnalyticsBloc analyticsBloc = context.read<AnalyticsBloc>();

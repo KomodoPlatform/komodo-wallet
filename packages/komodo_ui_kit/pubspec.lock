@@ -95,7 +95,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: dev
-      resolved-ref: af79b7d09ab3f3b45ff6767b9556c514f09b25ce
+      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -104,7 +104,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: dev
-      resolved-ref: af79b7d09ab3f3b45ff6767b9556c514f09b25ce
+      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -113,7 +113,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: dev
-      resolved-ref: af79b7d09ab3f3b45ff6767b9556c514f09b25ce
+      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"

@@ -1,5 +1,7 @@
 // DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
 
+// ignore_for_file: constant_identifier_names
+
 abstract class  LocaleKeys {
   static const plsActivateKmd = 'plsActivateKmd';
   static const rewardClaiming = 'rewardClaiming';
@@ -196,6 +198,7 @@ abstract class  LocaleKeys {
   static const customSeedWarningText = 'customSeedWarningText';
   static const customSeedIUnderstand = 'customSeedIUnderstand';
   static const walletCreationBip39SeedError = 'walletCreationBip39SeedError';
+  static const walletCreationHdBip39SeedError = 'walletCreationHdBip39SeedError';
   static const walletPageNoSuchAsset = 'walletPageNoSuchAsset';
   static const swapCoin = 'swapCoin';
   static const fiatBalance = 'fiatBalance';
@@ -606,8 +609,8 @@ abstract class  LocaleKeys {
   static const importTokenWarning = 'importTokenWarning';
   static const importToken = 'importToken';
   static const selectNetwork = 'selectNetwork';
-  static const tokenNotFound = 'tokenNotFound';
   static const tokenContractAddress = 'tokenContractAddress';
+  static const tokenNotFound = 'tokenNotFound';
   static const decimals = 'decimals';
   static const onlySendToThisAddress = 'onlySendToThisAddress';
   static const scanTheQrCode = 'scanTheQrCode';

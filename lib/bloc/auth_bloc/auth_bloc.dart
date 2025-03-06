@@ -21,6 +21,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   AuthBloc(this._kdfSdk, this._walletsRepository)
       : super(AuthBlocState.initial()) {
     on<AuthModeChanged>(_onAuthChanged);
+    on<AuthStateClearRequested>(_onClearState);
     on<AuthSignOutRequested>(_onLogout);
     on<AuthSignInRequested>(_onLogIn);
     on<AuthRegisterRequested>(_onRegister);
@@ -31,11 +32,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
   final KomodoDefiSdk _kdfSdk;
   final WalletsRepository _walletsRepository;
-  StreamSubscription<KdfUser?>? _authorizationSubscription;
+  StreamSubscription<KdfUser?>? _authChangesSubscription;
 
   @override
   Future<void> close() async {
-    await _authorizationSubscription?.cancel();
+    await _authChangesSubscription?.cancel();
     await super.close();
   }
 
@@ -43,17 +44,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     AuthSignOutRequested event,
     Emitter<AuthBlocState> emit,
   ) async {
-    log(
-      'Logging out from a wallet',
-      path: 'auth_bloc => _logOut',
-    ).ignore();
-
+    log('Logging out from a wallet', path: 'auth_bloc => _logOut').ignore();
+    emit(AuthBlocState.loading());
     await _kdfSdk.auth.signOut();
-    log(
-      'Logged out from a wallet',
-      path: 'auth_bloc => _logOut',
-    ).ignore();
-    emit(const AuthBlocState(mode: AuthorizeMode.noLogin, currentUser: null));
+    await _authChangesSubscription?.cancel();
+    emit(AuthBlocState.initial());
   }
 
   Future<void> _onLogIn(
@@ -72,6 +67,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       }
 
       log('login  from a wallet', path: 'auth_bloc => _reLogin').ignore();
+      emit(AuthBlocState.loading());
       await _kdfSdk.auth.signIn(
         walletName: event.wallet.name,
         password: event.password,
@@ -81,22 +77,20 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
               : DerivationMethod.iguana,
         ),
       );
+      final KdfUser? currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        return emit(AuthBlocState.error('Failed to login'));
+      }
+
       log('logged in  from a wallet', path: 'auth_bloc => _reLogin').ignore();
-      emit(
-        AuthBlocState(
-          mode: AuthorizeMode.logIn,
-          currentUser: await _kdfSdk.auth.currentUser,
-        ),
-      );
+      emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
-      log(
-        'Failed to login wallet ${event.wallet.name}',
-        isError: true,
-        trace: s,
-        path: 'auth_bloc -> onLogin',
-      ).ignore();
-      emit(const AuthBlocState(mode: AuthorizeMode.noLogin));
+      final error = 'Failed to login wallet ${event.wallet.name}';
+      log(error, isError: true, trace: s, path: 'auth_bloc -> onLogin')
+          .ignore();
+      emit(AuthBlocState.error(error));
+      await _authChangesSubscription?.cancel();
     }
   }
 
@@ -107,20 +101,21 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     emit(AuthBlocState(mode: event.mode, currentUser: event.currentUser));
   }
 
+  Future<void> _onClearState(
+    AuthStateClearRequested event,
+    Emitter<AuthBlocState> emit,
+  ) async {
+    await _authChangesSubscription?.cancel();
+    emit(AuthBlocState.initial());
+  }
+
   Future<void> _onRegister(
     AuthRegisterRequested event,
     Emitter<AuthBlocState> emit,
   ) async {
     try {
-      final existingWallets = await _kdfSdk.auth.getUsers();
-      final walletExists = existingWallets
-          .any((KdfUser user) => user.walletId.name == event.wallet.name);
-      if (walletExists) {
-        add(
-          AuthSignInRequested(wallet: event.wallet, password: event.password),
-        );
-        log('Wallet ${event.wallet.name} already exist, attempting sign-in')
-            .ignore();
+      emit(AuthBlocState.loading());
+      if (await _didSignInExistingWallet(event.wallet, event.password)) {
         return;
       }
 
@@ -134,27 +129,26 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
               : DerivationMethod.iguana,
         ),
       );
+
       if (!await _kdfSdk.auth.isSignedIn()) {
         throw Exception('Registration failed: user is not signed in');
       }
+
       log('registered  from a wallet', path: 'auth_bloc => _register').ignore();
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: false);
-      emit(
-        AuthBlocState(
-          mode: AuthorizeMode.logIn,
-          currentUser: await _kdfSdk.auth.currentUser,
-        ),
-      );
+      final currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('Registration failed: user is not signed in');
+      }
+      emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
-      log(
-        'Failed to register wallet ${event.wallet.name}',
-        isError: true,
-        trace: s,
-        path: 'auth_bloc -> onRegister',
-      ).ignore();
-      emit(const AuthBlocState(mode: AuthorizeMode.noLogin));
+      final error = 'Failed to register wallet ${event.wallet.name}';
+      log(error, isError: true, trace: s, path: 'auth_bloc -> onRegister')
+          .ignore();
+      emit(AuthBlocState.error(error));
+      await _authChangesSubscription?.cancel();
     }
   }
 
@@ -163,15 +157,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     Emitter<AuthBlocState> emit,
   ) async {
     try {
-      final existingWallets = await _kdfSdk.auth.getUsers();
-      final walletExists = existingWallets
-          .any((KdfUser user) => user.walletId.name == event.wallet.name);
-      if (walletExists) {
-        add(
-          AuthSignInRequested(wallet: event.wallet, password: event.password),
-        );
-        log('Wallet ${event.wallet.name} already exist, attempting sign-in')
-            .ignore();
+      emit(AuthBlocState.loading());
+      if (await _didSignInExistingWallet(event.wallet, event.password)) {
         return;
       }
 
@@ -186,20 +173,19 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
               : DerivationMethod.iguana,
         ),
       );
+
       if (!await _kdfSdk.auth.isSignedIn()) {
         throw Exception('Registration failed: user is not signed in');
       }
-      log('restored  from a wallet', path: 'auth_bloc => _restore').ignore();
 
+      log('restored  from a wallet', path: 'auth_bloc => _restore').ignore();
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
-
-      emit(
-        AuthBlocState(
-          mode: AuthorizeMode.logIn,
-          currentUser: await _kdfSdk.auth.currentUser,
-        ),
-      );
+      final currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('Registration failed: user is not signed in');
+      }
+      emit(AuthBlocState.loggedIn(currentUser));
 
       // Delete legacy wallet on successful restoration & login to avoid
       // duplicates in the wallet list
@@ -210,14 +196,28 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
       _listenToAuthStateChanges();
     } catch (e, s) {
-      log(
-        'Failed to restore existing wallet ${event.wallet.name}',
-        isError: true,
-        trace: s,
-        path: 'auth_bloc -> onRestore',
-      ).ignore();
-      emit(const AuthBlocState(mode: AuthorizeMode.noLogin));
+      final error = 'Failed to restore existing wallet ${event.wallet.name}';
+      log(error, isError: true, trace: s, path: 'auth_bloc -> onRestore')
+          .ignore();
+      emit(AuthBlocState.error(error));
+      await _authChangesSubscription?.cancel();
     }
+  }
+
+  Future<bool> _didSignInExistingWallet(
+    Wallet wallet,
+    String password,
+  ) async {
+    final existingWallets = await _kdfSdk.auth.getUsers();
+    final walletExists = existingWallets
+        .any((KdfUser user) => user.walletId.name == wallet.name);
+    if (walletExists) {
+      add(AuthSignInRequested(wallet: wallet, password: password));
+      log('Wallet ${wallet.name} already exist, attempting sign-in').ignore();
+      return true;
+    }
+
+    return false;
   }
 
   Future<void> _onSeedBackupConfirmed(
@@ -254,8 +254,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   }
 
   void _listenToAuthStateChanges() {
-    _authorizationSubscription?.cancel();
-    _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
+    _authChangesSubscription?.cancel();
+    _authChangesSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
       final AuthorizeMode event =
           user != null ? AuthorizeMode.logIn : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));

@@ -7,7 +7,7 @@ runs:
       continue-on-error: false
       shell: bash
       run: |
-        COIN_ASSETS_DIR=build/web/assets/packages/komodo_defi_framework/assets
+        SDK_KDF_ASSETS_DIR=build/web/assets/packages/komodo_defi_framework
 
         # Check that the web build folder contains a wasm file in the format build/web/kdf/*.wasm
         if [ ! -f build/web/kdf/kdf/bin/*.wasm ]; then
@@ -45,35 +45,32 @@ runs:
           fi
         fi
 
-        # Check that app_build/build_config.json is present, is valid json
-        # and does not contain "LAST_RUN" in the first line (invalid json format)
-        if [ ! -f app_build/build_config.json ]; then
+        # Check that $SDK_KDF_ASSETS_DIR/app_build/build_config.json is present, and is valid json
+        if [ ! -f $SDK_KDF_ASSETS_DIR/app_build/build_config.json ]; then
           echo "Error: build_config.json file not found."
           exit 1
         fi
-        if ! jq . app_build/build_config.json > /dev/null; then
+        if ! jq . $SDK_KDF_ASSETS_DIR/app_build/build_config.json > /dev/null; then
           echo "Error: build_config.json is not valid json"
           exit 1
         fi
 
-        # Check that $COIN_ASSETS_DIR/config/coins.json is present, is valid json
-        # and does not contain "LAST_RUN" in the first line (invalid json format)
-        if [ ! -f $COIN_ASSETS_DIR/config/coins.json ]; then
+        # Check that $SDK_KDF_ASSETS_DIR/assets/config/coins.json is present, and is valid json
+        if [ ! -f $SDK_KDF_ASSETS_DIR/assets/config/coins.json ]; then
           echo "Error: coins.json file not found."
           exit 1
         fi
-        if ! jq . $COIN_ASSETS_DIR/config/coins.json > /dev/null; then
+        if ! jq . $SDK_KDF_ASSETS_DIR/assets/config/coins.json > /dev/null; then
           echo "Error: coins.json is not valid json"
           exit 1
         fi
 
-        # Check that $COIN_ASSETS_DIR/config/coins_config.json is present, is valid json
-        # and does not contain "LAST_RUN" in the first line (invalid json format)
-        if [ ! -f $COIN_ASSETS_DIR/config/coins_config.json ]; then
+        # Check that $SDK_KDF_ASSETS_DIR/assets/config/coins_config.json is present, and is valid json
+        if [ ! -f $SDK_KDF_ASSETS_DIR/assets/config/coins_config.json ]; then
           echo "Error: coins_config.json file not found."
           exit 1
         fi
-        if ! jq . $COIN_ASSETS_DIR/config/coins_config.json > /dev/null; then
+        if ! jq . $SDK_KDF_ASSETS_DIR/assets/config/coins_config.json > /dev/null; then
           echo "Error: coins_config.json is not valid json"
           exit 1
         fi
