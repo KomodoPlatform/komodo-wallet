@@ -214,7 +214,6 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider<PortfolioGrowthBloc>(
             create: (BuildContext ctx) => PortfolioGrowthBloc(
               portfolioGrowthRepository: portfolioGrowthRepo,
-              coinsRepository: coinsRepository,
               sdk: komodoDefiSdk,
             ),
           ),

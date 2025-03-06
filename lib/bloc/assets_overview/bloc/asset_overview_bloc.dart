@@ -7,7 +7,7 @@ import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart'
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart' as logger;
+import 'package:logging/logging.dart';
 
 part 'asset_overview_event.dart';
 part 'asset_overview_state.dart';
@@ -28,6 +28,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
 
   final ProfitLossRepository profitLossRepository;
   final InvestmentRepository investmentRepository;
+  final _log = Logger('AssetOverviewBloc');
 
   Timer? _updateTimer;
 
@@ -65,8 +66,8 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
           investmentReturnPercentage: investmentReturnPercentage,
         ),
       );
-    } catch (e) {
-      logger.log('Failed to load asset overview: $e', isError: true);
+    } catch (e,s) {
+      _log.shout('Failed to load asset overview', e,s);
       if (state is! AssetOverviewLoadSuccess) {
         emit(AssetOverviewLoadFailure(error: e.toString()));
       }
@@ -125,7 +126,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
 
       emit(
         PortfolioAssetsOverviewLoadSuccess(
-          selectedAssetIds: event.coins.map((coin) => coin.abbr).toList(),
+          selectedAssetIds: event.coins.map((coin) => coin.id.id).toList(),
           assetPortionPercentages: assetPortionPercentages,
           totalInvestment: totalInvestment,
           totalValue: FiatValue.usd(profitAmount),
@@ -133,8 +134,8 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
           profitIncreasePercentage: portfolioInvestmentReturnPercentage,
         ),
       );
-    } catch (e) {
-      logger.log('Failed to load portfolio assets overview: $e', isError: true);
+    } catch (e,s) {
+      _log.shout('Failed to load portfolio assets overview', e, s);
       if (state is! PortfolioAssetsOverviewLoadSuccess) {
         emit(AssetOverviewLoadFailure(error: e.toString()));
       }
