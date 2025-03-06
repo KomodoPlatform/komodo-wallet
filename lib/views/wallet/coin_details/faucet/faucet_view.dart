@@ -3,10 +3,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/3p_api/faucet/faucet_response.dart';
+import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/widgets/faucet_message.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/cubit/faucet_state.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_bloc.dart';
 
 class FaucetView extends StatelessWidget {
@@ -25,10 +25,12 @@ class FaucetView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
         padding: const EdgeInsets.all(16),
         child: BlocBuilder<FaucetBloc, FaucetState>(
+          buildWhen: (previous, current) => previous != current,
           builder: (context, state) {
             return Column(
               mainAxisSize: MainAxisSize.min,

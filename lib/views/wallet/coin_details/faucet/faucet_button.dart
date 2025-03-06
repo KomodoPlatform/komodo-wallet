@@ -7,7 +7,7 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_bloc.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_event.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/cubit/faucet_state.dart';
+import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/faucet_view.dart';
 
 class FaucetButton extends StatefulWidget {
@@ -27,15 +27,14 @@ class FaucetButton extends StatefulWidget {
 }
 
 class _FaucetButtonState extends State<FaucetButton> {
-  static String? _activeAddress;
-
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
 
     return BlocConsumer<FaucetBloc, FaucetState>(
       listenWhen: (previous, current) {
-        return _activeAddress == widget.address.address;
+        return (current is FaucetLoading && current.address == widget.address.address) ||
+            (previous is FaucetLoading && current is! FaucetLoading);
       },
       listener: (context, state) {
         if (state is FaucetLoading) {
@@ -49,9 +48,6 @@ class _FaucetButtonState extends State<FaucetButton> {
                 coinAddress: widget.address.address,
                 onClose: () {
                   Navigator.of(dialogContext).pop();
-                  Future.delayed(Duration(milliseconds: 300), () {
-                    _activeAddress = null;
-                  });
                 },
               ),
             ),
@@ -59,27 +55,29 @@ class _FaucetButtonState extends State<FaucetButton> {
         }
       },
       builder: (context, state) {
+        final isLoading =
+            state is FaucetLoading && state.address == widget.address.address;
         return Padding(
           padding: EdgeInsets.only(left: isMobile ? 4 : 8),
           child: Container(
             decoration: BoxDecoration(
-              color: themeData.colorScheme.tertiary,
+              color: isLoading
+                  ? themeData.colorScheme.tertiary.withAlpha(130)
+                  : themeData.colorScheme.tertiary,
               borderRadius: BorderRadius.circular(16.0),
             ),
             child: UiPrimaryButton(
               key: Key('coin-details-faucet-button-${widget.address.address}'),
               height: isMobile ? 24.0 : 32.0,
               backgroundColor: themeData.colorScheme.tertiary,
-              onPressed: () {
-                if (_activeAddress != null) {
-                  return;
-                }
-                _activeAddress = widget.address.address;
-                context.read<FaucetBloc>().add(FaucetRequested(
-                  coinAbbr: widget.coinAbbr,
-                  address: widget.address.address,
-                ));
-              },
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      context.read<FaucetBloc>().add(FaucetRequested(
+                            coinAbbr: widget.coinAbbr,
+                            address: widget.address.address,
+                          ));
+                    },
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   vertical: isMobile ? 6.0 : 8.0,
@@ -106,4 +104,3 @@ class _FaucetButtonState extends State<FaucetButton> {
     );
   }
 }
-

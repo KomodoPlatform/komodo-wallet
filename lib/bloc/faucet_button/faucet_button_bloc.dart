@@ -3,23 +3,27 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/3p_api/faucet/faucet.dart' as api;
 import 'package:web_dex/3p_api/faucet/faucet_response.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_event.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/cubit/faucet_state.dart';
-import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
 
-class FaucetBloc extends Bloc<FaucetRequested, FaucetState> {
+class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamable<FaucetState> {
   final KomodoDefiSdk kdfSdk;
 
   FaucetBloc({required this.kdfSdk}) : super(FaucetInitial()) {
-    on<FaucetRequested>(_onFaucetRequest, transformer: sequential());
+    on<FaucetRequested>(_onFaucetRequest);
   }
 
   Future<void> _onFaucetRequest(
     FaucetRequested event,
     Emitter<FaucetState> emit,
   ) async {
-    if (state is FaucetLoading) return;
+    if (state is FaucetLoading) {
+      final currentLoading = state as FaucetLoading;
+      if (currentLoading.address == event.address) {
+        return;
+      }
+    }
 
-    emit(FaucetLoading());
+    emit(FaucetLoading(address: event.address));
 
     try {
       final response = await api.callFaucet(event.coinAbbr, event.address);
