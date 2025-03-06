@@ -7,7 +7,6 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -19,7 +18,6 @@ class PortfolioGrowthBloc
     extends Bloc<PortfolioGrowthEvent, PortfolioGrowthState> {
   PortfolioGrowthBloc({
     required this.portfolioGrowthRepository,
-    required this.coinsRepository,
     required this.sdk,
   }) : super(const PortfolioGrowthInitial()) {
     // Use the restartable transformer for period change events to avoid
@@ -37,9 +35,8 @@ class PortfolioGrowthBloc
   }
 
   final PortfolioGrowthRepository portfolioGrowthRepository;
-  final CoinsRepo coinsRepository;
   final KomodoDefiSdk sdk;
-  final _log = Logger('portfolio-growth-bloc');
+  final _log = Logger('PortfolioGrowthBloc');
 
   void _onClearPortfolioGrowth(
     PortfolioGrowthClearRequested event,
@@ -88,11 +85,13 @@ class PortfolioGrowthBloc
 
       await _loadChart(coins, event, useCache: true)
           .then(emit.call)
-          .catchError((e, _) {
+          .catchError((Object error, StackTrace stackTrace) {
+        const errorMessage = 'Failed to load cached chart';
+        _log.warning(errorMessage, error, stackTrace);
         if (state is! PortfolioGrowthChartLoadSuccess) {
           emit(
             GrowthChartLoadFailure(
-              error: TextError(error: e.toString()),
+              error: TextError(error: errorMessage),
               selectedPeriod: event.selectedPeriod,
             ),
           );
@@ -105,15 +104,15 @@ class PortfolioGrowthBloc
       if (activeCoins.isNotEmpty) {
         await _loadChart(activeCoins, event, useCache: false)
             .then(emit.call)
-            .catchError((_, __) {
-          // Ignore un-cached errors, as a transaction loading exception should not
-          // make the graph disappear with a load failure emit, as the cached data
-          // is already displayed. The periodic updates will still try to fetch the
-          // data and update the graph.
+            .catchError((Object error, StackTrace stackTrace) {
+          _log.shout('Failed to load chart', error, stackTrace);
+          // Don't emit an error state here. If cached and uncached attempts
+          // both fail, the periodic refresh attempts should recovery
+          // at the cost of a longer first loading time.
         });
       }
     } catch (error, stackTrace) {
-      _log.severe('Failed to load portfolio growth', error, stackTrace);
+      _log.shout('Failed to load CACHED portfolio growth', error, stackTrace);
     }
 
     await emit.forEach(
@@ -124,7 +123,7 @@ class PortfolioGrowthBloc
       onData: (data) =>
           _handlePortfolioGrowthUpdate(data, event.selectedPeriod),
       onError: (error, stackTrace) {
-        _log.severe('Failed to load portfolio growth', error, stackTrace);
+        _log.shout('Failed to load portfolio growth', error, stackTrace);
         return GrowthChartLoadFailure(
           error: TextError(error: 'Failed to load portfolio growth'),
           selectedPeriod: event.selectedPeriod,
@@ -145,18 +144,6 @@ class PortfolioGrowthBloc
       }
     }
     return coins;
-  }
-
-  Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
-    final coinsCopy = List<Coin>.of(coins);
-    final activeCoins = await sdk.assets.getActivatedAssets();
-    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
-    for (final coin in coins) {
-      if (!activeCoinsMap.contains(coin.id)) {
-        coinsCopy.remove(coin);
-      }
-    }
-    return coinsCopy;
   }
 
   Future<PortfolioGrowthState> _loadChart(
@@ -207,9 +194,21 @@ class PortfolioGrowthBloc
         isHdWallet: currentUser.isHd,
       );
     } catch (error, stackTrace) {
-      _log.severe('Empty growth chart on periodic update', error, stackTrace);
+      _log.shout('Empty growth chart on periodic update', error, stackTrace);
       return ChartData.empty();
     }
+  }
+
+  Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
+    final coinsCopy = List<Coin>.of(coins);
+    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
+    for (final coin in coins) {
+      if (!activeCoinsMap.contains(coin.id)) {
+        coinsCopy.remove(coin);
+      }
+    }
+    return coinsCopy;
   }
 
   PortfolioGrowthState _handlePortfolioGrowthUpdate(

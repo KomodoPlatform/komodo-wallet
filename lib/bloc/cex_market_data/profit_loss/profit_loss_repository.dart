@@ -90,7 +90,8 @@ class ProfitLossRepository {
 
     stopwatch.stop();
     _log.fine(
-        'Profit/loss cache cleared in ${stopwatch.elapsedMilliseconds}ms');
+      'Profit/loss cache cleared in ${stopwatch.elapsedMilliseconds}ms',
+    );
   }
 
   /// Check if the coin is supported by the CEX API for charting.
@@ -107,30 +108,11 @@ class ProfitLossRepository {
     AssetId coinId,
     String fiatCoinId, {
     bool allowFiatAsBase = false,
-    bool allowInactiveCoins = false,
   }) async {
     final stopwatch = Stopwatch()..start();
     _log.fine(
-        'Checking if coin ${coinId.id} is supported for profit/loss calculation');
-
-    if (!allowInactiveCoins) {
-      final coinCheckStopwatch = Stopwatch()..start();
-      final coin = await _coinsRepository.getEnabledCoin(coinId.id);
-      coinCheckStopwatch.stop();
-
-      if (coin == null || coin.isActivating || !coin.isActive) {
-        _log.fine(
-          'Coin ${coinId.id} not supported: is not active or is activating '
-          '(checked in ${coinCheckStopwatch.elapsedMilliseconds}ms)',
-        );
-        stopwatch.stop();
-        return false;
-      }
-      _log.fine(
-        'Coin ${coinId.id} is active '
-        '(checked in ${coinCheckStopwatch.elapsedMilliseconds}ms)',
-      );
-    }
+      'Checking if coin ${coinId.id} is supported for profit/loss calculation',
+    );
 
     final supportedCoinsStopwatch = Stopwatch()..start();
     final supportedCoins = await _cexRepository.getCoinList();
@@ -225,9 +207,6 @@ class ProfitLossRepository {
           'entries: ${profitLossCache.profitLosses.length}',
         );
         methodStopwatch.stop();
-        _log.fine(
-          'getProfitLoss completed in ${methodStopwatch.elapsedMilliseconds}ms (cached)',
-        );
         return profitLossCache.profitLosses;
       }
       _log.fine(
@@ -249,15 +228,8 @@ class ProfitLossRepository {
         '(checked in ${supportCheckStopwatch.elapsedMilliseconds}ms)',
       );
       methodStopwatch.stop();
-      _log.fine(
-        'getProfitLoss completed in ${methodStopwatch.elapsedMilliseconds}ms (unsupported)',
-      );
       return <ProfitLoss>[];
     }
-    _log.fine(
-      'Coin ${coinId.id} is supported for profit/loss calculation '
-      '(checked in ${supportCheckStopwatch.elapsedMilliseconds}ms)',
-    );
 
     final txStopwatch = Stopwatch()..start();
     _log.fine('Fetching transactions for ${coinId.id}');
@@ -288,11 +260,7 @@ class ProfitLossRepository {
         'Cached empty profit/loss for ${coinId.id} '
         'in ${cacheInsertStopwatch.elapsedMilliseconds}ms',
       );
-
       methodStopwatch.stop();
-      _log.fine(
-        'getProfitLoss completed in ${methodStopwatch.elapsedMilliseconds}ms (empty)',
-      );
       return <ProfitLoss>[];
     }
 
@@ -328,13 +296,7 @@ class ProfitLossRepository {
       'Cached ${profitLosses.length} profit/loss entries for ${coinId.id} '
       'in ${cacheInsertStopwatch.elapsedMilliseconds}ms',
     );
-
     methodStopwatch.stop();
-    _log.fine(
-      'getProfitLoss completed in ${methodStopwatch.elapsedMilliseconds}ms '
-      'with ${profitLosses.length} entries',
-    );
-
     return profitLosses;
   }
 }

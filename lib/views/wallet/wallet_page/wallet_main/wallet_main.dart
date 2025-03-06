@@ -159,7 +159,6 @@ class _WalletMainState extends State<WalletMain>
       PortfolioGrowthLoadRequested(
         coins: walletCoins,
         fiatCoinId: 'USDT',
-        updateFrequency: const Duration(minutes: 1),
         selectedPeriod: portfolioGrowthBloc.state.selectedPeriod,
         walletId: walletId,
       ),
