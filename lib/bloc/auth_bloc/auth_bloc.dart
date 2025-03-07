@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
@@ -137,6 +138,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       log('registered  from a wallet', path: 'auth_bloc => _register').ignore();
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: false);
+      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+
       final currentUser = await _kdfSdk.auth.currentUser;
       if (currentUser == null) {
         throw Exception('Registration failed: user is not signed in');
@@ -181,6 +184,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       log('restored  from a wallet', path: 'auth_bloc => _restore').ignore();
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
+      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+      
       final currentUser = await _kdfSdk.auth.currentUser;
       if (currentUser == null) {
         throw Exception('Registration failed: user is not signed in');

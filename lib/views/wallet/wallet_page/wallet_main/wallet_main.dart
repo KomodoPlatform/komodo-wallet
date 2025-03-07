@@ -4,6 +4,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
@@ -20,6 +21,7 @@ import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
@@ -152,8 +154,16 @@ class _WalletMainState extends State<WalletMain>
     final portfolioGrowthBloc = context.read<PortfolioGrowthBloc>();
     final profitLossBloc = context.read<ProfitLossBloc>();
     final assetOverviewBloc = context.read<AssetOverviewBloc>();
-    final walletCoins =
-        context.read<CoinsBloc>().state.walletCoins.values.toList();
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+
+    // Use the historical (previously activated) wallet coins here, as the
+    // [CoinsBloc] state might not be updated yet if the user signs in on this
+    // page. Having this function refresh on [CoinsBloc] state changes is not
+    // ideal, as it would spam API requests each time a coin is activated, or
+    // balance updated.
+    // TODO: update to event-based approach based on soon-to-be-implemented
+    // balance events from the SDK
+    final walletCoins = await sdk.getWalletCoins();
 
     portfolioGrowthBloc.add(
       PortfolioGrowthLoadRequested(
@@ -262,17 +272,16 @@ class _WalletMainState extends State<WalletMain>
 }
 
 class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
-  final bool withBalance;
-  final Function(String) onSearchChange;
-  final Function(bool) onWithBalanceChange;
-  final AuthorizeMode mode;
-
   _SliverSearchBarDelegate({
     required this.withBalance,
     required this.onSearchChange,
     required this.onWithBalanceChange,
     required this.mode,
   });
+  final bool withBalance;
+  final Function(String) onSearchChange;
+  final Function(bool) onWithBalanceChange;
+  final AuthorizeMode mode;
 
   @override
   final double minExtent = 110;

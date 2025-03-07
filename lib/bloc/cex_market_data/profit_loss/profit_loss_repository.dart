@@ -15,9 +15,7 @@ import 'package:web_dex/bloc/cex_market_data/profit_loss/models/adapters/adapter
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/shared/utils/utils.dart' show abbr2Ticker;
 
 class ProfitLossRepository {
   ProfitLossRepository({
@@ -26,13 +24,11 @@ class ProfitLossRepository {
     required cex.CexRepository cexRepository,
     required TransactionHistoryRepo transactionHistoryRepo,
     required ProfitLossCalculator profitLossCalculator,
-    required CoinsRepo coinsRepository,
     required KomodoDefiSdk sdk,
   })  : _transactionHistoryRepo = transactionHistoryRepo,
         _cexRepository = cexRepository,
         _profitLossCacheProvider = profitLossCacheProvider,
         _profitLossCalculator = profitLossCalculator,
-        _coinsRepository = coinsRepository,
         _sdk = sdk;
 
   /// Return a new instance of [ProfitLossRepository] with default values.
@@ -41,7 +37,6 @@ class ProfitLossRepository {
   factory ProfitLossRepository.withDefaults({
     required TransactionHistoryRepo transactionHistoryRepo,
     required cex.CexRepository cexRepository,
-    required CoinsRepo coinsRepository,
     required KomodoDefiSdk sdk,
     String cacheTableName = 'profit_loss',
     PerformanceMode? demoMode,
@@ -49,7 +44,6 @@ class ProfitLossRepository {
     if (demoMode != null) {
       return MockProfitLossRepository.withDefaults(
         performanceMode: demoMode,
-        coinsRepository: coinsRepository,
         cacheTableName: 'mock_${cacheTableName}_${demoMode.name}',
         sdk: sdk,
       );
@@ -61,7 +55,6 @@ class ProfitLossRepository {
           HiveLazyBoxProvider<String, ProfitLossCache>(name: cacheTableName),
       cexRepository: cexRepository,
       profitLossCalculator: RealisedProfitLossCalculator(cexRepository),
-      coinsRepository: coinsRepository,
       sdk: sdk,
     );
   }
@@ -70,7 +63,6 @@ class ProfitLossRepository {
   final cex.CexRepository _cexRepository;
   final TransactionHistoryRepo _transactionHistoryRepo;
   final ProfitLossCalculator _profitLossCalculator;
-  final CoinsRepo _coinsRepository;
   final KomodoDefiSdk _sdk;
 
   final _log = Logger('profit-loss-repository');
@@ -122,7 +114,7 @@ class ProfitLossRepository {
       '${supportedCoinsStopwatch.elapsedMilliseconds}ms',
     );
 
-    final coinTicker = abbr2Ticker(coinId.id).toUpperCase();
+    final coinTicker = coinId.symbol.assetConfigId.toUpperCase();
     // Allow fiat coins through, as they are represented by a constant value,
     // 1, in the repository layer and are not supported by the CEX API
     if (allowFiatAsBase && coinId.id == fiatCoinId.toUpperCase()) {

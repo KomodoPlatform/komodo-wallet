@@ -8,6 +8,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
+import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -46,10 +47,11 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     Emitter<ProfitLossState> emit,
   ) async {
     try {
-      List<Coin> coins = await _removeUnsupportedCons(event);
+      final supportedCoins =
+          await _removeUnsupportedCons(event.coins, event.fiatCoinId);
       // Charts for individual coins (coin details) are parsed here as well,
       // and should be hidden if not supported.
-      if (coins.isEmpty && event.coins.length <= 1) {
+      if (supportedCoins.isEmpty && event.coins.length <= 1) {
         return emit(
           PortfolioProfitLossChartUnsupported(
             selectedPeriod: event.selectedPeriod,
@@ -57,11 +59,10 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         );
       }
 
-      await _getProfitLossChart(event, coins, useCache: true)
+      await _getProfitLossChart(event, supportedCoins, useCache: true)
           .then(emit.call)
           .catchError((Object error, StackTrace stackTrace) {
         const errorMessage = 'Failed to load CACHED portfolio profit/loss';
-        // log warning here, because cached
         _log.warning(errorMessage, error, stackTrace);
         if (state is! PortfolioProfitLossChartLoadSuccess) {
           emit(
@@ -74,9 +75,11 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       });
 
       // Fetch the un-cached version of the chart to update the cache.
-      coins = await _removeUnsupportedCons(event);
-      if (coins.isNotEmpty) {
-        await _getProfitLossChart(event, coins, useCache: false)
+      final activeCoins = await _removeInactiveCoins(supportedCoins);
+      await _sdk.waitForEnabledCoinsToPassThreshold(activeCoins);
+
+      if (activeCoins.isNotEmpty) {
+        await _getProfitLossChart(event, activeCoins, useCache: false)
             .then(emit.call)
             .catchError((e, _) {
           // Ignore un-cached errors, as a transaction loading exception should not
@@ -154,19 +157,20 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
   }
 
   Future<List<Coin>> _removeUnsupportedCons(
-    ProfitLossPortfolioChartLoadRequested event,
+    List<Coin> walletCoins,
+    String fiatCoinId,
   ) async {
-    final List<Coin> coins = List.from(event.coins);
-    for (final coin in event.coins) {
+    final coins = List<Coin>.of(walletCoins);
+    for (final coin in coins) {
       final isCoinSupported = await _profitLossRepository.isCoinChartSupported(
         coin.id,
-        event.fiatCoinId,
+        fiatCoinId,
       );
       if (coin.isTestCoin || !isCoinSupported) {
         coins.remove(coin);
       }
     }
-    return _removeInactiveCoins(coins);
+    return coins;
   }
 
   Future<void> _onPortfolioPeriodChanged(

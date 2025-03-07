@@ -130,7 +130,6 @@ class AppBlocRoot extends StatelessWidget {
       // Returns real data if performanceMode is null. Consider changing the
       // other repositories to use this pattern.
       demoMode: performanceMode,
-      coinsRepository: coinsRepository,
       sdk: komodoDefiSdk,
     );
 
@@ -199,10 +198,9 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider<AssetOverviewBloc>(
             create: (context) => AssetOverviewBloc(
-              investmentRepository: InvestmentRepository(
-                profitLossRepository: profitLossRepo,
-              ),
-              profitLossRepository: profitLossRepo,
+              profitLossRepo,
+              InvestmentRepository(profitLossRepository: profitLossRepo),
+              komodoDefiSdk,
             ),
           ),
           BlocProvider<ProfitLossBloc>(

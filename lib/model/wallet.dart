@@ -166,25 +166,11 @@ extension KdfUserWalletExtension on KdfUser {
       config: WalletConfig(
         seedPhrase: '',
         pubKey: walletId.pubkeyHash,
-        activatedCoins: _parseActivatedCoins(walletType),
+        activatedCoins: metadata.valueOrNull<List<String>>('activated_coins') ?? [],
         hasBackup: metadata['has_backup'] as bool? ?? false,
         type: walletType,
       ),
     );
-  }
-
-  List<String> _parseActivatedCoins(WalletType walletType) {
-    final activatedCoins =
-        metadata.valueOrNull<List<String>>('activated_coins');
-    if (activatedCoins == null || activatedCoins.isEmpty) {
-      if (walletType == WalletType.trezor) {
-        return enabledByDefaultTrezorCoins;
-      }
-
-      return enabledByDefaultCoins;
-    }
-
-    return activatedCoins;
   }
 }
 
