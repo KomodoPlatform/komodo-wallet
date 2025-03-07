@@ -145,7 +145,7 @@ class CoinsRepo {
     if (coin == null) {
       return null;
     }
-    final coinAddress = await getFirstPubkey(coin.abbr);
+    final coinAddress = await getFirstPubkey(coin.id.id);
     return coin.copyWith(
       address: coinAddress,
       state: CoinState.active,
@@ -174,7 +174,7 @@ class CoinsRepo {
     final coinsMap = Map.fromEntries(entries);
     for (final coinId in coinsMap.keys) {
       final coin = coinsMap[coinId]!;
-      final coinAddress = await getFirstPubkey(coin.abbr);
+      final coinAddress = await getFirstPubkey(coin.id.id);
       coinsMap[coinId] = coin.copyWith(
         address: coinAddress,
         state: CoinState.active,
@@ -186,9 +186,9 @@ class CoinsRepo {
 
   Coin _assetToCoinWithoutAddress(Asset asset) {
     final coin = asset.toCoin();
-    final balance = _balancesCache[coin.abbr]?.balance;
-    final sendableBalance = _balancesCache[coin.abbr]?.sendableBalance;
-    final price = _pricesCache[coin.abbr];
+    final balance = _balancesCache[coin.id.id]?.balance;
+    final sendableBalance = _balancesCache[coin.id.id]?.sendableBalance;
+    final price = _pricesCache[coin.id.id];
 
     Coin? parentCoin;
     if (asset.id.isChildAsset) {
@@ -270,7 +270,7 @@ class CoinsRepo {
   Future<void> activateCoinsSync(List<Coin> coins) async {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
-      final coinIdList = coins.map((e) => e.abbr).join(', ');
+      final coinIdList = coins.map((e) => e.id.id).join(', ');
       _log.warning(
         'No wallet signed in. Skipping activation of [$coinIdList}]',
       );
@@ -290,12 +290,12 @@ class CoinsRepo {
         // ignore: deprecated_member_use
         final progress = await _kdfSdk.assets.activateAsset(asset).last;
         if (!progress.isSuccess) {
-          throw StateError('Failed to activate coin ${coin.abbr}');
+          throw StateError('Failed to activate coin ${coin.id.id}');
         }
 
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
       } catch (e, s) {
-        _log.shout('Error activating coin: ${coin.abbr} \n$e', e, s);
+        _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
         await _broadcastAsset(coin.copyWith(state: CoinState.suspended));
       } finally {
         // Register outside of the try-catch to ensure icon is available even
@@ -314,7 +314,7 @@ class CoinsRepo {
     if (!await _kdfSdk.auth.isSignedIn()) return;
 
     for (final coin in coins) {
-      await _disableCoin(coin.abbr);
+      await _disableCoin(coin.id.id);
       await _broadcastAsset(coin.copyWith(state: CoinState.inactive));
     }
   }
@@ -450,8 +450,8 @@ class CoinsRepo {
           getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
-        prices[coin.abbr] = CexPrice(
-          ticker: coin.abbr,
+        prices[coin.id.id] = CexPrice(
+          ticker: coin.id.id,
           price: double.parse(pricesData['usd'].toString()),
         );
       }
@@ -494,7 +494,7 @@ class CoinsRepo {
           balance: newBalance,
           sendableBalance: newSendableBalance,
         );
-        _balancesCache[coins[i].abbr] =
+        _balancesCache[coins[i].id.id] =
             (balance: newBalance, sendableBalance: newSendableBalance);
       }
     }

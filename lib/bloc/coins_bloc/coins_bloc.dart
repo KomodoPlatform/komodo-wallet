@@ -142,8 +142,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         await emit.forEach(
           coinUpdateStream,
           onData: (Coin coin) => state.copyWith(
-            walletCoins: {...state.walletCoins, coin.abbr: coin},
-            coins: {...state.coins, coin.abbr: coin},
+            walletCoins: {...state.walletCoins, coin.id.id: coin},
+            coins: {...state.coins, coin.id.id: coin},
           ),
         );
     }
@@ -157,22 +157,22 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final walletCoins = Map<String, Coin>.of(state.walletCoins);
 
     if (coin.isActivating || coin.isActive || coin.isSuspended) {
-      await _kdfSdk.addActivatedCoins([coin.abbr]);
+      await _kdfSdk.addActivatedCoins([coin.id.id]);
       emit(
         state.copyWith(
-          walletCoins: {...walletCoins, coin.abbr: coin},
-          coins: {...state.coins, coin.abbr: coin},
+          walletCoins: {...walletCoins, coin.id.id: coin},
+          coins: {...state.coins, coin.id.id: coin},
         ),
       );
     }
 
     if (coin.isInactive) {
-      walletCoins.remove(coin.abbr);
-      await _kdfSdk.removeActivatedCoins([coin.abbr]);
+      walletCoins.remove(coin.id.id);
+      await _kdfSdk.removeActivatedCoins([coin.id.id]);
       emit(
         state.copyWith(
           walletCoins: walletCoins,
-          coins: {...state.coins, coin.abbr: coin},
+          coins: {...state.coins, coin.id.id: coin},
         ),
       );
     }
@@ -240,7 +240,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       await emit.forEach(
         coinUpdates,
         onData: (coin) => state
-            .copyWith(walletCoins: {...state.walletCoins, coin.abbr: coin}),
+            .copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
       );
     }
 
@@ -256,13 +256,13 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       _log.info('Disabling a ${coin.name} ($coinId)');
       coin.reset();
 
-      await _kdfSdk.removeActivatedCoins([coin.abbr]);
-      await _mm2Api.disableCoin(coin.abbr);
+      await _kdfSdk.removeActivatedCoins([coin.id.id]);
+      await _mm2Api.disableCoin(coin.id.id);
 
       final newWalletCoins = Map<String, Coin>.of(state.walletCoins)
-        ..remove(coin.abbr);
+        ..remove(coin.id.id);
       final newCoins = Map<String, Coin>.of(state.coins);
-      newCoins[coin.abbr]!.state = CoinState.inactive;
+      newCoins[coin.id.id]!.state = CoinState.inactive;
       emit(state.copyWith(walletCoins: newWalletCoins, coins: newCoins));
 
       _log.info('${coin.name} has been disabled');
@@ -342,7 +342,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         case WalletType.hdwallet:
           coin.reset();
           final newWalletCoins = Map<String, Coin>.of(state.walletCoins);
-          newWalletCoins.remove(coin.abbr.toUpperCase());
+          newWalletCoins.remove(coin.id.id.toUpperCase());
           emit(state.copyWith(walletCoins: newWalletCoins));
           _log.info('Logout: ${coin.name} has been removed from wallet coins');
         case WalletType.trezor:
@@ -394,8 +394,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       results.add(coin);
       emit(
         state.copyWith(
-          walletCoins: {...state.walletCoins, coin.abbr: coin},
-          coins: {...state.coins, coin.abbr: coin},
+          walletCoins: {...state.walletCoins, coin.id.id: coin},
+          coins: {...state.coins, coin.id.id: coin},
         ),
       );
     }
@@ -417,7 +417,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
           )
           .where((coin) => coin != null)
           .cast<Coin>(),
-      key: (element) => (element as Coin).abbr,
+      key: (element) => (element as Coin).id.id,
     );
     return state.copyWith(
       walletCoins: {...state.walletCoins, ...activatingCoins},
@@ -497,7 +497,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     for (int i = 0; i < attempts; i++) {
       final List<String> suspended = state.walletCoins.values
           .where((coin) => coin.isSuspended)
-          .map((coin) => coin.abbr)
+          .map((coin) => coin.id.id)
           .toList();
 
       coinsToBeActivated
