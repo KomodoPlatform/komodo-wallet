@@ -51,7 +51,7 @@ class ProfitLossCache extends Equatable
     required String walletId,
     required bool isHdWallet,
   }) =>
-      '$coinId-$fiatCurrency-$walletId';
+      '$coinId-$fiatCurrency-$walletId-$isHdWallet';
 
   @override
   List<Object?> get props => [coinId, fiatCoinId, lastUpdated, profitLosses];

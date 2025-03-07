@@ -157,17 +157,11 @@ class PortfolioGrowthBloc
     PortfolioGrowthLoadRequested event, {
     required bool useCache,
   }) async {
-    final currentUser = await sdk.auth.currentUser;
-    if (currentUser == null) {
-      return state;
-    }
-
     final chart = await portfolioGrowthRepository.getPortfolioGrowthChart(
       coins,
       fiatCoinId: event.fiatCoinId,
       walletId: event.walletId,
       useCache: useCache,
-      isHdWallet: currentUser.isHd,
     );
 
     if (useCache && chart.isEmpty) {
@@ -188,16 +182,11 @@ class PortfolioGrowthBloc
     try {
       final supportedCoins = await _removeUnsupportedCoins(event);
       final coins = await _removeInactiveCoins(supportedCoins);
-      final currentUser = await sdk.auth.currentUser;
-      if (currentUser == null) {
-        return ChartData.empty();
-      }
       return await portfolioGrowthRepository.getPortfolioGrowthChart(
         coins,
         fiatCoinId: event.fiatCoinId,
         walletId: event.walletId,
         useCache: false,
-        isHdWallet: currentUser.isHd,
       );
     } catch (error, stackTrace) {
       _log.shout('Empty growth chart on periodic update', error, stackTrace);

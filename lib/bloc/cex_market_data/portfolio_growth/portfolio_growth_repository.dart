@@ -305,7 +305,6 @@ class PortfolioGrowthRepository {
     List<Coin> coins, {
     required String fiatCoinId,
     required String walletId,
-    required bool isHdWallet,
     bool useCache = true,
     DateTime? startAt,
     DateTime? endAt,

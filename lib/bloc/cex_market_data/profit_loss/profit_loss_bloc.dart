@@ -75,9 +75,8 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       });
 
       // Fetch the un-cached version of the chart to update the cache.
+      await _sdk.waitForEnabledCoinsToPassThreshold(supportedCoins);
       final activeCoins = await _removeInactiveCoins(supportedCoins);
-      await _sdk.waitForEnabledCoinsToPassThreshold(activeCoins);
-
       if (activeCoins.isNotEmpty) {
         await _getProfitLossChart(event, activeCoins, useCache: false)
             .then(emit.call)
