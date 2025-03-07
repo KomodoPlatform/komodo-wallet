@@ -256,16 +256,20 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       _log.info('Disabling a ${coin.name} ($coinId)');
       coin.reset();
 
-      await _kdfSdk.removeActivatedCoins([coin.id.id]);
-      await _mm2Api.disableCoin(coin.id.id);
+      try {
+        await _kdfSdk.removeActivatedCoins([coin.id.id]);
+        await _mm2Api.disableCoin(coin.id.id);
 
-      final newWalletCoins = Map<String, Coin>.of(state.walletCoins)
-        ..remove(coin.id.id);
-      final newCoins = Map<String, Coin>.of(state.coins);
-      newCoins[coin.id.id]!.state = CoinState.inactive;
-      emit(state.copyWith(walletCoins: newWalletCoins, coins: newCoins));
+        final newWalletCoins = Map<String, Coin>.of(state.walletCoins)
+          ..remove(coin.id.id);
+        final newCoins = Map<String, Coin>.of(state.coins);
+        newCoins[coin.id.id]!.state = CoinState.inactive;
+        emit(state.copyWith(walletCoins: newWalletCoins, coins: newCoins));
 
-      _log.info('${coin.name} has been disabled');
+        _log.info('${coin.name} has been disabled');
+      } catch (e, s) {
+        _log.severe('Failed to disable coin $coinId', e, s);
+      }
     }
   }
 
@@ -284,7 +288,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final coins = Map<String, Coin>.of(state.coins);
     for (final entry in state.coins.entries) {
       final coin = entry.value;
-      final CexPrice? usdPrice = prices[coin.id.symbol.assetConfigId];
+      final CexPrice? usdPrice =
+          prices[coin.id.symbol.configSymbol.toUpperCase()];
 
       if (usdPrice != coin.usdPrice) {
         changed = true;

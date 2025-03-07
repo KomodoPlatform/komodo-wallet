@@ -232,7 +232,7 @@ class CoinsRepo {
     if (!isSignedIn) {
       final coinIdList = assets.map((e) => e.id.id).join(', ');
       _log.warning(
-        'No wallet signed in. Skipping activation of [$coinIdList}]',
+        'No wallet signed in. Skipping activation of [$coinIdList]',
       );
       return;
     }
@@ -272,7 +272,7 @@ class CoinsRepo {
     if (!isSignedIn) {
       final coinIdList = coins.map((e) => e.id.id).join(', ');
       _log.warning(
-        'No wallet signed in. Skipping activation of [$coinIdList}]',
+        'No wallet signed in. Skipping activation of [$coinIdList]',
       );
       return;
     }

@@ -102,8 +102,9 @@ class ProfitLossRepository {
     bool allowFiatAsBase = false,
   }) async {
     final stopwatch = Stopwatch()..start();
+    final coinTicker = coinId.symbol.configSymbol.toUpperCase();
     _log.fine(
-      'Checking if coin ${coinId.id} is supported for profit/loss calculation',
+      'Checking if coin $coinTicker is supported for profit/loss calculation',
     );
 
     final supportedCoinsStopwatch = Stopwatch()..start();
@@ -114,13 +115,12 @@ class ProfitLossRepository {
       '${supportedCoinsStopwatch.elapsedMilliseconds}ms',
     );
 
-    final coinTicker = coinId.symbol.assetConfigId.toUpperCase();
     // Allow fiat coins through, as they are represented by a constant value,
     // 1, in the repository layer and are not supported by the CEX API
     if (allowFiatAsBase && coinId.id == fiatCoinId.toUpperCase()) {
       stopwatch.stop();
       _log.fine(
-        'Coin ${coinId.id} is a fiat coin, supported: true '
+        'Coin $coinTicker is a fiat coin, supported: true '
         '(total: ${stopwatch.elapsedMilliseconds}ms)',
       );
       return true;
@@ -134,8 +134,8 @@ class ProfitLossRepository {
 
     stopwatch.stop();
     _log.fine(
-      'Coin ${coinId.id} support check completed in ${stopwatch.elapsedMilliseconds}ms, '
-      'supported: $isSupported',
+      'Coin $coinTicker support check completed in '
+      '${stopwatch.elapsedMilliseconds}ms, supported: $isSupported',
     );
 
     return isSupported;

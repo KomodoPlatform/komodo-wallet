@@ -210,7 +210,7 @@ class PortfolioGrowthRepository {
     startAt ??= transactions.first.timestamp;
     endAt ??= DateTime.now();
 
-    final String baseCoinId = coin.id.symbol.assetConfigId;
+    final String baseCoinId = coin.id.symbol.configSymbol.toUpperCase();
     final cex.GraphInterval interval = _getOhlcInterval(
       startAt,
       endDate: endAt,
@@ -504,7 +504,7 @@ class PortfolioGrowthRepository {
   }) async {
     final Coin coin = _coinsRepository.getCoinFromId(coinId)!;
     final supportedCoins = await _cexRepository.getCoinList();
-    final coinTicker = coin.id.symbol.assetConfigId.toUpperCase();
+    final coinTicker = coin.id.symbol.configSymbol.toUpperCase();
     // Allow fiat coins through, as they are represented by a constant value,
     // 1, in the repository layer and are not supported by the CEX API
     if (allowFiatAsBase && coinTicker == fiatCoinId.toUpperCase()) {
