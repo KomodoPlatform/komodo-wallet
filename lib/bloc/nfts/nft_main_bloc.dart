@@ -15,10 +15,9 @@ part 'nft_main_state.dart';
 class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   NftMainBloc({
     required NftsRepo repo,
-    required KomodoDefiSdk kdfSdk,
-    required bool isLoggedIn,
+    required KomodoDefiSdk sdk,
   })  : _repo = repo,
-        _isLoggedIn = isLoggedIn,
+        _sdk = sdk,
         super(NftMainState.initial()) {
     on<UpdateChainNftsEvent>(_onUpdateChainNfts);
     on<ChangeNftTabEvent>(_onChangeTab);
@@ -27,10 +26,9 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     on<StartUpdateNftsEvent>(_onStartUpdate);
     on<StopUpdateNftEvent>(_onStopUpdate);
 
-    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
-      _isLoggedIn = event != null;
-
-      if (_isLoggedIn) {
+    _authorizationSubscription = _sdk.auth.authStateChanges.listen((event) {
+      final isSignedIn = event != null;
+      if (isSignedIn) {
         add(const UpdateChainNftsEvent());
       } else {
         add(const ResetNftPageEvent());
@@ -39,28 +37,31 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   }
 
   final NftsRepo _repo;
+  final KomodoDefiSdk _sdk;
   late StreamSubscription<KdfUser?> _authorizationSubscription;
   Timer? _updateTimer;
-  bool _isLoggedIn = false;
-  bool get isLoggedIn => _isLoggedIn;
 
   Future<void> _onChangeTab(
     ChangeNftTabEvent event,
     Emitter<NftMainState> emit,
   ) async {
     emit(state.copyWith(selectedChain: () => event.chain));
-    if (!_isLoggedIn || !state.isInitialized) return;
+    if (!await _sdk.auth.isSignedIn() || !state.isInitialized) {
+      return;
+    }
 
     try {
       final List<NftToken> nftList = await _repo.getNfts([event.chain]);
 
       final (newNftS, newNftCount) =
           _recalculateNftsForChain(nftList, event.chain);
-      emit(state.copyWith(
-        nfts: () => newNftS,
-        nftCount: () => newNftCount,
-        error: () => null,
-      ));
+      emit(
+        state.copyWith(
+          nfts: () => newNftS,
+          nftCount: () => newNftCount,
+          error: () => null,
+        ),
+      );
     } on BaseError catch (e) {
       emit(state.copyWith(error: () => e));
     } catch (e) {
@@ -72,22 +73,24 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     UpdateChainNftsEvent event,
     Emitter<NftMainState> emit,
   ) async {
-    if (!_isLoggedIn) {
+    if (!await _sdk.auth.isSignedIn()) {
       return;
     }
 
     try {
       final Map<NftBlockchains, List<NftToken>> nfts = await _getAllNfts();
-      var (counts, sortedChains) = _calculateNftCount(nfts);
+      final (counts, sortedChains) = _calculateNftCount(nfts);
 
-      emit(state.copyWith(
-        nftCount: () => counts,
-        nfts: () => nfts,
-        sortedChains: () => sortedChains,
-        selectedChain: state.isInitialized ? null : () => sortedChains.first,
-        isInitialized: () => true,
-        error: () => null,
-      ));
+      emit(
+        state.copyWith(
+          nftCount: () => counts,
+          nfts: () => nfts,
+          sortedChains: () => sortedChains,
+          selectedChain: state.isInitialized ? null : () => sortedChains.first,
+          isInitialized: () => true,
+          error: () => null,
+        ),
+      );
     } on BaseError catch (e) {
       emit(state.copyWith(error: () => e));
     } catch (e) {
@@ -102,8 +105,13 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   }
 
   Future<void> _onRefreshForChain(
-      RefreshNFTsForChainEvent event, Emitter<NftMainState> emit) async {
-    if (!_isLoggedIn || !state.isInitialized) return;
+    RefreshNFTsForChainEvent event,
+    Emitter<NftMainState> emit,
+  ) async {
+    if (!await _sdk.auth.isSignedIn() || !state.isInitialized) {
+      return;
+    }
+
     final updatingChains = _addUpdatingChains(event.chain);
     emit(state.copyWith(updatingChains: () => updatingChains));
 
@@ -112,11 +120,13 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
 
       final (newNftS, newNftCount) =
           _recalculateNftsForChain(nftList, event.chain);
-      emit(state.copyWith(
-        nfts: () => newNftS,
-        nftCount: () => newNftCount,
-        error: () => null,
-      ));
+      emit(
+        state.copyWith(
+          nfts: () => newNftS,
+          nftCount: () => newNftCount,
+          error: () => null,
+        ),
+      );
     } on BaseError catch (e) {
       emit(state.copyWith(error: () => e));
     } catch (e) {
@@ -147,7 +157,7 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
         list.fold<Map<NftBlockchains, List<NftToken>>>(
       <NftBlockchains, List<NftToken>>{},
       (prev, element) {
-        List<NftToken> chainList = prev[element.chain] ?? [];
+        final List<NftToken> chainList = prev[element.chain] ?? [];
         chainList.add(element);
         prev[element.chain] = chainList;
 
@@ -159,10 +169,11 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   }
 
   (Map<NftBlockchains, int>, List<NftBlockchains>) _calculateNftCount(
-      Map<NftBlockchains, List<NftToken>> nfts) {
+    Map<NftBlockchains, List<NftToken>> nfts,
+  ) {
     final Map<NftBlockchains, int> countMap = {};
 
-    for (NftBlockchains chain in NftBlockchains.values) {
+    for (final NftBlockchains chain in NftBlockchains.values) {
       final count = nfts[chain]?.length ?? 0;
       countMap[chain] = count;
     }
