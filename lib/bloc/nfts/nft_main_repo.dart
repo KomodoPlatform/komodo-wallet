@@ -22,23 +22,26 @@ class NftsRepo {
     // Only runs on active nft chains
     final json = await _api.updateNftList(chains);
     if (json['error'] != null) {
-      log(json['error'], path: 'nft_main_repo => updateNft', isError: true);
-      throw ApiError(message: json['error']);
+      log(
+        json['error'] as String,
+        path: 'nft_main_repo => updateNft',
+        isError: true,
+      ).ignore();
+      throw ApiError(message: json['error'] as String);
     }
   }
 
   Future<List<NftToken>> getNfts(List<NftBlockchains> chains) async {
     // Only runs on active nft chains
     final json = await _api.getNftList(chains);
-    final jsonError = json['error'];
+    final jsonError = json['error'] as String?;
     if (jsonError != null) {
       log(
         jsonError,
         path: 'nft_main_repo => getNfts',
         isError: true,
-      );
-      if (jsonError is String &&
-          jsonError.toLowerCase().startsWith('transport')) {
+      ).ignore();
+      if (jsonError.toLowerCase().startsWith('transport')) {
         throw TransportError(message: jsonError);
       } else {
         throw ApiError(message: jsonError);
@@ -52,7 +55,7 @@ class NftsRepo {
       final response = GetNftListResponse.fromJson(json);
       final nfts = response.result.nfts;
       final coins = _coinsRepo.getKnownCoins();
-      for (NftToken nft in nfts) {
+      for (final NftToken nft in nfts) {
         final coin = coins.firstWhere((c) => c.type == nft.coinType);
         final parentCoin = coin.parentCoin ?? coin;
         nft.parentCoin = parentCoin;
@@ -61,8 +64,7 @@ class NftsRepo {
     } on StateError catch (e) {
       throw TextError(error: e.toString());
     } catch (e) {
-      throw ParsingApiJsonError(
-          message: 'nft_main_repo -> getNfts: ${e.toString()}');
+      throw ParsingApiJsonError(message: 'nft_main_repo -> getNfts: $e');
     }
   }
 }
