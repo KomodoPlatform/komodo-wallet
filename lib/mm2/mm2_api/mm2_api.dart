@@ -58,12 +58,11 @@ import 'package:web_dex/shared/utils/utils.dart';
 class Mm2Api {
   Mm2Api({
     required MM2 mm2,
-    required CoinsRepo coinsRepo,
     required KomodoDefiSdk sdk,
   })  : _sdk = sdk,
         _mm2 = mm2 {
     trezor = Mm2ApiTrezor(_mm2.call);
-    nft = Mm2ApiNft(_mm2.call, coinsRepo);
+    nft = Mm2ApiNft(_mm2.call, sdk);
   }
 
   final MM2 _mm2;
@@ -106,7 +105,7 @@ class Mm2Api {
         'Failed to retrieve balance for fallback construction of MaxTakerVolResponse for $abbr',
         path: 'api => _fallbackToBalanceTaker',
         isError: true,
-      );
+      ).ignore();
       return null;
     }
     final rational = Rational.parse(balance);
@@ -439,7 +438,7 @@ class Mm2Api {
         trace: s,
         isError: true,
       ).ignore();
-      return await _fallbackToBalanceTaker(request.coin);
+      return _fallbackToBalanceTaker(request.coin);
     }
   }
 
@@ -604,7 +603,7 @@ class Mm2Api {
       return ShowPrivKeyResponse.fromJson(json);
     } catch (e, s) {
       log(
-        'Error getting privkey ${request.coin}: ${e.toString()}',
+        'Error getting privkey ${request.coin}: $e',
         path: 'api => showPrivKey',
         trace: s,
         isError: true,

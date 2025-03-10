@@ -1,23 +1,23 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/get_nft_list/get_nft_list_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/refresh_nft_metadata/refresh_nft_metadata_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/update_nft/update_nft_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_request.dart';
 import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_request.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class Mm2ApiNft {
-  Mm2ApiNft(this.call, this._coinsRepo);
+  Mm2ApiNft(this.call, this._sdk);
 
-  final CoinsRepo _coinsRepo;
+  final KomodoDefiSdk _sdk;
   final Future<JsonMap> Function(dynamic) call;
 
   Future<Map<String, dynamic>> updateNftList(
@@ -46,7 +46,7 @@ class Mm2ApiNft {
       return json;
     } catch (e, s) {
       log(
-        'Error updating nfts: ${e.toString()}',
+        'Error updating nfts: $e',
         path: 'UpdateNftResponse',
         trace: s,
         isError: true,
@@ -150,11 +150,10 @@ class Mm2ApiNft {
   }
 
   Future<List<String>> getActiveNftChains(List<NftBlockchains> chains) async {
-    final List<Coin> apiCoins = await _coinsRepo.getEnabledCoins();
-    // log(apiCoins.toString(), path: 'Mm2ApiNft => apiCoins', isError: true);
-    final List<String> enabledCoins = apiCoins.map((c) => c.abbr).toList();
+    final List<Asset> apiCoins = await _sdk.assets.getActivatedAssets();
+    final List<String> enabledCoinIds = apiCoins.map((c) => c.id.id).toList();
     log(
-      enabledCoins.toString(),
+      enabledCoinIds.toString(),
       path: 'Mm2ApiNft => enabledCoins',
       isError: true,
     ).ignore();
@@ -164,7 +163,7 @@ class Mm2ApiNft {
     final List<NftBlockchains> activeChains = chains
         .map((c) => c)
         .toList()
-        .where((c) => enabledCoins.contains(c.coinAbbr()))
+        .where((c) => enabledCoinIds.contains(c.coinAbbr()))
         .toList();
     log(
       activeChains.toString(),
@@ -180,8 +179,8 @@ class Mm2ApiNft {
 }
 
 class ProxyApiNft {
-  static const _errorBaseMessage = 'ProxyApiNft API: ';
   const ProxyApiNft();
+  static const _errorBaseMessage = 'ProxyApiNft API: ';
   Future<Map<String, dynamic>> addDetailsToTx(Map<String, dynamic> json) async {
     final transactions =
         List<dynamic>.from(json['result']['transfer_history'] as List? ?? []);
