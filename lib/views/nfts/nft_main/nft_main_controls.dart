@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/nfts/nft_main_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
@@ -69,8 +70,8 @@ class _NftMainControlsState extends State<NftMainControls> {
   }
 
   void _onReceiveNft() {
-    final mode = context.read<NftMainBloc>().isLoggedIn;
-    if (mode) {
+    final isSignedIn = context.read<AuthBloc>().state.isSignedIn;
+    if (isSignedIn) {
       routingState.nftsState.setReceiveAction();
     } else {
       _popupDispatcher = _createPopupDispatcher();
