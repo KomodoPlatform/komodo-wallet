@@ -30,9 +30,14 @@ class CoinsState extends Equatable {
     bool? loginActivationFinished,
     Map<String, AssetPubkeys>? pubkeys,
   }) {
+    final walletCoinsWithoutExcludedCoins = walletCoins ?? this.walletCoins
+      ..removeWhere((coinId, _) => excludedAssetList.contains(coinId));
+    final coinsWithoutExcludedCoins = coins ?? this.coins
+      ..removeWhere((coinId, _) => excludedAssetList.contains(coinId));
+
     return CoinsState(
-      coins: coins ?? this.coins,
-      walletCoins: walletCoins ?? this.walletCoins,
+      coins: coinsWithoutExcludedCoins,
+      walletCoins: walletCoinsWithoutExcludedCoins,
       loginActivationFinished:
           loginActivationFinished ?? this.loginActivationFinished,
       pubkeys: pubkeys ?? this.pubkeys,

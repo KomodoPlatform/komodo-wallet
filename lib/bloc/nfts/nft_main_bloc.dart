@@ -148,8 +148,9 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     });
   }
 
-  Future<Map<NftBlockchains, List<NftToken>>> _getAllNfts() async {
-    const chains = NftBlockchains.values;
+  Future<Map<NftBlockchains, List<NftToken>>> _getAllNfts({
+    List<NftBlockchains> chains = NftBlockchains.values,
+  }) async {
     await _repo.updateNft(chains);
     final List<NftToken> list = await _repo.getNfts(chains);
 
@@ -157,8 +158,8 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
         list.fold<Map<NftBlockchains, List<NftToken>>>(
       <NftBlockchains, List<NftToken>>{},
       (prev, element) {
-        final List<NftToken> chainList = prev[element.chain] ?? [];
-        chainList.add(element);
+        final List<NftToken> chainList = prev[element.chain] ?? []
+          ..add(element);
         prev[element.chain] = chainList;
 
         return prev;
