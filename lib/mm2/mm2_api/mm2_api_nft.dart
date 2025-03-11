@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/get_nft_list/get_nft_list_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/nft/refresh_nft_metadata/refresh_nft_metadata_req.dart';
@@ -12,13 +14,13 @@ import 'package:web_dex/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_request.dart';
 import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_request.dart';
 import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class Mm2ApiNft {
   Mm2ApiNft(this.call, this._sdk);
 
   final KomodoDefiSdk _sdk;
   final Future<JsonMap> Function(dynamic) call;
+  final _log = Logger('Mm2ApiNft');
 
   Future<Map<String, dynamic>> updateNftList(
     List<NftBlockchains> chains,
@@ -32,25 +34,16 @@ class Mm2ApiNft {
                   'while your NFTs are loaded.',
         };
       }
+      await _tryEnableNftChains(chains);
       final UpdateNftRequest request = UpdateNftRequest(chains: nftChains);
 
       final JsonMap json = await call(request);
-      log(
-        request.toJson().toString(),
-        path: 'UpdateNftRequest',
-      ).ignore();
-      log(
-        json.toJsonString(),
-        path: 'UpdateNftResponse',
-      ).ignore();
+      _log
+        ..fine('UpdateNftRequest: ${request.toJson()}')
+        ..fine('UpdateNftResponse: ${json.toJsonString()}');
       return json;
     } catch (e, s) {
-      log(
-        'Error updating nfts: $e',
-        path: 'UpdateNftResponse',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error updating nfts', e, s);
       throw TransportError(message: e.toString());
     }
   }
@@ -67,12 +60,8 @@ class Mm2ApiNft {
         tokenId: tokenId,
       );
       return await call(request);
-    } catch (e) {
-      log(
-        e.toString(),
-        path: 'Mm2ApiNft => RefreshNftMetadataRequest',
-        isError: true,
-      ).ignore();
+    } catch (e, s) {
+      _log.shout(e.toString(), e, s);
       throw TransportError(message: e.toString());
     }
   }
@@ -91,19 +80,13 @@ class Mm2ApiNft {
 
       final JsonMap json = await call(request);
 
-      log(
-        request.toJson().toString(),
-        path: 'getActiveNftChains',
-      ).ignore();
-      log(
-        json.toJsonString(),
-        path: 'UpdateNftResponse',
-      ).ignore();
+      _log
+        ..fine('GetNftListRequest: ${request.toJson()}')
+        ..fine('GetNftListResponse: ${json.toJsonString()}');
 
       return json;
-    } catch (e) {
-      log(e.toString(), path: 'Mm2ApiNft => getNftList', isError: true)
-          .ignore();
+    } catch (e, s) {
+      _log.shout('Error getting nft list', e, s);
       throw TransportError(message: e.toString());
     }
   }
@@ -111,8 +94,8 @@ class Mm2ApiNft {
   Future<Map<String, dynamic>> withdraw(WithdrawNftRequest request) async {
     try {
       return await call(request);
-    } catch (e) {
-      log(e.toString(), path: 'Mm2ApiNft => withdraw', isError: true).ignore();
+    } catch (e, s) {
+      _log.shout('Error withdrawing nft', e, s);
       throw TransportError(message: e.toString());
     }
   }
@@ -128,9 +111,8 @@ class Mm2ApiNft {
         return jsonUpdated;
       }
       return json;
-    } catch (e) {
-      log(e.toString(), path: 'Mm2ApiNft => getNftTransactions', isError: true)
-          .ignore();
+    } catch (e, s) {
+      _log.shout('Error getting nft transactions', e, s);
       throw TransportError(message: e.toString());
     }
   }
@@ -142,9 +124,8 @@ class Mm2ApiNft {
       final additionalTxInfo = await const ProxyApiNft()
           .getTxDetailsByHash(request.chain, request.txHash);
       return additionalTxInfo;
-    } catch (e) {
-      log(e.toString(), path: 'Mm2ApiNft => getNftTxDetails', isError: true)
-          .ignore();
+    } catch (e, s) {
+      _log.shout('Error getting nft tx details', e, s);
       throw TransportError(message: e.toString());
     }
   }
@@ -152,29 +133,51 @@ class Mm2ApiNft {
   Future<List<String>> getActiveNftChains(List<NftBlockchains> chains) async {
     final List<Asset> apiCoins = await _sdk.assets.getActivatedAssets();
     final List<String> enabledCoinIds = apiCoins.map((c) => c.id.id).toList();
-    log(
-      enabledCoinIds.toString(),
-      path: 'Mm2ApiNft => enabledCoins',
-      isError: true,
-    ).ignore();
+    _log.fine('enabledCoinIds: $enabledCoinIds');
     final List<String> nftCoins = chains.map((c) => c.coinAbbr()).toList();
-    log(nftCoins.toString(), path: 'Mm2ApiNft => nftCoins', isError: true)
-        .ignore();
+    _log.fine('nftCoins: $nftCoins');
     final List<NftBlockchains> activeChains = chains
         .map((c) => c)
         .toList()
         .where((c) => enabledCoinIds.contains(c.coinAbbr()))
         .toList();
-    log(
-      activeChains.toString(),
-      path: 'Mm2ApiNft => activeChains',
-      isError: true,
-    ).ignore();
+    _log.fine('activeChains: $activeChains');
     final List<String> nftChains =
         activeChains.map((c) => c.toApiRequest()).toList();
-    log(nftChains.toString(), path: 'Mm2ApiNft => nftChains', isError: true)
-        .ignore();
+    _log.fine('nftChains: $nftChains');
     return nftChains;
+  }
+
+  Future<void> enableNft(Asset asset) async {
+    final configSymbol = asset.id.symbol.configSymbol;
+    final activationParams =
+        NftActivationParams(provider: NftProvider.moralis());
+    await _sdk.client.rpc.nft
+        .enableNft(ticker: configSymbol, activationParams: activationParams);
+  }
+
+  Future<void> _tryEnableNftChains(
+    List<NftBlockchains> chains,
+  ) async {
+    final knownAssets = _sdk.assets.available;
+    final activeAssets = await _sdk.assets.getActivatedAssets();
+    final inactiveChains = chains
+        .where(
+          (chain) => !activeAssets
+              .any((asset) => asset.id.id == chain.nftAssetTicker()),
+        )
+        .map(
+          (chain) => knownAssets.values
+              .firstWhere((asset) => asset.id.id == chain.nftAssetTicker()),
+        )
+        .toList();
+    if (inactiveChains.isEmpty) {
+      return;
+    }
+
+    for (final chain in inactiveChains) {
+      await enableNft(chain);
+    }
   }
 }
 

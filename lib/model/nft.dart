@@ -80,8 +80,7 @@ class NftToken {
     return image.replaceFirst('ipfs://', 'https://ipfs.io/ipfs/');
   }
 
-  String get uuid =>
-      '${chain.toString()}:$tokenAddress:$tokenId'.hashCode.toString();
+  String get uuid => '$chain:$tokenAddress:$tokenId'.hashCode.toString();
 
   CoinType get coinType {
     switch (chain) {
@@ -238,6 +237,21 @@ enum NftBlockchains {
         return 'MATIC';
       case NftBlockchains.fantom:
         return 'FTM';
+    }
+  }
+
+  String nftAssetTicker() {
+    switch (this) {
+      case NftBlockchains.eth:
+        return 'NFT_ETH';
+      case NftBlockchains.bsc:
+        return 'NFT_BNB';
+      case NftBlockchains.avalanche:
+        return 'NFT_AVAX';
+      case NftBlockchains.polygon:
+        return 'NFT_MATIC';
+      case NftBlockchains.fantom:
+        return 'NFT_FTM';
     }
   }
 }
