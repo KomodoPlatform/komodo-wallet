@@ -50,7 +50,7 @@ class PortfolioGrowthBloc
     PortfolioGrowthPeriodChanged event,
     Emitter<PortfolioGrowthState> emit,
   ) {
-    if (state is GrowthChartLoadFailure) {
+    if (state is! PortfolioGrowthChartLoadSuccess) {
       emit(
         GrowthChartLoadFailure(
           error: (state as GrowthChartLoadFailure).error,
@@ -89,14 +89,8 @@ class PortfolioGrowthBloc
           .catchError((Object error, StackTrace stackTrace) {
         const errorMessage = 'Failed to load cached chart';
         _log.warning(errorMessage, error, stackTrace);
-        if (state is! PortfolioGrowthChartLoadSuccess) {
-          emit(
-            GrowthChartLoadFailure(
-              error: TextError(error: errorMessage),
-              selectedPeriod: event.selectedPeriod,
-            ),
-          );
-        }
+        // ignore cached errors, as the periodic refresh attempts should recover
+        // at the cost of a longer first loading time.
       });
 
       // In case most coins are activating on wallet startup, wait for at least
@@ -118,7 +112,9 @@ class PortfolioGrowthBloc
         });
       }
     } catch (error, stackTrace) {
-      _log.shout('Failed to load CACHED portfolio growth', error, stackTrace);
+      _log.shout('Failed to load portfolio growth', error, stackTrace);
+      // Don't emit an error state here, as the periodic refresh attempts should
+      // recover at the cost of a longer first loading time.
     }
 
     await emit.forEach(

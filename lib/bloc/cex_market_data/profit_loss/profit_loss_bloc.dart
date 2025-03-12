@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -64,14 +63,8 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
           .catchError((Object error, StackTrace stackTrace) {
         const errorMessage = 'Failed to load CACHED portfolio profit/loss';
         _log.warning(errorMessage, error, stackTrace);
-        if (state is! PortfolioProfitLossChartLoadSuccess) {
-          emit(
-            ProfitLossLoadFailure(
-              error: TextError(error: errorMessage),
-              selectedPeriod: event.selectedPeriod,
-            ),
-          );
-        }
+        // ignore cached errors, as the periodic refresh attempts should recover
+        // at the cost of a longer first loading time. 
       });
 
       // Fetch the un-cached version of the chart to update the cache.
@@ -88,41 +81,18 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         });
       }
     } catch (error, stackTrace) {
-      _log.shout('Failed to load portfolio profit/loss', e, stackTrace);
-      emit(
-        ProfitLossLoadFailure(
-          error: TextError(error: 'Failed to load portfolio profit/loss'),
-          selectedPeriod: event.selectedPeriod,
-        ),
-      );
+      _log.shout('Failed to load portfolio profit/loss', error, stackTrace);
+      // Don't emit an error state here, as the periodic refresh attempts should
+      // recover at the cost of a longer first loading time.
     }
 
     await emit.forEach(
       // computation is omitted, so null-valued events are emitted on a set
       // interval.
-      Stream<Object?>.periodic(event.updateFrequency).asyncMap((_) async {
-        return _getSortedProfitLossChartForCoins(
-          event,
-          useCache: false,
-        );
-      }),
-      onData: (profitLossChart) {
-        if (profitLossChart.isEmpty) {
-          return state;
-        }
-
-        final unCachedProfitIncrease = profitLossChart.increase;
-        final unCachedPercentageIncrease = profitLossChart.percentageIncrease;
-        return PortfolioProfitLossChartLoadSuccess(
-          profitLossChart: profitLossChart,
-          totalValue: unCachedProfitIncrease,
-          percentageIncrease: unCachedPercentageIncrease,
-          coins: event.coins,
-          fiatCurrency: event.fiatCoinId,
-          selectedPeriod: event.selectedPeriod,
-          walletId: event.walletId,
-        );
-      },
+      Stream<Object?>.periodic(event.updateFrequency).asyncMap(
+        (_) async => _getProfitLossChart(event, event.coins, useCache: false),
+      ),
+      onData: (ProfitLossState updatedChartState) => updatedChartState,
       onError: (e, s) {
         _log.shout('Failed to load portfolio profit/loss', e, s);
         return ProfitLossLoadFailure(
@@ -198,9 +168,9 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     ProfitLossPortfolioChartLoadRequested event, {
     bool useCache = true,
   }) async {
-    final currentWallet = await _sdk.auth.currentUser;
-    if (currentWallet == null) {
-      throw Exception('No wallet found');
+    if (!await _sdk.auth.isSignedIn()) {
+      _log.warning('User is not signed in');
+      return ChartData.empty();
     }
 
     final chartsList = await Future.wait(
