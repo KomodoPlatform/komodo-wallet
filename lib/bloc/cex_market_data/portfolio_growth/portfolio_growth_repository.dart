@@ -246,16 +246,8 @@ class PortfolioGrowthRepository {
       'in ${ohlcStopwatch.elapsedMilliseconds}ms',
     );
 
-    final mergeStopwatch = Stopwatch()..start();
     final List<Point<double>> portfolowGrowthChart =
         _mergeTransactionsWithOhlc(ohlcData, transactions);
-    mergeStopwatch.stop();
-    _log.fine(
-      'Merged transactions with OHLC data in '
-      '${mergeStopwatch.elapsedMilliseconds}ms, '
-      'resulting in ${portfolowGrowthChart.length} data points',
-    );
-
     final cacheInsertStopwatch = Stopwatch()..start();
     await _graphCache.insert(
       GraphCache(
@@ -329,7 +321,6 @@ class PortfolioGrowthRepository {
     int errorCount = 0;
 
     final chartDataFutures = coins.map((coin) async {
-      final coinStopwatch = Stopwatch()..start();
       try {
         final chartData = await getCoinGrowthChart(
           coin.id,
@@ -338,40 +329,24 @@ class PortfolioGrowthRepository {
           walletId: walletId,
           ignoreTransactionFetchErrors: ignoreTransactionFetchErrors,
         );
-        coinStopwatch.stop();
-        _log.fine(
-          'Fetched chart data for ${coin.id} in '
-          '${coinStopwatch.elapsedMilliseconds}ms',
-        );
         successCount++;
         return chartData;
       } on TransactionFetchException {
         errorCount++;
-        _log.fine(
-          'Failed to fetch transactions for ${coin.id} '
-          'in ${coinStopwatch.elapsedMilliseconds}ms',
-        );
+        _log.warning('Failed to fetch transactions for ${coin.id} ');
         if (ignoreTransactionFetchErrors) {
           return Future.value(ChartData.empty());
         } else {
           rethrow;
         }
-      } on CacheMissException catch (e) {
+      } on CacheMissException {
         errorCount++;
-        _log.fine(
-          'Cache miss for ${coin.id} in '
-          '${coinStopwatch.elapsedMilliseconds}ms: $e',
-        );
+        _log.fine('Cache miss for ${coin.id}');
         return Future.value(ChartData.empty());
-      } on Exception catch (e) {
+      } on Exception catch (error, stackTrace) {
         errorCount++;
-        _log.fine(
-          'Error fetching chart for ${coin.id} in '
-          '${coinStopwatch.elapsedMilliseconds}ms: $e',
-        );
+        _log.severe('Error fetching chart for ${coin.id}', error, stackTrace);
         return Future.value(ChartData.empty());
-      } finally {
-        coinStopwatch.stop();
       }
     });
     final charts = await Future.wait(chartDataFutures);
@@ -382,27 +357,15 @@ class PortfolioGrowthRepository {
       'success: $successCount, errors: $errorCount',
     );
 
-    final processingStopwatch = Stopwatch()..start();
     charts.removeWhere((element) => element.isEmpty);
     if (charts.isEmpty) {
-      processingStopwatch.stop();
-      _log.warning('No valid charts found after filtering empty charts');
-      methodStopwatch.stop();
-      _log.fine(
-        'getPortfolioGrowthChart completed in '
-        '${methodStopwatch.elapsedMilliseconds}ms with empty result',
-      );
+      _log.warning(
+          'getPortfolioGrowthChart: No valid charts found after filtering '
+          'empty charts in ${methodStopwatch.elapsedMilliseconds}ms');
       return ChartData.empty();
     }
 
-    _log.fine('Merging ${charts.length} charts');
-    final mergeStopwatch = Stopwatch()..start();
     final mergedChart = Charts.merge(charts, mergeType: MergeType.leftJoin);
-    mergeStopwatch.stop();
-    _log.fine(
-      'Charts merged in ${mergeStopwatch.elapsedMilliseconds}ms, '
-      'resulting in ${mergedChart.length} data points',
-    );
 
     // Add the current USD balance to the end of the chart to ensure that the
     // chart matches the current prices and ends at the current time.
@@ -412,7 +375,6 @@ class PortfolioGrowthRepository {
       _log.fine(
         'Total USD balance is zero or negative, skipping balance point addition',
       );
-      processingStopwatch.stop();
       methodStopwatch.stop();
       _log.fine(
         'getPortfolioGrowthChart completed in ${methodStopwatch.elapsedMilliseconds}ms '
@@ -442,7 +404,6 @@ class PortfolioGrowthRepository {
 
     final filteredChart =
         mergedChart.filterDomain(startAt: startAt, endAt: endAt);
-    processingStopwatch.stop();
 
     methodStopwatch.stop();
     _log.fine(

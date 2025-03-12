@@ -44,7 +44,7 @@ Future<void> initializeLogger(Mm2Api mm2Api) async {
     'screenSize': platformInfo.screenSize,
   });
 
-  Logger.root.level = kDebugMode || isTestMode ? Level.ALL : Level.INFO;
+  Logger.root.level = kReleaseMode ? Level.INFO : Level.ALL;
   Logger.root.onRecord.listen(_logToUniversalLogger);
 }
 
@@ -67,8 +67,14 @@ Future<void> _logToUniversalLogger(LogRecord record) async {
   try {
     // Temporarily add log level to the message, seeing as the universal logger
     // does not support log levels yet.
-    final message = '${record.level.name}: ${record.message}';
+    final message = '${record.level.name}: ${record.message} ${record.error}';
     await logger.write(message, record.loggerName);
+
+    // Web previews are built in profile mode, so print the stack trace for
+    // debugging purposes in case errors are found in PR testing.
+    if (kProfileMode && record.stackTrace != null) {
+      await logger.write('Stacktrace: ${record.stackTrace}\n');
+    }
 
     performance.logTimeWritingLogs(timer.elapsedMilliseconds);
   } catch (e) {

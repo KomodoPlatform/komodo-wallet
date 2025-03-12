@@ -90,10 +90,12 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
     PortfolioAssetsOverviewLoadRequested event,
     Emitter<AssetOverviewState> emit,
   ) async {
-    // nothing listens to this. The UI just resets to default values, i.e. 0
-    // emit(const AssetOverviewLoadInProgress());
-
     try {
+      if (event.coins.isEmpty) {
+        _log.warning('No coins to load portfolio overview for');
+        return;
+      }
+
       await _sdk.waitForEnabledCoinsToPassThreshold(event.coins);
 
       final profitLossesFutures = event.coins.map((coin) async {

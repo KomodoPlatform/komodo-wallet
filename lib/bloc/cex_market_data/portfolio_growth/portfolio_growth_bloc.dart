@@ -95,7 +95,7 @@ class PortfolioGrowthBloc
 
       // In case most coins are activating on wallet startup, wait for at least
       // 50% of the coins to be enabled before attempting to load the uncached
-      // chart. 
+      // chart.
       await sdk.waitForEnabledCoinsToPassThreshold(event.coins);
 
       // Only remove inactivate/activating coins after an attempt to load the

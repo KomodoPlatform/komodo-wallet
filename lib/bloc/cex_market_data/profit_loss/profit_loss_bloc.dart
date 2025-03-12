@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show Point;
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -64,7 +65,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         const errorMessage = 'Failed to load CACHED portfolio profit/loss';
         _log.warning(errorMessage, error, stackTrace);
         // ignore cached errors, as the periodic refresh attempts should recover
-        // at the cost of a longer first loading time. 
+        // at the cost of a longer first loading time.
       });
 
       // Fetch the un-cached version of the chart to update the cache.
@@ -87,8 +88,6 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     }
 
     await emit.forEach(
-      // computation is omitted, so null-valued events are emitted on a set
-      // interval.
       Stream<Object?>.periodic(event.updateFrequency).asyncMap(
         (_) async => _getProfitLossChart(event, event.coins, useCache: false),
       ),
@@ -108,21 +107,28 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     List<Coin> coins, {
     required bool useCache,
   }) async {
-    final filteredChart = await _getSortedProfitLossChartForCoins(
-      event,
-      useCache: useCache,
-    );
-    final unCachedProfitIncrease = filteredChart.increase;
-    final unCachedPercentageIncrease = filteredChart.percentageIncrease;
-    return PortfolioProfitLossChartLoadSuccess(
-      profitLossChart: filteredChart,
-      totalValue: unCachedProfitIncrease,
-      percentageIncrease: unCachedPercentageIncrease,
-      coins: coins,
-      fiatCurrency: event.fiatCoinId,
-      selectedPeriod: event.selectedPeriod,
-      walletId: event.walletId,
-    );
+    // Do not let exceptions stop the periodic updates. Let the periodic stream
+    // retry on the next failure instead of exiting.
+    try {
+      final filteredChart = await _getSortedProfitLossChartForCoins(
+        event,
+        useCache: useCache,
+      );
+      final unCachedProfitIncrease = filteredChart.increase;
+      final unCachedPercentageIncrease = filteredChart.percentageIncrease;
+      return PortfolioProfitLossChartLoadSuccess(
+        profitLossChart: filteredChart,
+        totalValue: unCachedProfitIncrease,
+        percentageIncrease: unCachedPercentageIncrease,
+        coins: coins,
+        fiatCurrency: event.fiatCoinId,
+        selectedPeriod: event.selectedPeriod,
+        walletId: event.walletId,
+      );
+    } catch (error, stackTrace) {
+      _log.shout('Failed periodic profit/loss chart update', error, stackTrace);
+      return state;
+    }
   }
 
   Future<List<Coin>> _removeUnsupportedCons(
@@ -169,7 +175,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     bool useCache = true,
   }) async {
     if (!await _sdk.auth.isSignedIn()) {
-      _log.warning('User is not signed in');
+      _log.warning('Error loading profit/loss chart: User is not signed in');
       return ChartData.empty();
     }
 
@@ -188,9 +194,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
           final firstNonZeroProfitLossIndex =
               profitLosses.indexWhere((element) => element.profitLoss != 0);
           if (firstNonZeroProfitLossIndex == -1) {
-            _log.info(
-              'No non-zero profit/loss data found for coin ${coin.abbr}',
-            );
+            _log.info('No non-zero profit/loss data found for ${coin.abbr}');
             return ChartData.empty();
           }
 
@@ -198,11 +202,8 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
               profitLosses.sublist(firstNonZeroProfitLossIndex);
           return nonZeroProfitLosses.toChartData();
         } catch (e, s) {
-          _log.severe(
-            'Failed to load cached profit/loss for coin ${coin.abbr}',
-            e,
-            s,
-          );
+          final cached = useCache ? 'cached' : 'uncached';
+          _log.severe('Failed to load $cached profit/loss: ${coin.abbr}', e, s);
           return ChartData.empty();
         }
       }),
