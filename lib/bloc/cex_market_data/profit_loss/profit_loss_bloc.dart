@@ -74,7 +74,8 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       if (activeCoins.isNotEmpty) {
         await _getProfitLossChart(event, activeCoins, useCache: false)
             .then(emit.call)
-            .catchError((e, _) {
+            .catchError((Object e, StackTrace s) {
+          _log.severe('Failed to load uncached profit/loss chart', e, s);
           // Ignore un-cached errors, as a transaction loading exception should not
           // make the graph disappear with a load failure emit, as the cached data
           // is already displayed. The periodic updates will still try to fetch the
