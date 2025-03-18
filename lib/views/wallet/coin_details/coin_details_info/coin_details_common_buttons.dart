@@ -2,13 +2,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/ui/ui_primary_button.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_button.dart';
+import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/contract_address_button.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
@@ -223,6 +227,28 @@ class CoinDetailsReceiveButton extends StatelessWidget {
   final void Function(CoinPageType p1) selectWidget;
   final BuildContext context;
 
+  Future<void> _handleReceive(BuildContext context) async {
+    // Get coin addresses bloc from the parent widget
+    final addressesBloc = BlocProvider.of<CoinAddressesBloc>(context);
+    final addresses = addressesBloc.state.addresses;
+
+    final selectedAddress = await showAddressSearch(
+      context,
+      addresses: addresses,
+      assetNameLabel: LocaleKeys.assetName.tr(),
+    );
+
+    if (selectedAddress != null && context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => PubkeyReceiveDialog(
+          coin: coin,
+          address: selectedAddress,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
@@ -238,12 +264,75 @@ class CoinDetailsReceiveButton extends StatelessWidget {
       textStyle: themeData.textTheme.labelLarge
           ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
       backgroundColor: themeData.colorScheme.tertiary,
-      onPressed: coin.isSuspended
-          ? null
-          : () {
-              selectWidget(CoinPageType.receive);
-            },
+      onPressed: coin.isSuspended ? null : () => _handleReceive(context),
       text: LocaleKeys.receive.tr(),
+    );
+  }
+}
+
+class AddressListItem extends StatelessWidget {
+  const AddressListItem({
+    super.key,
+    required this.address,
+    required this.coin,
+  });
+
+  final PubkeyInfo address;
+  final Coin coin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  address.formatted,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${address.balance.spendable} ${coin.name} available',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7),
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

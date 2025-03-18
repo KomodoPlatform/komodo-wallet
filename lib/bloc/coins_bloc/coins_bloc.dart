@@ -365,7 +365,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         loginActivationFinished: false,
         coins: {
           ...state.coins,
-          ...coins.map((coin) => coin.copyWith(balance: 0)).toList().toMap(),
+          ...coins.toList().toMap(),
         },
       ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -144,7 +145,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
-
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(

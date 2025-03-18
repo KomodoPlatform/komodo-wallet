@@ -56,14 +56,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.12.0"
-  aws_client:
-    dependency: transitive
-    description:
-      name: aws_client
-      sha256: c8f9860e0fbe515bcc88ef7a1b2c7a4ea8db16805c1d36bbe447ceab643bb6da
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.1"
   badges:
     dependency: "direct main"
     description:
@@ -252,10 +244,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "9467b7c4eedf0bd4c9306b0ec12455b278f6366962be061d0978a446c103c111"
+      sha256: "7423298f08f6fc8cce05792bae329f9a93653fc9c08712831b1a55540127995d"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.1"
+    version: "9.0.2"
   file_system_access_api:
     dependency: transitive
     description:
@@ -329,10 +321,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_bloc
-      sha256: "153856bdaac302bbdc58a1d1403d50c40557254aa05eaeed40515d88a25a526b"
+      sha256: "1046d719fbdf230330d3443187cc33cc11963d15c9089f6cc56faa42a4c5f0cc"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "9.1.0"
   flutter_driver:
     dependency: transitive
     description: flutter
@@ -517,10 +509,10 @@ packages:
     dependency: transitive
     description:
       name: freezed_annotation
-      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
+      sha256: c87ff004c8aa6af2d531668b46a4ea379f7191dc6dfa066acd53d506da6e044b
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.4"
+    version: "3.0.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -534,6 +526,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  get_it:
+    dependency: "direct main"
+    description:
+      name: get_it
+      sha256: f126a3e286b7f5b578bf436d5592968706c4c1de28a228b870ce375d9f743103
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.0.3"
   glob:
     dependency: transitive
     description:
@@ -632,63 +632,51 @@ packages:
   komodo_cex_market_data:
     dependency: "direct main"
     description:
-      path: "packages/komodo_cex_market_data"
+      path: "sdk/packages/komodo_cex_market_data"
       relative: true
     source: path
     version: "0.0.1"
   komodo_coins:
     dependency: transitive
     description:
-      path: "packages/komodo_coins"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_coins"
+      relative: true
+    source: path
     version: "0.2.0+0"
   komodo_defi_framework:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_framework"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_defi_framework"
+      relative: true
+    source: path
     version: "0.2.0"
   komodo_defi_local_auth:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_local_auth"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_defi_local_auth"
+      relative: true
+    source: path
     version: "0.2.0+0"
   komodo_defi_rpc_methods:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_defi_rpc_methods"
+      relative: true
+    source: path
     version: "0.2.0+0"
   komodo_defi_sdk:
     dependency: "direct main"
     description:
-      path: "packages/komodo_defi_sdk"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_defi_sdk"
+      relative: true
+    source: path
     version: "0.2.0+0"
   komodo_defi_types:
     dependency: "direct main"
     description:
-      path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_defi_types"
+      relative: true
+    source: path
     version: "0.2.0+0"
   komodo_persistence_layer:
     dependency: "direct main"
@@ -700,11 +688,9 @@ packages:
   komodo_ui:
     dependency: "direct main"
     description:
-      path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_ui"
+      relative: true
+    source: path
     version: "0.2.0+0"
   komodo_ui_kit:
     dependency: "direct main"
@@ -716,11 +702,9 @@ packages:
   komodo_wallet_build_transformer:
     dependency: transitive
     description:
-      path: "packages/komodo_wallet_build_transformer"
-      ref: dev
-      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
+      path: "sdk/packages/komodo_wallet_build_transformer"
+      relative: true
+    source: path
     version: "0.2.0+0"
   leak_tracker:
     dependency: transitive

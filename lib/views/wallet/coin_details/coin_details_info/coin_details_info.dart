@@ -534,7 +534,8 @@ class _Balance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    final value = doubleToString(coin.balance);
+    final balance = coin.balance(context.sdk);
+    final value = balance == null ? null : doubleToString(balance);
 
     return Column(
       crossAxisAlignment:
@@ -561,7 +562,7 @@ class _Balance extends StatelessWidget {
               Flexible(
                 child: AutoScrollText(
                   key: const Key('coin-details-balance'),
-                  text: value,
+                  text: value ?? '',
                   isSelectable: true,
                   style: themeData.textTheme.titleMedium!.copyWith(
                     fontSize: isMobile ? 25 : 22,
