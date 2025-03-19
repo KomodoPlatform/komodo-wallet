@@ -78,22 +78,20 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
       child: Row(
         children: [
           // Asset header
-          Text(LocaleKeys.asset.tr(), style: style),
-
-          const Spacer(flex: 4),
+          Expanded(flex: 5, child: Text(LocaleKeys.asset.tr(), style: style)),
 
           // Balance header
-          Text(LocaleKeys.balance.tr(), style: style),
-
-          const Spacer(flex: 2),
+          Expanded(flex: 5, child: Text(LocaleKeys.balance.tr(), style: style)),
 
           // 24h change header
-          Padding(
-            padding: const EdgeInsets.only(right: 48),
-            child: Text(LocaleKeys.change24hRevert.tr(), style: style),
-          ),
+          Expanded(flex: 2, child: Text(LocaleKeys.change24hRevert.tr(), style: style)),
 
-          const Spacer(flex: 2),
+          // Price header
+          Expanded(flex: 2, child: Text(LocaleKeys.price.tr(), style: style)),
+
+          //Empty column for spacing
+          Expanded(flex: 2, child: SizedBox()),
+
         ],
       ),
     );
