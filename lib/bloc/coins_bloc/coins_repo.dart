@@ -64,8 +64,12 @@ class CoinsRepo {
   // Map to keep track of active balance watchers
   final Map<AssetId, StreamSubscription<BalanceInfo>> _balanceWatchers = {};
 
-  // why could they not implement this in streamcontroller or a wrapper :(
+  /// Hack used to broadcast activated/deactivated coins to the CoinsBloc to
+  /// update the status of the coins in the UI layer. This is needed as there
+  /// are direct references to [CoinsRepo] that activate/deactivate coins
+  /// without the [CoinsBloc] being aware of the changes (e.g. [CoinsManagerBloc]).
   late final StreamController<Coin> enabledAssetsChanges;
+  // why could they not implement this in streamcontroller or a wrapper :(
   int _enabledAssetListenerCount = 0;
   bool get _enabledAssetsHasListeners => _enabledAssetListenerCount > 0;
   Future<void> _broadcastAsset(Coin coin) async {
@@ -96,14 +100,6 @@ class CoinsRepo {
         balance: balanceInfo.total.toDouble(),
         spendable: balanceInfo.spendable.toDouble(),
       );
-
-      // Broadcast the coin with updated balance if we have listeners
-      if (_enabledAssetsHasListeners) {
-        final updatedCoin = coin.copyWith(
-          sendableBalance: balanceInfo.spendable.toDouble(),
-        );
-        enabledAssetsChanges.add(updatedCoin);
-      }
     });
   }
 
