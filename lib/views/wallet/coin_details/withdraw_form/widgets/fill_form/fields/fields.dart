@@ -2,6 +2,8 @@
 // form_fields.dart
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -90,7 +92,7 @@ class AmountField extends StatelessWidget {
                     .read<WithdrawFormBloc>()
                     .add(WithdrawFormMaxAmountEnabled(value ?? false));
               },
-              title: const Text('Send maximum amount'),
+              title: Text(LocaleKeys.amountFieldCheckboxListTile.tr()),
             ),
           ],
         );
@@ -178,7 +180,7 @@ class CustomFeeToggle extends StatelessWidget {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
       builder: (context, state) {
         return SwitchListTile(
-          title: const Text('Custom fee'),
+          title: Text(LocaleKeys.customFeeToggleTitle.tr()),
           value: state.isCustomFee,
           onChanged: (value) {
             context.read<WithdrawFormBloc>().add(

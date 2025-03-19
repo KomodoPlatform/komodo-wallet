@@ -630,5 +630,11 @@
     "portfolioPerformance": "Portfolio Performance",
     "allTimeInvestment": "All-time Investment",
     "allTimeProfit": "All-time Profit",
-    "profitAndLoss": "Profit & Loss"
+    "profitAndLoss": "Profit & Loss",
+    "alertDialogBitrefill" : "Bitrefill",
+    "showNoTradingWarning" : "Warning",
+    "showNoTradingWarningMessage" : "Trading features may not be used for actual trading. Only test assets/networks may be used and only for development purposes. You are solely responsible for any losses/damage that may occur.\n\nKomodoPlatform does not condone the use of this app for trading purposes and unequivocally forbids it.",
+    "showNoTradingWarningButton" : "I agree",
+    "amountFieldCheckboxListTile" : "Send maximum amount",
+    "customFeeToggleTitle" : "Custom fee"
 }

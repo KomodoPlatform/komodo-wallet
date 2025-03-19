@@ -628,5 +628,11 @@ abstract class  LocaleKeys {
   static const allTimeInvestment = 'allTimeInvestment';
   static const allTimeProfit = 'allTimeProfit';
   static const profitAndLoss = 'profitAndLoss';
+  static const alertDialogBitrefill = 'alertDialogBitrefill';
+  static const showNoTradingWarning = 'showNoTradingWarning';
+  static const showNoTradingWarningMessage = 'showNoTradingWarningMessage';
+  static const showNoTradingWarningButton = 'showNoTradingWarningButton';
+  static const amountFieldCheckboxListTile = 'amountFieldCheckboxListTile';
+  static const customFeeToggleTitle = 'customFeeToggleTitle';
 
 }
