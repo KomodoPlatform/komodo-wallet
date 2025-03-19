@@ -371,8 +371,8 @@ class PortfolioGrowthRepository {
     // Add the current USD balance to the end of the chart to ensure that the
     // chart matches the current prices and ends at the current time.
     // TODO: Move to the SDK when portfolio balance is implemented.
-    final double totalUsdBalance =
-        coins.fold(0, (prev, coin) => prev + (coin.balance(_sdk) ?? 0));
+    final double totalUsdBalance = coins.fold(
+        0, (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0));
     if (totalUsdBalance <= 0) {
       _log.fine(
         'Total USD balance is zero or negative, skipping balance point addition',
