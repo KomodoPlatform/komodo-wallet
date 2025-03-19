@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -52,8 +53,11 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     on<TakerClear>(_onClear);
     on<TakerSellAmountChange>(_onSellAmountChange, transformer: debounce());
     on<TakerSetSellAmount>(_onSetSellAmount);
-    on<TakerUpdateMaxSellAmount>(_onUpdateMaxSellAmount);
-    on<TakerGetMinSellAmount>(_onGetMinSellAmount);
+    on<TakerUpdateMaxSellAmount>(
+      _onUpdateMaxSellAmount,
+      transformer: restartable(),
+    );
+    on<TakerGetMinSellAmount>(_onGetMinSellAmount, transformer: restartable());
     on<TakerAmountButtonClick>(_onAmountButtonClick);
     on<TakerUpdateFees>(_onUpdateFees);
     on<TakerSetPreimage>(_onSetPreimage);
@@ -69,13 +73,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       if (event != null && state.step == TakerStep.confirm) {
         add(TakerBackButtonClick());
       }
-      final bool prevLoginState = _isLoggedIn;
       _isLoggedIn = event != null;
-
-      if (prevLoginState != _isLoggedIn) {
-        add(const TakerUpdateMaxSellAmount(true));
-        add(TakerGetMinSellAmount());
-      }
     });
   }
 
@@ -394,7 +392,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
           availableBalanceState: () => AvailableBalanceState.loading));
     }
 
-    if (!_isLoggedIn || !state.sellCoin!.isActive) {
+    if (!_isLoggedIn) {
       emitter(state.copyWith(
           availableBalanceState: () => AvailableBalanceState.unavailable));
     } else {
@@ -489,7 +487,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   }
 
   Future<void> _autoActivateCoin(String? abbr) async {
-    if (abbr == null) return;
+    if (abbr == null || !_isLoggedIn) return;
 
     _activatingAssets = true;
     final List<DexFormError> activationErrors =
