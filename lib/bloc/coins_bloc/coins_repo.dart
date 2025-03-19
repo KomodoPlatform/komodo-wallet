@@ -39,9 +39,6 @@ class CoinsRepo {
       onListen: () => _enabledAssetListenerCount += 1,
       onCancel: () => _enabledAssetListenerCount -= 1,
     );
-
-    // Start price refresh timer when the repository is created
-    _startPriceRefreshTimer();
   }
 
   final KomodoDefiSdk _kdfSdk;
@@ -67,10 +64,6 @@ class CoinsRepo {
   // Map to keep track of active balance watchers
   final Map<AssetId, StreamSubscription<BalanceInfo>> _balanceWatchers = {};
 
-  // Timer for periodic price refreshing
-  Timer? _priceRefreshTimer;
-  static const Duration _priceRefreshInterval = Duration(seconds: 30);
-
   // why could they not implement this in streamcontroller or a wrapper :(
   late final StreamController<Coin> enabledAssetsChanges;
   int _enabledAssetListenerCount = 0;
@@ -89,18 +82,6 @@ class CoinsRepo {
   Future<BalanceInfo?> balance(AssetId id) => _kdfSdk.balances.getBalance(id);
 
   BalanceInfo? lastKnownBalance(AssetId id) => _kdfSdk.balances.lastKnown(id);
-
-  /// Starts the timer for periodic price refreshing
-  void _startPriceRefreshTimer() {
-    _priceRefreshTimer?.cancel();
-    _priceRefreshTimer = Timer.periodic(_priceRefreshInterval, (timer) async {
-      try {
-        await fetchCurrentPrices();
-      } catch (e) {
-        _log.warning('Error refreshing prices: $e');
-      }
-    });
-  }
 
   /// Subscribe to balance updates for an asset using the SDK's balance manager
   void _subscribeToBalanceUpdates(Asset asset, Coin coin) {
@@ -140,9 +121,6 @@ class CoinsRepo {
   }
 
   void dispose() {
-    _priceRefreshTimer?.cancel();
-    _priceRefreshTimer = null;
-
     for (final subscription in _balanceWatchers.values) {
       subscription.cancel();
     }

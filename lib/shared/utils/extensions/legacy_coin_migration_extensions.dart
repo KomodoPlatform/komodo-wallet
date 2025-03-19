@@ -33,7 +33,7 @@ extension LegacyCoinMigrationExtensions on Coin {
   /// Uses the SDK's balance and price managers for up-to-date data
   Future<double?> getUsdBalance(KomodoDefiSdk sdk) async {
     final balance = await sdk.balances.getBalance(id);
-    if (balance.spendable == 0) return 0;
+    if (balance.spendable == Decimal.zero) return 0;
 
     final price = await sdk.marketData.maybeFiatPrice(id);
     if (price == null) return null;

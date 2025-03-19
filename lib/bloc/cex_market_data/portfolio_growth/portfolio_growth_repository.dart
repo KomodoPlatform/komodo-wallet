@@ -16,7 +16,7 @@ import 'package:web_dex/bloc/cex_market_data/portfolio_growth/cache_miss_excepti
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
 class PortfolioGrowthRepository {
