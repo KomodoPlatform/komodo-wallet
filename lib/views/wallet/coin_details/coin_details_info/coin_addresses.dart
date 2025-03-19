@@ -32,17 +32,8 @@ class CoinAddresses extends StatefulWidget {
 }
 
 class _CoinAddressesState extends State<CoinAddresses> {
-  late final CoinAddressesBloc _addressesBloc;
+    CoinAddressesBloc get _addressesBloc => context.read<CoinAddressesBloc>();
 
-  @override
-  void initState() {
-    super.initState();
-    final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
-    _addressesBloc = CoinAddressesBloc(
-      kdfSdk,
-      widget.coin.abbr,
-    )..add(const LoadAddressesEvent());
-  }
 
   @override
   void dispose() {

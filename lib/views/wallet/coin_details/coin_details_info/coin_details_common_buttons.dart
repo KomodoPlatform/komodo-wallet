@@ -229,7 +229,7 @@ class CoinDetailsReceiveButton extends StatelessWidget {
 
   Future<void> _handleReceive(BuildContext context) async {
     // Get coin addresses bloc from the parent widget
-    final addressesBloc = BlocProvider.of<CoinAddressesBloc>(context);
+    final addressesBloc = context.read<CoinAddressesBloc>();
     final addresses = addressesBloc.state.addresses;
 
     final selectedAddress = await showAddressSearch(
@@ -251,6 +251,8 @@ class CoinDetailsReceiveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasAddresses =
+        context.watch<CoinAddressesBloc>().state.addresses.isNotEmpty;
     final ThemeData themeData = Theme.of(context);
     return UiPrimaryButton(
       key: const Key('coin-details-receive-button'),
@@ -264,7 +266,9 @@ class CoinDetailsReceiveButton extends StatelessWidget {
       textStyle: themeData.textTheme.labelLarge
           ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
       backgroundColor: themeData.colorScheme.tertiary,
-      onPressed: coin.isSuspended ? null : () => _handleReceive(context),
+      onPressed: coin.isSuspended || !hasAddresses
+          ? null
+          : () => _handleReceive(context),
       text: LocaleKeys.receive.tr(),
     );
   }
