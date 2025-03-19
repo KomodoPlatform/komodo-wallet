@@ -417,10 +417,12 @@ class CoinsRepo {
           final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
           if (fiatPrice != null) {
             // Update the price cache with the value from the SDK
+            final change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
             _pricesCache[asset.id.id] = CexPrice(
               ticker: asset.id.id,
               price: fiatPrice.toDouble(),
               lastUpdated: DateTime.now(),
+              change24h: change24h?.toDouble(),
             );
           }
         } catch (e) {
@@ -453,13 +455,6 @@ class CoinsRepo {
     }
 
     return _pricesCache;
-  }
-
-  Future<CexPrice?> fetchPrice(String ticker) async {
-    final Map<String, CexPrice>? prices = await fetchCurrentPrices();
-    if (prices == null || !prices.containsKey(ticker)) return null;
-
-    return prices[ticker]!;
   }
 
   Future<Map<String, CexPrice>?> _updateFromMain() async {
