@@ -33,6 +33,10 @@ runs:
       shell: bash
       env:
         GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        TRELLO_API_KEY: ${{ inputs.TRELLO_API_KEY }}
+        TRELLO_TOKEN: ${{ inputs.TRELLO_TOKEN }}
+        TRELLO_BOARD_ID: ${{ inputs.TRELLO_BOARD_ID }}
+        TRELLO_LIST_ID: ${{ inputs.TRELLO_LIST_ID }}
       run: |
         echo "Running \`flutter build\` to generate assets for the deployment build"
 
@@ -43,20 +47,18 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
-        # Prepare build command with Trello credentials if provided
+        # Prepare build command with Trello credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
-        if [ -n "${{ inputs.TRELLO_API_KEY }}" ]; then
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=${{ inputs.TRELLO_API_KEY }}"
-        fi
-        if [ -n "${{ inputs.TRELLO_TOKEN }}" ]; then
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=${{ inputs.TRELLO_TOKEN }}"
-        fi
-        if [ -n "${{ inputs.TRELLO_BOARD_ID }}" ]; then
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=${{ inputs.TRELLO_BOARD_ID }}"
-        fi
-        if [ -n "${{ inputs.TRELLO_LIST_ID }}" ]; then
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=${{ inputs.TRELLO_LIST_ID }}"
-        fi
+
+        # Always add the Trello environment variables to the build command
+        # This ensures they're available in the compiled app
+        BUILD_CMD="$BUILD_CMD --dart-define TRELLO_API_KEY=$TRELLO_API_KEY"
+        BUILD_CMD="$BUILD_CMD --dart-define TRELLO_TOKEN=$TRELLO_TOKEN"
+        BUILD_CMD="$BUILD_CMD --dart-define TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
+        BUILD_CMD="$BUILD_CMD --dart-define TRELLO_LIST_ID=$TRELLO_LIST_ID"
+
+        echo "Build command with environment variables:"
+        echo "$BUILD_CMD"
 
         # Run flutter build once to download coin icons and config files. 
         # This step is expected to "fail", since flutter build has to run again 
