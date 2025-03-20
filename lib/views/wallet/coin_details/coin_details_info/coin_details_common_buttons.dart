@@ -235,7 +235,7 @@ class CoinDetailsReceiveButton extends StatelessWidget {
     final selectedAddress = await showAddressSearch(
       context,
       addresses: addresses,
-      assetNameLabel: LocaleKeys.assetName.tr(),
+      assetNameLabel: coin.abbr,
     );
 
     if (selectedAddress != null && context.mounted) {

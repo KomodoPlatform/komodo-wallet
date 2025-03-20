@@ -2,7 +2,6 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -32,8 +31,7 @@ class CoinAddresses extends StatefulWidget {
 }
 
 class _CoinAddressesState extends State<CoinAddresses> {
-    CoinAddressesBloc get _addressesBloc => context.read<CoinAddressesBloc>();
-
+  CoinAddressesBloc get _addressesBloc => context.read<CoinAddressesBloc>();
 
   @override
   void dispose() {
