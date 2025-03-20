@@ -11,13 +11,12 @@ final _supportedCoinsCache = <String, List<String>>{};
 final _transactionsCache = <String, Map<PerformanceMode, List<Transaction>>>{};
 
 class DemoDataCache {
-  final DemoDataGenerator _generator;
-
   DemoDataCache(this._generator);
   DemoDataCache.withDefaults()
       : _generator = DemoDataGenerator(
           BinanceRepository(binanceProvider: const BinanceProvider()),
         );
+  final DemoDataGenerator _generator;
 
   Future<List<String>> supportedCoinsDemoData() async {
     const cacheKey = 'supportedCoins';
@@ -27,7 +26,7 @@ class DemoDataCache {
 
     final String response =
         await rootBundle.loadString('assets/debug/demo_trade_data.json');
-    final Map<String, dynamic> data = json.decode(response);
+    final data = json.decode(response) as Map<String, dynamic>;
     final result = (data['profit'] as Map<String, dynamic>).keys.toList();
     _supportedCoinsCache[cacheKey] = result;
     return result;

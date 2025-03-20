@@ -7,8 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -24,7 +26,6 @@ import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class CoinsRepo {
   CoinsRepo({
@@ -45,6 +46,8 @@ class CoinsRepo {
   // TODO: refactor to use repository - pin/password input events need to be
   // handled, which are currently done through the trezor "bloc"
   final TrezorCoinsBloc trezor;
+
+  final _log = Logger('CoinsRepo');
 
   /// { acc: { abbr: address }}, used in Fiat Page
   final Map<String, Map<String, String>> _addressCache = {};
@@ -94,19 +97,16 @@ class CoinsRepo {
     return _assetToCoinWithoutAddress(asset);
   }
 
-  @Deprecated('Use KomodoDefiSdk assets or getCoinFromId instead. '
-      'This uses the deprecated assetsFromTicker method that uses a separate '
-      'cache that does not update with custom token activation.')
+  @Deprecated('Use KomodoDefiSdk assets or getCoinFromId instead.')
   Coin? getCoin(String coinId) {
     if (coinId.isEmpty) return null;
 
     try {
       final assets = _kdfSdk.assets.assetsFromTicker(coinId);
       if (assets.isEmpty || assets.length > 1) {
-        log(
+        _log.warning(
           'Coin "$coinId" not found. ${assets.length} results returned',
-          isError: true,
-        ).ignore();
+        );
         return null;
       }
       return _assetToCoinWithoutAddress(assets.single);
@@ -128,17 +128,24 @@ class CoinsRepo {
   }
 
   Future<Coin?> getEnabledCoin(String coinId) async {
-    final enabledAssets = _kdfSdk.assets.assetsFromTicker(coinId);
-    if (enabledAssets.length != 1) {
-      return null;
-    }
     final currentUser = await _kdfSdk.auth.currentUser;
     if (currentUser == null) {
       return null;
     }
 
-    final coin = _assetToCoinWithoutAddress(enabledAssets.single);
-    final coinAddress = await getFirstPubkey(coin.abbr);
+    final enabledAssets = await _kdfSdk.assets.getEnabledCoins();
+    final enabledAsset = enabledAssets.firstWhereOrNull(
+      (asset) => asset == coinId,
+    );
+    if (enabledAsset == null) {
+      return null;
+    }
+
+    final coin = getCoin(enabledAsset);
+    if (coin == null) {
+      return null;
+    }
+    final coinAddress = await getFirstPubkey(coin.id.id);
     return coin.copyWith(
       address: coinAddress,
       state: CoinState.active,
@@ -167,7 +174,7 @@ class CoinsRepo {
     final coinsMap = Map.fromEntries(entries);
     for (final coinId in coinsMap.keys) {
       final coin = coinsMap[coinId]!;
-      final coinAddress = await getFirstPubkey(coin.abbr);
+      final coinAddress = await getFirstPubkey(coin.id.id);
       coinsMap[coinId] = coin.copyWith(
         address: coinAddress,
         state: CoinState.active,
@@ -179,16 +186,16 @@ class CoinsRepo {
 
   Coin _assetToCoinWithoutAddress(Asset asset) {
     final coin = asset.toCoin();
-    final balance = _balancesCache[coin.abbr]?.balance;
-    final sendableBalance = _balancesCache[coin.abbr]?.sendableBalance;
-    final price = _pricesCache[coin.abbr];
+    final balance = _balancesCache[coin.id.id]?.balance;
+    final sendableBalance = _balancesCache[coin.id.id]?.sendableBalance;
+    final price = _pricesCache[coin.id.id];
 
     Coin? parentCoin;
     if (asset.id.isChildAsset) {
       final parentCoinId = asset.id.parentId!;
       final parentAsset = _kdfSdk.assets.available[parentCoinId];
       if (parentAsset == null) {
-        log('Parent coin $parentCoinId not found.', isError: true).ignore();
+        _log.warning('Parent coin $parentCoinId not found.');
         parentCoin = null;
       } else {
         parentCoin = _assetToCoinWithoutAddress(parentAsset);
@@ -215,12 +222,7 @@ class CoinsRepo {
       final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
       return pubkeys.balance;
     } catch (e, s) {
-      log(
-        'Failed to get coin $coinId balance: $e',
-        isError: true,
-        path: 'coins_repo => tryGetBalanceInfo',
-        trace: s,
-      ).ignore();
+      _log.shout('Failed to get coin $coinId balance', e, s);
       return kdf_rpc.BalanceInfo.zero();
     }
   }
@@ -229,7 +231,9 @@ class CoinsRepo {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       final coinIdList = assets.map((e) => e.id.id).join(', ');
-      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      _log.warning(
+        'No wallet signed in. Skipping activation of [$coinIdList]',
+      );
       return;
     }
 
@@ -246,11 +250,7 @@ class CoinsRepo {
 
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
       } catch (e, s) {
-        log(
-          'Error activating coin: ${asset.id.id} \n$e',
-          isError: true,
-          trace: s,
-        ).ignore();
+        _log.shout('Error activating asset: ${asset.id.id}', e, s);
         await _broadcastAsset(
           asset.toCoin().copyWith(state: CoinState.suspended),
         );
@@ -270,8 +270,10 @@ class CoinsRepo {
   Future<void> activateCoinsSync(List<Coin> coins) async {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
-      final coinIdList = coins.map((e) => e.abbr).join(', ');
-      log('No wallet signed in. Skipping activation of [$coinIdList}]');
+      final coinIdList = coins.map((e) => e.id.id).join(', ');
+      _log.warning(
+        'No wallet signed in. Skipping activation of [$coinIdList]',
+      );
       return;
     }
 
@@ -279,10 +281,7 @@ class CoinsRepo {
       try {
         final asset = _kdfSdk.assets.available[coin.id];
         if (asset == null) {
-          log(
-            'Coin ${coin.id} not found. Skipping activation.',
-            isError: true,
-          ).ignore();
+          _log.warning('Coin ${coin.id} not found. Skipping activation.');
           continue;
         }
 
@@ -291,17 +290,12 @@ class CoinsRepo {
         // ignore: deprecated_member_use
         final progress = await _kdfSdk.assets.activateAsset(asset).last;
         if (!progress.isSuccess) {
-          throw StateError('Failed to activate coin ${coin.abbr}');
+          throw StateError('Failed to activate coin ${coin.id.id}');
         }
 
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
       } catch (e, s) {
-        log(
-          'Error activating coin: ${coin.abbr} \n$e',
-          isError: true,
-          trace: s,
-          path: 'coins_repo->activateCoinsSync',
-        ).ignore();
+        _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
         await _broadcastAsset(coin.copyWith(state: CoinState.suspended));
       } finally {
         // Register outside of the try-catch to ensure icon is available even
@@ -320,7 +314,7 @@ class CoinsRepo {
     if (!await _kdfSdk.auth.isSignedIn()) return;
 
     for (final coin in coins) {
-      await _disableCoin(coin.abbr);
+      await _disableCoin(coin.id.id);
       await _broadcastAsset(coin.copyWith(state: CoinState.inactive));
     }
   }
@@ -329,12 +323,7 @@ class CoinsRepo {
     try {
       await _mm2.call(DisableCoinReq(coin: coinId));
     } catch (e, s) {
-      log(
-        'Error disabling $coinId: $e',
-        path: 'api=> disableCoin => _call',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error disabling $coinId', e, s);
       return;
     }
   }
@@ -386,12 +375,7 @@ class CoinsRepo {
       res = await http.get(pricesUrlV3);
       body = res.body;
     } catch (e, s) {
-      log(
-        'Error updating price from main: $e',
-        path: 'cex_services => _updateFromMain => http.get',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error updating price from main: $e', e, s);
       return null;
     }
 
@@ -399,12 +383,7 @@ class CoinsRepo {
     try {
       json = jsonDecode(body) as Map<String, dynamic>;
     } catch (e, s) {
-      log(
-        'Error parsing of update price from main response: $e',
-        path: 'cex_services => _updateFromMain => jsonDecode',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error parsing of update price from main response', e, s);
     }
 
     if (json == null) return null;
@@ -446,12 +425,7 @@ class CoinsRepo {
       res = await http.get(fallbackUri);
       body = res.body;
     } catch (e, s) {
-      log(
-        'Error updating price from fallback: $e',
-        path: 'cex_services => _updateFromFallback => http.get',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error updating price from fallback', e, s);
       return null;
     }
 
@@ -459,12 +433,7 @@ class CoinsRepo {
     try {
       json = jsonDecode(body) as Map<String, dynamic>?;
     } catch (e, s) {
-      log(
-        'Error parsing of update price from fallback response: $e',
-        path: 'cex_services => _updateFromFallback => jsonDecode',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error parsing of update price from fallback response', e, s);
     }
 
     if (json == null) return null;
@@ -478,11 +447,11 @@ class CoinsRepo {
       // Coins with the same coingeckoId supposedly have same usd price
       // (e.g. KMD == KMD-BEP20)
       final Iterable<Coin> samePriceCoins =
-          (getKnownCoins()).where((coin) => coin.coingeckoId == coingeckoId);
+          getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
-        prices[coin.abbr] = CexPrice(
-          ticker: coin.abbr,
+        prices[coin.id.id] = CexPrice(
+          ticker: coin.id.id,
           price: double.parse(pricesData['usd'].toString()),
         );
       }
@@ -525,7 +494,7 @@ class CoinsRepo {
           balance: newBalance,
           sendableBalance: newSendableBalance,
         );
-        _balancesCache[coins[i].abbr] =
+        _balancesCache[coins[i].id.id] =
             (balance: newBalance, sendableBalance: newSendableBalance);
       }
     }
@@ -538,23 +507,18 @@ class CoinsRepo {
     try {
       response = await _mm2.call(request) as Map<String, dynamic>?;
     } catch (e, s) {
-      log(
-        'Error withdrawing ${request.params.coin}: $e',
-        path: 'api => withdraw',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error withdrawing ${request.params.coin}', e, s);
     }
 
     if (response == null) {
-      log('Withdraw error: response is null', isError: true).ignore();
+      _log.shout('Withdraw error: response is null');
       return BlocResponse(
         error: TextError(error: LocaleKeys.somethingWrong.tr()),
       );
     }
 
     if (response['error'] != null) {
-      log('Withdraw error: ${response['error']}', isError: true).ignore();
+      _log.shout('Withdraw error: ${response['error']}');
       return BlocResponse(
         error: withdrawErrorFactory.getError(response, request.params.coin),
       );

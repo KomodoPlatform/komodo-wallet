@@ -2,21 +2,24 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/assets_overview/investment_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
+import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart' as logger;
 
 part 'asset_overview_event.dart';
 part 'asset_overview_state.dart';
 
 class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
-  AssetOverviewBloc({
-    required this.profitLossRepository,
-    required this.investmentRepository,
-  }) : super(const AssetOverviewInitial()) {
+  AssetOverviewBloc(
+    this._profitLossRepository,
+    this._investmentRepository,
+    this._sdk,
+  ) : super(const AssetOverviewInitial()) {
     on<AssetOverviewLoadRequested>(_onLoad);
     on<AssetOverviewClearRequested>(_onClear);
     on<PortfolioAssetsOverviewLoadRequested>(_onLoadPortfolio);
@@ -26,9 +29,10 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
     on<PortfolioAssetsOverviewUnsubscriptionRequested>(_onUnsubscribePortfolio);
   }
 
-  final ProfitLossRepository profitLossRepository;
-  final InvestmentRepository investmentRepository;
-
+  final ProfitLossRepository _profitLossRepository;
+  final InvestmentRepository _investmentRepository;
+  final KomodoDefiSdk _sdk;
+  final _log = Logger('AssetOverviewBloc');
   Timer? _updateTimer;
 
   Future<void> _onLoad(
@@ -38,14 +42,14 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
     emit(const AssetOverviewLoadInProgress());
 
     try {
-      final profitLosses = await profitLossRepository.getProfitLoss(
+      final profitLosses = await _profitLossRepository.getProfitLoss(
         event.coin.id,
         'USDT',
         event.walletId,
       );
 
       final totalInvestment =
-          await investmentRepository.calculateTotalInvestment(
+          await _investmentRepository.calculateTotalInvestment(
         event.walletId,
         [event.coin],
       );
@@ -65,8 +69,8 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
           investmentReturnPercentage: investmentReturnPercentage,
         ),
       );
-    } catch (e) {
-      logger.log('Failed to load asset overview: $e', isError: true);
+    } catch (e, s) {
+      _log.shout('Failed to load asset overview', e, s);
       if (state is! AssetOverviewLoadSuccess) {
         emit(AssetOverviewLoadFailure(error: e.toString()));
       }
@@ -86,16 +90,20 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
     PortfolioAssetsOverviewLoadRequested event,
     Emitter<AssetOverviewState> emit,
   ) async {
-    // nothing listens to this. The UI just resets to default values, i.e. 0
-    // emit(const AssetOverviewLoadInProgress());
-
     try {
+      if (event.coins.isEmpty) {
+        _log.warning('No coins to load portfolio overview for');
+        return;
+      }
+
+      await _sdk.waitForEnabledCoinsToPassThreshold(event.coins);
+
       final profitLossesFutures = event.coins.map((coin) async {
         // Catch errors that occur for single coins and exclude them from the
         // total so that transaction fetching errors for a single coin do not
         // affect the total investment calculation.
         try {
-          return await profitLossRepository.getProfitLoss(
+          return await _profitLossRepository.getProfitLoss(
             coin.id,
             'USDT',
             event.walletId,
@@ -108,7 +116,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
       final profitLosses = await Future.wait(profitLossesFutures);
 
       final totalInvestment =
-          await investmentRepository.calculateTotalInvestment(
+          await _investmentRepository.calculateTotalInvestment(
         event.walletId,
         event.coins,
       );
@@ -125,7 +133,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
 
       emit(
         PortfolioAssetsOverviewLoadSuccess(
-          selectedAssetIds: event.coins.map((coin) => coin.abbr).toList(),
+          selectedAssetIds: event.coins.map((coin) => coin.id.id).toList(),
           assetPortionPercentages: assetPortionPercentages,
           totalInvestment: totalInvestment,
           totalValue: FiatValue.usd(profitAmount),
@@ -133,8 +141,8 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
           profitIncreasePercentage: portfolioInvestmentReturnPercentage,
         ),
       );
-    } catch (e) {
-      logger.log('Failed to load portfolio assets overview: $e', isError: true);
+    } catch (e, s) {
+      _log.shout('Failed to load portfolio assets overview', e, s);
       if (state is! PortfolioAssetsOverviewLoadSuccess) {
         emit(AssetOverviewLoadFailure(error: e.toString()));
       }

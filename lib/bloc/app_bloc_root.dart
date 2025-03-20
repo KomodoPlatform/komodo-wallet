@@ -19,6 +19,8 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_repository.dart';
+import 'package:web_dex/bloc/cex_market_data/mockup/generator.dart';
+import 'package:web_dex/bloc/cex_market_data/mockup/mock_transaction_history_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
@@ -77,7 +79,7 @@ class AppBlocRoot extends StatelessWidget {
   final KomodoDefiSdk komodoDefiSdk;
 
   // TODO: Refactor to clean up the bloat in this main file
-  void _clearCachesIfPerformanceModeChanged(
+  Future<void> _clearCachesIfPerformanceModeChanged(
     PerformanceMode? performanceMode,
     ProfitLossRepository profitLossRepo,
     PortfolioGrowthRepository portfolioGrowthRepo,
@@ -116,16 +118,12 @@ class AppBlocRoot extends StatelessWidget {
     final trezorRepo = RepositoryProvider.of<TrezorRepo>(context);
     final trezorBloc = RepositoryProvider.of<TrezorCoinsBloc>(context);
 
-    // TODO: SDK Port needed, not sure about this part
-    final transactionsRepo = /*performanceMode != null
+    final transactionsRepo = performanceMode != null
         ? MockTransactionHistoryRepo(
-            api: mm2Api,
-            client: Client(),
             performanceMode: performanceMode,
             demoDataGenerator: DemoDataCache.withDefaults(),
           )
-        : */
-        SdkTransactionHistoryRepository(sdk: komodoDefiSdk);
+        : SdkTransactionHistoryRepository(sdk: komodoDefiSdk);
 
     final profitLossRepo = ProfitLossRepository.withDefaults(
       transactionHistoryRepo: transactionsRepo,
@@ -133,8 +131,7 @@ class AppBlocRoot extends StatelessWidget {
       // Returns real data if performanceMode is null. Consider changing the
       // other repositories to use this pattern.
       demoMode: performanceMode,
-      coinsRepository: coinsRepository,
-      mm2Api: mm2Api,
+      sdk: komodoDefiSdk,
     );
 
     final portfolioGrowthRepo = PortfolioGrowthRepository.withDefaults(
@@ -142,7 +139,7 @@ class AppBlocRoot extends StatelessWidget {
       cexRepository: binanceRepository,
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
-      mm2Api: mm2Api,
+      sdk: komodoDefiSdk,
     );
 
     _clearCachesIfPerformanceModeChanged(
@@ -202,21 +199,21 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider<AssetOverviewBloc>(
             create: (context) => AssetOverviewBloc(
-              investmentRepository: InvestmentRepository(
-                profitLossRepository: profitLossRepo,
-              ),
-              profitLossRepository: profitLossRepo,
+              profitLossRepo,
+              InvestmentRepository(profitLossRepository: profitLossRepo),
+              komodoDefiSdk,
             ),
           ),
           BlocProvider<ProfitLossBloc>(
             create: (context) => ProfitLossBloc(
-              profitLossRepository: profitLossRepo,
+              profitLossRepo,
+              komodoDefiSdk,
             ),
           ),
           BlocProvider<PortfolioGrowthBloc>(
             create: (BuildContext ctx) => PortfolioGrowthBloc(
               portfolioGrowthRepository: portfolioGrowthRepo,
-              coinsRepository: coinsRepository,
+              sdk: komodoDefiSdk,
             ),
           ),
           BlocProvider<TransactionHistoryBloc>(

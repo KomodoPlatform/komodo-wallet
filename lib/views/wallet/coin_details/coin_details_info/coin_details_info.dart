@@ -59,27 +59,24 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   void initState() {
     super.initState();
     const selectedDurationInitial = Duration(hours: 1);
-    final growthBloc = context.read<PortfolioGrowthBloc>();
 
-    growthBloc.add(
-      PortfolioGrowthLoadRequested(
-        coins: [widget.coin],
-        fiatCoinId: 'USDT',
-        selectedPeriod: selectedDurationInitial,
-        walletId: _walletId!,
-      ),
-    );
+    context.read<PortfolioGrowthBloc>().add(
+          PortfolioGrowthLoadRequested(
+            coins: [widget.coin],
+            fiatCoinId: 'USDT',
+            selectedPeriod: selectedDurationInitial,
+            walletId: _walletId!,
+          ),
+        );
 
-    final ProfitLossBloc profitLossBloc = context.read<ProfitLossBloc>();
-
-    profitLossBloc.add(
-      ProfitLossPortfolioChartLoadRequested(
-        coins: [widget.coin],
-        selectedPeriod: const Duration(hours: 1),
-        fiatCoinId: 'USDT',
-        walletId: _walletId!,
-      ),
-    );
+    context.read<ProfitLossBloc>().add(
+          ProfitLossPortfolioChartLoadRequested(
+            coins: [widget.coin],
+            selectedPeriod: const Duration(hours: 1),
+            fiatCoinId: 'USDT',
+            walletId: _walletId!,
+          ),
+        );
   }
 
   @override
@@ -363,10 +360,69 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
   }
 }
 
-class _CoinDetailsMarketMetricsTabBar extends StatelessWidget {
+class _CoinDetailsMarketMetricsTabBar extends StatefulWidget {
   const _CoinDetailsMarketMetricsTabBar({required this.coin});
 
   final Coin coin;
+
+  @override
+  _CoinDetailsMarketMetricsTabBarState createState() =>
+      _CoinDetailsMarketMetricsTabBarState();
+}
+
+class _CoinDetailsMarketMetricsTabBarState
+    extends State<_CoinDetailsMarketMetricsTabBar>
+    with TickerProviderStateMixin {
+  TabController? _tabController;
+  int _currentIndex = 0;
+
+  void _initializeTabController(int numTabs) {
+    _tabController = TabController(
+      length: numTabs,
+      vsync: this,
+      initialIndex: _currentIndex < numTabs ? _currentIndex : 0,
+    );
+
+    _tabController!.addListener(() {
+      if (_tabController!.indexIsChanging) {
+        setState(() {
+          _currentIndex = _tabController!.index;
+        });
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final portfolioGrowthState = context.watch<PortfolioGrowthBloc>().state;
+    final profitLossState = context.watch<ProfitLossBloc>().state;
+    final isPortfolioGrowthSupported =
+        portfolioGrowthState is! PortfolioGrowthChartUnsupported;
+    final isProfitLossSupported =
+        profitLossState is! PortfolioProfitLossChartUnsupported;
+    final areChartsSupported =
+        isPortfolioGrowthSupported || isProfitLossSupported;
+    final numChartsSupported =
+        (isPortfolioGrowthSupported ? 1 : 0) + (isProfitLossSupported ? 1 : 0);
+
+    if (areChartsSupported) {
+      if (_tabController == null ||
+          _tabController!.length != numChartsSupported) {
+        _initializeTabController(numChartsSupported);
+      }
+    } else {
+      _tabController?.dispose();
+      _tabController = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -378,55 +434,46 @@ class _CoinDetailsMarketMetricsTabBar extends StatelessWidget {
         profitLossState is! PortfolioProfitLossChartUnsupported;
     final areChartsSupported =
         isPortfolioGrowthSupported || isProfitLossSupported;
-    final numChartsSupported = 0 +
-        (isPortfolioGrowthSupported ? 1 : 0) +
-        (isProfitLossSupported ? 1 : 0);
+    final numChartsSupported =
+        (isPortfolioGrowthSupported ? 1 : 0) + (isProfitLossSupported ? 1 : 0);
 
     if (!areChartsSupported) {
       return const SizedBox.shrink();
     }
 
-    final TabController tabController = TabController(
-      length: numChartsSupported,
-      vsync: Navigator.of(context),
-    );
+    if (_tabController == null) {
+      _initializeTabController(numChartsSupported);
+    }
 
     return Column(
       children: [
         Card(
           child: TabBar(
-            controller: tabController,
+            controller: _tabController,
             tabs: [
-              // spread operator used to ensure that tabs and views are
-              // in sync
-              ...([
-                if (isPortfolioGrowthSupported)
-                  Tab(text: LocaleKeys.growth.tr()),
-                if (isProfitLossSupported)
-                  Tab(text: LocaleKeys.profitAndLoss.tr()),
-              ]),
+              if (isPortfolioGrowthSupported) Tab(text: LocaleKeys.growth.tr()),
+              if (isProfitLossSupported)
+                Tab(text: LocaleKeys.profitAndLoss.tr()),
             ],
           ),
         ),
         SizedBox(
           height: 340,
           child: TabBarView(
-            controller: tabController,
+            controller: _tabController,
             children: [
-              ...([
-                if (isPortfolioGrowthSupported)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 340,
-                    child: PortfolioGrowthChart(initialCoins: [coin]),
-                  ),
-                if (isProfitLossSupported)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 340,
-                    child: PortfolioProfitLossChart(initialCoins: [coin]),
-                  ),
-              ]),
+              if (isPortfolioGrowthSupported)
+                SizedBox(
+                  width: double.infinity,
+                  height: 340,
+                  child: PortfolioGrowthChart(initialCoins: [widget.coin]),
+                ),
+              if (isProfitLossSupported)
+                SizedBox(
+                  width: double.infinity,
+                  height: 340,
+                  child: PortfolioProfitLossChart(initialCoins: [widget.coin]),
+                ),
             ],
           ),
         ),

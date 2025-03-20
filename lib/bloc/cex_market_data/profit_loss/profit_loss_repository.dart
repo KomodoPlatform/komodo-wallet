@@ -4,8 +4,10 @@ import 'dart:math';
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/demo_profit_loss_repository.dart';
@@ -13,10 +15,7 @@ import 'package:web_dex/bloc/cex_market_data/profit_loss/models/adapters/adapter
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class ProfitLossRepository {
   ProfitLossRepository({
@@ -25,47 +24,28 @@ class ProfitLossRepository {
     required cex.CexRepository cexRepository,
     required TransactionHistoryRepo transactionHistoryRepo,
     required ProfitLossCalculator profitLossCalculator,
-    required CoinsRepo coinsRepository,
+    required KomodoDefiSdk sdk,
   })  : _transactionHistoryRepo = transactionHistoryRepo,
         _cexRepository = cexRepository,
         _profitLossCacheProvider = profitLossCacheProvider,
         _profitLossCalculator = profitLossCalculator,
-        _coinsRepository = coinsRepository;
-
-  final PersistenceProvider<String, ProfitLossCache> _profitLossCacheProvider;
-  final cex.CexRepository _cexRepository;
-  final TransactionHistoryRepo _transactionHistoryRepo;
-  final ProfitLossCalculator _profitLossCalculator;
-  final CoinsRepo _coinsRepository;
-
-  static Future<void> ensureInitialized() async {
-    Hive
-      ..registerAdapter(FiatValueAdapter())
-      ..registerAdapter(ProfitLossAdapter())
-      ..registerAdapter(ProfitLossCacheAdapter());
-  }
-
-  Future<void> clearCache() async {
-    await _profitLossCacheProvider.deleteAll();
-  }
+        _sdk = sdk;
 
   /// Return a new instance of [ProfitLossRepository] with default values.
   ///
   /// If [demoMode] is provided, it will return a [MockProfitLossRepository].
   factory ProfitLossRepository.withDefaults({
-    String cacheTableName = 'profit_loss',
     required TransactionHistoryRepo transactionHistoryRepo,
     required cex.CexRepository cexRepository,
-    required CoinsRepo coinsRepository,
-    required Mm2Api mm2Api,
+    required KomodoDefiSdk sdk,
+    String cacheTableName = 'profit_loss',
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
       return MockProfitLossRepository.withDefaults(
         performanceMode: demoMode,
-        coinsRepository: coinsRepository,
         cacheTableName: 'mock_${cacheTableName}_${demoMode.name}',
-        mm2Api: mm2Api,
+        sdk: sdk,
       );
     }
 
@@ -75,7 +55,34 @@ class ProfitLossRepository {
           HiveLazyBoxProvider<String, ProfitLossCache>(name: cacheTableName),
       cexRepository: cexRepository,
       profitLossCalculator: RealisedProfitLossCalculator(cexRepository),
-      coinsRepository: coinsRepository,
+      sdk: sdk,
+    );
+  }
+
+  final PersistenceProvider<String, ProfitLossCache> _profitLossCacheProvider;
+  final cex.CexRepository _cexRepository;
+  final TransactionHistoryRepo _transactionHistoryRepo;
+  final ProfitLossCalculator _profitLossCalculator;
+  final KomodoDefiSdk _sdk;
+
+  final _log = Logger('profit-loss-repository');
+
+  static Future<void> ensureInitialized() async {
+    Hive
+      ..registerAdapter(FiatValueAdapter())
+      ..registerAdapter(ProfitLossAdapter())
+      ..registerAdapter(ProfitLossCacheAdapter());
+  }
+
+  Future<void> clearCache() async {
+    final stopwatch = Stopwatch()..start();
+    _log.fine('Clearing profit/loss cache');
+
+    await _profitLossCacheProvider.deleteAll();
+
+    stopwatch.stop();
+    _log.fine(
+      'Profit/loss cache cleared in ${stopwatch.elapsedMilliseconds}ms',
     );
   }
 
@@ -93,20 +100,29 @@ class ProfitLossRepository {
     AssetId coinId,
     String fiatCoinId, {
     bool allowFiatAsBase = false,
-    bool allowInactiveCoins = false,
   }) async {
-    if (!allowInactiveCoins) {
-      final coin = await _coinsRepository.getEnabledCoin(coinId.id);
-      if (coin == null || coin.isActivating || !coin.isActive) {
-        return false;
-      }
-    }
+    final stopwatch = Stopwatch()..start();
+    final coinTicker = coinId.symbol.configSymbol.toUpperCase();
+    _log.fine(
+      'Checking if coin $coinTicker is supported for profit/loss calculation',
+    );
 
+    final supportedCoinsStopwatch = Stopwatch()..start();
     final supportedCoins = await _cexRepository.getCoinList();
-    final coinTicker = abbr2Ticker(coinId.id).toUpperCase();
+    supportedCoinsStopwatch.stop();
+    _log.fine(
+      'Fetched ${supportedCoins.length} supported coins in '
+      '${supportedCoinsStopwatch.elapsedMilliseconds}ms',
+    );
+
     // Allow fiat coins through, as they are represented by a constant value,
     // 1, in the repository layer and are not supported by the CEX API
     if (allowFiatAsBase && coinId.id == fiatCoinId.toUpperCase()) {
+      stopwatch.stop();
+      _log.fine(
+        'Coin $coinTicker is a fiat coin, supported: true '
+        '(total: ${stopwatch.elapsedMilliseconds}ms)',
+      );
       return true;
     }
 
@@ -114,7 +130,15 @@ class ProfitLossRepository {
       baseCoinTicker: coinTicker,
       relCoinTicker: fiatCoinId.toUpperCase(),
     );
-    return coinPair.isCoinSupported(supportedCoins);
+    final isSupported = coinPair.isCoinSupported(supportedCoins);
+
+    stopwatch.stop();
+    _log.fine(
+      'Coin $coinTicker support check completed in '
+      '${stopwatch.elapsedMilliseconds}ms, supported: $isSupported',
+    );
+
+    return isSupported;
   }
 
   /// Get the profit/loss data for a coin based on the transactions
@@ -135,37 +159,84 @@ class ProfitLossRepository {
     String walletId, {
     bool useCache = true,
   }) async {
+    final methodStopwatch = Stopwatch()..start();
+    _log.fine(
+      'Getting profit/loss for ${coinId.id} in $fiatCoinId for wallet $walletId, '
+      'useCache: $useCache',
+    );
+
+    final userStopwatch = Stopwatch()..start();
+    final currentUser = await _sdk.auth.currentUser;
+    userStopwatch.stop();
+
+    if (currentUser == null) {
+      _log.warning('No current user found when fetching profit/loss');
+      methodStopwatch.stop();
+      return <ProfitLoss>[];
+    }
+    _log.fine(
+      'Current user fetched in ${userStopwatch.elapsedMilliseconds}ms, '
+      'isHd: ${currentUser.isHd}',
+    );
+
     if (useCache) {
+      final cacheStopwatch = Stopwatch()..start();
       final String compoundKey = ProfitLossCache.getPrimaryKey(
-        coinId.id,
-        fiatCoinId,
-        walletId,
+        coinId: coinId.id,
+        fiatCurrency: fiatCoinId,
+        walletId: walletId,
+        isHdWallet: currentUser.isHd,
       );
       final ProfitLossCache? profitLossCache =
           await _profitLossCacheProvider.get(compoundKey);
       final bool cacheExists = profitLossCache != null;
+      cacheStopwatch.stop();
 
       if (cacheExists) {
+        _log.fine(
+          'ProfitLossCache hit for ${coinId.id} in $fiatCoinId for wallet $walletId '
+          'in ${cacheStopwatch.elapsedMilliseconds}ms, '
+          'entries: ${profitLossCache.profitLosses.length}',
+        );
+        methodStopwatch.stop();
         return profitLossCache.profitLosses;
       }
+      _log.fine(
+        'ProfitLossCache miss for ${coinId.id} in $fiatCoinId for wallet $walletId '
+        'in ${cacheStopwatch.elapsedMilliseconds}ms',
+      );
     }
 
+    final supportCheckStopwatch = Stopwatch()..start();
     final isCoinSupported = await isCoinChartSupported(
       coinId,
       fiatCoinId,
     );
+    supportCheckStopwatch.stop();
+
     if (!isCoinSupported) {
+      _log.fine(
+        'Coin ${coinId.id} is not supported for profit/loss calculation '
+        '(checked in ${supportCheckStopwatch.elapsedMilliseconds}ms)',
+      );
+      methodStopwatch.stop();
       return <ProfitLoss>[];
     }
 
+    final txStopwatch = Stopwatch()..start();
+    _log.fine('Fetching transactions for ${coinId.id}');
     final transactions =
-        await _transactionHistoryRepo.fetchCompletedTransactions(
-      // TODO: Refactor referenced coinsBloc method to a repository.
-      // NB: Even though the class is called [CoinsBloc], it is not a Bloc.
-      coinId,
+        await _transactionHistoryRepo.fetchCompletedTransactions(coinId);
+    txStopwatch.stop();
+    _log.fine(
+      'Fetched ${transactions.length} transactions for ${coinId.id} '
+      'in ${txStopwatch.elapsedMilliseconds}ms',
     );
 
     if (transactions.isEmpty) {
+      _log.fine('No transactions found for ${coinId.id}, caching empty result');
+
+      final cacheInsertStopwatch = Stopwatch()..start();
       await _profitLossCacheProvider.insert(
         ProfitLossCache(
           coinId: coinId.id,
@@ -173,18 +244,35 @@ class ProfitLossRepository {
           fiatCoinId: fiatCoinId,
           lastUpdated: DateTime.now(),
           walletId: walletId,
+          isHdWallet: currentUser.isHd,
         ),
       );
+      cacheInsertStopwatch.stop();
+      _log.fine(
+        'Cached empty profit/loss for ${coinId.id} '
+        'in ${cacheInsertStopwatch.elapsedMilliseconds}ms',
+      );
+      methodStopwatch.stop();
       return <ProfitLoss>[];
     }
 
+    final calcStopwatch = Stopwatch()..start();
+    _log.fine(
+      'Calculating profit/loss for ${coinId.id} with ${transactions.length} transactions',
+    );
     final List<ProfitLoss> profitLosses =
         await _profitLossCalculator.getProfitFromTransactions(
       transactions,
       coinId: coinId.id,
       fiatCoinId: fiatCoinId,
     );
+    calcStopwatch.stop();
+    _log.fine(
+      'Calculated ${profitLosses.length} profit/loss entries for ${coinId.id} '
+      'in ${calcStopwatch.elapsedMilliseconds}ms',
+    );
 
+    final cacheInsertStopwatch = Stopwatch()..start();
     await _profitLossCacheProvider.insert(
       ProfitLossCache(
         coinId: coinId.id,
@@ -192,9 +280,15 @@ class ProfitLossRepository {
         fiatCoinId: fiatCoinId,
         lastUpdated: DateTime.now(),
         walletId: walletId,
+        isHdWallet: currentUser.isHd,
       ),
     );
-
+    cacheInsertStopwatch.stop();
+    _log.fine(
+      'Cached ${profitLosses.length} profit/loss entries for ${coinId.id} '
+      'in ${cacheInsertStopwatch.elapsedMilliseconds}ms',
+    );
+    methodStopwatch.stop();
     return profitLosses;
   }
 }

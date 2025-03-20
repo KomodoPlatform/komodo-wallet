@@ -5,13 +5,6 @@ import 'package:web_dex/model/coin_type.dart';
 
 extension AssetCoinExtension on Asset {
   Coin toCoin() {
-    // Create protocol data if needed
-    ProtocolData? protocolData;
-    protocolData = ProtocolData(
-      platform: id.parentId?.id ?? '',
-      contractAddress: '',
-    );
-
     final CoinType type = protocol.subClass.toCoinType();
     // temporary measure to get metadata, like `wallet_only`, that isn't exposed
     // by the SDK (and might be phased out completely later on)
@@ -24,6 +17,11 @@ extension AssetCoinExtension on Asset {
     // TODO: Remove this once the SDK exposes all the necessary metadata
     // This is the logic from the previous _getCoinMode function
     final isSegwit = id.id.toLowerCase().contains('-segwit');
+
+    final ProtocolData protocolData = ProtocolData(
+      platform: id.parentId?.id ?? platform ?? '' ,
+      contractAddress: contractAddress ?? '',
+    );
 
     return Coin(
       type: type,
@@ -53,6 +51,8 @@ extension AssetCoinExtension on Asset {
 
   String? get contractAddress => protocol.config
       .valueOrNull('protocol', 'protocol_data', 'contract_address');
+  String? get platform => protocol.config
+      .valueOrNull('protocol', 'protocol_data', 'platform');
 }
 
 extension CoinTypeExtension on CoinSubClass {

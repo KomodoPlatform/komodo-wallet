@@ -1,5 +1,7 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 
 extension KdfAuthMetadataExtension on KomodoDefiSdk {
@@ -11,6 +13,21 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
   Future<Wallet?> currentWallet() async {
     final user = await auth.currentUser;
     return user?.wallet;
+  }
+
+  Future<List<String>> getWalletCoinIds() async {
+    final user = await auth.currentUser;
+    return user?.metadata.valueOrNull<List<String>>('activated_coins') ?? [];
+  }
+
+  Future<List<Coin>> getWalletCoins() async {
+    final coinIds = await getWalletCoinIds();
+    return coinIds
+        // use single to stick to the existing behaviour around assetByTicker
+        // which will cause the application to crash if there are
+        // multiple assets with the same ticker
+        .map((coinId) => assets.findAssetsByTicker(coinId).single.toCoin())
+        .toList();
   }
 
   Future<void> addActivatedCoins(Iterable<String> coins) async {

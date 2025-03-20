@@ -1,18 +1,20 @@
-import 'dart:math';
+import 'dart:math' show Point;
 
 import 'package:hive/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/mock_portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/cex_market_data/models/graph_type.dart';
 import 'package:web_dex/bloc/cex_market_data/models/models.dart';
+import 'package:web_dex/bloc/cex_market_data/portfolio_growth/cache_miss_exception.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/coin.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
@@ -23,10 +25,12 @@ class PortfolioGrowthRepository {
     required TransactionHistoryRepo transactionHistoryRepo,
     required PersistenceProvider<String, GraphCache> cacheProvider,
     required CoinsRepo coinsRepository,
+    required KomodoDefiSdk sdk,
   })  : _transactionHistoryRepository = transactionHistoryRepo,
         _cexRepository = cexRepository,
         _graphCache = cacheProvider,
-        _coinsRepository = coinsRepository;
+        _coinsRepository = coinsRepository,
+        _sdk = sdk;
 
   /// Create a new instance of the repository with default dependencies.
   /// The default dependencies are the [BinanceRepository] and the
@@ -35,14 +39,14 @@ class PortfolioGrowthRepository {
     required TransactionHistoryRepo transactionHistoryRepo,
     required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
-    required Mm2Api mm2Api,
+    required KomodoDefiSdk sdk,
     PerformanceMode? demoMode,
   }) {
     if (demoMode != null) {
       return MockPortfolioGrowthRepository.withDefaults(
         performanceMode: demoMode,
         coinsRepository: coinsRepository,
-        mm2Api: mm2Api,
+        sdk: sdk,
       );
     }
 
@@ -53,6 +57,7 @@ class PortfolioGrowthRepository {
         name: GraphType.balanceGrowth.tableName,
       ),
       coinsRepository: coinsRepository,
+      sdk: sdk,
     );
   }
 
@@ -66,6 +71,9 @@ class PortfolioGrowthRepository {
   final PersistenceProvider<String, GraphCache> _graphCache;
 
   final CoinsRepo _coinsRepository;
+  final KomodoDefiSdk _sdk;
+
+  final _log = Logger('PortfolioGrowthRepository');
 
   static Future<void> ensureInitialized() async {
     Hive
@@ -76,7 +84,7 @@ class PortfolioGrowthRepository {
   /// Get the growth chart for a coin based on the transactions
   /// and the spot price of the coin in the fiat currency.
   ///
-  /// NOTE: On a cache miss, an [Exception] is thrown. The assumption is that
+  /// NOTE: On a cache miss, a [CacheMissException] is thrown. The assumption is that
   /// the function is called with useCache set to false to fetch the
   /// transactions again.
   /// NOTE: If the transactions are empty, an empty chart is stored in the
@@ -89,13 +97,11 @@ class PortfolioGrowthRepository {
   /// [endAt] is the end time of the chart.
   /// [useCache] is a flag to indicate whether to use the cache when fetching
   /// the chart. If set to `true`, the chart is fetched from the cache if it
-  /// exists, otherwise an [Exception] is thrown.
+  /// exists, otherwise a [CacheMissException] is thrown.
   ///
   /// Returns the growth [ChartData] for the coin ([List] of [Point]).
   Future<ChartData> getCoinGrowthChart(
     AssetId coinId, {
-    // avoid the possibility of accidentally swapping the order of these
-    // required parameters by using named parameters
     required String fiatCoinId,
     required String walletId,
     DateTime? startAt,
@@ -103,40 +109,77 @@ class PortfolioGrowthRepository {
     bool useCache = true,
     bool ignoreTransactionFetchErrors = true,
   }) async {
+    final methodStopwatch = Stopwatch()..start();
+    _log.fine('Getting growth chart for coin: ${coinId.id}');
+
+    final currentUser = await _sdk.auth.currentUser;
+    if (currentUser == null) {
+      _log.warning('User is not logged in when fetching growth chart');
+      throw Exception('User is not logged in');
+    }
+
     if (useCache) {
+      final cacheStopwatch = Stopwatch()..start();
       final String compoundKey = GraphCache.getPrimaryKey(
-        coinId.id,
-        fiatCoinId,
-        GraphType.balanceGrowth,
-        walletId,
+        coinId: coinId.id,
+        fiatCoinId: fiatCoinId,
+        graphType: GraphType.balanceGrowth,
+        walletId: walletId,
+        isHdWallet: currentUser.isHd,
       );
       final GraphCache? cachedGraph = await _graphCache.get(compoundKey);
       final cacheExists = cachedGraph != null;
+      cacheStopwatch.stop();
+
       if (cacheExists) {
+        _log.fine(
+          'Cache hit for ${coinId.id}: ${cacheStopwatch.elapsedMilliseconds}ms',
+        );
+        methodStopwatch.stop();
+        _log.fine(
+          'getCoinGrowthChart completed in '
+          '${methodStopwatch.elapsedMilliseconds}ms (cached)',
+        );
         return cachedGraph.graph;
       } else {
-        throw Exception('Cache miss for $compoundKey');
+        _log.fine(
+          'Cache miss ${coinId.id}: ${cacheStopwatch.elapsedMilliseconds}ms',
+        );
+        throw CacheMissException(compoundKey);
       }
     }
 
-    // TODO: Refactor referenced coinsBloc method to a repository.
-    // NB: Even though the class is called [CoinsBloc], it is not a Bloc.
     final Coin coin = _coinsRepository.getCoinFromId(coinId)!;
+
+    final txStopwatch = Stopwatch()..start();
+    _log.fine('Fetching transactions for ${coin.id}');
     final List<Transaction> transactions = await _transactionHistoryRepository
         .fetchCompletedTransactions(coin.id)
         .then((value) => value.toList())
         .catchError((Object e) {
+      txStopwatch.stop();
+      _log.warning(
+        'Error fetching transactions for ${coin.id} '
+        'in ${txStopwatch.elapsedMilliseconds}ms: $e',
+      );
       if (ignoreTransactionFetchErrors) {
         return List<Transaction>.empty();
       } else {
         throw e;
       }
     });
+    txStopwatch.stop();
+    _log.fine(
+      'Fetched ${transactions.length} transactions for ${coin.id} '
+      'in ${txStopwatch.elapsedMilliseconds}ms',
+    );
 
     if (transactions.isEmpty) {
+      _log.fine('No transactions found for ${coin.id}, caching empty chart');
       // Insert an empty chart into the cache to avoid fetching transactions
       // again for each invocation. The assumption is that this function is
       // called later with useCache set to false to fetch the transactions again
+      final cacheInsertStopwatch = Stopwatch()..start();
       await _graphCache.insert(
         GraphCache(
           coinId: coinId.id,
@@ -145,7 +188,19 @@ class PortfolioGrowthRepository {
           graph: List.empty(),
           graphType: GraphType.balanceGrowth,
           walletId: walletId,
+          isHdWallet: currentUser.isHd,
         ),
+      );
+      cacheInsertStopwatch.stop();
+      _log.fine(
+        'Cached empty chart for ${coin.id} '
+        'in ${cacheInsertStopwatch.elapsedMilliseconds}ms',
+      );
+
+      methodStopwatch.stop();
+      _log.fine(
+        'getCoinGrowthChart for ${coin.id.id} completed in '
+        '${methodStopwatch.elapsedMilliseconds}ms (empty)',
       );
       return List.empty();
     }
@@ -155,16 +210,23 @@ class PortfolioGrowthRepository {
     startAt ??= transactions.first.timestamp;
     endAt ??= DateTime.now();
 
-    final String baseCoinId = coin.abbr.split('-').first;
+    final String baseCoinId = coin.id.symbol.configSymbol.toUpperCase();
     final cex.GraphInterval interval = _getOhlcInterval(
       startAt,
       endDate: endAt,
     );
 
+    _log.fine(
+      'Fetching OHLC data for $baseCoinId/$fiatCoinId '
+      'with interval: $interval',
+    );
+
+    final ohlcStopwatch = Stopwatch()..start();
     cex.CoinOhlc ohlcData;
     // if the base coin is the same as the fiat coin, return a chart with a
     // constant value of 1.0
     if (baseCoinId.toLowerCase() == fiatCoinId.toLowerCase()) {
+      _log.fine('Using constant price for fiat coin: $baseCoinId');
       ohlcData = cex.CoinOhlc.fromConstantPrice(
         startAt: startAt,
         endAt: endAt,
@@ -178,19 +240,35 @@ class PortfolioGrowthRepository {
         endAt: endAt,
       );
     }
+    ohlcStopwatch.stop();
+    _log.fine(
+      'Fetched ${ohlcData.ohlc.length} OHLC data points '
+      'in ${ohlcStopwatch.elapsedMilliseconds}ms',
+    );
 
     final List<Point<double>> portfolowGrowthChart =
         _mergeTransactionsWithOhlc(ohlcData, transactions);
-
+    final cacheInsertStopwatch = Stopwatch()..start();
     await _graphCache.insert(
       GraphCache(
-        coinId: coin.abbr,
+        coinId: coin.id.id,
         fiatCoinId: fiatCoinId,
         lastUpdated: DateTime.now(),
         graph: portfolowGrowthChart,
         graphType: GraphType.balanceGrowth,
         walletId: walletId,
+        isHdWallet: currentUser.isHd,
       ),
+    );
+    cacheInsertStopwatch.stop();
+    _log.fine(
+      'Cached chart for ${coin.id} in ${cacheInsertStopwatch.elapsedMilliseconds}ms',
+    );
+
+    methodStopwatch.stop();
+    _log.fine(
+      'getCoinGrowthChart completed in ${methodStopwatch.elapsedMilliseconds}ms '
+      'with ${portfolowGrowthChart.length} data points',
     );
 
     return portfolowGrowthChart;
@@ -224,46 +302,84 @@ class PortfolioGrowthRepository {
     DateTime? endAt,
     bool ignoreTransactionFetchErrors = true,
   }) async {
+    final methodStopwatch = Stopwatch()..start();
+    _log.fine(
+      'Getting portfolio growth chart for ${coins.length} coins, '
+      'useCache: $useCache',
+    );
+
     if (coins.isEmpty) {
+      _log.warning('Empty coins list provided to getPortfolioGrowthChart');
       assert(coins.isNotEmpty, 'The list of coins should not empty.');
       return ChartData.empty();
     }
 
+    final parallelFetchStopwatch = Stopwatch()..start();
+    // this is safe because increments are atomic operations, and dart is
+    // single-threaded, so no concern over race conditions.
+    int successCount = 0;
+    int errorCount = 0;
+
     final chartDataFutures = coins.map((coin) async {
       try {
-        return await getCoinGrowthChart(
+        final chartData = await getCoinGrowthChart(
           coin.id,
           fiatCoinId: fiatCoinId,
           useCache: useCache,
           walletId: walletId,
           ignoreTransactionFetchErrors: ignoreTransactionFetchErrors,
         );
+        successCount++;
+        return chartData;
       } on TransactionFetchException {
+        errorCount++;
+        _log.warning('Failed to fetch transactions for ${coin.id} ');
         if (ignoreTransactionFetchErrors) {
           return Future.value(ChartData.empty());
         } else {
           rethrow;
         }
-      } on Exception {
-        // Exception primarily thrown for cache misses
-        // TODO: create a custom exception for cache misses to avoid catching
-        // this broad exception type
+      } on CacheMissException {
+        errorCount++;
+        _log.fine('Cache miss for ${coin.id}');
+        return Future.value(ChartData.empty());
+      } on Exception catch (error, stackTrace) {
+        errorCount++;
+        _log.severe('Error fetching chart for ${coin.id}', error, stackTrace);
         return Future.value(ChartData.empty());
       }
     });
     final charts = await Future.wait(chartDataFutures);
+    parallelFetchStopwatch.stop();
+
+    _log.fine(
+      'Parallel fetch completed in ${parallelFetchStopwatch.elapsedMilliseconds}ms, '
+      'success: $successCount, errors: $errorCount',
+    );
 
     charts.removeWhere((element) => element.isEmpty);
     if (charts.isEmpty) {
+      _log.warning(
+          'getPortfolioGrowthChart: No valid charts found after filtering '
+          'empty charts in ${methodStopwatch.elapsedMilliseconds}ms');
       return ChartData.empty();
     }
 
     final mergedChart = Charts.merge(charts, mergeType: MergeType.leftJoin);
+
     // Add the current USD balance to the end of the chart to ensure that the
     // chart matches the current prices and ends at the current time.
     final double totalUsdBalance =
         coins.fold(0, (prev, coin) => prev + (coin.usdBalance ?? 0));
     if (totalUsdBalance <= 0) {
+      _log.fine(
+        'Total USD balance is zero or negative, skipping balance point addition',
+      );
+      methodStopwatch.stop();
+      _log.fine(
+        'getPortfolioGrowthChart completed in ${methodStopwatch.elapsedMilliseconds}ms '
+        'with ${mergedChart.length} data points',
+      );
       return mergedChart;
     }
 
@@ -274,15 +390,42 @@ class PortfolioGrowthRepository {
         totalUsdBalance,
       ),
     );
+    _log.fine(
+      'Added current balance point: $totalUsdBalance USD at '
+      '${currentDate.toIso8601String()}',
+    );
 
-    return mergedChart.filterDomain(startAt: startAt, endAt: endAt);
+    if (startAt != null || endAt != null) {
+      _log.fine(
+        'Filtering chart domain: startAt: ${startAt?.toIso8601String()}, '
+        'endAt: ${endAt?.toIso8601String()}',
+      );
+    }
+
+    final filteredChart =
+        mergedChart.filterDomain(startAt: startAt, endAt: endAt);
+
+    methodStopwatch.stop();
+    _log.fine(
+      'getPortfolioGrowthChart completed in ${methodStopwatch.elapsedMilliseconds}ms '
+      'with ${filteredChart.length} data points',
+    );
+
+    return filteredChart;
   }
 
   ChartData _mergeTransactionsWithOhlc(
     cex.CoinOhlc ohlcData,
     List<Transaction> transactions,
   ) {
+    final stopwatch = Stopwatch()..start();
+    _log.fine(
+      'Merging ${transactions.length} transactions with '
+      '${ohlcData.ohlc.length} OHLC data points',
+    );
+
     if (transactions.isEmpty || ohlcData.ohlc.isEmpty) {
+      _log.warning('Empty transactions or OHLC data, returning empty chart');
       return List.empty();
     }
 
@@ -295,6 +438,12 @@ class PortfolioGrowthRepository {
 
     final portfolowGrowthChart =
         Charts.mergeTransactionsWithPortfolioOHLC(transactions, spotValues);
+
+    stopwatch.stop();
+    _log.fine(
+      'Merged transactions with OHLC in ${stopwatch.elapsedMilliseconds}ms, '
+      'resulting in ${portfolowGrowthChart.length} data points',
+    );
 
     return portfolowGrowthChart;
   }
@@ -315,9 +464,8 @@ class PortfolioGrowthRepository {
     bool allowFiatAsBase = true,
   }) async {
     final Coin coin = _coinsRepository.getCoinFromId(coinId)!;
-
     final supportedCoins = await _cexRepository.getCoinList();
-    final coinTicker = coin.abbr.split('-').firstOrNull?.toUpperCase() ?? '';
+    final coinTicker = coin.id.symbol.configSymbol.toUpperCase();
     // Allow fiat coins through, as they are represented by a constant value,
     // 1, in the repository layer and are not supported by the CEX API
     if (allowFiatAsBase && coinTicker == fiatCoinId.toUpperCase()) {
