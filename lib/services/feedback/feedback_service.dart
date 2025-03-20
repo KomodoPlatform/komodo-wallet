@@ -1,14 +1,21 @@
 import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/services/feedback/feedback_env.dart';
 
-// The following environment variables must be set using dart-define:
+// The environment variables can be set for the build using a .env file,
+// see .env.example, or by using the following command for example:
+// flutter build web --dart-define TRELLO_API_KEY=YOUR_KEY_HERE --dart-define TRELLO_TOKEN=YOUR_TOKEN_HERE --dart-define TRELLO_BOARD_ID=YOUR_BOARD_ID_HERE --dart-define TRELLO_LIST_ID=YOUR_LIST_ID_HERE
+
+// The following environment variables must be set in your .env file (see .env.example):
 // TRELLO_API_KEY: Your Trello API key
 // TRELLO_TOKEN: Your Trello API token
 // TRELLO_BOARD_ID: The ID of the Trello board where feedback will be sent
@@ -24,23 +31,22 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 // The Trello board ID and list ID can be obtained by going to the Trello board
 // and adding `.json` to the end of the URL.
 
-// The environment variables can be set for the build using the following
-// command for example:
-// flutter build web --dart-define TRELLO_API_KEY=YOUR_KEY_HERE --dart-define TRELLO_TOKEN=YOUR_TOKEN_HERE --dart-define TRELLO_BOARD_ID=YOUR_BOARD_ID_HERE --dart-define TRELLO_LIST_ID=YOUR_LIST_ID_HERE
-
 class FeedbackService {
   final String apiKey;
   final String token;
   final String boardId;
   final String listId;
 
-  const FeedbackService({
+  static final _log = Logger('FeedbackService');
+
+  FeedbackService({
     required this.apiKey,
     required this.token,
     required this.boardId,
     required this.listId,
   });
 
+  /// Checks if the required environment variables are available using --dart-define
   static bool hasEnvironmentVariables() {
     final requiredVars = {
       'TRELLO_API_KEY': const String.fromEnvironment('TRELLO_API_KEY'),
@@ -55,8 +61,8 @@ class FeedbackService {
         .toList();
 
     if (missingVars.isNotEmpty) {
-      debugPrint(
-        'Missing required environment variables for feedback service: ${missingVars.join(", ")}',
+      _log.fine(
+        'Some environment variables not defined with --dart-define: ${missingVars.join(", ")}',
       );
       return false;
     }
@@ -64,19 +70,72 @@ class FeedbackService {
     return true;
   }
 
-  /// Creates a FeedbackService instance if all required environment variables are set.
-  /// Returns null if any environment variable is missing or empty.
+  /// Creates a FeedbackService instance using either:
+  /// 1. Environment variables from .env file via FeedbackEnv
+  /// 2. Or falls back to --dart-define variables
+  /// Returns null if no environment variables are available from either source
   static FeedbackService? fromEnvironment() {
-    if (!hasEnvironmentVariables()) {
-      return null;
+    // First try .env file through Envied
+    final bool hasEnvFile = FeedbackEnv.hasAllVariables();
+
+    if (hasEnvFile) {
+      _log.fine('Using environment variables from .env file');
+      return FeedbackService(
+        apiKey: FeedbackEnv.apiKey!,
+        token: FeedbackEnv.token!,
+        boardId: FeedbackEnv.boardId!,
+        listId: FeedbackEnv.listId!,
+      );
     }
 
-    return FeedbackService(
-      apiKey: const String.fromEnvironment('TRELLO_API_KEY'),
-      token: const String.fromEnvironment('TRELLO_TOKEN'),
-      boardId: const String.fromEnvironment('TRELLO_BOARD_ID'),
-      listId: const String.fromEnvironment('TRELLO_LIST_ID'),
+    // Fall back to --dart-define variables if .env isn't complete
+    final bool hasDartDefineVars = hasEnvironmentVariables();
+
+    if (hasDartDefineVars) {
+      _log.fine('Using environment variables from --dart-define');
+      return FeedbackService(
+        apiKey: const String.fromEnvironment('TRELLO_API_KEY'),
+        token: const String.fromEnvironment('TRELLO_TOKEN'),
+        boardId: const String.fromEnvironment('TRELLO_BOARD_ID'),
+        listId: const String.fromEnvironment('TRELLO_LIST_ID'),
+      );
+    }
+
+    // Try mixed approach - use variables from wherever they're defined
+    final String? apiKey = FeedbackEnv.hasApiKey()
+        ? FeedbackEnv.apiKey
+        : const String.fromEnvironment('TRELLO_API_KEY');
+
+    final String? token = FeedbackEnv.hasToken()
+        ? FeedbackEnv.token
+        : const String.fromEnvironment('TRELLO_TOKEN');
+
+    final String? boardId = FeedbackEnv.hasBoardId()
+        ? FeedbackEnv.boardId
+        : const String.fromEnvironment('TRELLO_BOARD_ID');
+
+    final String? listId = FeedbackEnv.hasListId()
+        ? FeedbackEnv.listId
+        : const String.fromEnvironment('TRELLO_LIST_ID');
+
+    // Check if we have all variables from one source or another
+    if (apiKey?.isNotEmpty == true &&
+        token?.isNotEmpty == true &&
+        boardId?.isNotEmpty == true &&
+        listId?.isNotEmpty == true) {
+      _log.fine('Using mixed environment variables from .env and dart-define');
+      return FeedbackService(
+        apiKey: apiKey!,
+        token: token!,
+        boardId: boardId!,
+        listId: listId!,
+      );
+    }
+
+    _log.warning(
+      'Missing required environment variables for feedback service from all sources',
     );
+    return null;
   }
 
   Future<void> handleFeedback(UserFeedback feedback) async {
@@ -116,8 +175,8 @@ class FeedbackService {
           ),
         ),
       );
-    } catch (e) {
-      debugPrint('Failed to submit feedback: $e');
+    } catch (e, s) {
+      _log.severe('Failed to submit feedback', e, s);
       rethrow;
     }
   }
@@ -183,8 +242,8 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
           'Failed to attach screenshot (${streamedResponse.statusCode}): ${streamedResponse.body}',
         );
       }
-    } catch (e) {
-      debugPrint('Error in submitFeedback: $e');
+    } catch (e, s) {
+      _log.shout('Error in submitFeedback', e, s);
       rethrow;
     }
   }
@@ -206,6 +265,9 @@ extension BuildContextShowFeedback on BuildContext {
     );
   }
 
-  /// Returns true if feedback functionality is available
-  bool get isFeedbackAvailable => FeedbackService.hasEnvironmentVariables();
+  /// Returns true if feedback functionality is available from either .env or --dart-define
+  bool get isFeedbackAvailable {
+    return FeedbackEnv.hasAllVariables() ||
+        FeedbackService.hasEnvironmentVariables();
+  }
 }

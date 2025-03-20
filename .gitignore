@@ -83,3 +83,9 @@ venv/
 # FVM Version Cache
 .fvm/
 /macos/build
+
+# ENVied environment variables and generated files.
+# NOTE: the generated files contain the environment variables from the .env file
+# and should not be committed to version control, even when obfuscated.
+.env
+lib/services/feedback/feedback_env.g.dart
