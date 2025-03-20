@@ -2,6 +2,9 @@ import 'package:envied/envied.dart';
 
 // NOTE: The generated file contains the actual environment variables
 // and should not be committed to the repository (even when obfuscated).
+// To generate this file, run either of the following commands:
+//  dart run build_runner build
+//  flutter pub run build_runner build
 part 'feedback_env.g.dart';
 
 @Envied(path: '.env', allowOptionalFields: true, obfuscate: true)
