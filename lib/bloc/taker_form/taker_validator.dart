@@ -1,4 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:get_it/get_it.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
@@ -248,6 +250,9 @@ class TakerValidator {
   bool get _isOrderSelected => state.selectedOrder != null;
 
   bool get canRequestPreimage {
+    // used to fetch the coin balance via the new balance function
+    final sdk = GetIt.I<KomodoDefiSdk>();
+
     final Coin? sellCoin = state.sellCoin;
     if (sellCoin == null) return false;
     if (sellCoin.enabledType == null) return false;
@@ -265,7 +270,7 @@ class TakerValidator {
     if (parentSell != null) {
       if (parentSell.enabledType == null) return false;
       if (parentSell.isSuspended) return false;
-      if (parentSell.balance == 0.00) return false;
+      if (parentSell.balance(sdk) == 0.00) return false;
     }
 
     final BestOrder? selectedOrder = state.selectedOrder;
@@ -278,7 +283,7 @@ class TakerValidator {
     if (parentBuy != null) {
       if (parentBuy.enabledType == null) return false;
       if (parentBuy.isSuspended) return false;
-      if (parentBuy.balance == 0.00) return false;
+      if (parentBuy.balance(sdk) == 0.00) return false;
     }
 
     return true;
