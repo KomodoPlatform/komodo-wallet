@@ -36,6 +36,7 @@ class AppVersionNumber extends StatelessWidget {
 }
 
 class _BundledCoinsCommitConfig extends StatelessWidget {
+  // ignore: unused_element_parameter
   const _BundledCoinsCommitConfig({super.key});
 
   // Get the value from `app_build/build_config.json` under the key
@@ -88,6 +89,7 @@ class _BundledCoinsCommitConfig extends StatelessWidget {
 }
 
 class _ApiVersion extends StatelessWidget {
+  // ignore: unused_element_parameter
   const _ApiVersion({super.key});
 
   @override

@@ -19,8 +19,6 @@ class CustomFeeFieldEVM extends StatefulWidget {
 class _CustomFeeFieldEVMState extends State<CustomFeeFieldEVM> {
   final TextEditingController _gasLimitController = TextEditingController();
   final TextEditingController _gasPriceController = TextEditingController();
-  TextSelection _gasLimitSelection = const TextSelection.collapsed(offset: 0);
-  TextSelection _gasPriceSelection = const TextSelection.collapsed(offset: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -101,10 +99,6 @@ class _CustomFeeFieldEVMState extends State<CustomFeeFieldEVM> {
   }
 
   void _change() {
-    setState(() {
-      _gasLimitSelection = _gasLimitController.selection;
-      _gasPriceSelection = _gasPriceController.selection;
-    });
     final asset = context.read<WithdrawFormBloc>().state.asset;
 
     context.read<WithdrawFormBloc>().add(

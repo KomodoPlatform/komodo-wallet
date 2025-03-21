@@ -129,33 +129,6 @@ class FeeSection extends StatelessWidget {
     );
   }
 
-  Widget _buildFeeSummary(BuildContext context, FeeInfo fee, Asset asset) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Fee Summary',
-          style: theme.textTheme.titleSmall,
-        ),
-        const SizedBox(height: 4),
-        if (fee is FeeInfoEthGas) ...[
-          Text(
-            'Gas: ${fee.gas} units @ ${fee.gasPrice} Gwei',
-            style: theme.textTheme.bodySmall,
-          ),
-        ],
-        Text(
-          'Total Fee: ${fee.totalFee} ${asset.id.id}',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildFeeFields(BuildContext context, WithdrawFormState state) {
     final protocol = state.asset.protocol;
 

@@ -448,13 +448,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     );
   }
 
-  bool _hasEthAddressMixedCase(String address) {
-    if (!address.startsWith('0x')) return false;
-    final chars = address.substring(2).split('');
-    return chars.any((c) => c.toLowerCase() != c) &&
-        chars.any((c) => c.toUpperCase() != c);
-  }
-
   Future<void> _onConvertAddress(
     WithdrawFormConvertAddressRequested event,
     Emitter<WithdrawFormState> emit,

@@ -78,6 +78,7 @@ class SeedShow extends StatelessWidget {
 class _PrivateKeysList extends StatelessWidget {
   const _PrivateKeysList({
     required this.privKeys,
+    // ignore: unused_element_parameter
     super.key,
   });
 
@@ -400,6 +401,7 @@ class _WordsList extends StatelessWidget {
 
 class _SelectableSeedWord extends StatelessWidget {
   const _SelectableSeedWord({
+    // ignore: unused_element_parameter
     super.key,
     required this.isSeedShown,
     required this.initialValue,

@@ -101,6 +101,7 @@ class _PasswordUpdatePageState extends State<PasswordUpdatePage> {
 }
 
 class _FormView extends StatefulWidget {
+  // ignore: unused_element_parameter
   const _FormView({super.key, required this.onSuccess});
 
   final VoidCallback onSuccess;
@@ -366,6 +367,7 @@ class _PasswordField extends StatelessWidget {
 }
 
 class _SuccessView extends StatelessWidget {
+  // ignore: unused_element_parameter
   const _SuccessView({super.key, required this.back});
 
   final VoidCallback back;

@@ -9,8 +9,6 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table_item.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:get_it/get_it.dart';
 
 class GroupedListView<T> extends StatelessWidget {
   const GroupedListView({
@@ -100,14 +98,6 @@ class GroupedListView<T> extends StatelessWidget {
 
   Coin _createHeaderCoinData(BuildContext context, List<T> list) {
     final firstCoin = getCoin(context, list.first);
-    final KomodoDefiSdk sdk = GetIt.I<KomodoDefiSdk>();
-
-    double totalBalance = list.fold(0.0, (sum, item) {
-      final coin = getCoin(context, item);
-      final coinBalance =
-          sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0;
-      return sum + coinBalance;
-    });
 
     final coin = firstCoin.dummyCopyWithoutProtocolData();
     // Since we can't use 'balance' property directly anymore, we need to
