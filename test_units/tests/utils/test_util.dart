@@ -45,7 +45,6 @@ Coin setCoin({
     swapContractAddress: null,
     type: CoinType.smartChain,
     walletOnly: false,
-    balance: balance,
     usdPrice: usdPrice != null
         ? CexPrice(
             price: usdPrice,
