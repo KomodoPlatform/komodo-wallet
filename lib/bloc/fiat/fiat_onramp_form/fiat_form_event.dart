@@ -19,16 +19,16 @@ final class FiatOnRampPaymentStatusMessageReceived extends FiatFormEvent {
 final class SelectedFiatCurrencyChanged extends FiatFormEvent {
   const SelectedFiatCurrencyChanged(this.selectedFiat);
 
-  final ICurrency selectedFiat;
+  final FiatCurrency selectedFiat;
 
   @override
   List<Object> get props => [selectedFiat];
 }
 
-final class SelectedCoinChanged extends FiatFormEvent {
-  const SelectedCoinChanged(this.selectedCoin);
+final class FiatFormSelectedCoinChanged extends FiatFormEvent {
+  const FiatFormSelectedCoinChanged(this.selectedCoin);
 
-  final ICurrency selectedCoin;
+  final CryptoCurrency selectedCoin;
 
   @override
   List<Object> get props => [selectedCoin];
@@ -70,8 +70,8 @@ final class PaymentStatusClearRequested extends FiatFormEvent {
   const PaymentStatusClearRequested();
 }
 
-final class AccountInformationChanged extends FiatFormEvent {
-  const AccountInformationChanged();
+final class FiatFormWalletAuthenticated extends FiatFormEvent {
+  const FiatFormWalletAuthenticated();
 }
 
 final class ClearAccountInformationRequested extends FiatFormEvent {
@@ -95,4 +95,13 @@ final class LoadCurrencyListsRequested extends FiatFormEvent {
 
 final class WatchOrderStatusRequested extends FiatFormEvent {
   const WatchOrderStatusRequested();
+}
+
+final class CoinAddressSelected extends FiatFormEvent {
+  const CoinAddressSelected(this.address);
+
+  final PubkeyInfo address;
+
+  @override
+  List<Object> get props => [address];
 }

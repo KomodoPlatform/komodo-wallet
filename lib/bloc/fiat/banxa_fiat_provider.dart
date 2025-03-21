@@ -157,7 +157,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<ICurrency>> getFiatList() async {
+  Future<List<FiatCurrency>> getFiatList() async {
     final response = await _getFiats();
     final data = response['data']['fiats'] as List<dynamic>;
     return data
@@ -171,11 +171,11 @@ class BanxaFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<ICurrency>> getCoinList() async {
+  Future<List<CryptoCurrency>> getCoinList() async {
     final response = await _getCoins();
     final data = response['data']['coins'] as List<dynamic>;
 
-    final List<ICurrency> currencyList = [];
+    final List<CryptoCurrency> currencyList = [];
     for (final item in data) {
       final coinCode = item['coin_code'] as String;
       final coinName = item['coin_name'] as String;

@@ -87,7 +87,7 @@ class RampFiatProvider extends BaseFiatProvider {
       );
 
   @override
-  Future<List<ICurrency>> getFiatList() async {
+  Future<List<FiatCurrency>> getFiatList() async {
     final response = await _getFiats();
     final data = response as List<dynamic>;
     return data
@@ -102,7 +102,7 @@ class RampFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<ICurrency>> getCoinList() async {
+  Future<List<CryptoCurrency>> getCoinList() async {
     final response = await _getCoins();
     final data = response['assets'] as List<dynamic>;
     return data
@@ -118,7 +118,7 @@ class RampFiatProvider extends BaseFiatProvider {
           );
         })
         .where((e) => e != null)
-        .cast<ICurrency>()
+        .cast<CryptoCurrency>()
         .toList();
   }
 

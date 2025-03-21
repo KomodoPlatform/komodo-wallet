@@ -5,12 +5,10 @@ enum FiatFormStatus { initial, loading, success, failure }
 final class FiatFormState extends Equatable with FormzMixin {
   const FiatFormState({
     required this.selectedFiat,
-    required this.selectedCoin,
+    required this.selectedAsset,
     required this.fiatAmount,
     required this.paymentMethods,
     required this.selectedPaymentMethod,
-    required this.accountReference,
-    required this.coinReceiveAddress,
     required this.checkoutUrl,
     required this.orderId,
     required this.fiatList,
@@ -18,19 +16,20 @@ final class FiatFormState extends Equatable with FormzMixin {
     this.status = FiatFormStatus.initial,
     this.fiatOrderStatus = FiatOrderStatus.pending,
     this.fiatMode = FiatMode.onramp,
+    this.selectedAssetAddress,
+    this.selectedCoinPubkeys,
   });
 
   const FiatFormState.initial()
       : selectedFiat = const CurrencyInput.dirty(
           FiatCurrency('USD', 'United States Dollar'),
         ),
-        selectedCoin = const CurrencyInput.dirty(
+        selectedAsset = const CurrencyInput.dirty(
           CryptoCurrency('BTC', 'Bitcoin', CoinType.utxo),
         ),
         fiatAmount = const FiatAmountInput.pure(),
+        selectedAssetAddress = null,
         selectedPaymentMethod = const FiatPaymentMethod.none(),
-        accountReference = '',
-        coinReceiveAddress = '',
         checkoutUrl = '',
         orderId = '',
         status = FiatFormStatus.initial,
@@ -38,25 +37,26 @@ final class FiatFormState extends Equatable with FormzMixin {
         fiatList = const [],
         coinList = const [],
         fiatOrderStatus = FiatOrderStatus.pending,
-        fiatMode = FiatMode.onramp;
+        fiatMode = FiatMode.onramp,
+        selectedCoinPubkeys = null;
 
-  /// The selected fiat currency to use to purchase [selectedCoin].
+  /// The selected fiat currency to use to purchase [selectedAsset].
   final CurrencyInput selectedFiat;
 
   /// The selected crypto currency to purchase.
-  final CurrencyInput selectedCoin;
+  final CurrencyInput selectedAsset;
 
-  /// The amount of [selectedFiat] to use to purchase [selectedCoin].
+  /// The amount of [selectedFiat] to use to purchase [selectedAsset].
   final FiatAmountInput fiatAmount;
 
-  /// The selected payment method to use to purchase [selectedCoin].
+  /// The selected payment method to use to purchase [selectedAsset].
   final FiatPaymentMethod selectedPaymentMethod;
 
-  /// The account reference to use to purchase [selectedCoin].
-  final String accountReference;
+  /// The crypto receive address to use to purchase [selectedAsset].
+  final PubkeyInfo? selectedAssetAddress;
 
-  /// The crypto receive address to use to purchase [selectedCoin].
-  final String coinReceiveAddress;
+  /// The public keys associated with the selected crypto currency.
+  final AssetPubkeys? selectedCoinPubkeys;
 
   /// The callback url to return to once checkout is completed.
   final String checkoutUrl;
@@ -68,14 +68,14 @@ final class FiatFormState extends Equatable with FormzMixin {
   final FiatFormStatus status;
 
   /// The list of payment methods available for the [selectedFiat],
-  /// [selectedCoin], and [fiatAmount].
+  /// [selectedAsset], and [fiatAmount].
   final Iterable<FiatPaymentMethod> paymentMethods;
 
-  /// The list of fiat currencies that can be used to purchase [selectedCoin].
-  final Iterable<ICurrency> fiatList;
+  /// The list of fiat currencies that can be used to purchase [selectedAsset].
+  final Iterable<FiatCurrency> fiatList;
 
   /// The list of crypto currencies that can be purchased.
-  final Iterable<ICurrency> coinList;
+  final Iterable<CryptoCurrency> coinList;
 
   /// The current status of the fiat order.
   final FiatOrderStatus fiatOrderStatus;
@@ -98,34 +98,33 @@ final class FiatFormState extends Equatable with FormzMixin {
   bool get isLoading => isLoadingCurrencies || status == FiatFormStatus.loading;
   bool get canSubmit =>
       !isLoading &&
-      accountReference.isNotEmpty &&
+      selectedAssetAddress != null &&
       status != FiatFormStatus.failure &&
       !fiatOrderStatus.isSubmitting &&
       isValid;
 
   FiatFormState copyWith({
     CurrencyInput? selectedFiat,
-    CurrencyInput? selectedCoin,
+    CurrencyInput? selectedAsset,
     FiatAmountInput? fiatAmount,
     FiatPaymentMethod? selectedPaymentMethod,
-    String? accountReference,
-    String? coinReceiveAddress,
+    PubkeyInfo? selectedAssetAddress,
     String? checkoutUrl,
     String? orderId,
     FiatFormStatus? status,
     Iterable<FiatPaymentMethod>? paymentMethods,
-    Iterable<ICurrency>? fiatList,
-    Iterable<ICurrency>? coinList,
+    Iterable<FiatCurrency>? fiatList,
+    Iterable<CryptoCurrency>? coinList,
     FiatOrderStatus? fiatOrderStatus,
     FiatMode? fiatMode,
+    AssetPubkeys? selectedCoinPubkeys,
   }) {
     return FiatFormState(
       selectedFiat: selectedFiat ?? this.selectedFiat,
-      selectedCoin: selectedCoin ?? this.selectedCoin,
+      selectedAsset: selectedAsset ?? this.selectedAsset,
       selectedPaymentMethod:
           selectedPaymentMethod ?? this.selectedPaymentMethod,
-      accountReference: accountReference ?? this.accountReference,
-      coinReceiveAddress: coinReceiveAddress ?? this.coinReceiveAddress,
+      selectedAssetAddress: selectedAssetAddress ?? this.selectedAssetAddress,
       checkoutUrl: checkoutUrl ?? this.checkoutUrl,
       orderId: orderId ?? this.orderId,
       fiatAmount: fiatAmount ?? this.fiatAmount,
@@ -135,23 +134,23 @@ final class FiatFormState extends Equatable with FormzMixin {
       coinList: coinList ?? this.coinList,
       fiatOrderStatus: fiatOrderStatus ?? this.fiatOrderStatus,
       fiatMode: fiatMode ?? this.fiatMode,
+      selectedCoinPubkeys: selectedCoinPubkeys ?? this.selectedCoinPubkeys,
     );
   }
 
   @override
   List<FormzInput<dynamic, dynamic>> get inputs => [
         selectedFiat,
-        selectedCoin,
+        selectedAsset,
         fiatAmount,
       ];
 
   @override
   List<Object?> get props => [
         selectedFiat,
-        selectedCoin,
+        selectedAsset,
         selectedPaymentMethod,
-        accountReference,
-        coinReceiveAddress,
+        selectedAssetAddress,
         checkoutUrl,
         orderId,
         fiatAmount,
@@ -161,5 +160,6 @@ final class FiatFormState extends Equatable with FormzMixin {
         coinList,
         fiatOrderStatus,
         fiatMode,
+        selectedCoinPubkeys,
       ];
 }

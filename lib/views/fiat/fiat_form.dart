@@ -75,7 +75,7 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   Future<void> fillAccountInformation() async {
-    context.read<FiatFormBloc>().add(const AccountInformationChanged());
+    context.read<FiatFormBloc>().add(const FiatFormWalletAuthenticated());
   }
 
   void _showOrderFailedSnackbar() {
@@ -239,14 +239,17 @@ class _FiatFormState extends State<FiatForm> {
                             onFiatCurrencyChanged: _onFiatChanged,
                             onCoinChanged: _onCoinChanged,
                             onFiatAmountUpdate: _onFiatAmountChanged,
-                            initialFiat: state.selectedFiat.value!,
-                            initialCoin: state.selectedCoin.value!,
+                            initialFiat:
+                                state.selectedFiat.value! as FiatCurrency,
+                            selectedAsset:
+                                state.selectedAsset.value! as CryptoCurrency,
+                            selectedAssetAddress: state.selectedAssetAddress,
+                            selectedAssetPubkeys: state.selectedCoinPubkeys,
                             initialFiatAmount: state.fiatAmount.valueAsDouble,
                             fiatList: state.fiatList,
                             coinList: state.coinList,
                             selectedPaymentMethodPrice:
                                 state.selectedPaymentMethod.priceInfo,
-                            receiveAddress: state.coinReceiveAddress,
                             isLoggedIn: _isLoggedIn,
                             fiatMinAmount: state.minFiatAmount,
                             fiatMaxAmount: state.maxFiatAmount,
@@ -290,12 +293,12 @@ class _FiatFormState extends State<FiatForm> {
     );
   }
 
-  void _onFiatChanged(ICurrency value) => context.read<FiatFormBloc>()
+  void _onFiatChanged(FiatCurrency value) => context.read<FiatFormBloc>()
     ..add(SelectedFiatCurrencyChanged(value))
     ..add(const RefreshFormRequested(forceRefresh: true));
 
-  void _onCoinChanged(ICurrency value) => context.read<FiatFormBloc>()
-    ..add(SelectedCoinChanged(value))
+  void _onCoinChanged(CryptoCurrency value) => context.read<FiatFormBloc>()
+    ..add(FiatFormSelectedCoinChanged(value))
     ..add(const RefreshFormRequested(forceRefresh: true));
 
   void _onFiatAmountChanged(String? value) => context.read<FiatFormBloc>()

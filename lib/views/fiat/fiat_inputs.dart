@@ -1,25 +1,26 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/views/fiat/address_bar.dart';
 import 'package:web_dex/views/fiat/custom_fiat_input_field.dart';
 import 'package:web_dex/views/fiat/fiat_currency_item.dart';
 import 'package:web_dex/views/fiat/fiat_icon.dart';
 
-// TODO(@takenagain): When `dev` is merged into `main`, please refactor this
-// to use the `CoinIcon` widget. I'm leaving this unchanged for now to avoid
-// merge conflicts with your fiat onramp overhaul.
 class FiatInputs extends StatefulWidget {
   const FiatInputs({
     required this.initialFiat,
     required this.initialFiatAmount,
-    required this.initialCoin,
+    required this.selectedAsset,
+    required this.selectedAssetAddress,
+    required this.selectedAssetPubkeys,
     required this.fiatList,
     required this.coinList,
-    required this.receiveAddress,
     required this.isLoggedIn,
     required this.onFiatCurrencyChanged,
     required this.onCoinChanged,
@@ -29,22 +30,26 @@ class FiatInputs extends StatefulWidget {
     this.fiatMinAmount,
     this.fiatMaxAmount,
     this.boundariesError,
+    this.onSourceAddressChanged,
   });
 
-  final ICurrency initialFiat;
+  final FiatCurrency initialFiat;
   final double? initialFiatAmount;
-  final ICurrency initialCoin;
-  final Iterable<ICurrency> fiatList;
-  final Iterable<ICurrency> coinList;
+  final CryptoCurrency selectedAsset;
+  final Iterable<FiatCurrency> fiatList;
+  final Iterable<CryptoCurrency> coinList;
   final FiatPriceInfo? selectedPaymentMethodPrice;
   final bool isLoggedIn;
-  final String? receiveAddress;
+  final PubkeyInfo? selectedAssetAddress;
   final double? fiatMinAmount;
   final double? fiatMaxAmount;
   final String? boundariesError;
-  final void Function(ICurrency) onFiatCurrencyChanged;
-  final void Function(ICurrency) onCoinChanged;
+  final void Function(FiatCurrency) onFiatCurrencyChanged;
+  final void Function(CryptoCurrency) onCoinChanged;
   final void Function(String?) onFiatAmountUpdate;
+
+  final AssetPubkeys? selectedAssetPubkeys;
+  final ValueChanged<PubkeyInfo?>? onSourceAddressChanged;
 
   @override
   FiatInputsState createState() => FiatInputsState();
@@ -90,13 +95,13 @@ class FiatInputsState extends State<FiatInputs> {
   void changeFiat(ICurrency? newValue) {
     if (newValue == null) return;
 
-    widget.onFiatCurrencyChanged(newValue);
+    widget.onFiatCurrencyChanged(newValue as FiatCurrency);
   }
 
   void changeCoin(ICurrency? newValue) {
     if (newValue == null) return;
 
-    widget.onCoinChanged(newValue);
+    widget.onCoinChanged(newValue as CryptoCurrency);
   }
 
   void fiatAmountChanged(String? newValue) {
@@ -177,7 +182,7 @@ class FiatInputsState extends State<FiatInputs> {
                       key: const Key('fiat-onramp-coin-dropdown'),
                       foregroundColor: foregroundColor,
                       disabled: coinListLoading,
-                      currency: widget.initialCoin,
+                      currency: widget.selectedAsset,
                       icon: Icon(_getDefaultAssetIcon('coin')),
                       onTap: () => _showAssetSelectionDialog('coin'),
                       isListTile: false,
@@ -190,7 +195,15 @@ class FiatInputsState extends State<FiatInputs> {
         ),
         if (widget.isLoggedIn) ...[
           const SizedBox(height: 16),
-          AddressBar(receiveAddress: widget.receiveAddress),
+          SourceAddressField(
+            asset: widget.selectedAsset
+                .toAsset(RepositoryProvider.of<KomodoDefiSdk>(context)),
+            pubkeys: widget.selectedAssetPubkeys,
+            selectedAddress: widget.selectedAssetAddress,
+            onChanged: widget.onSourceAddressChanged,
+            isLoading: widget.selectedAssetAddress == null,
+            showBalanceIndicator: false,
+          )
         ],
       ],
     );

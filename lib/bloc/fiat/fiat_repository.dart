@@ -75,11 +75,11 @@ class FiatRepository {
       ..sort((a, b) => a.symbol.compareTo(b.symbol));
   }
 
-  Future<List<ICurrency>> getFiatList() async {
+  Future<List<FiatCurrency>> getFiatList() async {
     return (await _getListFromProviders(
       (provider) => provider.getFiatList(),
       false,
-    ))
+    )) as List<FiatCurrency>
       ..sort((a, b) => currencySorter(a.getAbbr(), b.getAbbr()));
   }
 
@@ -99,8 +99,9 @@ class FiatRepository {
     }
   }
 
-  Future<List<ICurrency>> getCoinList() async {
-    return _getListFromProviders((provider) => provider.getCoinList(), true);
+  Future<List<CryptoCurrency>> getCoinList() async {
+    return _getListFromProviders((provider) => provider.getCoinList(), true)
+        as List<CryptoCurrency>;
   }
 
   String? _calculateCoinAmount(

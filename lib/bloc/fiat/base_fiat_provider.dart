@@ -16,9 +16,9 @@ abstract class BaseFiatProvider {
 
   Stream<FiatOrderStatus> watchOrderStatus(String orderId);
 
-  Future<List<ICurrency>> getFiatList();
+  Future<List<FiatCurrency>> getFiatList();
 
-  Future<List<ICurrency>> getCoinList();
+  Future<List<CryptoCurrency>> getCoinList();
 
   Future<List<FiatPaymentMethod>> getPaymentMethodsList(
     String source,

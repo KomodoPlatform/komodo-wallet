@@ -5,7 +5,10 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/fiat_repository.dart';
@@ -15,7 +18,6 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
 import 'package:web_dex/shared/utils/extensions/string_extensions.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 part 'fiat_form_event.dart';
 part 'fiat_form_state.dart';
@@ -23,23 +25,27 @@ part 'fiat_form_state.dart';
 class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   FiatFormBloc({
     required FiatRepository repository,
-    required CoinsRepo coinsRepository,
+    required KomodoDefiSdk sdk,
   })  : _fiatRepository = repository,
-        _coinsRepository = coinsRepository,
+        _sdk = sdk,
         super(const FiatFormState.initial()) {
     // all user input fields are debounced using the debounce stream transformer
     on<SelectedFiatCurrencyChanged>(
       _onChangeSelectedFiatCoin,
       transformer: debounce(500),
     );
-    on<SelectedCoinChanged>(_onChangeSelectedCoin, transformer: debounce(500));
+    on<FiatFormSelectedCoinChanged>(
+      _onChangeSelectedCoin,
+      transformer: debounce(500),
+    );
     on<FiatAmountChanged>(_onUpdateFiatAmount, transformer: debounce(500));
     on<PaymentMethodSelected>(_onSelectPaymentMethod);
     on<FormSubmissionRequested>(_onSubmitForm);
     on<FiatOnRampPaymentStatusMessageReceived>(_onPaymentStatusMessage);
     on<FiatModeChanged>(_onFiatModeChanged);
-    on<AccountInformationChanged>(_onAccountInformationChanged);
+    on<FiatFormWalletAuthenticated>(_onWalletAuthenticated);
     on<ClearAccountInformationRequested>(_onClearAccountInformation);
+    on<CoinAddressSelected>(_onCoinAddressSelected);
     // debounce used here instead of restartable, since multiple user actions
     // can trigger this event, and restartable resulted in hitching
     on<RefreshFormRequested>(_onRefreshForm, transformer: debounce(500));
@@ -54,7 +60,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   final FiatRepository _fiatRepository;
-  final CoinsRepo _coinsRepository;
+  final KomodoDefiSdk _sdk;
+  final _log = Logger('FiatFormBloc');
 
   Future<void> _onChangeSelectedFiatCoin(
     SelectedFiatCurrencyChanged event,
@@ -68,12 +75,23 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   Future<void> _onChangeSelectedCoin(
-    SelectedCoinChanged event,
+    FiatFormSelectedCoinChanged event,
     Emitter<FiatFormState> emit,
   ) async {
     emit(
       state.copyWith(
-        selectedCoin: CurrencyInput.dirty(event.selectedCoin),
+        selectedAsset: CurrencyInput.dirty(event.selectedCoin),
+      ),
+    );
+
+    final asset = event.selectedCoin.toAsset(_sdk);
+    final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
+    final address = assetPubkeys.keys.firstOrNull;
+
+    emit(
+      state.copyWith(
+        selectedAssetAddress: address,
+        selectedCoinPubkeys: assetPubkeys,
       ),
     );
   }
@@ -83,9 +101,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     Emitter<FiatFormState> emit,
   ) async {
     emit(
-      state.copyWith(
-        fiatAmount: _getAmountInputWithBounds(event.fiatAmount),
-      ),
+      state.copyWith(fiatAmount: _getAmountInputWithBounds(event.fiatAmount)),
     );
   }
 
@@ -132,7 +148,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   ) async {
     final formValidationError = getFormIssue();
     if (formValidationError != null || !state.isValid) {
-      log('Form validation failed. Validation: ${state.isValid}').ignore();
+      _log.warning('Form validation failed. Validation: ${state.isValid}');
       return;
     }
 
@@ -142,13 +158,13 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
     try {
       final newOrder = await _fiatRepository.buyCoin(
-        state.accountReference,
+        state.selectedAssetAddress!.address,
         state.selectedFiat.value!.symbol,
-        state.selectedCoin.value!,
-        state.coinReceiveAddress,
+        state.selectedAsset.value!,
+        state.selectedAssetAddress!.address,
         state.selectedPaymentMethod,
         state.fiatAmount.value,
-        BaseFiatProvider.successUrl(state.accountReference),
+        BaseFiatProvider.successUrl(state.selectedAssetAddress!.address),
       );
 
       if (!newOrder.error.isNone) {
@@ -157,7 +173,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
       final checkoutUrl = newOrder.checkoutUrl as String? ?? '';
       if (checkoutUrl.isEmpty) {
-        log('Invalid checkout URL received.').ignore();
+        _log.severe('Invalid checkout URL received.');
         return emit(
           state.copyWith(
             fiatOrderStatus: FiatOrderStatus.failed,
@@ -174,12 +190,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         ),
       );
     } catch (e, s) {
-      log(
-        'Error loading currency list: $e',
-        path: 'FiatFormBloc._onSubmitForm',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error loading currency list', e, s);
       emit(
         state.copyWith(
           status: FiatFormStatus.failure,
@@ -215,7 +226,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     try {
       final methods = _fiatRepository.getPaymentMethodsList(
         state.selectedFiat.value!.symbol,
-        state.selectedCoin.value!,
+        state.selectedAsset.value!,
         sourceAmount,
       );
       // await here in case of unhandled errors, but `onError` should handle
@@ -227,22 +238,12 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
           forceUpdate: event.forceRefresh,
         ),
         onError: (e, s) {
-          log(
-            'Error fetching and updating payment methods: $e',
-            path: 'FiatFormBloc._onRefreshForm',
-            trace: s,
-            isError: true,
-          ).ignore();
+          _log.shout('Error fetching and updating payment methods', e, s);
           return state.copyWith(paymentMethods: []);
         },
       );
     } catch (error, stacktrace) {
-      log(
-        'Error loading currency list: $error',
-        path: 'FiatFormBloc._onRefreshForm',
-        trace: stacktrace,
-        isError: true,
-      ).ignore();
+      _log.shout('Error loading currency list', error, stacktrace);
       emit(
         state.copyWith(
           paymentMethods: [],
@@ -281,28 +282,23 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         status: FiatFormStatus.success,
       );
     } catch (e, s) {
-      log(
-        'Error loading currency list: $e',
-        path: 'FiatFormBloc._onRefreshForm',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error loading currency list', e, s);
       return state.copyWith(paymentMethods: []);
     }
   }
 
-  Future<void> _onAccountInformationChanged(
-    AccountInformationChanged event,
+  Future<void> _onWalletAuthenticated(
+    FiatFormWalletAuthenticated event,
     Emitter<FiatFormState> emit,
   ) async {
-    final accountReference = await _coinsRepository.getFirstPubkey('KMD');
-    final address = await _coinsRepository
-        .getFirstPubkey(state.selectedCoin.value!.getAbbr());
+    final asset =
+        _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC-segwit');
+    final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
 
     emit(
       state.copyWith(
-        accountReference: accountReference,
-        coinReceiveAddress: address,
+        selectedAssetAddress: assetPubkeys.keys.firstOrNull,
+        selectedCoinPubkeys: assetPubkeys,
       ),
     );
   }
@@ -311,19 +307,19 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     ClearAccountInformationRequested event,
     Emitter<FiatFormState> emit,
   ) {
-    emit(
-      state.copyWith(
-        accountReference: '',
-        coinReceiveAddress: '',
-      ),
-    );
+    emit(FiatFormState.initial());
   }
 
   Future<void> _fetchAccountInfo(Emitter<FiatFormState> emit) async {
-    final address =
-        await _coinsRepository.getFirstPubkey(state.selectedCoin.value!.symbol);
+    final asset = _sdk.getSdkAsset(state.selectedAsset.value!.symbol);
+    final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
+    final address = pubkeys.keys.firstOrNull;
+
     emit(
-      state.copyWith(accountReference: address, coinReceiveAddress: address),
+      state.copyWith(
+        selectedAssetAddress: address,
+        selectedCoinPubkeys: pubkeys,
+      ),
     );
   }
 
@@ -332,7 +328,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     Emitter<FiatFormState> emit,
   ) {
     if (!event.message.isJson()) {
-      log('Invalid json console message received');
+      _log.severe('Invalid json console message received');
       return;
     }
 
@@ -355,12 +351,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         );
       }
     } catch (e, s) {
-      log(
-        'Error parsing payment status message: $e',
-        path: 'FiatFormBloc._onPaymentStatusMessage',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error parsing payment status message', e, s);
     }
   }
 
@@ -377,12 +368,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       final coinList = await _fiatRepository.getCoinList();
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {
-      log(
-        'Error loading currency list: $e',
-        path: 'FiatFormBloc._onLoadCurrencyLists',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.shout('Error loading currency list', e, s);
     }
   }
 
@@ -407,12 +393,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         return state.copyWith(fiatOrderStatus: data);
       },
       onError: (error, stackTrace) {
-        log(
-          'Error watching order status: $error',
-          path: 'FiatFormBloc._onWatchOrderStatus',
-          trace: stackTrace,
-          isError: true,
-        ).ignore();
+        _log.shout('Error watching order status', error, stackTrace);
         return state.copyWith(fiatOrderStatus: FiatOrderStatus.failed);
       },
     );
@@ -444,11 +425,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     if (state.paymentMethods.isEmpty) {
       return 'No payment method for this pair';
     }
-    if (state.coinReceiveAddress.isEmpty) {
+    if (state.selectedAssetAddress == null) {
       return 'No wallet, or coin/network might not be supported';
-    }
-    if (state.accountReference.isEmpty) {
-      return 'Account reference (KMD Address) could not be fetched';
     }
 
     return null;
@@ -460,6 +438,17 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       selectedPaymentMethod: defaultFiatPaymentMethods.first,
       status: FiatFormStatus.initial,
       fiatOrderStatus: FiatOrderStatus.pending,
+    );
+  }
+
+  void _onCoinAddressSelected(
+    CoinAddressSelected event,
+    Emitter<FiatFormState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        selectedAssetAddress: event.address,
+      ),
     );
   }
 }
