@@ -31,11 +31,19 @@ class CoinAddresses extends StatefulWidget {
 }
 
 class _CoinAddressesState extends State<CoinAddresses> {
-  CoinAddressesBloc get _addressesBloc => context.read<CoinAddressesBloc>();
+  late CoinAddressesBloc _coinAddressesBloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Safely store a reference to the bloc
+    _coinAddressesBloc = context.read<CoinAddressesBloc>();
+  }
 
   @override
   void dispose() {
-    _addressesBloc.close();
+    // Use the stored reference instead of looking it up through context
+    _coinAddressesBloc.close();
     super.dispose();
   }
 
@@ -43,89 +51,85 @@ class _CoinAddressesState extends State<CoinAddresses> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
-        return BlocProvider.value(
-          value: _addressesBloc,
-          child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
-            builder: (context, state) {
-              return SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    Card(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      color: theme.custom.dexPageTheme.frontPlate,
-                      child: Padding(
-                        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _Header(
-                              status: state.status,
-                              createAddressStatus: state.createAddressStatus,
-                              hideZeroBalance: state.hideZeroBalance,
-                              cantCreateNewAddressReasons:
-                                  state.cantCreateNewAddressReasons,
-                            ),
-                            const SizedBox(height: 12),
-                            ...state.addresses.asMap().entries.map(
-                              (entry) {
-                                final index = entry.key;
-                                final address = entry.value;
-                                if (state.hideZeroBalance &&
-                                    !address.balance.hasValue) {
-                                  return const SizedBox();
-                                }
+        return BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
+          builder: (context, state) {
+            return SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  Card(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    color: theme.custom.dexPageTheme.frontPlate,
+                    child: Padding(
+                      padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _Header(
+                            status: state.status,
+                            createAddressStatus: state.createAddressStatus,
+                            hideZeroBalance: state.hideZeroBalance,
+                            cantCreateNewAddressReasons:
+                                state.cantCreateNewAddressReasons,
+                          ),
+                          const SizedBox(height: 12),
+                          ...state.addresses.asMap().entries.map(
+                            (entry) {
+                              final index = entry.key;
+                              final address = entry.value;
+                              if (state.hideZeroBalance &&
+                                  !address.balance.hasValue) {
+                                return const SizedBox();
+                              }
 
-                                return AddressCard(
-                                  address: address,
-                                  index: index,
-                                  coin: widget.coin,
-                                );
-                              },
+                              return AddressCard(
+                                address: address,
+                                index: index,
+                                coin: widget.coin,
+                              );
+                            },
+                          ),
+                          if (state.status == FormStatus.submitting)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20.0),
+                              child: Center(child: CircularProgressIndicator()),
                             ),
-                            if (state.status == FormStatus.submitting)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20.0),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              ),
-                            if (state.status == FormStatus.failure ||
-                                state.createAddressStatus == FormStatus.failure)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 20.0),
-                                child: Center(
-                                  child: Text(
-                                    state.errorMessage ??
-                                        LocaleKeys.somethingWrong.tr(),
-                                    style: TextStyle(
-                                      color:
-                                          theme.currentGlobal.colorScheme.error,
-                                    ),
+                          if (state.status == FormStatus.failure ||
+                              state.createAddressStatus == FormStatus.failure)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              child: Center(
+                                child: Text(
+                                  state.errorMessage ??
+                                      LocaleKeys.somethingWrong.tr(),
+                                  style: TextStyle(
+                                    color:
+                                        theme.currentGlobal.colorScheme.error,
                                   ),
                                 ),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
                       ),
                     ),
-                    if (isMobile)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: CreateButton(
-                          status: state.status,
-                          createAddressStatus: state.createAddressStatus,
-                          cantCreateNewAddressReasons:
-                              state.cantCreateNewAddressReasons,
-                        ),
+                  ),
+                  if (isMobile)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: CreateButton(
+                        status: state.status,
+                        createAddressStatus: state.createAddressStatus,
+                        cantCreateNewAddressReasons:
+                            state.cantCreateNewAddressReasons,
                       ),
-                  ],
-                ),
-              );
-            },
-          ),
+                    ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
