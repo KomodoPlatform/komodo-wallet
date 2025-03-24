@@ -56,7 +56,7 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
       create: (_) => FiatFormBloc(
         repository: fiatRepository,
         sdk: sdk,
-      ),
+      )..add(FiatFormStarted()),
       child: MultiBlocListener(
         listeners: [
           BlocListener<AuthBloc, AuthBlocState>(

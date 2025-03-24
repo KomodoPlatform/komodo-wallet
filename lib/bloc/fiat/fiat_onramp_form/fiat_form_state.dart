@@ -2,6 +2,10 @@ part of 'fiat_form_bloc.dart';
 
 enum FiatFormStatus { initial, loading, success, failure }
 
+/// Represents the state of the fiat onramp/offramp form.
+///
+/// Contains all the user selections, available options, and the current
+/// status of the form. Implements [FormzMixin] to manage form validation.
 final class FiatFormState extends Equatable with FormzMixin {
   const FiatFormState({
     required this.selectedFiat,
@@ -20,6 +24,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     this.selectedCoinPubkeys,
   });
 
+  /// Creates an initial state with default values.
   const FiatFormState.initial()
       : selectedFiat = const CurrencyInput.dirty(
           FiatCurrency('USD', 'United States Dollar'),
@@ -94,8 +99,14 @@ final class FiatFormState extends Equatable with FormzMixin {
 
   /// The maximum fiat amount that is allowed for the selected payment method
   Decimal? get maxFiatAmount => transactionLimit?.max;
+
+  /// Whether currencies are still being loaded
   bool get isLoadingCurrencies => fiatList.length < 2 || coinList.length < 2;
+
+  /// Whether the form is in a loading state
   bool get isLoading => isLoadingCurrencies || status == FiatFormStatus.loading;
+
+  /// Whether the form can be submitted
   bool get canSubmit =>
       !isLoading &&
       selectedAssetAddress != null &&
@@ -103,6 +114,7 @@ final class FiatFormState extends Equatable with FormzMixin {
       !fiatOrderStatus.isSubmitting &&
       isValid;
 
+  /// Creates a copy of this state with the specified fields replaced.
   FiatFormState copyWith({
     CurrencyInput? selectedFiat,
     CurrencyInput? selectedAsset,
@@ -138,6 +150,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     );
   }
 
+  /// Returns the list of form inputs for validation purposes.
   @override
   List<FormzInput<dynamic, dynamic>> get inputs => [
         selectedFiat,

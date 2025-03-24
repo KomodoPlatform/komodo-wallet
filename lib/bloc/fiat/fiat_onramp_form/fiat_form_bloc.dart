@@ -30,7 +30,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   })  : _fiatRepository = repository,
         _sdk = sdk,
         super(const FiatFormState.initial()) {
-    // Register the initial event handler
     on<FiatFormStarted>(_onStarted);
 
     // All user input fields are debounced using the debounce stream transformer
@@ -44,8 +43,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     on<FiatFormWalletAuthenticated>(_onWalletAuthenticated);
     on<FiatFormAccountCleared>(_onClearAccountInformation);
     on<FiatFormCoinAddressSelected>(_onCoinAddressSelected);
+
     // debounce used here instead of restartable, since multiple user actions
-    // can trigger this event, and restartable resulted in hitching
+    // can trigger this event, and restartable results in hitching
     on<FiatFormRefreshed>(_onRefreshForm, transformer: debounce(500));
     on<FiatFormCurrenciesFetched>(
       _onLoadCurrencyLists,
@@ -65,7 +65,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormStarted event,
     Emitter<FiatFormState> emit,
   ) {
-    // Initial setup if needed when the form is first loaded
     add(const FiatFormCurrenciesFetched());
   }
 
@@ -228,7 +227,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
 
     // Prefetch required form data based on updated state information
-    await _fetchAccountInfo(emit);
+    emit(await _updateAssetPubkeys());
     try {
       final methods = _fiatRepository.getPaymentMethodsList(
         state.selectedFiat.value!.symbol,
@@ -316,16 +315,14 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     emit(FiatFormState.initial());
   }
 
-  Future<void> _fetchAccountInfo(Emitter<FiatFormState> emit) async {
+  Future<FiatFormState> _updateAssetPubkeys() async {
     final asset = _sdk.getSdkAsset(state.selectedAsset.value!.symbol);
     final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
     final address = pubkeys.keys.firstOrNull;
 
-    emit(
-      state.copyWith(
-        selectedAssetAddress: address,
-        selectedCoinPubkeys: pubkeys,
-      ),
+    return state.copyWith(
+      selectedAssetAddress: address,
+      selectedCoinPubkeys: pubkeys,
     );
   }
 
@@ -398,9 +395,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
     return await emit.forEach(
       orderStatusStream,
-      onData: (data) {
-        return state.copyWith(fiatOrderStatus: data);
-      },
+      onData: (data) => state.copyWith(fiatOrderStatus: data),
       onError: (error, stackTrace) {
         _log.shout('Error watching order status', error, stackTrace);
         return state.copyWith(fiatOrderStatus: FiatOrderStatus.failed);

@@ -15,7 +15,6 @@ import 'package:web_dex/bloc/fiat/models/fiat_mode.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
 import 'package:web_dex/shared/ui/gradient_border.dart';
 import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dart';
@@ -35,155 +34,13 @@ class FiatForm extends StatefulWidget {
 class _FiatFormState extends State<FiatForm> {
   bool _isLoggedIn = false;
 
-  StreamSubscription<List<Coin>>? _walletCoinsListener;
-  StreamSubscription<bool>? _loginActivationListener;
-
-  @override
-  void dispose() {
-    _walletCoinsListener?.cancel();
-    _loginActivationListener?.cancel();
-
-    super.dispose();
-  }
-
-  void _setActiveTab(int i) =>
-      context.read<FiatFormBloc>().add(FiatFormModeUpdated.fromTabIndex(i));
-
-  Future<void> _handleAccountStatusChange(bool isLoggedIn) async {
-    if (_isLoggedIn != isLoggedIn) {
-      setState(() => _isLoggedIn = isLoggedIn);
-    }
-
-    if (isLoggedIn) {
-      await fillAccountInformation();
-    } else {
-      context.read<FiatFormBloc>().add(const FiatFormAccountCleared());
-    }
-  }
-
   @override
   void initState() {
     super.initState();
 
     _isLoggedIn = RepositoryProvider.of<AuthBloc>(context).state.isSignedIn;
 
-    context.read<FiatFormBloc>()
-      ..add(const FiatFormCurrenciesFetched())
-      ..add(const FiatFormRefreshed(forceRefresh: true));
-  }
-
-  Future<void> fillAccountInformation() async {
-    context.read<FiatFormBloc>().add(const FiatFormWalletAuthenticated());
-  }
-
-  void _showOrderFailedSnackbar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(LocaleKeys.orderFailedTryAgain.tr()),
-      ),
-    );
-  }
-
-  void completeOrder() => context.read<FiatFormBloc>().add(FiatFormSubmitted());
-
-  Future<void> openCheckoutPage(String checkoutUrl, String orderId) async {
-    if (checkoutUrl.isEmpty) return;
-
-    // Only web requires the intermediate html page to satisfy cors rules and
-    // allow for console.log and postMessage events to be handled.
-    final url =
-        kIsWeb ? BaseFiatProvider.fiatWrapperPageUrl(checkoutUrl) : checkoutUrl;
-
-    return WebViewDialog.show(
-      context,
-      url: url,
-      title: LocaleKeys.buy.tr(),
-      onConsoleMessage: _onConsoleMessage,
-      onCloseWindow: _onCloseWebView,
-    );
-  }
-
-  void _onConsoleMessage(String message) => context
-      .read<FiatFormBloc>()
-      .add(FiatFormOnRampPaymentStatusMessageReceived(message));
-
-  void _onCloseWebView() {
-    // TODO: decide whether to consider a closed webview as "failed"
-  }
-
-  Future<void> _handlePaymentStatusUpdate(FiatFormState stateSnapshot) async {
-    //TODO? We can still show the alerts if we're no mounted by using the
-    // app's navigator key. This will be useful if the user has navigated
-    // to another page before completing the order.
-    if (!mounted) return;
-
-    final status = stateSnapshot.fiatOrderStatus;
-    if (status == FiatOrderStatus.submitted) {
-      // ignore: use_build_context_synchronously
-      context.read<FiatFormBloc>().add(const FiatFormOrderStatusWatchStarted());
-      await openCheckoutPage(stateSnapshot.checkoutUrl, stateSnapshot.orderId);
-      return;
-    }
-
-    if (status == FiatOrderStatus.failed) {
-      _showOrderFailedSnackbar();
-    }
-
-    if (status != FiatOrderStatus.pending) {
-      showPaymentStatusDialog(status);
-    }
-  }
-
-  void showPaymentStatusDialog(FiatOrderStatus status) {
-    if (!mounted) return;
-
-    String? title;
-    String? content;
-
-    // TODO: Use theme-based semantic colors
-    Icon? icon;
-
-    switch (status) {
-      case FiatOrderStatus.pending:
-        throw Exception('Pending status should not be shown in dialog.');
-
-      case FiatOrderStatus.submitted:
-        title = LocaleKeys.fiatPaymentSubmittedTitle.tr();
-        content = LocaleKeys.fiatPaymentSubmittedMessage.tr();
-        icon = const Icon(Icons.open_in_new);
-
-      case FiatOrderStatus.success:
-        title = LocaleKeys.fiatPaymentSuccessTitle.tr();
-        content = LocaleKeys.fiatPaymentSuccessMessage.tr();
-        icon = const Icon(Icons.check_circle_outline);
-
-      case FiatOrderStatus.failed:
-        title = LocaleKeys.fiatPaymentFailedTitle.tr();
-        // TODO: If we implement provider-specific error messages,
-        // we can include support details.
-        content = LocaleKeys.fiatPaymentFailedMessage.tr();
-        icon = const Icon(Icons.error_outline, color: Colors.red);
-
-      case FiatOrderStatus.inProgress:
-        title = LocaleKeys.fiatPaymentInProgressTitle.tr();
-        content = LocaleKeys.fiatPaymentInProgressMessage.tr();
-        icon = const Icon(Icons.hourglass_bottom_outlined);
-    }
-
-    showAdaptiveDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog.adaptive(
-        title: Text(title!),
-        icon: icon,
-        content: Text(content!),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(LocaleKeys.ok.tr()),
-          ),
-        ],
-      ),
-    ).ignore();
+    context.read<FiatFormBloc>().add(const FiatFormRefreshed());
   }
 
   @override
@@ -203,8 +60,12 @@ class _FiatFormState extends State<FiatForm> {
 
     final scrollController = ScrollController();
     return BlocListener<CoinsBloc, CoinsState>(
-      listener: (context, state) => _handleAccountStatusChange(
-          state.loginActivationFinished || state.walletCoins.isNotEmpty),
+      listener: (context, state) {
+        final isLoginCoinBootstrapFinished =
+            state.loginActivationFinished || state.walletCoins.isNotEmpty;
+
+        _handleAccountStatusChange(isLoginCoinBootstrapFinished);
+      },
       child: BlocConsumer<FiatFormBloc, FiatFormState>(
         listenWhen: (previous, current) =>
             previous.fiatOrderStatus != current.fiatOrderStatus,
@@ -265,7 +126,8 @@ class _FiatFormState extends State<FiatForm> {
                               text: state.fiatOrderStatus.isSubmitting
                                   ? '${LocaleKeys.submitting.tr()}...'
                                   : LocaleKeys.buyNow.tr(),
-                              onPressed: state.canSubmit ? completeOrder : null,
+                              onPressed:
+                                  state.canSubmit ? _completeOrder : null,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -290,6 +152,9 @@ class _FiatFormState extends State<FiatForm> {
     );
   }
 
+  void _completeOrder() =>
+      context.read<FiatFormBloc>().add(FiatFormSubmitted());
+
   void _onFiatChanged(FiatCurrency value) => context.read<FiatFormBloc>()
     ..add(FiatFormFiatSelected(value))
     ..add(const FiatFormRefreshed(forceRefresh: true));
@@ -301,6 +166,129 @@ class _FiatFormState extends State<FiatForm> {
   void _onFiatAmountChanged(String? value) => context.read<FiatFormBloc>()
     ..add(FiatFormAmountUpdated(value ?? '0'))
     ..add(const FiatFormRefreshed(forceRefresh: true));
+
+  void _setActiveTab(int i) =>
+      context.read<FiatFormBloc>().add(FiatFormModeUpdated.fromTabIndex(i));
+
+  Future<void> _handleAccountStatusChange(bool isLoggedIn) async {
+    if (_isLoggedIn != isLoggedIn) {
+      setState(() => _isLoggedIn = isLoggedIn);
+    }
+
+    if (isLoggedIn) {
+      context.read<FiatFormBloc>().add(const FiatFormWalletAuthenticated());
+    } else {
+      context.read<FiatFormBloc>().add(const FiatFormAccountCleared());
+    }
+  }
+
+  void _showOrderFailedSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(LocaleKeys.orderFailedTryAgain.tr()),
+      ),
+    );
+  }
+
+  Future<void> _openCheckoutPage(String checkoutUrl, String orderId) async {
+    if (checkoutUrl.isEmpty) return;
+
+    // Only web requires the intermediate html page to satisfy cors rules and
+    // allow for console.log and postMessage events to be handled.
+    final url =
+        kIsWeb ? BaseFiatProvider.fiatWrapperPageUrl(checkoutUrl) : checkoutUrl;
+
+    return WebViewDialog.show(
+      context,
+      url: url,
+      title: LocaleKeys.buy.tr(),
+      onConsoleMessage: _onConsoleMessage,
+      onCloseWindow: _onCloseWebView,
+    );
+  }
+
+  void _onConsoleMessage(String message) => context
+      .read<FiatFormBloc>()
+      .add(FiatFormOnRampPaymentStatusMessageReceived(message));
+
+  void _onCloseWebView() {
+    // TODO: decide whether to consider a closed webview as "failed"
+  }
+
+  Future<void> _handlePaymentStatusUpdate(FiatFormState stateSnapshot) async {
+    //TODO? We can still show the alerts if we're no mounted by using the
+    // app's navigator key. This will be useful if the user has navigated
+    // to another page before completing the order.
+    if (!mounted) return;
+
+    final status = stateSnapshot.fiatOrderStatus;
+    if (status == FiatOrderStatus.submitted) {
+      // ignore: use_build_context_synchronously
+      context.read<FiatFormBloc>().add(const FiatFormOrderStatusWatchStarted());
+      await _openCheckoutPage(stateSnapshot.checkoutUrl, stateSnapshot.orderId);
+      return;
+    }
+
+    if (status == FiatOrderStatus.failed) {
+      _showOrderFailedSnackbar();
+    }
+
+    if (status != FiatOrderStatus.pending) {
+      _showPaymentStatusDialog(status);
+    }
+  }
+
+  void _showPaymentStatusDialog(FiatOrderStatus status) {
+    if (!mounted) return;
+
+    String? title;
+    String? content;
+
+    // TODO: Use theme-based semantic colors
+    Icon? icon;
+
+    switch (status) {
+      case FiatOrderStatus.pending:
+        throw Exception('Pending status should not be shown in dialog.');
+
+      case FiatOrderStatus.submitted:
+        title = LocaleKeys.fiatPaymentSubmittedTitle.tr();
+        content = LocaleKeys.fiatPaymentSubmittedMessage.tr();
+        icon = const Icon(Icons.open_in_new);
+
+      case FiatOrderStatus.success:
+        title = LocaleKeys.fiatPaymentSuccessTitle.tr();
+        content = LocaleKeys.fiatPaymentSuccessMessage.tr();
+        icon = const Icon(Icons.check_circle_outline);
+
+      case FiatOrderStatus.failed:
+        title = LocaleKeys.fiatPaymentFailedTitle.tr();
+        // TODO: If we implement provider-specific error messages,
+        // we can include support details.
+        content = LocaleKeys.fiatPaymentFailedMessage.tr();
+        icon = const Icon(Icons.error_outline, color: Colors.red);
+
+      case FiatOrderStatus.inProgress:
+        title = LocaleKeys.fiatPaymentInProgressTitle.tr();
+        content = LocaleKeys.fiatPaymentInProgressMessage.tr();
+        icon = const Icon(Icons.hourglass_bottom_outlined);
+    }
+
+    showAdaptiveDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog.adaptive(
+        title: Text(title!),
+        icon: icon,
+        content: Text(content!),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(LocaleKeys.ok.tr()),
+          ),
+        ],
+      ),
+    ).ignore();
+  }
 }
 
 extension on FiatAmountValidationError {
