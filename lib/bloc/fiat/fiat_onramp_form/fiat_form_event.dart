@@ -7,8 +7,12 @@ sealed class FiatFormEvent extends Equatable {
   List<Object> get props => [];
 }
 
-final class FiatOnRampPaymentStatusMessageReceived extends FiatFormEvent {
-  const FiatOnRampPaymentStatusMessageReceived(this.message);
+final class FiatFormStarted extends FiatFormEvent {
+  const FiatFormStarted();
+}
+
+final class FiatFormOnRampPaymentStatusMessageReceived extends FiatFormEvent {
+  const FiatFormOnRampPaymentStatusMessageReceived(this.message);
 
   final String message;
 
@@ -16,8 +20,8 @@ final class FiatOnRampPaymentStatusMessageReceived extends FiatFormEvent {
   List<Object> get props => [message];
 }
 
-final class SelectedFiatCurrencyChanged extends FiatFormEvent {
-  const SelectedFiatCurrencyChanged(this.selectedFiat);
+final class FiatFormFiatSelected extends FiatFormEvent {
+  const FiatFormFiatSelected(this.selectedFiat);
 
   final FiatCurrency selectedFiat;
 
@@ -25,8 +29,8 @@ final class SelectedFiatCurrencyChanged extends FiatFormEvent {
   List<Object> get props => [selectedFiat];
 }
 
-final class FiatFormSelectedCoinChanged extends FiatFormEvent {
-  const FiatFormSelectedCoinChanged(this.selectedCoin);
+final class FiatFormCoinSelected extends FiatFormEvent {
+  const FiatFormCoinSelected(this.selectedCoin);
 
   final CryptoCurrency selectedCoin;
 
@@ -34,8 +38,8 @@ final class FiatFormSelectedCoinChanged extends FiatFormEvent {
   List<Object> get props => [selectedCoin];
 }
 
-final class FiatAmountChanged extends FiatFormEvent {
-  const FiatAmountChanged(this.fiatAmount);
+final class FiatFormAmountUpdated extends FiatFormEvent {
+  const FiatFormAmountUpdated(this.fiatAmount);
 
   final String fiatAmount;
 
@@ -43,8 +47,8 @@ final class FiatAmountChanged extends FiatFormEvent {
   List<Object> get props => [fiatAmount];
 }
 
-final class PaymentMethodSelected extends FiatFormEvent {
-  const PaymentMethodSelected(this.paymentMethod);
+final class FiatFormPaymentMethodSelected extends FiatFormEvent {
+  const FiatFormPaymentMethodSelected(this.paymentMethod);
 
   final FiatPaymentMethod paymentMethod;
 
@@ -52,12 +56,12 @@ final class PaymentMethodSelected extends FiatFormEvent {
   List<Object> get props => [paymentMethod];
 }
 
-final class FormSubmissionRequested extends FiatFormEvent {}
+final class FiatFormSubmitted extends FiatFormEvent {}
 
-final class FiatModeChanged extends FiatFormEvent {
-  const FiatModeChanged(this.mode);
+final class FiatFormModeUpdated extends FiatFormEvent {
+  const FiatFormModeUpdated(this.mode);
 
-  FiatModeChanged.fromTabIndex(int tabIndex)
+  FiatFormModeUpdated.fromTabIndex(int tabIndex)
       : mode = FiatMode.fromTabIndex(tabIndex);
 
   final FiatMode mode;
@@ -66,20 +70,20 @@ final class FiatModeChanged extends FiatFormEvent {
   List<Object> get props => [mode];
 }
 
-final class PaymentStatusClearRequested extends FiatFormEvent {
-  const PaymentStatusClearRequested();
+final class FiatFormPaymentStatusCleared extends FiatFormEvent {
+  const FiatFormPaymentStatusCleared();
 }
 
 final class FiatFormWalletAuthenticated extends FiatFormEvent {
   const FiatFormWalletAuthenticated();
 }
 
-final class ClearAccountInformationRequested extends FiatFormEvent {
-  const ClearAccountInformationRequested();
+final class FiatFormAccountCleared extends FiatFormEvent {
+  const FiatFormAccountCleared();
 }
 
-final class RefreshFormRequested extends FiatFormEvent {
-  const RefreshFormRequested({
+final class FiatFormRefreshed extends FiatFormEvent {
+  const FiatFormRefreshed({
     this.forceRefresh = false,
   });
 
@@ -89,16 +93,16 @@ final class RefreshFormRequested extends FiatFormEvent {
   List<Object> get props => [forceRefresh];
 }
 
-final class LoadCurrencyListsRequested extends FiatFormEvent {
-  const LoadCurrencyListsRequested();
+final class FiatFormCurrenciesFetched extends FiatFormEvent {
+  const FiatFormCurrenciesFetched();
 }
 
-final class WatchOrderStatusRequested extends FiatFormEvent {
-  const WatchOrderStatusRequested();
+final class FiatFormOrderStatusWatchStarted extends FiatFormEvent {
+  const FiatFormOrderStatusWatchStarted();
 }
 
-final class CoinAddressSelected extends FiatFormEvent {
-  const CoinAddressSelected(this.address);
+final class FiatFormCoinAddressSelected extends FiatFormEvent {
+  const FiatFormCoinAddressSelected(this.address);
 
   final PubkeyInfo address;
 

@@ -34,15 +34,15 @@ class FiatInputs extends StatefulWidget {
   });
 
   final FiatCurrency initialFiat;
-  final double? initialFiatAmount;
+  final Decimal? initialFiatAmount;
   final CryptoCurrency selectedAsset;
   final Iterable<FiatCurrency> fiatList;
   final Iterable<CryptoCurrency> coinList;
   final FiatPriceInfo? selectedPaymentMethodPrice;
   final bool isLoggedIn;
   final PubkeyInfo? selectedAssetAddress;
-  final double? fiatMinAmount;
-  final double? fiatMaxAmount;
+  final Decimal? fiatMinAmount;
+  final Decimal? fiatMaxAmount;
   final String? boundariesError;
   final void Function(FiatCurrency) onFiatCurrencyChanged;
   final void Function(CryptoCurrency) onCoinChanged;
@@ -75,13 +75,13 @@ class FiatInputsState extends State<FiatInputs> {
   void didUpdateWidget(FiatInputs oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final double? newFiatAmount = widget.initialFiatAmount;
+    final Decimal? newFiatAmount = widget.initialFiatAmount;
 
-    // Convert the current text to double for comparison
-    final double currentFiatAmount =
-        double.tryParse(fiatController.text) ?? 0.0;
+    // Convert the current text to Decimal for comparison
+    final Decimal currentFiatAmount =
+        Decimal.tryParse(fiatController.text) ?? Decimal.zero;
 
-    // Compare using double values
+    // Compare using Decimal values
     if (newFiatAmount != currentFiatAmount) {
       final newFiatAmountText = newFiatAmount?.toString() ?? '';
       fiatController

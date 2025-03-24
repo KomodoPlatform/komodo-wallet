@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:collection/collection.dart';
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -29,31 +30,28 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   })  : _fiatRepository = repository,
         _sdk = sdk,
         super(const FiatFormState.initial()) {
-    // all user input fields are debounced using the debounce stream transformer
-    on<SelectedFiatCurrencyChanged>(
-      _onChangeSelectedFiatCoin,
-      transformer: debounce(500),
-    );
-    on<FiatFormSelectedCoinChanged>(
-      _onChangeSelectedCoin,
-      transformer: debounce(500),
-    );
-    on<FiatAmountChanged>(_onUpdateFiatAmount, transformer: debounce(500));
-    on<PaymentMethodSelected>(_onSelectPaymentMethod);
-    on<FormSubmissionRequested>(_onSubmitForm);
-    on<FiatOnRampPaymentStatusMessageReceived>(_onPaymentStatusMessage);
-    on<FiatModeChanged>(_onFiatModeChanged);
+    // Register the initial event handler
+    on<FiatFormStarted>(_onStarted);
+
+    // All user input fields are debounced using the debounce stream transformer
+    on<FiatFormFiatSelected>(_onFiatSelected, transformer: debounce(500));
+    on<FiatFormCoinSelected>(_onCoinSelected, transformer: debounce(500));
+    on<FiatFormAmountUpdated>(_onAmountUpdated, transformer: debounce(500));
+    on<FiatFormPaymentMethodSelected>(_onSelectPaymentMethod);
+    on<FiatFormSubmitted>(_onSubmitForm);
+    on<FiatFormOnRampPaymentStatusMessageReceived>(_onPaymentStatusMessage);
+    on<FiatFormModeUpdated>(_onModeUpdated);
     on<FiatFormWalletAuthenticated>(_onWalletAuthenticated);
-    on<ClearAccountInformationRequested>(_onClearAccountInformation);
-    on<CoinAddressSelected>(_onCoinAddressSelected);
+    on<FiatFormAccountCleared>(_onClearAccountInformation);
+    on<FiatFormCoinAddressSelected>(_onCoinAddressSelected);
     // debounce used here instead of restartable, since multiple user actions
     // can trigger this event, and restartable resulted in hitching
-    on<RefreshFormRequested>(_onRefreshForm, transformer: debounce(500));
-    on<LoadCurrencyListsRequested>(
+    on<FiatFormRefreshed>(_onRefreshForm, transformer: debounce(500));
+    on<FiatFormCurrenciesFetched>(
       _onLoadCurrencyLists,
       transformer: restartable(),
     );
-    on<WatchOrderStatusRequested>(
+    on<FiatFormOrderStatusWatchStarted>(
       _onWatchOrderStatus,
       transformer: restartable(),
     );
@@ -63,8 +61,16 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   final KomodoDefiSdk _sdk;
   final _log = Logger('FiatFormBloc');
 
-  Future<void> _onChangeSelectedFiatCoin(
-    SelectedFiatCurrencyChanged event,
+  void _onStarted(
+    FiatFormStarted event,
+    Emitter<FiatFormState> emit,
+  ) {
+    // Initial setup if needed when the form is first loaded
+    add(const FiatFormCurrenciesFetched());
+  }
+
+  Future<void> _onFiatSelected(
+    FiatFormFiatSelected event,
     Emitter<FiatFormState> emit,
   ) async {
     emit(
@@ -74,8 +80,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
   }
 
-  Future<void> _onChangeSelectedCoin(
-    FiatFormSelectedCoinChanged event,
+  Future<void> _onCoinSelected(
+    FiatFormCoinSelected event,
     Emitter<FiatFormState> emit,
   ) async {
     emit(
@@ -96,8 +102,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
   }
 
-  Future<void> _onUpdateFiatAmount(
-    FiatAmountChanged event,
+  Future<void> _onAmountUpdated(
+    FiatFormAmountUpdated event,
     Emitter<FiatFormState> emit,
   ) async {
     emit(
@@ -109,13 +115,13 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     String amount, {
     FiatPaymentMethod? selectedPaymentMethod,
   }) {
-    double? minAmount;
-    double? maxAmount;
+    Decimal? minAmount;
+    Decimal? maxAmount;
     final paymentMethod = selectedPaymentMethod ?? state.selectedPaymentMethod;
     final firstLimit = paymentMethod.transactionLimits.firstOrNull;
     if (firstLimit != null) {
-      minAmount = firstLimit.min;
-      maxAmount = firstLimit.max;
+      minAmount = Decimal.parse(firstLimit.min.toString());
+      maxAmount = Decimal.parse(firstLimit.max.toString());
     }
 
     return FiatAmountInput.dirty(
@@ -126,7 +132,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   void _onSelectPaymentMethod(
-    PaymentMethodSelected event,
+    FiatFormPaymentMethodSelected event,
     Emitter<FiatFormState> emit,
   ) {
     emit(
@@ -143,7 +149,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   Future<void> _onSubmitForm(
-    FormSubmissionRequested event,
+    FiatFormSubmitted event,
     Emitter<FiatFormState> emit,
   ) async {
     final formValidationError = getFormIssue();
@@ -201,14 +207,14 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   Future<void> _onRefreshForm(
-    RefreshFormRequested event,
+    FiatFormRefreshed event,
     Emitter<FiatFormState> emit,
   ) async {
     // If the entered fiat amount is empty or invalid, then return a placeholder
     // list of payment methods
     String sourceAmount = '10000';
-    if (state.fiatAmount.valueAsDouble == null ||
-        state.fiatAmount.valueAsDouble == 0) {
+    if (state.fiatAmount.valueAsDecimal == null ||
+        state.fiatAmount.valueAsDecimal == Decimal.zero) {
       emit(_defaultPaymentMethods());
     } else {
       emit(state.copyWith(status: FiatFormStatus.loading));
@@ -304,7 +310,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   void _onClearAccountInformation(
-    ClearAccountInformationRequested event,
+    FiatFormAccountCleared event,
     Emitter<FiatFormState> emit,
   ) {
     emit(FiatFormState.initial());
@@ -324,7 +330,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   void _onPaymentStatusMessage(
-    FiatOnRampPaymentStatusMessageReceived event,
+    FiatFormOnRampPaymentStatusMessageReceived event,
     Emitter<FiatFormState> emit,
   ) {
     if (!event.message.isJson()) {
@@ -355,12 +361,15 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     }
   }
 
-  void _onFiatModeChanged(FiatModeChanged event, Emitter<FiatFormState> emit) {
+  void _onModeUpdated(
+    FiatFormModeUpdated event,
+    Emitter<FiatFormState> emit,
+  ) {
     emit(state.copyWith(fiatMode: event.mode));
   }
 
   Future<void> _onLoadCurrencyLists(
-    LoadCurrencyListsRequested event,
+    FiatFormCurrenciesFetched event,
     Emitter<FiatFormState> emit,
   ) async {
     try {
@@ -373,7 +382,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   Future<void> _onWatchOrderStatus(
-    WatchOrderStatusRequested event,
+    FiatFormOrderStatusWatchStarted event,
     Emitter<FiatFormState> emit,
   ) async {
     // banxa implementation monitors status using their API, so watch the order
@@ -442,7 +451,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   void _onCoinAddressSelected(
-    CoinAddressSelected event,
+    FiatFormCoinAddressSelected event,
     Emitter<FiatFormState> emit,
   ) {
     emit(

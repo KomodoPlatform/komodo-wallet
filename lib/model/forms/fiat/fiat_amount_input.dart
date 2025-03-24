@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:formz/formz.dart';
 
 /// Validation errors for the fiat amount form field.
@@ -17,15 +18,15 @@ enum FiatAmountValidationError {
 
 /// Formz input for a fiat currency amount.
 class FiatAmountInput extends FormzInput<String, FiatAmountValidationError> {
-  const FiatAmountInput.pure({this.minValue = 0, this.maxValue})
+  const FiatAmountInput.pure({this.minValue, this.maxValue})
       : super.pure('');
-  const FiatAmountInput.dirty(super.value, {this.minValue = 0, this.maxValue})
+  const FiatAmountInput.dirty(super.value, {this.minValue, this.maxValue})
       : super.dirty();
 
-  final double? minValue;
-  final double? maxValue;
+  final Decimal? minValue;
+  final Decimal? maxValue;
 
-  double? get valueAsDouble => double.tryParse(value);
+  Decimal? get valueAsDecimal => Decimal.tryParse(value);
 
   @override
   FiatAmountValidationError? validator(String value) {
@@ -33,7 +34,7 @@ class FiatAmountInput extends FormzInput<String, FiatAmountValidationError> {
       return FiatAmountValidationError.empty;
     }
 
-    final amount = double.tryParse(value.replaceAll(',', ''));
+    final amount = Decimal.tryParse(value.replaceAll(',', ''));
 
     if (amount == null) {
       return FiatAmountValidationError.invalid;

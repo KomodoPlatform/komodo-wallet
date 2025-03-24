@@ -47,7 +47,7 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   void _setActiveTab(int i) =>
-      context.read<FiatFormBloc>().add(FiatModeChanged.fromTabIndex(i));
+      context.read<FiatFormBloc>().add(FiatFormModeUpdated.fromTabIndex(i));
 
   Future<void> _handleAccountStatusChange(bool isLoggedIn) async {
     if (_isLoggedIn != isLoggedIn) {
@@ -57,9 +57,7 @@ class _FiatFormState extends State<FiatForm> {
     if (isLoggedIn) {
       await fillAccountInformation();
     } else {
-      context
-          .read<FiatFormBloc>()
-          .add(const ClearAccountInformationRequested());
+      context.read<FiatFormBloc>().add(const FiatFormAccountCleared());
     }
   }
 
@@ -70,8 +68,8 @@ class _FiatFormState extends State<FiatForm> {
     _isLoggedIn = RepositoryProvider.of<AuthBloc>(context).state.isSignedIn;
 
     context.read<FiatFormBloc>()
-      ..add(const LoadCurrencyListsRequested())
-      ..add(const RefreshFormRequested(forceRefresh: true));
+      ..add(const FiatFormCurrenciesFetched())
+      ..add(const FiatFormRefreshed(forceRefresh: true));
   }
 
   Future<void> fillAccountInformation() async {
@@ -86,8 +84,7 @@ class _FiatFormState extends State<FiatForm> {
     );
   }
 
-  void completeOrder() =>
-      context.read<FiatFormBloc>().add(FormSubmissionRequested());
+  void completeOrder() => context.read<FiatFormBloc>().add(FiatFormSubmitted());
 
   Future<void> openCheckoutPage(String checkoutUrl, String orderId) async {
     if (checkoutUrl.isEmpty) return;
@@ -108,7 +105,7 @@ class _FiatFormState extends State<FiatForm> {
 
   void _onConsoleMessage(String message) => context
       .read<FiatFormBloc>()
-      .add(FiatOnRampPaymentStatusMessageReceived(message));
+      .add(FiatFormOnRampPaymentStatusMessageReceived(message));
 
   void _onCloseWebView() {
     // TODO: decide whether to consider a closed webview as "failed"
@@ -123,7 +120,7 @@ class _FiatFormState extends State<FiatForm> {
     final status = stateSnapshot.fiatOrderStatus;
     if (status == FiatOrderStatus.submitted) {
       // ignore: use_build_context_synchronously
-      context.read<FiatFormBloc>().add(const WatchOrderStatusRequested());
+      context.read<FiatFormBloc>().add(const FiatFormOrderStatusWatchStarted());
       await openCheckoutPage(stateSnapshot.checkoutUrl, stateSnapshot.orderId);
       return;
     }
@@ -245,7 +242,7 @@ class _FiatFormState extends State<FiatForm> {
                                 state.selectedAsset.value! as CryptoCurrency,
                             selectedAssetAddress: state.selectedAssetAddress,
                             selectedAssetPubkeys: state.selectedCoinPubkeys,
-                            initialFiatAmount: state.fiatAmount.valueAsDouble,
+                            initialFiatAmount: state.fiatAmount.valueAsDecimal,
                             fiatList: state.fiatList,
                             coinList: state.coinList,
                             selectedPaymentMethodPrice:
@@ -294,16 +291,16 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   void _onFiatChanged(FiatCurrency value) => context.read<FiatFormBloc>()
-    ..add(SelectedFiatCurrencyChanged(value))
-    ..add(const RefreshFormRequested(forceRefresh: true));
+    ..add(FiatFormFiatSelected(value))
+    ..add(const FiatFormRefreshed(forceRefresh: true));
 
   void _onCoinChanged(CryptoCurrency value) => context.read<FiatFormBloc>()
-    ..add(FiatFormSelectedCoinChanged(value))
-    ..add(const RefreshFormRequested(forceRefresh: true));
+    ..add(FiatFormCoinSelected(value))
+    ..add(const FiatFormRefreshed(forceRefresh: true));
 
   void _onFiatAmountChanged(String? value) => context.read<FiatFormBloc>()
-    ..add(FiatAmountChanged(value ?? '0'))
-    ..add(const RefreshFormRequested(forceRefresh: true));
+    ..add(FiatFormAmountUpdated(value ?? '0'))
+    ..add(const FiatFormRefreshed(forceRefresh: true));
 }
 
 extension on FiatAmountValidationError {

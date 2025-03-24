@@ -90,10 +90,10 @@ final class FiatFormState extends Equatable with FormzMixin {
       selectedPaymentMethod.transactionLimits.firstOrNull;
 
   /// The minimum fiat amount that is allowed for the selected payment method
-  double? get minFiatAmount => transactionLimit?.min;
+  Decimal? get minFiatAmount => transactionLimit?.min;
 
   /// The maximum fiat amount that is allowed for the selected payment method
-  double? get maxFiatAmount => transactionLimit?.max;
+  Decimal? get maxFiatAmount => transactionLimit?.max;
   bool get isLoadingCurrencies => fiatList.length < 2 || coinList.length < 2;
   bool get isLoading => isLoadingCurrencies || status == FiatFormStatus.loading;
   bool get canSubmit =>
