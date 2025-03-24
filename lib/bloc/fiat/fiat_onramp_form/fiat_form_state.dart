@@ -25,7 +25,7 @@ final class FiatFormState extends Equatable with FormzMixin {
   });
 
   /// Creates an initial state with default values.
-  const FiatFormState.initial()
+  FiatFormState.initial()
       : selectedFiat = const CurrencyInput.dirty(
           FiatCurrency('USD', 'United States Dollar'),
         ),
@@ -34,7 +34,7 @@ final class FiatFormState extends Equatable with FormzMixin {
         ),
         fiatAmount = const FiatAmountInput.pure(),
         selectedAssetAddress = null,
-        selectedPaymentMethod = const FiatPaymentMethod.none(),
+        selectedPaymentMethod = FiatPaymentMethod.none,
         checkoutUrl = '',
         orderId = '',
         status = FiatFormStatus.initial,

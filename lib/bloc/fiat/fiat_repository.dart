@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
@@ -178,8 +179,8 @@ class FiatRepository {
 
         return method.copyWith(
           priceInfo: method.priceInfo.copyWith(
-            coinAmount: double.tryParse(coinAmount ?? '0') ?? 0,
-            fiatAmount: double.tryParse(sourceAmount) ?? 0,
+            coinAmount: Decimal.tryParse(coinAmount ?? '0') ?? Decimal.zero,
+            fiatAmount: Decimal.tryParse(sourceAmount) ?? Decimal.zero,
           ),
         );
       }).toList();
@@ -294,17 +295,17 @@ class FiatRepository {
       final maxCoinAmount = coinAmounts.reduce((a, b) => a > b ? a : b);
       return _paymentMethodsList!.map((method) {
         final coinAmount = method.priceInfo.coinAmount;
-        if (coinAmount == 0) {
+        if (coinAmount == Decimal.zero) {
           return method;
         }
         if (coinAmount == maxCoinAmount) {
-          return method.copyWith(relativePercent: 0);
+          return method.copyWith(relativePercent: Decimal.zero);
         }
 
         final relativeValue =
             (coinAmount - maxCoinAmount) / maxCoinAmount.abs();
 
-        return method.copyWith(relativePercent: relativeValue);
+        return method.copyWith(relativePercent: relativeValue.toDecimal());
       }).toList()
         ..sort((a, b) {
           if (a.relativePercent == 0) return -1;

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,8 +28,8 @@ class FiatPaymentMethodCardState extends State<FiatPaymentMethodCard> {
     final bool isSelected = widget.selectedPaymentMethod != null &&
         widget.selectedPaymentMethod!.id == widget.paymentMethodData.id;
 
-    final relativePercent = widget.paymentMethodData.relativePercent as double?;
-    final isBestOffer = relativePercent == null;
+    final relativePercent = widget.paymentMethodData.relativePercent;
+    final isBestOffer = relativePercent == Decimal.zero;
 
     return InkWell(
       onTap: () {
@@ -84,7 +85,7 @@ class FiatPaymentMethodCardState extends State<FiatPaymentMethodCard> {
                   )
                 else
                   Text(
-                    '${(relativePercent * 100).toStringAsFixed(2)}%',
+                    '${(relativePercent * Decimal.fromInt(100)).toStringAsFixed(2)}%',
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),

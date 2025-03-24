@@ -272,7 +272,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         // leaving path here until we figure out how to include stack trace
         path: 'Banxa.getPaymentMethodPrice',
       ).ignore();
-      return const FiatPriceInfo.zero();
+      return FiatPriceInfo.zero;
     }
   }
 

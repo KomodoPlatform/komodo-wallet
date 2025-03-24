@@ -29,7 +29,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     required KomodoDefiSdk sdk,
   })  : _fiatRepository = repository,
         _sdk = sdk,
-        super(const FiatFormState.initial()) {
+        super(FiatFormState.initial()) {
     on<FiatFormStarted>(_onStarted);
 
     // All user input fields are debounced using the debounce stream transformer
