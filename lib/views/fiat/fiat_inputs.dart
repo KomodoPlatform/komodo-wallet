@@ -195,15 +195,21 @@ class FiatInputsState extends State<FiatInputs> {
         ),
         if (widget.isLoggedIn) ...[
           const SizedBox(height: 16),
-          SourceAddressField(
-            asset: widget.selectedAsset
-                .toAsset(RepositoryProvider.of<KomodoDefiSdk>(context)),
-            pubkeys: widget.selectedAssetPubkeys,
-            selectedAddress: widget.selectedAssetAddress,
-            onChanged: widget.onSourceAddressChanged,
-            isLoading: widget.selectedAssetAddress == null,
-            showBalanceIndicator: false,
-          )
+          Row(
+            children: [
+              Expanded(
+                child: SourceAddressField(
+                  asset: widget.selectedAsset
+                      .toAsset(RepositoryProvider.of<KomodoDefiSdk>(context)),
+                  pubkeys: widget.selectedAssetPubkeys,
+                  selectedAddress: widget.selectedAssetAddress,
+                  onChanged: widget.onSourceAddressChanged,
+                  isLoading: widget.selectedAssetAddress == null,
+                  showBalanceIndicator: false,
+                ),
+              ),
+            ],
+          ),
         ],
       ],
     );

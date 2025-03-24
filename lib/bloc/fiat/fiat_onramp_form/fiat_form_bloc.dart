@@ -89,16 +89,21 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       ),
     );
 
-    final asset = event.selectedCoin.toAsset(_sdk);
-    final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
-    final address = assetPubkeys.keys.firstOrNull;
+    try {
+      final asset = event.selectedCoin.toAsset(_sdk);
+      final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
+      final address = assetPubkeys.keys.firstOrNull;
 
-    emit(
-      state.copyWith(
-        selectedAssetAddress: address,
-        selectedCoinPubkeys: assetPubkeys,
-      ),
-    );
+      emit(
+        state.copyWith(
+          selectedAssetAddress: address,
+          selectedCoinPubkeys: assetPubkeys,
+        ),
+      );
+    } catch (e, s) {
+      _log.shout('Error getting pubkeys for selected coin', e, s);
+      emit(state.copyWith(selectedAssetAddress: null));
+    }
   }
 
   Future<void> _onAmountUpdated(
@@ -173,6 +178,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       );
 
       if (!newOrder.error.isNone) {
+        _log.warning('Order creation returned an error: ${newOrder.error}');
         return emit(_parseOrderError(newOrder.error));
       }
 
@@ -195,7 +201,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         ),
       );
     } catch (e, s) {
-      _log.shout('Error loading currency list', e, s);
+      _log.shout('Error submitting fiat form', e, s);
       emit(
         state.copyWith(
           status: FiatFormStatus.failure,
@@ -227,13 +233,15 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
 
     // Prefetch required form data based on updated state information
-    emit(await _updateAssetPubkeys());
     try {
+      emit(await _updateAssetPubkeys());
+
       final methods = _fiatRepository.getPaymentMethodsList(
         state.selectedFiat.value!.symbol,
         state.selectedAsset.value!,
         sourceAmount,
       );
+
       // await here in case of unhandled errors, but `onError` should handle
       // all exceptions/errors in the stream
       return await emit.forEach(
@@ -244,11 +252,12 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         ),
         onError: (e, s) {
           _log.shout('Error fetching and updating payment methods', e, s);
-          return state.copyWith(paymentMethods: []);
+          return state
+              .copyWith(paymentMethods: [], status: FiatFormStatus.failure);
         },
       );
     } catch (error, stacktrace) {
-      _log.shout('Error loading currency list', error, stacktrace);
+      _log.shout('Error refreshing form data', error, stacktrace);
       emit(
         state.copyWith(
           paymentMethods: [],
@@ -296,16 +305,21 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormWalletAuthenticated event,
     Emitter<FiatFormState> emit,
   ) async {
-    final asset =
-        _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC-segwit');
-    final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
+    try {
+      final asset =
+          _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC-segwit');
+      final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
 
-    emit(
-      state.copyWith(
-        selectedAssetAddress: assetPubkeys.keys.firstOrNull,
-        selectedCoinPubkeys: assetPubkeys,
-      ),
-    );
+      emit(
+        state.copyWith(
+          selectedAssetAddress: assetPubkeys.keys.firstOrNull,
+          selectedCoinPubkeys: assetPubkeys,
+        ),
+      );
+    } catch (e, s) {
+      _log.shout('Error getting pubkeys after wallet authentication', e, s);
+      emit(state.copyWith(selectedAssetAddress: null));
+    }
   }
 
   void _onClearAccountInformation(
@@ -316,14 +330,19 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   Future<FiatFormState> _updateAssetPubkeys() async {
-    final asset = _sdk.getSdkAsset(state.selectedAsset.value!.symbol);
-    final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
-    final address = pubkeys.keys.firstOrNull;
+    try {
+      final asset = _sdk.getSdkAsset(state.selectedAsset.value!.symbol);
+      final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
+      final address = pubkeys.keys.firstOrNull;
 
-    return state.copyWith(
-      selectedAssetAddress: address,
-      selectedCoinPubkeys: pubkeys,
-    );
+      return state.copyWith(
+        selectedAssetAddress: address,
+        selectedCoinPubkeys: pubkeys,
+      );
+    } catch (e, s) {
+      _log.shout('Error updating asset pubkeys', e, s);
+      return state.copyWith(selectedAssetAddress: null);
+    }
   }
 
   void _onPaymentStatusMessage(
@@ -375,6 +394,11 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {
       _log.shout('Error loading currency list', e, s);
+      emit(state.copyWith(
+        fiatList: [],
+        coinList: [],
+        status: FiatFormStatus.failure,
+      ));
     }
   }
 
@@ -388,19 +412,24 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       return;
     }
 
-    final orderStatusStream = _fiatRepository.watchOrderStatus(
-      state.selectedPaymentMethod,
-      state.orderId,
-    );
+    try {
+      final orderStatusStream = _fiatRepository.watchOrderStatus(
+        state.selectedPaymentMethod,
+        state.orderId,
+      );
 
-    return await emit.forEach(
-      orderStatusStream,
-      onData: (data) => state.copyWith(fiatOrderStatus: data),
-      onError: (error, stackTrace) {
-        _log.shout('Error watching order status', error, stackTrace);
-        return state.copyWith(fiatOrderStatus: FiatOrderStatus.failed);
-      },
-    );
+      return await emit.forEach(
+        orderStatusStream,
+        onData: (data) => state.copyWith(fiatOrderStatus: data),
+        onError: (error, stackTrace) {
+          _log.shout('Error watching order status', error, stackTrace);
+          return state.copyWith(fiatOrderStatus: FiatOrderStatus.failed);
+        },
+      );
+    } catch (e, s) {
+      _log.shout('Error setting up order status watch', e, s);
+      emit(state.copyWith(fiatOrderStatus: FiatOrderStatus.failed));
+    }
   }
 
   bool _isRampNewPurchaseMessage(Map<String, dynamic> data) {

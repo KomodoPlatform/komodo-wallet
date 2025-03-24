@@ -114,7 +114,6 @@ final class FiatFormState extends Equatable with FormzMixin {
       !fiatOrderStatus.isSubmitting &&
       isValid;
 
-  /// Creates a copy of this state with the specified fields replaced.
   FiatFormState copyWith({
     CurrencyInput? selectedFiat,
     CurrencyInput? selectedAsset,
@@ -150,7 +149,6 @@ final class FiatFormState extends Equatable with FormzMixin {
     );
   }
 
-  /// Returns the list of form inputs for validation purposes.
   @override
   List<FormzInput<dynamic, dynamic>> get inputs => [
         selectedFiat,
