@@ -50,13 +50,17 @@ runs:
         # Prepare build command with Trello credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
 
-        # Always add the Trello environment variables to the build command
-        # This ensures they're available in the compiled app
-        # Using the format exactly as specified in the feedback_service.dart comments
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
+        # All-or-nothing approach for Trello inputs
+        # Only add Trello environment variables if ALL of them are non-empty
+        if [ -n "$TRELLO_API_KEY" ] && [ -n "$TRELLO_TOKEN" ] && [ -n "$TRELLO_BOARD_ID" ] && [ -n "$TRELLO_LIST_ID" ]; then
+          echo "All Trello inputs provided, adding them to the build command"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
+        else
+          echo "Some Trello inputs are missing or empty, skipping all Trello parameters"
+        fi
 
         echo "Build command with environment variables:"
         echo "$BUILD_CMD"
