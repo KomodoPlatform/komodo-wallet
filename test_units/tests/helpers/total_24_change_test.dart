@@ -1,3 +1,4 @@
+// TODO: revisit or migrate to the SDK, since it mostly deals with the sdk
 void testGetTotal24Change() {
   // late final KomodoDefiSdk sdk;
 

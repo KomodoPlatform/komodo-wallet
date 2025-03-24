@@ -64,7 +64,9 @@ final class FiatFormPaymentMethodSelected extends FiatFormEvent {
 }
 
 /// Event emitted when the form is submitted to initiate a purchase.
-final class FiatFormSubmitted extends FiatFormEvent {}
+final class FiatFormSubmitted extends FiatFormEvent {
+  const FiatFormSubmitted();
+}
 
 /// Event emitted when the form mode (on-ramp/off-ramp) is updated.
 final class FiatFormModeUpdated extends FiatFormEvent {

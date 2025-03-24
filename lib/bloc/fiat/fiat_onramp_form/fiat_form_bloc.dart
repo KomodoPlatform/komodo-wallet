@@ -124,8 +124,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     final paymentMethod = selectedPaymentMethod ?? state.selectedPaymentMethod;
     final firstLimit = paymentMethod.transactionLimits.firstOrNull;
     if (firstLimit != null) {
-      minAmount = Decimal.parse(firstLimit.min.toString());
-      maxAmount = Decimal.parse(firstLimit.max.toString());
+      minAmount = Decimal.tryParse(firstLimit.min.toString());
+      maxAmount = Decimal.tryParse(firstLimit.max.toString());
     }
 
     return FiatAmountInput.dirty(

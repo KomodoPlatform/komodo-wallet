@@ -92,16 +92,16 @@ class FiatInputsState extends State<FiatInputs> {
     }
   }
 
-  void changeFiat(ICurrency? newValue) {
+  void changeFiat(FiatCurrency? newValue) {
     if (newValue == null) return;
 
-    widget.onFiatCurrencyChanged(newValue as FiatCurrency);
+    widget.onFiatCurrencyChanged(newValue);
   }
 
-  void changeCoin(ICurrency? newValue) {
+  void changeCoin(CryptoCurrency? newValue) {
     if (newValue == null) return;
 
-    widget.onCoinChanged(newValue as CryptoCurrency);
+    widget.onCoinChanged(newValue);
   }
 
   void fiatAmountChanged(String? newValue) {
@@ -217,27 +217,33 @@ class FiatInputsState extends State<FiatInputs> {
 
   void _showAssetSelectionDialog(String type) {
     final isFiat = type == 'fiat';
-    final Iterable<ICurrency> itemList =
-        isFiat ? widget.fiatList : widget.coinList;
     final icon = Icon(_getDefaultAssetIcon(type));
-    final void Function(ICurrency) onItemSelected =
-        isFiat ? changeFiat : changeCoin;
-
-    _showSelectionDialog(
-      context: context,
-      title: isFiat ? LocaleKeys.selectFiat.tr() : LocaleKeys.selectCoin.tr(),
-      itemList: itemList,
-      icon: icon,
-      onItemSelected: onItemSelected,
-    );
+    
+    if (isFiat) {
+      _showSelectionDialog<FiatCurrency>(
+        context: context,
+        title: LocaleKeys.selectFiat.tr(),
+        itemList: widget.fiatList,
+        icon: icon,
+        onItemSelected: changeFiat,
+      );
+    } else {
+      _showSelectionDialog<CryptoCurrency>(
+        context: context,
+        title: LocaleKeys.selectCoin.tr(),
+        itemList: widget.coinList,
+        icon: icon,
+        onItemSelected: changeCoin,
+      );
+    }
   }
 
-  void _showSelectionDialog({
+  void _showSelectionDialog<C extends ICurrency>({
     required BuildContext context,
     required String title,
-    required Iterable<ICurrency> itemList,
+    required Iterable<C> itemList,
     required Widget icon,
-    required void Function(ICurrency) onItemSelected,
+    required void Function(C) onItemSelected,
   }) {
     showDialog<void>(
       context: context,
