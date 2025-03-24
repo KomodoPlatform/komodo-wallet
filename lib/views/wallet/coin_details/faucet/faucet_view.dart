@@ -70,19 +70,27 @@ class _DialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: onClose,
-        ),
-      ],
+          Positioned(
+            right: -8,
+            child: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: onClose,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
