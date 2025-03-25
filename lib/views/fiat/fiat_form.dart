@@ -40,7 +40,9 @@ class _FiatFormState extends State<FiatForm> {
 
     _isLoggedIn = RepositoryProvider.of<AuthBloc>(context).state.isSignedIn;
 
-    context.read<FiatFormBloc>().add(const FiatFormRefreshed());
+    context
+        .read<FiatFormBloc>()
+        .add(const FiatFormRefreshed(forceRefresh: true));
   }
 
   @override
@@ -200,14 +202,20 @@ class _FiatFormState extends State<FiatForm> {
       context,
       url: url,
       title: LocaleKeys.buy.tr(),
-      onConsoleMessage: _onConsoleMessage,
+      onConsoleMessage: (msg) => _onConsoleMessage(msg, context),
       onCloseWindow: _onCloseWebView,
     );
   }
 
-  void _onConsoleMessage(String message) => context
-      .read<FiatFormBloc>()
-      .add(FiatFormOnRampPaymentStatusMessageReceived(message));
+  void _onConsoleMessage(String message, BuildContext context) {
+    context
+        .read<FiatFormBloc>()
+        .add(FiatFormOnRampPaymentStatusMessageReceived(message));
+
+    if (message.contains("WIDGET_CLOSE")) {
+      Navigator.of(context).pop();
+    }
+  }
 
   void _onCloseWebView() {
     // TODO: decide whether to consider a closed webview as "failed"
@@ -247,7 +255,8 @@ class _FiatFormState extends State<FiatForm> {
 
     switch (status) {
       case FiatOrderStatus.pending:
-        throw Exception('Pending status should not be shown in dialog.');
+        debugPrint('Pending status should not be shown in dialog.');
+        return;
 
       case FiatOrderStatus.submitted:
         title = LocaleKeys.fiatPaymentSubmittedTitle.tr();

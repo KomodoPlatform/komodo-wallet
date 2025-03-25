@@ -131,7 +131,7 @@ class FiatInputsState extends State<FiatInputs> {
           label: Text(LocaleKeys.spend.tr()),
           assetButton: FiatCurrencyItem(
             key: const Key('fiat-onramp-fiat-dropdown'),
-            foregroundColor: foregroundColor,
+            foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
             disabled: fiatListLoading,
             currency: widget.initialFiat,
             icon: FiatIcon(
@@ -180,7 +180,8 @@ class FiatInputsState extends State<FiatInputs> {
                     height: 48,
                     child: FiatCurrencyItem(
                       key: const Key('fiat-onramp-coin-dropdown'),
-                      foregroundColor: foregroundColor,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onSurfaceVariant,
                       disabled: coinListLoading,
                       currency: widget.selectedAsset,
                       icon: Icon(_getDefaultAssetIcon('coin')),
@@ -218,7 +219,7 @@ class FiatInputsState extends State<FiatInputs> {
   void _showAssetSelectionDialog(String type) {
     final isFiat = type == 'fiat';
     final icon = Icon(_getDefaultAssetIcon(type));
-    
+
     if (isFiat) {
       _showSelectionDialog<FiatCurrency>(
         context: context,
@@ -261,7 +262,8 @@ class FiatInputsState extends State<FiatInputs> {
                 final item = itemList.elementAt(index);
                 return FiatCurrencyItem(
                   key: Key('fiat-onramp-currency-item-${item.symbol}'),
-                  foregroundColor: foregroundColor,
+                  foregroundColor:
+                      Theme.of(context).colorScheme.onSurfaceVariant,
                   disabled: false,
                   currency: item,
                   icon: icon,
@@ -278,8 +280,6 @@ class FiatInputsState extends State<FiatInputs> {
       },
     );
   }
-
-  Color get foregroundColor => Theme.of(context).colorScheme.onSurfaceVariant;
 }
 
 IconData _getDefaultAssetIcon(String type) {

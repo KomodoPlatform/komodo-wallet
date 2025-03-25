@@ -222,7 +222,10 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         state.fiatAmount.valueAsDecimal == Decimal.zero) {
       emit(_defaultPaymentMethods());
     } else {
-      emit(state.copyWith(status: FiatFormStatus.loading));
+      emit(state.copyWith(
+        status: FiatFormStatus.loading,
+        fiatOrderStatus: FiatOrderStatus.pending,
+      ));
       sourceAmount = state.fiatAmount.value;
     }
 
@@ -360,9 +363,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         message = jsonDecode(message) as String;
       }
       final data = jsonDecode(message) as Map<String, dynamic>;
-      if (_isRampNewPurchaseMessage(data)) {
-        emit(state.copyWith(fiatOrderStatus: FiatOrderStatus.submitted));
-      } else if (_isCheckoutStatusMessage(data)) {
+      if (_isCheckoutStatusMessage(data)) {
         final status = data['status'] as String? ?? 'declined';
         emit(
           state.copyWith(
