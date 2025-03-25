@@ -643,6 +643,7 @@
     "allTimeInvestment": "All-time Investment",
     "allTimeProfit": "All-time Profit",
     "profitAndLoss": "Profit & Loss",
+    "walletCreationConfirmPasswordEmptyError" : "Please confirm your password",
     "alertDialogBitrefill": "Bitrefill",
     "showNoTradingWarning": "Warning",
     "showNoTradingWarningMessage": "Important: This is a development environment only. Please use test networks and demo assets exclusively for development and testing. KomodoPlatform does not support or permit real trading through this application. By using this app, you acknowledge that any potential losses or issues that may arise are your responsibility. Happy developing!",
