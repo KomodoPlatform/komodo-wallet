@@ -45,7 +45,11 @@ dependencies:
     path: packages/komodo_persistence_layer
 
   komodo_cex_market_data:
-    path: packages/komodo_cex_market_data
+    # path: sdk/packages/komodo_cex_market_data # Requires symlink to the SDK in the root of the project
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/komodo_cex_market_data
+      ref: dev
 
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
@@ -134,7 +138,7 @@ dependencies:
   # TODO: review required
   dragon_charts_flutter: 0.1.1-dev.1
   bloc_concurrency: 0.3.0
-  file_picker: 9.0.1
+  file_picker: ^9.0.2
 
   # TODO: review required - SDK integration
   path_provider: 2.1.5 # flutter.dev
@@ -142,7 +146,8 @@ dependencies:
   decimal: 3.2.1 # transitive dependency that is required to fix breaking changes in rational package
   rational: 2.2.3 # sdk depends on decimal ^3.0.2, which depends on rational ^2.0.0
   uuid: 4.5.1 # sdk depends on this version
-  flutter_bloc: 9.0.0 # sdk depends on this version, and hosted instead of git reference
+  flutter_bloc: ^9.1.0 # sdk depends on this version, and hosted instead of git reference
+  get_it: ^8.0.3 # sdk depends on this version, and hosted instead of git reference
   komodo_defi_sdk: # TODO: change to pub.dev version?
     # path: sdk/packages/komodo_defi_sdk # Requires symlink to the SDK in the root of the project
     git:
@@ -163,6 +168,7 @@ dependencies:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_ui
       ref: dev
+  feedback: ^3.1.0
 
 dev_dependencies:
   integration_test: # SDK

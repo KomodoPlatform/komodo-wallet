@@ -1,7 +1,10 @@
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -17,11 +20,11 @@ import 'package:web_dex/views/wallet/wallet_page/common/expandable_coin_list_ite
 
 class ActiveCoinsList extends StatelessWidget {
   const ActiveCoinsList({
-    Key? key,
+    super.key,
     required this.searchPhrase,
     required this.withBalance,
     required this.onCoinItemTap,
-  }) : super(key: key);
+  });
 
   final String searchPhrase;
   final bool withBalance;
@@ -32,7 +35,8 @@ class ActiveCoinsList extends StatelessWidget {
     return BlocBuilder<CoinsBloc, CoinsState>(
       builder: (context, state) {
         final coins = state.walletCoins.values.toList();
-        final Iterable<Coin> displayedCoins = _getDisplayedCoins(coins);
+        final Iterable<Coin> displayedCoins =
+            _getDisplayedCoins(coins, context.sdk);
 
         if (displayedCoins.isEmpty &&
             (searchPhrase.isNotEmpty || withBalance)) {
@@ -45,7 +49,8 @@ class ActiveCoinsList extends StatelessWidget {
           );
         }
 
-        List<Coin> sorted = sortFiatBalance(displayedCoins.toList());
+        List<Coin> sorted =
+            sortFiatBalance(displayedCoins.toList(), context.sdk);
 
         if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
           sorted = removeTestCoins(sorted);
@@ -80,10 +85,11 @@ class ActiveCoinsList extends StatelessWidget {
     );
   }
 
-  Iterable<Coin> _getDisplayedCoins(Iterable<Coin> coins) =>
+  Iterable<Coin> _getDisplayedCoins(Iterable<Coin> coins, KomodoDefiSdk sdk) =>
       filterCoinsByPhrase(coins, searchPhrase).where((Coin coin) {
         if (withBalance) {
-          return coin.balance > 0;
+          return (coin.lastKnownBalance(sdk)?.total ?? Decimal.zero) >
+              Decimal.zero;
         }
         return true;
       }).toList();
@@ -91,12 +97,12 @@ class ActiveCoinsList extends StatelessWidget {
 
 class AddressBalanceList extends StatelessWidget {
   const AddressBalanceList({
-    Key? key,
+    super.key,
     required this.coin,
     required this.onCreateNewAddress,
     required this.pubkeys,
     required this.cantCreateNewAddressReasons,
-  }) : super(key: key);
+  });
 
   final Coin coin;
   final AssetPubkeys pubkeys;
@@ -176,10 +182,10 @@ class AddressBalanceList extends StatelessWidget {
 
 class AddressBalanceCard extends StatelessWidget {
   const AddressBalanceCard({
-    Key? key,
+    super.key,
     required this.pubkey,
     required this.coin,
-  }) : super(key: key);
+  });
 
   final PubkeyInfo pubkey;
   final Coin coin;
@@ -243,9 +249,7 @@ class AddressBalanceCard extends StatelessWidget {
                       ),
                     ),
                     CoinFiatBalance(
-                      coin.copyWith(
-                        balance: pubkey.balance.spendable.toDouble(),
-                      ),
+                      coin.copyWith(),
                       style: Theme.of(context).textTheme.bodySmall,
                       // customBalance: pubkey.balance.spendable.toDouble(),
                     ),

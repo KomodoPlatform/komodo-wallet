@@ -447,6 +447,11 @@
     "unknown": "Unknown",
     "unableToActiveCoin": "Unable to activate {}",
     "feedback": "Feedback",
+    "feedbackViewTitle": "Send us your feedback",
+    "feedbackPageDescription": "Help us improve by sharing your suggestions, reporting bugs, or giving general feedback.",
+    "sendFeedbackButton": "Share your feedback",
+    "feedbackThankyou": "Thank you for your feedback!",
+    "feedbackError": "Failed to submit feedback",
     "selectAToken": "Select a token",
     "selectToken": "Select token",
     "rate": "Rate",
@@ -630,5 +635,6 @@
     "portfolioPerformance": "Portfolio Performance",
     "allTimeInvestment": "All-time Investment",
     "allTimeProfit": "All-time Profit",
-    "profitAndLoss": "Profit & Loss"
+    "profitAndLoss": "Profit & Loss",
+    "searchAddresses": "Search addresses"
 }

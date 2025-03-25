@@ -261,17 +261,15 @@ class MakerFormBloc implements BlocBase {
       availableBalanceState = AvailableBalanceState.loading;
     }
 
-    if (!await kdfSdk.auth.isSignedIn()) {
+    bool isSignedIn = await kdfSdk.auth.isSignedIn();
+    if (!isSignedIn) {
       availableBalanceState = AvailableBalanceState.unavailable;
     } else {
       if (coin == null) {
         maxSellAmount = null;
         availableBalanceState = AvailableBalanceState.unavailable;
-      } else if (!coin.isActive) {
-        maxSellAmount = null;
-        availableBalanceState = AvailableBalanceState.loading;
       } else {
-        maxSellAmount = Rational.parse(coin.balance.toString());
+        maxSellAmount = Rational.parse(coin.balance(kdfSdk).toString());
         availableBalanceState = AvailableBalanceState.success;
       }
     }
@@ -471,7 +469,7 @@ class MakerFormBloc implements BlocBase {
   }
 
   Future<void> _autoActivate(Coin? coin) async {
-    if (coin == null) return;
+    if (coin == null || !await kdfSdk.auth.isSignedIn()) return;
     inProgress = true;
     final List<DexFormError> activationErrors =
         await activateCoinIfNeeded(coin.abbr, coinsRepository);

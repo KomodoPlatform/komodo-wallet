@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -33,6 +34,7 @@ import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:feedback/feedback.dart';
 
 part 'services/initializer/app_bootstrapper.dart';
 
@@ -145,16 +147,38 @@ class MyApp extends StatelessWidget {
     final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
 
+    final theme = Theme.of(context);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
           create: (_) => AuthBloc(komodoDefiSdk, walletsRepository),
         ),
       ],
-      child: app_bloc_root.AppBlocRoot(
-        storedPrefs: _storedSettings!,
-        komodoDefiSdk: komodoDefiSdk,
+      child: BetterFeedback(
+        themeMode: ThemeMode.light,
+        darkTheme: _feedbackThemeData(theme),
+        theme: _feedbackThemeData(theme),
+        child: app_bloc_root.AppBlocRoot(
+          storedPrefs: _storedSettings!,
+          komodoDefiSdk: komodoDefiSdk,
+        ),
       ),
     );
   }
+}
+
+FeedbackThemeData _feedbackThemeData(ThemeData appTheme) {
+  return FeedbackThemeData(
+    bottomSheetTextInputStyle: appTheme.textTheme.bodyMedium!,
+    bottomSheetDescriptionStyle: appTheme.textTheme.bodyMedium!,
+    dragHandleColor: appTheme.colorScheme.primary,
+    colorScheme: appTheme.colorScheme,
+    sheetIsDraggable: true,
+    drawColors: [
+      Colors.red,
+      Colors.white,
+      Colors.green,
+    ],
+  );
 }
