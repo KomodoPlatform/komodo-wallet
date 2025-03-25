@@ -56,6 +56,7 @@ class UiTextFormField extends StatefulWidget {
     this.focusedBorder,
     this.errorStyle,
     this.validationMode = InputValidationMode.eager,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
 
   final String? initialValue;
@@ -95,6 +96,7 @@ class UiTextFormField extends StatefulWidget {
   final InputBorder? focusedBorder;
   final TextStyle? errorStyle;
   final InputValidationMode validationMode;
+  final AutovalidateMode autovalidateMode;
 
   @override
   State<UiTextFormField> createState() => _UiTextFormFieldState();
@@ -187,6 +189,18 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     return error;
   }
 
+  AutovalidateMode _getAutovalidateMode() {
+  switch (widget.validationMode) {
+    case InputValidationMode.aggressive:
+      return AutovalidateMode.always; // Validate immediately
+    case InputValidationMode.eager:
+      return AutovalidateMode.onUserInteraction; // Validate after first interaction
+    case InputValidationMode.passive:
+    case InputValidationMode.lazy:
+      return AutovalidateMode.disabled; // Only validate on submit
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -234,7 +248,7 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       validator: (value) {
         // Don't update state during build, just return the validation result
         final error = widget.validator?.call(value) ?? widget.errorText;
-        return _shouldValidate ? error : null;
+        return error;
       },
       onChanged: (value) {
         widget.onChanged?.call(value);
@@ -253,9 +267,7 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       enableInteractiveSelection: widget.enableInteractiveSelection,
       textInputAction: widget.textInputAction,
       style: style,
-      autovalidateMode: _shouldValidate
-          ? AutovalidateMode.onUserInteraction
-          : AutovalidateMode.disabled,
+      autovalidateMode: _getAutovalidateMode(),
       keyboardType: widget.keyboardType,
       obscureText: widget.obscureText,
       autocorrect: widget.autocorrect,

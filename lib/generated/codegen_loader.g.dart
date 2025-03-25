@@ -628,5 +628,6 @@ abstract class  LocaleKeys {
   static const allTimeInvestment = 'allTimeInvestment';
   static const allTimeProfit = 'allTimeProfit';
   static const profitAndLoss = 'profitAndLoss';
+  static const walletCreationConfirmPasswordEmptyError = 'walletCreationConfirmPasswordEmptyError';
 
 }

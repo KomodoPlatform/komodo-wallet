@@ -2,9 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 String? validateConfirmPassword(String password, String confirmPassword) {
-  return password != confirmPassword
-      ? LocaleKeys.walletCreationConfirmPasswordError.tr()
-      : null;
+  if (confirmPassword.isEmpty) {
+    return LocaleKeys.walletCreationConfirmPasswordEmptyError.tr();
+  } else if (password != confirmPassword) {
+    return LocaleKeys.walletCreationConfirmPasswordError.tr();
+  }
+  return null;
 }
 
 /// unit test: [testValidatePassword]
