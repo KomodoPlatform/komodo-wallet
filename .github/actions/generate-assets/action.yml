@@ -62,8 +62,8 @@ runs:
           echo "Some Trello inputs are missing or empty, skipping all Trello parameters"
         fi
 
-        # Run flutter build once to download coin icons and config files. 
-        # This step is expected to "fail", since flutter build has to run again 
+        # Run flutter build once to download coin icons and config files.
+        # This step is expected to "fail", since flutter build has to run again
         # after the assets are downloaded to register them in AssetManifest.bin
         echo ""
         flutter pub get > /dev/null 2>&1 || true
@@ -77,7 +77,7 @@ runs:
         $BUILD_CMD
         exit_status=$?
         set -e  # Restore exit on error behavior
-        
+
         # Check if the exit status is non-zero (indicating an error)
         if [ $exit_status -ne 0 ]; then
             echo "Flutter build exited with status $exit_status"

@@ -52,7 +52,8 @@ class FiatAmountInput extends FormzInput<String, FiatAmountValidationError> {
   }
 }
 
-/// Normalizes and parses a decimal string value that might use different locale formats
+/// Normalizes and parses a decimal string value that might use different 
+/// locale formats
 // TODO: refactor into sdk or extension class for Decimal
 Decimal? parseLocaleAwareDecimal(String value) {
   if (value.isEmpty) return null;
@@ -69,15 +70,17 @@ Decimal? parseLocaleAwareDecimal(String value) {
     if (usFormat != null) return usFormat;
   }
 
-  // Third attempt: European format (1.234,56)
-  // Only try this if there's a comma and either no period or the period appears before the comma
+  // Third attempt: European format (1.234,56) or other edge cases
+  // Only try this if there's a comma and either no period or the period
+  // appears before the comma
   if (value.contains(',')) {
     final lastCommaIndex = value.lastIndexOf(',');
     final lastPeriodIndex = value.lastIndexOf('.');
 
     // Check if this looks like a European format number:
     // - Has a comma
-    // - Either no period, or all periods appear before the last comma (as thousand separators)
+    // - Either no period, or all periods appear before the last comma 
+    // (as thousand separators)
     if (lastPeriodIndex == -1 || lastPeriodIndex < lastCommaIndex) {
       final europeanFormat = value.replaceAll('.', '').replaceAll(',', '.');
       final euFormat = Decimal.tryParse(europeanFormat);

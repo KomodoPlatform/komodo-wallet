@@ -292,9 +292,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         );
       }
 
-      return state.copyWith(
-        status: FiatFormStatus.success,
-      );
+      return state.copyWith(status: FiatFormStatus.success);
     } catch (e, s) {
       _log.shout('Error updating payment methods', e, s);
       return state.copyWith(paymentMethods: []);
@@ -363,7 +361,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       }
       final data = jsonDecode(message) as Map<String, dynamic>;
       if (_isRampNewPurchaseMessage(data)) {
-        emit(state.copyWith(fiatOrderStatus: FiatOrderStatus.success));
+        emit(state.copyWith(fiatOrderStatus: FiatOrderStatus.submitted));
       } else if (_isCheckoutStatusMessage(data)) {
         final status = data['status'] as String? ?? 'declined';
         emit(

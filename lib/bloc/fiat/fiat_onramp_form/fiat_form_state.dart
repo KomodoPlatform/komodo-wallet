@@ -46,10 +46,10 @@ final class FiatFormState extends Equatable with FormzMixin {
         selectedCoinPubkeys = null;
 
   /// The selected fiat currency to use to purchase [selectedAsset].
-  final CurrencyInput selectedFiat;
+  final CurrencyInput<FiatCurrency> selectedFiat;
 
   /// The selected crypto currency to purchase.
-  final CurrencyInput selectedAsset;
+  final CurrencyInput<CryptoCurrency> selectedAsset;
 
   /// The amount of [selectedFiat] to use to purchase [selectedAsset].
   final FiatAmountInput fiatAmount;
@@ -115,8 +115,8 @@ final class FiatFormState extends Equatable with FormzMixin {
       isValid;
 
   FiatFormState copyWith({
-    CurrencyInput? selectedFiat,
-    CurrencyInput? selectedAsset,
+    CurrencyInput<FiatCurrency>? selectedFiat,
+    CurrencyInput<CryptoCurrency>? selectedAsset,
     FiatAmountInput? fiatAmount,
     FiatPaymentMethod? selectedPaymentMethod,
     PubkeyInfo? selectedAssetAddress,

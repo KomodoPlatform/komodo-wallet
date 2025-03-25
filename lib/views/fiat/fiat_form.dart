@@ -97,10 +97,8 @@ class _FiatFormState extends State<FiatForm> {
                             onFiatCurrencyChanged: _onFiatChanged,
                             onCoinChanged: _onCoinChanged,
                             onFiatAmountUpdate: _onFiatAmountChanged,
-                            initialFiat:
-                                state.selectedFiat.value! as FiatCurrency,
-                            selectedAsset:
-                                state.selectedAsset.value! as CryptoCurrency,
+                            initialFiat: state.selectedFiat.value!,
+                            selectedAsset: state.selectedAsset.value!,
                             selectedAssetAddress: state.selectedAssetAddress,
                             selectedAssetPubkeys: state.selectedCoinPubkeys,
                             initialFiatAmount: state.fiatAmount.valueAsDecimal,
