@@ -244,7 +244,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
       // await here in case of unhandled errors, but `onError` should handle
       // all exceptions/errors in the stream
-      return await emit.forEach(
+      await emit.forEach(
         methods,
         onData: (data) => _updatePaymentMethods(
           data,
@@ -296,7 +296,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         status: FiatFormStatus.success,
       );
     } catch (e, s) {
-      _log.shout('Error loading currency list', e, s);
+      _log.shout('Error updating payment methods', e, s);
       return state.copyWith(paymentMethods: []);
     }
   }

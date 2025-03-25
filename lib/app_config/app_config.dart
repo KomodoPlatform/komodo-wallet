@@ -8,6 +8,7 @@ final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 const double maxScreenWidth = 1273;
 const double mainLayoutPadding = 29;
 const double appBarHeight = 70;
+const int scaleOnInfinitePrecision = 20; // ETH has 18 decimals, so use more
 const String allWalletsStorageKey = 'all-wallets';
 const String defaultDexCoin = 'KMD';
 const List<Locale> localeList = [Locale('en')];

@@ -234,11 +234,11 @@ class _FiatFormState extends State<FiatForm> {
     }
 
     if (status != FiatOrderStatus.pending) {
-      _showPaymentStatusDialog(status);
+      await _showPaymentStatusDialog(status);
     }
   }
 
-  void _showPaymentStatusDialog(FiatOrderStatus status) {
+  Future<void> _showPaymentStatusDialog(FiatOrderStatus status) async {
     if (!mounted) return;
 
     String? title;
@@ -274,7 +274,7 @@ class _FiatFormState extends State<FiatForm> {
         icon = const Icon(Icons.hourglass_bottom_outlined);
     }
 
-    showAdaptiveDialog<void>(
+    await showAdaptiveDialog<void>(
       context: context,
       builder: (context) => AlertDialog.adaptive(
         title: Text(title!),
@@ -287,7 +287,7 @@ class _FiatFormState extends State<FiatForm> {
           ),
         ],
       ),
-    ).ignore();
+    );
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_buy_order_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -20,14 +21,14 @@ class FiatBuyOrderInfo extends Equatable {
     required this.error,
   });
 
-  const FiatBuyOrderInfo.none()
+  FiatBuyOrderInfo.info()
       : this(
           id: '',
           accountId: '',
           accountReference: '',
           orderType: '',
           fiatCode: '',
-          fiatAmount: 0.0,
+          fiatAmount: Decimal.zero,
           coinCode: '',
           walletAddress: '',
           extAccountId: '',
@@ -38,14 +39,14 @@ class FiatBuyOrderInfo extends Equatable {
           error: const FiatBuyOrderError.none(),
         );
 
-  const FiatBuyOrderInfo.fromCheckoutUrl(String url)
+  FiatBuyOrderInfo.fromCheckoutUrl(String url)
       : this(
           id: '',
           accountId: '',
           accountReference: '',
           orderType: '',
           fiatCode: '',
-          fiatAmount: 0.0,
+          fiatAmount: Decimal.zero,
           coinCode: '',
           walletAddress: '',
           extAccountId: '',
@@ -69,7 +70,7 @@ class FiatBuyOrderInfo extends Equatable {
       accountReference: data['account_reference'] as String? ?? '',
       orderType: data['order_type'] as String? ?? '',
       fiatCode: data['fiat_code'] as String? ?? '',
-      fiatAmount: assertDouble(data['fiat_amount']),
+      fiatAmount: Decimal.parse(data['fiat_amount']?.toString() ?? '0'),
       coinCode: data['coin_code'] as String? ?? '',
       walletAddress: data['wallet_address'] as String? ?? '',
       extAccountId: data['ext_account_id'] as String? ?? '',
@@ -82,12 +83,13 @@ class FiatBuyOrderInfo extends Equatable {
           : const FiatBuyOrderError.none(),
     );
   }
+
   final String id;
   final String accountId;
   final String accountReference;
   final String orderType;
   final String fiatCode;
-  final double fiatAmount;
+  final Decimal fiatAmount;
   final String coinCode;
   final String walletAddress;
   final String extAccountId;
@@ -124,7 +126,7 @@ class FiatBuyOrderInfo extends Equatable {
           'account_reference': accountReference,
           'order_type': orderType,
           'fiat_code': fiatCode,
-          'fiat_amount': fiatAmount,
+          'fiat_amount': fiatAmount.toString(),
           'coin_code': coinCode,
           'wallet_address': walletAddress,
           'ext_account_id': extAccountId,
@@ -144,7 +146,7 @@ class FiatBuyOrderInfo extends Equatable {
     String? accountReference,
     String? orderType,
     String? fiatCode,
-    double? fiatAmount,
+    Decimal? fiatAmount,
     String? coinCode,
     String? walletAddress,
     String? extAccountId,
