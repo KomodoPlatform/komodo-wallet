@@ -53,7 +53,7 @@ class FaucetView extends StatelessWidget {
       return state.response.status.title;
     } else if (state is FaucetError) {
       return LocaleKeys.faucetFailureTitle.tr();
-    } else if (state is FaucetLoading) {
+    } else if (state is FaucetRequestInProgress) {
       return LocaleKeys.faucetLoadingTitle.tr();
     } else if (state is FaucetInitial) {
       return LocaleKeys.faucetInitialTitle.tr();
@@ -103,7 +103,7 @@ class _StatesOfPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localState = state;
-    if (localState is FaucetLoading || localState is FaucetInitial) {
+    if (localState is FaucetRequestInProgress || localState is FaucetInitial) {
       return const _Loading();
     } else if (localState is FaucetSuccess) {
       final bool isDenied = localState.response.status == FaucetStatus.denied;

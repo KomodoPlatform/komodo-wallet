@@ -12,10 +12,10 @@ class FaucetInitial extends FaucetState {
   const FaucetInitial();
 }
 
-class FaucetLoading extends FaucetState {
+class FaucetRequestInProgress extends FaucetState {
   final String address;
 
-  const FaucetLoading({required this.address});
+  const FaucetRequestInProgress({required this.address});
 
   @override
   List<Object?> get props => [address];

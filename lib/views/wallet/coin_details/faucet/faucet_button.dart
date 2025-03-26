@@ -33,11 +33,13 @@ class _FaucetButtonState extends State<FaucetButton> {
 
     return BlocConsumer<FaucetBloc, FaucetState>(
       listenWhen: (previous, current) {
-        return (current is FaucetLoading && current.address == widget.address.address) ||
-            (previous is FaucetLoading && current is! FaucetLoading);
+        final isLoading = current is FaucetRequestInProgress && current.address == widget.address.address;
+        final didStopLoading = previous is FaucetRequestInProgress && previous.address == widget.address.address;
+
+        return isLoading || didStopLoading;
       },
       listener: (context, state) {
-        if (state is FaucetLoading) {
+        if (state is FaucetRequestInProgress) {
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -56,7 +58,7 @@ class _FaucetButtonState extends State<FaucetButton> {
       },
       builder: (context, state) {
         final isLoading =
-            state is FaucetLoading && state.address == widget.address.address;
+            state is FaucetRequestInProgress && state.address == widget.address.address;
         return Padding(
           padding: EdgeInsets.only(left: isMobile ? 4 : 8),
           child: Container(

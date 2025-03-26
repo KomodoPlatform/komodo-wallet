@@ -4,9 +4,11 @@ import 'package:web_dex/3p_api/faucet/faucet.dart' as api;
 import 'package:web_dex/3p_api/faucet/faucet_response.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_event.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
+import 'package:logging/logging.dart';
 
 class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamable<FaucetState> {
   final KomodoDefiSdk kdfSdk;
+  final _log = Logger('FaucetBloc');
 
   FaucetBloc({required this.kdfSdk}) : super(FaucetInitial()) {
     on<FaucetRequested>(_onFaucetRequest);
@@ -16,14 +18,14 @@ class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamab
     FaucetRequested event,
     Emitter<FaucetState> emit,
   ) async {
-    if (state is FaucetLoading) {
-      final currentLoading = state as FaucetLoading;
+    if (state is FaucetRequestInProgress) {
+      final currentLoading = state as FaucetRequestInProgress;
       if (currentLoading.address == event.address) {
         return;
       }
     }
 
-    emit(FaucetLoading(address: event.address));
+    emit(FaucetRequestInProgress(address: event.address));
 
     try {
       final response = await api.callFaucet(event.coinAbbr, event.address);
@@ -39,7 +41,7 @@ class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamab
         emit(FaucetError("Faucet request failed: ${response.message}"));
       }
     } catch (error, stackTrace) {
-      addError(error, stackTrace); // Properly logs errors
+      _log.shout('Faucet request failed', error, stackTrace);
       emit(FaucetError("Network error: ${error.toString()}"));
     }
   }
