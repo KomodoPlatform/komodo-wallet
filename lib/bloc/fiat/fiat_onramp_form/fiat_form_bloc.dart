@@ -14,7 +14,6 @@ import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/fiat_repository.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
-import 'package:web_dex/bloc/transformers.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
@@ -33,9 +32,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     on<FiatFormStarted>(_onStarted);
 
     // All user input fields are debounced using the debounce stream transformer
-    on<FiatFormFiatSelected>(_onFiatSelected, transformer: debounce(500));
-    on<FiatFormCoinSelected>(_onCoinSelected, transformer: debounce(500));
-    on<FiatFormAmountUpdated>(_onAmountUpdated, transformer: debounce(500));
+    on<FiatFormFiatSelected>(_onFiatSelected);
+    on<FiatFormCoinSelected>(_onCoinSelected);
+    on<FiatFormAmountUpdated>(_onAmountUpdated);
     on<FiatFormPaymentMethodSelected>(_onSelectPaymentMethod);
     on<FiatFormSubmitted>(_onSubmitForm);
     on<FiatFormOnRampPaymentStatusMessageReceived>(_onPaymentStatusMessage);
@@ -46,7 +45,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
     // debounce used here instead of restartable, since multiple user actions
     // can trigger this event, and restartable results in hitching
-    on<FiatFormRefreshed>(_onRefreshForm, transformer: debounce(500));
+    on<FiatFormRefreshed>(_onRefreshForm, transformer: restartable());
     on<FiatFormCurrenciesFetched>(
       _onLoadCurrencyLists,
       transformer: restartable(),
@@ -112,26 +111,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   ) async {
     emit(
       state.copyWith(fiatAmount: _getAmountInputWithBounds(event.fiatAmount)),
-    );
-  }
-
-  FiatAmountInput _getAmountInputWithBounds(
-    String amount, {
-    FiatPaymentMethod? selectedPaymentMethod,
-  }) {
-    Decimal? minAmount;
-    Decimal? maxAmount;
-    final paymentMethod = selectedPaymentMethod ?? state.selectedPaymentMethod;
-    final firstLimit = paymentMethod.transactionLimits.firstOrNull;
-    if (firstLimit != null) {
-      minAmount = Decimal.tryParse(firstLimit.min.toString());
-      maxAmount = Decimal.tryParse(firstLimit.max.toString());
-    }
-
-    return FiatAmountInput.dirty(
-      amount,
-      minValue: minAmount,
-      maxValue: maxAmount,
     );
   }
 
@@ -215,91 +194,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormRefreshed event,
     Emitter<FiatFormState> emit,
   ) async {
-    // If the entered fiat amount is empty or invalid, then return a placeholder
-    // list of payment methods
-    String sourceAmount = '10000';
-    if (state.fiatAmount.valueAsDecimal == null ||
-        state.fiatAmount.valueAsDecimal == Decimal.zero) {
-      emit(_defaultPaymentMethods());
-    } else {
-      emit(state.copyWith(
-        status: FiatFormStatus.loading,
-        fiatOrderStatus: FiatOrderStatus.pending,
-      ));
-      sourceAmount = state.fiatAmount.value;
-    }
-
-    emit(
-      state.copyWith(
-        fiatAmount: _getAmountInputWithBounds(state.fiatAmount.value),
-      ),
-    );
-
-    // Prefetch required form data based on updated state information
-    try {
-      emit(await _updateAssetPubkeys());
-
-      final methods = _fiatRepository.getPaymentMethodsList(
-        state.selectedFiat.value!.symbol,
-        state.selectedAsset.value!,
-        sourceAmount,
-      );
-
-      // await here in case of unhandled errors, but `onError` should handle
-      // all exceptions/errors in the stream
-      await emit.forEach(
-        methods,
-        onData: (data) => _updatePaymentMethods(
-          data,
-          forceUpdate: event.forceRefresh,
-        ),
-        onError: (e, s) {
-          _log.shout('Error fetching and updating payment methods', e, s);
-          return state
-              .copyWith(paymentMethods: [], status: FiatFormStatus.failure);
-        },
-      );
-    } catch (error, stacktrace) {
-      _log.shout('Error refreshing form data', error, stacktrace);
-      emit(
-        state.copyWith(
-          paymentMethods: [],
-          status: FiatFormStatus.failure,
-        ),
-      );
-    }
-  }
-
-  FiatFormState _updatePaymentMethods(
-    List<FiatPaymentMethod> methods, {
-    bool forceUpdate = false,
-  }) {
-    try {
-      final shouldUpdate = forceUpdate || state.selectedPaymentMethod.isNone;
-      if (shouldUpdate && methods.isNotEmpty) {
-        final method = state.selectedPaymentMethod.isNone
-            ? methods.first
-            : methods.firstWhere(
-                (method) => method.id == state.selectedPaymentMethod.id,
-                orElse: () => methods.first,
-              );
-
-        return state.copyWith(
-          paymentMethods: methods,
-          selectedPaymentMethod: method,
-          status: FiatFormStatus.success,
-          fiatAmount: _getAmountInputWithBounds(
-            state.fiatAmount.value,
-            selectedPaymentMethod: method,
-          ),
-        );
-      }
-
-      return state.copyWith(status: FiatFormStatus.success);
-    } catch (e, s) {
-      _log.shout('Error updating payment methods', e, s);
-      return state.copyWith(paymentMethods: []);
-    }
+    final refreshStateStream = _refreshFormState();
+    await emit.forEach(refreshStateStream, onData: (newState) => newState);
   }
 
   Future<void> _onWalletAuthenticated(
@@ -376,6 +272,17 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     }
   }
 
+  void _onCoinAddressSelected(
+    FiatFormCoinAddressSelected event,
+    Emitter<FiatFormState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        selectedAssetAddress: event.address,
+      ),
+    );
+  }
+
   void _onModeUpdated(
     FiatFormModeUpdated event,
     Emitter<FiatFormState> emit,
@@ -431,10 +338,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     }
   }
 
-  bool _isRampNewPurchaseMessage(Map<String, dynamic> data) {
-    return data.containsKey('type') && data['type'] == 'PURCHASE_CREATED';
-  }
-
   bool _isCheckoutStatusMessage(Map<String, dynamic> data) {
     return data.containsKey('type') && (data['type'] == 'PAYMENT-STATUS');
   }
@@ -464,23 +367,125 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     return null;
   }
 
+  FiatAmountInput _getAmountInputWithBounds(
+    String amount, {
+    FiatPaymentMethod? selectedPaymentMethod,
+  }) {
+    Decimal? minAmount;
+    Decimal? maxAmount;
+    final paymentMethod = selectedPaymentMethod ?? state.selectedPaymentMethod;
+    final firstLimit = paymentMethod.transactionLimits.firstOrNull;
+    if (firstLimit != null) {
+      minAmount = Decimal.tryParse(firstLimit.min.toString());
+      maxAmount = Decimal.tryParse(firstLimit.max.toString());
+    }
+
+    return FiatAmountInput.dirty(
+      amount,
+      minValue: minAmount,
+      maxValue: maxAmount,
+    );
+  }
+
+  Stream<FiatFormState> _refreshFormState() async* {
+    // Step 1: Handle initial state based on fiat amount
+    yield* _handleInitialState();
+
+    // Step 2: Update amount bounds
+    yield state.copyWith(
+        fiatAmount: _getAmountInputWithBounds(state.fiatAmount.value));
+
+    // Step 3: Update asset information and payment methods
+    try {
+      yield await _updateAssetPubkeys();
+      yield* _fetchAndUpdatePaymentMethods();
+    } catch (error, stacktrace) {
+      _log.shout('Error refreshing form data', error, stacktrace);
+      yield state.copyWith(
+        paymentMethods: [],
+        status: FiatFormStatus.failure,
+      );
+    }
+  }
+
+  Stream<FiatFormState> _handleInitialState() async* {
+    if (_hasValidFiatAmount()) {
+      yield state.copyWith(
+        status: FiatFormStatus.loading,
+        fiatOrderStatus: FiatOrderStatus.pending,
+      );
+    } else {
+      yield _defaultPaymentMethods();
+    }
+  }
+
+  Stream<FiatFormState> _fetchAndUpdatePaymentMethods() async* {
+    final methodsStream = _fiatRepository.getPaymentMethodsList(
+      state.selectedFiat.value!.symbol,
+      state.selectedAsset.value!,
+      _getSourceAmount(),
+    );
+
+    try {
+      await for (final methods in methodsStream) {
+        yield _updatePaymentMethods(methods, forceUpdate: true);
+      }
+    } catch (e, s) {
+      _log.shout('Error fetching payment methods', e, s);
+      yield state.copyWith(
+        paymentMethods: [],
+        status: FiatFormStatus.failure,
+      );
+    }
+  }
+
+  String _getSourceAmount() {
+    return _hasValidFiatAmount() ? state.fiatAmount.value : '10000';
+  }
+
+  bool _hasValidFiatAmount() {
+    return state.fiatAmount.valueAsDecimal != null &&
+        state.fiatAmount.valueAsDecimal != Decimal.zero;
+  }
+
+  FiatFormState _updatePaymentMethods(
+    List<FiatPaymentMethod> methods, {
+    bool forceUpdate = false,
+  }) {
+    try {
+      final shouldUpdate = forceUpdate || state.selectedPaymentMethod.isNone;
+      if (shouldUpdate && methods.isNotEmpty) {
+        final method = state.selectedPaymentMethod.isNone
+            ? methods.first
+            : methods.firstWhere(
+                (method) => method.id == state.selectedPaymentMethod.id,
+                orElse: () => methods.first,
+              );
+
+        return state.copyWith(
+          paymentMethods: methods,
+          selectedPaymentMethod: method,
+          status: FiatFormStatus.success,
+          fiatAmount: _getAmountInputWithBounds(
+            state.fiatAmount.value,
+            selectedPaymentMethod: method,
+          ),
+        );
+      }
+
+      return state.copyWith(status: FiatFormStatus.success);
+    } catch (e, s) {
+      _log.shout('Error updating payment methods', e, s);
+      return state.copyWith(paymentMethods: []);
+    }
+  }
+
   FiatFormState _defaultPaymentMethods() {
     return state.copyWith(
       paymentMethods: defaultFiatPaymentMethods,
       selectedPaymentMethod: defaultFiatPaymentMethods.first,
       status: FiatFormStatus.initial,
       fiatOrderStatus: FiatOrderStatus.pending,
-    );
-  }
-
-  void _onCoinAddressSelected(
-    FiatFormCoinAddressSelected event,
-    Emitter<FiatFormState> emit,
-  ) {
-    emit(
-      state.copyWith(
-        selectedAssetAddress: event.address,
-      ),
     );
   }
 }

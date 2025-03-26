@@ -58,7 +58,7 @@ class RampQuoteResultForPaymentMethod {
 
     return RampQuoteResultForPaymentMethod(
       fiatCurrency: json['fiatCurrency'] as String,
-      cryptoAmount: Decimal.parse(json['cryptoAmount'] as String),
+      cryptoAmount: Decimal.parse(json['cryptoAmount'].toString()),
       fiatValue: Decimal.parse(json['fiatValue'].toString()),
       baseRampFee: Decimal.parse(json['baseRampFee'].toString()),
       appliedFee: Decimal.parse(json['appliedFee'].toString()),

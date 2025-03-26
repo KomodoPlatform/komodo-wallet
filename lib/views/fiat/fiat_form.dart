@@ -202,19 +202,15 @@ class _FiatFormState extends State<FiatForm> {
       context,
       url: url,
       title: LocaleKeys.buy.tr(),
-      onConsoleMessage: (msg) => _onConsoleMessage(msg, context),
+      onConsoleMessage: _onConsoleMessage,
       onCloseWindow: _onCloseWebView,
     );
   }
 
-  void _onConsoleMessage(String message, BuildContext context) {
+  void _onConsoleMessage(String message) {
     context
         .read<FiatFormBloc>()
         .add(FiatFormOnRampPaymentStatusMessageReceived(message));
-
-    if (message.contains("WIDGET_CLOSE")) {
-      Navigator.of(context).pop();
-    }
   }
 
   void _onCloseWebView() {

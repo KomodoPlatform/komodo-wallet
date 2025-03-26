@@ -562,6 +562,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
       for (final asset in enabledApiAssets) {
         if (!walletCoins.containsKey(asset.id.id)) {
+          await _kdfSdk.addActivatedCoins([asset.id.id]);
           // enabled on api side, but not on gui side - enable on gui side
           yield asset.toCoin();
         }
