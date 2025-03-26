@@ -31,18 +31,18 @@ class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamab
       final response = await api.callFaucet(event.coinAbbr, event.address);
 
       if (response.status == FaucetStatus.success) {
-        emit(FaucetSuccess(FaucetResponse(
+        emit(FaucetRequestSuccess(FaucetResponse(
           status: response.status,
           address: event.address,
           message: response.message,
           coin: event.coinAbbr,
         )));
       } else {
-        emit(FaucetError("Faucet request failed: ${response.message}"));
+        emit(FaucetRequestError("Faucet request failed: ${response.message}"));
       }
     } catch (error, stackTrace) {
       _log.shout('Faucet request failed', error, stackTrace);
-      emit(FaucetError("Network error: ${error.toString()}"));
+      emit(FaucetRequestError("Network error: ${error.toString()}"));
     }
   }
 }

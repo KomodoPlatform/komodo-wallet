@@ -8,8 +8,8 @@ abstract class FaucetState extends Equatable {
   List<Object?> get props => [];
 }
 
-class FaucetInitialState extends FaucetState {
-  const FaucetInitialState();
+class FaucetInitial extends FaucetState {
+  const FaucetInitial();
 }
 
 class FaucetRequestInProgress extends FaucetState {
@@ -30,10 +30,10 @@ class FaucetRequestSuccess extends FaucetState {
   List<Object?> get props => [response];
 }
 
-class FaucetRequestFailure extends FaucetState {
+class FaucetRequestError extends FaucetState {
   final String message;
 
-  const FaucetRequestFailure(this.message);
+  const FaucetRequestError(this.message);
 
   @override
   List<Object?> get props => [message];

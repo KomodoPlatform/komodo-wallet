@@ -49,9 +49,9 @@ class FaucetView extends StatelessWidget {
   }
 
   String title(FaucetState state) {
-    if (state is FaucetSuccess) {
+    if (state is FaucetRequestSuccess) {
       return state.response.status.title;
-    } else if (state is FaucetError) {
+    } else if (state is FaucetRequestError) {
       return LocaleKeys.faucetFailureTitle.tr();
     } else if (state is FaucetRequestInProgress) {
       return LocaleKeys.faucetLoadingTitle.tr();
@@ -105,7 +105,7 @@ class _StatesOfPage extends StatelessWidget {
     final localState = state;
     if (localState is FaucetRequestInProgress || localState is FaucetInitial) {
       return const _Loading();
-    } else if (localState is FaucetSuccess) {
+    } else if (localState is FaucetRequestSuccess) {
       final bool isDenied = localState.response.status == FaucetStatus.denied;
       return _FaucetResult(
         color: isDenied
@@ -115,7 +115,7 @@ class _StatesOfPage extends StatelessWidget {
         message: localState.response.message,
         onClose: onClose,
       );
-    } else if (localState is FaucetError) {
+    } else if (localState is FaucetRequestError) {
       return _FaucetResult(
         color: theme.custom.decreaseColor,
         icon: Icons.close_rounded,
