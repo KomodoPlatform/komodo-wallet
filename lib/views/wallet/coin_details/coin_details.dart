@@ -73,12 +73,6 @@ class _CoinDetailsState extends State<CoinDetails> {
           onBackButtonPressed: _openInfo,
         );
 
-      case CoinPageType.receive:
-        return ReceiveDetails(
-          coin: widget.coin,
-          onBackButtonPressed: _openInfo,
-        );
-
       case CoinPageType.claim:
         return KmdRewardsInfo(
           coin: widget.coin,
