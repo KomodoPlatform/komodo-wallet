@@ -44,8 +44,6 @@ export 'src/dividers/ui_scrollbar.dart';
 export 'src/images/coin_icon.dart' show CoinIcon, checkIfAssetExists;
 // Inputs
 // Widgets related to data input and selection, including text fields and selectors.
-export 'src/inputs/coin_search_dropdown.dart'
-    show CoinSelectItem, showCoinSearch;
 export 'src/inputs/input_validation_mode.dart';
 export 'src/inputs/percentage_input.dart';
 export 'src/inputs/percentage_range_slider.dart';

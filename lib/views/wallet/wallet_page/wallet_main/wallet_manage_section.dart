@@ -34,6 +34,7 @@ class WalletManageSection extends StatelessWidget {
         : _buildDesktopSection(context);
   }
 
+  bool get isAuthenticated => mode == AuthorizeMode.logIn;
   Widget _buildDesktopSection(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Card(
@@ -45,21 +46,25 @@ class WalletManageSection extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                WalletManagerSearchField(onChange: onSearchChange),
-                Spacer(),
-                HiddenWithoutWallet(
-                  child: CoinsWithBalanceCheckbox(
+                Flexible(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    child: WalletManagerSearchField(onChange: onSearchChange),
+                  ),
+                ),
+                if (isAuthenticated) ...[
+                  Spacer(),
+                  CoinsWithBalanceCheckbox(
                     withBalance: withBalance,
                     onWithBalanceChange: onWithBalanceChange,
                   ),
-                ),
-                SizedBox(width: 24),
-                HiddenWithoutWallet(
-                  child: UiPrimaryButton(
+                  SizedBox(width: 24),
+                  UiPrimaryButton(
                     buttonKey: const Key('add-assets-button'),
                     onPressed: () => _onAddAssetsPress(context),
                     text: LocaleKeys.addAssets.tr(),
@@ -68,7 +73,7 @@ class WalletManageSection extends StatelessWidget {
                     borderRadius: 10,
                     textStyle: theme.textTheme.bodySmall,
                   ),
-                ),
+                ],
               ],
             ),
             Spacer(),
@@ -83,48 +88,39 @@ class WalletManageSection extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(2, 20, 2, 10),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          HiddenWithoutWallet(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 17.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    LocaleKeys.portfolio.tr(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(3.0),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(18.0),
-                    ),
-                    child: Row(
-                      children: [
-                        UiPrimaryButton(
-                          buttonKey: const Key('add-assets-button'),
-                          onPressed: () => _onAddAssetsPress(context),
-                          text: LocaleKeys.addAssets.tr(),
-                          height: 36,
-                          width: 147,
-                          borderRadius: 10,
-                          textStyle: theme.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Currency',
+                style: theme.textTheme.titleLarge,
+              ),
+              Spacer(),
+              if (isAuthenticated)
+                UiPrimaryButton(
+                  buttonKey: const Key('asset-management-button'),
+                  onPressed: () => _onAddAssetsPress(context),
+                  text: 'Asset management',
+                  height: 36,
+                  width: 147,
+                  borderRadius: 10,
+                  textStyle: theme.textTheme.bodySmall,
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: WalletManagerSearchField(onChange: onSearchChange),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
             children: [
               HiddenWithoutWallet(
                 child: CoinsWithBalanceCheckbox(
@@ -132,7 +128,6 @@ class WalletManageSection extends StatelessWidget {
                   onWithBalanceChange: onWithBalanceChange,
                 ),
               ),
-              WalletManagerSearchField(onChange: onSearchChange),
             ],
           ),
         ],
@@ -145,13 +140,6 @@ class WalletManageSection extends StatelessWidget {
         .read<CoinsManagerBloc>()
         .add(const CoinsManagerCoinsListReset(CoinsManagerAction.add));
     routingState.walletState.action = coinsManagerRouteAction.addAssets;
-  }
-
-  void _onRemoveAssetsPress(BuildContext context) {
-    context
-        .read<CoinsManagerBloc>()
-        .add(const CoinsManagerCoinsListReset(CoinsManagerAction.remove));
-    routingState.walletState.action = coinsManagerRouteAction.removeAssets;
   }
 }
 

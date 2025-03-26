@@ -8,6 +8,8 @@ import 'package:web_dex/bloc/bitrefill/models/bitrefill_event_factory.dart';
 import 'package:web_dex/bloc/bitrefill/models/bitrefill_payment_intent_event.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_inappwebview_button.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:get_it/get_it.dart';
 
 /// A button that opens the Bitrefill widget in a new window or tab.
 /// The Bitrefill widget is a web page that allows the user to purchase gift
@@ -46,6 +48,7 @@ class _BitrefillButtonState extends State<BitrefillButton> {
   @override
   Widget build(BuildContext context) {
     void handleMessage(String event) => _handleMessage(event, context);
+    final KomodoDefiSdk sdk = GetIt.I<KomodoDefiSdk>();
 
     return BlocConsumer<BitrefillBloc, BitrefillState>(
       listener: (BuildContext context, BitrefillState state) {
@@ -59,11 +62,16 @@ class _BitrefillButtonState extends State<BitrefillButton> {
         if (bitrefillLoadSuccess) {
           isCoinSupported = state.supportedCoins.contains(widget.coin.abbr);
         }
-        final bool hasNonZeroBalance = widget.coin.balance > 0;
+
+        final double coinBalance =
+            sdk.balances.lastKnown(widget.coin.id)?.spendable.toDouble() ?? 0.0;
+        final bool hasNonZeroBalance = coinBalance > 0;
+
         final bool isEnabled = bitrefillLoadSuccess &&
             isCoinSupported &&
             !widget.coin.isSuspended &&
             hasNonZeroBalance;
+
         final String url = state is BitrefillLoadSuccess ? state.url : '';
 
         if (!isEnabled) {

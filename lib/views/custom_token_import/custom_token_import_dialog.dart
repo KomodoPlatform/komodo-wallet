@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
@@ -13,7 +14,7 @@ import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 
 class CustomTokenImportDialog extends StatefulWidget {
-  const CustomTokenImportDialog({Key? key}) : super(key: key);
+  const CustomTokenImportDialog({super.key});
 
   @override
   CustomTokenImportDialogState createState() => CustomTokenImportDialogState();
@@ -81,8 +82,8 @@ class BasePage extends StatelessWidget {
     required this.title,
     required this.child,
     this.onBackPressed,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +134,7 @@ class BasePage extends StatelessWidget {
 class ImportFormPage extends StatelessWidget {
   final VoidCallback onNextPage;
 
-  const ImportFormPage({required this.onNextPage, Key? key}) : super(key: key);
+  const ImportFormPage({required this.onNextPage, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -242,8 +243,7 @@ class ImportFormPage extends StatelessWidget {
 class ImportSubmitPage extends StatelessWidget {
   final VoidCallback onPreviousPage;
 
-  const ImportSubmitPage({required this.onPreviousPage, Key? key})
-      : super(key: key);
+  const ImportSubmitPage({required this.onPreviousPage, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +300,7 @@ class ImportSubmitPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          CoinIcon.ofSymbol(
+                          AssetIcon.ofTicker(
                             newCoin.id.id,
                             size: 80,
                           ),

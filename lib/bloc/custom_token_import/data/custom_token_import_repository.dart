@@ -55,7 +55,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       protocolType: CoinSubClass.erc20.formatted,
     );
 
-    final platformAssets = _kdfSdk.assets.findAssetsByTicker(network.ticker);
+    final platformAssets = _kdfSdk.assets.findAssetsByConfigId(network.ticker);
     if (platformAssets.length != 1) {
       throw Exception('Platform asset not found. ${platformAssets.length} '
           'results returned.');
@@ -82,6 +82,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         subClass: network,
         derivationPath: '',
       ),
+      isWalletOnly: false,
       protocol: Erc20Protocol.fromJson({
         'type': network.formatted,
         'chain_id': 0,

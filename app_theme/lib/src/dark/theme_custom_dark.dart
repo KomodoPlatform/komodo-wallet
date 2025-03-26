@@ -1,9 +1,30 @@
 import 'package:flutter/material.dart';
 
-import '../../app_theme.dart';
 import '../common/theme_custom_base.dart';
 
-class ThemeCustomDark implements ThemeCustomBase {
+class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
+    implements ThemeCustomBase {
+  ThemeCustomDark();
+
+  @override
+  late final Color suspendedBannerBackgroundColor;
+
+  void initializeThemeDependentColors(ThemeData theme) {
+    suspendedBannerBackgroundColor = theme.colorScheme.onSurface;
+  }
+
+  @override
+  ThemeExtension<ThemeCustomDark> copyWith() {
+    return this;
+  }
+
+  @override
+  ThemeExtension<ThemeCustomDark> lerp(
+      ThemeExtension<ThemeCustomDark>? other, double t) {
+    if (other is! ThemeCustomDark) return this;
+    return this;
+  }
+
   @override
   final Color mainMenuItemColor = const Color.fromRGBO(173, 175, 198, 1);
   @override
@@ -189,9 +210,6 @@ class ThemeCustomDark implements ThemeCustomBase {
       const Color.fromRGBO(29, 33, 53, 1);
   @override
   final Color swapButtonColor = const Color.fromRGBO(64, 146, 219, 1);
-  @override
-  final Color suspendedBannerBackgroundColor =
-      theme.currentGlobal.colorScheme.onSurface;
   @override
   final bridgeFormHeader = const TextStyle(
       fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 3.5);

@@ -11,6 +11,7 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
+import 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 import 'package:web_dex/shared/widgets/information_popup.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_controls.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
@@ -19,7 +20,7 @@ import 'package:web_dex/views/wallet/coins_manager/coins_manager_list_header.dar
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_selected_types_list.dart';
 
 class CoinsManagerListWrapper extends StatefulWidget {
-  const CoinsManagerListWrapper({Key? key}) : super(key: key);
+  const CoinsManagerListWrapper({super.key});
 
   @override
   State<CoinsManagerListWrapper> createState() =>
@@ -107,7 +108,7 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       case CoinsManagerSortType.protocol:
         return sortByProtocol(coins, _sortData.sortDirection);
       case CoinsManagerSortType.balance:
-        return sortByUsdBalance(coins, _sortData.sortDirection);
+        return sortByUsdBalance(coins, _sortData.sortDirection, context.sdk);
       case CoinsManagerSortType.none:
         return coins;
     }
