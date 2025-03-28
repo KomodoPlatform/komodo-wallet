@@ -1,9 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -131,7 +133,7 @@ class NetworkErrorDisplay extends StatelessWidget {
       child: onRetry != null
           ? TextButton(
               onPressed: onRetry,
-              child: const Text('Retry'),
+              child: Text(LocaleKeys.retryButtonText.tr()),
             )
           : null,
     );
@@ -186,7 +188,7 @@ class PreviewWithdrawButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Text('Preview Withdrawal'),
+            : Text(LocaleKeys.withdrawPreview.tr()),
       ),
     );
   }
@@ -208,9 +210,12 @@ class WithdrawPreviewDetails extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRow('Amount', preview.balanceChanges.netChange.toString()),
+            _buildRow(
+              LocaleKeys.amount.tr(),
+              preview.balanceChanges.netChange.toString(),
+            ),
             const SizedBox(height: 8),
-            _buildRow('Fee', preview.fee.formatTotal()),
+            _buildRow(LocaleKeys.fee.tr(), preview.fee.formatTotal()),
             // Add more preview details as needed
           ],
         ),
@@ -246,7 +251,7 @@ class WithdrawResultDetails extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SelectableText(
-              'Transaction Hash:',
+              LocaleKeys.transactionHash.tr(),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 4),
@@ -317,7 +322,7 @@ class WithdrawFormFillSection extends StatelessWidget {
                         .read<WithdrawFormBloc>()
                         .add(WithdrawFormCustomFeeEnabled(enabled ?? false)),
                   ),
-                  const Text('Custom network fee'),
+                  Text(LocaleKeys.customNetworkFee.tr()),
                 ],
               ),
               if (state.isCustomFee && state.customFee != null) ...[
@@ -401,7 +406,7 @@ class WithdrawFormConfirmSection extends StatelessWidget {
                     onPressed: () => context
                         .read<WithdrawFormBloc>()
                         .add(const WithdrawFormCancelled()),
-                    child: const Text('Back'),
+                    child: Text(LocaleKeys.back.tr()),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -420,7 +425,7 @@ class WithdrawFormConfirmSection extends StatelessWidget {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Confirm'),
+                        : Text(LocaleKeys.confirm.tr()),
                   ),
                 ),
               ],
@@ -449,7 +454,7 @@ class WithdrawFormSuccessSection extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Transaction Successful',
+              LocaleKeys.transactionSuccessful.tr(),
               style: Theme.of(context).textTheme.headlineMedium,
               textAlign: TextAlign.center,
             ),
@@ -458,7 +463,7 @@ class WithdrawFormSuccessSection extends StatelessWidget {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
+              child: Text(LocaleKeys.done.tr()),
             ),
           ],
         );
@@ -494,7 +499,7 @@ class WithdrawResultCard extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: () => openUrl(maybeTxEplorer),
                 icon: const Icon(Icons.open_in_new),
-                label: const Text('View on Explorer'),
+                label: Text(LocaleKeys.viewOnExplorer.tr()),
               ),
             ],
           ],
@@ -510,15 +515,13 @@ class WithdrawResultCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Transaction Hash',
+          LocaleKeys.transactionHash.tr(),
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
         SelectableText(
           result.txHash,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontFamily: 'Mono',
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(fontFamily: 'Mono'),
         ),
       ],
     );
@@ -531,7 +534,7 @@ class WithdrawResultCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Network',
+          LocaleKeys.network.tr(),
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -568,7 +571,7 @@ class WithdrawFormFailedSection extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Transaction Failed',
+              LocaleKeys.transactionFailed.tr(),
               style: theme.textTheme.headlineMedium?.copyWith(
                 color: theme.colorScheme.error,
               ),
@@ -587,14 +590,14 @@ class WithdrawFormFailedSection extends StatelessWidget {
                   onPressed: () => context
                       .read<WithdrawFormBloc>()
                       .add(const WithdrawFormStepReverted()),
-                  child: const Text('Back'),
+                  child: Text(LocaleKeys.back.tr()),
                 ),
                 const SizedBox(width: 16),
                 FilledButton(
                   onPressed: () => context
                       .read<WithdrawFormBloc>()
                       .add(const WithdrawFormReset()),
-                  child: const Text('Try Again'),
+                  child: Text(LocaleKeys.tryAgain.tr()),
                 ),
               ],
             ),
@@ -624,7 +627,7 @@ class WithdrawErrorCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Error Details',
+              LocaleKeys.errorDetails.tr(),
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -637,7 +640,7 @@ class WithdrawErrorCard extends StatelessWidget {
               const Divider(),
               const SizedBox(height: 16),
               ExpansionTile(
-                title: const Text('Technical Details'),
+                title: Text(LocaleKeys.technicalDetails.tr()),
                 children: [
                   SelectableText(
                     (error as TextError).error,
