@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
@@ -170,41 +171,36 @@ class _FormViewState extends State<_FormView> {
   }
 
   Future<void> _onUpdate() async {
-    // TODO! re-implement along with password change feature
-    // if (!(_formKey.currentState?.validate() ?? false)) {
-    //   return;
-    // }
-    // final currentWalletBloc = RepositoryProvider.of<CurrentWalletBloc>(context);
-    // final Wallet? wallet = currentWalletBloc.wallet;
-    // if (wallet == null) return;
-    // final String password = _newController.text;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
-    // if (_oldController.text == password) {
-    //   setState(() {
-    //     _error = LocaleKeys.usedSamePassword.tr();
-    //   });
-    //   return;
-    // }
+    final currentPassword = _oldController.text;
+    final newPassword = _newController.text;
 
-    // final bool isPasswordUpdated = await currentWalletBloc.updatePassword(
-    //   _oldController.text,
-    //   password,
-    //   wallet,
-    // );
-    final isPasswordUpdated = true;
-    // ignore: dead_code
-    if (!isPasswordUpdated) {
+    if (currentPassword == newPassword) {
+      setState(() {
+        _error = LocaleKeys.usedSamePassword.tr();
+      });
+      return;
+    }
+
+    try {
+      final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+      await sdk.auth.updatePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      setState(() => _error = null);
+      _newController.text = '';
+      _confirmController.text = '';
+      widget.onSuccess();
+    } catch (e) {
       setState(() {
         _error = LocaleKeys.passwordNotAccepted.tr();
       });
-      return;
-    } else {
-      setState(() => _error = null);
     }
-
-    _newController.text = '';
-    _confirmController.text = '';
-    widget.onSuccess();
   }
 
   void _onVisibilityChange(bool isPasswordObscured) {
@@ -232,8 +228,6 @@ class _CurrentField extends StatefulWidget {
 }
 
 class _CurrentFieldState extends State<_CurrentField> {
-  String _seedError = '';
-
   @override
   Widget build(BuildContext context) {
     final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
@@ -246,31 +240,14 @@ class _CurrentFieldState extends State<_CurrentField> {
           return LocaleKeys.passwordIsEmpty.tr();
         }
 
-        if (_seedError.isNotEmpty) {
-          final result = _seedError;
-          _seedError = '';
-          return result;
-        }
-
         if (currentWallet == null) return LocaleKeys.walletNotFound.tr();
 
-        _validateSeed(currentWallet, password);
         return null;
       },
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: widget.onVisibilityChange,
       ),
     );
-  }
-
-  Future<void> _validateSeed(Wallet currentWallet, String password) async {
-    // TODO!: determine if this needs to be reimplemented in the sdk or if it
-    // can be removed entirely.
-    // _seedError = '';
-    // final seed = await currentWallet.getSeed(password);
-    // if (seed.isNotEmpty) return;
-    // _seedError = LocaleKeys.invalidPasswordError.tr();
-    // widget.formKey.currentState?.validate();
   }
 }
 
