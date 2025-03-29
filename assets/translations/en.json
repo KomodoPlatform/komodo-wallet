@@ -401,7 +401,7 @@
     "withdrawZeroBalanceError": "You have zero {} balance",
     "withdrawAmountTooLowError": "{} {} too low, you need > {} {} to send",
     "withdrawNoSuchCoinError": "Invalid selection, {} does not exist",
-    "withdrawPreview:": "Preview Withdrawal",
+    "withdrawPreview": "Preview Withdrawal",
     "txHistoryFetchError": "Error fetching tx history from the endpoint. Unsupported type: {}",
     "txHistoryNoTransactions": "Transactions are not available",
     "maxGapLimitReached": "Maximum gap limit reached - please use existing unused addresses first",

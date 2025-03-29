@@ -398,7 +398,7 @@ abstract class  LocaleKeys {
   static const withdrawZeroBalanceError = 'withdrawZeroBalanceError';
   static const withdrawAmountTooLowError = 'withdrawAmountTooLowError';
   static const withdrawNoSuchCoinError = 'withdrawNoSuchCoinError';
-  static const withdrawPreview: = 'withdrawPreview:';
+  static const withdrawPreview = 'withdrawPreview';
   static const txHistoryFetchError = 'txHistoryFetchError';
   static const txHistoryNoTransactions = 'txHistoryNoTransactions';
   static const maxGapLimitReached = 'maxGapLimitReached';
