@@ -41,10 +41,10 @@ class GroupedAssetsList extends StatelessWidget {
             : Theme.of(context).colorScheme.onSurface;
 
         return GroupedAssetTickerItem(
+          key: Key(ticker),
           assets: assetGroup,
           backgroundColor: backgroundColor,
           onTap: onAssetItemTap,
-          initiallyExpanded: false,
         );
       },
       itemCount: groupedAssets.length,

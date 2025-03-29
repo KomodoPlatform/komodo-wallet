@@ -66,10 +66,10 @@ class AssetsList extends StatelessWidget {
             : Theme.of(context).colorScheme.onSurface;
 
         return GroupedAssetTickerItem(
+          key: Key(group.key),
           assets: group.value,
           backgroundColor: backgroundColor,
           onTap: onAssetItemTap,
-          // priceChangePercentage24h: priceChangePercentages[primaryAsset.id],
         );
       },
       separatorBuilder: (BuildContext context, int index) {
