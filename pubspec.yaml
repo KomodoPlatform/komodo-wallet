@@ -57,7 +57,6 @@ dependencies:
 
   ## ---- Dart.dev, Flutter.dev
   args: ^2.7.0 # dart.dev
-  
   flutter_markdown: 0.7.6+2 # flutter.dev
   http: 1.3.0 # dart.dev
   intl: 0.20.2 # dart.dev
@@ -111,10 +110,10 @@ dependencies:
   universal_html: 2.2.4
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  hive: 2.2.3
+  hive: ^2.2.3 # Changed from git to pub.dev because git dependencies are not allowed in published packages
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  hive_flutter: 1.1.0
+  hive_flutter: ^1.1.0 # Changed from git to pub.dev because git dependencies are not allowed in published packages
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
   badges: 3.1.2
@@ -131,7 +130,7 @@ dependencies:
   # TODO: review required
   dragon_charts_flutter: 0.1.1-dev.1
   bloc_concurrency: 0.3.0
-  file_picker: ^9.0.2
+  file_picker: ^10.0.0
 
   # TODO: review required - SDK integration
   path_provider: 2.1.5 # flutter.dev

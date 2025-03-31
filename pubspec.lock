@@ -252,10 +252,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "6a8720a68b0e048d97b328d853bd0443e2e9cbf49754dd19b36f8347fd1eea7f"
+      sha256: "36a1652d99cb6bf8ccc8b9f43aded1fd60b234d23ce78af422c07f950a436ef7"
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.2"
+    version: "10.0.0"
   file_system_access_api:
     dependency: transitive
     description:
@@ -640,7 +640,7 @@ packages:
     description:
       path: "packages/komodo_cex_market_data"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -649,7 +649,7 @@ packages:
     description:
       path: "packages/komodo_coins"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -658,7 +658,7 @@ packages:
     description:
       path: "packages/komodo_defi_framework"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0"
@@ -667,7 +667,7 @@ packages:
     description:
       path: "packages/komodo_defi_local_auth"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -676,7 +676,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -685,7 +685,7 @@ packages:
     description:
       path: "packages/komodo_defi_sdk"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -694,7 +694,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -710,7 +710,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -726,7 +726,7 @@ packages:
     description:
       path: "packages/komodo_wallet_build_transformer"
       ref: dev
-      resolved-ref: "15abce0f075490d4cc1c189d459347eb4b40eb84"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
