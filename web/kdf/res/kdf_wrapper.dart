@@ -1,3 +1,6 @@
+// NB! This file is not currently used and will possibly be removed in the
+// future.
+
 // ignore_for_file: avoid_dynamic_calls
 
 import 'dart:async';

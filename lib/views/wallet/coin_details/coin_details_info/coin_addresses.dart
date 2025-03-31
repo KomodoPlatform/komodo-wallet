@@ -2,7 +2,6 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -32,17 +31,7 @@ class CoinAddresses extends StatefulWidget {
 }
 
 class _CoinAddressesState extends State<CoinAddresses> {
-  late final CoinAddressesBloc _addressesBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
-    _addressesBloc = CoinAddressesBloc(
-      kdfSdk,
-      widget.coin.abbr,
-    )..add(const LoadAddressesEvent());
-  }
+  CoinAddressesBloc get _addressesBloc => context.read<CoinAddressesBloc>();
 
   @override
   void dispose() {
@@ -85,7 +74,7 @@ class _CoinAddressesState extends State<CoinAddresses> {
                                 final index = entry.key;
                                 final address = entry.value;
                                 if (state.hideZeroBalance &&
-                                    !address.balance.hasBalance) {
+                                    !address.balance.hasValue) {
                                   return const SizedBox();
                                 }
 
@@ -258,7 +247,8 @@ class _Balance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${doubleToString(address.balance.total.toDouble())} ${abbr2Ticker(coin.abbr)} (${coin.amountToFormattedUsd(address.balance.total.toDouble())})',
+      '${doubleToString(address.balance.total.toDouble())} '
+      '${abbr2Ticker(coin.abbr)} (${address.balance.total.toDouble()})',
       style: TextStyle(fontSize: isMobile ? 12 : 14),
     );
   }
@@ -283,62 +273,79 @@ class QrButton extends StatelessWidget {
       onPressed: () {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  LocaleKeys.receive.tr(),
-                  style: const TextStyle(fontSize: 16),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+          builder: (context) =>
+              PubkeyReceiveDialog(coin: coin, address: address),
+        );
+      },
+    );
+  }
+}
+
+class PubkeyReceiveDialog extends StatelessWidget {
+  const PubkeyReceiveDialog({
+    super.key,
+    required this.coin,
+    required this.address,
+  });
+
+  final Coin coin;
+  final PubkeyInfo address;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            LocaleKeys.receive.tr(),
+            style: const TextStyle(fontSize: 16),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: 450,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              LocaleKeys.onlySendToThisAddress
+                  .tr(args: [abbr2Ticker(coin.abbr)]),
+              style: const TextStyle(fontSize: 14),
             ),
-            content: SizedBox(
-              width: 450,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    LocaleKeys.onlySendToThisAddress
-                        .tr(args: [abbr2Ticker(coin.abbr)]),
+                    LocaleKeys.network.tr(),
                     style: const TextStyle(fontSize: 14),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          LocaleKeys.network.tr(),
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        CoinTypeTag(coin),
-                      ],
-                    ),
-                  ),
-                  QrCode(
-                    address: address.address,
-                    coinAbbr: coin.abbr,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    LocaleKeys.scanTheQrCode.tr(),
-                    style: const TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
+                  CoinTypeTag(coin),
                 ],
               ),
             ),
-          ),
-        );
-      },
+            QrCode(
+              address: address.address,
+              coinAbbr: coin.abbr,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              LocaleKeys.scanTheQrCode.tr(),
+              style: const TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 }

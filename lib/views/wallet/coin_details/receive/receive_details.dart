@@ -2,11 +2,12 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/coin_type_tag.dart';
 import 'package:web_dex/shared/widgets/segwit_icon.dart';
@@ -19,12 +20,12 @@ import 'package:web_dex/views/wallet/coin_details/receive/receive_address.dart';
 
 class ReceiveDetails extends StatelessWidget {
   const ReceiveDetails({
-    Key? key,
-    required this.coin,
+    super.key,
+    required this.asset,
     required this.onBackButtonPressed,
-  }) : super(key: key);
+  });
 
-  final Coin coin;
+  final Asset asset;
   final VoidCallback onBackButtonPressed;
 
   @override
@@ -35,7 +36,7 @@ class ReceiveDetails extends StatelessWidget {
         return PageLayout(
           header: PageHeader(
             title: LocaleKeys.receive.tr(),
-            widgetTitle: coin.mode == CoinMode.segwit
+            widgetTitle: asset.id.isSegwit
                 ? const Padding(
                     padding: EdgeInsets.only(left: 6.0),
                     child: SegwitIcon(height: 22),
@@ -50,7 +51,7 @@ class ReceiveDetails extends StatelessWidget {
               scrollController: scrollController,
               child: SingleChildScrollView(
                 controller: scrollController,
-                child: _ReceiveDetailsContent(coin: coin),
+                child: _ReceiveDetailsContent(asset: asset),
               ),
             ),
           ),
@@ -61,9 +62,9 @@ class ReceiveDetails extends StatelessWidget {
 }
 
 class _ReceiveDetailsContent extends StatefulWidget {
-  const _ReceiveDetailsContent({required this.coin});
+  const _ReceiveDetailsContent({required this.asset});
 
-  final Coin coin;
+  final Asset asset;
 
   @override
   State<_ReceiveDetailsContent> createState() => _ReceiveDetailsContentState();
@@ -71,10 +72,12 @@ class _ReceiveDetailsContent extends StatefulWidget {
 
 class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
   String? _currentAddress;
+
   @override
   void initState() {
-    _currentAddress = widget.coin.defaultAddress;
     super.initState();
+    // Address initialization will be handled by ReceiveAddress widget
+    // which has access to the SDK's address management system
   }
 
   @override
@@ -82,11 +85,10 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
     final ThemeData themeData = Theme.of(context);
 
     final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
-    if (currentWallet?.config.hasBackup == false && !widget.coin.isTestCoin) {
+    if (currentWallet?.config.hasBackup == false &&
+        !widget.asset.protocol.isTestnet) {
       return const BackupNotification();
     }
-
-    final currentAddress = _currentAddress;
 
     return Container(
       decoration: BoxDecoration(
@@ -100,8 +102,7 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Text(
-            LocaleKeys.sendToAddress
-                .tr(args: [Coin.normalizeAbbr(widget.coin.abbr)]),
+            LocaleKeys.sendToAddress.tr(args: [widget.asset.id.name]),
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
           Container(
@@ -132,20 +133,20 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
                           fontSize: 14,
                           color: themeData.textTheme.labelLarge?.color,
                         )),
-                    CoinTypeTag(widget.coin),
+                    CoinTypeTag(widget.asset.toCoin()),
                   ],
                 ),
                 const SizedBox(height: 30),
                 ReceiveAddress(
-                  coin: widget.coin,
+                  coin: widget.asset.toCoin(),
                   selectedAddress: _currentAddress,
                   onChanged: _onAddressChanged,
                 ),
                 const SizedBox(height: 30),
-                if (currentAddress != null)
+                if (_currentAddress != null)
                   Column(
                     children: [
-                      QRCodeAddress(currentAddress: currentAddress),
+                      QRCodeAddress(currentAddress: _currentAddress!),
                       const SizedBox(height: 15),
                       Text(
                         LocaleKeys.scanToGetAddress.tr(),

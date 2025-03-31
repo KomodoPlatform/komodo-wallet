@@ -51,12 +51,25 @@ class CoinsRepo {
 
   /// { acc: { abbr: address }}, used in Fiat Page
   final Map<String, Map<String, String>> _addressCache = {};
-  Map<String, CexPrice> _pricesCache = {};
-  final Map<String, ({double balance, double sendableBalance})> _balancesCache =
-      {};
 
-  // why could they not implement this in streamcontroller or a wrapper :(
+  // TODO: Remove since this is also being cached in the SDK
+  Map<String, CexPrice> _pricesCache = {};
+
+  // Cache structure for storing balance information to reduce SDK calls
+  // This is a temporary solution until the full migration to SDK is complete
+  // The type is being kept as ({ double balance, double spendable }) to minimize
+  // the changes needed for full migration in the future
+  final Map<String, ({double balance, double spendable})> _balancesCache = {};
+
+  // Map to keep track of active balance watchers
+  final Map<AssetId, StreamSubscription<BalanceInfo>> _balanceWatchers = {};
+
+  /// Hack used to broadcast activated/deactivated coins to the CoinsBloc to
+  /// update the status of the coins in the UI layer. This is needed as there
+  /// are direct references to [CoinsRepo] that activate/deactivate coins
+  /// without the [CoinsBloc] being aware of the changes (e.g. [CoinsManagerBloc]).
   late final StreamController<Coin> enabledAssetsChanges;
+  // why could they not implement this in streamcontroller or a wrapper :(
   int _enabledAssetListenerCount = 0;
   bool get _enabledAssetsHasListeners => _enabledAssetListenerCount > 0;
   Future<void> _broadcastAsset(Coin coin) async {
@@ -70,11 +83,46 @@ class CoinsRepo {
     }
   }
 
+  Future<BalanceInfo?> balance(AssetId id) => _kdfSdk.balances.getBalance(id);
+
+  BalanceInfo? lastKnownBalance(AssetId id) => _kdfSdk.balances.lastKnown(id);
+
+  /// Subscribe to balance updates for an asset using the SDK's balance manager
+  void _subscribeToBalanceUpdates(Asset asset, Coin coin) {
+    // Cancel any existing subscription for this asset
+    _balanceWatchers[asset.id]?.cancel();
+
+    // Start a new subscription
+    _balanceWatchers[asset.id] =
+        _kdfSdk.balances.watchBalance(asset.id).listen((balanceInfo) {
+      // Update the balance cache with the new values
+      _balancesCache[asset.id.id] = (
+        balance: balanceInfo.total.toDouble(),
+        spendable: balanceInfo.spendable.toDouble(),
+      );
+    });
+  }
+
   void flushCache() {
     // Intentionally avoid flushing the prices cache - prices are independent
     // of the user's session and should be updated on a regular basis.
     _addressCache.clear();
     _balancesCache.clear();
+
+    // Cancel all balance watchers
+    for (final subscription in _balanceWatchers.values) {
+      subscription.cancel();
+    }
+    _balanceWatchers.clear();
+  }
+
+  void dispose() {
+    for (final subscription in _balanceWatchers.values) {
+      subscription.cancel();
+    }
+    _balanceWatchers.clear();
+
+    enabledAssetsChanges.close();
   }
 
   List<Coin> getKnownCoins() {
@@ -180,14 +228,17 @@ class CoinsRepo {
         state: CoinState.active,
         enabledType: currentUser.wallet.config.type,
       );
+
+      // Set up balance watcher for this coin
+      final asset = enabledCoins.firstWhere((asset) => asset.id.id == coinId);
+      _subscribeToBalanceUpdates(asset, coinsMap[coinId]!);
     }
     return coinsMap;
   }
 
   Coin _assetToCoinWithoutAddress(Asset asset) {
     final coin = asset.toCoin();
-    final balance = _balancesCache[coin.id.id]?.balance;
-    final sendableBalance = _balancesCache[coin.id.id]?.sendableBalance;
+    final balanceInfo = _balancesCache[coin.id.id];
     final price = _pricesCache[coin.id.id];
 
     Coin? parentCoin;
@@ -202,9 +253,10 @@ class CoinsRepo {
       }
     }
 
+    // For backward compatibility, still set the deprecated fields
+    // This will be removed in a future migration step
     return coin.copyWith(
-      balance: balance,
-      sendableBalance: sendableBalance,
+      sendableBalance: balanceInfo?.spendable,
       usdPrice: price,
       parentCoin: parentCoin,
     );
@@ -214,13 +266,8 @@ class CoinsRepo {
   /// return a zero balance.
   Future<kdf_rpc.BalanceInfo> tryGetBalanceInfo(AssetId coinId) async {
     try {
-      final asset = _kdfSdk.assets.available[coinId];
-      if (asset == null) {
-        throw ArgumentError.value(coinId, 'coinId', 'Coin $coinId not found');
-      }
-
-      final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
-      return pubkeys.balance;
+      final balanceInfo = await _kdfSdk.balances.getBalance(coinId);
+      return balanceInfo;
     } catch (e, s) {
       _log.shout('Failed to get coin $coinId balance', e, s);
       return kdf_rpc.BalanceInfo.zero();
@@ -249,6 +296,9 @@ class CoinsRepo {
         }
 
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
+
+        // Set up balance watcher for the newly activated asset
+        _subscribeToBalanceUpdates(asset, coin);
       } catch (e, s) {
         _log.shout('Error activating asset: ${asset.id.id}', e, s);
         await _broadcastAsset(
@@ -294,6 +344,9 @@ class CoinsRepo {
         }
 
         await _broadcastAsset(coin.copyWith(state: CoinState.active));
+
+        // Set up balance watcher for the newly activated coin
+        _subscribeToBalanceUpdates(asset, coin);
       } catch (e, s) {
         _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
         await _broadcastAsset(coin.copyWith(state: CoinState.suspended));
@@ -314,6 +367,10 @@ class CoinsRepo {
     if (!await _kdfSdk.auth.isSignedIn()) return;
 
     for (final coin in coins) {
+      // Cancel balance watcher for this coin
+      _balanceWatchers[coin.id]?.cancel();
+      _balanceWatchers.remove(coin.id);
+
       await _disableCoin(coin.id.id);
       await _broadcastAsset(coin.copyWith(state: CoinState.inactive));
     }
@@ -331,7 +388,7 @@ class CoinsRepo {
   @Deprecated('Use SDK pubkeys.getPubkeys instead and let the user '
       'select from the available options.')
   Future<String?> getFirstPubkey(String coinId) async {
-    final asset = _kdfSdk.assets.findAssetsByTicker(coinId).single;
+    final asset = _kdfSdk.assets.findAssetsByConfigId(coinId).single;
     final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
     if (pubkeys.keys.isEmpty) {
       return null;
@@ -351,21 +408,53 @@ class CoinsRepo {
   }
 
   Future<Map<String, CexPrice>?> fetchCurrentPrices() async {
-    final Map<String, CexPrice>? prices =
-        await _updateFromMain() ?? await _updateFromFallback();
+    try {
+      // Try to use the SDK's price manager to get prices for active coins
+      final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+      for (final asset in activatedAssets) {
+        try {
+          // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
+          final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
+          if (fiatPrice != null) {
+            // Update the price cache with the value from the SDK
+            final change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
+            _pricesCache[asset.id.id] = CexPrice(
+              ticker: asset.id.id,
+              price: fiatPrice.toDouble(),
+              lastUpdated: DateTime.now(),
+              change24h: change24h?.toDouble(),
+            );
+          }
+        } catch (e) {
+          _log.warning('Failed to get price for ${asset.id.id}: $e');
+        }
+      }
 
-    if (prices != null) {
-      _pricesCache = prices;
+      // Still use the backup methods for other coins or if SDK fails
+      final Map<String, CexPrice>? fallbackPrices =
+          await _updateFromMain() ?? await _updateFromFallback();
+
+      if (fallbackPrices != null) {
+        // Merge fallback prices with SDK prices (don't overwrite SDK prices)
+        fallbackPrices.forEach((key, value) {
+          if (!_pricesCache.containsKey(key)) {
+            _pricesCache[key] = value;
+          }
+        });
+      }
+    } catch (e, s) {
+      _log.shout('Error refreshing prices from SDK', e, s);
+
+      // Fallback to the existing methods
+      final Map<String, CexPrice>? prices =
+          await _updateFromMain() ?? await _updateFromFallback();
+
+      if (prices != null) {
+        _pricesCache = prices;
+      }
     }
 
     return _pricesCache;
-  }
-
-  Future<CexPrice?> fetchPrice(String ticker) async {
-    final Map<String, CexPrice>? prices = await fetchCurrentPrices();
-    if (prices == null || !prices.containsKey(ticker)) return null;
-
-    return prices[ticker]!;
   }
 
   Future<Map<String, CexPrice>?> _updateFromMain() async {
@@ -474,28 +563,51 @@ class CoinsRepo {
     return walletCoinsCopy;
   }
 
+  /// Updates balances for active coins by querying the SDK
+  /// Yields coins that have balance changes
   Stream<Coin> updateIguanaBalances(Map<String, Coin> walletCoins) async* {
+    // This method is now mostly a fallback, as we primarily use
+    // the SDK's balance watchers to get live updates. We still
+    // implement it for backward compatibility.
     final walletCoinsCopy = Map<String, Coin>.from(walletCoins);
     final coins =
         walletCoinsCopy.values.where((coin) => coin.isActive).toList();
 
-    final newBalances =
-        await Future.wait(coins.map((coin) => tryGetBalanceInfo(coin.id)));
+    // Get balances from the SDK for all active coins
+    for (final coin in coins) {
+      try {
+        // Use the SDK's balance manager to get the current balance
+        final balanceInfo = await _kdfSdk.balances.getBalance(coin.id);
 
-    for (int i = 0; i < coins.length; i++) {
-      final newBalance = newBalances[i].total.toDouble();
-      final newSendableBalance = newBalances[i].spendable.toDouble();
+        // Convert to double for compatibility with existing code
+        final newBalance = balanceInfo.total.toDouble();
+        final newSpendable = balanceInfo.spendable.toDouble();
 
-      final balanceChanged = newBalance != coins[i].balance;
-      final sendableBalanceChanged =
-          newSendableBalance != coins[i].sendableBalance;
-      if (balanceChanged || sendableBalanceChanged) {
-        yield coins[i].copyWith(
-          balance: newBalance,
-          sendableBalance: newSendableBalance,
-        );
-        _balancesCache[coins[i].id.id] =
-            (balance: newBalance, sendableBalance: newSendableBalance);
+        // Get the current cached values
+        final cachedBalance = _balancesCache[coin.id.id]?.balance;
+        final cachedSpendable = _balancesCache[coin.id.id]?.spendable;
+
+        // Check if balance has changed
+        final balanceChanged =
+            cachedBalance == null || newBalance != cachedBalance;
+        final spendableChanged =
+            cachedSpendable == null || newSpendable != cachedSpendable;
+
+        // Only yield if there's a change
+        if (balanceChanged || spendableChanged) {
+          // Update the cache
+          _balancesCache[coin.id.id] =
+              (balance: newBalance, spendable: newSpendable);
+
+          // Yield updated coin with new balance
+          // We still set both the deprecated fields and rely on the SDK
+          // for future access to maintain backward compatibility
+          yield coin.copyWith(
+            sendableBalance: newSpendable,
+          );
+        }
+      } catch (e, s) {
+        _log.warning('Failed to update balance for ${coin.id}', e, s);
       }
     }
   }

@@ -444,6 +444,11 @@ abstract class  LocaleKeys {
   static const unknown = 'unknown';
   static const unableToActiveCoin = 'unableToActiveCoin';
   static const feedback = 'feedback';
+  static const feedbackViewTitle = 'feedbackViewTitle';
+  static const feedbackPageDescription = 'feedbackPageDescription';
+  static const sendFeedbackButton = 'sendFeedbackButton';
+  static const feedbackThankyou = 'feedbackThankyou';
+  static const feedbackError = 'feedbackError';
   static const selectAToken = 'selectAToken';
   static const selectToken = 'selectToken';
   static const rate = 'rate';
@@ -628,6 +633,6 @@ abstract class  LocaleKeys {
   static const allTimeInvestment = 'allTimeInvestment';
   static const allTimeProfit = 'allTimeProfit';
   static const profitAndLoss = 'profitAndLoss';
-  static const walletCreationConfirmPasswordEmptyError = 'walletCreationConfirmPasswordEmptyError';
+  static const searchAddresses = 'searchAddresses';
 
 }

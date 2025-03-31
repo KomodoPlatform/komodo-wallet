@@ -274,9 +274,11 @@ class WithdrawFormFillSection extends StatelessWidget {
                 asset: state.asset,
                 pubkeys: state.pubkeys,
                 selectedAddress: state.selectedSourceAddress,
-                onChanged: (address) => context
-                    .read<WithdrawFormBloc>()
-                    .add(WithdrawFormSourceChanged(address)),
+                onChanged: (address) => address == null
+                    ? null
+                    : context
+                        .read<WithdrawFormBloc>()
+                        .add(WithdrawFormSourceChanged(address)),
               ),
               const SizedBox(height: 16),
             ],
@@ -288,7 +290,9 @@ class WithdrawFormFillSection extends StatelessWidget {
               onQrScanned: (value) => context
                   .read<WithdrawFormBloc>()
                   .add(WithdrawFormRecipientChanged(value)),
-              addressError: state.recipientAddressError?.message,
+              errorText: state.recipientAddressError == null
+                  ? null
+                  : () => state.recipientAddressError?.message,
             ),
             const SizedBox(height: 16),
             WithdrawAmountField(

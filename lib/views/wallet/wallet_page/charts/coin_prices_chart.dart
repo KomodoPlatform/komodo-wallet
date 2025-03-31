@@ -2,16 +2,16 @@ import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_state.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/widgets/coin_select_item_widget.dart';
 
 import 'price_chart_tooltip.dart';
 
@@ -74,15 +74,11 @@ class PriceChartPage extends StatelessWidget {
                         );
                   },
                   customCoinItemBuilder: (coinId) {
-                    final coin = state.availableCoins[coinId];
-                    return SelectItem<AssetId>(
-                      id: coinId.id,
-                      value: coinId,
-                      trailing: TrendPercentageText(
-                        investmentReturnPercentage:
-                            coin?.selectedPeriodIncreasePercentage ?? 0,
-                      ),
-                      title: coin?.name ?? coinId.name,
+                    final coin = state.availableCoins[coinId.symbol.common];
+
+                    return CoinSelectItemWidget.dropdownMenuItem(
+                      coinId,
+                      trendPercentage: coin?.selectedPeriodIncreasePercentage,
                     );
                   },
                 ),
