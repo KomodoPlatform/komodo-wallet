@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
@@ -13,6 +14,7 @@ import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 part 'coins_event.dart';
 part 'coins_state.dart';
@@ -277,43 +279,36 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsPricesUpdated event,
     Emitter<CoinsState> emit,
   ) async {
-    bool changed = false;
     final prices = await _coinsRepo.fetchCurrentPrices();
-
     if (prices == null) {
       _log.severe('Coin prices list empty/null');
       return;
     }
-
-    final coins = Map<String, Coin>.of(state.coins);
-    for (final entry in state.coins.entries) {
-      final coin = entry.value;
-      final CexPrice? usdPrice =
-          prices[coin.id.symbol.configSymbol.toUpperCase()];
-
-      if (usdPrice != coin.usdPrice) {
-        changed = true;
-        // Create new coin instance with updated price
-        coins[entry.key] = coin.copyWith(usdPrice: usdPrice);
-      }
+    final didPricesChange = !mapEquals(state.prices, prices);
+    if (!didPricesChange) {
+      _log.info('Coin prices list unchanged');
+      return;
     }
 
-    if (changed) {
-      final newWalletCoins = state.walletCoins.map(
-        (String coinId, Coin coin) => MapEntry<String, Coin>(
-          coinId,
-          coin.copyWith(usdPrice: coins[coinId]!.usdPrice),
-        ),
-      );
-      emit(
-        state.copyWith(
-          coins: coins,
-          walletCoins: {...state.walletCoins, ...newWalletCoins},
-        ),
-      );
+    Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
+      final map = coins.map((key, coin) {
+        final price = prices[coin.id.id];
+        if (price != null) {
+          return MapEntry(key, coin.copyWith(usdPrice: price));
+        }
+        return MapEntry(key, coin);
+      });
+
+      return Map.of(map).unmodifiable();
     }
 
-    _log.info('Coin CEX prices updated');
+    emit(
+      state.copyWith(
+        prices: prices.unmodifiable(),
+        coins: updateCoinsWithPrices(state.coins),
+        walletCoins: updateCoinsWithPrices(state.walletCoins),
+      ),
+    );
   }
 
   Future<void> _onLogin(
@@ -560,3 +555,5 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
   }
 }
+
+//

@@ -23,9 +23,9 @@ class CoinSparkline extends StatelessWidget {
           return const SizedBox.shrink();
         } else {
           return LimitedBox(
-            maxWidth: 120,
+            maxWidth: 130,
             child: SizedBox(
-              height: 24,
+              height: 35,
               child: SparklineChart(
                 data: snapshot.data!,
                 positiveLineColor: Colors.green,

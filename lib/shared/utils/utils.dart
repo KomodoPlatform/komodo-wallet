@@ -17,10 +17,12 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/shared/constants.dart';
+
 export 'package:web_dex/shared/utils/extensions/async_extensions.dart';
-export 'package:web_dex/shared/utils/prominent_colors.dart';
-export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
+export 'package:web_dex/shared/utils/extensions/collection_extensions.dart';
 export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
+export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
+export 'package:web_dex/shared/utils/prominent_colors.dart';
 
 void copyToClipBoard(BuildContext context, String str) {
   final themeData = Theme.of(context);

@@ -9,14 +9,14 @@ import 'package:web_dex/views/wallet/wallet_page/common/wallet_coins_list.dart';
 
 class AllCoinsList extends StatefulWidget {
   const AllCoinsList({
-    Key? key,
+    super.key,
     required this.searchPhrase,
     required this.withBalance,
-    required this.onCoinItemTap,
-  }) : super(key: key);
+    required this.onCoinSelected,
+  });
   final String searchPhrase;
   final bool withBalance;
-  final Function(Coin) onCoinItemTap;
+  final Function(Coin) onCoinSelected;
 
   @override
   _AllCoinsListState createState() => _AllCoinsListState();
@@ -74,9 +74,13 @@ class _AllCoinsListState extends State<AllCoinsList> {
                       ),
                     ),
                   )
-                : WalletCoinsList(
-                    coins: displayedCoins,
-                    onCoinItemTap: widget.onCoinItemTap,
+                : KnownAssetsList(
+                    assets: displayedCoins.map((c) => c.id).toList(),
+                    onAssetItemTap: (id) {
+                      final coin =
+                          displayedCoins.firstWhere((coin) => coin.id == id);
+                      widget.onCoinSelected(coin);
+                    },
                   );
       },
     );
