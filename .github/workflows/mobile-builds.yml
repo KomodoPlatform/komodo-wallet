@@ -64,8 +64,10 @@ jobs:
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
           TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
-          # Use default value for BUILD_COMMAND, as iOS does not appear to run 
-          # the build transformer required to generate the required assets.
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
+          BUILD_COMMAND: ${{ matrix.build_command }}
 
       - name: Build for ${{ matrix.platform }}
         env:

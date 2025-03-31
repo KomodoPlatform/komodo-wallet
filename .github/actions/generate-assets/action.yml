@@ -9,6 +9,8 @@ inputs:
     description: "The flutter build command to run to generate assets for the deployment build"
     required: false
     default: "flutter build web --release"
+
+  # Optional Trello feedback provider configuration
   TRELLO_API_KEY:
     description: "Trello API key for feedback service"
     required: false
@@ -26,6 +28,20 @@ inputs:
     required: false
     default: ""
 
+  # Optional Cloudflare feedback provider configuration
+  FEEDBACK_API_KEY:
+    description: "API key for Cloudflare feedback service"
+    required: false
+    default: ""
+  FEEDBACK_PRODUCTION_URL:
+    description: "Production URL for Cloudflare feedback service"
+    required: false
+    default: ""
+  FEEDBACK_TEST_URL:
+    description: "Test URL for Cloudflare feedback service (debug mode)"
+    required: false
+    default: ""
+
 runs:
   using: "composite"
   steps:
@@ -37,6 +53,9 @@ runs:
         TRELLO_TOKEN: ${{ inputs.TRELLO_TOKEN }}
         TRELLO_BOARD_ID: ${{ inputs.TRELLO_BOARD_ID }}
         TRELLO_LIST_ID: ${{ inputs.TRELLO_LIST_ID }}
+        FEEDBACK_API_KEY: ${{ inputs.FEEDBACK_API_KEY }}
+        FEEDBACK_PRODUCTION_URL: ${{ inputs.FEEDBACK_PRODUCTION_URL }}
+        FEEDBACK_TEST_URL: ${{ inputs.FEEDBACK_TEST_URL }}
       run: |
         echo "Running \`flutter build\` to generate assets for the deployment build"
 
@@ -47,16 +66,31 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
-        # Prepare build command with Trello credentials
+        # Prepare build command with feedback service credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
 
-        # Always add the Trello environment variables to the build command
-        # This ensures they're available in the compiled app
-        # Using the format exactly as specified in the feedback_service.dart comments
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
+        # Add any provided feedback service variables to build command
+        if [ -n "$TRELLO_API_KEY" ]; then
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
+        fi
+        if [ -n "$TRELLO_TOKEN" ]; then
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
+        fi
+        if [ -n "$TRELLO_BOARD_ID" ]; then
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
+        fi
+        if [ -n "$TRELLO_LIST_ID" ]; then
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
+        fi
+        if [ -n "$FEEDBACK_API_KEY" ]; then
+          BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_API_KEY=$FEEDBACK_API_KEY"
+        fi
+        if [ -n "$FEEDBACK_PRODUCTION_URL" ]; then
+          BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_PRODUCTION_URL=$FEEDBACK_PRODUCTION_URL"
+        fi
+        if [ -n "$FEEDBACK_TEST_URL" ]; then
+          BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_TEST_URL=$FEEDBACK_TEST_URL"
+        fi
 
         echo "Build command with environment variables:"
         echo "$BUILD_CMD"
