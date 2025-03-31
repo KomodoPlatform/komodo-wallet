@@ -12,6 +12,7 @@ jobs:
   build_desktop:
     name: Build Desktop (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
+    environment: atomicdex
     continue-on-error: true
     strategy:
       fail-fast: false
