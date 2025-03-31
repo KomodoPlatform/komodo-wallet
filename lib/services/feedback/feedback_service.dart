@@ -38,12 +38,16 @@ class FeedbackService {
   Future<bool> handleFeedback(UserFeedback feedback) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final Map<String, dynamic> metadata = {
-      'appName': packageInfo.appName,
-      'packageName': packageInfo.packageName,
-      'version': packageInfo.version,
-      'buildNumber': packageInfo.buildNumber,
-      'platform': defaultTargetPlatform.toString(),
+      'platform': kIsWeb ? 'web' : 'native',
+      'commitHash':
+          const String.fromEnvironment('COMMIT_HASH', defaultValue: 'unknown'),
+      // We don't want to expose the base URI for native builds as this could
+      // contain personal information.
+      'baseUrl': kIsWeb ? Uri.base.toString() : null,
+      'targetPlatform': defaultTargetPlatform.toString(),
+      ...packageInfo.data,
       'isDebug': kDebugMode,
+      'timestamp': DateTime.now().toIso8601String(),
     };
 
     try {
@@ -122,9 +126,8 @@ class TrelloFeedbackProvider implements FeedbackProvider {
       'TRELLO_LIST_ID': const String.fromEnvironment('TRELLO_LIST_ID')
     };
 
-    final missingVars = requiredVars.entries
-        .where((e) => e.value.isEmpty)
-        .toList();
+    final missingVars =
+        requiredVars.entries.where((e) => e.value.isEmpty).toList();
 
     if (missingVars.isNotEmpty) {
       debugPrint(

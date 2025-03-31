@@ -66,8 +66,14 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
+        # Get the current commit hash
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+
         # Prepare build command with feedback service credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
+
+        # Add commit hash to build command
+        BUILD_CMD="$BUILD_CMD --dart-define=COMMIT_HASH=$COMMIT_HASH"
 
         # Add any provided feedback service variables to build command
         if [ -n "$TRELLO_API_KEY" ]; then
