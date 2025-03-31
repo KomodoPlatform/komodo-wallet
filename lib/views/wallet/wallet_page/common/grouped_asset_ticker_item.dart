@@ -63,7 +63,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);  
+    final theme = Theme.of(context);
     return Opacity(
       opacity: widget.isActivating ? 0.3 : 1,
       child: Material(
@@ -159,7 +159,8 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                 ),
               ),
               if (_isExpanded)
-                _ExpandedView(assets: widget.assets, theme: theme),
+                _ExpandedView(
+                    assets: widget.assets, theme: theme, onTap: widget.onTap),
             ],
           ),
         ),
@@ -172,10 +173,12 @@ class _ExpandedView extends StatelessWidget {
   const _ExpandedView({
     required this.assets,
     required this.theme,
+    required this.onTap,
   });
 
   final List<AssetId> assets;
   final ThemeData theme;
+  final void Function(AssetId)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +202,7 @@ class _ExpandedView extends StatelessWidget {
               ),
             ),
           ),
-          _AssetIconsRow(assets: assets),
+          _AssetIconsRow(assets: assets, onTap: onTap),
         ],
       ),
     );
@@ -209,9 +212,11 @@ class _ExpandedView extends StatelessWidget {
 class _AssetIconsRow extends StatelessWidget {
   const _AssetIconsRow({
     required this.assets,
+    required this.onTap,
   });
 
   final List<AssetId> assets;
+  final void Function(AssetId)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +226,10 @@ class _AssetIconsRow extends StatelessWidget {
       spacing: 12.0,
       runSpacing: 12.0,
       children: relatedAssets.map((asset) {
-        return _AssetIconItem(asset: asset);
+        return _AssetIconItem(
+          asset: asset,
+          onTap: onTap,
+        );
       }).toList(),
     );
   }
@@ -230,9 +238,11 @@ class _AssetIconsRow extends StatelessWidget {
 class _AssetIconItem extends StatelessWidget {
   const _AssetIconItem({
     required this.asset,
+    required this.onTap,
   });
 
   final AssetId asset;
+  final void Function(AssetId)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -242,16 +252,12 @@ class _AssetIconItem extends StatelessWidget {
     return Tooltip(
       message: asset.id,
       child: InkWell(
-        onTap: null,
+        onTap: onTap == null ? null : () => onTap!(asset),
         borderRadius: BorderRadius.circular(8.0),
         child: Container(
           height: size,
           constraints: BoxConstraints(
             minWidth: size,
-          ),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(8.0),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
