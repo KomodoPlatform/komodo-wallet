@@ -36,18 +36,18 @@ packages:
     dependency: "direct main"
     description:
       name: args
-      sha256: bf9f5caeea8d8fe6721a9c358dd8a5c1947b27f1cfaa18b39c301273594919e6
+      sha256: d0481093c50b1da8910eb0bb301626d4d8eb7284aa739614d2b394ee09e3ea04
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.7.0"
   asn1lib:
     dependency: transitive
     description:
       name: asn1lib
-      sha256: "068190d6c99c436287936ba5855af2e1fa78d8083ae65b4db6a281780da727ae"
+      sha256: e02d018628c870ef2d7f03e33f9ad179d89ff6ec52ca6c56bcb80bcef979867f
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.0"
+    version: "1.6.2"
   async:
     dependency: transitive
     description:
@@ -252,10 +252,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "8d938fd5c11dc81bf1acd4f7f0486c683fe9e79a0b13419e27730f9ce4d8a25b"
+      sha256: "36a1652d99cb6bf8ccc8b9f43aded1fd60b234d23ce78af422c07f950a436ef7"
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.1"
+    version: "10.0.0"
   file_system_access_api:
     dependency: transitive
     description:
@@ -553,20 +553,18 @@ packages:
   hive:
     dependency: "direct main"
     description:
-      path: hive
-      ref: "470473ffc1ba39f6c90f31ababe0ee63b76b69fe"
-      resolved-ref: "470473ffc1ba39f6c90f31ababe0ee63b76b69fe"
-      url: "https://github.com/KomodoPlatform/hive.git"
-    source: git
+      name: hive
+      sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.2.3"
   hive_flutter:
     dependency: "direct main"
     description:
-      path: hive_flutter
-      ref: "0cbaab793be77b19b4740bc85d7ea6461b9762b4"
-      resolved-ref: "0cbaab793be77b19b4740bc85d7ea6461b9762b4"
-      url: "https://github.com/KomodoPlatform/hive.git"
-    source: git
+      name: hive_flutter
+      sha256: dca1da446b1d808a51689fb5d0c6c9510c0a2ba01e22805d492c73b68e33eecc
+      url: "https://pub.dev"
+    source: hosted
     version: "1.1.0"
   html:
     dependency: transitive
@@ -642,7 +640,7 @@ packages:
     description:
       path: "packages/komodo_cex_market_data"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -651,7 +649,7 @@ packages:
     description:
       path: "packages/komodo_coins"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -660,7 +658,7 @@ packages:
     description:
       path: "packages/komodo_defi_framework"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0"
@@ -669,7 +667,7 @@ packages:
     description:
       path: "packages/komodo_defi_local_auth"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -678,7 +676,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -687,7 +685,7 @@ packages:
     description:
       path: "packages/komodo_defi_sdk"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -696,7 +694,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -712,7 +710,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -728,7 +726,7 @@ packages:
     description:
       path: "packages/komodo_wallet_build_transformer"
       ref: dev
-      resolved-ref: "4ae7d0d97197e607c3fe2d38ab92fa611de7cf89"
+      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -1024,10 +1022,10 @@ packages:
     dependency: transitive
     description:
       name: provider
-      sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
+      sha256: "489024f942069c2920c844ee18bb3d467c69e48955a4f32d1677f71be103e310"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.2"
+    version: "6.1.4"
   pub_semver:
     dependency: transitive
     description:
@@ -1080,10 +1078,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "846849e3e9b68f3ef4b60c60cf4b3e02e9321bc7f4d8c4692cf87ffa82fc8a3a"
+      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.2"
+    version: "2.5.3"
   shared_preferences_android:
     dependency: transitive
     description:
@@ -1405,10 +1403,10 @@ packages:
     dependency: "direct main"
     description:
       name: video_player
-      sha256: "48941c8b05732f9582116b1c01850b74dbee1d8520cd7e34ad4609d6df666845"
+      sha256: "7d78f0cfaddc8c19d4cb2d3bebe1bfef11f2103b0a03e5398b303a1bf65eeb14"
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.3"
+    version: "2.9.5"
   video_player_android:
     dependency: transitive
     description:
