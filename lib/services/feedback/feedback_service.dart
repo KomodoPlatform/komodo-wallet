@@ -22,6 +22,8 @@ class FeedbackService {
       // Try Cloudflare provider first (our default)
       CloudflareFeedbackProvider.fromEnvironment(),
       TrelloFeedbackProvider.fromEnvironment(),
+      // Use debug console provider as fallback in debug mode
+      if (kDebugMode) DebugConsoleFeedbackProvider(),
     ].firstWhereOrNull(
       (provider) => provider != null && provider.isAvailable,
     );
@@ -37,6 +39,25 @@ class FeedbackService {
   /// Returns true if feedback was submitted successfully, false otherwise
   Future<bool> handleFeedback(UserFeedback feedback) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    final buildMode = kReleaseMode
+        ? 'release'
+        : kDebugMode
+            ? 'debug'
+            : (kProfileMode ? 'profile' : 'unknown');
+
+    // Extract contact information from the extras if provided
+    String? contactMethod;
+    String? contactDetails;
+    String? feedbackType;
+
+    if (feedback.extra != null && feedback.extra is JsonMap) {
+      final extras = feedback.extra!;
+      contactMethod = extras['contact_method'] as String?;
+      contactDetails = extras['contact_details'] as String?;
+      feedbackType = extras['feedback_type'] as String?;
+    }
+
     final Map<String, dynamic> metadata = {
       'platform': kIsWeb ? 'web' : 'native',
       'commitHash':
@@ -46,15 +67,17 @@ class FeedbackService {
       'baseUrl': kIsWeb ? Uri.base.toString() : null,
       'targetPlatform': defaultTargetPlatform.toString(),
       ...packageInfo.data,
-      'isDebug': kDebugMode,
+      'mode': buildMode,
       'timestamp': DateTime.now().toIso8601String(),
+      if (contactMethod != null) 'contactMethod': contactMethod,
+      if (contactDetails != null) 'contactDetails': contactDetails,
     };
 
     try {
       await provider.submitFeedback(
         description: feedback.text,
         screenshot: feedback.screenshot,
-        type: 'User Feedback',
+        type: feedbackType ?? 'User Feedback',
         metadata: metadata,
       );
       return true;
@@ -350,6 +373,29 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
   }
 }
 
+/// Debug implementation of FeedbackProvider that prints feedback to console
+class DebugConsoleFeedbackProvider implements FeedbackProvider {
+  @override
+  bool get isAvailable => true;
+
+  @override
+  Future<void> submitFeedback({
+    required String description,
+    required Uint8List screenshot,
+    required String type,
+    required Map<String, dynamic> metadata,
+  }) async {
+    debugPrint('---------------- DEBUG FEEDBACK ----------------');
+    debugPrint('Type: $type');
+    debugPrint('Description:');
+    debugPrint(description);
+    debugPrint('\nMetadata:');
+    metadata.forEach((key, value) => debugPrint('$key: $value'));
+    debugPrint('Screenshot size: ${screenshot.length} bytes');
+    debugPrint('---------------------------------------------');
+  }
+}
+
 extension BuildContextShowFeedback on BuildContext {
   /// Shows the feedback dialog if the feedback service is available.
   /// Does nothing if the feedback service is not configured.
@@ -362,33 +408,62 @@ extension BuildContextShowFeedback on BuildContext {
     }
 
     BetterFeedback.of(this).show((feedback) async {
-      final success = await feedbackService.handleFeedback(feedback);
+      // Workaround for known BetterFeedback issue:
+      // https://github.com/ueman/feedback/issues/322#issuecomment-2384060812
+      await Future.delayed(Duration(milliseconds: 500));
+      try {
+        final success = await feedbackService.handleFeedback(feedback);
 
-      if (success) {
-        final theme = Theme.of(this);
-        ScaffoldMessenger.of(this).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Thank you! ${LocaleKeys.feedbackFormDescription.tr()}',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onPrimaryContainer,
+        if (success) {
+          // Close the feedback dialog
+          BetterFeedback.of(this).hide();
+
+          // Show success message
+          final theme = Theme.of(this);
+          ScaffoldMessenger.of(this).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Thank you! ${LocaleKeys.feedbackFormDescription.tr()}',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+              backgroundColor: theme.colorScheme.primaryContainer,
+              action: SnackBarAction(
+                label: LocaleKeys.addMoreFeedback.tr(),
+                textColor: theme.colorScheme.onPrimaryContainer,
+                onPressed: () => showFeedback(),
+              ),
+              duration: const Duration(seconds: 5),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
-            backgroundColor: theme.colorScheme.primaryContainer,
-            action: SnackBarAction(
-              label: LocaleKeys.addMoreFeedback.tr(),
-              textColor: theme.colorScheme.onPrimaryContainer,
-              onPressed: () => showFeedback(),
+          );
+        } else {
+          // Keep the feedback dialog open but show error message
+          final theme = Theme.of(this);
+          ScaffoldMessenger.of(this).showSnackBar(
+            SnackBar(
+              content: Text(
+                LocaleKeys.feedbackError.tr(),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+              backgroundColor: theme.colorScheme.errorContainer,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            duration: const Duration(seconds: 5),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
-      } else {
-        // Show error message when feedback submission fails
+          );
+        }
+      } catch (e) {
+        debugPrint('Error submitting feedback: $e');
+
+        // Show error message but keep dialog open
         final theme = Theme.of(this);
         ScaffoldMessenger.of(this).showSnackBar(
           SnackBar(
