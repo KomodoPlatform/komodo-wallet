@@ -1,20 +1,24 @@
 part of 'coins_bloc.dart';
 
 class CoinsState extends Equatable {
-  const CoinsState({
-    required this.coins,
-    required this.walletCoins,
+  /// The list of available and activated assets to be displayed in the app.
+  /// This list is filtered to exclude assets not intended to be shown to the
+  /// user. E.g. NFT assets.
+  CoinsState({
+    required Map<String, Coin> coins,
+    required Map<String, Coin> walletCoins,
     required this.loginActivationFinished,
     required this.pubkeys,
     required this.prices,
-  });
+  })  : coins = _filterExcludedAssets(coins),
+        walletCoins = _filterExcludedAssets(walletCoins);
 
-  factory CoinsState.initial() => const CoinsState(
-        coins: {},
-        walletCoins: {},
+  factory CoinsState.initial() => CoinsState(
+        coins: const {},
+        walletCoins: const {},
         loginActivationFinished: false,
-        pubkeys: {},
-        prices: {},
+        pubkeys: const {},
+        prices: const {},
       );
 
   final Map<String, Coin> coins;
@@ -27,6 +31,10 @@ class CoinsState extends Equatable {
   List<Object> get props =>
       [coins, walletCoins, loginActivationFinished, pubkeys, prices];
 
+  /// Creates a copy of the current state with the option to update
+  /// specific fields.
+  /// NOTE: This method filters the coins and walletCoins maps to exclude
+  /// assets that should not be shown to the user.
   CoinsState copyWith({
     Map<String, Coin>? coins,
     Map<String, Coin>? walletCoins,
@@ -34,10 +42,13 @@ class CoinsState extends Equatable {
     Map<String, AssetPubkeys>? pubkeys,
     Map<String, CexPrice>? prices,
   }) {
-    final walletCoinsWithoutExcludedCoins = walletCoins ?? this.walletCoins
-      ..removeWhere((coinId, _) => excludedAssetList.contains(coinId));
-    final coinsWithoutExcludedCoins = coins ?? this.coins
-      ..removeWhere((coinId, _) => excludedAssetList.contains(coinId));
+    // Filtering is required to avoid including "NFT_*" assets in the coins
+    // or walletCoins maps. The user should not see these assets, as they are
+    // only needed to support the NFT feature.
+    final walletCoinsWithoutExcludedCoins =
+        _filterExcludedAssets(walletCoins ?? this.walletCoins);
+    final coinsWithoutExcludedCoins =
+        _filterExcludedAssets(coins ?? this.coins);
 
     return CoinsState(
       coins: coinsWithoutExcludedCoins,
@@ -46,6 +57,15 @@ class CoinsState extends Equatable {
           loginActivationFinished ?? this.loginActivationFinished,
       pubkeys: pubkeys ?? this.pubkeys,
       prices: prices ?? this.prices,
+    );
+  }
+
+  static Map<String, Coin> _filterExcludedAssets(Map<String, Coin> coins) {
+    return Map.fromEntries(
+      coins.entries.where((entry) {
+        final coinId = entry.key;
+        return !excludedAssetList.contains(coinId);
+      }),
     );
   }
 

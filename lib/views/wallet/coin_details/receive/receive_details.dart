@@ -138,7 +138,7 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
                 ),
                 const SizedBox(height: 30),
                 ReceiveAddress(
-                  coin: widget.asset.toCoin(),
+                  asset: widget.asset.toCoin(),
                   selectedAddress: _currentAddress,
                   onChanged: _onAddressChanged,
                 ),
