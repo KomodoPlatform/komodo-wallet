@@ -358,6 +358,8 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
         ),
       );
 
+      request.fields['metadata'] = jsonEncode(metadata);
+
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
