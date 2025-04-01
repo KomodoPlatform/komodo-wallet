@@ -75,27 +75,40 @@ runs:
         # Add commit hash to build command
         BUILD_CMD="$BUILD_CMD --dart-define=COMMIT_HASH=$COMMIT_HASH"
 
-        # Add any provided feedback service variables to build command
-        if [ -n "$TRELLO_API_KEY" ]; then
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
-        fi
-        if [ -n "$TRELLO_TOKEN" ]; then
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
-        fi
-        if [ -n "$TRELLO_BOARD_ID" ]; then
+        # Check and add the shared Trello board and list IDs if they are available
+        HAVE_TRELLO_IDS=false
+        if [ -n "$TRELLO_BOARD_ID" ] && [ -n "$TRELLO_LIST_ID" ]; then
+          HAVE_TRELLO_IDS=true
+          # Add these shared IDs to the build command
           BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
-        fi
-        if [ -n "$TRELLO_LIST_ID" ]; then
           BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
         fi
-        if [ -n "$FEEDBACK_API_KEY" ]; then
+
+        # Add Trello feedback service variables if ALL required values are provided
+        if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$TRELLO_API_KEY" ] && [ -n "$TRELLO_TOKEN" ]; then
+          echo "Adding Trello feedback service configuration"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
+        else
+          # If any Trello credential is missing, log a message but continue the build
+          if [ -n "$TRELLO_API_KEY" ] || [ -n "$TRELLO_TOKEN" ] || [ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]; then
+            echo "Warning: Incomplete Trello credentials provided. All Trello credentials must be present to include them in the build."
+          fi
+        fi
+
+        # Add Cloudflare feedback service variables if ALL required values are provided
+        # Note: Cloudflare also needs the Trello board and list IDs to be available
+        if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$FEEDBACK_API_KEY" ] && [ -n "$FEEDBACK_PRODUCTION_URL" ] && [ -n "$FEEDBACK_TEST_URL" ]; then
+          echo "Adding Cloudflare feedback service configuration"
           BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_API_KEY=$FEEDBACK_API_KEY"
-        fi
-        if [ -n "$FEEDBACK_PRODUCTION_URL" ]; then
           BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_PRODUCTION_URL=$FEEDBACK_PRODUCTION_URL"
-        fi
-        if [ -n "$FEEDBACK_TEST_URL" ]; then
           BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_TEST_URL=$FEEDBACK_TEST_URL"
+        else
+          # If any Cloudflare credential is missing, log a message but continue the build
+          if [ -n "$FEEDBACK_API_KEY" ] || [ -n "$FEEDBACK_PRODUCTION_URL" ] || [ -n "$FEEDBACK_TEST_URL" ] || 
+             ([ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]); then
+            echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
+          fi
         fi
 
         echo "Build command with environment variables:"
