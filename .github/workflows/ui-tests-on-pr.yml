@@ -11,7 +11,6 @@ jobs:
     name: Test ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
-    environment: atomicdex
     strategy:
       fail-fast: false
 

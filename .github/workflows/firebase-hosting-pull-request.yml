@@ -14,7 +14,6 @@ jobs:
   build_and_preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
-    environment: atomicdex
 
     steps:
       - name: Shortify commit sha

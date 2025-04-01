@@ -10,7 +10,6 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    environment: atomicdex
 
     steps:
       - name: Shortify commit sha
