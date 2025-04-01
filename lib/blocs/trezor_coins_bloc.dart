@@ -28,9 +28,9 @@ class TrezorCoinsBloc {
   final TrezorRepo trezorRepo;
   Timer? _initNewAddressStatusTimer;
 
-  Future<int?> initNewAddress(Coin coin) async {
+  Future<int?> initNewAddress(Asset asset) async {
     final TrezorGetNewAddressInitResponse response =
-        await trezorRepo.initNewAddress(coin.abbr);
+        await trezorRepo.initNewAddress(asset.id.id);
     final result = response.result;
 
     return result?.taskId;
@@ -38,13 +38,13 @@ class TrezorCoinsBloc {
 
   void subscribeOnNewAddressStatus(
     int taskId,
-    Coin coin,
-    Function(GetNewAddressResponse) callback,
+    Asset asset,
+    void Function(GetNewAddressResponse) callback,
   ) {
     _initNewAddressStatusTimer =
         Timer.periodic(const Duration(seconds: 1), (timer) async {
       final GetNewAddressResponse initNewAddressStatus =
-          await trezorRepo.getNewAddressStatus(taskId, coin);
+        await trezorRepo.getNewAddressStatus(taskId, asset);
       callback(initNewAddressStatus);
     });
   }

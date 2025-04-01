@@ -4,25 +4,25 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/get_new_address/get_new_address_response.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/ui/ui_simple_border_button.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/trezor_new_address_confirmation.dart';
 
 class RequestAddressButton extends StatefulWidget {
   const RequestAddressButton(
-    this.coin, {
-    Key? key,
+    this.asset, {
     required this.onSuccess,
-  }) : super(key: key);
+    super.key,
+  });
 
-  final Coin coin;
-  final Function(String) onSuccess;
+  final Asset asset;
+  final void Function(PubkeyInfo) onSuccess;
 
   @override
   State<RequestAddressButton> createState() => _RequestAddressButtonState();
@@ -96,11 +96,11 @@ class _RequestAddressButtonState extends State<RequestAddressButton> {
       _message = null;
     });
 
-    final taskId = await coinsRepository.trezor.initNewAddress(widget.coin);
+    final taskId = await coinsRepository.trezor.initNewAddress(widget.asset);
     if (taskId == null) return;
     routingState.isBrowserNavigationBlocked = true;
     coinsRepository.trezor
-        .subscribeOnNewAddressStatus(taskId, widget.coin, _onStatusUpdate);
+        .subscribeOnNewAddressStatus(taskId, widget.asset, _onStatusUpdate);
   }
 
   void _onStatusUpdate(GetNewAddressResponse initNewAddressStatus) {
@@ -151,7 +151,7 @@ class _RequestAddressButtonState extends State<RequestAddressButton> {
     _confirmAddressDispatcher = null;
     routingState.isBrowserNavigationBlocked = false;
 
-    widget.onSuccess(details.newAddress.address);
+    widget.onSuccess(details.newAddress.toPubkeyInfo());
     setState(() {
       _inProgress = false;
       _message = null;

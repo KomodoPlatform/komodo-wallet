@@ -53,19 +53,7 @@ class ReceiveAddressTrezor extends StatelessWidget {
   }
 
   Widget _buildRequestButton() {
-    // TODO: update to use asset instead of coin
-    return RequestAddressButton(
-      asset.toCoin(),
-      onSuccess: (String newAddress) {
-        final newPubkey = PubkeyInfo(
-          address: newAddress,
-          derivationPath: '',
-          chain: '',
-          balance: BalanceInfo.zero(),
-        );
-        onChanged(newPubkey);
-      },
-    );
+    return RequestAddressButton(asset, onSuccess: onChanged);
   }
 
   Widget _buildCopyButton(BuildContext context) {

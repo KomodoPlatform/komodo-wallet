@@ -168,7 +168,7 @@ class TrezorRepo {
 
   Future<GetNewAddressResponse> getNewAddressStatus(
     int taskId,
-    Coin coin,
+    Asset asset,
   ) async {
     final GetNewAddressResponse response =
         await _api.getNewAddressStatus(taskId);
@@ -176,7 +176,8 @@ class TrezorRepo {
     final GetNewAddressResultDetails? details = response.result?.details;
     if (status == GetNewAddressStatus.ok &&
         details is GetNewAddressResultOkDetails) {
-      coin.accounts = await getAccounts(coin);
+          // TODO! migrate to SDK
+      // coin.accounts = await getAccounts(coin);
     }
     return response;
   }

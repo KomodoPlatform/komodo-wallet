@@ -34,7 +34,7 @@ class Mm2ApiNft {
                   'while your NFTs are loaded.',
         };
       }
-      await _tryEnableNftChains(chains);
+      await _enableNftChains(chains);
       final UpdateNftRequest request = UpdateNftRequest(chains: nftChains);
 
       final JsonMap json = await call(request);
@@ -156,7 +156,7 @@ class Mm2ApiNft {
         .enableNft(ticker: configSymbol, activationParams: activationParams);
   }
 
-  Future<void> _tryEnableNftChains(
+  Future<void> _enableNftChains(
     List<NftBlockchains> chains,
   ) async {
     final knownAssets = _sdk.assets.available;
