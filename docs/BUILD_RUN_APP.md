@@ -61,7 +61,7 @@ flutter run -d web-server --web-port=8080
 
 ## Desktop
 
-#### macOS desktop
+### macOS desktop
 
 In order to build for macOS, you need to use a macOS host.
 
@@ -99,7 +99,7 @@ Build
 flutter build macos
 ```
 
-#### Windows desktop
+### Windows desktop
 
 In order to build for Windows, you need to use a Windows host.
 
@@ -154,7 +154,7 @@ Build
 flutter build windows
 ```
 
-#### Linux desktop
+### Linux desktop
 
 In order to build for Linux, you need to use a Linux host with support for [libwebkit2gtk-4.1](https://packages.ubuntu.com/search?keywords=webkit2gtk), i.e. Ubuntu 22.04 (jammy) or later.
 
@@ -238,7 +238,7 @@ Building an app for Android and iOS requires you to download their respective ID
 
 However, iOS tooling only works on macOS host.
 
-#### Android
+### Android
 
 For Android, after installing the IDE and initial tools using the setup wizard, run the app with `flutter run`.
 Flutter will attempt to build the app, and any missing Android SDK dependency will be downloaded.
@@ -256,23 +256,23 @@ Running the app on an Android emulator has been tested on Apple Silicon Macs onl
 
 Release mode:
 
-```
+```bash
 flutter run -d <device-id> --release
 ```
 
 Build APK:
 
-```
+```bash
 flutter build apk
 ```
 
 Build App Bundle:
 
-```
+```bash
 flutter build appbundle
 ```
 
-#### iOS
+### iOS
 
 In order to build for iOS/iPadOS, you need to use a macOS host (Apple silicon recommended)
 Physical iPhone or iPad required, simulators are not yet supported.
@@ -291,12 +291,12 @@ Physical iPhone or iPad required, simulators are not yet supported.
 
 Run in release mode:
 
-```
+```bash
 flutter run -d <device-id> --release
 ```
 
 Build:
 
-```
+```bash
 flutter build ios
 ```

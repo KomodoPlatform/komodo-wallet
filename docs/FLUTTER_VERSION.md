@@ -13,6 +13,7 @@ See our guide on [Multiple Flutter Versions](MULTIPLE_FLUTTER_VERSIONS.md) for d
 ## Alternative: Pinning Flutter Version (Not Recommended)
 
 While it's possible to pin your global Flutter installation to a specific version, **this approach is not recommended** due to:
+
 - Lack of isolation between projects
 - Known issues with `flutter pub get` when using Flutter 3.29.0
 - Difficulty switching between versions for different projects
