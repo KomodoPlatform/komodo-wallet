@@ -76,8 +76,13 @@ class NftToken {
   String? get imageUrl {
     final image = uriMeta.imageUrl ?? metaData?.image ?? uriMeta.animationUrl;
     if (image == null) return null;
-    // Image.network does not support ipfs
-    return image.replaceFirst('ipfs://', 'https://ipfs.io/ipfs/');
+
+    // Image.network does not support ipfs protocol
+    String url = image.replaceFirst('ipfs://', 'https://ipfs.io/ipfs/');
+
+    // Also standardize gateway URLs to use ipfs.io
+    final gatewayPattern = RegExp(r'https://[^/]+\.ipfs\.[^/]+/ipfs/');
+    return url.replaceAllMapped(gatewayPattern, (_) => 'https://ipfs.io/ipfs/');
   }
 
   String get uuid => '$chain:$tokenAddress:$tokenId'.hashCode.toString();
