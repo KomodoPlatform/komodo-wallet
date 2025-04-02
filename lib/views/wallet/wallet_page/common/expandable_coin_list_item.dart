@@ -1,6 +1,8 @@
 // lib/src/defi/asset/coin_list_item.dart
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -238,9 +240,9 @@ class CoinMoreActionsButton extends StatelessWidget {
       },
       itemBuilder: (context) {
         return [
-          const PopupMenuItem(
+          PopupMenuItem(
             value: CoinMoreActions.disable,
-            child: Text('Disable'),
+            child: Text(LocaleKeys.disable.tr()),
           ),
         ];
       },

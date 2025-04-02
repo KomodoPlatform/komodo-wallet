@@ -73,27 +73,53 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
       );
     }
 
+    // ...existing code...
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
       child: Row(
         children: [
           // Asset header
-          Text(LocaleKeys.asset.tr(), style: style),
-
-          const Spacer(flex: 4),
-
-          // Balance header
-          Text(LocaleKeys.balance.tr(), style: style),
-
-          const Spacer(flex: 2),
-
-          // 24h change header
-          Padding(
-            padding: const EdgeInsets.only(right: 48),
-            child: Text(LocaleKeys.change24hRevert.tr(), style: style),
+          Expanded(
+            flex: 3,
+            child: Text(
+              LocaleKeys.asset.tr(),
+              style: style,
+            ),
           ),
 
-          const Spacer(flex: 2),
+          // Price header
+          Expanded(
+            flex: 2,
+            child: Text(
+              LocaleKeys.price.tr(),
+              style: style,
+            ),
+          ),
+
+          // 24h change header
+          Expanded(
+            flex: 2,
+            child: Text(
+              LocaleKeys.change24hRevert.tr(),
+              style: style,
+            ),
+          ),
+
+          // Price Chart header
+          Expanded(
+            flex: 2,
+            child: Text(
+              LocaleKeys.price.tr(),
+              style: style,
+            ),
+          ),
+
+          // Space for expand button
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 48),
+            child: const SizedBox(),
+          ),
         ],
       ),
     );

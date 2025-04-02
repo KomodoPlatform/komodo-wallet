@@ -636,5 +636,16 @@
     "showNoTradingWarningMessage" : "Trading features may not be used for actual trading. Only test assets/networks may be used and only for development purposes. You are solely responsible for any losses/damage that may occur.\n\nKomodoPlatform does not condone the use of this app for trading purposes and unequivocally forbids it.",
     "showNoTradingWarningButton" : "I agree",
     "amountFieldCheckboxListTile" : "Send maximum amount",
-    "customFeeToggleTitle" : "Custom fee"
+    "customFeeToggleTitle" : "Custom fee",
+    "priceChartCenterText" : "Select an interval to load data",
+    "statistics" : "Statistics",
+    "ibcTransferFieldTitle" : "IBC Transfer",
+    "ibcTransferFieldSubtitle" : "Send to another Cosmos chain",
+    "successPageHeadline" : "Withdrawal Successful",
+    "successPageBodySmall" : "Transaction Hash:",
+    "withdrawErrorCardTileTitle" : "Technical Details",
+    "transactionSuccessful" : "Transaction Successful",
+    "customNetworkFee" : "Custom Network Fee",
+    "previewWithdrawal" : "Preview Withdrawal",
+    "createNewAddress" : "Create New Address"
 }

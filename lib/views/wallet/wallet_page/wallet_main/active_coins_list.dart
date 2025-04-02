@@ -141,7 +141,7 @@ class AddressBalanceList extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: canCreateNewAddress ? onCreateNewAddress : null,
                 icon: const Icon(Icons.add),
-                label: const Text('Create New Address'),
+                label: Text(LocaleKeys.createNewAddress.tr()),
               ),
             ),
           ),
@@ -208,7 +208,7 @@ class AddressBalanceCard extends StatelessWidget {
                           AddressCopyButton(address: pubkey.address),
                           if (pubkey.isActiveForSwap)
                             Chip(
-                              label: const Text('Swap Address'),
+                              label: Text(LocaleKeys.swapAddress.tr()),
                               backgroundColor: Theme.of(context)
                                   .primaryColor
                                   .withOpacity(0.1),

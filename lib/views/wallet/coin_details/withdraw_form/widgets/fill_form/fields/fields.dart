@@ -112,7 +112,7 @@ class FeeSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Network Fee', style: Theme.of(context).textTheme.titleMedium),
+            Text(LocaleKeys.networkFee.tr(), style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             const CustomFeeToggle(),
             if (state.isCustomFee) ...[
@@ -431,7 +431,7 @@ class ConfirmationPage extends StatelessWidget {
                     onPressed: () => context.read<WithdrawFormBloc>().add(
                           const WithdrawFormCancelled(),
                         ),
-                    child: const Text('Back'),
+                    child: Text(LocaleKeys.back.tr()),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -450,7 +450,7 @@ class ConfirmationPage extends StatelessWidget {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Confirm'),
+                        : Text(LocaleKeys.confirm.tr()),
                   ),
                 ),
               ],
@@ -513,12 +513,12 @@ class SuccessPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Withdrawal Successful',
+              LocaleKeys.successPageHeadline.tr(),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             Text(
-              'Transaction Hash:',
+              LocaleKeys.successPageBodySmall.tr(),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             SelectableText(
@@ -528,7 +528,7 @@ class SuccessPage extends StatelessWidget {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
+              child: Text(LocaleKeys.done.tr()),
             ),
           ],
         );
@@ -574,7 +574,7 @@ class FailurePage extends StatelessWidget {
               onPressed: () => context.read<WithdrawFormBloc>().add(
                     const WithdrawFormCancelled(),
                   ),
-              child: const Text('Try Again'),
+              child: Text(LocaleKeys.tryAgain.tr()),
             ),
           ],
         );
@@ -591,8 +591,8 @@ class IbcTransferField extends StatelessWidget {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
       builder: (context, state) {
         return SwitchListTile(
-          title: const Text('IBC Transfer'),
-          subtitle: const Text('Send to another Cosmos chain'),
+          title: Text(LocaleKeys.ibcTransferFieldTitle.tr()),
+          subtitle: Text(LocaleKeys.ibcTransferFieldSubtitle.tr()),
           value: state.isIbcTransfer,
           onChanged: (value) {
             context

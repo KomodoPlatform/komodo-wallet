@@ -634,5 +634,16 @@ abstract class  LocaleKeys {
   static const showNoTradingWarningButton = 'showNoTradingWarningButton';
   static const amountFieldCheckboxListTile = 'amountFieldCheckboxListTile';
   static const customFeeToggleTitle = 'customFeeToggleTitle';
+  static const priceChartCenterText = 'priceChartCenterText';
+  static const statistics = 'statistics';
+  static const ibcTransferFieldTitle = 'ibcTransferFieldTitle';
+  static const ibcTransferFieldSubtitle = 'ibcTransferFieldSubtitle';
+  static const successPageHeadline = 'successPageHeadline';
+  static const successPageBodySmall = 'successPageBodySmall';
+  static const withdrawErrorCardTileTitle = 'withdrawErrorCardTileTitle';
+  static const transactionSuccessful = 'transactionSuccessful';
+  static const customNetworkFee = 'customNetworkFee';
+  static const previewWithdrawal = 'previewWithdrawal';
+  static const createNewAddress = 'createNewAddress';
 
 }
