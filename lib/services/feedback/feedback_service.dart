@@ -514,20 +514,38 @@ Future<void> _showDiscordInfoDialog(BuildContext context) {
   return showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Discord Contact Information'),
+      title: Text('Let\'s Connect on Discord!'),
       contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'We will only be able to contact you if you are a member of the Komodo Discord server.',
+            'To ensure we can reach you:',
             style: theme.textTheme.bodyMedium,
           ),
-          const SizedBox(height: 16),
-          Text(
-            'If needed, we will ping you in the support channel. You can also reach out to us anytime in the Discord server.',
-            style: theme.textTheme.bodyMedium,
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '• Make sure you\'re a member of the Komodo Discord server',
+                  style: theme.textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '• Watch for our team in the support channel',
+                  style: theme.textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '• Feel free to reach out to us anytime in the server',
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -546,7 +564,7 @@ Future<void> _showDiscordInfoDialog(BuildContext context) {
               Navigator.of(context).pop();
               await _openDiscordSupport();
             },
-            child: Text('Open Support Channel'),
+            child: Text('Join Komodo Discord'),
           ),
         ),
       ],
@@ -557,7 +575,7 @@ Future<void> _showDiscordInfoDialog(BuildContext context) {
 Future<void> _openDiscordSupport() async {
   try {
     await launchUrl(
-      discordSupportChannel,
+      discordInviteUrl,
       mode: LaunchMode.externalApplication,
     );
   } catch (e) {
