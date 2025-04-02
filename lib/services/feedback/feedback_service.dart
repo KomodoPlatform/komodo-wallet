@@ -432,9 +432,8 @@ extension BuildContextShowFeedback on BuildContext {
           // Show Discord info dialog if Discord was selected
           if (contactMethod == 'discord') {
             // Use a short delay to ensure the feedback form is fully closed
-            Future.delayed(Duration(milliseconds: 300), () {
-              _showDiscordInfoDialog(this);
-            });
+            await Future.delayed(Duration(milliseconds: 300));
+            await _showDiscordInfoDialog(this);
           }
 
           // Show success message
@@ -509,10 +508,10 @@ extension BuildContextShowFeedback on BuildContext {
 }
 
 /// Shows a dialog with information about Discord contact
-void _showDiscordInfoDialog(BuildContext context) {
+Future<void> _showDiscordInfoDialog(BuildContext context) {
   final theme = Theme.of(context);
 
-  showDialog(
+  return showDialog(
     context: context,
     builder: (context) => AlertDialog(
       title: Text('Discord Contact Information'),
