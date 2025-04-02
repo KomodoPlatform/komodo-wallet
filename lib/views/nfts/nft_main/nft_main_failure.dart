@@ -27,7 +27,7 @@ class NftMainFailure extends StatelessWidget {
           : null,
       message: error.message,
       onTryAgain: () {
-        context.read<NftMainBloc>().add(const UpdateChainNftsEvent());
+        context.read<NftMainBloc>().add(const NftMainChainUpdateRequested());
       },
     );
   }

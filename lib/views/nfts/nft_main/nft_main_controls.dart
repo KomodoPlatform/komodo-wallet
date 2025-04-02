@@ -94,7 +94,7 @@ class _NftMainControlsState extends State<NftMainControls> {
       popupContent: WalletsManagerWrapper(
         eventType: WalletsManagerEventType.header,
         onSuccess: (_) async {
-          nftBloc.add(const UpdateChainNftsEvent());
+          nftBloc.add(const NftMainChainUpdateRequested());
           _popupDispatcher?.close();
         },
       ),

@@ -1,3 +1,7 @@
+// TODO: update [TransportError] and [BaseError] to either use SDK exceptions
+// or to at least extend the Exception class
+// ignore_for_file: only_throw_errors
+
 import 'dart:convert';
 
 import 'package:http/http.dart';
@@ -35,13 +39,9 @@ class Mm2ApiNft {
         };
       }
       await _enableNftChains(chains);
-      final UpdateNftRequest request = UpdateNftRequest(chains: nftChains);
+      final request = UpdateNftRequest(chains: nftChains);
 
-      final JsonMap json = await call(request);
-      _log
-        ..fine('UpdateNftRequest: ${request.toJson()}')
-        ..fine('UpdateNftResponse: ${json.toJsonString()}');
-      return json;
+      return await call(request);
     } catch (e, s) {
       _log.shout('Error updating nfts', e, s);
       throw TransportError(message: e.toString());
@@ -76,14 +76,9 @@ class Mm2ApiNft {
                   'while your NFTs are loaded.',
         };
       }
-      final GetNftListRequest request = GetNftListRequest(chains: nftChains);
 
+      final request = GetNftListRequest(chains: nftChains);
       final JsonMap json = await call(request);
-
-      _log
-        ..fine('GetNftListRequest: ${request.toJson()}')
-        ..fine('GetNftListResponse: ${json.toJsonString()}');
-
       return json;
     } catch (e, s) {
       _log.shout('Error getting nft list', e, s);

@@ -4,28 +4,28 @@ abstract class NftMainEvent {
   const NftMainEvent();
 }
 
-class UpdateChainNftsEvent extends NftMainEvent {
-  const UpdateChainNftsEvent();
+class NftMainChainUpdateRequested extends NftMainEvent {
+  const NftMainChainUpdateRequested();
 }
 
-class StopUpdateNftEvent extends NftMainEvent {
-  const StopUpdateNftEvent();
+class NftMainUpdateNftsStopped extends NftMainEvent {
+  const NftMainUpdateNftsStopped();
 }
 
-class StartUpdateNftsEvent extends NftMainEvent {
-  const StartUpdateNftsEvent();
+class NftMainUpdateNftsStarted extends NftMainEvent {
+  const NftMainUpdateNftsStarted();
 }
 
-class ResetNftPageEvent extends NftMainEvent {
-  const ResetNftPageEvent();
+class NftMainResetRequested extends NftMainEvent {
+  const NftMainResetRequested();
 }
 
-class ChangeNftTabEvent extends NftMainEvent {
-  const ChangeNftTabEvent(this.chain);
+class NftMainTabChanged extends NftMainEvent {
+  const NftMainTabChanged(this.chain);
   final NftBlockchains chain;
 }
 
-class RefreshNFTsForChainEvent extends NftMainEvent {
-  const RefreshNFTsForChainEvent(this.chain);
+class NftMainChainNftsRefreshed extends NftMainEvent {
+  const NftMainChainNftsRefreshed(this.chain);
   final NftBlockchains chain;
 }
