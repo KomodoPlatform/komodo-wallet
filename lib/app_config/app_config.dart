@@ -14,6 +14,9 @@ const List<Locale> localeList = [Locale('en')];
 const String assetsPath = 'assets';
 const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
 
+final Uri discordSupportChannel = Uri.parse(
+    'https://discord.com/channels/412898016371015680/429676282196787200');
+
 // Temporary feature flag to allow merging of the PR
 // TODO: Remove this flag after the feature is finalized
 const bool isBitrefillIntegrationEnabled = false;

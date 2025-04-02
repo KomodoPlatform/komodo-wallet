@@ -5,8 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:web_dex/app_config/app_config.dart';
 
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
@@ -420,6 +423,20 @@ extension BuildContextShowFeedback on BuildContext {
           // Close the feedback dialog
           BetterFeedback.of(this).hide();
 
+          // Check if Discord was selected as contact method
+          String? contactMethod;
+          if (feedback.extra != null && feedback.extra is JsonMap) {
+            contactMethod = feedback.extra!['contact_method'] as String?;
+          }
+
+          // Show Discord info dialog if Discord was selected
+          if (contactMethod == 'discord') {
+            // Use a short delay to ensure the feedback form is fully closed
+            Future.delayed(Duration(milliseconds: 300), () {
+              _showDiscordInfoDialog(this);
+            });
+          }
+
           // Show success message
           final theme = Theme.of(this);
           ScaffoldMessenger.of(this).showSnackBar(
@@ -489,4 +506,62 @@ extension BuildContextShowFeedback on BuildContext {
   /// Returns true if feedback functionality is available
   bool get isFeedbackAvailable =>
       FeedbackService.create()?.isAvailable ?? false;
+}
+
+/// Shows a dialog with information about Discord contact
+void _showDiscordInfoDialog(BuildContext context) {
+  final theme = Theme.of(context);
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Discord Contact Information'),
+      contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'We will only be able to contact you if you are a member of the Komodo Discord server.',
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'If needed, we will ping you in the support channel. You can also reach out to us anytime in the Discord server.',
+            style: theme.textTheme.bodyMedium,
+          ),
+        ],
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
+        ),
+        SizedBox(
+          width: 230,
+          child: UiPrimaryButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _openDiscordSupport();
+            },
+            child: Text('Open Support Channel'),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> _openDiscordSupport() async {
+  try {
+    await launchUrl(
+      discordSupportChannel,
+      mode: LaunchMode.externalApplication,
+    );
+  } catch (e) {
+    debugPrint('Error opening Discord link: $e');
+  }
 }

@@ -207,8 +207,12 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
                             hintText:
                                 _getContactHint(_customFeedback.contactMethod),
                           ),
-                          onChanged: (newContactDetails) => _customFeedback
-                              .contactDetails = newContactDetails,
+                          onChanged: (newContactDetails) {
+                            setState(() {
+                              _customFeedback.contactDetails =
+                                  newContactDetails;
+                            });
+                          },
                         ),
                       ),
                     ],
