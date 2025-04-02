@@ -46,7 +46,8 @@ runs:
       shell: bash
       run: |
         xcodebuild -downloadPlatform iOS
-        flutter pub get
+        flutter pub get --enforce-lockfile
+
         cd ios
         pod install
 

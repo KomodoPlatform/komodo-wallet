@@ -40,6 +40,8 @@
   - [ ] Different browsers (for web build): Chrome, Firefox, Safari, Edge, Brave
   - [ ] Different build modes: debug, release, profile
 - [ ] Make sure that `flutter analyze` and `flutter format` are passing
+- [ ] Always use `flutter pub get --enforce-lockfile` in CI or shared environments for security
+- [ ] Use `--no-pub` flag with Flutter commands that automatically run pub get
 
 ## 7. Create a PR (checklist)
 

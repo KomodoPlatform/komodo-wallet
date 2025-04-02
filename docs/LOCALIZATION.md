@@ -17,7 +17,7 @@ In `${FLUTTER_PROJECT}/assets/translations`, add the `en.json` template file. Fo
 *Important: After any update of `.json` file you need to run this command for generate `LocaleKeys` file.*
 
 ```bash
-flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys
+flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys --no-pub
 ```
 
 ### Step 2
@@ -34,7 +34,7 @@ To add a new language translation in the app you need to add an `fr.json` file i
 then run this command
 
 ```bash
-flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys
+flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys --no-pub
 ```
 
 and update constants.dart file to:
@@ -171,5 +171,5 @@ update the value of required key in json file like following
 please note that after adding or removing any items in the translation json file, you need to run the following command
 
 ```bash
-flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys
+flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys --no-pub
 ```

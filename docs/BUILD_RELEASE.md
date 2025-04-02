@@ -50,7 +50,7 @@ docker build -f .docker/android-sdk.dockerfile . -t komodo/android-sdk:34
 docker build -f .docker/komodo-wallet-android.dockerfile . -t komodo/komodo-wallet
 # Build the app
 mkdir -p build
-docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get && flutter build web --release || flutter build web --release"
+docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get --enforce-lockfile && flutter build web --no-pub --release || flutter build web --no-pub --release"
 ```
 
 ### Build for Android
@@ -68,5 +68,5 @@ docker build -f .docker/android-sdk.dockerfile . -t komodo/android-sdk:34
 docker build -f .docker/komodo-wallet-android.dockerfile . -t komodo/komodo-wallet
 # Build the app
 mkdir -p build
-docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get && flutter build apk --release || flutter build apk --release"
+docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get --enforce-lockfile && flutter build apk --no-pub --release || flutter build apk --no-pub --release"
 ```

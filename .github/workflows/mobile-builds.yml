@@ -19,12 +19,12 @@ jobs:
         include:
           - platform: iOS
             runner: macos-latest
-            build_command: flutter build ios --release --no-codesign
+            build_command: flutter build ios --no-pub --release --no-codesign
             artifact_path: build/ios/iphoneos/Runner.app
             artifact_name: komodo-wallet-ios-unsigned.app
           - platform: Android
             runner: ubuntu-latest
-            build_command: flutter build apk --release
+            build_command: flutter build apk --no-pub --release
             artifact_path: build/app/outputs/flutter-apk/app-release.apk
             artifact_name: komodo-wallet-android-unsigned.apk
 
