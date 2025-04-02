@@ -7,6 +7,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/copied_text.dart';
+import 'package:web_dex/shared/widgets/copyable_address_dialog.dart';
 import 'package:web_dex/views/wallet/coin_details/constants.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/receive_address_trezor.dart';
 
@@ -42,17 +43,21 @@ class ReceiveAddress extends StatelessWidget {
       return Text(LocaleKeys.addressNotFound.tr());
     }
     return isMobile
-        ? CopiedText(
-            copiedValue: selectedAddress!.address,
-            isTruncated: true,
-            backgroundColor: backgroundColor,
+        ? CopyableAddressDialog(
+            address: selectedAddress,
+            asset: asset,
+            pubkeys: pubkeys,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            onAddressChanged: onChanged,
           )
         : ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: receiveWidth),
-            child: CopiedText(
-              copiedValue: selectedAddress!.address,
-              isTruncated: true,
-              backgroundColor: backgroundColor,
+            child: CopyableAddressDialog(
+              address: selectedAddress,
+              asset: asset,
+              pubkeys: pubkeys,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              onAddressChanged: onChanged,
             ),
           );
   }

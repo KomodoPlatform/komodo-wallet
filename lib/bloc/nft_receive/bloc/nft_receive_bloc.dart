@@ -97,21 +97,17 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
   ) {
     _log.info('Changing selected address to: ${event.address}');
     final state = this.state;
-    if (state is NftReceiveLoadSuccess) {
+    if (state is! NftReceiveLoadSuccess) {
+      _log.warning('Cannot change address - not in NftReceiveAddress state');
+      return;
+    }
       // Find the matching pubkey info from pubkeys
-      final selectedPubkey = state.pubkeys?.keys.firstWhere(
-        (PubkeyInfo key) => key.address == event.address,
+      final selectedPubkey = state.pubkeys.keys.firstWhere(
+        (PubkeyInfo key) => key.address == event.address?.address,
         orElse: () => state.selectedAddress!,
       );
 
-      _log.fine('Selected pubkey: ${selectedPubkey?.address}');
-      return emit(
-        state.copyWith(
-          selectedAddress: selectedPubkey,
-        ),
-      );
-    } else {
-      _log.warning('Cannot change address - not in NftReceiveAddress state');
-    }
+      _log.fine('Selected pubkey: ${selectedPubkey.address}');
+      return emit( state.copyWith( selectedAddress: selectedPubkey));
   }
 }
