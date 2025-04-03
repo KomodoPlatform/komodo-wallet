@@ -127,6 +127,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           final result = await _sdk.addresses.convertFormat(
             asset: state.asset,
             address: event.address,
+            // according to the docs, mixedcase should be used for erc20/evm
+            // this could be abstracted in the SDK at a later stage
             format: const AddressFormat(format: 'mixedcase', network: ''),
           );
 
@@ -224,12 +226,21 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     WithdrawFormSourceChanged event,
     Emitter<WithdrawFormState> emit,
   ) {
+    final balance = event.address.balance;
+    final updatedAmount =
+        state.isMaxAmount ? balance.spendable.toString() : state.amount;
+
     emit(
       state.copyWith(
         selectedSourceAddress: () => event.address,
         networkError: () => null,
+        amount: updatedAmount,
+        amountError: () => null,
       ),
     );
+
+    // Required to re-run the validation logic
+    add(WithdrawFormAmountChanged(updatedAmount));
   }
 
   void _onMaxAmountEnabled(

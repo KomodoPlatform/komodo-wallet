@@ -279,6 +279,7 @@ class WithdrawFormFillSection extends StatelessWidget {
                 asset: state.asset,
                 pubkeys: state.pubkeys,
                 selectedAddress: state.selectedSourceAddress,
+                isLoading: state.pubkeys?.isEmpty ?? true,
                 onChanged: (address) => address == null
                     ? null
                     : context
