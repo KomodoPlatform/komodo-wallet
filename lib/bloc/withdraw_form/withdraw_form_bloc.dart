@@ -127,7 +127,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           final result = await _sdk.addresses.convertFormat(
             asset: state.asset,
             address: event.address,
-            format: const AddressFormat(format: 'checksummed', network: ''),
+            format: const AddressFormat(format: 'mixedcase', network: ''),
           );
 
           final isMixedCase = result.convertedAddress != event.address;
