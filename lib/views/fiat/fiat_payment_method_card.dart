@@ -28,7 +28,8 @@ class FiatPaymentMethodCardState extends State<FiatPaymentMethodCard> {
         widget.selectedPaymentMethod!.id == widget.paymentMethodData.id;
 
     final relativePercent = widget.paymentMethodData.relativePercent as double?;
-    final isBestOffer = relativePercent == null;
+    final isBestOffer = relativePercent == null || relativePercent == 0;
+
 
     return InkWell(
       onTap: () {
