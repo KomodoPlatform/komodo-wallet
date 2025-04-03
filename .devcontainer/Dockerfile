@@ -1,6 +1,6 @@
 FROM docker.io/ubuntu:22.04
 
-ENV FLUTTER_VERSION="3.29.0"
+ENV FLUTTER_VERSION="3.29.2"
 ENV USER="komodo"
 ENV USER_ID=1000
 ENV PATH=$PATH:/opt/flutter/bin
