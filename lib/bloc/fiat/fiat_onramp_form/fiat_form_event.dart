@@ -5,7 +5,7 @@ sealed class FiatFormEvent extends Equatable {
   const FiatFormEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 /// Event emitted when the Fiat Form is initially started.
@@ -128,4 +128,19 @@ final class FiatFormCoinAddressSelected extends FiatFormEvent {
 
   @override
   List<Object> get props => [address];
+}
+
+/// Event emitted when the WebView is closed by the user.
+final class FiatFormWebViewClosed extends FiatFormEvent {
+  const FiatFormWebViewClosed();
+}
+
+/// Event emitted when the selected asset address is updated.
+final class FiatFormAssetAddressUpdated extends FiatFormEvent {
+  const FiatFormAssetAddressUpdated(this.selectedAssetAddress);
+
+  final PubkeyInfo? selectedAssetAddress;
+
+  @override
+  List<Object?> get props => [selectedAssetAddress];
 }

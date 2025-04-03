@@ -14,6 +14,7 @@ import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/fiat_repository.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
+import 'package:web_dex/bloc/fiat/payment_status_type.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
@@ -42,6 +43,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     on<FiatFormWalletAuthenticated>(_onWalletAuthenticated);
     on<FiatFormAccountCleared>(_onClearAccountInformation);
     on<FiatFormCoinAddressSelected>(_onCoinAddressSelected);
+    on<FiatFormWebViewClosed>(_onWebViewClosed);
+    on<FiatFormAssetAddressUpdated>(_onAssetAddressUpdated);
 
     // debounce used here instead of restartable, since multiple user actions
     // can trigger this event, and restartable results in hitching
@@ -252,20 +255,33 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     }
 
     try {
-      // Escaped strings are decoded to unescaped strings instead of json
-      // objects :(
       String message = event.message;
       if (jsonDecode(event.message) is String) {
         message = jsonDecode(message) as String;
       }
       final data = jsonDecode(message) as Map<String, dynamic>;
-      if (_isCheckoutStatusMessage(data)) {
-        final status = data['status'] as String? ?? 'declined';
-        emit(
-          state.copyWith(
-            fiatOrderStatus: FiatOrderStatus.fromString(status),
-          ),
-        );
+      final eventType = PaymentStatusType.fromJson(data);
+      FiatOrderStatus updatedStatus = state.fiatOrderStatus;
+
+      switch (eventType) {
+        case PaymentStatusType.widgetCloseRequestConfirmed:
+        case PaymentStatusType.widgetClose:
+        case PaymentStatusType.widgetCloseRequest:
+          updatedStatus = FiatOrderStatus.windowCloseRequested;
+          break;
+        case PaymentStatusType.purchaseCreated:
+          updatedStatus = FiatOrderStatus.inProgress;
+          break;
+        case PaymentStatusType.paymentStatus:
+          final status = data['status'] as String? ?? 'declined';
+          updatedStatus = FiatOrderStatus.fromString(status);
+          break;
+        default:
+          break;
+      }
+
+      if (updatedStatus != state.fiatOrderStatus) {
+        emit(state.copyWith(fiatOrderStatus: updatedStatus));
       }
     } catch (e, s) {
       _log.shout('Error parsing payment status message', e, s);
@@ -338,8 +354,29 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     }
   }
 
-  bool _isCheckoutStatusMessage(Map<String, dynamic> data) {
-    return data.containsKey('type') && (data['type'] == 'PAYMENT-STATUS');
+  void _onWebViewClosed(
+    FiatFormWebViewClosed event,
+    Emitter<FiatFormState> emit,
+  ) {
+    // If the order is not in progress, reset the status to pending
+    // to allow the user to submit another order
+    if (state.fiatOrderStatus != FiatOrderStatus.inProgress) {
+      _log.info('WebView closed, resetting order status to pending');
+      emit(state.copyWith(
+        fiatOrderStatus: FiatOrderStatus.pending,
+        checkoutUrl: '',
+      ));
+    } else {
+      _log.info(
+          'WebView closed, but order is in progress. Keeping current status.');
+    }
+  }
+
+  void _onAssetAddressUpdated(
+    FiatFormAssetAddressUpdated event,
+    Emitter<FiatFormState> emit,
+  ) {
+    emit(state.copyWith(selectedAssetAddress: event.selectedAssetAddress));
   }
 
   FiatFormState _parseOrderError(FiatBuyOrderError error) {

@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
@@ -99,6 +100,7 @@ class _FiatFormState extends State<FiatForm> {
                             onFiatCurrencyChanged: _onFiatChanged,
                             onCoinChanged: _onCoinChanged,
                             onFiatAmountUpdate: _onFiatAmountChanged,
+                            onSourceAddressChanged: _onSourceAddressChanged,
                             initialFiat: state.selectedFiat.value!,
                             selectedAsset: state.selectedAsset.value!,
                             selectedAssetAddress: state.selectedAssetAddress,
@@ -167,6 +169,10 @@ class _FiatFormState extends State<FiatForm> {
     ..add(FiatFormAmountUpdated(value ?? '0'))
     ..add(const FiatFormRefreshed(forceRefresh: true));
 
+  void _onSourceAddressChanged(PubkeyInfo? value) {
+    context.read<FiatFormBloc>().add(FiatFormAssetAddressUpdated(value));
+  }
+
   void _setActiveTab(int i) =>
       context.read<FiatFormBloc>().add(FiatFormModeUpdated.fromTabIndex(i));
 
@@ -214,7 +220,9 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   void _onCloseWebView() {
-    // TODO: decide whether to consider a closed webview as "failed"
+    // When the webview is closed, dispatch an event to reset the form
+    // if the order is not currently in progress
+    context.read<FiatFormBloc>().add(const FiatFormWebViewClosed());
   }
 
   Future<void> _handlePaymentStatusUpdate(FiatFormState stateSnapshot) async {
@@ -235,6 +243,10 @@ class _FiatFormState extends State<FiatForm> {
       _showOrderFailedSnackbar();
     }
 
+    if (status == FiatOrderStatus.windowCloseRequested) {
+      Navigator.of(context).pop();
+    }
+
     if (status != FiatOrderStatus.pending) {
       await _showPaymentStatusDialog(status);
     }
@@ -250,6 +262,8 @@ class _FiatFormState extends State<FiatForm> {
     Icon? icon;
 
     switch (status) {
+      case FiatOrderStatus.inProgress:
+      case FiatOrderStatus.windowCloseRequested:
       case FiatOrderStatus.pending:
         debugPrint('Pending status should not be shown in dialog.');
         return;
@@ -270,11 +284,6 @@ class _FiatFormState extends State<FiatForm> {
         // we can include support details.
         content = LocaleKeys.fiatPaymentFailedMessage.tr();
         icon = const Icon(Icons.error_outline, color: Colors.red);
-
-      case FiatOrderStatus.inProgress:
-        title = LocaleKeys.fiatPaymentInProgressTitle.tr();
-        content = LocaleKeys.fiatPaymentInProgressMessage.tr();
-        icon = const Icon(Icons.hourglass_bottom_outlined);
     }
 
     await showAdaptiveDialog<void>(
