@@ -103,61 +103,62 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     Emitter<WithdrawFormState> emit,
   ) async {
     try {
-      final validation = await _sdk.addresses.validateAddress(
-        asset: state.asset,
-        address: event.address,
-      );
+      final trimmedAddress = event.address.trim();
 
-      if (!validation.isValid) {
+      // First check if it's an EVM address that needs conversion
+      if (state.asset.protocol is Erc20Protocol &&
+          _isValidEthAddressFormat(trimmedAddress) &&
+          !_hasEthAddressMixedCase(trimmedAddress)) {
+        try {
+          // Try to convert to mixed case format if possible
+          final result = await _sdk.addresses.convertFormat(
+            asset: state.asset,
+            address: trimmedAddress,
+            format: const AddressFormat(format: 'mixedcase', network: ''),
+          );
+
+          // Validate the converted address
+          final validationResult = await _sdk.addresses.validateAddress(
+            asset: state.asset,
+            address: result.convertedAddress,
+          );
+
+          if (validationResult.isValid) {
+            emit(
+              state.copyWith(
+                recipientAddress: result.convertedAddress,
+                recipientAddressError: () => null,
+                isMixedCaseAddress: result.convertedAddress != trimmedAddress,
+              ),
+            );
+            return;
+          }
+        } catch (_) {
+          // Conversion failed, continue with normal validation
+        }
+      }
+
+      // Proceed with normal validation
+      final validationResult = await _sdk.addresses.validateAddress(
+        asset: state.asset,
+        address: trimmedAddress,
+      );
+      if (!validationResult.isValid) {
         emit(
           state.copyWith(
-            recipientAddress: event.address,
+            recipientAddress: trimmedAddress,
             recipientAddressError: () =>
-                TextError(error: validation.invalidReason ?? 'Invalid address'),
+                TextError(error: validationResult.invalidReason!),
             isMixedCaseAddress: false,
           ),
         );
         return;
       }
 
-      // Check for mixed case if EVM address
-      if (state.asset.protocol is Erc20Protocol) {
-        try {
-          // Try to convert to checksum to detect mixed case
-          final result = await _sdk.addresses.convertFormat(
-            asset: state.asset,
-            address: event.address,
-            // according to the docs, mixedcase should be used for erc20/evm
-            // this could be abstracted in the SDK at a later stage
-            format: const AddressFormat(format: 'mixedcase', network: ''),
-          );
-
-          final isMixedCase = result.convertedAddress != event.address;
-          emit(
-            state.copyWith(
-              recipientAddress: event.address,
-              recipientAddressError: () => null,
-              isMixedCaseAddress: isMixedCase,
-            ),
-          );
-          return;
-        } catch (e) {
-          // If conversion fails, treat as normal address validation error
-          emit(
-            state.copyWith(
-              recipientAddress: event.address,
-              recipientAddressError: () =>
-                  TextError(error: 'Invalid EVM address: $e'),
-              isMixedCaseAddress: false,
-            ),
-          );
-          return;
-        }
-      }
-
+      // For non-EVM addresses
       emit(
         state.copyWith(
-          recipientAddress: event.address,
+          recipientAddress: trimmedAddress,
           recipientAddressError: () => null,
           isMixedCaseAddress: false,
         ),
@@ -165,13 +166,18 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     } catch (e) {
       emit(
         state.copyWith(
-          recipientAddress: event.address,
+          recipientAddress: event.address.trim(),
           recipientAddressError: () =>
               TextError(error: 'Address validation failed: $e'),
           isMixedCaseAddress: false,
         ),
       );
     }
+  }
+
+  /// Checks if the address has valid Ethereum address format
+  bool _isValidEthAddressFormat(String address) {
+    return address.startsWith('0x') && address.length == 42;
   }
 
   void _onAmountChanged(
@@ -505,4 +511,18 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
 class MixedCaseAddressError extends BaseError {
   @override
   String get message => LocaleKeys.mixedCaseError.tr();
+}
+
+class EvmAddressResult {
+  final bool isValid;
+  final bool isMixedCase;
+  final String? errorMessage;
+
+  EvmAddressResult({
+    required this.isValid,
+    this.isMixedCase = false,
+    this.errorMessage,
+  });
+
+  bool get hasError => !isValid;
 }
