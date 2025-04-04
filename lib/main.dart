@@ -11,7 +11,6 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/app_bloc_observer.dart';
@@ -121,8 +120,7 @@ PerformanceMode? _getPerformanceModeFromUrl() {
       : null;
 
   if (kIsWeb) {
-    final url = html.window.location.href;
-    final uri = Uri.parse(url);
+    final uri = Uri.base;
     maybeEnvPerformanceMode =
         uri.queryParameters['demo_mode_performance'] ?? maybeEnvPerformanceMode;
   }

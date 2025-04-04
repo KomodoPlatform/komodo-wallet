@@ -1,7 +1,9 @@
 import 'package:app_theme/app_theme.dart';
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -14,6 +16,8 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_type_tag.dart';
+import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
+import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
@@ -22,9 +26,11 @@ class CoinAddresses extends StatefulWidget {
   const CoinAddresses({
     super.key,
     required this.coin,
+    required this.setPageType,
   });
 
   final Coin coin;
+  final void Function(CoinPageType) setPageType;
 
   @override
   State<CoinAddresses> createState() => _CoinAddressesState();
@@ -80,17 +86,17 @@ class _CoinAddressesState extends State<CoinAddresses> {
                               final index = entry.key;
                               final address = entry.value;
                               if (state.hideZeroBalance &&
-                                  !address.balance.hasValue) {
-                                return const SizedBox();
-                              }
+                                    address.balance.spendable == Decimal.zero) {
+                                  return const SizedBox();
+                                }
 
-                              return AddressCard(
-                                address: address,
-                                index: index,
-                                coin: widget.coin,
-                              );
-                            },
-                          ),
+                                return AddressCard(
+                                  address: address,
+                                  index: index,
+                                  coin: widget.coin,
+                                  setPageType: widget.setPageType,
+                                );
+                              },
                           if (state.status == FormStatus.submitting)
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 20.0),
@@ -182,11 +188,13 @@ class AddressCard extends StatelessWidget {
     required this.address,
     required this.index,
     required this.coin,
+    required this.setPageType,
   });
 
   final PubkeyInfo address;
   final int index;
   final Coin coin;
+  final void Function(CoinPageType) setPageType;
 
   @override
   Widget build(BuildContext context) {
@@ -210,6 +218,17 @@ class AddressCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       AddressText(address: address.address),
                       const SizedBox(width: 8),
+                      if (coin.hasFaucet)
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: 80,
+                            maxWidth: isMobile ? 100 : 160,
+                          ),
+                          child: FaucetButton(
+                            coinAbbr: coin.abbr,
+                            address: address,
+                          ),
+                        ),
                       SwapAddressTag(address: address),
                       const Spacer(),
                       AddressCopyButton(address: address.address),
@@ -224,14 +243,28 @@ class AddressCard extends StatelessWidget {
                   const SizedBox(height: 4),
                 ],
               )
-            : Row(
-                children: [
-                  AddressText(address: address.address),
-                  const SizedBox(width: 8),
-                  AddressCopyButton(address: address.address),
-                  QrButton(coin: coin, address: address),
-                  SwapAddressTag(address: address),
-                ],
+            : SizedBox(
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    AddressText(address: address.address),
+                    const SizedBox(width: 8),
+                    AddressCopyButton(address: address.address),
+                    QrButton(coin: coin, address: address),
+                    if (coin.hasFaucet)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: 80,
+                          maxWidth: isMobile ? 100 : 160,
+                        ),
+                        child: FaucetButton(
+                          coinAbbr: coin.abbr,
+                          address: address,
+                        ),
+                      ),
+                    SwapAddressTag(address: address),
+                  ],
+                ),
               ),
         trailing: isMobile ? null : _Balance(address: address, coin: coin),
       ),
@@ -277,8 +310,60 @@ class QrButton extends StatelessWidget {
       onPressed: () {
         showDialog(
           context: context,
-          builder: (context) =>
-              PubkeyReceiveDialog(coin: coin, address: address),
+          builder: (context) => AlertDialog(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  LocaleKeys.receive.tr(),
+                  style: const TextStyle(fontSize: 16),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 450,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    LocaleKeys.onlySendToThisAddress
+                        .tr(args: [abbr2Ticker(coin.abbr)]),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          LocaleKeys.network.tr(),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        CoinTypeTag(coin),
+                      ],
+                    ),
+                  ),
+                  QrCode(
+                    address: address.address,
+                    coinAbbr: coin.abbr,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    LocaleKeys.scanTheQrCode.tr(),
+                    style: const TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

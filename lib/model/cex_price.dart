@@ -1,5 +1,18 @@
-import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+
+enum CexDataProvider {
+  binance,
+  coingecko,
+  coinpaprika,
+  nomics,
+  unknown,
+}
+
+CexDataProvider cexDataProvider(String string) {
+  return CexDataProvider.values.firstWhere(
+      (e) => e.toString().split('.').last == string,
+      orElse: () => CexDataProvider.unknown);
+}
 
 class CexPrice extends Equatable {
   const CexPrice({
@@ -66,18 +79,4 @@ class CexPrice extends Equatable {
         change24h,
         changeProvider,
       ];
-}
-
-enum CexDataProvider {
-  binance,
-  coingecko,
-  coinpaprika,
-  nomics,
-  unknown,
-}
-
-CexDataProvider cexDataProvider(String string) {
-  return CexDataProvider.values
-          .firstWhereOrNull((e) => e.toString().split('.').last == string) ??
-      CexDataProvider.unknown;
 }
