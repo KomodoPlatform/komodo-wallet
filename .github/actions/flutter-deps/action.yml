@@ -6,7 +6,8 @@ runs:
     - name: Get stable flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: "3.29.x"
+        # NB! Keep up-to-date with the flutter version used for development
+        flutter-version: "3.29.2"
         channel: "stable"
 
     - name: Prepare build directory
