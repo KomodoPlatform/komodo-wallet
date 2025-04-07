@@ -122,13 +122,14 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
             asset: state.asset,
             address: result.convertedAddress,
           );
+          final isMixedCaseAdddress = result.convertedAddress != trimmedAddress;
 
           if (validationResult.isValid) {
             emit(
               state.copyWith(
                 recipientAddress: result.convertedAddress,
                 recipientAddressError: () => null,
-                isMixedCaseAddress: result.convertedAddress != trimmedAddress,
+                isMixedCaseAddress: isMixedCaseAdddress,
               ),
             );
             return;

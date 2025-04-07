@@ -44,7 +44,7 @@ class WithdrawFormState extends Equatable {
   bool get hasPreviewError => previewError != null;
   bool get hasTransactionError => transactionError != null;
   bool get hasAddressError =>
-      recipientAddressError != null || isMixedCaseAddress;
+      recipientAddressError != null;
   bool get hasValidationErrors =>
       hasAddressError ||
       amountError != null ||
