@@ -17,7 +17,8 @@ In `${FLUTTER_PROJECT}/assets/translations`, add the `en.json` template file. Fo
 *Important: After any update of `.json` file you need to run this command for generate `LocaleKeys` file.*
 
 ```bash
-flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys --no-pub
+flutter pub get --enforce-lockfile
+dart run easy_localization:generate -S ./assets/translations -s en.json -f keys
 ```
 
 ### Step 2
