@@ -86,17 +86,18 @@ class _CoinAddressesState extends State<CoinAddresses> {
                               final index = entry.key;
                               final address = entry.value;
                               if (state.hideZeroBalance &&
-                                    address.balance.spendable == Decimal.zero) {
-                                  return const SizedBox();
-                                }
+                                  address.balance.spendable == Decimal.zero) {
+                                return const SizedBox();
+                              }
 
-                                return AddressCard(
-                                  address: address,
-                                  index: index,
-                                  coin: widget.coin,
-                                  setPageType: widget.setPageType,
-                                );
-                              },
+                              return AddressCard(
+                                address: address,
+                                index: index,
+                                coin: widget.coin,
+                                setPageType: widget.setPageType,
+                              );
+                            },
+                          ),
                           if (state.status == FormStatus.submitting)
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 20.0),
