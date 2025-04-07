@@ -477,7 +477,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     WithdrawFormConvertAddressRequested event,
     Emitter<WithdrawFormState> emit,
   ) async {
-    if (!state.isMixedCaseAddress) return;
+    if (state.isMixedCaseAddress) return;
 
     try {
       emit(state.copyWith(isSending: true));
@@ -486,7 +486,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       final result = await _sdk.addresses.convertFormat(
         asset: state.asset,
         address: state.recipientAddress,
-        format: const AddressFormat(format: 'checksummed', network: ''),
+        format: const AddressFormat(format: 'mixedcase', network: ''),
       );
 
       emit(

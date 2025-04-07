@@ -1,3 +1,5 @@
+import 'dart:async' show Timer;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -288,8 +290,9 @@ class WithdrawFormFillSection extends StatelessWidget {
               ),
               const SizedBox(height: 16),
             ],
-            RecipientAddressField(
+            RecipientAddressWithNotification(
               address: state.recipientAddress,
+              isMixedAddress: state.isMixedCaseAddress,
               onChanged: (value) => context
                   .read<WithdrawFormBloc>()
                   .add(WithdrawFormRecipientChanged(value)),
@@ -655,6 +658,94 @@ class WithdrawErrorCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Shows a temporary notification when the address is converted to mixed case.
+/// This is to avoid confusion for users when the auto-conversion happens.
+/// The notification will be shown for a short duration and then fade out.
+class RecipientAddressWithNotification extends StatefulWidget {
+  final String address;
+  final bool isMixedAddress;
+  final Duration notificationDuration;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onQrScanned;
+  final String? Function()? errorText;
+
+  const RecipientAddressWithNotification({
+    required this.address,
+    required this.onChanged,
+    required this.onQrScanned,
+    required this.isMixedAddress,
+    this.notificationDuration = const Duration(seconds: 15),
+    this.errorText,
+    super.key,
+  });
+
+  @override
+  State<RecipientAddressWithNotification> createState() =>
+      _RecipientAddressWithNotificationState();
+}
+
+class _RecipientAddressWithNotificationState
+    extends State<RecipientAddressWithNotification> {
+  bool _showNotification = false;
+  Timer? _notificationTimer;
+
+  @override
+  void didUpdateWidget(RecipientAddressWithNotification oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isMixedAddress && !oldWidget.isMixedAddress) {
+      _showTemporaryNotification();
+    }
+  }
+
+  void _showTemporaryNotification() {
+    _notificationTimer?.cancel();
+    setState(() {
+      _showNotification = true;
+    });
+
+    _notificationTimer = Timer(widget.notificationDuration, () {
+      if (mounted) {
+        setState(() {
+          _showNotification = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RecipientAddressField(
+          address: widget.address,
+          onChanged: widget.onChanged,
+          onQrScanned: widget.onQrScanned,
+          errorText: widget.errorText,
+        ),
+        if (_showNotification)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 300),
+              opacity: 1.0,
+              child: Text(
+                LocaleKeys.addressConvertedToMixedCase.tr(),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

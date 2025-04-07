@@ -338,6 +338,7 @@
     "trezorSelectTitle": "Connect a hardware wallet",
     "trezorSelectSubTitle": "Select a hardware wallet you'd like to use with Komodo Wallet",
     "mixedCaseError": "If you are using non mixed case address, please try to convert to mixed case one.",
+    "addressConvertedToMixedCase": "The address you entered is not in mixed case, and was automatically converted to mixed case.",
     "invalidAddressChecksum": "Invalid address checksum",
     "notEnoughBalance": "Not enough balance",
     "pleaseInputData": "Please input data",
