@@ -62,9 +62,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   Timer? _updatePricesTimer;
   Timer? _reActivateSuspendedTimer;
 
-  // prevents RPC spamming on startup & previous inconsistencies with sdk wallet
-  KdfUser? _currentUserCache;
-
   @override
   Future<void> close() async {
     await _enabledCoinsSubscription?.cancel();
@@ -122,8 +119,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsBalancesRefreshed event,
     Emitter<CoinsState> emit,
   ) async {
-    _currentUserCache ??= await _kdfSdk.auth.currentUser;
-    switch (_currentUserCache?.wallet.config.type) {
+    final currentWallet = await _kdfSdk.currentWallet();
+    switch (currentWallet?.config.type) {
       case WalletType.trezor:
         final walletCoins =
             await _coinsRepo.updateTrezorBalances(state.walletCoins);
@@ -235,9 +232,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     await _activateCoins(event.coinIds, emit);
-
-    if (_currentUserCache?.wallet.config.type == WalletType.iguana ||
-        _currentUserCache?.wallet.config.type == WalletType.hdwallet) {
+    final currentWallet = await _kdfSdk.currentWallet();
+    if (currentWallet?.config.type == WalletType.iguana ||
+        currentWallet?.config.type == WalletType.hdwallet) {
       final coinUpdates = _syncIguanaCoinsStates(event.coinIds);
       await emit.forEach(
         coinUpdates,
@@ -253,24 +250,34 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsDeactivated event,
     Emitter<CoinsState> emit,
   ) async {
-    for (final coinId in event.coinIds) {
-      final coin = state.walletCoins[coinId]!;
-      _log.info('Disabling a ${coin.name} ($coinId)');
-      coin.reset();
+    final currentWalletCoins = state.walletCoins;
+    final currentCoins = state.coins;
+    if (currentWalletCoins.isEmpty) {
+      _log.warning('No wallet coins to disable');
+      return;
+    }
+
+    // Remove coins from the state early to prevent reactivations
+    final updatedWalletCoins = Map.fromEntries(currentWalletCoins.entries
+        .where((entry) => !event.coinIds.contains(entry.key)));
+    final updatedCoins = Map<String, Coin>.of(currentCoins);
+    for (final assetId in event.coinIds) {
+      final coin = currentWalletCoins[assetId]!;
+      updatedCoins[coin.id.id] = coin.copyWith(state: CoinState.inactive);
+    }
+    emit(state.copyWith(walletCoins: updatedWalletCoins, coins: updatedCoins));
+
+    for (final assetId in event.coinIds) {
+      final coin = currentWalletCoins[assetId]!;
+      _log.info('Disabling a ${coin.name} ($assetId)');
 
       try {
         await _kdfSdk.removeActivatedCoins([coin.id.id]);
         await _mm2Api.disableCoin(coin.id.id);
 
-        final newWalletCoins = Map<String, Coin>.of(state.walletCoins)
-          ..remove(coin.id.id);
-        final newCoins = Map<String, Coin>.of(state.coins);
-        newCoins[coin.id.id]!.state = CoinState.inactive;
-        emit(state.copyWith(walletCoins: newWalletCoins, coins: newCoins));
-
         _log.info('${coin.name} has been disabled');
       } catch (e, s) {
-        _log.severe('Failed to disable coin $coinId', e, s);
+        _log.severe('Failed to disable coin $assetId', e, s);
       }
     }
   }
@@ -317,7 +324,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     try {
       _coinsRepo.flushCache();
-      _currentUserCache = event.signedInUser;
       await _activateLoginWalletCoins(emit);
       emit(state.copyWith(loginActivationFinished: true));
 
@@ -333,7 +339,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     add(CoinsBalanceMonitoringStopped());
-    _currentUserCache = null;
 
     final List<Coin> coins = [...state.walletCoins.values];
     for (final Coin coin in coins) {
@@ -374,7 +379,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     try {
       // Start off by emitting the newly activated coins so that they all appear
       // in the list at once, rather than one at a time as they are activated
-      emit(_prePopulateListWithActivatingCoins(coins));
+      emit(await _prePopulateListWithActivatingCoins(coins));
 
       await _kdfSdk.addActivatedCoins(coins);
     } catch (e, s) {
@@ -403,7 +408,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     return results;
   }
 
-  CoinsState _prePopulateListWithActivatingCoins(Iterable<String> coins) {
+  Future<CoinsState> _prePopulateListWithActivatingCoins(
+      Iterable<String> coins) async {
+    final currentWallet = await _kdfSdk.currentWallet();
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
           .map(
@@ -411,7 +418,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
               final sdkCoin = state.coins[coin] ?? _coinsRepo.getCoin(coin);
               return sdkCoin?.copyWith(
                 state: CoinState.activating,
-                enabledType: _currentUserCache?.wallet.config.type,
+                enabledType: currentWallet?.config.type,
               );
             },
           )
@@ -432,12 +439,13 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     try {
-      final isLoggedIn = _currentUserCache != null;
+      final currentWallet = await _kdfSdk.currentWallet();
+      final isLoggedIn = currentWallet != null;
       if (!isLoggedIn || coin.isActive) {
         return coin;
       }
 
-      switch (_currentUserCache?.wallet.config.type) {
+      switch (currentWallet.config.type) {
         case WalletType.iguana:
         case WalletType.hdwallet:
           coin = await _activateIguanaCoin(coin);
@@ -445,8 +453,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
           coin = await _activateTrezorCoin(coin, coinId);
         case WalletType.metamask:
         case WalletType.keplr:
-        case null:
-          break;
       }
     } catch (e, s) {
       _log.shout('Error activating coin ${coin!.id}', e, s);
@@ -480,7 +486,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   Future<List<Coin>> _activateLoginWalletCoins(Emitter<CoinsState> emit) async {
-    final Wallet? currentWallet = _currentUserCache?.wallet;
+    final Wallet? currentWallet = await _kdfSdk.currentWallet();
     if (currentWallet == null) {
       return List.empty();
     }
@@ -502,16 +508,17 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
       coinsToBeActivated
         ..addAll(suspended)
-        ..addAll(_getUnactivatedWalletCoins());
+        ..addAll(await _getUnactivatedWalletCoins());
 
       if (coinsToBeActivated.isEmpty) return;
       yield await _activateCoins(coinsToBeActivated, emit);
     }
   }
 
-  List<String> _getUnactivatedWalletCoins() {
-    final Wallet? currentWallet = _currentUserCache?.wallet;
+  Future<List<String>> _getUnactivatedWalletCoins() async {
+    final Wallet? currentWallet = await _kdfSdk.currentWallet();
     if (currentWallet == null) {
+      _log.warning('No current wallet found. Cannot get unactivated coins.');
       return List.empty();
     }
 
