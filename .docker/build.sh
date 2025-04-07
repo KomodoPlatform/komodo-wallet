@@ -30,4 +30,4 @@ docker build $PLATFORM_FLAG -f .docker/komodo-wallet-android.dockerfile . -t kom
 docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
   -u "$(id -u):$(id -g)" \
   komodo/komodo-wallet:latest sh -c \
-  "flutter build $BUILD_TARGET --$BUILD_MODE || flutter build $BUILD_TARGET --$BUILD_MODE"
+  "flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE || flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE"

@@ -32,11 +32,15 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optionally provide feedback service configuration if available
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
           TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
           TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
-          
+
       - name: Validate build
         uses: ./.github/actions/validate-build
 
@@ -44,8 +48,8 @@ jobs:
         if: github.ref == 'refs/heads/dev'
         uses: FirebaseExtended/action-hosting-deploy@v0.7.1
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}'
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}"
           channelId: live
           target: walletrc
           projectId: komodo-wallet-official
@@ -54,9 +58,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: FirebaseExtended/action-hosting-deploy@v0.7.1
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}'
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}"
           channelId: live
           target: prodrc
           projectId: komodo-wallet-official
-
