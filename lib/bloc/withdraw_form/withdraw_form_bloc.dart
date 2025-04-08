@@ -217,6 +217,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           amount: event.amount,
           amountError: () => null,
+          previewError: () => null,
         ),
       );
     } catch (e) {
@@ -243,6 +244,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         networkError: () => null,
         amount: updatedAmount,
         amountError: () => null,
+        previewError: () => null,
       ),
     );
 

@@ -368,7 +368,10 @@ class WithdrawFormFillSection extends StatelessWidget {
             // TODO! Refactor to use Formz and replace with the appropriate
             // error state value.
             if (state.hasPreviewError)
-              ErrorDisplay(message: state.previewError!.message),
+              ErrorDisplay(
+                message: LocaleKeys.withdrawPreviewError.tr(),
+                detailedMessage: state.previewError!.message,
+              ),
             const SizedBox(height: 16),
             PreviewWithdrawButton(
               onPressed: state.isSending || state.hasValidationErrors
@@ -678,7 +681,7 @@ class RecipientAddressWithNotification extends StatefulWidget {
     required this.onChanged,
     required this.onQrScanned,
     required this.isMixedAddress,
-    this.notificationDuration = const Duration(seconds: 15),
+    this.notificationDuration = const Duration(seconds: 10),
     this.errorText,
     super.key,
   });
@@ -698,6 +701,10 @@ class _RecipientAddressWithNotificationState
     super.didUpdateWidget(oldWidget);
     if (widget.isMixedAddress && !oldWidget.isMixedAddress) {
       _showTemporaryNotification();
+    } else if (!widget.isMixedAddress) {
+      setState(() {
+        _showNotification = false;
+      });
     }
   }
 
@@ -739,9 +746,9 @@ class _RecipientAddressWithNotificationState
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 300),
               opacity: 1.0,
-              child: Text(
-                LocaleKeys.addressConvertedToMixedCase.tr(),
-                style: Theme.of(context).textTheme.bodySmall,
+              child: ErrorDisplay(
+                message: LocaleKeys.addressConvertedToMixedCase.tr(),
+                isWarning: true,
               ),
             ),
           ),
