@@ -64,14 +64,18 @@ class WalletManageSection extends StatelessWidget {
                     onWithBalanceChange: onWithBalanceChange,
                   ),
                   SizedBox(width: 24),
-                  UiPrimaryButton(
-                    buttonKey: const Key('add-assets-button'),
-                    onPressed: () => _onAddAssetsPress(context),
-                    text: LocaleKeys.addAssets.tr(),
-                    height: 36,
-                    width: 147,
-                    borderRadius: 10,
-                    textStyle: theme.textTheme.bodySmall,
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 162),
+                      child: UiPrimaryButton(
+                        buttonKey: const Key('asset-management-button'),
+                        onPressed: () => _onAddAssetsPress(context),
+                        text: 'Asset management',
+                        height: 36,
+                        borderRadius: 10,
+                      ),
+                    ),
                   ),
                 ],
               ],
@@ -100,15 +104,19 @@ class WalletManageSection extends StatelessWidget {
               ),
               Spacer(),
               if (isAuthenticated)
-                UiPrimaryButton(
-                  buttonKey: const Key('asset-management-button'),
-                  onPressed: () => _onAddAssetsPress(context),
-                  text: 'Asset management',
-                  height: 36,
-                  width: 147,
-                  borderRadius: 10,
-                  textStyle: theme.textTheme.bodySmall,
-                ),
+                Flexible(
+                    fit: FlexFit.loose,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 162),
+                      child: UiPrimaryButton(
+                        buttonKey: const Key('asset-management-button'),
+                        onPressed: () => _onAddAssetsPress(context),
+                        text: 'Asset management',
+                        height: 36,
+                        borderRadius: 10,
+                      ),
+                    ),
+                  ),
             ],
           ),
           const SizedBox(height: 16),

@@ -56,12 +56,12 @@ class MarketChartHeaderControls extends StatelessWidget {
               style: Theme.of(context).textTheme.labelMedium!,
               child: title,
             ),
-            const Gap(4),
+            const Gap(2),
             Row(
               children: [
                 if (leadingIcon != null) ...[
                   leadingIcon!,
-                  const Gap(4),
+                  const Gap(2),
                 ],
                 DefaultTextStyle(
                   style: defaultTextStyle!,
@@ -71,7 +71,7 @@ class MarketChartHeaderControls extends StatelessWidget {
             ),
           ],
         ),
-        const Spacer(),
+        const SizedBox(width: 2),
         SelectedCoinGraphControl(
           emptySelectAllowed: emptySelectAllowed,
           centreAmount: centreAmount,
@@ -81,12 +81,15 @@ class MarketChartHeaderControls extends StatelessWidget {
           onCoinSelected: onCoinSelected,
           customCoinItemBuilder: customCoinItemBuilder,
         ),
-        const Spacer(),
+        const SizedBox(width: 2),
         Flexible(
-          child: TimePeriodSelector(
-            selectedPeriod: selectedPeriod,
-            onPeriodChanged: onPeriodChanged,
-            intervals: timePeriods,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 65),
+            child: TimePeriodSelector(
+              selectedPeriod: selectedPeriod,
+              onPeriodChanged: onPeriodChanged,
+              intervals: timePeriods,
+            ),
           ),
         ),
       ],
