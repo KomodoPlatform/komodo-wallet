@@ -34,6 +34,9 @@ jobs:
 
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps
+        with:
+          firebase_project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
+          firebase_service_account_key: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}
 
       - name: Setup iOS environment
         if: ${{ matrix.platform == 'iOS' }}
@@ -68,6 +71,8 @@ jobs:
           FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
           FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
           BUILD_COMMAND: ${{ matrix.build_command }}
+          # Use default value for BUILD_COMMAND, as iOS does not appear to run
+          # the build transformer required to generate the required assets.
 
       - name: Build for ${{ matrix.platform }}
         env:

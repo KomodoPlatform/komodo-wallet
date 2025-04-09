@@ -38,6 +38,9 @@ jobs:
 
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps
+        with:
+          firebase_project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
+          firebase_service_account_key: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}
 
       # macOS setup
       - name: Setup macOS environment
