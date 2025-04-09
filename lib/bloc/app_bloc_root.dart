@@ -32,6 +32,7 @@ import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
+import 'package:web_dex/bloc/faucet_button/faucet_button_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_repository.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_maker_bot_order_list_repository.dart';
@@ -301,6 +302,9 @@ class AppBlocRoot extends StatelessWidget {
               sdk: komodoDefiSdk,
             ),
           ),
+          BlocProvider<FaucetBloc>(
+            create: (context) => FaucetBloc(kdfSdk: context.read<KomodoDefiSdk>()),
+          )
         ],
         child: _MyAppView(),
       ),
