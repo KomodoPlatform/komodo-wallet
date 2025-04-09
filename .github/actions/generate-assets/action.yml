@@ -8,7 +8,9 @@ inputs:
   BUILD_COMMAND:
     description: "The flutter build command to run to generate assets for the deployment build"
     required: false
-    default: "flutter build web --release"
+    default: "flutter build web --no-pub --release"
+
+  # Optional Trello feedback provider configuration
   TRELLO_API_KEY:
     description: "Trello API key for feedback service"
     required: false
@@ -26,6 +28,20 @@ inputs:
     required: false
     default: ""
 
+  # Optional Cloudflare feedback provider configuration
+  FEEDBACK_API_KEY:
+    description: "API key for Cloudflare feedback service"
+    required: false
+    default: ""
+  FEEDBACK_PRODUCTION_URL:
+    description: "Production URL for Cloudflare feedback service"
+    required: false
+    default: ""
+  FEEDBACK_TEST_URL:
+    description: "Test URL for Cloudflare feedback service (debug mode)"
+    required: false
+    default: ""
+
 runs:
   using: "composite"
   steps:
@@ -37,6 +53,9 @@ runs:
         TRELLO_TOKEN: ${{ inputs.TRELLO_TOKEN }}
         TRELLO_BOARD_ID: ${{ inputs.TRELLO_BOARD_ID }}
         TRELLO_LIST_ID: ${{ inputs.TRELLO_LIST_ID }}
+        FEEDBACK_API_KEY: ${{ inputs.FEEDBACK_API_KEY }}
+        FEEDBACK_PRODUCTION_URL: ${{ inputs.FEEDBACK_PRODUCTION_URL }}
+        FEEDBACK_TEST_URL: ${{ inputs.FEEDBACK_TEST_URL }}
       run: |
         echo "Running \`flutter build\` to generate assets for the deployment build"
 
@@ -47,31 +66,61 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
-        # Prepare build command with Trello credentials
+        # Get the current commit hash
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+
+        # Prepare build command with feedback service credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
 
-        # All-or-nothing approach for Trello inputs
-        # Only add Trello environment variables if ALL of them are non-empty
-        if [ -n "$TRELLO_API_KEY" ] && [ -n "$TRELLO_TOKEN" ] && [ -n "$TRELLO_BOARD_ID" ] && [ -n "$TRELLO_LIST_ID" ]; then
-          echo "All Trello inputs provided, adding them to the build command"
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
-          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
+        # Add commit hash to build command
+        BUILD_CMD="$BUILD_CMD --dart-define=COMMIT_HASH=$COMMIT_HASH"
+
+        # Check and add the shared Trello board and list IDs if they are available
+        HAVE_TRELLO_IDS=false
+        if [ -n "$TRELLO_BOARD_ID" ] && [ -n "$TRELLO_LIST_ID" ]; then
+          HAVE_TRELLO_IDS=true
+          # Add these shared IDs to the build command
           BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
           BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
-        else
-          echo "Some Trello inputs are missing or empty, skipping all Trello parameters"
         fi
 
-        # Run flutter build once to download coin icons and config files.
-        # This step is expected to "fail", since flutter build has to run again
+        # Add Trello feedback service variables if ALL required values are provided
+        if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$TRELLO_API_KEY" ] && [ -n "$TRELLO_TOKEN" ]; then
+          echo "Adding Trello feedback service configuration"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
+          BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
+        else
+          # If any Trello credential is missing, log a message but continue the build
+          if [ -n "$TRELLO_API_KEY" ] || [ -n "$TRELLO_TOKEN" ] || [ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]; then
+            echo "Warning: Incomplete Trello credentials provided. All Trello credentials must be present to include them in the build."
+          fi
+        fi
+
+        # Add Cloudflare feedback service variables if ALL required values are provided
+        # Note: Cloudflare also needs the Trello board and list IDs to be available
+        if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$FEEDBACK_API_KEY" ] && [ -n "$FEEDBACK_PRODUCTION_URL" ] && [ -n "$FEEDBACK_TEST_URL" ]; then
+          echo "Adding Cloudflare feedback service configuration"
+          BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_API_KEY=$FEEDBACK_API_KEY"
+          BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_PRODUCTION_URL=$FEEDBACK_PRODUCTION_URL"
+          BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_TEST_URL=$FEEDBACK_TEST_URL"
+        else
+          # If any Cloudflare credential is missing, log a message but continue the build
+          if [ -n "$FEEDBACK_API_KEY" ] || [ -n "$FEEDBACK_PRODUCTION_URL" ] || [ -n "$FEEDBACK_TEST_URL" ] || 
+             ([ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]); then
+            echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
+          fi
+        fi
+
+        # Run flutter build once to download coin icons and config files. 
+        # This step is expected to "fail", since flutter build has to run again 
         # after the assets are downloaded to register them in AssetManifest.bin
         echo ""
-        flutter pub get > /dev/null 2>&1 || true
+        flutter pub get --enforce-lockfile > /dev/null 2>&1 || true
         $BUILD_CMD > /dev/null 2>&1 || true
         rm -rf build/*
 
         # Run flutter build and capture its output
-        flutter pub get
+        flutter pub get --enforce-lockfile
         echo "Running build command: $BUILD_CMD"
         set +e  # Don't exit immediately on error
         $BUILD_CMD
