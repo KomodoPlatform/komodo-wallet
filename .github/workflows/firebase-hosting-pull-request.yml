@@ -41,7 +41,15 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+          # Optionally provide feedback service configuration if available
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
+          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+
       - name: Validate build
         uses: ./.github/actions/validate-build
 
@@ -55,7 +63,7 @@ jobs:
           expires: 7d
           projectId: komodo-wallet-official
 
-      - name: Deploy Komodo Wallet Web dev preview (`dev` branch) 
+      - name: Deploy Komodo Wallet Web dev preview (`dev` branch)
         if: github.ref == 'refs/heads/dev' && github.event_name != 'workflow_dispatch'
         uses: FirebaseExtended/action-hosting-deploy@v0.7.1
         with:

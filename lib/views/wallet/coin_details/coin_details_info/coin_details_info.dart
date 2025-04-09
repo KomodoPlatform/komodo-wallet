@@ -9,6 +9,8 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
+import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
+import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
@@ -31,7 +33,6 @@ import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_address
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_common_buttons.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info_fiat.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 import 'package:web_dex/views/wallet/coin_details/transactions/transaction_table.dart';
 
 class CoinDetailsInfo extends StatefulWidget {
@@ -55,6 +56,11 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
 
   String? get _walletId =>
       RepositoryProvider.of<AuthBloc>(context).state.currentUser?.walletId.name;
+
+  late final _coinAddressesBloc = CoinAddressesBloc(
+    context.sdk,
+    widget.coin.abbr,
+  )..add(LoadAddressesEvent());
 
   @override
   void initState() {
@@ -82,21 +88,24 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
 
   @override
   Widget build(BuildContext context) {
-    return PageLayout(
-      header: PageHeader(
-        title: widget.coin.name,
-        widgetTitle: widget.coin.mode == CoinMode.segwit
-            ? const Padding(
-                padding: EdgeInsets.only(left: 6.0),
-                child: SegwitIcon(height: 22),
-              )
-            : null,
-        backText: _backText,
-        onBackButtonPressed: _onBackButtonPressed,
-        actions: [_buildDisableButton()],
-      ),
-      content: Expanded(
-        child: _buildContent(context),
+    return BlocProvider.value(
+      value: _coinAddressesBloc,
+      child: PageLayout(
+        header: PageHeader(
+          title: widget.coin.name,
+          widgetTitle: widget.coin.mode == CoinMode.segwit
+              ? const Padding(
+                  padding: EdgeInsets.only(left: 6.0),
+                  child: SegwitIcon(height: 22),
+                )
+              : null,
+          backText: _backText,
+          onBackButtonPressed: _onBackButtonPressed,
+          actions: [_buildDisableButton()],
+        ),
+        content: Expanded(
+          child: _buildContent(context),
+        ),
       ),
     );
   }
@@ -150,6 +159,12 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   }
 
   bool get _haveTransaction => _selectedTransaction != null;
+
+  @override
+  void dispose() {
+    _coinAddressesBloc.close().ignore();
+    super.dispose();
+  }
 }
 
 class _DesktopContent extends StatelessWidget {
@@ -185,7 +200,8 @@ class _DesktopContent extends StatelessWidget {
           const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
-          if (selectedTransaction == null) CoinAddresses(coin: coin),
+          if (selectedTransaction == null)
+            CoinAddresses(coin: coin, setPageType: setPageType),
           const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
@@ -288,7 +304,11 @@ class _MobileContent extends StatelessWidget {
         const SliverToBoxAdapter(
           child: SizedBox(height: 20),
         ),
-        if (selectedTransaction == null) CoinAddresses(coin: coin),
+        if (selectedTransaction == null)
+          CoinAddresses(
+            coin: coin,
+            setPageType: setPageType,
+          ),
         const SliverToBoxAdapter(
           child: SizedBox(height: 20),
         ),
@@ -349,10 +369,6 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
               coin: coin,
             ),
           ),
-          if (coin.hasFaucet)
-            FaucetButton(
-              onPressed: () => setPageType(CoinPageType.faucet),
-            ),
           _CoinDetailsMarketMetricsTabBar(coin: coin),
         ],
       ),
@@ -421,6 +437,7 @@ class _CoinDetailsMarketMetricsTabBarState
   @override
   void dispose() {
     _tabController?.dispose();
+
     super.dispose();
   }
 
@@ -482,51 +499,6 @@ class _CoinDetailsMarketMetricsTabBarState
   }
 }
 
-class _FaucetButton extends StatelessWidget {
-  const _FaucetButton({
-    required this.coin,
-    required this.openFaucet,
-  });
-
-  final Coin coin;
-  final VoidCallback openFaucet;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_isShown) return const SizedBox.shrink();
-
-    return FocusDecorator(
-      child: InkWell(
-        onTap: coin.isSuspended ? null : openFaucet,
-        child: Opacity(
-          opacity: coin.isSuspended ? 0.4 : 1,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 55),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: theme.custom.specificButtonBorderColor),
-              color: theme.custom.specificButtonBackgroundColor,
-            ),
-            padding: const EdgeInsets.symmetric(
-              vertical: 5,
-              horizontal: 7,
-            ),
-            child: Text(
-              LocaleKeys.faucet.tr(),
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  bool get _isShown => coin.defaultAddress != null;
-}
-
 class _Balance extends StatelessWidget {
   const _Balance({required this.coin});
   final Coin coin;
@@ -534,7 +506,8 @@ class _Balance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    final value = doubleToString(coin.balance);
+    final balance = coin.balance(context.sdk);
+    final value = balance == null ? null : doubleToString(balance);
 
     return Column(
       crossAxisAlignment:
@@ -561,7 +534,7 @@ class _Balance extends StatelessWidget {
               Flexible(
                 child: AutoScrollText(
                   key: const Key('coin-details-balance'),
-                  text: value,
+                  text: value ?? '',
                   isSelectable: true,
                   style: themeData.textTheme.titleMedium!.copyWith(
                     fontSize: isMobile ? 25 : 22,
@@ -637,12 +610,6 @@ class _SpecificButton extends StatelessWidget {
       return _GetRewardsButton(
         coin: coin,
         onTap: () => selectWidget(CoinPageType.claim),
-      );
-    }
-    if (coin.hasFaucet) {
-      return _FaucetButton(
-        coin: coin,
-        openFaucet: () => selectWidget(CoinPageType.faucet),
       );
     }
     return const SizedBox.shrink();

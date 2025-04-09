@@ -360,3 +360,10 @@ String formatTransactionDateTime(Transaction tx) {
     return DateFormat('dd MMM yyyy HH:mm').format(tx.timestamp);
   }
 }
+
+/// Will be removed in the near future in favour of a user-configurable
+/// currency/asset.
+String formatUsdValue(double? value) {
+  if (value == null) return '\$0.00';
+  return '\$${formatAmt(value)}';
+}

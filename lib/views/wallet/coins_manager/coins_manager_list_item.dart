@@ -12,13 +12,13 @@ import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 
 class CoinsManagerListItem extends StatelessWidget {
   const CoinsManagerListItem({
-    Key? key,
+    super.key,
     required this.coin,
     required this.isSelected,
     required this.isMobile,
     required this.isAddAssets,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   final Coin coin;
   final bool isSelected;
@@ -52,14 +52,13 @@ class CoinsManagerListItem extends StatelessWidget {
 
 class _CoinsManagerListItemDesktop extends StatelessWidget {
   const _CoinsManagerListItemDesktop({
-    Key? key,
     required this.isAddAssets,
     required this.coin,
     required this.isSelected,
     required this.onSelect,
     required this.protocolText,
     required this.protocolColor,
-  }) : super(key: key);
+  });
 
   final bool isAddAssets;
   final Coin coin;
@@ -70,7 +69,8 @@ class _CoinsManagerListItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isZeroBalance = coin.balance == 0.0;
+    final balance = coin.balance(context.sdk) ?? 0.0;
+    final bool isZeroBalance = balance == 0.0;
     final Color balanceColor = isZeroBalance
         ? theme.custom.coinsManagerTheme.listItemZeroBalanceColor
         : theme.custom.balanceColor;
@@ -139,7 +139,7 @@ class _CoinsManagerListItemDesktop extends StatelessWidget {
                     Flexible(
                       child: AutoScrollText(
                         text: isZeroBalance
-                            ? formatAmt(coin.balance)
+                            ? formatAmt(balance)
                             : formatDexAmt(coin.balance),
                         style: TextStyle(
                           color: balanceColor,
@@ -208,14 +208,13 @@ class _CoinsManagerListItemDesktop extends StatelessWidget {
 
 class _CoinsManagerListItemMobile extends StatelessWidget {
   const _CoinsManagerListItemMobile({
-    Key? key,
     required this.isAddAssets,
     required this.coin,
     required this.isSelected,
     required this.onSelect,
     required this.protocolText,
     required this.protocolColor,
-  }) : super(key: key);
+  });
 
   final bool isAddAssets;
   final Coin coin;
@@ -226,7 +225,8 @@ class _CoinsManagerListItemMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isZeroBalance = coin.balance == 0.0;
+    final balance = coin.balance(context.sdk) ?? 0.0;
+    final bool isZeroBalance = balance == 0.0;
     final Color balanceColor = isZeroBalance
         ? theme.custom.coinsManagerTheme.listItemZeroBalanceColor
         : theme.custom.balanceColor;
@@ -261,8 +261,8 @@ class _CoinsManagerListItemMobile extends StatelessWidget {
                 children: [
                   AutoScrollText(
                     text: isZeroBalance
-                        ? formatAmt(coin.balance)
-                        : formatDexAmt(coin.balance),
+                        ? formatAmt(balance)
+                        : formatDexAmt(balance),
                     style: TextStyle(
                       color: balanceColor,
                       fontSize: 12,

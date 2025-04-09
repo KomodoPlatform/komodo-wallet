@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme_custom_dark.dart';
 
 ThemeData get themeGlobalDark {
   const Color inputBackgroundColor = Color.fromRGBO(51, 57, 72, 1);
@@ -55,15 +56,16 @@ ThemeData get themeGlobalDark {
     ),
     labelLarge: const TextStyle(fontSize: 16.0, color: textColor),
     bodyLarge:
-        TextStyle(fontSize: 14.0, color: textColor.withValues(alpha: 0.5)),
+        TextStyle(fontSize: 14.0, color: textColor.withAlpha(128)), // 0.5 * 255
     bodySmall: TextStyle(
       fontSize: 12.0,
-      color: textColor.withValues(alpha: 0.8),
+      color: textColor.withAlpha(204), // 0.8 * 255
       fontWeight: FontWeight.w400,
     ),
   );
 
-  return ThemeData(
+  final customTheme = ThemeCustomDark();
+  final theme = ThemeData(
     useMaterial3: false,
     fontFamily: 'Manrope',
     scaffoldBackgroundColor: colorScheme.onSurface,
@@ -95,7 +97,7 @@ ThemeData get themeGlobalDark {
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: const Color.fromRGBO(57, 161, 238, 1),
       selectionColor:
-          const Color.fromRGBO(57, 161, 238, 1).withValues(alpha: 0.3),
+          const Color.fromRGBO(57, 161, 238, 1).withAlpha(77), // 0.3 * 255
       selectionHandleColor: const Color.fromRGBO(57, 161, 238, 1),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -111,12 +113,12 @@ ThemeData get themeGlobalDark {
       filled: true,
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
       hintStyle: TextStyle(
-        color: textColor.withValues(alpha: 0.58),
+        color: textColor.withAlpha(148), // 0.58 * 255
       ),
       labelStyle: TextStyle(
-        color: textColor.withValues(alpha: 0.58),
+        color: textColor.withAlpha(148), // 0.58 * 255
       ),
-      prefixIconColor: textColor.withValues(alpha: 0.58),
+      prefixIconColor: textColor.withAlpha(148), // 0.58 * 255
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -133,7 +135,7 @@ ThemeData get themeGlobalDark {
         backgroundColor: colorScheme.surfaceContainerLowest,
         surfaceTintColor: Colors.purple,
         selectedBackgroundColor: colorScheme.primary,
-        foregroundColor: textColor.withValues(alpha: 0.7),
+        foregroundColor: textColor.withAlpha(179), // 0.7 * 255
         selectedForegroundColor: textColor,
         side: BorderSide(color: colorScheme.outlineVariant),
         shape: RoundedRectangleBorder(
@@ -173,7 +175,7 @@ ThemeData get themeGlobalDark {
     textTheme: textTheme,
     scrollbarTheme: ScrollbarThemeData(
       thumbColor: WidgetStateProperty.all<Color?>(
-        colorScheme.primary.withValues(alpha: 0.8),
+        colorScheme.primary.withAlpha(204), // 0.8 * 255
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -187,5 +189,13 @@ ThemeData get themeGlobalDark {
       selectedLabelStyle:
           const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
     ),
+    extensions: [
+      customTheme,
+    ],
   );
+
+  // Initialize theme-dependent colors after theme creation
+  customTheme.initializeThemeDependentColors(theme);
+
+  return theme;
 }

@@ -16,6 +16,7 @@ import 'package:web_dex/bloc/cex_market_data/portfolio_growth/cache_miss_excepti
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
 class PortfolioGrowthRepository {
@@ -369,8 +370,9 @@ class PortfolioGrowthRepository {
 
     // Add the current USD balance to the end of the chart to ensure that the
     // chart matches the current prices and ends at the current time.
-    final double totalUsdBalance =
-        coins.fold(0, (prev, coin) => prev + (coin.usdBalance ?? 0));
+    // TODO: Move to the SDK when portfolio balance is implemented.
+    final double totalUsdBalance = coins.fold(
+        0, (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0));
     if (totalUsdBalance <= 0) {
       _log.fine(
         'Total USD balance is zero or negative, skipping balance point addition',

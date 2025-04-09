@@ -444,6 +444,11 @@ abstract class  LocaleKeys {
   static const unknown = 'unknown';
   static const unableToActiveCoin = 'unableToActiveCoin';
   static const feedback = 'feedback';
+  static const feedbackViewTitle = 'feedbackViewTitle';
+  static const feedbackPageDescription = 'feedbackPageDescription';
+  static const sendFeedbackButton = 'sendFeedbackButton';
+  static const feedbackThankyou = 'feedbackThankyou';
+  static const feedbackError = 'feedbackError';
   static const selectAToken = 'selectAToken';
   static const selectToken = 'selectToken';
   static const rate = 'rate';
@@ -628,22 +633,6 @@ abstract class  LocaleKeys {
   static const allTimeInvestment = 'allTimeInvestment';
   static const allTimeProfit = 'allTimeProfit';
   static const profitAndLoss = 'profitAndLoss';
-  static const alertDialogBitrefill = 'alertDialogBitrefill';
-  static const showNoTradingWarning = 'showNoTradingWarning';
-  static const showNoTradingWarningMessage = 'showNoTradingWarningMessage';
-  static const showNoTradingWarningButton = 'showNoTradingWarningButton';
-  static const amountFieldCheckboxListTile = 'amountFieldCheckboxListTile';
-  static const customFeeToggleTitle = 'customFeeToggleTitle';
-  static const priceChartCenterText = 'priceChartCenterText';
-  static const statistics = 'statistics';
-  static const ibcTransferFieldTitle = 'ibcTransferFieldTitle';
-  static const ibcTransferFieldSubtitle = 'ibcTransferFieldSubtitle';
-  static const successPageHeadline = 'successPageHeadline';
-  static const successPageBodySmall = 'successPageBodySmall';
-  static const withdrawErrorCardTileTitle = 'withdrawErrorCardTileTitle';
-  static const transactionSuccessful = 'transactionSuccessful';
-  static const customNetworkFee = 'customNetworkFee';
-  static const previewWithdrawal = 'previewWithdrawal';
-  static const createNewAddress = 'createNewAddress';
+  static const searchAddresses = 'searchAddresses';
 
 }

@@ -1,16 +1,18 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:feedback/feedback.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, kIsWasm;
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/app_bloc_observer.dart';
@@ -119,8 +121,7 @@ PerformanceMode? _getPerformanceModeFromUrl() {
       : null;
 
   if (kIsWeb) {
-    final url = html.window.location.href;
-    final uri = Uri.parse(url);
+    final uri = Uri.base;
     maybeEnvPerformanceMode =
         uri.queryParameters['demo_mode_performance'] ?? maybeEnvPerformanceMode;
   }
@@ -145,16 +146,40 @@ class MyApp extends StatelessWidget {
     final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
 
+    final theme = Theme.of(context);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
           create: (_) => AuthBloc(komodoDefiSdk, walletsRepository),
         ),
       ],
-      child: app_bloc_root.AppBlocRoot(
-        storedPrefs: _storedSettings!,
-        komodoDefiSdk: komodoDefiSdk,
+      child: BetterFeedback(
+        feedbackBuilder: CustomFeedbackForm.feedbackBuilder,
+        themeMode: ThemeMode.light,
+        darkTheme: _feedbackThemeData(theme),
+        theme: _feedbackThemeData(theme),
+        child: app_bloc_root.AppBlocRoot(
+          storedPrefs: _storedSettings!,
+          komodoDefiSdk: komodoDefiSdk,
+        ),
       ),
     );
   }
+}
+
+FeedbackThemeData _feedbackThemeData(ThemeData appTheme) {
+  return FeedbackThemeData(
+    bottomSheetTextInputStyle: appTheme.textTheme.bodyMedium!,
+    bottomSheetDescriptionStyle: appTheme.textTheme.bodyMedium!,
+    dragHandleColor: appTheme.colorScheme.primary,
+    colorScheme: appTheme.colorScheme,
+    sheetIsDraggable: true,
+    feedbackSheetHeight: 0.3,
+    drawColors: [
+      Colors.red,
+      Colors.white,
+      Colors.green,
+    ],
+  );
 }

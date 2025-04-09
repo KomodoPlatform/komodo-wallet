@@ -19,17 +19,17 @@ jobs:
         include:
           - platform: macos
             runner: macos-latest
-            build_command: flutter build macos --release
+            build_command: flutter build macos --no-pub --release
             artifact_path: build/macos/Build/Products/Release/*.app
             artifact_name: komodo-wallet-macos
           - platform: windows
             runner: windows-latest
-            build_command: flutter build windows --release
+            build_command: flutter build windows --no-pub --release
             artifact_path: build/windows/x64/runner/Release/*
             artifact_name: komodo-wallet-windows
           - platform: linux
             runner: ubuntu-latest
-            build_command: flutter build linux --release
+            build_command: flutter build linux --no-pub --release
             artifact_path: build/linux/x64/release/bundle/*
             artifact_name: komodo-wallet-linux
 
@@ -72,6 +72,13 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
+          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
           BUILD_COMMAND: ${{ matrix.build_command }}
 
       - name: Build for ${{ matrix.platform }}

@@ -1,5 +1,8 @@
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
 /// Calculates the total 24-hour change percentage for a list of coins.
 ///
@@ -23,10 +26,12 @@ import 'package:web_dex/model/coin.dart';
 /// print(result); // Output: 0.014
 /// ```
 /// unit tests: [testGetTotal24Change]
-double? getTotal24Change(Iterable<Coin>? coins) {
+double? getTotal24Change(Iterable<Coin>? coins, KomodoDefiSdk sdk) {
   double getTotalUsdBalance(Iterable<Coin> coins) {
     return coins.fold(0, (prev, coin) {
-      return prev + coin.balance * (coin.usdPrice?.price ?? 0.00);
+      final balance = coin.lastKnownBalance(sdk)?.spendable.toDouble() ?? 0;
+      if (balance == 0) return prev;
+      return prev + balance * (coin.lastKnownUsdPrice(sdk) ?? 0);
     });
   }
 
@@ -40,7 +45,9 @@ double? getTotal24Change(Iterable<Coin>? coins) {
     final double? coin24Change = coin.usdPrice?.change24h;
     if (coin24Change == null) continue;
 
-    final Rational coinFraction = Rational.parse(coin.balance.toString()) *
+    final balance = coin.lastKnownBalance(sdk)?.spendable.toDouble() ?? 0;
+
+    final Rational coinFraction = Rational.parse(balance.toString()) *
         Rational.parse((coin.usdPrice?.price ?? 0).toString()) /
         Rational.parse(totalUsdBalance.toString());
     final coin24ChangeRat = Rational.parse(coin24Change.toString());

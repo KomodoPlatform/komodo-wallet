@@ -30,8 +30,8 @@ import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/animated_portfolio_charts.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
+import 'package:web_dex/views/wallet/wallet_page/common/assets_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/active_coins_list.dart';
-import 'package:web_dex/views/wallet/wallet_page/wallet_main/all_coins_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_manage_section.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_overview.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
@@ -139,6 +139,9 @@ class _WalletMainState extends State<WalletMain>
                         mode: authStateMode,
                       ),
                     ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: 8),
+                    ),
                     _buildCoinList(authStateMode),
                   ],
                 ),
@@ -219,10 +222,25 @@ class _WalletMainState extends State<WalletMain>
         );
       case AuthorizeMode.hiddenLogin:
       case AuthorizeMode.noLogin:
-        return AllCoinsList(
+        return AssetsList(
+          useGroupedView: true,
+          assets: context
+              .read<CoinsBloc>()
+              .state
+              .coins
+              .values
+              .map((coin) => coin.assetId)
+              .toList(),
+          withBalance: false,
           searchPhrase: _searchKey,
-          withBalance: _showCoinWithBalance,
-          onCoinItemTap: _onCoinItemTap,
+          onAssetItemTap: (assetId) => _onAssetItemTap(
+            context
+                .read<CoinsBloc>()
+                .state
+                .coins
+                .values
+                .firstWhere((coin) => coin.assetId == assetId),
+          ),
         );
     }
   }
@@ -245,6 +263,11 @@ class _WalletMainState extends State<WalletMain>
   }
 
   void _onCoinItemTap(Coin coin) {
+    _popupDispatcher = _createPopupDispatcher();
+    _popupDispatcher!.show();
+  }
+
+  void _onAssetItemTap(Coin coin) {
     _popupDispatcher = _createPopupDispatcher();
     _popupDispatcher!.show();
   }
@@ -284,9 +307,9 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
   final AuthorizeMode mode;
 
   @override
-  final double minExtent = 110;
+  final double minExtent = 132;
   @override
-  final double maxExtent = 114;
+  final double maxExtent = 132;
 
   @override
   Widget build(

@@ -8,8 +8,6 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/hd_account/hd_account.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class Coin {
   Coin({
@@ -32,17 +30,15 @@ class Coin {
     this.parentCoin,
     this.derivationPath,
     this.accounts,
-    this.usdPrice,
+    this.usdPrice, // Will be deprecated in favor of SDK price manager
     this.coinpaprikaId,
     this.activeByDefault = false,
     this.isCustomCoin = false,
     required String? swapContractAddress,
     required bool walletOnly,
     required this.mode,
-    double? balance,
   })  : _swapContractAddress = swapContractAddress,
-        _walletOnly = walletOnly,
-        _balance = balance ?? 0;
+        _walletOnly = walletOnly;
 
   final String abbr;
   final String name;
@@ -59,21 +55,27 @@ class Coin {
   final String explorerAddressUrl;
   final String? derivationPath;
   final int decimals;
+
+  @Deprecated(
+      'Use sdk.prices.fiatPrice(id) instead. This value is not updated after initial load and may be inaccurate.')
   CexPrice? usdPrice;
+
   final bool isTestCoin;
   bool isCustomCoin;
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.')
   String? address;
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset account management instead.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s Asset account management instead.')
   List<HdAccount>? accounts;
 
-  final double _balance;
   final String? _swapContractAddress;
   String? fallbackSwapContract;
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s WalletManager to determine wallet type.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s WalletManager to determine wallet type.')
   WalletType? enabledType;
 
   final bool _walletOnly;
@@ -91,55 +93,9 @@ class Coin {
   bool get isActivating => state == CoinState.activating;
   bool get isInactive => state == CoinState.inactive;
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset.sendableBalance instead. This value is not updated after initial load and may be inaccurate.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s Asset.sendableBalance instead. This value is not updated after initial load and may be inaccurate.')
   double sendableBalance = 0;
-
-  @Deprecated('$_urgentDeprecationNotice Use the balance manager from the SDK. This balance value is not updated after initial load and may be inaccurate.')
-  double get balance {
-    switch (enabledType) {
-      case WalletType.trezor:
-        return _totalHdBalance ?? 0.0;
-      default:
-        return _balance;
-    }
-  }
-
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset balance tracking instead. This balance value is not updated after initial load and may be inaccurate.')
-  double? get _totalHdBalance {
-    if (accounts == null) return null;
-
-    double? totalBalance;
-    for (HdAccount account in accounts!) {
-      double accountBalance = 0.0;
-      for (HdAddress address in account.addresses) {
-        accountBalance += address.balance.spendable;
-      }
-      totalBalance = (totalBalance ?? 0.0) + accountBalance;
-    }
-
-    return totalBalance;
-  }
-
-  double calculateUsdAmount(double amount) {
-    if (usdPrice == null) return 0;
-    return amount * usdPrice!.price;
-  }
-
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset price and balance methods instead. This value uses potentially outdated balance and price information.')
-  double? get usdBalance {
-    if (usdPrice == null) return null;
-    if (balance == 0) return 0;
-
-    return calculateUsdAmount(balance.toDouble());
-  }
-
-  String amountToFormattedUsd(double amount) {
-    if (usdPrice == null) return '\$0.00';
-    return '\$${formatAmt(calculateUsdAmount(amount))}';
-  }
-
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset balance methods. This getter uses outdated balance information.')
-  String get getFormattedUsdBalance => amountToFormattedUsd(balance);
 
   String get typeName => getCoinTypeName(type);
   String get typeNameWithTestnet => typeName + (isTestCoin ? ' (TESTNET)' : '');
@@ -153,7 +109,8 @@ class Coin {
   bool get isTxMemoSupported =>
       type == CoinType.iris || type == CoinType.cosmos;
 
-  @Deprecated('TODO: Adapt SDK to cater for this use case and remove this method.')
+  @Deprecated(
+      'TODO: Adapt SDK to cater for this use case and remove this method.')
   String? get defaultAddress {
     switch (enabledType) {
       case WalletType.trezor:
@@ -178,7 +135,8 @@ class Coin {
     return false;
   }
 
-  @Deprecated('TODO: Adapt SDK to cater for this use case and remove this method.')
+  @Deprecated(
+      'TODO: Adapt SDK to cater for this use case and remove this method.')
   String? get _defaultTrezorAddress {
     if (enabledType != WalletType.trezor) return null;
     if (accounts == null) return null;
@@ -188,7 +146,8 @@ class Coin {
     return accounts!.first.addresses.first.address;
   }
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This value is not updated after initial load and may be inaccurate.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This value is not updated after initial load and may be inaccurate.')
   List<HdAddress> nonEmptyHdAddresses() {
     final List<HdAddress>? allAddresses = accounts?.first.addresses;
     if (allAddresses == null) return [];
@@ -198,13 +157,15 @@ class Coin {
     return nonEmpty;
   }
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset derivation methods instead. This method does not work for multiple addresses per coin.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s Asset derivation methods instead. This method does not work for multiple addresses per coin.')
   String? getDerivationPath(String address) {
     final HdAddress? hdAddress = getHdAddress(address);
     return hdAddress?.derivationPath;
   }
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This method does not work for multiple addresses per coin.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This method does not work for multiple addresses per coin.')
   HdAddress? getHdAddress(String? address) {
     if (address == null) return null;
     if (enabledType == WalletType.iguana) return null;
@@ -226,7 +187,8 @@ class Coin {
     return 'Coin($abbr);';
   }
 
-  @Deprecated('$_urgentDeprecationNotice Use the SDK\'s Asset state management instead.')
+  @Deprecated(
+      '$_urgentDeprecationNotice Use the SDK\'s Asset state management instead.')
   void reset() {
     enabledType = null;
     accounts = null;
@@ -263,18 +225,8 @@ class Coin {
     );
   }
 
-  AssetId get assetId => AssetId(
-        id: abbr,
-        name: name,
-        symbol: AssetSymbol(
-          assetConfigId: abbr,
-          coinGeckoId: coingeckoId,
-          coinPaprikaId: coinpaprikaId,
-        ),
-        chainId: AssetChainId(chainId: 0),
-        derivationPath: derivationPath ?? '',
-        subClass: type.toCoinSubClass(),
-      );
+  AssetId get assetId => id;
+  Asset toSdkAsset(KomodoDefiSdk sdk) => getSdkAsset(sdk, abbr);
 
   Coin copyWith({
     CoinType? type,
@@ -304,7 +256,6 @@ class Coin {
     CoinMode? mode,
     String? address,
     WalletType? enabledType,
-    double? balance,
     double? sendableBalance,
     bool? isCustomCoin,
   }) {
@@ -334,7 +285,6 @@ class Coin {
       swapContractAddress: swapContractAddress ?? _swapContractAddress,
       walletOnly: walletOnly ?? _walletOnly,
       mode: mode ?? this.mode,
-      balance: balance ?? _balance,
       isCustomCoin: isCustomCoin ?? this.isCustomCoin,
     )
       ..address = address ?? this.address
@@ -401,4 +351,5 @@ extension CoinListExtension on List<Coin> {
   }
 }
 
-const String _urgentDeprecationNotice ='(URGENT) This must be fixed before the next release.';
+const String _urgentDeprecationNotice =
+    '(URGENT) This must be fixed before the next release.';
