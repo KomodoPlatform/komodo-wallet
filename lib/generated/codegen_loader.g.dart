@@ -633,6 +633,22 @@ abstract class  LocaleKeys {
   static const allTimeInvestment = 'allTimeInvestment';
   static const allTimeProfit = 'allTimeProfit';
   static const profitAndLoss = 'profitAndLoss';
-  static const searchAddresses = 'searchAddresses';
+  static const alertDialogBitrefill = 'alertDialogBitrefill';
+  static const showNoTradingWarning = 'showNoTradingWarning';
+  static const showNoTradingWarningMessage = 'showNoTradingWarningMessage';
+  static const showNoTradingWarningButton = 'showNoTradingWarningButton';
+  static const amountFieldCheckboxListTile = 'amountFieldCheckboxListTile';
+  static const customFeeToggleTitle = 'customFeeToggleTitle';
+  static const priceChartCenterText = 'priceChartCenterText';
+  static const statistics = 'statistics';
+  static const ibcTransferFieldTitle = 'ibcTransferFieldTitle';
+  static const ibcTransferFieldSubtitle = 'ibcTransferFieldSubtitle';
+  static const successPageHeadline = 'successPageHeadline';
+  static const successPageBodySmall = 'successPageBodySmall';
+  static const withdrawErrorCardTileTitle = 'withdrawErrorCardTileTitle';
+  static const transactionSuccessful = 'transactionSuccessful';
+  static const customNetworkFee = 'customNetworkFee';
+  static const previewWithdrawal = 'previewWithdrawal';
+  static const createNewAddress = 'createNewAddress';
 
 }
