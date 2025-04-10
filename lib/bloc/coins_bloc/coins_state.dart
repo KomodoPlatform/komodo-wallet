@@ -4,7 +4,6 @@ class CoinsState extends Equatable {
   const CoinsState({
     required this.coins,
     required this.walletCoins,
-    required this.loginActivationFinished,
     required this.pubkeys,
     required this.prices,
   });
@@ -12,20 +11,18 @@ class CoinsState extends Equatable {
   factory CoinsState.initial() => const CoinsState(
         coins: {},
         walletCoins: {},
-        loginActivationFinished: false,
         pubkeys: {},
         prices: {},
       );
 
   final Map<String, Coin> coins;
   final Map<String, Coin> walletCoins;
-  final bool loginActivationFinished;
   final Map<String, AssetPubkeys> pubkeys;
   final Map<String, CexPrice> prices;
 
   @override
   List<Object> get props =>
-      [coins, walletCoins, loginActivationFinished, pubkeys, prices];
+      [coins, walletCoins, pubkeys, prices];
 
   CoinsState copyWith({
     Map<String, Coin>? coins,
@@ -37,8 +34,6 @@ class CoinsState extends Equatable {
     return CoinsState(
       coins: coins ?? this.coins,
       walletCoins: walletCoins ?? this.walletCoins,
-      loginActivationFinished:
-          loginActivationFinished ?? this.loginActivationFinished,
       pubkeys: pubkeys ?? this.pubkeys,
       prices: prices ?? this.prices,
     );

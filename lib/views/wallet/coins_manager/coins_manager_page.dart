@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -46,7 +47,8 @@ class CoinsManagerPage extends StatelessWidget {
                 .read<CoinsManagerBloc>()
                 .add(CoinsManagerCoinsUpdate(action)),
             builder: (context, state) {
-              if (!state.loginActivationFinished) {
+              final authBlocState = context.read<AuthBloc>().state;
+              if (!authBlocState.isSignedIn) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(0, 100, 0, 100),

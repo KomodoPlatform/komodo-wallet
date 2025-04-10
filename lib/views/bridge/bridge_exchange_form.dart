@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -36,21 +36,20 @@ class _BridgeExchangeFormState extends State<BridgeExchangeForm> {
   @override
   void initState() {
     final bridgeBloc = context.read<BridgeBloc>();
-    final coinsBlocState = context.read<CoinsBloc>().state;
+    final authBlocState = context.read<AuthBloc>().state;
     bridgeBloc.add(const BridgeInit(ticker: defaultDexCoin));
-    bridgeBloc
-        .add(BridgeSetWalletIsReady(coinsBlocState.loginActivationFinished));
+    bridgeBloc.add(BridgeSetWalletIsReady(authBlocState.isSignedIn));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final bridgeBloc = context.read<BridgeBloc>();
-    return BlocListener<CoinsBloc, CoinsState>(
+    return BlocListener<AuthBloc, AuthBlocState>(
       listenWhen: (previous, current) =>
-          previous.loginActivationFinished != current.loginActivationFinished,
+          previous.isSignedIn != current.isSignedIn,
       listener: (context, state) =>
-          bridgeBloc.add(BridgeSetWalletIsReady(state.loginActivationFinished)),
+          bridgeBloc.add(BridgeSetWalletIsReady(state.isSignedIn)),
       child: const Column(
         mainAxisSize: MainAxisSize.max,
         children: [

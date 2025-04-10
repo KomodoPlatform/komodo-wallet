@@ -62,12 +62,9 @@ class _FiatFormState extends State<FiatForm> {
     // orders that were never completed.
 
     final scrollController = ScrollController();
-    return BlocListener<CoinsBloc, CoinsState>(
+    return BlocListener<AuthBloc, AuthBlocState>(
       listener: (context, state) {
-        final isLoginCoinBootstrapFinished =
-            state.loginActivationFinished || state.walletCoins.isNotEmpty;
-
-        _handleAccountStatusChange(isLoginCoinBootstrapFinished);
+        _handleAccountStatusChange(state.isSignedIn);
       },
       child: BlocConsumer<FiatFormBloc, FiatFormState>(
         listenWhen: (previous, current) =>
