@@ -89,6 +89,10 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
 
     try {
+      if (!await _sdk.auth.isSignedIn()) {
+        return emit(state.copyWith(selectedAssetAddress: null));
+      }
+
       final asset = event.selectedCoin.toAsset(_sdk);
       final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
       final address = assetPubkeys.keys.firstOrNull;
@@ -207,6 +211,10 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
   Future<FiatFormState> _updateAssetPubkeys() async {
     try {
+      if (!await _sdk.auth.isSignedIn()) {
+        return state;
+      }
+
       final asset =
           _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC');
       final pubkeys = await _sdk.pubkeys.getPubkeys(asset);

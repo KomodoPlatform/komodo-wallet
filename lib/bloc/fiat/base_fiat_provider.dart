@@ -111,7 +111,7 @@ abstract class BaseFiatProvider {
       // These exist in the current fiat provider coin lists:
       case CoinType.utxo:
         // BTC, BCH, DOGE, LTC
-        return currency.symbol;
+        return currency.configSymbol;
       case CoinType.erc20:
         return 'ETH';
       case CoinType.bep20:

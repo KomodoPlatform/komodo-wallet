@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
+import 'package:web_dex/shared/widgets/coin_item/coin_item.dart' show CoinItem;
+import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:web_dex/views/fiat/fiat_icon.dart';
 
 class FiatAssetIcon extends StatelessWidget {
@@ -19,14 +23,14 @@ class FiatAssetIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double size = 36.0;
-
     if (currency.isFiat) {
       return FiatIcon(symbol: currency.symbol);
     }
 
     if (assetExists ?? false) {
-      return CoinIcon(currency.symbol, size: size);
+      final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+      final asset = sdk.getSdkAsset(currency.symbol);
+      return CoinItem(coin: asset.toCoin(), size: CoinItemSize.large);
     } else {
       return icon;
     }

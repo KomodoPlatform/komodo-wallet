@@ -34,7 +34,7 @@ class RampFiatProvider extends BaseFiatProvider {
   }
 
   String getFullCoinCode(ICurrency target) {
-    return '${getCoinChainId(target as CryptoCurrency)}_${target.symbol}';
+    return '${getCoinChainId(target as CryptoCurrency)}_${target.configSymbol}';
   }
 
   Future<dynamic> _getPaymentMethods(
@@ -250,7 +250,7 @@ class RampFiatProvider extends BaseFiatProvider {
 
     final priceInfo = {
       'fiat_code': source,
-      'coin_code': target.symbol,
+      'coin_code': target.configSymbol,
       'spot_price_including_fee':
           _getFeeAdjustedPrice(paymentMethod, price).toString(),
       'coin_amount': getFormattedCryptoAmount(

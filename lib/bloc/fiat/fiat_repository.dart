@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:universal_html/html.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
@@ -45,26 +46,26 @@ class FiatRepository {
   ) async {
     final futures = fiatProviders.map(getList);
     final results = await Future.wait(futures);
-
     final currencyMap = <String, ICurrency>{};
-
-    Set<String>? knownCoinAbbreviations;
-
-    if (isCoin) {
-      final knownCoins = _coinsRepo.getKnownCoins();
-      knownCoinAbbreviations = knownCoins.map((coin) => coin.abbr).toSet();
-    }
+    final knownCoins = _coinsRepo.getKnownCoinsMap();
 
     for (final currencyList in results) {
       for (final currency in currencyList) {
-        // Skip unsupported chains and coins
-        if (isCoin &&
-            (currency.isFiat ||
-                !knownCoinAbbreviations!.contains(currency.getAbbr()))) {
+        bool isCoinUnknown() => !knownCoins.containsKey(currency.getAbbr());
+        if (isCoin && (currency.isFiat || isCoinUnknown())) {
           continue;
         }
 
-        // Fill the map and replace missing image ones
+        bool isCoinSegwitKnown(String coinTicker) =>
+            currency.isCrypto && knownCoins.containsKey('$coinTicker-segwit');
+        if (isCoinSegwitKnown(currency.getAbbr())) {
+          final segwitCoin = knownCoins['${currency.getAbbr()}-segwit'];
+          final segwitCurrency = (currency as CryptoCurrency).copyWith(
+            symbol: segwitCoin!.id.id,
+          );
+          currencyMap.putIfAbsent(segwitCoin.id.id, () => segwitCurrency);
+        }
+
         currencyMap.putIfAbsent(currency.getAbbr(), () => currency);
       }
     }

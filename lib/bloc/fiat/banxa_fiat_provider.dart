@@ -38,7 +38,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         queryParams: {
           'endpoint': '/api/payment-methods',
           'source': source,
-          'target': target.symbol,
+          'target': target.configSymbol,
         },
       );
 
@@ -54,7 +54,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         queryParams: {
           'endpoint': '/api/prices',
           'source': source,
-          'target': target.symbol,
+          'target': target.configSymbol,
           'source_amount': sourceAmount,
           'payment_method_id': paymentMethod.id,
         },
@@ -283,7 +283,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
     final payload = {
       'account_reference': accountReference,
       'source': source,
-      'target': target.symbol,
+      'target': target.configSymbol,
       'wallet_address': walletAddress,
       'payment_method_id': paymentMethodId,
       'source_amount': sourceAmount,
