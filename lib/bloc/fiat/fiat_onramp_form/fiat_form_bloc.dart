@@ -31,8 +31,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         _sdk = sdk,
         super(FiatFormState.initial()) {
     on<FiatFormStarted>(_onStarted);
-
-    // All user input fields are debounced using the debounce stream transformer
     on<FiatFormFiatSelected>(_onFiatSelected);
     on<FiatFormCoinSelected>(_onCoinSelected);
     on<FiatFormAmountUpdated>(_onAmountUpdated);
@@ -40,7 +38,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     on<FiatFormSubmitted>(_onSubmitForm);
     on<FiatFormOnRampPaymentStatusMessageReceived>(_onPaymentStatusMessage);
     on<FiatFormModeUpdated>(_onModeUpdated);
-    on<FiatFormWalletAuthenticated>(_onWalletAuthenticated);
     on<FiatFormAccountCleared>(_onClearAccountInformation);
     on<FiatFormCoinAddressSelected>(_onCoinAddressSelected);
     on<FiatFormWebViewClosed>(_onWebViewClosed);
@@ -201,27 +198,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     await emit.forEach(refreshStateStream, onData: (newState) => newState);
   }
 
-  Future<void> _onWalletAuthenticated(
-    FiatFormWalletAuthenticated event,
-    Emitter<FiatFormState> emit,
-  ) async {
-    try {
-      final asset =
-          _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC-segwit');
-      final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
-
-      emit(
-        state.copyWith(
-          selectedAssetAddress: assetPubkeys.keys.firstOrNull,
-          selectedCoinPubkeys: assetPubkeys,
-        ),
-      );
-    } catch (e, s) {
-      _log.shout('Error getting pubkeys after wallet authentication', e, s);
-      emit(state.copyWith(selectedAssetAddress: null));
-    }
-  }
-
   void _onClearAccountInformation(
     FiatFormAccountCleared event,
     Emitter<FiatFormState> emit,
@@ -231,7 +207,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
   Future<FiatFormState> _updateAssetPubkeys() async {
     try {
-      final asset = _sdk.getSdkAsset(state.selectedAsset.value!.symbol);
+      final asset =
+          _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC');
       final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
       final address = pubkeys.keys.firstOrNull;
 
@@ -425,14 +402,12 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   Stream<FiatFormState> _refreshFormState() async* {
-    // Step 1: Handle initial state based on fiat amount
     yield* _handleInitialState();
 
-    // Step 2: Update amount bounds
     yield state.copyWith(
-        fiatAmount: _getAmountInputWithBounds(state.fiatAmount.value));
+      fiatAmount: _getAmountInputWithBounds(state.fiatAmount.value),
+    );
 
-    // Step 3: Update asset information and payment methods
     try {
       yield await _updateAssetPubkeys();
       yield* _fetchAndUpdatePaymentMethods();

@@ -179,7 +179,7 @@ class _FiatFormState extends State<FiatForm> {
     }
 
     if (isLoggedIn) {
-      context.read<FiatFormBloc>().add(const FiatFormWalletAuthenticated());
+      context.read<FiatFormBloc>().add(const FiatFormRefreshed());
     } else {
       context.read<FiatFormBloc>().add(const FiatFormAccountCleared());
     }

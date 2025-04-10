@@ -87,11 +87,6 @@ final class FiatFormPaymentStatusCleared extends FiatFormEvent {
   const FiatFormPaymentStatusCleared();
 }
 
-/// Event emitted when the wallet is authenticated for a fiat transaction.
-final class FiatFormWalletAuthenticated extends FiatFormEvent {
-  const FiatFormWalletAuthenticated();
-}
-
 /// Event emitted to clear the current account data.
 final class FiatFormAccountCleared extends FiatFormEvent {
   const FiatFormAccountCleared();
