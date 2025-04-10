@@ -634,5 +634,6 @@ abstract class  LocaleKeys {
   static const allTimeProfit = 'allTimeProfit';
   static const profitAndLoss = 'profitAndLoss';
   static const searchAddresses = 'searchAddresses';
+  static const chart = 'chart';
 
 }

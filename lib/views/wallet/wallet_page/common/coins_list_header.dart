@@ -110,7 +110,7 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Text(
-              LocaleKeys.price.tr(),
+              LocaleKeys.chart.tr(),
               style: style,
             ),
           ),
