@@ -30,7 +30,7 @@ class SettingsMenu extends StatelessWidget {
         final Set<SettingsMenuValue> menuItems = <SettingsMenuValue>{
           SettingsMenuValue.general,
           if (showSecurity) SettingsMenuValue.security,
-          SettingsMenuValue.feedback,
+          if (context.isFeedbackAvailable) SettingsMenuValue.feedback,
         };
         return FocusTraversalGroup(
           child: Column(

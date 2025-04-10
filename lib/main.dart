@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
+import 'package:feedback/feedback.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, kIsWasm;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -11,6 +12,7 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/app_bloc_observer.dart';
@@ -34,7 +36,6 @@ import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:feedback/feedback.dart';
 
 part 'services/initializer/app_bootstrapper.dart';
 
@@ -155,6 +156,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: BetterFeedback(
+        feedbackBuilder: CustomFeedbackForm.feedbackBuilder,
         themeMode: ThemeMode.light,
         darkTheme: _feedbackThemeData(theme),
         theme: _feedbackThemeData(theme),
@@ -174,6 +176,7 @@ FeedbackThemeData _feedbackThemeData(ThemeData appTheme) {
     dragHandleColor: appTheme.colorScheme.primary,
     colorScheme: appTheme.colorScheme,
     sheetIsDraggable: true,
+    feedbackSheetHeight: 0.3,
     drawColors: [
       Colors.red,
       Colors.white,

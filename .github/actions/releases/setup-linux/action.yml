@@ -25,7 +25,7 @@ runs:
     - name: Install Linux build dependencies
       shell: bash
       run: |
-        flutter pub get
+        flutter pub get --enforce-lockfile
         flutter doctor
 
     - name: Setup Linux code signing

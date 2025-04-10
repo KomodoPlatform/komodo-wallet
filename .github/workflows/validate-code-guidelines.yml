@@ -6,7 +6,7 @@ run-name: ${{ github.actor }} is validating code guidelines 🚀
 on:
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 jobs:
   validate_code_guidelines:
@@ -23,7 +23,7 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Validate dart code
         run: |
           flutter analyze

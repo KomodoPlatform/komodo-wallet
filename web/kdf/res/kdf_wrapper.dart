@@ -1,5 +1,6 @@
 // NB! This file is not currently used and will possibly be removed in the
-// future.
+// future. We can consider migrating the KDF JS bootstrapper to Dart and
+// compile to JavaScript.
 
 // ignore_for_file: avoid_dynamic_calls
 

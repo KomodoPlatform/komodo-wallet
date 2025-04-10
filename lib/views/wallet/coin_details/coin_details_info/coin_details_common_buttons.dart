@@ -15,7 +15,6 @@ import 'package:web_dex/views/bitrefill/bitrefill_button.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/contract_address_button.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 
 class CoinDetailsCommonButtons extends StatelessWidget {
   const CoinDetailsCommonButtons({
@@ -177,14 +176,6 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
               coin: coin,
               onClickSwapButton: clickSwapButton,
               context: context,
-            ),
-          ),
-        if (coin.hasFaucet)
-          Container(
-            margin: const EdgeInsets.only(left: 21),
-            constraints: const BoxConstraints(maxWidth: 120),
-            child: FaucetButton(
-              onPressed: () => selectWidget(CoinPageType.faucet),
             ),
           ),
         if (isBitrefillIntegrationEnabled)
