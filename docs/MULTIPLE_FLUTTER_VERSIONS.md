@@ -10,6 +10,7 @@ For the best development experience with Komodo DeFi SDK, we recommend using a F
 Before installing a version manager, you should remove any existing Flutter installations to avoid conflicts:
 
 ### macOS
+
 ```bash
 # If installed via git
 rm -rf ~/flutter
@@ -22,6 +23,7 @@ brew uninstall flutter
 ```
 
 ### Windows
+
 ```powershell
 # If installed manually, delete the Flutter folder
 # Remove from PATH in Environment Variables
@@ -32,6 +34,7 @@ winget uninstall flutter
 ```
 
 ### Linux
+
 ```bash
 # If installed via git
 rm -rf ~/flutter
@@ -54,7 +57,7 @@ sudo pacman -R flutter   # for Arch
 
 2. Launch Flutter Sidekick
 
-3. Click on "Versions" in the sidebar and download Flutter version `3.29.0`
+3. Click on "Versions" in the sidebar and download Flutter version `3.29.2`
 
 4. Set this version as the global default by clicking the "Set as Global" button
 
@@ -66,6 +69,7 @@ sudo pacman -R flutter   # for Arch
 6. Restart your terminal/IDE for the changes to take effect
 
 7. Verify the installation:
+
    ```bash
    flutter --version
    ```
@@ -82,27 +86,32 @@ sudo pacman -R flutter   # for Arch
 ### macOS and Linux
 
 1. Install FVM using the installation script:
+
    ```bash
    curl -fsSL https://fvm.app/install.sh | bash
    ```
 
-2. Install and use Flutter 3.29.0:
+2. Install and use Flutter 3.29.2:
+
    ```bash
-   fvm install 3.29.0
-   fvm global 3.29.0
+   fvm install 3.29.2
+   fvm global 3.29.2
    ```
 
 3. Add FVM's default Flutter version to your PATH by adding the following to your `~/.bashrc`, `~/.zshrc`, or equivalent:
+
    ```bash
    export PATH="$PATH:$HOME/.fvm/default/bin"
    ```
 
 4. Reload your shell configuration:
+
    ```bash
    source ~/.bashrc  # or ~/.zshrc
    ```
 
 5. Verify the installation:
+
    ```bash
    flutter --version
    ```
@@ -110,19 +119,22 @@ sudo pacman -R flutter   # for Arch
 ### Windows
 
 1. Install Chocolatey (if not already installed):
+
    ```powershell
    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
    ```
 
 2. Install FVM:
+
    ```powershell
    choco install fvm
    ```
 
-3. Install and use Flutter 3.29.0:
+3. Install and use Flutter 3.29.2:
+
    ```powershell
-   fvm install 3.29.0
-   fvm global 3.29.0
+   fvm install 3.29.2
+   fvm global 3.29.2
    ```
 
 4. Add FVM's Flutter version to your PATH:
@@ -131,6 +143,7 @@ sudo pacman -R flutter   # for Arch
    - Add `%LOCALAPPDATA%\fvm\default\bin`
 
 5. Restart your terminal/PowerShell and verify the installation:
+
    ```powershell
    flutter --version
    ```
@@ -141,8 +154,9 @@ To use a specific Flutter version for a project:
 
 1. Navigate to your project directory
 2. Run:
+
    ```bash
-   fvm use 3.29.0
+   fvm use 3.29.2
    ```
 
 This will create a `.fvmrc` file in your project, which specifies the Flutter version to use for this project.
@@ -157,6 +171,7 @@ For optimal integration with VS Code:
 
    - Open the project in VS Code
    - Create or edit the `.vscode/settings.json` file in your project root and add:
+
      ```json
      {
        "dart.flutterSdkPath": ".fvm/flutter_sdk",

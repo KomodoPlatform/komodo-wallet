@@ -33,7 +33,6 @@ import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_address
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_common_buttons.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info_fiat.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 import 'package:web_dex/views/wallet/coin_details/transactions/transaction_table.dart';
 
 class CoinDetailsInfo extends StatefulWidget {
@@ -201,7 +200,8 @@ class _DesktopContent extends StatelessWidget {
           const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
-          if (selectedTransaction == null) CoinAddresses(coin: coin),
+          if (selectedTransaction == null)
+            CoinAddresses(coin: coin, setPageType: setPageType),
           const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
@@ -304,7 +304,11 @@ class _MobileContent extends StatelessWidget {
         const SliverToBoxAdapter(
           child: SizedBox(height: 20),
         ),
-        if (selectedTransaction == null) CoinAddresses(coin: coin),
+        if (selectedTransaction == null)
+          CoinAddresses(
+            coin: coin,
+            setPageType: setPageType,
+          ),
         const SliverToBoxAdapter(
           child: SizedBox(height: 20),
         ),
@@ -365,10 +369,6 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
               coin: coin,
             ),
           ),
-          if (coin.hasFaucet)
-            FaucetButton(
-              onPressed: () => setPageType(CoinPageType.faucet),
-            ),
           _CoinDetailsMarketMetricsTabBar(coin: coin),
         ],
       ),
@@ -499,51 +499,6 @@ class _CoinDetailsMarketMetricsTabBarState
   }
 }
 
-class _FaucetButton extends StatelessWidget {
-  const _FaucetButton({
-    required this.coin,
-    required this.openFaucet,
-  });
-
-  final Coin coin;
-  final VoidCallback openFaucet;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_isShown) return const SizedBox.shrink();
-
-    return FocusDecorator(
-      child: InkWell(
-        onTap: coin.isSuspended ? null : openFaucet,
-        child: Opacity(
-          opacity: coin.isSuspended ? 0.4 : 1,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 55),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: theme.custom.specificButtonBorderColor),
-              color: theme.custom.specificButtonBackgroundColor,
-            ),
-            padding: const EdgeInsets.symmetric(
-              vertical: 5,
-              horizontal: 7,
-            ),
-            child: Text(
-              LocaleKeys.faucet.tr(),
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  bool get _isShown => coin.defaultAddress != null;
-}
-
 class _Balance extends StatelessWidget {
   const _Balance({required this.coin});
   final Coin coin;
@@ -655,12 +610,6 @@ class _SpecificButton extends StatelessWidget {
       return _GetRewardsButton(
         coin: coin,
         onTap: () => selectWidget(CoinPageType.claim),
-      );
-    }
-    if (coin.hasFaucet) {
-      return _FaucetButton(
-        coin: coin,
-        openFaucet: () => selectWidget(CoinPageType.faucet),
       );
     }
     return const SizedBox.shrink();
