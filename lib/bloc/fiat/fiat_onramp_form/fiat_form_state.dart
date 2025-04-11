@@ -30,7 +30,7 @@ final class FiatFormState extends Equatable with FormzMixin {
           FiatCurrency('USD', 'United States Dollar'),
         ),
         selectedAsset = const CurrencyInput.dirty(
-          CryptoCurrency('BTC', 'Bitcoin', CoinType.utxo),
+          CryptoCurrency('BTC-segwit', 'Bitcoin', CoinType.utxo),
         ),
         fiatAmount = const FiatAmountInput.pure(),
         selectedAssetAddress = null,

@@ -209,25 +209,46 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     emit(FiatFormState.initial());
   }
 
-  Future<FiatFormState> _updateAssetPubkeys() async {
-    try {
-      if (!await _sdk.auth.isSignedIn()) {
-        return state;
+  Future<FiatFormState> _updateAssetPubkeys({int maxRetries = 3}) async {
+    int attempts = 0;
+
+    while (attempts < maxRetries) {
+      attempts++;
+      try {
+        if (!await _sdk.auth.isSignedIn()) {
+          return state;
+        }
+
+        final asset =
+            _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC-segwit');
+        final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
+        final address = pubkeys.keys.firstOrNull;
+
+        return state.copyWith(
+          selectedAssetAddress: address,
+          selectedCoinPubkeys: pubkeys,
+        );
+      } catch (e, s) {
+        if (attempts >= maxRetries) {
+          _log.shout(
+            'Error updating asset pubkeys after $attempts attempts',
+            e,
+            s,
+          );
+          return state.copyWith(selectedAssetAddress: null);
+        }
+
+        _log.warning(
+          'Error updating asset pubkeys (attempt $attempts/$maxRetries), retrying...',
+          e,
+          s,
+        );
+
+        await Future.delayed(Duration(milliseconds: 500 * attempts));
       }
-
-      final asset =
-          _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC');
-      final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
-      final address = pubkeys.keys.firstOrNull;
-
-      return state.copyWith(
-        selectedAssetAddress: address,
-        selectedCoinPubkeys: pubkeys,
-      );
-    } catch (e, s) {
-      _log.shout('Error updating asset pubkeys', e, s);
-      return state.copyWith(selectedAssetAddress: null);
     }
+
+    return state.copyWith(selectedAssetAddress: null);
   }
 
   void _onPaymentStatusMessage(
