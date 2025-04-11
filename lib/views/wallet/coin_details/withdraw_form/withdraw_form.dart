@@ -731,6 +731,9 @@ class _RecipientAddressWithNotificationState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final warningColor = theme.colorScheme.error.withValues(alpha: 0.8);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -746,9 +749,30 @@ class _RecipientAddressWithNotificationState
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 300),
               opacity: 1.0,
-              child: ErrorDisplay(
-                message: LocaleKeys.addressConvertedToMixedCase.tr(),
-                isWarning: true,
+              child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: warningColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: warningColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      LocaleKeys.addressConvertedToMixedCase.tr(),
+                      style: theme.textTheme.labelMedium,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
