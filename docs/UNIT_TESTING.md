@@ -2,6 +2,7 @@
 
 To run unit test:
 
-  ```bash
-    flutter test test_units/main.dart
-  ```
+```bash
+flutter pub get --enforce-lockfile
+flutter test --no-pub test_units/main.dart
+```
