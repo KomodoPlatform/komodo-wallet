@@ -638,7 +638,7 @@
     "profitAndLoss": "Profit & Loss",
     "alertDialogBitrefill" : "Bitrefill",
     "showNoTradingWarning" : "Warning",
-    "showNoTradingWarningMessage" : "Trading features may not be used for actual trading. Only test assets/networks may be used and only for development purposes. You are solely responsible for any losses/damage that may occur.\n\nKomodoPlatform does not condone the use of this app for trading purposes and unequivocally forbids it.",
+    "showNoTradingWarningMessage" : "Important: This is a development environment only. Please use test networks and demo assets exclusively for development and testing. KomodoPlatform does not support or permit real trading through this application. By using this app, you acknowledge that any potential losses or issues that may arise are your responsibility. Happy developing!",
     "showNoTradingWarningButton" : "I agree",
     "amountFieldCheckboxListTile" : "Send maximum amount",
     "customFeeToggleTitle" : "Custom fee",
