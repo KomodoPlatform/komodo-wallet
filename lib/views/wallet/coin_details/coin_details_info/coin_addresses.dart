@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -114,13 +115,9 @@ class _CoinAddressesState extends State<CoinAddresses> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 20.0),
                                 child: Center(
-                                  child: Text(
-                                    state.errorMessage ??
-                                        LocaleKeys.somethingWrong.tr(),
-                                    style: TextStyle(
-                                      color:
-                                          theme.currentGlobal.colorScheme.error,
-                                    ),
+                                  child: ErrorDisplay(
+                                    message: LocaleKeys.somethingWrong.tr(),
+                                    detailedMessage: state.errorMessage,
                                   ),
                                 ),
                               ),
