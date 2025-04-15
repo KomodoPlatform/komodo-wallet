@@ -113,7 +113,7 @@
     "walletsManagerStepBuilderCreationWalletError": "Failed to create wallet, please try again later",
     "walletCreationTitle": "Create wallet",
     "walletImportTitle": "Import wallet",
-    "walletImportByFileTitle": "Seed file has been imported",
+    "walletImportByFileTitle": "Importing seed file",
     "walletImportCreatePasswordTitle": "Create a password for \"{}\" wallet",
     "walletImportByFileDescription": "Create a password of your seed file to decrypt it. This password will be used to log in to your wallet",
     "walletLogInTitle": "Log in",
