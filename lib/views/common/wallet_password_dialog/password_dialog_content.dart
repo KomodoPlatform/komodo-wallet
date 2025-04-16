@@ -127,7 +127,7 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
 
   void _setInvalidPasswordState() {
     setState(() {
-      _error = LocaleKeys.invalidPasswordError.tr();
+      _error = LocaleKeys.incorrectPassword.tr();
       _inProgress = false;
     });
   }
