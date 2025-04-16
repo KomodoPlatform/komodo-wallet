@@ -8,7 +8,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/bloc_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/get_new_address/get_new_address_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw/trezor_withdraw_request.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/hd_account/hd_account.dart';
 import 'package:web_dex/model/hw_wallet/init_trezor.dart';
 import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';

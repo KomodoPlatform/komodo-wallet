@@ -6,7 +6,6 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/widgets/copied_text.dart';
 import 'package:web_dex/shared/widgets/copyable_address_dialog.dart';
 import 'package:web_dex/views/wallet/coin_details/constants.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/receive_address_trezor.dart';
