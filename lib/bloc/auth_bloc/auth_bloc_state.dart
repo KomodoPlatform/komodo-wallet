@@ -7,7 +7,7 @@ class AuthBlocState extends Equatable {
     required this.mode,
     this.currentUser,
     this.status = AuthStatus.initial,
-    this.errorMessage,
+    this.authError,
   });
 
   factory AuthBlocState.initial() =>
@@ -16,10 +16,10 @@ class AuthBlocState extends Equatable {
         mode: AuthorizeMode.noLogin,
         status: AuthStatus.loading,
       );
-  factory AuthBlocState.error(String errorMessage) => AuthBlocState(
+  factory AuthBlocState.error(AuthException authError) => AuthBlocState(
         mode: AuthorizeMode.noLogin,
         status: AuthStatus.failure,
-        errorMessage: errorMessage,
+        authError: authError,
       );
   factory AuthBlocState.loggedIn(KdfUser user) => AuthBlocState(
         mode: AuthorizeMode.logIn,
@@ -30,12 +30,12 @@ class AuthBlocState extends Equatable {
   final KdfUser? currentUser;
   final AuthorizeMode mode;
   final AuthStatus status;
-  final String? errorMessage;
+  final AuthException? authError;
 
   bool get isSignedIn => currentUser != null;
   bool get isLoading => status == AuthStatus.loading;
   bool get isError => status == AuthStatus.failure;
 
   @override
-  List<Object?> get props => [mode, currentUser, status, errorMessage];
+  List<Object?> get props => [mode, currentUser, status, authError];
 }

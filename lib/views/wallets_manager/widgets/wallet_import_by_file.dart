@@ -190,7 +190,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
     );
     if (fileData == null) {
       setState(() {
-        _filePasswordError = LocaleKeys.invalidPasswordError.tr();
+        _filePasswordError = LocaleKeys.incorrectPassword.tr();
       });
       _formKey.currentState?.validate();
       return;
