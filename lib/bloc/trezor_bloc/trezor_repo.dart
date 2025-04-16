@@ -172,13 +172,21 @@ class TrezorRepo {
   ) async {
     final GetNewAddressResponse response =
         await _api.getNewAddressStatus(taskId);
-    final GetNewAddressStatus? status = response.result?.status;
-    final GetNewAddressResultDetails? details = response.result?.details;
-    if (status == GetNewAddressStatus.ok &&
-        details is GetNewAddressResultOkDetails) {
-          // TODO! migrate to SDK
+
+    // TODO: migrate to the SDK along with trezor repo
+    // This is also done on the periodic balance update polling in [CoinsBloc]
+    // in [updateTrezorBalances] so this being commented out might result in
+    // a delay to balance updates but it would require streaming updates to
+    // the coins bloc or sdk to update balances that are being migrated to
+    // the SDK stream-based approach. 
+    // 
+    // final GetNewAddressStatus? status = response.result?.status;
+    // final GetNewAddressResultDetails? details = response.result?.details;
+    // if (status == GetNewAddressStatus.ok &&
+        // details is GetNewAddressResultOkDetails) {
       // coin.accounts = await getAccounts(coin);
-    }
+    // }
+
     return response;
   }
 }
