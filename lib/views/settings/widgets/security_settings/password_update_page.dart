@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
@@ -102,7 +103,7 @@ class _PasswordUpdatePageState extends State<PasswordUpdatePage> {
 }
 
 class _FormView extends StatefulWidget {
-  const _FormView({super.key, required this.onSuccess});
+  const _FormView({required this.onSuccess});
 
   final VoidCallback onSuccess;
 
@@ -198,7 +199,24 @@ class _FormViewState extends State<_FormView> {
       widget.onSuccess();
     } catch (e) {
       setState(() {
-        _error = LocaleKeys.passwordNotAccepted.tr();
+        if (e is! AuthException) {
+          _error = LocaleKeys.passwordNotAccepted.tr();
+          return;
+        }
+
+        switch (e.type) {
+          case AuthExceptionType.incorrectPassword:
+            _error = LocaleKeys.incorrectPassword.tr();
+            break;
+          case AuthExceptionType.unauthorized:
+            _error = LocaleKeys.noActiveWallet.tr();
+            break;
+          case AuthExceptionType.apiConnectionError:
+            _error = LocaleKeys.activationFailedMessage.tr();
+            break;
+          default:
+            _error = LocaleKeys.passwordNotAccepted.tr();
+        }
       });
     }
   }
@@ -343,7 +361,7 @@ class _PasswordField extends StatelessWidget {
 }
 
 class _SuccessView extends StatelessWidget {
-  const _SuccessView({super.key, required this.back});
+  const _SuccessView({required this.back});
 
   final VoidCallback back;
 
