@@ -52,12 +52,15 @@ abstract class LocaleKeys {
   static const fees = 'fees';
   static const recipientAddress = 'recipientAddress';
   static const transactionHash = 'transactionHash';
+  static const transactionSuccessful = 'transactionSuccessful';
+  static const transactionFailed = 'transactionFailed';
   static const hash = 'hash';
   static const fullHash = 'fullHash';
   static const coinAddress = 'coinAddress';
   static const youSend = 'youSend';
   static const invalidAddress = 'invalidAddress';
   static const customFeeCoin = 'customFeeCoin';
+  static const customNetworkFee = 'customNetworkFee';
   static const customFeeOptional = 'customFeeOptional';
   static const optional = 'optional';
   static const showMore = 'showMore';
@@ -361,6 +364,7 @@ abstract class LocaleKeys {
   static const trezorSelectTitle = 'trezorSelectTitle';
   static const trezorSelectSubTitle = 'trezorSelectSubTitle';
   static const mixedCaseError = 'mixedCaseError';
+  static const addressConvertedToMixedCase = 'addressConvertedToMixedCase';
   static const invalidAddressChecksum = 'invalidAddressChecksum';
   static const notEnoughBalance = 'notEnoughBalance';
   static const pleaseInputData = 'pleaseInputData';
@@ -428,6 +432,8 @@ abstract class LocaleKeys {
   static const withdrawZeroBalanceError = 'withdrawZeroBalanceError';
   static const withdrawAmountTooLowError = 'withdrawAmountTooLowError';
   static const withdrawNoSuchCoinError = 'withdrawNoSuchCoinError';
+  static const withdrawPreview = 'withdrawPreview';
+  static const withdrawPreviewError = 'withdrawPreviewError';
   static const txHistoryFetchError = 'txHistoryFetchError';
   static const txHistoryNoTransactions = 'txHistoryNoTransactions';
   static const maxGapLimitReached = 'maxGapLimitReached';
@@ -585,6 +591,7 @@ abstract class LocaleKeys {
   static const errorCode = 'errorCode';
   static const errorDetails = 'errorDetails';
   static const errorMessage = 'errorMessage';
+  static const technicalDetails = 'technicalDetails';
   static const followTrezorInstructions = 'followTrezorInstructions';
   static const orderFailedTryAgain = 'orderFailedTryAgain';
   static const noOptionsToPurchase = 'noOptionsToPurchase';
