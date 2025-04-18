@@ -18,7 +18,7 @@ abstract class BaseResponse<T> {
   final T result;
 }
 
-abstract class BaseError {
+abstract class BaseError implements Exception {
   const BaseError();
   String get message;
 }

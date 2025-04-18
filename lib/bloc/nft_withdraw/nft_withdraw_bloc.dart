@@ -66,15 +66,26 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
     await _activateParentCoinIfNeeded(nft);
 
-    final BaseError? addressError =
-        await _validateAddress(nft.parentCoin, address);
-    final BaseError? amountError =
-        _validateAmount(amount, int.parse(nft.amount), nft.contractType);
-    if (addressError != null || amountError != null) {
+    String validatedAddress;
+    try {
+      validatedAddress = await _validateAddress(nft.parentCoin, address);
+    } catch (e) {
       emit(
         state.copyWith(
           isSending: () => false,
-          addressError: () => addressError,
+          addressError: () =>
+              (e is BaseError) ? e : TextError(error: e.toString()),
+        ),
+      );
+      return;
+    }
+
+    final BaseError? amountError =
+        _validateAmount(amount, int.parse(nft.amount), nft.contractType);
+    if (amountError != null) {
+      emit(
+        state.copyWith(
+          isSending: () => false,
           amountError: () => amountError,
         ),
       );
@@ -82,8 +93,8 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     }
 
     try {
-      final WithdrawNftResponse response =
-          await _repo.withdraw(nft: nft, address: address, amount: amount);
+      final WithdrawNftResponse response = await _repo.withdraw(
+          nft: nft, address: validatedAddress, amount: amount);
 
       final NftTransactionDetails result = response.result;
 
@@ -177,28 +188,60 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     );
   }
 
-  Future<BaseError?> _validateAddress(
+  Future<String> _validateAddress(
     Coin coin,
     String address,
   ) async {
     if (address.isEmpty) {
-      return TextError(error: LocaleKeys.invalidAddress.tr(args: [coin.abbr]));
+      throw TextError(error: LocaleKeys.invalidAddress.tr(args: [coin.abbr]));
     }
     try {
       final validateResponse = await _repo.validateAddress(coin, address);
       final isNonMixed = _isErcNonMixedCase(validateResponse.reason ?? '');
 
       if (isNonMixed) {
-        return MixedCaseAddressError();
+        try {
+          final mixedAddress = await _convertAddressToMixed(
+            address: address,
+            coin: coin,
+          );
+
+          // Update the address in state
+          add(NftWithdrawAddressChanged(mixedAddress));
+          return mixedAddress;
+        } catch (e) {
+          throw MixedCaseAddressError();
+        }
       }
 
-      return validateResponse.isValid
-          ? null
-          : TextError(error: LocaleKeys.invalidAddress.tr(args: [coin.abbr]));
+      if (!validateResponse.isValid) {
+        throw TextError(error: LocaleKeys.invalidAddress.tr(args: [coin.abbr]));
+      }
+
+      return address;
     } on ApiError catch (e) {
-      return e;
+      throw e;
     } catch (e) {
-      return TextError(error: e.toString());
+      throw TextError(error: e.toString());
+    }
+  }
+
+  Future<String> _convertAddressToMixed({
+    required String address,
+    required Coin coin,
+  }) async {
+    try {
+      final subclass = coin.type.toCoinSubClass();
+      // TODO (@takenagain): Refactor as needed so that we can use the SDK
+      // utility instead of calling the API directly.
+      final result = await _kdfSdk.client.rpc.address.convertAddress(
+        from: address,
+        coin: subclass.ticker,
+        toFormat: AddressFormat(format: 'mixedcase', network: ''),
+      );
+      return result.address;
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -256,17 +299,14 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     if (state is! NftWithdrawFillState) return;
 
     try {
-      final subclass = state.nft.parentCoin.type.toCoinSubClass();
-      final result = await _kdfSdk.client.rpc.address.convertAddress(
-        from: state.address,
-        coin: subclass.ticker,
-        toFormat: AddressFormat.fromCoinSubClass(subclass),
+      final mixedCaseAddress = await _convertAddressToMixed(
+        address: state.address,
+        coin: state.nft.parentCoin,
       );
-      add(NftWithdrawAddressChanged(result.address));
+      add(NftWithdrawAddressChanged(mixedCaseAddress));
     } catch (e) {
       emit(
         state.copyWith(
-          address: () => '',
           addressError: () => TextError(error: e.toString()),
         ),
       );

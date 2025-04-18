@@ -149,7 +149,9 @@ class WithdrawTransportError
     implements BaseError, ErrorNeedsSetCoinAbbr {
   WithdrawTransportError({
     required String error,
-  }) : _error = error;
+    String? feeCoin,
+  })  : _error = error,
+        _feeCoin = feeCoin;
 
   factory WithdrawTransportError.fromJson(Map<String, dynamic> json) {
     return WithdrawTransportError(
@@ -157,14 +159,16 @@ class WithdrawTransportError
     );
   }
 
-  String _error;
-  late String _feeCoin;
+  final String _error;
+  final String? _feeCoin;
 
   static const String type = 'Transport';
 
   @override
   String get message {
-    if (isGasPaymentError && _feeCoin.isNotEmpty) {
+    final hasFeeCoin = _feeCoin != null && _feeCoin.isNotEmpty;
+
+    if (isGasPaymentError && hasFeeCoin) {
       return '${LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(args: [
             _feeCoin
           ])}.';
@@ -172,7 +176,7 @@ class WithdrawTransportError
 
     if (_error.isNotEmpty &&
         _error.contains('insufficient funds for transfer') &&
-        _feeCoin.isNotEmpty) {
+        hasFeeCoin) {
       return LocaleKeys.withdrawNotEnoughBalanceForGasError
           .tr(args: [_feeCoin]);
     }
