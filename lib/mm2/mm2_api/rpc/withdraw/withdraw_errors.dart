@@ -1,4 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:get_it/get_it.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -160,17 +162,17 @@ class WithdrawTransportError
   }
 
   final String _error;
-  final String? _feeCoin;
+  String? _feeCoin;
 
   static const String type = 'Transport';
 
   @override
   String get message {
-    final hasFeeCoin = _feeCoin != null && _feeCoin.isNotEmpty;
+    final hasFeeCoin = _feeCoin != null && _feeCoin!.isNotEmpty;
 
     if (isGasPaymentError && hasFeeCoin) {
       return '${LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(args: [
-            _feeCoin
+            _feeCoin!
           ])}.';
     }
 
@@ -178,7 +180,7 @@ class WithdrawTransportError
         _error.contains('insufficient funds for transfer') &&
         hasFeeCoin) {
       return LocaleKeys.withdrawNotEnoughBalanceForGasError
-          .tr(args: [_feeCoin]);
+          .tr(args: [_feeCoin!]);
     }
 
     return LocaleKeys.somethingWrong.tr();
@@ -200,14 +202,17 @@ class WithdrawTransportError
 
   @override
   void setCoinAbbr(String coinAbbr) {
-    // TODO!: reimplemen?
-    // final Coin? coin = coinsBloc.getCoin(coinAbbr);
-    // if (coin == null) {
-    //   return;
-    // }
-    // final String? platform = coin.protocolData?.platform;
+    final maybeCoin = GetIt.I<KomodoDefiSdk>()
+        .assets
+        .findAssetsByConfigId(coinAbbr)
+        .singleOrNull;
 
-    // _feeCoin = platform ?? coinAbbr;
+    if (maybeCoin == null) {
+      return;
+    }
+    final maybePlatform = maybeCoin.id.parentId?.id;
+
+    _feeCoin = maybePlatform ?? coinAbbr;
   }
 }
 
