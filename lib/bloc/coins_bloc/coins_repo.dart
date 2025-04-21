@@ -239,7 +239,7 @@ class CoinsRepo {
   Coin _assetToCoinWithoutAddress(Asset asset) {
     final coin = asset.toCoin();
     final balanceInfo = _balancesCache[coin.id.id];
-    final price = _pricesCache[coin.id.id];
+    final price = _pricesCache[coin.id.symbol.configSymbol];
 
     Coin? parentCoin;
     if (asset.id.isChildAsset) {
@@ -416,9 +416,10 @@ class CoinsRepo {
           // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
           final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
           if (fiatPrice != null) {
-            // Update the price cache with the value from the SDK
+            // Use configSymbol to lookup for backwards compatibility with the old,
+            // string-based price list (and fallback)
             final change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
-            _pricesCache[asset.id.id] = CexPrice(
+            _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
               ticker: asset.id.id,
               price: fiatPrice.toDouble(),
               lastUpdated: DateTime.now(),
@@ -539,7 +540,7 @@ class CoinsRepo {
           getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
 
       for (final Coin coin in samePriceCoins) {
-        prices[coin.id.id] = CexPrice(
+        prices[coin.id.symbol.configSymbol] = CexPrice(
           ticker: coin.id.id,
           price: double.parse(pricesData['usd'].toString()),
         );
