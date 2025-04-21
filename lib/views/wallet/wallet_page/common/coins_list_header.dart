@@ -28,9 +28,6 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
-    //       fontWeight: FontWeight.w500,
-    //     );
     final style = Theme.of(context).textTheme.labelSmall;
 
     if (isAuth) {
@@ -67,13 +64,11 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
 
           const Spacer(),
 
-          // // More actions space
+          // More actions space
           const SizedBox(width: 48),
         ],
       );
     }
-
-    // ...existing code...
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -123,6 +118,5 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
         ],
       ),
     );
-// ...existing code...
   }
 }
