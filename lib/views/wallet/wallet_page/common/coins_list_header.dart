@@ -28,7 +28,8 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.labelSmall;
+    final style = Theme.of(context).textTheme.labelSmall ??
+        DefaultTextStyle.of(context).style;
 
     if (isAuth) {
       return Row(
@@ -70,52 +71,28 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-      child: Row(
-        children: [
-          // Asset header
-          Expanded(
-            flex: 3,
-            child: Text(
-              LocaleKeys.asset.tr(),
-              style: style,
-            ),
-          ),
+    return DefaultTextStyle(
+      style: style,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+        child: Row(
+          children: [
+            // Asset header
+            Expanded(flex: 3, child: Text(LocaleKeys.asset.tr())),
 
-          // Price header
-          Expanded(
-            flex: 2,
-            child: Text(
-              LocaleKeys.price.tr(),
-              style: style,
-            ),
-          ),
+            // Price header
+            Expanded(flex: 2, child: Text(LocaleKeys.price.tr())),
 
-          // 24h change header
-          Expanded(
-            flex: 2,
-            child: Text(
-              LocaleKeys.change24hRevert.tr(),
-              style: style,
-            ),
-          ),
+            // 24h change header
+            Expanded(flex: 2, child: Text(LocaleKeys.change24hRevert.tr())),
 
-          // Chart header
-          Expanded(
-            flex: 2,
-            child: Text(
-              LocaleKeys.chart.tr(),
-              style: style,
-            ),
-          ),
+            // Chart header
+            Expanded(flex: 2, child: Text(LocaleKeys.chart.tr())),
 
-          // Space for expand button
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 48),
-            child: const SizedBox(),
-          ),
-        ],
+            // Space for expand button
+            Container(constraints: const BoxConstraints(minWidth: 48)),
+          ],
+        ),
       ),
     );
   }
