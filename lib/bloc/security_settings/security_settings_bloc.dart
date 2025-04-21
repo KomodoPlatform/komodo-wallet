@@ -16,7 +16,6 @@ class SecuritySettingsBloc
     on<ShowSeedCopiedEvent>(_onSeedCopied);
   }
 
-
   void _onReset(
     ResetEvent event,
     Emitter<SecuritySettingsState> emit,
@@ -51,13 +50,11 @@ class SecuritySettingsBloc
     PasswordUpdateEvent event,
     Emitter<SecuritySettingsState> emit,
   ) {
-    // TODO!: re-enable once password change is implemented
-    // final newState = state.copyWith(
-    //   step: SecuritySettingsStep.passwordUpdate,
-    //   showSeedWords: false,
-    // );
-    // emit(newState);
-    emit(state);
+    final newState = state.copyWith(
+      step: SecuritySettingsStep.passwordUpdate,
+      showSeedWords: false,
+    );
+    emit(newState);
   }
 
   void _onSeedConfirm(

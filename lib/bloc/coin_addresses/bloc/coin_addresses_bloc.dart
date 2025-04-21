@@ -21,24 +21,39 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
   ) async {
     emit(state.copyWith(createAddressStatus: () => FormStatus.submitting));
 
-    try {
-      await sdk.pubkeys.createNewPubkey(getSdkAsset(sdk, assetId));
+    const maxAttempts = 3;
+    int attempts = 0;
+    Exception? lastException;
 
-      add(const LoadAddressesEvent());
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        await sdk.pubkeys.createNewPubkey(getSdkAsset(sdk, assetId));
 
-      emit(
-        state.copyWith(
-          createAddressStatus: () => FormStatus.success,
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          createAddressStatus: () => FormStatus.failure,
-          errorMessage: () => e.toString(),
-        ),
-      );
+        add(const LoadAddressesEvent());
+
+        emit(
+          state.copyWith(
+            createAddressStatus: () => FormStatus.success,
+          ),
+        );
+        return;
+      } catch (e) {
+        lastException = e is Exception ? e : Exception(e.toString());
+        if (attempts >= maxAttempts) {
+          break;
+        }
+        await Future.delayed(Duration(milliseconds: 500 * attempts));
+      }
     }
+
+    emit(
+      state.copyWith(
+        createAddressStatus: () => FormStatus.failure,
+        errorMessage: () =>
+            'Failed after $attempts attempts: ${lastException.toString()}',
+      ),
+    );
   }
 
   Future<void> _onLoadAddresses(

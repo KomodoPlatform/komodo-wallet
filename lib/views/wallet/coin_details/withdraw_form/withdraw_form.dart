@@ -1,4 +1,8 @@
+import 'dart:async' show Timer;
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -131,7 +135,7 @@ class NetworkErrorDisplay extends StatelessWidget {
       child: onRetry != null
           ? TextButton(
               onPressed: onRetry,
-              child: const Text('Retry'),
+              child: Text(LocaleKeys.retryButtonText.tr()),
             )
           : null,
     );
@@ -186,7 +190,7 @@ class PreviewWithdrawButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Text('Preview Withdrawal'),
+            : Text(LocaleKeys.previewWithdrawal.tr()),
       ),
     );
   }
@@ -208,9 +212,12 @@ class WithdrawPreviewDetails extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRow('Amount', preview.balanceChanges.netChange.toString()),
+            _buildRow(
+              LocaleKeys.amount.tr(),
+              preview.balanceChanges.netChange.toString(),
+            ),
             const SizedBox(height: 8),
-            _buildRow('Fee', preview.fee.formatTotal()),
+            _buildRow(LocaleKeys.fee.tr(), preview.fee.formatTotal()),
             // Add more preview details as needed
           ],
         ),
@@ -246,7 +253,7 @@ class WithdrawResultDetails extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SelectableText(
-              'Transaction Hash:',
+              LocaleKeys.transactionHash.tr(),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 4),
@@ -274,6 +281,7 @@ class WithdrawFormFillSection extends StatelessWidget {
                 asset: state.asset,
                 pubkeys: state.pubkeys,
                 selectedAddress: state.selectedSourceAddress,
+                isLoading: state.pubkeys?.isEmpty ?? true,
                 onChanged: (address) => address == null
                     ? null
                     : context
@@ -282,8 +290,9 @@ class WithdrawFormFillSection extends StatelessWidget {
               ),
               const SizedBox(height: 16),
             ],
-            RecipientAddressField(
+            RecipientAddressWithNotification(
               address: state.recipientAddress,
+              isMixedAddress: state.isMixedCaseAddress,
               onChanged: (value) => context
                   .read<WithdrawFormBloc>()
                   .add(WithdrawFormRecipientChanged(value)),
@@ -317,7 +326,7 @@ class WithdrawFormFillSection extends StatelessWidget {
                         .read<WithdrawFormBloc>()
                         .add(WithdrawFormCustomFeeEnabled(enabled ?? false)),
                   ),
-                  const Text('Custom network fee'),
+                  Text(LocaleKeys.customNetworkFee.tr()),
                 ],
               ),
               if (state.isCustomFee && state.customFee != null) ...[
@@ -359,7 +368,10 @@ class WithdrawFormFillSection extends StatelessWidget {
             // TODO! Refactor to use Formz and replace with the appropriate
             // error state value.
             if (state.hasPreviewError)
-              ErrorDisplay(message: state.previewError!.message),
+              ErrorDisplay(
+                message: LocaleKeys.withdrawPreviewError.tr(),
+                detailedMessage: state.previewError!.message,
+              ),
             const SizedBox(height: 16),
             PreviewWithdrawButton(
               onPressed: state.isSending || state.hasValidationErrors
@@ -401,7 +413,7 @@ class WithdrawFormConfirmSection extends StatelessWidget {
                     onPressed: () => context
                         .read<WithdrawFormBloc>()
                         .add(const WithdrawFormCancelled()),
-                    child: const Text('Back'),
+                    child: Text(LocaleKeys.back.tr()),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -420,7 +432,7 @@ class WithdrawFormConfirmSection extends StatelessWidget {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Confirm'),
+                        : Text(LocaleKeys.confirm.tr()),
                   ),
                 ),
               ],
@@ -449,7 +461,7 @@ class WithdrawFormSuccessSection extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Transaction Successful',
+              LocaleKeys.transactionSuccessful.tr(),
               style: Theme.of(context).textTheme.headlineMedium,
               textAlign: TextAlign.center,
             ),
@@ -458,7 +470,7 @@ class WithdrawFormSuccessSection extends StatelessWidget {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
+              child: Text(LocaleKeys.done.tr()),
             ),
           ],
         );
@@ -494,7 +506,7 @@ class WithdrawResultCard extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: () => openUrl(maybeTxEplorer),
                 icon: const Icon(Icons.open_in_new),
-                label: const Text('View on Explorer'),
+                label: Text(LocaleKeys.viewOnExplorer.tr()),
               ),
             ],
           ],
@@ -510,15 +522,13 @@ class WithdrawResultCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Transaction Hash',
+          LocaleKeys.transactionHash.tr(),
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
         SelectableText(
           result.txHash,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontFamily: 'Mono',
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(fontFamily: 'Mono'),
         ),
       ],
     );
@@ -531,7 +541,7 @@ class WithdrawResultCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Network',
+          LocaleKeys.network.tr(),
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -568,7 +578,7 @@ class WithdrawFormFailedSection extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Transaction Failed',
+              LocaleKeys.transactionFailed.tr(),
               style: theme.textTheme.headlineMedium?.copyWith(
                 color: theme.colorScheme.error,
               ),
@@ -587,14 +597,14 @@ class WithdrawFormFailedSection extends StatelessWidget {
                   onPressed: () => context
                       .read<WithdrawFormBloc>()
                       .add(const WithdrawFormStepReverted()),
-                  child: const Text('Back'),
+                  child: Text(LocaleKeys.back.tr()),
                 ),
                 const SizedBox(width: 16),
                 FilledButton(
                   onPressed: () => context
                       .read<WithdrawFormBloc>()
                       .add(const WithdrawFormReset()),
-                  child: const Text('Try Again'),
+                  child: Text(LocaleKeys.tryAgain.tr()),
                 ),
               ],
             ),
@@ -624,7 +634,7 @@ class WithdrawErrorCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Error Details',
+              LocaleKeys.errorDetails.tr(),
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -637,7 +647,7 @@ class WithdrawErrorCard extends StatelessWidget {
               const Divider(),
               const SizedBox(height: 16),
               ExpansionTile(
-                title: const Text('Technical Details'),
+                title: Text(LocaleKeys.technicalDetails.tr()),
                 children: [
                   SelectableText(
                     (error as TextError).error,
@@ -651,6 +661,112 @@ class WithdrawErrorCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Shows a temporary notification when the address is converted to mixed case.
+/// This is to avoid confusion for users when the auto-conversion happens.
+/// The notification will be shown for a short duration and then fade out.
+class RecipientAddressWithNotification extends StatefulWidget {
+  final String address;
+  final bool isMixedAddress;
+  final Duration notificationDuration;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onQrScanned;
+  final String? Function()? errorText;
+
+  const RecipientAddressWithNotification({
+    required this.address,
+    required this.onChanged,
+    required this.onQrScanned,
+    required this.isMixedAddress,
+    this.notificationDuration = const Duration(seconds: 10),
+    this.errorText,
+    super.key,
+  });
+
+  @override
+  State<RecipientAddressWithNotification> createState() =>
+      _RecipientAddressWithNotificationState();
+}
+
+class _RecipientAddressWithNotificationState
+    extends State<RecipientAddressWithNotification> {
+  bool _showNotification = false;
+  Timer? _notificationTimer;
+
+  @override
+  void didUpdateWidget(RecipientAddressWithNotification oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isMixedAddress && !oldWidget.isMixedAddress) {
+      _showTemporaryNotification();
+    } else if (!widget.isMixedAddress) {
+      setState(() {
+        _showNotification = false;
+      });
+    }
+  }
+
+  void _showTemporaryNotification() {
+    _notificationTimer?.cancel();
+    setState(() {
+      _showNotification = true;
+    });
+
+    _notificationTimer = Timer(widget.notificationDuration, () {
+      if (mounted) {
+        setState(() {
+          _showNotification = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final statusColor = theme.colorScheme.primary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RecipientAddressField(
+          address: widget.address,
+          onChanged: widget.onChanged,
+          onQrScanned: widget.onQrScanned,
+          errorText: widget.errorText,
+        ),
+        if (_showNotification)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 300),
+              opacity: 1.0,
+              child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  LocaleKeys.addressConvertedToMixedCase.tr(),
+                  style:
+                      theme.textTheme.labelMedium?.copyWith(color: statusColor),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

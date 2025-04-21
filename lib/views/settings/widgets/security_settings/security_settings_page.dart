@@ -14,6 +14,7 @@ import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/common/wallet_password_dialog/wallet_password_dialog.dart';
 import 'package:web_dex/views/settings/widgets/common/settings_content_wrapper.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/password_update_page.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/security_settings_main_page.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_confirm_success.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_confirmation/seed_confirmation.dart';
@@ -47,17 +48,19 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 switch (state.step) {
                   case SecuritySettingsStep.securityMain:
                     widget.onBackPressed();
+                    break;
                   case SecuritySettingsStep.seedConfirm:
                     context
                         .read<SecuritySettingsBloc>()
                         .add(const ShowSeedEvent());
+                    break;
                   case SecuritySettingsStep.seedShow:
                   case SecuritySettingsStep.seedSuccess:
-                  // case SecuritySettingsStep.passwordUpdate:
-                  //   context
-                  //       .read<SecuritySettingsBloc>()
-                  //       .add(const ResetEvent());
-                  //   break;
+                  case SecuritySettingsStep.passwordUpdate:
+                    context
+                        .read<SecuritySettingsBloc>()
+                        .add(const ResetEvent());
+                    break;
                 }
               },
             );
@@ -86,10 +89,10 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         _privKeys.clear();
         return const SeedConfirmSuccess();
 
-      // case SecuritySettingsStep.passwordUpdate:
-      //   _seed = '';
-      //   _privKeys.clear();
-      //   return const PasswordUpdatePage();
+      case SecuritySettingsStep.passwordUpdate:
+        _seed = '';
+        _privKeys.clear();
+        return const PasswordUpdatePage();
     }
   }
 
