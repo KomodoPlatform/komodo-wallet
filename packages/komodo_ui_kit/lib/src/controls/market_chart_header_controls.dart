@@ -71,7 +71,7 @@ class MarketChartHeaderControls extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(width: 2),
+        const SizedBox(width: 10),
         SelectedCoinGraphControl(
           emptySelectAllowed: emptySelectAllowed,
           centreAmount: centreAmount,
