@@ -299,7 +299,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
       final map = coins.map((key, coin) {
-        final price = prices[coin.id.id];
+        // Use configSymbol to lookup for backwards compatibility with the old,
+        // string-based price list (and fallback)
+        final price = prices[coin.id.symbol.configSymbol];
         if (price != null) {
           return MapEntry(key, coin.copyWith(usdPrice: price));
         }

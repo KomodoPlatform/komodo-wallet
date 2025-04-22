@@ -44,12 +44,47 @@ class WithdrawFormState extends Equatable {
   bool get hasPreviewError => previewError != null;
   bool get hasTransactionError => transactionError != null;
   bool get hasAddressError =>
-      recipientAddressError != null || isMixedCaseAddress;
+      recipientAddressError != null;
   bool get hasValidationErrors =>
       hasAddressError ||
       amountError != null ||
       customFeeError != null ||
-      ibcChannelError != null;
+      ibcChannelError != null ||
+      !_hasValidFormData();
+
+  // TODO: change to use formz for field validation & to create reusable input
+  // field validators
+  /// Checks if the form has valid data to submit, not just absence of errors
+  bool _hasValidFormData() {
+    // Recipient address is required and must not be empty
+    if (recipientAddress.trim().isEmpty) {
+      return false;
+    }
+
+    // Amount must be greater than zero unless max amount is selected
+    if (!isMaxAmount) {
+      try {
+        final parsedAmount = Decimal.parse(amount);
+        if (parsedAmount <= Decimal.zero) {
+          return false;
+        }
+      } catch (_) {
+        return false; // Invalid number format
+      }
+    }
+
+    // If IBC transfer is enabled, channel is required
+    if (isIbcTransfer && (ibcChannel == null || ibcChannel!.trim().isEmpty)) {
+      return false;
+    }
+
+    // If custom fee is enabled, it must be valid
+    if (isCustomFee && customFee == null) {
+      return false;
+    }
+
+    return true;
+  }
 
   const WithdrawFormState({
     required this.asset,

@@ -24,7 +24,7 @@ runs:
     - name: Install Windows build dependencies
       shell: pwsh
       run: |
-        flutter pub get
+        flutter pub get --enforce-lockfile
         flutter doctor
 
     - name: Setup Windows code signing

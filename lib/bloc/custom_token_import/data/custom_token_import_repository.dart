@@ -70,6 +70,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         tokenApi?['image']?['small'] ??
         tokenApi?['image']?['thumb'];
     final newCoin = Asset(
+      signMessagePrefix: null,
       id: AssetId(
         id: coinId,
         name: tokenApi?['name'] ?? ticker,

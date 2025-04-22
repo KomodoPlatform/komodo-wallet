@@ -62,6 +62,11 @@ class _WalletLogInState extends State<WalletLogIn> {
   }
 
   void _submitLogin() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState.isLoading) {
+      return;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.wallet.config.type =
           _isHdMode && _user != null && _user!.isBip39Seed == true
@@ -79,10 +84,10 @@ class _WalletLogInState extends State<WalletLogIn> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
-        // TODO: expand to parse SDK errors and show more specific messages
-        final errorMessage = state.errorMessage != null
-            ? LocaleKeys.invalidPasswordError.tr()
-            : null;
+        final errorMessage =
+            state.authError?.type == AuthExceptionType.incorrectPassword
+                ? LocaleKeys.incorrectPassword.tr()
+                : state.authError?.message;
 
         return Column(
           mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,

@@ -19,12 +19,12 @@ jobs:
         include:
           - platform: iOS
             runner: macos-latest
-            build_command: flutter build ios --release --no-codesign
+            build_command: flutter build ios --no-pub --release --no-codesign
             artifact_path: build/ios/iphoneos/Runner.app
             artifact_name: komodo-wallet-ios-unsigned.app
           - platform: Android
             runner: ubuntu-latest
-            build_command: flutter build apk --release
+            build_command: flutter build apk --no-pub --release
             artifact_path: build/app/outputs/flutter-apk/app-release.apk
             artifact_name: komodo-wallet-android-unsigned.apk
 
@@ -64,8 +64,9 @@ jobs:
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
           TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
-          # Use default value for BUILD_COMMAND, as iOS does not appear to run 
-          # the build transformer required to generate the required assets.
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
 
       - name: Build for ${{ matrix.platform }}
         env:
