@@ -80,8 +80,10 @@ class NftToken {
     // Image.network does not support ipfs protocol
     String url = image.replaceFirst('ipfs://', 'https://ipfs.io/ipfs/');
 
-    // Also standardize gateway URLs to use ipfs.io
-    final gatewayPattern = RegExp(r'https://[^/]+\.ipfs\.[^/]+/ipfs/');
+    // Also standardize gateway URLs to use ipfs.io Match both patterns: 
+    // gateway.moralisipfs.com/ipfs/ and common.ipfs.gateway/ipfs/
+    final gatewayPattern =
+        RegExp(r'https://[^/]+(?:\.ipfs\.|ipfs\.)[^/]+/ipfs/');
     return url.replaceAllMapped(gatewayPattern, (_) => 'https://ipfs.io/ipfs/');
   }
 
