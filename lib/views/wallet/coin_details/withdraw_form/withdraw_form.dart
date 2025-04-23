@@ -2,12 +2,12 @@ import 'dart:async' show Timer;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -190,7 +190,7 @@ class PreviewWithdrawButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : Text(LocaleKeys.withdrawPreview.tr()),
+            : Text(LocaleKeys.previewWithdrawal.tr()),
       ),
     );
   }

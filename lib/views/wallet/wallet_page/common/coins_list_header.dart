@@ -28,10 +28,8 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
-    //       fontWeight: FontWeight.w500,
-    //     );
-    final style = Theme.of(context).textTheme.labelSmall;
+    final style = Theme.of(context).textTheme.labelSmall ??
+        DefaultTextStyle.of(context).style;
 
     if (isAuth) {
       return Row(
@@ -67,34 +65,34 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
 
           const Spacer(),
 
-          // // More actions space
+          // More actions space
           const SizedBox(width: 48),
         ],
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-      child: Row(
-        children: [
-          // Asset header
-          Text(LocaleKeys.asset.tr(), style: style),
+    return DefaultTextStyle(
+      style: style,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+        child: Row(
+          children: [
+            // Asset header
+            Expanded(flex: 3, child: Text(LocaleKeys.asset.tr())),
 
-          const Spacer(flex: 4),
+            // Price header
+            Expanded(flex: 2, child: Text(LocaleKeys.price.tr())),
 
-          // Balance header
-          Text(LocaleKeys.balance.tr(), style: style),
+            // 24h change header
+            Expanded(flex: 2, child: Text(LocaleKeys.change24hRevert.tr())),
 
-          const Spacer(flex: 2),
+            // Chart header
+            Expanded(flex: 2, child: Text(LocaleKeys.chart.tr())),
 
-          // 24h change header
-          Padding(
-            padding: const EdgeInsets.only(right: 48),
-            child: Text(LocaleKeys.change24hRevert.tr(), style: style),
-          ),
-
-          const Spacer(flex: 2),
-        ],
+            // Space for expand button
+            Container(constraints: const BoxConstraints(minWidth: 48)),
+          ],
+        ),
       ),
     );
   }
