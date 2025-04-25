@@ -48,6 +48,7 @@ class MarketChartHeaderControls extends StatelessWidget {
     final defaultTextStyle = Theme.of(context).textTheme.labelLarge;
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,23 +73,33 @@ class MarketChartHeaderControls extends StatelessWidget {
           ],
         ),
         const SizedBox(width: 10),
-        SelectedCoinGraphControl(
-          emptySelectAllowed: emptySelectAllowed,
-          centreAmount: centreAmount,
-          percentageIncrease: percentageIncrease,
-          selectedCoinId: selectedCoinId,
-          availableCoins: availableCoins,
-          onCoinSelected: onCoinSelected,
-          customCoinItemBuilder: customCoinItemBuilder,
+        Flexible(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 280),
+            child: SelectedCoinGraphControl(
+              emptySelectAllowed: emptySelectAllowed,
+              centreAmount: centreAmount,
+              percentageIncrease: percentageIncrease,
+              selectedCoinId: selectedCoinId,
+              availableCoins: availableCoins,
+              onCoinSelected: onCoinSelected,
+              customCoinItemBuilder: customCoinItemBuilder,
+            ),
+          ),
         ),
         const SizedBox(width: 2),
         Flexible(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 65),
-            child: TimePeriodSelector(
-              selectedPeriod: selectedPeriod,
-              onPeriodChanged: onPeriodChanged,
-              intervals: timePeriods,
+            constraints: const BoxConstraints(maxWidth: 70),
+            child: SizedBox(
+              height: 40,
+              child: Center(
+                child: TimePeriodSelector(
+                  selectedPeriod: selectedPeriod,
+                  onPeriodChanged: onPeriodChanged,
+                  intervals: timePeriods,
+                ),
+              ),
             ),
           ),
         ),
