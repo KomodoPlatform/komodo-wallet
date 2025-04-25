@@ -108,6 +108,38 @@ class NftReceiveCard extends StatelessWidget {
                   onChanged: onAddressChanged,
                   backgroundColor: colorScheme.surfContHighest,
                 ),
+                if (!address.isActiveForSwap) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: colorScheme.orange.withOpacity(0.15),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      leading: Icon(
+                        Icons.warning_amber_rounded,
+                        color: colorScheme.orange,
+                        size: 28,
+                      ),
+                      title: Text(
+                        LocaleKeys.nftReceiveNonSwapAddressWarning.tr(),
+                        style: textTheme.bodyM.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.orange,
+                        ),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          LocaleKeys.nftReceiveNonSwapWalletDetails.tr(),
+                          style: textTheme.bodyS,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
         ],

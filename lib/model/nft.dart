@@ -80,7 +80,7 @@ class NftToken {
     // Image.network does not support ipfs protocol
     String url = image.replaceFirst('ipfs://', 'https://ipfs.io/ipfs/');
 
-    // Also standardize gateway URLs to use ipfs.io Match both patterns: 
+    // Also standardize gateway URLs to use ipfs.io Match both patterns:
     // gateway.moralisipfs.com/ipfs/ and common.ipfs.gateway/ipfs/
     final gatewayPattern =
         RegExp(r'https://[^/]+(?:\.ipfs\.|ipfs\.)[^/]+/ipfs/');
@@ -319,8 +319,12 @@ class NftTransactionDetails {
       contractType: NftContractType.fromApiResponse(json['contract_type']),
       transactionType: json['transaction_type'],
       tokenAddress: json['token_address'],
-      tokenId: json['token_id'],
-      amount: json['amount'],
+      tokenId: json['token_id'] is List
+          ? json['token_id'][0].toString()
+          : json['token_id'].toString(),
+      amount: json['amount'] is List
+          ? json['amount'][0].toString()
+          : json['amount'].toString(),
     );
   }
 
