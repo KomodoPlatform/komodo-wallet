@@ -16,10 +16,10 @@ class NftTxnMobileCard extends StatefulWidget {
 
   final VoidCallback onPressed;
   const NftTxnMobileCard({
-    Key? key,
+    super.key,
     required this.transaction,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   State<NftTxnMobileCard> createState() => _NftTxnMobileCardState();

@@ -120,7 +120,7 @@ class NftTab extends StatelessWidget {
 
 class _NftCount extends StatelessWidget {
   //ignore: unused_element
-  const _NftCount({super.key, required this.chain});
+  const _NftCount({required this.chain});
 
   final NftBlockchains chain;
 

@@ -6,7 +6,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_wrapper.dart';
 
 class NftTxnDesktopHeader extends StatelessWidget {
-  const NftTxnDesktopHeader({Key? key}) : super(key: key);
+  const NftTxnDesktopHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class NftTxnDesktopHeader extends StatelessWidget {
 }
 
 class _CoinsListHeaderDesktop extends StatelessWidget {
-  const _CoinsListHeaderDesktop({Key? key}) : super(key: key);
+  const _CoinsListHeaderDesktop();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
 }
 
 class _CoinsListHeaderMobile extends StatelessWidget {
-  const _CoinsListHeaderMobile({Key? key}) : super(key: key);
+  const _CoinsListHeaderMobile();
 
   @override
   Widget build(BuildContext context) {

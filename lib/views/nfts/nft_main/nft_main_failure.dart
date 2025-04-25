@@ -11,9 +11,9 @@ class NftMainFailure extends StatelessWidget {
   final BaseError error;
 
   const NftMainFailure({
-    Key? key,
+    super.key,
     required this.error,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

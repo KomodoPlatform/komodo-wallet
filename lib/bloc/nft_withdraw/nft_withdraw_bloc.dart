@@ -219,8 +219,8 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       }
 
       return address;
-    } on ApiError catch (e) {
-      throw e;
+    } on ApiError {
+      rethrow;
     } catch (e) {
       throw TextError(error: e.toString());
     }

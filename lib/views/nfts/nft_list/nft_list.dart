@@ -16,7 +16,7 @@ const _maxNftItemSize = Size(248, 308);
 const double _paddingBetweenNft = 12;
 
 class NftList extends StatelessWidget {
-  const NftList({Key? key}) : super(key: key);
+  const NftList({super.key});
 
   @override
   Widget build(BuildContext context) {
