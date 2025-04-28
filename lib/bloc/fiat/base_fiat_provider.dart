@@ -98,7 +98,13 @@ abstract class BaseFiatProvider {
         return json.decode(response.body);
       } else {
         _log.warning('Request failed with status: ${response.statusCode}');
-        return Future.error(json.decode(response.body) as Object);
+        dynamic decoded;
+        try {
+          decoded = json.decode(response.body);
+        } catch (_) {
+          decoded = response.body;
+        }
+        return Future.error(decoded as Object);
       }
     } catch (e, s) {
       _log.severe('Network error', e, s);

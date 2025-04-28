@@ -1,4 +1,6 @@
 // TODO: Differentiate between different error and in-progress statuses
+import 'package:logging/logging.dart';
+
 enum FiatOrderStatus {
   /// User has not yet started the payment process
   pending,
@@ -14,9 +16,9 @@ enum FiatOrderStatus {
   success,
 
   /// Payment has been cancelled, declined, expired or refunded
-  failed, 
-  
-  /// The user closed the payment window using the provider close button 
+  failed,
+
+  /// The user closed the payment window using the provider close button
   /// or "return to Komodo Wallet" button
   windowCloseRequested;
 
@@ -32,7 +34,8 @@ enum FiatOrderStatus {
   static FiatOrderStatus fromString(String status) {
     // The case statements are references to Banxa's order statuses. See the
     // docs link here for more info: https://docs.banxa.com/docs/order-status
-    switch (status) {
+    final normalized = status.toLowerCase();
+    switch (normalized) {
       case 'complete':
         return FiatOrderStatus.success;
 
@@ -53,7 +56,9 @@ enum FiatOrderStatus {
         return FiatOrderStatus.inProgress;
 
       default:
-        throw Exception('Unknown status: $status');
+        Logger('FiatOrderStatus')
+            .warning('Unknown status: $status, defaulting to failed');
+        return FiatOrderStatus.failed;
     }
   }
 }

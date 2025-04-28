@@ -119,7 +119,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     CurrencyInput<CryptoCurrency>? selectedAsset,
     FiatAmountInput? fiatAmount,
     FiatPaymentMethod? selectedPaymentMethod,
-    PubkeyInfo? selectedAssetAddress,
+    ValueGetter<PubkeyInfo?>? selectedAssetAddress,
     String? checkoutUrl,
     String? orderId,
     FiatFormStatus? status,
@@ -128,14 +128,16 @@ final class FiatFormState extends Equatable with FormzMixin {
     Iterable<CryptoCurrency>? coinList,
     FiatOrderStatus? fiatOrderStatus,
     FiatMode? fiatMode,
-    AssetPubkeys? selectedCoinPubkeys,
+    ValueGetter<AssetPubkeys?>? selectedCoinPubkeys,
   }) {
     return FiatFormState(
       selectedFiat: selectedFiat ?? this.selectedFiat,
       selectedAsset: selectedAsset ?? this.selectedAsset,
       selectedPaymentMethod:
           selectedPaymentMethod ?? this.selectedPaymentMethod,
-      selectedAssetAddress: selectedAssetAddress ?? this.selectedAssetAddress,
+      selectedAssetAddress: selectedAssetAddress != null
+          ? selectedAssetAddress()
+          : this.selectedAssetAddress,
       checkoutUrl: checkoutUrl ?? this.checkoutUrl,
       orderId: orderId ?? this.orderId,
       fiatAmount: fiatAmount ?? this.fiatAmount,
@@ -145,7 +147,9 @@ final class FiatFormState extends Equatable with FormzMixin {
       coinList: coinList ?? this.coinList,
       fiatOrderStatus: fiatOrderStatus ?? this.fiatOrderStatus,
       fiatMode: fiatMode ?? this.fiatMode,
-      selectedCoinPubkeys: selectedCoinPubkeys ?? this.selectedCoinPubkeys,
+      selectedCoinPubkeys: selectedCoinPubkeys != null
+          ? selectedCoinPubkeys()
+          : this.selectedCoinPubkeys,
     );
   }
 

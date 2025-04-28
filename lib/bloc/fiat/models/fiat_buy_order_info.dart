@@ -21,24 +21,6 @@ class FiatBuyOrderInfo extends Equatable {
     required this.error,
   });
 
-  FiatBuyOrderInfo.info()
-      : this(
-          id: '',
-          accountId: '',
-          accountReference: '',
-          orderType: '',
-          fiatCode: '',
-          fiatAmount: Decimal.zero,
-          coinCode: '',
-          walletAddress: '',
-          extAccountId: '',
-          network: '',
-          paymentCode: '',
-          checkoutUrl: '',
-          createdAt: '',
-          error: const FiatBuyOrderError.none(),
-        );
-
   FiatBuyOrderInfo.fromCheckoutUrl(String url)
       : this(
           id: '',
@@ -57,12 +39,33 @@ class FiatBuyOrderInfo extends Equatable {
           error: const FiatBuyOrderError.none(),
         );
 
+  FiatBuyOrderInfo.empty()
+      : this(
+          id: '',
+          accountId: '',
+          accountReference: '',
+          orderType: '',
+          fiatCode: '',
+          fiatAmount: Decimal.zero,
+          coinCode: '',
+          walletAddress: '',
+          extAccountId: '',
+          network: '',
+          paymentCode: '',
+          checkoutUrl: '',
+          createdAt: '',
+          error: const FiatBuyOrderError.none(),
+        );
+
   factory FiatBuyOrderInfo.fromJson(Map<String, dynamic> json) {
-    Map<String, dynamic> data = json;
-    if (json['data'] != null) {
-      final orderData = json['data'] as Map<String, dynamic>? ?? {};
-      data = orderData['order'] as Map<String, dynamic>? ?? {};
+    final jsonData = json['data'] as Map<String, dynamic>?;
+    if (json['data'] == null || jsonData?['order'] == null) {
+      return FiatBuyOrderInfo.empty().copyWith(
+        error:
+            const FiatBuyOrderError.parsing(message: 'Missing order payload'),
+      );
     }
+    final data = jsonData!['order'] as Map<String, dynamic>;
 
     return FiatBuyOrderInfo(
       id: data['id'] as String? ?? '',

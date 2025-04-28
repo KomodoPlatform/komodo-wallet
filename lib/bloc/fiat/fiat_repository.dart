@@ -1,5 +1,4 @@
 import 'package:decimal/decimal.dart';
-import 'package:universal_html/html.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
@@ -252,15 +251,15 @@ class FiatRepository {
     );
   }
 
-  Future<FiatBuyOrderInfo> buyCoin(
-    String accountReference,
-    String source,
-    ICurrency target,
-    String walletAddress,
-    FiatPaymentMethod paymentMethod,
-    String sourceAmount,
-    String returnUrlOnSuccess,
-  ) async {
+  Future<FiatBuyOrderInfo> buyCoin({
+    required String accountReference,
+    required String source,
+    required ICurrency target,
+    required String walletAddress,
+    required FiatPaymentMethod paymentMethod,
+    required String sourceAmount,
+    required String returnUrlOnSuccess,
+  }) async {
     final provider = _getPaymentMethodProvider(paymentMethod);
     if (provider == null) return Future.error('Provider not found');
 

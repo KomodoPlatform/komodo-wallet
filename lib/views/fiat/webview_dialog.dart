@@ -7,6 +7,11 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class WebViewDialog {
+  /// Shows a webview dialog with the given [url] and [title].
+  /// The [onConsoleMessage] callback is called with the console messages from
+  /// the webview.
+  /// The [onCloseWindow] callback is called when the webview is closed.
+  /// The [settings] parameter allows you to customize [InAppWebViewSettings]
   static Future<void> show(
     BuildContext context, {
     required String url,
@@ -84,9 +89,10 @@ class InAppWebviewDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.circular(12.0), // Match your app's corner radius
+        borderRadius: BorderRadius.circular(12.0),
       ),
+      insetPadding:
+          const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
       child: SizedBox(
         width: 700,
         height: 700,
@@ -156,6 +162,13 @@ class FullscreenInAppWebview extends StatelessWidget {
         title: Text(title),
         foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            onCloseWindow?.call();
+            Navigator.of(context).pop();
+          },
+        ),
       ),
       body: SafeArea(
         child: MessageInAppWebView(
@@ -204,22 +217,22 @@ class _MessageInAppWebviewState extends State<MessageInAppWebView> {
       onLoadStop: (controller, url) async {
         await controller.evaluateJavascript(
           source: '''
-            window.addEventListener("message", (event) => {
-              let messageData;
-              try {
-                  messageData = JSON.parse(event.data);
-              } catch (parseError) {
-                  messageData = event.data;
-              }
+              window.addEventListener("message", (event) => {
+                let messageData;
+                try {
+                    messageData = JSON.parse(event.data);
+                } catch (parseError) {
+                    messageData = event.data;
+                }
 
-              try {
-                const messageString = (typeof messageData === 'object') ? JSON.stringify(messageData) : String(messageData);
-                console.log(messageString);
-              } catch (postError) {
-                  console.error('Error posting message', postError);
-              }
-            }, false);
-          ''',
+                try {
+                  const messageString = (typeof messageData === 'object') ? JSON.stringify(messageData) : String(messageData);
+                  console.log(messageString);
+                } catch (postError) {
+                    console.error('Error posting message', postError);
+                }
+              }, false);
+            ''',
         );
       },
     );

@@ -5,6 +5,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:collection/collection.dart';
 import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:formz/formz.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -99,8 +100,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
       emit(
         state.copyWith(
-          selectedAssetAddress: address,
-          selectedCoinPubkeys: assetPubkeys,
+          selectedAssetAddress: address != null ? () => address : null,
+          selectedCoinPubkeys: () => assetPubkeys,
         ),
       );
     } catch (e, s) {
@@ -151,13 +152,14 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
     try {
       final newOrder = await _fiatRepository.buyCoin(
-        state.selectedAssetAddress!.address,
-        state.selectedFiat.value!.symbol,
-        state.selectedAsset.value!,
-        state.selectedAssetAddress!.address,
-        state.selectedPaymentMethod,
-        state.fiatAmount.value,
-        BaseFiatProvider.successUrl(state.selectedAssetAddress!.address),
+        accountReference: state.selectedAssetAddress!.address,
+        source: state.selectedFiat.value!.symbol,
+        target: state.selectedAsset.value!,
+        walletAddress: state.selectedAssetAddress!.address,
+        paymentMethod: state.selectedPaymentMethod,
+        sourceAmount: state.fiatAmount.value,
+        returnUrlOnSuccess:
+            BaseFiatProvider.successUrl(state.selectedAssetAddress!.address),
       );
 
       if (!newOrder.error.isNone) {
@@ -225,8 +227,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         final address = pubkeys.keys.firstOrNull;
 
         return state.copyWith(
-          selectedAssetAddress: address,
-          selectedCoinPubkeys: pubkeys,
+          selectedAssetAddress: address != null ? () => address : null,
+          selectedCoinPubkeys: () => pubkeys,
         );
       } catch (e, s) {
         if (attempts >= maxRetries) {
@@ -300,7 +302,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   ) {
     emit(
       state.copyWith(
-        selectedAssetAddress: event.address,
+        selectedAssetAddress: () => event.address,
       ),
     );
   }
@@ -382,7 +384,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormAssetAddressUpdated event,
     Emitter<FiatFormState> emit,
   ) {
-    emit(state.copyWith(selectedAssetAddress: event.selectedAssetAddress));
+    emit(
+      state.copyWith(selectedAssetAddress: () => event.selectedAssetAddress),
+    );
   }
 
   FiatFormState _parseOrderError(FiatBuyOrderError error) {

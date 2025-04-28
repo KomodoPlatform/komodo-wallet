@@ -33,13 +33,13 @@ class RampFiatProvider extends BaseFiatProvider {
     return providerId;
   }
 
-  String getFullCoinCode(ICurrency target) {
-    return '${getCoinChainId(target as CryptoCurrency)}_${target.configSymbol}';
+  String getFullCoinCode(CryptoCurrency target) {
+    return '${getCoinChainId(target)}_${target.configSymbol}';
   }
 
   Future<dynamic> _getPaymentMethods(
     String source,
-    ICurrency target, {
+    CryptoCurrency target, {
     String? sourceAmount,
   }) =>
       apiRequest(
@@ -51,6 +51,8 @@ class RampFiatProvider extends BaseFiatProvider {
         body: {
           'fiatCurrency': source,
           'cryptoAssetSymbol': getFullCoinCode(target),
+          // fiatValue has to be a number, and not a string. Force it to be a
+          // double here to ensure that it is in the expected format.
           'fiatValue': sourceAmount != null
               ? Decimal.tryParse(sourceAmount)?.toDouble()
               : null,
@@ -59,7 +61,7 @@ class RampFiatProvider extends BaseFiatProvider {
 
   Future<dynamic> _getPricesWithPaymentMethod(
     String source,
-    ICurrency target,
+    CryptoCurrency target,
     String sourceAmount,
     FiatPaymentMethod paymentMethod,
   ) =>
@@ -144,6 +146,10 @@ class RampFiatProvider extends BaseFiatProvider {
     String sourceAmount,
   ) async {
     try {
+      if (target is! CryptoCurrency) {
+        throw ArgumentError('Target currency must be a CryptoCurrency');
+      }
+
       final List<FiatPaymentMethod> paymentMethodsList = [];
 
       final paymentMethodsFuture =
@@ -210,11 +216,12 @@ class RampFiatProvider extends BaseFiatProvider {
     return paymentMethod.transactionFees.first.fees.first.amount;
   }
 
-  Decimal _getFeeAdjustedPrice(
-    FiatPaymentMethod paymentMethod,
-    Decimal price,
-  ) {
-    return (price / (Decimal.one - _getPaymentMethodFee(paymentMethod)))
+  Decimal _getFeeAdjustedPrice(FiatPaymentMethod paymentMethod, Decimal price) {
+    final fee = _getPaymentMethodFee(paymentMethod);
+    if (fee >= Decimal.one) {
+      throw ArgumentError.value(fee, 'fee', 'Fee ratio must be < 1');
+    }
+    return (price / (Decimal.one - fee))
         .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision);
   }
 
@@ -233,6 +240,10 @@ class RampFiatProvider extends BaseFiatProvider {
     String sourceAmount,
     FiatPaymentMethod paymentMethod,
   ) async {
+    if (target is! CryptoCurrency) {
+      throw ArgumentError('Target currency must be a CryptoCurrency');
+    }
+
     final response = await _getPricesWithPaymentMethod(
       source,
       target,
@@ -272,6 +283,10 @@ class RampFiatProvider extends BaseFiatProvider {
     String sourceAmount,
     String returnUrlOnSuccess,
   ) async {
+    if (target is! CryptoCurrency) {
+      throw ArgumentError('Target currency must be a CryptoCurrency');
+    }
+
     final payload = {
       'hostApiKey': hostId,
       'hostAppName': appShortTitle,
