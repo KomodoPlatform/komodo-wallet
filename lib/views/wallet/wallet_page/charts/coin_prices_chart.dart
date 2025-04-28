@@ -1,5 +1,7 @@
 import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
@@ -36,7 +38,7 @@ class PriceChartPage extends StatelessWidget {
             return Column(
               children: [
                 MarketChartHeaderControls(
-                  title: const Text('Statistics'),
+                  title: Text(LocaleKeys.statistics.tr()),
                   leadingIcon: state.data.firstOrNull?.info.ticker == null
                       ? const Icon(Icons.attach_money, size: 22)
                       : CoinIcon(
@@ -163,8 +165,8 @@ class PriceChartPage extends StatelessWidget {
                           ),
                         );
                       } else {
-                        return const Center(
-                          child: Text('Select an interval to load data'),
+                        return Center(
+                          child: Text(LocaleKeys.priceChartCenterText.tr()),
                         );
                       }
                     },

@@ -39,7 +39,7 @@ class WithdrawNftRequest implements BaseRequest {
           "token_id": tokenId,
           if (max != null && type == NftContractType.erc1155) 'max': max,
           if (amount != null && type == NftContractType.erc1155)
-            'amount': amount,
+            'amount': amount.toString(),
         },
       },
     };

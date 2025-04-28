@@ -17,7 +17,7 @@ class NftReceivePage extends StatelessWidget {
           create: (context) => NftReceiveBloc(
             coinsRepo: RepositoryProvider.of<CoinsRepo>(context),
             sdk: RepositoryProvider.of<KomodoDefiSdk>(context),
-          )..add(NftReceiveEventInitial(chain: state.selectedChain)),
+          )..add(NftReceiveStarted(chain: state.selectedChain)),
           child: NftReceiveView(),
         );
       },

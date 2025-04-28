@@ -9,10 +9,10 @@ class NftTxnFailurePage extends StatelessWidget {
   final VoidCallback onReload;
 
   const NftTxnFailurePage({
-    Key? key,
+    super.key,
     required this.message,
     required this.onReload,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

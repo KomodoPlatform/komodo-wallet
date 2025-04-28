@@ -15,8 +15,8 @@ import 'package:web_dex/views/nfts/nft_transactions/desktop/widgets/nft_txn_desk
 
 class NftTxnDesktopPage extends StatelessWidget {
   const NftTxnDesktopPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

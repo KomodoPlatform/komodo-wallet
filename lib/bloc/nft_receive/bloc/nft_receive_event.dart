@@ -4,28 +4,30 @@ abstract class NftReceiveEvent extends Equatable {
   const NftReceiveEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-class NftReceiveEventInitial extends NftReceiveEvent {
+class NftReceiveStarted extends NftReceiveEvent {
+  const NftReceiveStarted({required this.chain});
+
   final NftBlockchains chain;
-  const NftReceiveEventInitial({required this.chain});
 
   @override
   List<Object> get props => [chain];
 }
 
-class NftReceiveEventRefresh extends NftReceiveEvent {
-  const NftReceiveEventRefresh();
+class NftReceiveRefreshRequested extends NftReceiveEvent {
+  const NftReceiveRefreshRequested();
 
   @override
   List<Object> get props => [];
 }
 
-class NftReceiveEventChangedAddress extends NftReceiveEvent {
-  final String? address;
-  const NftReceiveEventChangedAddress({required this.address});
+class NftReceiveAddressChanged extends NftReceiveEvent {
+  const NftReceiveAddressChanged({required this.address});
+
+  final PubkeyInfo? address;
 
   @override
-  List<Object> get props => [address ?? ''];
+  List<Object?> get props => [address];
 }

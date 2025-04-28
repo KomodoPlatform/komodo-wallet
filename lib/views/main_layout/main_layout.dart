@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -79,20 +81,15 @@ class _MainLayoutState extends State<MainLayout> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Warning'),
-          content: const Text(
-              'Trading features may not be used for actual trading. Only test '
-              'assets/networks may be used and only for development purposes. '
-              'You are solely responsible for any losses/damage that may occur.'
-              '\n\nKomodoPlatform does not condone the use of this app for '
-              'trading purposes and unequivocally forbids it.'),
+          title: Text(LocaleKeys.showNoTradingWarning.tr()),
+          content: Text(LocaleKeys.showNoTradingWarningMessage.tr()),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _saveAgreedState().ignore();
               },
-              child: const Text('I agree'),
+              child: Text(LocaleKeys.showNoTradingWarningButton.tr()),
             ),
           ],
         );

@@ -56,7 +56,6 @@ import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/main.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/router/navigators/app_router_delegate.dart';
@@ -263,9 +262,7 @@ class AppBlocRoot extends StatelessWidget {
             lazy: false,
             create: (context) => NftMainBloc(
               repo: context.read<NftsRepo>(),
-              kdfSdk: komodoDefiSdk,
-              isLoggedIn:
-                  context.read<AuthBloc>().state.mode == AuthorizeMode.logIn,
+              sdk: komodoDefiSdk,
             ),
           ),
           if (isBitrefillIntegrationEnabled)

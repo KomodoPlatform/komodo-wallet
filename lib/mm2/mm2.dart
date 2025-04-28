@@ -17,7 +17,6 @@ final class MM2 {
         // TODO: sync pre-activation of coins (show activating coins in list)
         preActivateHistoricalAssets: false,
         preActivateDefaultAssets: false,
-        preActivateCustomTokenAssets: true,
       ),
     );
   }
@@ -56,6 +55,10 @@ final class MM2 {
     return response.result;
   }
 
+  @Deprecated('Use KomodoDefiSdk.client.rpc or KomodoDefiSdk.client.executeRpc '
+      'instead. This method is the legacy way of calling RPC methods which '
+      'injects an empty user password into the legacy models which override '
+      'the legacy base RPC request model')
   Future<JsonMap> call(dynamic request) async {
     try {
       final dynamic requestWithUserpass = _assertPass(request);

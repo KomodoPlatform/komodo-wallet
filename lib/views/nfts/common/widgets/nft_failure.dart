@@ -6,14 +6,14 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class NftFailure extends StatelessWidget {
   const NftFailure({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.message,
     required this.onTryAgain,
     this.additionSubtitle,
     this.isSpinnerShown = false,
-  }) : super(key: key);
+  });
 
   final String title;
   final String subtitle;

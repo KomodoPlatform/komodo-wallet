@@ -10,21 +10,22 @@ import 'package:web_dex/model/withdraw_details/fee_details.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class NftTxnRepository {
-  final Mm2ApiNft _api;
-  final CoinsRepo _coinsRepo;
-  final Map<String, double?> _abbrToUsdPrices = {};
-
   NftTxnRepository({required Mm2ApiNft api, required CoinsRepo coinsRepo})
       : _api = api,
         _coinsRepo = coinsRepo;
+  final Mm2ApiNft _api;
+  final CoinsRepo _coinsRepo;
+  final Map<String, double?> _abbrToUsdPrices = {};
   Map<String, double?> get abbrToUsdPrices => _abbrToUsdPrices;
 
-  Future<NftTxsResponse> getNftTransactions(
-      [List<NftBlockchains>? chains]) async {
+  Future<NftTxsResponse> getNftTransactions([
+    List<NftBlockchains>? chains,
+  ]) async {
     final List<String> allChains =
         (chains ?? NftBlockchains.values).map((e) => e.toApiRequest()).toList();
     await getUsdPricesOfCoins(
-        (chains ?? NftBlockchains.values).map((e) => e.coinAbbr()));
+      (chains ?? NftBlockchains.values).map((e) => e.coinAbbr()),
+    );
     final request = NftTransactionsRequest(
       chains: allChains,
       max: true,
@@ -34,11 +35,11 @@ class NftTxnRepository {
       final json = await _api.getNftTxs(request, false);
       if (json['error'] != null) {
         log(
-          json['error'],
+          json['error'] as String,
           path: 'nft_main_repo => getNfts',
           isError: true,
-        );
-        throw ApiError(message: json['error']);
+        ).ignore();
+        throw ApiError(message: json['error'] as String);
       }
 
       if (json['result'] == null) {
@@ -68,7 +69,9 @@ class NftTxnRepository {
   }) async {
     try {
       final request = NftTxDetailsRequest(
-          chain: tx.chain.toApiRequest(), txHash: tx.transactionHash);
+        chain: tx.chain.toApiRequest(),
+        txHash: tx.transactionHash,
+      );
       final json = await _api.getNftTxDetails(request);
       try {
         tx.confirmations = json['confirmations'] ?? 0;
@@ -94,7 +97,7 @@ class NftTxnRepository {
 
   Future<void> getUsdPricesOfCoins(Iterable<String> coinAbbr) async {
     final coins = _coinsRepo.getKnownCoins();
-    for (var abbr in coinAbbr) {
+    for (final abbr in coinAbbr) {
       final coin = coins.firstWhere((c) => c.abbr == abbr);
       _abbrToUsdPrices[abbr] = coin.usdPrice?.price;
     }

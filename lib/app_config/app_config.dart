@@ -58,6 +58,8 @@ Map<String, int> priorityCoinsAbbrMap = {
   'MOVR': 10,
 };
 
+/// List of coins that are excluded from the list of coins displayed on the
+/// coin lists (e.g. wallet page, coin selection dropdowns, etc.)
 const List<String> excludedAssetList = [
   'ADEXBSCT',
   'ADEXBSC',
@@ -79,9 +81,8 @@ const List<String> excludedAssetList = [
   'RICK',
   'MORTY',
 
-  // NFT v2 coins: https://github.com/KomodoPlatform/coins/pull/1061
-  // NFT upgrade is not merged yet, and the coins will likely be used in the
-  // background, so users do not need to see them.
+  // NFT v2 coins: https://github.com/KomodoPlatform/coins/pull/1061 will be
+  // used in the background, so users do not need to see them.
   'NFT_ETH',
   'NFT_AVAX',
   'NFT_BNB',
@@ -114,6 +115,8 @@ const List<String> appWalletOnlyAssetList = [
   'SUPERNET',
 ];
 
+/// Coins that are enabled by default on restore from seed or registration.
+/// This will not affect existing wallets.
 List<String> get enabledByDefaultCoins => [
       'BTC-segwit',
       'KMD',
@@ -125,6 +128,13 @@ List<String> get enabledByDefaultCoins => [
       'FTM',
       if (kDebugMode) 'DOC',
       if (kDebugMode) 'MARTY',
+
+      // NFT v2 methods require the new NFT coins to be enabled by default.
+      'NFT_ETH',
+      'NFT_AVAX',
+      'NFT_BNB',
+      'NFT_FTM',
+      'NFT_MATIC',
     ];
 
 List<String> get enabledByDefaultTrezorCoins => [

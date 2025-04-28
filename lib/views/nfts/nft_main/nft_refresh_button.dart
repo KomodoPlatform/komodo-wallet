@@ -27,7 +27,7 @@ class NftRefreshButton extends StatelessWidget {
       textStyle: textTheme.bodySBold.copyWith(color: colorScheme.primary),
       onPressed: () {
         final bloc = context.read<NftMainBloc>();
-        bloc.add(RefreshNFTsForChainEvent(selectedChain));
+        bloc.add(NftMainChainNftsRefreshed(selectedChain));
       },
       text: LocaleKeys.refreshList.tr(args: [selectedChain.coinAbbr()]),
       child: isUpdating

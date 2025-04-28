@@ -17,10 +17,10 @@ class NftTxnDesktopCard extends StatefulWidget {
   final VoidCallback onPressed;
 
   const NftTxnDesktopCard({
-    Key? key,
+    super.key,
     required this.transaction,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   State<NftTxnDesktopCard> createState() => _NftTxnDesktopCardState();
@@ -278,11 +278,10 @@ class _Value extends StatelessWidget {
   final NftTxnDetailsStatus status;
   final Size? defaultSize;
   const _Value({
-    Key? key,
     required this.value,
     this.status = NftTxnDetailsStatus.success,
     this.defaultSize,
-  }) : super(key: key);
+  });
 
   static const double iconSize = 12.0;
 

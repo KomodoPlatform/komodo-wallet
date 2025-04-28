@@ -37,6 +37,6 @@ class NftTabs extends StatelessWidget {
 
   void _onTap(NftBlockchains chain, BuildContext context) {
     final bloc = context.read<NftMainBloc>();
-    bloc.add(ChangeNftTabEvent(chain));
+    bloc.add(NftMainTabChanged(chain));
   }
 }

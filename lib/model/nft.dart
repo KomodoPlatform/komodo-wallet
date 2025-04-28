@@ -76,12 +76,18 @@ class NftToken {
   String? get imageUrl {
     final image = uriMeta.imageUrl ?? metaData?.image ?? uriMeta.animationUrl;
     if (image == null) return null;
-    // Image.network does not support ipfs
-    return image.replaceFirst('ipfs://', 'https://ipfs.io/ipfs/');
+
+    // Image.network does not support ipfs protocol
+    String url = image.replaceFirst('ipfs://', 'https://ipfs.io/ipfs/');
+
+    // Also standardize gateway URLs to use ipfs.io Match both patterns:
+    // gateway.moralisipfs.com/ipfs/ and common.ipfs.gateway/ipfs/
+    final gatewayPattern =
+        RegExp(r'https://[^/]+(?:\.ipfs\.|ipfs\.)[^/]+/ipfs/');
+    return url.replaceAllMapped(gatewayPattern, (_) => 'https://ipfs.io/ipfs/');
   }
 
-  String get uuid =>
-      '${chain.toString()}:$tokenAddress:$tokenId'.hashCode.toString();
+  String get uuid => '$chain:$tokenAddress:$tokenId'.hashCode.toString();
 
   CoinType get coinType {
     switch (chain) {
@@ -240,6 +246,21 @@ enum NftBlockchains {
         return 'FTM';
     }
   }
+
+  String nftAssetTicker() {
+    switch (this) {
+      case NftBlockchains.eth:
+        return 'NFT_ETH';
+      case NftBlockchains.bsc:
+        return 'NFT_BNB';
+      case NftBlockchains.avalanche:
+        return 'NFT_AVAX';
+      case NftBlockchains.polygon:
+        return 'NFT_MATIC';
+      case NftBlockchains.fantom:
+        return 'NFT_FTM';
+    }
+  }
 }
 
 enum NftContractType {
@@ -298,8 +319,12 @@ class NftTransactionDetails {
       contractType: NftContractType.fromApiResponse(json['contract_type']),
       transactionType: json['transaction_type'],
       tokenAddress: json['token_address'],
-      tokenId: json['token_id'],
-      amount: json['amount'],
+      tokenId: json['token_id'] is List
+          ? json['token_id'][0].toString()
+          : json['token_id'].toString(),
+      amount: json['amount'] is List
+          ? json['amount'][0].toString()
+          : json['amount'].toString(),
     );
   }
 

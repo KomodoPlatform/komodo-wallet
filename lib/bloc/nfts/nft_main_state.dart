@@ -11,14 +11,13 @@ class NftMainState extends Equatable {
     this.error,
   });
 
-  static NftMainState initial() => const NftMainState(
+  factory NftMainState.initial() => const NftMainState(
         nfts: {},
         isInitialized: false,
         updatingChains: {},
         selectedChain: NftBlockchains.eth,
         nftCount: {},
         sortedChains: [],
-        error: null,
       );
 
   final Map<NftBlockchains, List<NftToken>?> nfts;
