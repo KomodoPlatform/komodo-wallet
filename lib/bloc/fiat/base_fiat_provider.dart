@@ -58,11 +58,6 @@ abstract class BaseFiatProvider {
     final domainUri = Uri.parse(domain);
     Uri url;
 
-    // Remove the leading '/' if it exists in /api/fiats kind of an endpoint
-    if (endpoint.startsWith('/')) {
-      endpoint = endpoint.substring(1);
-    }
-
     // Add `is_test_mode` query param to all requests if we are in debug mode
     final passedQueryParams = <String, dynamic>{}
       ..addAll(queryParams ?? {})
@@ -73,7 +68,8 @@ abstract class BaseFiatProvider {
     url = Uri(
       scheme: domainUri.scheme,
       host: domainUri.host,
-      path: endpoint,
+      // Remove the leading '/' if it exists in /api/fiats kind of an endpoint
+      path: endpoint.startsWith('/') ? endpoint.substring(1) : endpoint,
       query: Uri(queryParameters: passedQueryParams).query,
     );
 
@@ -138,7 +134,6 @@ abstract class BaseFiatProvider {
         return 'MATIC';
       case CoinType.mvr20:
         return 'MOVR';
-      // ignore: no_default_cases
       default:
         return null;
     }

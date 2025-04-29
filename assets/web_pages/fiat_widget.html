@@ -28,11 +28,6 @@
     <iframe id="fiat-onramp-iframe" sandbox="allow-same-origin allow-popups allow-scripts allow-forms" src="">
     </iframe>
     <script>
-        // Intercept console.log messages and route them through the onMessageHandler
-        // console.log = function (...args) {
-        //     onMessageHandler({ data: JSON.stringify(args) });
-        // };
-
         window.onmessage = onMessageHandler;
 
         function getUrlParameter(name) {
@@ -40,7 +35,6 @@
             return params.get(name);
         }
 
-        // Get the `url` parameter
         const urlParam = getUrlParameter('fiatUrl');
         let targetUrl = null;
 
@@ -62,10 +56,8 @@
         function onMessageHandler(messageEvent) {
             let messageData;
             try {
-                // Try parsing the data as JSON 
                 messageData = JSON.parse(messageEvent.data);
             } catch (parseError) {
-                // If parsing fails, just use it as a string
                 messageData = messageEvent.data;
             }
 

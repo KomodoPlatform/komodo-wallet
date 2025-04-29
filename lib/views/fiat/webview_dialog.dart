@@ -6,12 +6,21 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
+enum WebViewDialogMode {
+  dialog,
+  fullscreen,
+  newTab,
+}
+
 class WebViewDialog {
   /// Shows a webview dialog with the given [url] and [title].
   /// The [onConsoleMessage] callback is called with the console messages from
   /// the webview.
   /// The [onCloseWindow] callback is called when the webview is closed.
   /// The [settings] parameter allows you to customize [InAppWebViewSettings]
+  /// The [mode] parameter allows you to choose how the webview is shown.
+  /// The [width] and [height] parameters allow you to customize the size of the
+  /// dialog.
   static Future<void> show(
     BuildContext context, {
     required String url,
@@ -19,13 +28,10 @@ class WebViewDialog {
     void Function(String)? onConsoleMessage,
     VoidCallback? onCloseWindow,
     InAppWebViewSettings? settings,
+    WebViewDialogMode? mode,
+    double width = 700,
+    double height = 700,
   }) async {
-    // `flutter_inappwebview` does not yet support Linux, so use `url_launcher`
-    // to launch the URL in the default browser.
-    if (!kIsWeb && !kIsWasm && Platform.isLinux) {
-      return launchURLString(url);
-    }
-
     final webviewSettings = settings ??
         InAppWebViewSettings(
           isInspectable: kDebugMode,
@@ -37,7 +43,23 @@ class WebViewDialog {
           },
         );
 
-    if (kIsWeb && !isMobile) {
+    final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
+    final bool isWeb = (kIsWeb || kIsWasm) && !isMobile;
+    final WebViewDialogMode defaultMode =
+        isWeb ? WebViewDialogMode.dialog : WebViewDialogMode.fullscreen;
+    final WebViewDialogMode resolvedMode = mode ?? defaultMode;
+
+    // If on Linux, always use newTab mode (open in external browser)
+    // `flutter_inappwebview` does not yet support Linux, so use `url_launcher`
+    // to launch the URL in the default browser.
+    final bool shouldOpenInNewTab =
+        resolvedMode == WebViewDialogMode.newTab || isLinux;
+    if (shouldOpenInNewTab) {
+      await launchURLString(url);
+      return;
+    }
+
+    if (resolvedMode == WebViewDialogMode.dialog) {
       await showDialog<dynamic>(
         context: context,
         builder: (BuildContext context) {
@@ -47,10 +69,12 @@ class WebViewDialog {
             onConsoleMessage: onConsoleMessage ?? (_) {},
             onCloseWindow: onCloseWindow,
             url: url,
+            width: width,
+            height: height,
           );
         },
       );
-    } else {
+    } else if (resolvedMode == WebViewDialogMode.fullscreen) {
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           fullscreenDialog: true,
@@ -76,6 +100,8 @@ class InAppWebviewDialog extends StatelessWidget {
     required this.onConsoleMessage,
     required this.url,
     this.onCloseWindow,
+    this.width = 700,
+    this.height = 700,
     super.key,
   });
 
@@ -84,6 +110,8 @@ class InAppWebviewDialog extends StatelessWidget {
   final void Function(String) onConsoleMessage;
   final String url;
   final VoidCallback? onCloseWindow;
+  final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -94,8 +122,8 @@ class InAppWebviewDialog extends StatelessWidget {
       insetPadding:
           const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
       child: SizedBox(
-        width: 700,
-        height: 700,
+        width: width,
+        height: height,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -217,21 +245,22 @@ class _MessageInAppWebviewState extends State<MessageInAppWebView> {
       onLoadStop: (controller, url) async {
         await controller.evaluateJavascript(
           source: '''
-              window.addEventListener("message", (event) => {
+              window.removeEventListener("message", window._komodoMsgListener, false);
+              window._komodoMsgListener = function(event) {
                 let messageData;
                 try {
-                    messageData = JSON.parse(event.data);
+                  messageData = JSON.parse(event.data);
                 } catch (parseError) {
-                    messageData = event.data;
+                  messageData = event.data;
                 }
 
                 try {
-                  const messageString = (typeof messageData === 'object') ? JSON.stringify(messageData) : String(messageData);
-                  console.log(messageString);
+                  console.log('Received postMessage:', messageData, 'from', event.origin);
                 } catch (postError) {
-                    console.error('Error posting message', postError);
+                  console.error('Error posting message', postError);
                 }
-              }, false);
+              };
+              window.addEventListener("message", window._komodoMsgListener, false);
             ''',
         );
       },

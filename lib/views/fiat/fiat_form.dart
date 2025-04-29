@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
@@ -152,7 +151,7 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   void _completeOrder() =>
-      context.read<FiatFormBloc>().add(FiatFormSubmitted());
+      context.read<FiatFormBloc>().add(const FiatFormSubmitted());
 
   void _onFiatChanged(FiatCurrency value) => context.read<FiatFormBloc>()
     ..add(FiatFormFiatSelected(value))
@@ -230,7 +229,6 @@ class _FiatFormState extends State<FiatForm> {
 
     final status = stateSnapshot.fiatOrderStatus;
     if (status == FiatOrderStatus.submitted) {
-      // ignore: use_build_context_synchronously
       context.read<FiatFormBloc>().add(const FiatFormOrderStatusWatchStarted());
       await _openCheckoutPage(stateSnapshot.checkoutUrl, stateSnapshot.orderId);
       return;
@@ -285,6 +283,7 @@ class _FiatFormState extends State<FiatForm> {
 
     await showAdaptiveDialog<void>(
       context: context,
+      barrierDismissible: true,
       builder: (context) => AlertDialog.adaptive(
         title: Text(title!),
         icon: icon,
