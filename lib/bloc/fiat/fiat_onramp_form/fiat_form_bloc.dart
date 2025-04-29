@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -20,6 +21,7 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
 import 'package:web_dex/shared/utils/extensions/string_extensions.dart';
+import 'package:web_dex/views/fiat/webview_dialog.dart' show WebViewDialogMode;
 
 part 'fiat_form_event.dart';
 part 'fiat_form_state.dart';
@@ -167,7 +169,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         return emit(_parseOrderError(newOrder.error));
       }
 
-      final checkoutUrl = newOrder.checkoutUrl as String? ?? '';
+      var checkoutUrl = newOrder.checkoutUrl as String? ?? '';
       if (checkoutUrl.isEmpty) {
         _log.severe('Invalid checkout URL received.');
         return emit(
@@ -177,12 +179,19 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         );
       }
 
+      // Only Ramp on web requires the intermediate html page to satisfy cors
+      // rules and allow for console.log and postMessage events to be handled.
+      // Banxa does not use `postMessage` and does not require this.
+      checkoutUrl = _wrapUrlIfNeeded(checkoutUrl);
+      final webViewMode = _determineWebViewMode();
+
       emit(
         state.copyWith(
           checkoutUrl: checkoutUrl,
           orderId: newOrder.id,
           status: FiatFormStatus.success,
           fiatOrderStatus: FiatOrderStatus.submitted,
+          webViewMode: webViewMode,
         ),
       );
     } catch (e, s) {
@@ -194,6 +203,37 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         ),
       );
     }
+  }
+
+  /// Determines the appropriate WebViewDialogMode based on platform and
+  /// environment
+  WebViewDialogMode _determineWebViewMode() {
+    final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
+    const bool isWeb = kIsWeb || kIsWasm;
+    // final bool isBanxa =
+    //     state.selectedPaymentMethod.providerId == 'Banxa';
+
+    // Banxa "Return to Komodo" button calls the redirect URL directly, so we
+    // need to open it in a new tab instead of a dialog.
+    // if (isBanxa) {
+    //   return WebViewDialogMode.newTab;
+    // }
+
+    if (isLinux) {
+      return WebViewDialogMode.newTab;
+    } else if (isWeb) {
+      return WebViewDialogMode.dialog;
+    } else {
+      return WebViewDialogMode.fullscreen;
+    }
+  }
+
+  /// Wraps the [url] if needed based on the platform and environment
+  String _wrapUrlIfNeeded(String url) {
+    if (kIsWeb) {
+      return BaseFiatProvider.fiatWrapperPageUrl(url);
+    }
+    return url;
   }
 
   Future<void> _onRefreshForm(
@@ -246,7 +286,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
           s,
         );
 
-        await Future.delayed(Duration(milliseconds: 500 * attempts));
+        await Future<void>.delayed(Duration(milliseconds: 500 * attempts));
       }
     }
 
@@ -324,11 +364,13 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {
       _log.shout('Error loading currency list', e, s);
-      emit(state.copyWith(
-        fiatList: [],
-        coinList: [],
-        status: FiatFormStatus.failure,
-      ));
+      emit(
+        state.copyWith(
+          fiatList: [],
+          coinList: [],
+          status: FiatFormStatus.failure,
+        ),
+      );
     }
   }
 
@@ -370,13 +412,16 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     // to allow the user to submit another order
     if (state.fiatOrderStatus != FiatOrderStatus.inProgress) {
       _log.info('WebView closed, resetting order status to pending');
-      emit(state.copyWith(
-        fiatOrderStatus: FiatOrderStatus.pending,
-        checkoutUrl: '',
-      ));
+      emit(
+        state.copyWith(
+          fiatOrderStatus: FiatOrderStatus.pending,
+          checkoutUrl: '',
+        ),
+      );
     } else {
       _log.info(
-          'WebView closed, but order is in progress. Keeping current status.');
+        'WebView closed, but order is in progress. Keeping current status.',
+      );
     }
   }
 

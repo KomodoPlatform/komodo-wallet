@@ -22,6 +22,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     this.fiatMode = FiatMode.onramp,
     this.selectedAssetAddress,
     this.selectedCoinPubkeys,
+    this.webViewMode = WebViewDialogMode.fullscreen,
   });
 
   /// Creates an initial state with default values.
@@ -43,7 +44,8 @@ final class FiatFormState extends Equatable with FormzMixin {
         coinList = const [],
         fiatOrderStatus = FiatOrderStatus.pending,
         fiatMode = FiatMode.onramp,
-        selectedCoinPubkeys = null;
+        selectedCoinPubkeys = null,
+        webViewMode = WebViewDialogMode.fullscreen;
 
   /// The selected fiat currency to use to purchase [selectedAsset].
   final CurrencyInput<FiatCurrency> selectedFiat;
@@ -90,6 +92,9 @@ final class FiatFormState extends Equatable with FormzMixin {
   /// once the order history tab is implemented
   final FiatMode fiatMode;
 
+  /// The mode to use for displaying the WebView dialog
+  final WebViewDialogMode webViewMode;
+
   /// Gets the transaction limit from the selected payment method
   FiatTransactionLimit? get transactionLimit =>
       selectedPaymentMethod.transactionLimits.firstOrNull;
@@ -129,6 +134,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     FiatOrderStatus? fiatOrderStatus,
     FiatMode? fiatMode,
     ValueGetter<AssetPubkeys?>? selectedCoinPubkeys,
+    WebViewDialogMode? webViewMode,
   }) {
     return FiatFormState(
       selectedFiat: selectedFiat ?? this.selectedFiat,
@@ -150,6 +156,7 @@ final class FiatFormState extends Equatable with FormzMixin {
       selectedCoinPubkeys: selectedCoinPubkeys != null
           ? selectedCoinPubkeys()
           : this.selectedCoinPubkeys,
+      webViewMode: webViewMode ?? this.webViewMode,
     );
   }
 
@@ -176,5 +183,6 @@ final class FiatFormState extends Equatable with FormzMixin {
         fiatOrderStatus,
         fiatMode,
         selectedCoinPubkeys,
+        webViewMode,
       ];
 }

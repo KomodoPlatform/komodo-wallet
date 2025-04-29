@@ -192,23 +192,6 @@ class _FiatFormState extends State<FiatForm> {
     );
   }
 
-  Future<void> _openCheckoutPage(String checkoutUrl, String orderId) async {
-    if (checkoutUrl.isEmpty) return;
-
-    // Only web requires the intermediate html page to satisfy cors rules and
-    // allow for console.log and postMessage events to be handled.
-    final url =
-        kIsWeb ? BaseFiatProvider.fiatWrapperPageUrl(checkoutUrl) : checkoutUrl;
-
-    return WebViewDialog.show(
-      context,
-      url: url,
-      title: LocaleKeys.buy.tr(),
-      onConsoleMessage: _onConsoleMessage,
-      onCloseWindow: _onCloseWebView,
-    );
-  }
-
   void _onConsoleMessage(String message) {
     context
         .read<FiatFormBloc>()
@@ -230,8 +213,15 @@ class _FiatFormState extends State<FiatForm> {
     final status = stateSnapshot.fiatOrderStatus;
     if (status == FiatOrderStatus.submitted) {
       context.read<FiatFormBloc>().add(const FiatFormOrderStatusWatchStarted());
-      await _openCheckoutPage(stateSnapshot.checkoutUrl, stateSnapshot.orderId);
-      return;
+
+      await WebViewDialog.show(
+        context,
+        url: stateSnapshot.checkoutUrl,
+        mode: stateSnapshot.webViewMode,
+        title: LocaleKeys.buy.tr(),
+        onConsoleMessage: _onConsoleMessage,
+        onCloseWindow: _onCloseWebView,
+      );
     }
 
     if (status == FiatOrderStatus.failed) {
@@ -262,21 +252,16 @@ class _FiatFormState extends State<FiatForm> {
       case FiatOrderStatus.pending:
         debugPrint('Pending status should not be shown in dialog.');
         return;
-
       case FiatOrderStatus.submitted:
         title = LocaleKeys.fiatPaymentSubmittedTitle.tr();
         content = LocaleKeys.fiatPaymentSubmittedMessage.tr();
         icon = const Icon(Icons.open_in_new);
-
       case FiatOrderStatus.success:
         title = LocaleKeys.fiatPaymentSuccessTitle.tr();
         content = LocaleKeys.fiatPaymentSuccessMessage.tr();
         icon = const Icon(Icons.check_circle_outline);
-
       case FiatOrderStatus.failed:
         title = LocaleKeys.fiatPaymentFailedTitle.tr();
-        // TODO: If we implement provider-specific error messages,
-        // we can include support details.
         content = LocaleKeys.fiatPaymentFailedMessage.tr();
         icon = const Icon(Icons.error_outline, color: Colors.red);
     }
