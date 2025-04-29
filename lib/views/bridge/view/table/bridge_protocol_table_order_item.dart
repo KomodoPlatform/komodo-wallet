@@ -7,12 +7,12 @@ import 'package:web_dex/views/bridge/bridge_protocol_label.dart';
 
 class BridgeProtocolTableOrderItem extends StatelessWidget {
   const BridgeProtocolTableOrderItem({
-    super.key,
+    Key? key,
     required this.order,
     required this.coin,
     required this.onSelect,
     required this.index,
-  });
+  }) : super(key: key);
 
   final BestOrder order;
   final Coin coin;
@@ -21,9 +21,7 @@ class BridgeProtocolTableOrderItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double? balance = coin.isActive
-        ? context.sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0
-        : null;
+    final double? balance = coin.isActive ? coin.balance : null;
 
     log('BridgeProtocolTableOrderItem.build([context]) $balance');
 

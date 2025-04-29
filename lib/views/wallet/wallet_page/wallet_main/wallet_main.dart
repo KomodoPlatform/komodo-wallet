@@ -284,9 +284,9 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
   final AuthorizeMode mode;
 
   @override
-  final double minExtent = 132;
+  final double minExtent = 110;
   @override
-  final double maxExtent = 132;
+  final double maxExtent = 114;
 
   @override
   Widget build(

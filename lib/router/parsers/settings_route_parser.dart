@@ -18,7 +18,6 @@ class _SettingsRouteParser implements BaseRouteParser {
       return SettingsRoutePath.security();
     }
 
-    // TODO: Remove since the feedback is now handled by `BetterFeedback`
     if (uri.pathSegments[1] == 'feedback') {
       return SettingsRoutePath.feedback();
     }

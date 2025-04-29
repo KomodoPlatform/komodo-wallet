@@ -26,7 +26,7 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
         // use single to stick to the existing behaviour around assetByTicker
         // which will cause the application to crash if there are
         // multiple assets with the same ticker
-        .map((coinId) => assets.findAssetsByConfigId(coinId).single.toCoin())
+        .map((coinId) => assets.findAssetsByTicker(coinId).single.toCoin())
         .toList();
   }
 

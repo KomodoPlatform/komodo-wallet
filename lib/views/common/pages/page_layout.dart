@@ -13,13 +13,7 @@ class PageLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isMobile) {
-      return _MobileLayout(
-        header: header,
-        content: content,
-        noBackground: noBackground,
-      );
-    }
+    if (isMobile) return _MobileLayout(header: header, content: content);
     return _DesktopLayout(
       header: header,
       content: content,
@@ -32,12 +26,10 @@ class _MobileLayout extends StatelessWidget {
   const _MobileLayout({
     required this.content,
     this.header,
-    this.noBackground = false,
   });
 
   final Widget? header;
   final Widget content;
-  final bool noBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +40,6 @@ class _MobileLayout extends StatelessWidget {
         if (header != null) header!,
         Flexible(
           child: PagePlate(
-            noBackground: noBackground,
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [

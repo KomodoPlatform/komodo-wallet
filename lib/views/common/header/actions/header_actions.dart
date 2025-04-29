@@ -4,14 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/release_options.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/common/header/actions/account_switcher.dart';
 
 const EdgeInsets headerActionsPadding = EdgeInsets.fromLTRB(38, 18, 0, 0);
@@ -40,7 +38,7 @@ List<Widget>? getHeaderActions(BuildContext context) {
           return ActionTextButton(
             text: LocaleKeys.balance.tr(),
             secondaryText:
-                '\$${formatAmt(_getTotalBalance(state.walletCoins.values, context))}',
+                '\$${formatAmt(_getTotalBalance(state.walletCoins.values))}',
             onTap: null,
           );
         },
@@ -54,9 +52,8 @@ List<Widget>? getHeaderActions(BuildContext context) {
   ];
 }
 
-double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
-  double total =
-      coins.fold(0, (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0));
+double _getTotalBalance(Iterable<Coin> coins) {
+  double total = coins.fold(0, (prev, coin) => prev + (coin.usdBalance ?? 0));
 
   if (total > 0.01) {
     return total;

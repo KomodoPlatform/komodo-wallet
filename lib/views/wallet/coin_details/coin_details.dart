@@ -8,16 +8,17 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/faucet_page.dart';
+import 'package:web_dex/views/wallet/coin_details/receive/receive_details.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_claim_success.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_rewards_info.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form.dart';
 
 class CoinDetails extends StatefulWidget {
   const CoinDetails({
-    super.key,
+    Key? key,
     required this.coin,
     required this.onBackButtonPressed,
-  });
+  }) : super(key: key);
 
   final Coin coin;
   final VoidCallback onBackButtonPressed;
@@ -70,6 +71,12 @@ class _CoinDetailsState extends State<CoinDetails> {
         return WithdrawForm(
           asset: widget.coin.toSdkAsset(context.read<KomodoDefiSdk>()),
           onSuccess: _openInfo,
+          onBackButtonPressed: _openInfo,
+        );
+
+      case CoinPageType.receive:
+        return ReceiveDetails(
+          coin: widget.coin,
           onBackButtonPressed: _openInfo,
         );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/src/images/coin_icon.dart';
 
 class SelectedCoinGraphControl extends StatelessWidget {
@@ -26,7 +27,7 @@ class SelectedCoinGraphControl extends StatelessWidget {
   /// Must be non-null and not empty if [onCoinSelected] is non-null.
   final List<AssetId>? availableCoins;
 
-  final DropdownMenuItem<AssetId> Function(AssetId)? customCoinItemBuilder;
+  final SelectItem<AssetId> Function(AssetId)? customCoinItemBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +99,7 @@ class SelectedCoinGraphControl extends StatelessWidget {
           Row(
             children: [
               TrendPercentageText(
-                percentage: percentageIncrease,
+                investmentReturnPercentage: percentageIncrease,
               ),
               if (onCoinSelected != null) ...[
                 const SizedBox(width: 2),

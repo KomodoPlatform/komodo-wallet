@@ -7,6 +7,7 @@ import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/settings/widgets/common/settings_content_wrapper.dart';
+import 'package:web_dex/views/settings/widgets/feedback_page/feedback_page.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/general_settings.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/security_settings_page.dart';
 import 'package:web_dex/views/settings/widgets/settings_menu/settings_menu.dart';
@@ -14,9 +15,9 @@ import 'package:web_dex/views/settings/widgets/support_page/support_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
-    super.key = const Key('settings-page'),
+    Key? key = const Key('settings-page'),
     required this.selectedMenu,
-  });
+  }) : super(key: key);
 
   final SettingsMenuValue selectedMenu;
 
@@ -44,8 +45,9 @@ class SettingsPage extends StatelessWidget {
         return SecuritySettingsPage(onBackPressed: _onBackButtonPressed);
       case SettingsMenuValue.support:
         return SupportPage();
-
       case SettingsMenuValue.feedback:
+        return const FeedbackPage();
+
       case SettingsMenuValue.none:
         return Container();
     }

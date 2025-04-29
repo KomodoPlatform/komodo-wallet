@@ -23,9 +23,6 @@ class CoinBalance extends StatelessWidget {
       fontWeight: FontWeight.w500,
     );
 
-    final balance =
-        context.sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0;
-
     final children = [
       Row(
         mainAxisSize: MainAxisSize.min,
@@ -33,7 +30,7 @@ class CoinBalance extends StatelessWidget {
           Flexible(
             child: AutoScrollText(
               key: Key('coin-balance-asset-${coin.abbr.toLowerCase()}'),
-              text: doubleToString(balance),
+              text: doubleToString(coin.balance),
               style: balanceStyle,
               textAlign: TextAlign.right,
             ),
@@ -49,6 +46,7 @@ class CoinBalance extends StatelessWidget {
           maxWidth: 100,
         ),
         child: Row(
+          // mainAxisSize: MainAxisSize.min,
           children: [
             Text('(', style: balanceStyle),
             CoinFiatBalance(

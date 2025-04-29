@@ -1,17 +1,16 @@
+import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:komodo_ui/src/defi/asset/trend_percentage_text.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:app_theme/src/dark/theme_custom_dark.dart';
-import 'package:app_theme/src/light/theme_custom_light.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
-class CoinFiatChange extends StatelessWidget {
+class CoinFiatChange extends StatefulWidget {
   const CoinFiatChange(
     this.coin, {
-    super.key,
+    Key? key,
     this.style,
     this.padding,
     this.useDashForCoinWithoutFiat = false,
-  });
+  }) : super(key: key);
 
   final Coin coin;
   final bool useDashForCoinWithoutFiat;
@@ -19,24 +18,64 @@ class CoinFiatChange extends StatelessWidget {
   final EdgeInsets? padding;
 
   @override
+  State<CoinFiatChange> createState() => _CoinFiatChangeState();
+}
+
+class _CoinFiatChangeState extends State<CoinFiatChange> {
+  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeCustom = Theme.of(context).brightness == Brightness.dark
-        ? theme.extension<ThemeCustomDark>()!
-        : theme.extension<ThemeCustomLight>()!;
+    final double? change24h = widget.coin.usdPrice?.change24h;
+
+    if (change24h == null) {
+      return _NonFiat(
+        useDashForCoinWithoutFiat: widget.useDashForCoinWithoutFiat,
+        padding: widget.padding,
+        style: widget.style,
+      );
+    }
+
+    Color? color;
+    if (change24h > 0) {
+      color = theme.custom.increaseColor;
+    } else if (change24h < 0) {
+      color = theme.custom.decreaseColor;
+    }
+
+    final TextStyle style = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: color,
+    ).merge(widget.style);
 
     return Container(
+      padding: widget.padding,
+      child: Text(
+        '${formatAmt(change24h)}%',
+        style: style,
+      ),
+    );
+  }
+}
+
+class _NonFiat extends StatelessWidget {
+  final bool useDashForCoinWithoutFiat;
+  final EdgeInsets? padding;
+  final TextStyle? style;
+
+  const _NonFiat(
+      {required this.useDashForCoinWithoutFiat, this.padding, this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    if (useDashForCoinWithoutFiat) return const SizedBox();
+    return Container(
       padding: padding,
-      child: TrendPercentageText(
-        percentage: coin.usdPrice?.change24h,
-        textStyle: const TextStyle(
+      child: Text(
+        '-',
+        style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ).merge(style),
-        upColor: themeCustom.increaseColor,
-        downColor: themeCustom.decreaseColor,
-        showIcon: false,
-        noValueText: useDashForCoinWithoutFiat ? '' : '-',
       ),
     );
   }

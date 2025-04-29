@@ -1,15 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/feedback_form/feedback_form_bloc.dart';
+import 'package:web_dex/bloc/feedback_form/feedback_form_event.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/services/feedback/feedback_service.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 
-// TODO: Repurpose this widget to show a thank you message after feedback is.
-// This code is no longer used since the feedback form is now handled by the
-// `feedback` package.
 class FeedbackFormThanks extends StatelessWidget {
-  const FeedbackFormThanks({super.key});
+  const FeedbackFormThanks({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,24 +30,32 @@ class FeedbackFormThanks extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 26),
-            child: Text(LocaleKeys.feedbackFormThanksTitle.tr(),
-                style: Theme.of(context).textTheme.headlineSmall),
+            child: Text(
+              LocaleKeys.feedbackFormThanksTitle.tr(),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 11),
             child: Text(
-              LocaleKeys.feedbackFormDescription.tr(),
-              style: Theme.of(context).textTheme.bodyLarge,
+              LocaleKeys.feedbackFormThanksDescription.tr(),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 21.0),
             child: UiLightButton(
-              key: const Key('feedback-add-more-button'),
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
-              text: LocaleKeys.addMoreFeedback.tr(),
-              onPressed: () => context.showFeedback(),
-            ),
+                key: const Key('feedback-add-more-button'),
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+                text: LocaleKeys.addMoreFeedback.tr(),
+                onPressed: () {
+                  context
+                      .read<FeedbackFormBloc>()
+                      .add(const FeedbackFormReset());
+                }),
           ),
         ],
       ),

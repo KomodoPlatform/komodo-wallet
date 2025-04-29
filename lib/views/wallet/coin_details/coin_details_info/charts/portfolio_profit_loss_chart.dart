@@ -2,7 +2,7 @@ import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
@@ -98,14 +98,20 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
                   ),
                   leadingIcon: _singleCoinOrNull == null
                       ? null
-                      : AssetIcon(
-                          _singleCoinOrNull!.id,
+                      : CoinIcon(
+                          _singleCoinOrNull!.abbr,
                           size: 24,
                         ),
                   leadingText: Text(formattedValue),
                   emptySelectAllowed: !_isCoinPage,
-                  availableCoins:
-                      widget.initialCoins.map((coin) => coin.id).toList(),
+                  availableCoins: widget.initialCoins
+                      .map(
+                        (coin) => getSdkAsset(
+                          context.read<KomodoDefiSdk>(),
+                          coin.abbr,
+                        ).id,
+                      )
+                      .toList(),
                   selectedCoinId: _singleCoinOrNull?.abbr,
                   onCoinSelected: _isCoinPage ? null : _showSpecificCoin,
                   centreAmount: totalValue,

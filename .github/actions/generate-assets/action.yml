@@ -9,23 +9,6 @@ inputs:
     description: "The flutter build command to run to generate assets for the deployment build"
     required: false
     default: "flutter build web --release"
-  TRELLO_API_KEY:
-    description: "Trello API key for feedback service"
-    required: false
-    default: ""
-  TRELLO_TOKEN:
-    description: "Trello token for feedback service"
-    required: false
-    default: ""
-  TRELLO_BOARD_ID:
-    description: "Trello board ID for feedback service"
-    required: false
-    default: ""
-  TRELLO_LIST_ID:
-    description: "Trello list ID for feedback service"
-    required: false
-    default: ""
-
 runs:
   using: "composite"
   steps:
@@ -33,10 +16,6 @@ runs:
       shell: bash
       env:
         GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        TRELLO_API_KEY: ${{ inputs.TRELLO_API_KEY }}
-        TRELLO_TOKEN: ${{ inputs.TRELLO_TOKEN }}
-        TRELLO_BOARD_ID: ${{ inputs.TRELLO_BOARD_ID }}
-        TRELLO_LIST_ID: ${{ inputs.TRELLO_LIST_ID }}
       run: |
         echo "Running \`flutter build\` to generate assets for the deployment build"
 
@@ -47,32 +26,18 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
-        # Prepare build command with Trello credentials
-        BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
-
-        # Always add the Trello environment variables to the build command
-        # This ensures they're available in the compiled app
-        # Using the format exactly as specified in the feedback_service.dart comments
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
-        BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
-
-        echo "Build command with environment variables:"
-        echo "$BUILD_CMD"
-
         # Run flutter build once to download coin icons and config files. 
         # This step is expected to "fail", since flutter build has to run again 
         # after the assets are downloaded to register them in AssetManifest.bin
         flutter pub get > /dev/null 2>&1 || true
-        $BUILD_CMD > /dev/null 2>&1 || true
+        ${{ inputs.BUILD_COMMAND }} > /dev/null 2>&1 || true
         rm -rf build/*
 
         # Run flutter build and capture its output and exit status
         # Allow error messages from `flutter pub get` to be printed for debugging
         # in case there are legitimate, unexpected errors.
         flutter pub get > /dev/null
-        output=$($BUILD_CMD 2>&1)
+        output=$(${{ inputs.BUILD_COMMAND }} 2>&1)
         exit_status=$?
 
         # Check if the exit status is non-zero (indicating an error)

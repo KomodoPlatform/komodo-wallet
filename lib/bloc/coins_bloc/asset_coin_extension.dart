@@ -1,9 +1,7 @@
-import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 
 extension AssetCoinExtension on Asset {
   Coin toCoin() {
@@ -21,7 +19,7 @@ extension AssetCoinExtension on Asset {
     final isSegwit = id.id.toLowerCase().contains('-segwit');
 
     final ProtocolData protocolData = ProtocolData(
-      platform: id.parentId?.id ?? platform ?? '',
+      platform: id.parentId?.id ?? platform ?? '' ,
       contractAddress: contractAddress ?? '',
     );
 
@@ -53,8 +51,8 @@ extension AssetCoinExtension on Asset {
 
   String? get contractAddress => protocol.config
       .valueOrNull('protocol', 'protocol_data', 'contract_address');
-  String? get platform =>
-      protocol.config.valueOrNull('protocol', 'protocol_data', 'platform');
+  String? get platform => protocol.config
+      .valueOrNull('protocol', 'protocol_data', 'platform');
 }
 
 extension CoinTypeExtension on CoinSubClass {
@@ -169,63 +167,5 @@ extension CoinSubClassExtension on CoinType {
       case CoinType.krc20:
         return CoinSubClass.krc20;
     }
-  }
-}
-
-/// Extension methods to help bridging the gap between legacy [Coin] and SDK [Asset] objects
-extension SdkAssetExtension on KomodoDefiSdk {
-  /// Get the SDK Asset corresponding to a coin's ticker symbol
-  Asset getSdkAsset(String abbr) {
-    final assets = this.assets;
-
-    // Find the asset with the matching ticker symbol
-    // This could be refined based on your specific use case
-    try {
-      return assets.findAssetsByConfigId(abbr).single;
-    } catch (e) {
-      throw ArgumentError('Could not find SDK asset for $abbr');
-    }
-  }
-}
-
-/// Helper function to get an SDK Asset from a ticker abbr
-Asset getSdkAsset(KomodoDefiSdk sdk, String abbr) => sdk.getSdkAsset(abbr);
-
-/// Extension methods to help access Asset data from a Coin
-extension AssetBalanceExtension on Coin {
-  /// Get the current balance for this coin from the SDK
-  Future<BalanceInfo> getBalance(KomodoDefiSdk sdk) async {
-    return await sdk.balances.getBalance(id);
-  }
-
-  /// Get a stream of balance updates for this coin
-  Stream<BalanceInfo> watchBalance(
-    KomodoDefiSdk sdk, {
-    bool activateIfNeeded = true,
-  }) {
-    return sdk.balances.watchBalance(
-      id,
-      activateIfNeeded: activateIfNeeded,
-    );
-  }
-
-  /// Get the last-known balance for this coin.
-  ///
-  /// Note: Prefer using [getBalance] or [watchBalance] for real-time updates.
-  BalanceInfo? lastKnownBalance(KomodoDefiSdk sdk) =>
-      sdk.balances.lastKnown(id);
-
-  /// Get the price for this coin
-  Future<Decimal?> getPrice(KomodoDefiSdk sdk) {
-    return sdk.marketData.maybeFiatPrice(id);
-  }
-
-  double? usdBalance(KomodoDefiSdk sdk) {
-    final balance = sdk.balances.lastKnown(id);
-    if (balance == null) return null;
-    if (balance.spendable == Decimal.zero) return 0.0;
-    final price = sdk.marketData.priceIfKnown(id);
-    if (price == null) return null;
-    return (balance * price).spendable.toDouble();
   }
 }

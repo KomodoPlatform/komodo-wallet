@@ -72,10 +72,6 @@ jobs:
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
-          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
-          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
-          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
           BUILD_COMMAND: ${{ matrix.build_command }}
 
       - name: Build for ${{ matrix.platform }}

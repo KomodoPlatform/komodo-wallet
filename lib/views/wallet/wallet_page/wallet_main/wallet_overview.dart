@@ -70,7 +70,8 @@ class WalletOverview extends StatelessWidget {
                 caption: Text(LocaleKeys.allTimeProfit.tr()),
                 value: stateWithData?.profitAmount.value ?? 0,
                 footer: TrendPercentageText(
-                  percentage: stateWithData?.profitIncreasePercentage ?? 0,
+                  investmentReturnPercentage:
+                      stateWithData?.profitIncreasePercentage ?? 0,
                 ),
                 actionIcon: const Icon(Icons.trending_up),
                 onPressed: onPortfolioProfitLossPressed,

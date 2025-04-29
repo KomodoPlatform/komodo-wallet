@@ -12,8 +12,6 @@ final class AppBootstrapper {
   Future<void> ensureInitialized(KomodoDefiSdk kdfSdk) async {
     if (_isInitialized) return;
 
-    GetIt.I.registerSingleton<KomodoDefiSdk>(kdfSdk);
-
     final timer = Stopwatch()..start();
     await logger.init();
 

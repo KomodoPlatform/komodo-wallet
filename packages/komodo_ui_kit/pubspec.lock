@@ -70,10 +70,10 @@ packages:
     dependency: transitive
     description:
       name: freezed_annotation
-      sha256: c87ff004c8aa6af2d531668b46a4ea379f7191dc6dfa066acd53d506da6e044b
+      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "2.4.4"
   intl:
     dependency: "direct main"
     description:
@@ -95,7 +95,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: dev
-      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
+      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -104,7 +104,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: dev
-      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
+      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -113,7 +113,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: dev
-      resolved-ref: d9d9db41f8b9fb5555ffe9f10c04af358777c388
+      resolved-ref: "1bd8e52749498e2f112b367337d7b7e1a2b7fbcb"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -145,10 +145,10 @@ packages:
     dependency: transitive
     description:
       name: mobile_scanner
-      sha256: "9cb9e371ee9b5b548714f9ab5fd33b530d799745c83d5729ecd1e8ab2935dbd1"
+      sha256: "91d28b825784e15572fdc39165c5733099ce0e69c6f6f0964ebdbf98a62130fd"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.7"
+    version: "6.0.6"
   path:
     dependency: transitive
     description:

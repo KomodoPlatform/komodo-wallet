@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -9,8 +8,8 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table_item.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:get_it/get_it.dart';
+import 'package:web_dex/views/market_maker_bot/coin_search_dropdown.dart'
+    as coin_dropdown;
 
 class GroupedListView<T> extends StatelessWidget {
   const GroupedListView({
@@ -100,19 +99,13 @@ class GroupedListView<T> extends StatelessWidget {
 
   Coin _createHeaderCoinData(BuildContext context, List<T> list) {
     final firstCoin = getCoin(context, list.first);
-    final KomodoDefiSdk sdk = GetIt.I<KomodoDefiSdk>();
-
-    double totalBalance = list.fold(0.0, (sum, item) {
+    double totalBalance = list.fold(0, (sum, item) {
       final coin = getCoin(context, item);
-      final coinBalance =
-          sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0;
-      return sum + coinBalance;
+      return sum + coin.balance;
     });
 
     final coin = firstCoin.dummyCopyWithoutProtocolData();
-    // Since we can't use 'balance' property directly anymore, we need to
-    // construct the coin without using the balance property
-    return coin;
+    return coin.copyWith(balance: totalBalance);
   }
 
   Map<String, List<T>> _groupList(BuildContext context, List<T> list) {
@@ -128,8 +121,9 @@ class GroupedListView<T> extends StatelessWidget {
     final coinsState = RepositoryProvider.of<CoinsBloc>(context).state;
     if (item is Coin) {
       return item as Coin;
-    } else if (item is SelectItem) {
-      return (coinsState.walletCoins[item.id] ?? coinsState.coins[item.id])!;
+    } else if (item is coin_dropdown.CoinSelectItem) {
+      return (coinsState.walletCoins[item.coinId] ??
+          coinsState.coins[item.coinId])!;
     } else {
       final String coinId = (item as BestOrder).coin;
       return (coinsState.walletCoins[coinId] ?? coinsState.coins[coinId])!;

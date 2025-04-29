@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
@@ -21,7 +19,7 @@ List<Coin> prepareCoinsForTable(
   if (!testCoinsEnabled) coins = removeTestCoins(coins);
   coins = removeWalletOnly(coins);
   coins = removeSuspended(coins, authBloc.state.isSignedIn);
-  coins = sortFiatBalance(coins, GetIt.I<KomodoDefiSdk>());
+  coins = sortFiatBalance(coins);
   coins = filterCoinsByPhrase(coins, searchString ?? '').toList();
   return coins;
 }

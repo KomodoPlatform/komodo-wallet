@@ -1,32 +1,9 @@
+import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
+
 import '../common/theme_custom_base.dart';
 
-class ThemeCustomLight extends ThemeExtension<ThemeCustomLight>
-    implements ThemeCustomBase {
-  ThemeCustomLight();
-
-  @override
-  late final Color suspendedBannerBackgroundColor;
-  @override
-  late final Color keyPadColor;
-
-  void initializeThemeDependentColors(ThemeData theme) {
-    suspendedBannerBackgroundColor = theme.colorScheme.onSurface;
-    keyPadColor = theme.colorScheme.onSurface;
-  }
-
-  @override
-  ThemeExtension<ThemeCustomLight> copyWith() {
-    return this;
-  }
-
-  @override
-  ThemeExtension<ThemeCustomLight> lerp(
-      ThemeExtension<ThemeCustomLight>? other, double t) {
-    if (other is! ThemeCustomLight) return this;
-    return this;
-  }
-
+class ThemeCustomLight implements ThemeCustomBase {
   @override
   final Color mainMenuItemColor = const Color.fromRGBO(69, 96, 120, 1);
   @override
@@ -214,8 +191,13 @@ class ThemeCustomLight extends ThemeExtension<ThemeCustomLight>
   @override
   final Color swapButtonColor = const Color.fromRGBO(64, 146, 219, 1);
   @override
+  final Color suspendedBannerBackgroundColor =
+      theme.currentGlobal.colorScheme.onSurface;
+  @override
   final bridgeFormHeader = const TextStyle(
       fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 3.5);
+  @override
+  final Color keyPadColor = theme.global.light.colorScheme.onSurface;
   @override
   final Color keyPadTextColor = const Color.fromRGBO(129, 151, 182, 1);
   @override

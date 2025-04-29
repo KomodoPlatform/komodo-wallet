@@ -1,7 +1,5 @@
 import 'package:formz/formz.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:get_it/get_it.dart';
 
 /// Validation errors for the coin selection form field.
 enum CoinSelectValidationError {
@@ -27,10 +25,10 @@ class CoinSelectInput extends FormzInput<Coin?, CoinSelectValidationError> {
   const CoinSelectInput.pure({this.minBalance = 0, this.minGasBalance = 0})
       : super.pure(null);
   const CoinSelectInput.dirty([
-    super.value,
+    Coin? value,
     this.minBalance = 0,
     this.minGasBalance = 0,
-  ]) : super.dirty();
+  ]) : super.dirty(value);
 
   final double minBalance;
   final double minGasBalance;
@@ -46,11 +44,7 @@ class CoinSelectInput extends FormzInput<Coin?, CoinSelectValidationError> {
     //   return CoinSelectValidationError.inactive;
     // }
 
-    final KomodoDefiSdk sdk = GetIt.I<KomodoDefiSdk>();
-    final coinBalance =
-        sdk.balances.lastKnown(value.id)?.spendable.toDouble() ?? 0.0;
-
-    if (coinBalance <= minBalance) {
+    if (value.balance <= minBalance) {
       return CoinSelectValidationError.insufficientBalance;
     }
 
@@ -59,12 +53,8 @@ class CoinSelectInput extends FormzInput<Coin?, CoinSelectValidationError> {
       return CoinSelectValidationError.parentSuspended;
     }
 
-    if (parentCoin != null) {
-      final parentBalance =
-          sdk.balances.lastKnown(parentCoin.id)?.spendable.toDouble() ?? 0.0;
-      if (parentBalance < minGasBalance) {
-        return CoinSelectValidationError.insufficientGasBalance;
-      }
+    if (parentCoin != null && parentCoin.balance < minGasBalance) {
+      return CoinSelectValidationError.insufficientBalance;
     }
 
     return null;

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/bridge/bridge_protocol_label.dart';
 
 class BridgeProtocolTableItem extends StatelessWidget {
   const BridgeProtocolTableItem({
-    super.key,
+    Key? key,
     required this.coin,
     required this.onSelect,
     required this.index,
-  });
+  }) : super(key: key);
 
   final Coin coin;
   final Function onSelect;
@@ -18,9 +17,7 @@ class BridgeProtocolTableItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double? balance = coin.isActive
-        ? context.sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0
-        : null;
+    final double? balance = coin.isActive ? coin.balance : null;
 
     return Material(
       type: MaterialType.transparency,

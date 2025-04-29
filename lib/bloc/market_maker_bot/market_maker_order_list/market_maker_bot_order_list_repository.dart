@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
@@ -83,13 +82,10 @@ class MarketMakerBotOrderListRepository {
   }
 
   Rational _getBaseAmountFromVolume(String baseCoinId, double maxVolume) {
-    final baseCoin = _coinsRepository.getCoin(baseCoinId);
-    final baseCoinBalance = baseCoin == null
-        ? Decimal.zero
-        : _coinsRepository.lastKnownBalance(baseCoin.id)?.spendable ??
-            Decimal.zero;
-    return baseCoinBalance.toRational() *
-        Rational.parse(baseCoinBalance.toString());
+    final double baseCoinBalance =
+        _coinsRepository.getCoin(baseCoinId)?.balance ?? 0;
+    final double baseCoinAmount = maxVolume * baseCoinBalance;
+    return Rational.parse(baseCoinAmount.toString());
   }
 
   Rational _getRelAmountFromBaseAmount(

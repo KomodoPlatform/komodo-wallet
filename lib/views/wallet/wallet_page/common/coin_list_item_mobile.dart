@@ -1,8 +1,8 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_change.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
@@ -12,11 +12,11 @@ import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_
 
 class CoinListItemMobile extends StatelessWidget {
   const CoinListItemMobile({
-    super.key,
+    Key? key,
     required this.coin,
     required this.backgroundColor,
     required this.onTap,
-  });
+  }) : super(key: key);
 
   final Coin coin;
   final Color backgroundColor;
@@ -30,62 +30,43 @@ class CoinListItemMobile extends StatelessWidget {
         onTap: coin.isActivating ? null : () => onTap(coin),
         borderRadius: BorderRadius.circular(15),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 16, 16, 16),
+          padding: const EdgeInsets.fromLTRB(0, 14, 15, 14),
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(15),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
+            key: Key('active-coin-item-${(coin.abbr).toLowerCase()}'),
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                key: Key('active-coin-item-${(coin.abbr).toLowerCase()}'),
-                crossAxisAlignment: CrossAxisAlignment.center,
+              NeedAttentionMark(coin.isSuspended),
+              const SizedBox(width: 11),
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  NeedAttentionMark(coin.isSuspended),
-                  const SizedBox(width: 11),
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      CoinItem(coin: coin, size: CoinItemSize.large),
-                      if (coin.isActivating)
-                        const Positioned(
-                          top: 4,
-                          right: -20,
-                          child: UiSpinner(
-                            width: 12,
-                            height: 12,
-                            strokeWidth: 1.5,
-                          ),
-                        ),
-                    ],
-                  ),
-                  Spacer(),
-                  SizedBox(
-                    width: 80,
-                    height: 32,
-                    child: CoinSparkline(coinId: coin.abbr),
-                  ),
+                  CoinItem(coin: coin, size: CoinItemSize.large),
+                  if (coin.isActivating)
+                    const Positioned(
+                      top: 4,
+                      right: -20,
+                      child: UiSpinner(
+                        width: 12,
+                        height: 12,
+                        strokeWidth: 1.5,
+                      ),
+                    ),
                 ],
               ),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  SizedBox(width: 16),
-                  _CoinBalance(coin: coin),
-                  Spacer(),
-                  //  24 hour change
-                  CoinFiatChange(
-                    coin,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: theme.custom.increaseColor,
-                    ),
-                  ),
-                  Spacer(),
-                ],
-              )
+              const Spacer(),
+              Expanded(
+                flex: 5,
+                child: _CoinBalance(coin: coin),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 2,
+                child: CoinSparkline(coinId: coin.abbr),
+              ),
             ],
           ),
         ),
@@ -105,8 +86,8 @@ class _CoinBalance extends StatelessWidget {
       children: [
         Row(
           children: [
-            AssetBalanceText(
-              coin.id,
+            Text(
+              '${doubleToString(coin.balance)} ${Coin.normalizeAbbr(coin.abbr)}',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
             const SizedBox(width: 10),

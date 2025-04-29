@@ -9,7 +9,6 @@ import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_mak
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dart';
 import 'package:web_dex/views/dex/common/form_plate.dart';
 import 'package:web_dex/views/dex/simple/form/common/dex_flip_button_overlapper.dart';
@@ -169,9 +168,7 @@ class _MarketMakerBotFormContentState extends State<MarketMakerBotFormContent> {
   }
 
   List<Coin> _coinsWithUsdBalance(List<Coin> coins) {
-    return coins
-        .where((coin) => (coin.lastKnownUsdBalance(context.sdk) ?? 0) > 0)
-        .toList();
+    return coins.where((coin) => (coin.usdBalance ?? 0) > 0).toList();
   }
 
   void _onMakeOrderPressed() {

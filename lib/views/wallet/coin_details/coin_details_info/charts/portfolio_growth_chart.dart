@@ -6,7 +6,6 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -217,10 +216,11 @@ class _PortfolioGrowthChartTooltip extends StatelessWidget {
   // final Color backgroundColor;
 
   const _PortfolioGrowthChartTooltip({
+    Key? key,
     required this.dataPoints,
     required this.coins,
     // required this.backgroundColor,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +266,7 @@ class _PortfolioGrowthChartTooltip extends StatelessWidget {
                   ),
                 ],
               );
-            })
+            }).toList()
           else
             Text(
               NumberFormat.currency(symbol: '\$', decimalDigits: 2)
