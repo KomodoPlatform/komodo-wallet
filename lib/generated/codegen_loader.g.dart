@@ -529,6 +529,8 @@ abstract class  LocaleKeys {
   static const collectibles = 'collectibles';
   static const sendingProcess = 'sendingProcess';
   static const ercStandardDisclaimer = 'ercStandardDisclaimer';
+  static const nftReceiveNonSwapAddressWarning = 'nftReceiveNonSwapAddressWarning';
+  static const nftReceiveNonSwapWalletDetails = 'nftReceiveNonSwapWalletDetails';
   static const nftMainLoggedOut = 'nftMainLoggedOut';
   static const confirmLogoutOnAnotherTab = 'confirmLogoutOnAnotherTab';
   static const refreshList = 'refreshList';

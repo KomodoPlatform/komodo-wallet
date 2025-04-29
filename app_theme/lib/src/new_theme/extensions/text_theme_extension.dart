@@ -50,6 +50,13 @@ class TextThemeExtension extends ThemeExtension<TextThemeExtension> {
           fontWeight: FontWeight.w700,
           color: textColor,
         );
+
+  static TextThemeExtension of(BuildContext context) {
+    final textTheme = Theme.of(context).extension<TextThemeExtension>();
+    assert(textTheme != null, 'TextThemeExtension not found in context');
+    return textTheme!;
+  }
+
   final TextStyle heading1;
   final TextStyle heading2;
   final TextStyle bodyM;

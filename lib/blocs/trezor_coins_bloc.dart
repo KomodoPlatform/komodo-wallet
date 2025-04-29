@@ -8,7 +8,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/bloc_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/get_new_address/get_new_address_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw/trezor_withdraw_request.dart';
-import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/hd_account/hd_account.dart';
 import 'package:web_dex/model/hw_wallet/init_trezor.dart';
 import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';
@@ -28,9 +27,9 @@ class TrezorCoinsBloc {
   final TrezorRepo trezorRepo;
   Timer? _initNewAddressStatusTimer;
 
-  Future<int?> initNewAddress(Coin coin) async {
+  Future<int?> initNewAddress(Asset asset) async {
     final TrezorGetNewAddressInitResponse response =
-        await trezorRepo.initNewAddress(coin.abbr);
+        await trezorRepo.initNewAddress(asset.id.id);
     final result = response.result;
 
     return result?.taskId;
@@ -38,13 +37,13 @@ class TrezorCoinsBloc {
 
   void subscribeOnNewAddressStatus(
     int taskId,
-    Coin coin,
-    Function(GetNewAddressResponse) callback,
+    Asset asset,
+    void Function(GetNewAddressResponse) callback,
   ) {
     _initNewAddressStatusTimer =
         Timer.periodic(const Duration(seconds: 1), (timer) async {
       final GetNewAddressResponse initNewAddressStatus =
-          await trezorRepo.getNewAddressStatus(taskId, coin);
+        await trezorRepo.getNewAddressStatus(taskId, asset);
       callback(initNewAddressStatus);
     });
   }

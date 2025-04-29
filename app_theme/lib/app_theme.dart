@@ -1,4 +1,4 @@
-library app_theme;
+library;
 
 import 'package:flutter/material.dart';
 

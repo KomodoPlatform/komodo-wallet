@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
@@ -24,11 +24,10 @@ class _TakerFormState extends State<TakerForm> {
 
   @override
   void initState() {
-    final coinsBlocState = context.read<CoinsBloc>().state;
+    final authBlocState = context.read<AuthBloc>().state;
     final takerBloc = context.read<TakerBloc>();
     takerBloc.add(TakerSetDefaults());
-    takerBloc
-        .add(TakerSetWalletIsReady(coinsBlocState.loginActivationFinished));
+    takerBloc.add(TakerSetWalletIsReady(authBlocState.isSignedIn));
     routingState.dexState.addListener(_consumeRouteParameters);
     super.initState();
   }
@@ -82,12 +81,12 @@ class _TakerFormState extends State<TakerForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CoinsBloc, CoinsState>(
+    return BlocListener<AuthBloc, AuthBlocState>(
       listenWhen: (previous, current) =>
-          previous.loginActivationFinished != current.loginActivationFinished,
+          previous.isSignedIn != current.isSignedIn,
       listener: (context, state) {
         final takerBloc = context.read<TakerBloc>();
-        takerBloc.add(TakerSetWalletIsReady(state.loginActivationFinished));
+        takerBloc.add(TakerSetWalletIsReady(state.isSignedIn));
       },
       child: const TakerFormLayout(),
     );

@@ -532,6 +532,8 @@
     "collectibles": "Collectibles",
     "sendingProcess": "Sending process",
     "ercStandardDisclaimer": "Send only ERC721 and ERC1155 standard tokens on this address",
+    "nftReceiveNonSwapAddressWarning": "Non-Active Swap Address Selected",
+    "nftReceiveNonSwapWalletDetails": "You will be able to receive NFTs to this address, but they will not show up in Komodo Wallet. You will need to use a different wallet with bip39/HD support to access these NFTs.",
     "nftMainLoggedOut": "There's nothing here yet, please connect your wallet",
     "confirmLogoutOnAnotherTab": "You are already logged in to this wallet. Do you want to log out from another session?",
     "refreshList": "Refresh {} NFT list",

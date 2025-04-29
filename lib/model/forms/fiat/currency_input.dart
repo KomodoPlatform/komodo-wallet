@@ -11,12 +11,13 @@ enum CurrencyValidationError {
 }
 
 /// Formz input for selecting a currency.
-class CurrencyInput extends FormzInput<ICurrency?, CurrencyValidationError> {
+class CurrencyInput<T extends ICurrency>
+    extends FormzInput<T?, CurrencyValidationError> {
   const CurrencyInput.pure() : super.pure(null);
   const CurrencyInput.dirty([super.value]) : super.dirty();
 
   @override
-  CurrencyValidationError? validator(ICurrency? value) {
+  CurrencyValidationError? validator(T? value) {
     if (value == null) {
       return CurrencyValidationError.empty;
     }
@@ -29,7 +30,7 @@ class CurrencyInput extends FormzInput<ICurrency?, CurrencyValidationError> {
     return null;
   }
 
-  bool isCurrencySupported(ICurrency currency) {
+  bool isCurrencySupported(T currency) {
     // Implement your logic for determining if a currency is supported.
     // For example, this might check against a list of supported fiat/currencies.
     // Here, we assume a placeholder true value, meaning all are supported.

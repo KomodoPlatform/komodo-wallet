@@ -1,25 +1,26 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/views/fiat/address_bar.dart';
 import 'package:web_dex/views/fiat/custom_fiat_input_field.dart';
 import 'package:web_dex/views/fiat/fiat_currency_item.dart';
 import 'package:web_dex/views/fiat/fiat_icon.dart';
 
-// TODO(@takenagain): When `dev` is merged into `main`, please refactor this
-// to use the `CoinIcon` widget. I'm leaving this unchanged for now to avoid
-// merge conflicts with your fiat onramp overhaul.
 class FiatInputs extends StatefulWidget {
   const FiatInputs({
     required this.initialFiat,
     required this.initialFiatAmount,
-    required this.initialCoin,
+    required this.selectedAsset,
+    required this.selectedAssetAddress,
+    required this.selectedAssetPubkeys,
     required this.fiatList,
     required this.coinList,
-    required this.receiveAddress,
     required this.isLoggedIn,
     required this.onFiatCurrencyChanged,
     required this.onCoinChanged,
@@ -29,22 +30,26 @@ class FiatInputs extends StatefulWidget {
     this.fiatMinAmount,
     this.fiatMaxAmount,
     this.boundariesError,
+    this.onSourceAddressChanged,
   });
 
-  final ICurrency initialFiat;
-  final double? initialFiatAmount;
-  final ICurrency initialCoin;
-  final Iterable<ICurrency> fiatList;
-  final Iterable<ICurrency> coinList;
+  final FiatCurrency initialFiat;
+  final Decimal? initialFiatAmount;
+  final CryptoCurrency selectedAsset;
+  final Iterable<FiatCurrency> fiatList;
+  final Iterable<CryptoCurrency> coinList;
   final FiatPriceInfo? selectedPaymentMethodPrice;
   final bool isLoggedIn;
-  final String? receiveAddress;
-  final double? fiatMinAmount;
-  final double? fiatMaxAmount;
+  final PubkeyInfo? selectedAssetAddress;
+  final Decimal? fiatMinAmount;
+  final Decimal? fiatMaxAmount;
   final String? boundariesError;
-  final void Function(ICurrency) onFiatCurrencyChanged;
-  final void Function(ICurrency) onCoinChanged;
+  final void Function(FiatCurrency) onFiatCurrencyChanged;
+  final void Function(CryptoCurrency) onCoinChanged;
   final void Function(String?) onFiatAmountUpdate;
+
+  final AssetPubkeys? selectedAssetPubkeys;
+  final ValueChanged<PubkeyInfo?>? onSourceAddressChanged;
 
   @override
   FiatInputsState createState() => FiatInputsState();
@@ -70,13 +75,13 @@ class FiatInputsState extends State<FiatInputs> {
   void didUpdateWidget(FiatInputs oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final double? newFiatAmount = widget.initialFiatAmount;
+    final Decimal? newFiatAmount = widget.initialFiatAmount;
 
-    // Convert the current text to double for comparison
-    final double currentFiatAmount =
-        double.tryParse(fiatController.text) ?? 0.0;
+    // Convert the current text to Decimal for comparison
+    final Decimal currentFiatAmount =
+        Decimal.tryParse(fiatController.text) ?? Decimal.zero;
 
-    // Compare using double values
+    // Compare using Decimal values
     if (newFiatAmount != currentFiatAmount) {
       final newFiatAmountText = newFiatAmount?.toString() ?? '';
       fiatController
@@ -87,13 +92,13 @@ class FiatInputsState extends State<FiatInputs> {
     }
   }
 
-  void changeFiat(ICurrency? newValue) {
+  void changeFiat(FiatCurrency? newValue) {
     if (newValue == null) return;
 
     widget.onFiatCurrencyChanged(newValue);
   }
 
-  void changeCoin(ICurrency? newValue) {
+  void changeCoin(CryptoCurrency? newValue) {
     if (newValue == null) return;
 
     widget.onCoinChanged(newValue);
@@ -126,7 +131,7 @@ class FiatInputsState extends State<FiatInputs> {
           label: Text(LocaleKeys.spend.tr()),
           assetButton: FiatCurrencyItem(
             key: const Key('fiat-onramp-fiat-dropdown'),
-            foregroundColor: foregroundColor,
+            foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
             disabled: fiatListLoading,
             currency: widget.initialFiat,
             icon: FiatIcon(
@@ -175,9 +180,10 @@ class FiatInputsState extends State<FiatInputs> {
                     height: 48,
                     child: FiatCurrencyItem(
                       key: const Key('fiat-onramp-coin-dropdown'),
-                      foregroundColor: foregroundColor,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onSurfaceVariant,
                       disabled: coinListLoading,
-                      currency: widget.initialCoin,
+                      currency: widget.selectedAsset,
                       icon: Icon(_getDefaultAssetIcon('coin')),
                       onTap: () => _showAssetSelectionDialog('coin'),
                       isListTile: false,
@@ -190,7 +196,21 @@ class FiatInputsState extends State<FiatInputs> {
         ),
         if (widget.isLoggedIn) ...[
           const SizedBox(height: 16),
-          AddressBar(receiveAddress: widget.receiveAddress),
+          Row(
+            children: [
+              Expanded(
+                child: SourceAddressField(
+                  asset: widget.selectedAsset
+                      .toAsset(RepositoryProvider.of<KomodoDefiSdk>(context)),
+                  pubkeys: widget.selectedAssetPubkeys,
+                  selectedAddress: widget.selectedAssetAddress,
+                  onChanged: widget.onSourceAddressChanged,
+                  isLoading: widget.selectedAssetAddress == null,
+                  showBalanceIndicator: false,
+                ),
+              ),
+            ],
+          ),
         ],
       ],
     );
@@ -198,27 +218,33 @@ class FiatInputsState extends State<FiatInputs> {
 
   void _showAssetSelectionDialog(String type) {
     final isFiat = type == 'fiat';
-    final Iterable<ICurrency> itemList =
-        isFiat ? widget.fiatList : widget.coinList;
     final icon = Icon(_getDefaultAssetIcon(type));
-    final void Function(ICurrency) onItemSelected =
-        isFiat ? changeFiat : changeCoin;
 
-    _showSelectionDialog(
-      context: context,
-      title: isFiat ? LocaleKeys.selectFiat.tr() : LocaleKeys.selectCoin.tr(),
-      itemList: itemList,
-      icon: icon,
-      onItemSelected: onItemSelected,
-    );
+    if (isFiat) {
+      _showSelectionDialog<FiatCurrency>(
+        context: context,
+        title: LocaleKeys.selectFiat.tr(),
+        itemList: widget.fiatList,
+        icon: icon,
+        onItemSelected: changeFiat,
+      );
+    } else {
+      _showSelectionDialog<CryptoCurrency>(
+        context: context,
+        title: LocaleKeys.selectCoin.tr(),
+        itemList: widget.coinList,
+        icon: icon,
+        onItemSelected: changeCoin,
+      );
+    }
   }
 
-  void _showSelectionDialog({
+  void _showSelectionDialog<C extends ICurrency>({
     required BuildContext context,
     required String title,
-    required Iterable<ICurrency> itemList,
+    required Iterable<C> itemList,
     required Widget icon,
-    required void Function(ICurrency) onItemSelected,
+    required void Function(C) onItemSelected,
   }) {
     showDialog<void>(
       context: context,
@@ -236,7 +262,8 @@ class FiatInputsState extends State<FiatInputs> {
                 final item = itemList.elementAt(index);
                 return FiatCurrencyItem(
                   key: Key('fiat-onramp-currency-item-${item.symbol}'),
-                  foregroundColor: foregroundColor,
+                  foregroundColor:
+                      Theme.of(context).colorScheme.onSurfaceVariant,
                   disabled: false,
                   currency: item,
                   icon: icon,
@@ -253,8 +280,6 @@ class FiatInputsState extends State<FiatInputs> {
       },
     );
   }
-
-  Color get foregroundColor => Theme.of(context).colorScheme.onSurfaceVariant;
 }
 
 IconData _getDefaultAssetIcon(String type) {

@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_state.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
@@ -22,7 +22,7 @@ class MakerFormTradeButton extends StatelessWidget {
               systemHealthState.isValid;
 
       final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-      final coinsBloc = context.watch<CoinsBloc>();
+      final authBloc = context.watch<AuthBloc>();
 
       return StreamBuilder<bool>(
           initialData: makerFormBloc.inProgress,
@@ -50,7 +50,7 @@ class MakerFormTradeButton extends StatelessWidget {
                 onPressed: disabled
                     ? null
                     : () async {
-                        while (!coinsBloc.state.loginActivationFinished) {
+                        while (!authBloc.state.isSignedIn) {
                           await Future<dynamic>.delayed(
                               const Duration(milliseconds: 300));
                         }

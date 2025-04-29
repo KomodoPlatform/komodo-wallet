@@ -5,8 +5,11 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
+import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
@@ -144,6 +147,13 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
             walletCoins: {...state.walletCoins, coin.id.id: coin},
             coins: {...state.coins, coin.id.id: coin},
           ),
+        );
+
+        final coinUpdates = _syncIguanaCoinsStates(state.walletCoins.keys);
+        await emit.forEach(
+          coinUpdates,
+          onData: (coin) => state
+              .copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
         );
     }
   }
@@ -533,9 +543,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   /// coins are activated
   Stream<Coin> _syncIguanaCoinsStates(Iterable<String> coins) async* {
     final walletCoins = state.walletCoins;
+    final enabledApiAssets = await _kdfSdk.assets.getActivatedAssets();
 
     for (final coinId in coins) {
-      final Coin? apiCoin = await _coinsRepo.getEnabledCoin(coinId);
+      final Coin? apiCoin = enabledApiAssets
+          .firstWhereOrNull((asset) => asset.id.id == coinId)
+          ?.toCoin();
       final coin = walletCoins[coinId];
       if (coin == null) {
         _log.warning('Coin $coinId removed from wallet, skipping sync');
@@ -552,13 +565,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         yield coin.copyWith(state: CoinState.suspended);
       }
 
-      for (final String apiCoinId in await _kdfSdk.assets.getEnabledCoins()) {
-        if (!walletCoins.containsKey(apiCoinId)) {
+      for (final asset in enabledApiAssets) {
+        if (!walletCoins.containsKey(asset.id.id)) {
+          await _kdfSdk.addActivatedCoins([asset.id.id]);
           // enabled on api side, but not on gui side - enable on gui side
-          final apiCoin = await _coinsRepo.getEnabledCoin(apiCoinId);
-          if (apiCoin != null) {
-            yield apiCoin;
-          }
+          yield asset.toCoin();
         }
       }
     }

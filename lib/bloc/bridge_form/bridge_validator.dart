@@ -1,4 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:get_it/get_it.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
@@ -370,6 +372,9 @@ class BridgeValidator {
   bool get _isOrderSelected => _state.bestOrder != null;
 
   bool get canRequestPreimage {
+    // used to fetch the coin balance via the new balance function
+    final sdk = GetIt.I<KomodoDefiSdk>();
+
     final Coin? sellCoin = _state.sellCoin;
     if (sellCoin == null) return false;
     if (sellCoin.enabledType == null) return false;
@@ -387,7 +392,7 @@ class BridgeValidator {
     if (parentSell != null) {
       if (parentSell.enabledType == null) return false;
       if (parentSell.isSuspended) return false;
-      if (parentSell.balance == 0.00) return false;
+      if (parentSell.balance(sdk) == 0.00) return false;
     }
 
     final BestOrder? bestOrder = _state.bestOrder;
@@ -400,7 +405,8 @@ class BridgeValidator {
     if (parentBuy != null) {
       if (parentBuy.enabledType == null) return false;
       if (parentBuy.isSuspended) return false;
-      if (parentBuy.balance == 0.00) return false;
+
+      if (parentBuy.balance(sdk) == 0.00) return false;
     }
 
     return true;

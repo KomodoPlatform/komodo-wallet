@@ -60,7 +60,7 @@ class FiatPaymentMethodGroup extends StatelessWidget {
                   paymentMethodData: method,
                   selectedPaymentMethod: selectedPaymentMethod,
                   onSelect: (method) => context.read<FiatFormBloc>().add(
-                        PaymentMethodSelected(method),
+                        FiatFormPaymentMethodSelected(method),
                       ),
                 );
               },

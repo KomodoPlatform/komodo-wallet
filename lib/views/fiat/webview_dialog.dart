@@ -83,6 +83,10 @@ class InAppWebviewDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(12.0), // Match your app's corner radius
+      ),
       child: SizedBox(
         width: 700,
         height: 700,
@@ -95,16 +99,31 @@ class InAppWebviewDialog extends StatelessWidget {
               elevation: 0,
               leading: IconButton(
                 icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  onCloseWindow?.call();
+                  Navigator.of(context).pop();
+                },
+              ),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12.0),
+                  topRight: Radius.circular(12.0),
+                ),
               ),
             ),
             Expanded(
-              child: MessageInAppWebView(
-                key: const Key('dialog-inappwebview'),
-                settings: webviewSettings,
-                url: url,
-                onConsoleMessage: onConsoleMessage,
-                onCloseWindow: onCloseWindow,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(12.0),
+                  bottomRight: Radius.circular(12.0),
+                ),
+                child: MessageInAppWebView(
+                  key: const Key('dialog-inappwebview'),
+                  settings: webviewSettings,
+                  url: url,
+                  onConsoleMessage: onConsoleMessage,
+                  onCloseWindow: onCloseWindow,
+                ),
               ),
             ),
           ],

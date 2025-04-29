@@ -49,6 +49,8 @@ class _NftImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSvg = imageUrl.endsWith('.svg');
+    final isGif = imageUrl.endsWith('.gif');
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: isSvg
@@ -57,7 +59,12 @@ class _NftImage extends StatelessWidget {
               imageUrl,
               filterQuality: FilterQuality.high,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const _NftPlaceholder(),
+              gaplessPlayback: isGif, // Ensures smoother GIF animation
+              errorBuilder: (_, error, stackTrace) {
+                debugPrint('Error loading image: $error');
+                debugPrintStack(stackTrace: stackTrace);
+                return const _NftPlaceholder();
+              },
             ),
     );
   }

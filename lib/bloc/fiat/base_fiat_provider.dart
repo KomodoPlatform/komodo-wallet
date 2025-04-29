@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/model/coin_type.dart';
@@ -16,9 +17,9 @@ abstract class BaseFiatProvider {
 
   Stream<FiatOrderStatus> watchOrderStatus(String orderId);
 
-  Future<List<ICurrency>> getFiatList();
+  Future<List<FiatCurrency>> getFiatList();
 
-  Future<List<ICurrency>> getCoinList();
+  Future<List<CryptoCurrency>> getCoinList();
 
   Future<List<FiatPaymentMethod>> getPaymentMethodsList(
     String source,
@@ -43,10 +44,11 @@ abstract class BaseFiatProvider {
     String returnUrlOnSuccess,
   );
 
-  @protected
+  static final _log = Logger('BaseFiatProvider');
 
   /// Makes an API request to the fiat provider. Uses the test mode if the app
   /// is in debug mode.
+  @protected
   Future<dynamic> apiRequest(
     String method,
     String endpoint, {
@@ -95,11 +97,11 @@ abstract class BaseFiatProvider {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return json.decode(response.body);
       } else {
-        return Future.error(
-          json.decode(response.body) as Object,
-        );
+        _log.warning('Request failed with status: ${response.statusCode}');
+        return Future.error(json.decode(response.body) as Object);
       }
-    } catch (e) {
+    } catch (e, s) {
+      _log.severe('Network error', e, s);
       return Future.error('Network error: $e');
     }
   }
@@ -109,7 +111,7 @@ abstract class BaseFiatProvider {
       // These exist in the current fiat provider coin lists:
       case CoinType.utxo:
         // BTC, BCH, DOGE, LTC
-        return currency.symbol;
+        return currency.configSymbol;
       case CoinType.erc20:
         return 'ETH';
       case CoinType.bep20:

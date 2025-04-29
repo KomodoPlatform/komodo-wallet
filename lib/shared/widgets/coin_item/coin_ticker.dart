@@ -21,10 +21,14 @@ class CoinTicker extends StatelessWidget {
 
     return AutoScrollText(
       text: showSuffix ? abbr2TickerWithSuffix(coin) : abbr2Ticker(coin),
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-      ).merge(style),
+      style: Theme.of(context)
+          .textTheme
+          .bodyMedium
+          ?.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          )
+          .merge(style),
     );
   }
 }

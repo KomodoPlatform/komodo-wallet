@@ -19,7 +19,6 @@ import 'tests/formatter/truncate_hash_test.dart';
 import 'tests/helpers/calculate_buy_amount_test.dart';
 import 'tests/helpers/get_sell_amount_test.dart';
 import 'tests/helpers/max_min_rational_test.dart';
-import 'tests/helpers/total_24_change_test.dart';
 import 'tests/helpers/total_fee_test.dart';
 import 'tests/helpers/update_sell_amount_test.dart';
 import 'tests/password/validate_password_test.dart';
@@ -29,7 +28,6 @@ import 'tests/utils/convert_double_to_string_test.dart';
 import 'tests/utils/convert_fract_rat_test.dart';
 import 'tests/utils/double_to_string_test.dart';
 import 'tests/utils/get_fiat_amount_tests.dart';
-import 'tests/utils/get_usd_balance_test.dart';
 
 /// Run in terminal flutter test test_units/main.dart
 /// More info at documentation "Unit and Widget testing" section
@@ -59,7 +57,8 @@ void main() {
   });
 
   group('Utils:', () {
-    testUsdBalanceFormatter();
+    // TODO: re-enable or migrate to the SDK
+    // testUsdBalanceFormatter();
     testGetFiatAmount();
     testCustomDoubleToString();
     testRatToFracAndViseVersa();
@@ -70,7 +69,8 @@ void main() {
   group('Helpers: ', () {
     testMaxMinRational();
     testCalculateBuyAmount();
-    testGetTotal24Change();
+    // TODO: re-enable or migrate to the SDK
+    // testGetTotal24Change();
     testGetTotalFee();
     testGetSellAmount();
     testUpdateSellAmount();

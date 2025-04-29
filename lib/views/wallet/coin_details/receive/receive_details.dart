@@ -20,12 +20,14 @@ import 'package:web_dex/views/wallet/coin_details/receive/receive_address.dart';
 
 class ReceiveDetails extends StatelessWidget {
   const ReceiveDetails({
-    super.key,
     required this.asset,
+    required this.pubkeys,
     required this.onBackButtonPressed,
+    super.key,
   });
 
   final Asset asset;
+  final AssetPubkeys pubkeys;
   final VoidCallback onBackButtonPressed;
 
   @override
@@ -51,7 +53,7 @@ class ReceiveDetails extends StatelessWidget {
               scrollController: scrollController,
               child: SingleChildScrollView(
                 controller: scrollController,
-                child: _ReceiveDetailsContent(asset: asset),
+                child: _ReceiveDetailsContent(asset: asset, pubkeys: pubkeys),
               ),
             ),
           ),
@@ -62,16 +64,17 @@ class ReceiveDetails extends StatelessWidget {
 }
 
 class _ReceiveDetailsContent extends StatefulWidget {
-  const _ReceiveDetailsContent({required this.asset});
+  const _ReceiveDetailsContent({required this.asset, required this.pubkeys});
 
   final Asset asset;
+  final AssetPubkeys pubkeys;
 
   @override
   State<_ReceiveDetailsContent> createState() => _ReceiveDetailsContentState();
 }
 
 class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
-  String? _currentAddress;
+  PubkeyInfo? _currentAddress;
 
   @override
   void initState() {
@@ -92,8 +95,9 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
 
     return Container(
       decoration: BoxDecoration(
-          color: isMobile ? themeData.cardColor : null,
-          borderRadius: BorderRadius.circular(18.0)),
+        color: isMobile ? themeData.cardColor : null,
+        borderRadius: BorderRadius.circular(18.0),
+      ),
       padding: EdgeInsets.symmetric(
         vertical: isMobile ? 25 : 0,
         horizontal: 15,
@@ -109,17 +113,18 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
             padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 23),
             margin: EdgeInsets.only(top: isMobile ? 25 : 15),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18.0),
-                color: theme.mode == ThemeMode.dark
-                    ? themeData.colorScheme.onSurface
-                    : themeData.cardColor,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.08),
-                    offset: Offset(0, 1),
-                    blurRadius: 8,
-                  ),
-                ]),
+              borderRadius: BorderRadius.circular(18.0),
+              color: theme.mode == ThemeMode.dark
+                  ? themeData.colorScheme.onSurface
+                  : themeData.cardColor,
+              boxShadow: const [
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.08),
+                  offset: Offset(0, 1),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
             constraints: const BoxConstraints(maxWidth: receiveWidth),
             child: Column(
               children: [
@@ -127,26 +132,29 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(LocaleKeys.network.tr(),
-                        style: themeData.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          color: themeData.textTheme.labelLarge?.color,
-                        )),
+                    Text(
+                      LocaleKeys.network.tr(),
+                      style: themeData.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        color: themeData.textTheme.labelLarge?.color,
+                      ),
+                    ),
                     CoinTypeTag(widget.asset.toCoin()),
                   ],
                 ),
                 const SizedBox(height: 30),
                 ReceiveAddress(
-                  coin: widget.asset.toCoin(),
+                  asset: widget.asset,
                   selectedAddress: _currentAddress,
+                  pubkeys: widget.pubkeys,
                   onChanged: _onAddressChanged,
                 ),
                 const SizedBox(height: 30),
                 if (_currentAddress != null)
                   Column(
                     children: [
-                      QRCodeAddress(currentAddress: _currentAddress!),
+                      QRCodeAddress(currentAddress: _currentAddress!.address),
                       const SizedBox(height: 15),
                       Text(
                         LocaleKeys.scanToGetAddress.tr(),
@@ -166,7 +174,7 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
     );
   }
 
-  void _onAddressChanged(String address) {
+  void _onAddressChanged(PubkeyInfo? address) {
     setState(() {
       _currentAddress = address;
     });

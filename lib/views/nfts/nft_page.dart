@@ -65,14 +65,14 @@ class _NFTPageViewState extends State<NFTPageView> {
   @override
   void initState() {
     _nftMainBloc = context.read<NftMainBloc>();
-    _nftMainBloc.add(const UpdateChainNftsEvent());
-    _nftMainBloc.add(const StartUpdateNftsEvent());
+    _nftMainBloc.add(const NftMainChainUpdateRequested());
+    _nftMainBloc.add(const NftMainUpdateNftsStarted());
     super.initState();
   }
 
   @override
   void dispose() {
-    _nftMainBloc.add(const StopUpdateNftEvent());
+    _nftMainBloc.add(const NftMainUpdateNftsStopped());
     super.dispose();
   }
 

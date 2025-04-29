@@ -9,33 +9,41 @@ abstract class NftReceiveState extends Equatable {
 
 class NftReceiveInitial extends NftReceiveState {}
 
-class NftReceiveHasBackup extends NftReceiveState {}
+class NftReceiveBackupSuccess extends NftReceiveState {}
 
-class NftReceiveAddress extends NftReceiveState {
-  final Coin coin;
-  final String? address;
-
-  const NftReceiveAddress({
-    required this.coin,
-    required this.address,
+class NftReceiveLoadSuccess extends NftReceiveState {
+  const NftReceiveLoadSuccess({
+    required this.asset,
+    required this.pubkeys,
+    this.selectedAddress,
   });
 
-  NftReceiveAddress copyWith({
-    Coin? coin,
-    String? address,
+  final Asset asset;
+  final AssetPubkeys pubkeys;
+  final PubkeyInfo? selectedAddress;
+
+  NftReceiveLoadSuccess copyWith({
+    Asset? asset,
+    AssetPubkeys? pubkeys,
+    PubkeyInfo? selectedAddress,
   }) {
-    return NftReceiveAddress(
-      coin: coin ?? this.coin,
-      address: address ?? this.address,
+    return NftReceiveLoadSuccess(
+      asset: asset ?? this.asset,
+      pubkeys: pubkeys ?? this.pubkeys,
+      selectedAddress: selectedAddress ?? this.selectedAddress,
     );
   }
 
   @override
-  List<Object> get props => [address ?? '', coin];
+  List<Object> get props => [
+        asset,
+        pubkeys,
+        if (selectedAddress != null) selectedAddress!,
+      ];
 }
 
-class NftReceiveFailure extends NftReceiveState {
-  final String? message;
+class NftReceiveLoadFailure extends NftReceiveState {
+  const NftReceiveLoadFailure({this.message});
 
-  const NftReceiveFailure({this.message});
+  final String? message;
 }

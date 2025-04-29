@@ -9,11 +9,11 @@ import 'package:web_dex/shared/widgets/hash_explorer_link.dart';
 
 class NftTxnCopiedText extends StatelessWidget {
   const NftTxnCopiedText({
-    Key? key,
+    super.key,
     required this.title,
     required this.transaction,
     required this.explorerType,
-  }) : super(key: key);
+  });
 
   final String title;
   final NftTransaction transaction;

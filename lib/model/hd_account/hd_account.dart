@@ -1,3 +1,5 @@
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+
 class HdAccount {
   HdAccount({
     required this.accountIndex,
@@ -63,6 +65,15 @@ class HdAddress {
   final String derivationPath;
   final String chain;
   final HdBalance balance;
+
+  PubkeyInfo toPubkeyInfo() {
+    return PubkeyInfo(
+      address: address,
+      derivationPath: derivationPath,
+      chain: chain,
+      balance: BalanceInfo.fromJson(balance.toJson()),
+    );
+  }
 }
 
 class HdBalance {

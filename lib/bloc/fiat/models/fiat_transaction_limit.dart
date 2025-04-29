@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:decimal/decimal.dart';
 
 class FiatTransactionLimit extends Equatable {
   const FiatTransactionLimit({
@@ -9,17 +10,10 @@ class FiatTransactionLimit extends Equatable {
   });
 
   factory FiatTransactionLimit.fromJson(Map<String, dynamic> json) {
-    double parseDouble(String? value) {
-      if (value == null || value.isEmpty) {
-        return 0.0;
-      }
-      return double.tryParse(value) ?? 0.0;
-    }
-
     return FiatTransactionLimit(
-      min: parseDouble(json['min'] as String?),
-      max: parseDouble(json['max'] as String?),
-      weekly: parseDouble(json['weekly'] as String?),
+      min: Decimal.tryParse(json['min'] as String? ?? '') ?? Decimal.zero,
+      max: Decimal.tryParse(json['max'] as String? ?? '') ?? Decimal.zero,
+      weekly: Decimal.tryParse(json['weekly'] as String? ?? '') ?? Decimal.zero,
       fiatCode: json['fiat_code'] as String? ?? '',
     );
   }
@@ -33,9 +27,9 @@ class FiatTransactionLimit extends Equatable {
     };
   }
 
-  final double min;
-  final double max;
-  final double weekly;
+  final Decimal min;
+  final Decimal max;
+  final Decimal weekly;
   final String fiatCode;
 
   @override

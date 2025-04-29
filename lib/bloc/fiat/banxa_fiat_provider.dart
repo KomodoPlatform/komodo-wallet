@@ -1,16 +1,17 @@
 import 'dart:convert';
 
+import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class BanxaFiatProvider extends BaseFiatProvider {
   BanxaFiatProvider();
   final String providerId = 'Banxa';
   final String apiEndpoint = '/api/v1/banxa';
+  static final _log = Logger('BanxaFiatProvider');
 
   @override
   String getProviderId() {
@@ -37,7 +38,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         queryParams: {
           'endpoint': '/api/payment-methods',
           'source': source,
-          'target': target.symbol,
+          'target': target.configSymbol,
         },
       );
 
@@ -53,7 +54,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         queryParams: {
           'endpoint': '/api/prices',
           'source': source,
-          'target': target.symbol,
+          'target': target.configSymbol,
           'source_amount': sourceAmount,
           'payment_method_id': paymentMethod.id,
         },
@@ -136,11 +137,9 @@ class BanxaFiatProvider extends BaseFiatProvider {
       final response = await _getOrder(orderId)
           .catchError((e) => Future<void>.error('Error fetching order: $e'));
 
-      log('Fiat order status response:\n${jsonEncode(response)}').ignore();
-
+      _log.fine('Fiat order status response:\n${jsonEncode(response)}');
       final status =
           _parseStatusFromResponse(response as Map<String, dynamic>? ?? {});
-
       final isCompleted =
           status == FiatOrderStatus.success || status == FiatOrderStatus.failed;
 
@@ -157,7 +156,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<ICurrency>> getFiatList() async {
+  Future<List<FiatCurrency>> getFiatList() async {
     final response = await _getFiats();
     final data = response['data']['fiats'] as List<dynamic>;
     return data
@@ -171,11 +170,11 @@ class BanxaFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<ICurrency>> getCoinList() async {
+  Future<List<CryptoCurrency>> getCoinList() async {
     final response = await _getCoins();
     final data = response['data']['coins'] as List<dynamic>;
 
-    final List<ICurrency> currencyList = [];
+    final List<CryptoCurrency> currencyList = [];
     for (final item in data) {
       final coinCode = item['coin_code'] as String;
       final coinName = item['coin_name'] as String;
@@ -239,7 +238,8 @@ class BanxaFiatProvider extends BaseFiatProvider {
       }
 
       return paymentMethods;
-    } catch (e) {
+    } catch (e, s) {
+      _log.severe('Failed to get payment methods list', e, s);
       return [];
     }
   }
@@ -265,14 +265,8 @@ class BanxaFiatProvider extends BaseFiatProvider {
         prices.first as Map<String, dynamic>? ?? {},
       );
     } catch (e, s) {
-      log(
-        'Failed to get payment method price: $e',
-        isError: true,
-        trace: s,
-        // leaving path here until we figure out how to include stack trace
-        path: 'Banxa.getPaymentMethodPrice',
-      ).ignore();
-      return const FiatPriceInfo.zero();
+      _log.severe('Failed to get payment method price', e, s);
+      return FiatPriceInfo.zero;
     }
   }
 
@@ -289,19 +283,16 @@ class BanxaFiatProvider extends BaseFiatProvider {
     final payload = {
       'account_reference': accountReference,
       'source': source,
-      'target': target.symbol,
+      'target': target.configSymbol,
       'wallet_address': walletAddress,
       'payment_method_id': paymentMethodId,
       'source_amount': sourceAmount,
       'return_url_on_success': returnUrlOnSuccess,
     };
 
-    await log('Fiat buy coin order payload:');
-    await log(jsonEncode(payload));
+    _log.finer('Fiat buy coin order payload: ${jsonEncode(payload)}');
     final response = await _createOrder(payload);
-    await log('Fiat buy coin order response:');
-    await log(jsonEncode(response));
-
+    _log.finer('Fiat buy coin order response: ${jsonEncode(response)}');
     return FiatBuyOrderInfo.fromJson(response as Map<String, dynamic>? ?? {});
   }
 

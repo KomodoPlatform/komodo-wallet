@@ -33,8 +33,11 @@ class NftWithdrawRepo {
     );
     final Map<String, dynamic> json = await _api.nft.withdraw(request);
     if (json['error'] != null) {
-      log(json['error'] ?? 'unknown error',
-          path: 'nft_main_repo => getNfts', isError: true);
+      log(
+        json['error'] as String? ?? 'unknown error',
+        path: 'nft_main_repo => getNfts',
+        isError: true,
+      ).ignore();
       final BaseError error =
           withdrawErrorFactory.getError(json, nft.parentCoin.abbr);
       throw ApiError(message: error.message);
@@ -54,15 +57,18 @@ class NftWithdrawRepo {
   }
 
   Future<SendRawTransactionResponse> confirmSend(
-      String coin, String txHex) async {
+    String coin,
+    String txHex,
+  ) async {
     try {
       final request = SendRawTransactionRequest(coin: coin, txHex: txHex);
       final response = await _api.sendRawTransaction(request);
       return response;
     } catch (e) {
       return SendRawTransactionResponse(
-          txHash: null,
-          error: TextError(error: LocaleKeys.somethingWrong.tr()));
+        txHash: null,
+        error: TextError(error: LocaleKeys.somethingWrong.tr()),
+      );
     }
   }
 

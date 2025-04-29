@@ -23,7 +23,7 @@ class UpdateNftRequest implements BaseRequest {
         "chains": chains,
         "url": moralisProxyUrl,
         "url_antispam": nftAntiSpamUrl,
-        "proxy_auth": false,
+        "komodo_proxy": false,
       }
     };
   }
