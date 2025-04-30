@@ -2,13 +2,11 @@ import 'dart:async';
 
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_mode.dart';
@@ -21,6 +19,7 @@ import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dar
 import 'package:web_dex/views/fiat/fiat_action_tab.dart';
 import 'package:web_dex/views/fiat/fiat_inputs.dart';
 import 'package:web_dex/views/fiat/fiat_payment_methods_grid.dart';
+import 'package:web_dex/views/fiat/fiat_provider_web_view_settings.dart';
 import 'package:web_dex/views/fiat/webview_dialog.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 
@@ -184,14 +183,6 @@ class _FiatFormState extends State<FiatForm> {
     }
   }
 
-  void _showOrderFailedSnackbar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(LocaleKeys.orderFailedTryAgain.tr()),
-      ),
-    );
-  }
-
   void _onConsoleMessage(String message) {
     context
         .read<FiatFormBloc>()
@@ -219,13 +210,10 @@ class _FiatFormState extends State<FiatForm> {
         url: stateSnapshot.checkoutUrl,
         mode: stateSnapshot.webViewMode,
         title: LocaleKeys.buy.tr(),
-        onConsoleMessage: _onConsoleMessage,
+        onMessage: _onConsoleMessage,
         onCloseWindow: _onCloseWebView,
+        settings: FiatProviderWebViewSettings.createSecureProviderSettings(),
       );
-    }
-
-    if (status == FiatOrderStatus.failed) {
-      _showOrderFailedSnackbar();
     }
 
     if (status == FiatOrderStatus.windowCloseRequested) {

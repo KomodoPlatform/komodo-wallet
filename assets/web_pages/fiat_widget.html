@@ -2,100 +2,102 @@
 <html style="height: 100%;">
 
 <head>
-    <title>Fiat OnRamp</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
+  <title>Fiat OnRamp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
 
-        iframe {
-            position: relative;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+    iframe {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
 </head>
 
 <body>
-    <iframe id="fiat-onramp-iframe" sandbox="allow-same-origin allow-popups allow-scripts allow-forms" src="">
-    </iframe>
-    <script>
-        window.onmessage = onMessageHandler;
+  <iframe id="fiat-onramp-iframe"
+    sandbox="allow-same-origin allow-popups allow-scripts allow-forms allow-top-navigation" src="">
+  </iframe>
+  <script>
+    window.onmessage = _komodoOnMessageHandler;
+    window.addEventListener('message', _komodoOnMessageHandler, false);
 
-        function getUrlParameter(name) {
-            const params = new URLSearchParams(window.location.search);
-            return params.get(name);
-        }
+    function getUrlParameter(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
 
-        const urlParam = getUrlParameter('fiatUrl');
-        let targetUrl = null;
+    const urlParam = getUrlParameter('fiatUrl');
+    let targetUrl = null;
 
-        if (urlParam) {
-            try {
-                targetUrl = atob(urlParam); // base64 decode the `url` parameter
-            } catch (error) {
-                console.error('Error decoding base64 url parameter', error);
-            }
-        }
+    if (urlParam) {
+      try {
+        targetUrl = atob(urlParam); // base64 decode the `url` parameter
+      } catch (error) {
+        console.error('Error decoding base64 url parameter', error);
+      }
+    }
 
-        if (targetUrl) {
-            document.getElementById('fiat-onramp-iframe').src = targetUrl;
-        } else {
-            console.error('No URL parameter provided');
-        }
+    if (targetUrl) {
+      document.getElementById('fiat-onramp-iframe').src = targetUrl;
+    } else {
+      console.error('No URL parameter provided');
+    }
 
-        function onMessageHandler(messageEvent) {
-            let messageData;
-            try {
-                messageData = JSON.parse(messageEvent.data);
-            } catch (parseError) {
-                messageData = messageEvent.data;
-            }
+    function _komodoOnMessageHandler(messageEvent) {
+      let messageData;
+      try {
+        messageData = JSON.parse(messageEvent.data);
+      } catch (parseError) {
+        messageData = messageEvent.data;
+      }
 
-            try {
-                postMessageToParent(messageData);
-            } catch (postError) {
-                console.error('Error posting message', postError);
-            }
-        }
+      try {
+        postMessageToParent(messageData);
+      } catch (postError) {
+        console.error('Error posting message', postError);
+      }
+    }
 
-        /** 
-         * Post a message to the parent window
-         * 
-         * @param {string|object} messageData 
-         */
-        function postMessageToParent(messageData) {
-            // Convert messageData to a string if it is an object
-            const messageString = (typeof messageData === 'object') ? JSON.stringify(messageData) : String(messageData);
+    /** 
+     * Post a message to the parent window
+     * 
+     * @param {string|object} messageData 
+     */
+    function postMessageToParent(messageData) {
+      // Convert messageData to a string if it is an object
+      const messageString = (typeof messageData === 'object') ? JSON.stringify(messageData) : String(messageData);
 
-            // flutter_inappwebview
-            console.log(messageString);
+      // flutter_inappwebview
+      console.log(messageString);
 
-            // universal_url opener 
-            if (window.opener) {
-                return window.opener.postMessage(messageString, "*");
-            }
+      // universal_url opener 
+      if (window.opener) {
+        return window.opener.postMessage(messageString, "*");
+      }
 
-            if (window.parent && window.parent !== window) {
-                return window.parent.postMessage(messageString, "*");
-            }
+      if (window.parent && window.parent !== window) {
+        return window.parent.postMessage(messageString, "*");
+      }
 
-            // Windows WebView2 (desktop_webview_window) - https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/communicate-btwn-web-native 
-            if (window.chrome && window.chrome.webview) {
-                return window.chrome.webview.postMessage(messageString);
-            }
+      // Windows WebView2 (desktop_webview_window) - https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/communicate-btwn-web-native 
+      if (window.chrome && window.chrome.webview) {
+        return window.chrome.webview.postMessage(messageString);
+      }
 
-            console.error('No valid postMessage target found');
-        }
-    </script>
+      console.error('No valid postMessage target found');
+    }
+  </script>
 </body>
 
 </html>

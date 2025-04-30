@@ -182,7 +182,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       // Only Ramp on web requires the intermediate html page to satisfy cors
       // rules and allow for console.log and postMessage events to be handled.
       // Banxa does not use `postMessage` and does not require this.
-      checkoutUrl = _wrapUrlIfNeeded(checkoutUrl);
+      checkoutUrl = BaseFiatProvider.fiatWrapperPageUrl(checkoutUrl);
       final webViewMode = _determineWebViewMode();
 
       emit(
@@ -211,6 +211,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
     const bool isWeb = kIsWeb || kIsWasm;
 
+    // Banxa "Return to Komodo" button attempts to navigate the top window to
+    // the return URL, which is not supported in a dialog. So we need to open
+    // it in a new tab.
     if (isLinux) {
       return WebViewDialogMode.newTab;
     } else if (isWeb) {
@@ -218,17 +221,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     } else {
       return WebViewDialogMode.fullscreen;
     }
-  }
-
-  /// Wraps the [url] if needed based on the platform and environment
-  String _wrapUrlIfNeeded(String url) {
-    // Banxa does not post messages to the parent window, so we do not need to
-    // wrap the URL in a HTML page.
-    final bool isBanxa = state.selectedPaymentMethod.providerId == 'Banxa';
-    if (kIsWeb && !isBanxa) {
-      return BaseFiatProvider.fiatWrapperPageUrl(url);
-    }
-    return url;
   }
 
   Future<void> _onRefreshForm(

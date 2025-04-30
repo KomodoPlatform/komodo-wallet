@@ -298,6 +298,8 @@ class RampFiatProvider extends BaseFiatProvider {
       'fiatCurrency': source,
       'fiatValue': sourceAmount,
       'defaultAsset': getFullCoinCode(target),
+      'hideExitButton': 'true',
+      // 'variant': 'hosted', // desktop, mobile, auto, hosted-mobile
       // if(coinsBloc.walletCoins.isNotEmpty)
       //   "swapAsset": coinsBloc.walletCoins.map((e) => e.abbr).toList().toString(),
       // "swapAsset": fullAssetCode, // This limits the crypto asset list at the redirect page

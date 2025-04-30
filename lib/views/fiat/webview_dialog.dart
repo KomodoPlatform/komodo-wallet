@@ -7,15 +7,21 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/utils/window/window.dart';
 
+/// The display mode for the webview dialog.
 enum WebViewDialogMode {
+  /// Show the webview in a dialog or popup window.
   dialog,
+
+  /// Show the webview in fullscreen mode, as a new material navigation route.
   fullscreen,
+
+  /// Show the webview in a new browser tab (web) or external browser.
   newTab,
 }
 
 class WebViewDialog {
   /// Shows a webview dialog with the given [url] and [title].
-  /// The [onConsoleMessage] callback is called with the console messages from
+  /// The [onMessage] callback is called with the console messages from
   /// the webview.
   /// The [onCloseWindow] callback is called when the webview is closed.
   /// The [settings] parameter allows you to customize [InAppWebViewSettings]
@@ -26,7 +32,7 @@ class WebViewDialog {
     BuildContext context, {
     required String url,
     required String title,
-    void Function(String)? onConsoleMessage,
+    void Function(String)? onMessage,
     VoidCallback? onCloseWindow,
     InAppWebViewSettings? settings,
     WebViewDialogMode? mode,
@@ -34,15 +40,12 @@ class WebViewDialog {
     double height = 700,
   }) async {
     final webviewSettings = settings ??
-        InAppWebViewSettings(
-          isInspectable: kDebugMode,
-          iframeSandbox: {
-            Sandbox.ALLOW_SAME_ORIGIN,
-            Sandbox.ALLOW_SCRIPTS,
-            Sandbox.ALLOW_FORMS,
-            Sandbox.ALLOW_POPUPS,
-          },
-        );
+        InAppWebViewSettings(isInspectable: kDebugMode, iframeSandbox: {
+          Sandbox.ALLOW_SAME_ORIGIN,
+          Sandbox.ALLOW_SCRIPTS,
+          Sandbox.ALLOW_FORMS,
+          Sandbox.ALLOW_POPUPS,
+        });
 
     final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
     final bool isWeb = (kIsWeb || kIsWasm) && !isMobile;
@@ -67,7 +70,7 @@ class WebViewDialog {
           return InAppWebviewDialog(
             title: title,
             webviewSettings: webviewSettings,
-            onConsoleMessage: onConsoleMessage ?? (_) {},
+            onConsoleMessage: onMessage ?? (_) {},
             onCloseWindow: onCloseWindow,
             url: url,
             width: width,
@@ -83,7 +86,7 @@ class WebViewDialog {
             return FullscreenInAppWebview(
               title: title,
               webviewSettings: webviewSettings,
-              onConsoleMessage: onConsoleMessage ?? (_) {},
+              onConsoleMessage: onMessage ?? (_) {},
               onCloseWindow: onCloseWindow,
               url: url,
             );
@@ -240,31 +243,10 @@ class _MessageInAppWebviewState extends State<MessageInAppWebView> {
       initialUrlRequest: urlRequest,
       onConsoleMessage: _onConsoleMessage,
       onUpdateVisitedHistory: _onUpdateHistory,
-      onCloseWindow: (_) {
-        widget.onCloseWindow?.call();
-      },
-      onLoadStop: (controller, url) async {
-        await controller.evaluateJavascript(
-          source: '''
-              window.removeEventListener("message", window._komodoMsgListener, false);
-              window._komodoMsgListener = function(event) {
-                let messageData;
-                try {
-                  messageData = JSON.parse(event.data);
-                } catch (parseError) {
-                  messageData = event.data;
-                }
-
-                try {
-                  console.log('Received postMessage:', messageData, 'from', event.origin);
-                } catch (postError) {
-                  console.error('Error posting message', postError);
-                }
-              };
-              window.addEventListener("message", window._komodoMsgListener, false);
-            ''',
-        );
-      },
+      onCloseWindow: (_) => widget.onCloseWindow?.call(),
+      // injected JS is done in the HTML wrapper iframe in fiat_widget.html,
+      // so we don't need to inject it here. E.g. onLoadStop,
+      // evaluateJavascript, etc.
     );
   }
 
@@ -272,6 +254,9 @@ class _MessageInAppWebviewState extends State<MessageInAppWebView> {
     widget.onConsoleMessage(consoleMessage.message);
   }
 
+  // Banxa and Ramp both redirect to the provided success URL on completion,
+  // and Banxa recommends closing the webview when this happens.
+  // https://docs.banxa.com/v1.3/docs/mobile-applications-webview
   void _onUpdateHistory(
     InAppWebViewController controller,
     WebUri? url,
