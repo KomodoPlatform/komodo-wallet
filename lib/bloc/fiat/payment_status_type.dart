@@ -1,17 +1,17 @@
 enum PaymentStatusType {
-  widgetClose("WIDGET_CLOSE"),
-  widgetConfigDone("WIDGET_CONFIG_DONE"),
-  widgetConfigFailed("WIDGET_CONFIG_FAILED"),
-  widgetCloseRequest("WIDGET_CLOSE_REQUEST"),
-  widgetCloseRequestCancelled("WIDGET_CLOSE_REQUEST_CANCELLED"),
-  widgetCloseRequestConfirmed("WIDGET_CLOSE_REQUEST_CONFIRMED"),
-  purchaseCreated("PURCHASE_CREATED"),
-  offrampSaleCreated("OFFRAMP_SALE_CREATED"),
-  paymentStatus("PAYMENT-STATUS");
-
-  final String value;
+  widgetClose('WIDGET_CLOSE'),
+  widgetConfigDone('WIDGET_CONFIG_DONE'),
+  widgetConfigFailed('WIDGET_CONFIG_FAILED'),
+  widgetCloseRequest('WIDGET_CLOSE_REQUEST'),
+  widgetCloseRequestCancelled('WIDGET_CLOSE_REQUEST_CANCELLED'),
+  widgetCloseRequestConfirmed('WIDGET_CLOSE_REQUEST_CONFIRMED'),
+  purchaseCreated('PURCHASE_CREATED'),
+  offrampSaleCreated('OFFRAMP_SALE_CREATED'),
+  paymentStatus('PAYMENT-STATUS');
 
   const PaymentStatusType(this.value);
+
+  final String value;
 
   /// Creates a RampWidgetStatusEvents from a JSON input
   static PaymentStatusType fromJson(Map<String, dynamic> json) {
@@ -21,7 +21,7 @@ enum PaymentStatusType {
       if (json.containsKey('type')) {
         typeValue = json['type'] as String;
       } else {
-        throw FormatException('Missing "type" field in JSON object');
+        throw const FormatException('Missing "type" field in JSON object');
       }
 
       return PaymentStatusType.values.firstWhere(

@@ -93,7 +93,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
     try {
       if (!await _sdk.auth.isSignedIn()) {
-        return emit(state.copyWith(selectedAssetAddress: null));
+        return emit(state.copyWith(selectedAssetAddress: () => null));
       }
 
       final asset = event.selectedCoin.toAsset(_sdk);
@@ -108,7 +108,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       );
     } catch (e, s) {
       _log.shout('Error getting pubkeys for selected coin', e, s);
-      emit(state.copyWith(selectedAssetAddress: null));
+      emit(state.copyWith(selectedAssetAddress: () => null));
     }
   }
 
@@ -132,7 +132,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
           state.fiatAmount.value,
           selectedPaymentMethod: event.paymentMethod,
         ),
-        fiatOrderStatus: FiatOrderStatus.pending,
+        fiatOrderStatus: FiatOrderStatus.initial,
         status: FiatFormStatus.initial,
       ),
     );
@@ -210,14 +210,6 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   WebViewDialogMode _determineWebViewMode() {
     final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
     const bool isWeb = kIsWeb || kIsWasm;
-    // final bool isBanxa =
-    //     state.selectedPaymentMethod.providerId == 'Banxa';
-
-    // Banxa "Return to Komodo" button calls the redirect URL directly, so we
-    // need to open it in a new tab instead of a dialog.
-    // if (isBanxa) {
-    //   return WebViewDialogMode.newTab;
-    // }
 
     if (isLinux) {
       return WebViewDialogMode.newTab;
@@ -230,7 +222,10 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
   /// Wraps the [url] if needed based on the platform and environment
   String _wrapUrlIfNeeded(String url) {
-    if (kIsWeb) {
+    // Banxa does not post messages to the parent window, so we do not need to
+    // wrap the URL in a HTML page.
+    final bool isBanxa = state.selectedPaymentMethod.providerId == 'Banxa';
+    if (kIsWeb && !isBanxa) {
       return BaseFiatProvider.fiatWrapperPageUrl(url);
     }
     return url;
@@ -277,7 +272,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
             e,
             s,
           );
-          return state.copyWith(selectedAssetAddress: null);
+          return state.copyWith(selectedAssetAddress: () => null);
         }
 
         _log.warning(
@@ -290,7 +285,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       }
     }
 
-    return state.copyWith(selectedAssetAddress: null);
+    return state.copyWith(selectedAssetAddress: () => null);
   }
 
   void _onPaymentStatusMessage(
@@ -316,15 +311,15 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         case PaymentStatusType.widgetClose:
         case PaymentStatusType.widgetCloseRequest:
           updatedStatus = FiatOrderStatus.windowCloseRequested;
-          break;
         case PaymentStatusType.purchaseCreated:
           updatedStatus = FiatOrderStatus.inProgress;
-          break;
         case PaymentStatusType.paymentStatus:
           final status = data['status'] as String? ?? 'declined';
           updatedStatus = FiatOrderStatus.fromString(status);
-          break;
-        default:
+        case PaymentStatusType.widgetConfigFailed:
+        case PaymentStatusType.widgetConfigDone:
+        case PaymentStatusType.widgetCloseRequestCancelled:
+        case PaymentStatusType.offrampSaleCreated:
           break;
       }
 
@@ -414,7 +409,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       _log.info('WebView closed, resetting order status to pending');
       emit(
         state.copyWith(
-          fiatOrderStatus: FiatOrderStatus.pending,
+          fiatOrderStatus: FiatOrderStatus.initial,
           checkoutUrl: '',
         ),
       );
@@ -502,7 +497,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     if (_hasValidFiatAmount()) {
       yield state.copyWith(
         status: FiatFormStatus.loading,
-        fiatOrderStatus: FiatOrderStatus.pending,
+        fiatOrderStatus: FiatOrderStatus.initial,
       );
     } else {
       yield _defaultPaymentMethods();
@@ -575,7 +570,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       paymentMethods: defaultFiatPaymentMethods,
       selectedPaymentMethod: defaultFiatPaymentMethods.first,
       status: FiatFormStatus.initial,
-      fiatOrderStatus: FiatOrderStatus.pending,
+      fiatOrderStatus: FiatOrderStatus.initial,
     );
   }
 }

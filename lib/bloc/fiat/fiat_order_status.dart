@@ -2,12 +2,15 @@
 import 'package:logging/logging.dart';
 
 enum FiatOrderStatus {
-  /// User has not yet started the payment process
-  pending,
+  /// Initial status: User has not yet started the payment process
+  initial,
 
   /// User has started the process, and the payment method has been opened.
   /// E.g. Ramp or Banxa websites have been opened
   submitted,
+
+  /// Payment is awaiting user action (e.g., user needs to complete payment)
+  pendingPayment,
 
   /// Payment has been submitted with the provider, and is being processed
   inProgress,
@@ -48,7 +51,7 @@ enum FiatOrderStatus {
       case 'extraVerification':
       case 'pendingPayment':
       case 'waitingPayment':
-        return FiatOrderStatus.pending;
+        return FiatOrderStatus.pendingPayment;
 
       case 'paymentReceived':
       case 'inProgress':

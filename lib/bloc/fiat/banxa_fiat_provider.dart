@@ -112,7 +112,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
       case 'extraVerification':
       case 'pendingPayment':
       case 'waitingPayment':
-        return FiatOrderStatus.pending;
+        return FiatOrderStatus.pendingPayment;
 
       case 'paymentReceived':
       case 'inProgress':

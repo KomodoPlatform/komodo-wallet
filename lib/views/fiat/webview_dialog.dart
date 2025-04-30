@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/window/window.dart';
 
 enum WebViewDialogMode {
   dialog,
@@ -276,7 +277,7 @@ class _MessageInAppWebviewState extends State<MessageInAppWebView> {
     WebUri? url,
     bool? isReload,
   ) {
-    if (url.toString() == 'https://app.komodoplatform.com/') {
+    if (url.toString() == getOriginUrl()) {
       Navigator.of(context).pop();
     }
   }

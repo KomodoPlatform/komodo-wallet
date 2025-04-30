@@ -232,7 +232,7 @@ class _FiatFormState extends State<FiatForm> {
       Navigator.of(context).pop();
     }
 
-    if (status != FiatOrderStatus.pending) {
+    if (status != FiatOrderStatus.initial) {
       await _showPaymentStatusDialog(status);
     }
   }
@@ -242,14 +242,13 @@ class _FiatFormState extends State<FiatForm> {
 
     String? title;
     String? content;
-
-    // TODO: Use theme-based semantic colors
     Icon? icon;
 
     switch (status) {
       case FiatOrderStatus.inProgress:
       case FiatOrderStatus.windowCloseRequested:
-      case FiatOrderStatus.pending:
+      case FiatOrderStatus.initial:
+      case FiatOrderStatus.pendingPayment:
         debugPrint('Pending status should not be shown in dialog.');
         return;
       case FiatOrderStatus.submitted:

@@ -18,7 +18,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     required this.fiatList,
     required this.coinList,
     this.status = FiatFormStatus.initial,
-    this.fiatOrderStatus = FiatOrderStatus.pending,
+    this.fiatOrderStatus = FiatOrderStatus.initial,
     this.fiatMode = FiatMode.onramp,
     this.selectedAssetAddress,
     this.selectedCoinPubkeys,
@@ -42,7 +42,7 @@ final class FiatFormState extends Equatable with FormzMixin {
         paymentMethods = const [],
         fiatList = const [],
         coinList = const [],
-        fiatOrderStatus = FiatOrderStatus.pending,
+        fiatOrderStatus = FiatOrderStatus.initial,
         fiatMode = FiatMode.onramp,
         selectedCoinPubkeys = null,
         webViewMode = WebViewDialogMode.fullscreen;
