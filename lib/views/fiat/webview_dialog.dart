@@ -59,7 +59,7 @@ class WebViewDialog {
     final bool shouldOpenInNewTab =
         resolvedMode == WebViewDialogMode.newTab || isLinux;
     if (shouldOpenInNewTab) {
-      await launchURLString(url);
+      await launchURLString(url, inSeparateTab: true);
       return;
     }
 

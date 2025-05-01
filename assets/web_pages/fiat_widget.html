@@ -26,44 +26,79 @@
 
 <body>
   <iframe id="fiat-onramp-iframe"
-    sandbox="allow-same-origin allow-popups allow-scripts allow-forms allow-top-navigation" src="">
+    sandbox="allow-forms allow-scripts allow-same-origin allow-top-navigation allow-top-navigation-by-user-action allow-popups"
+    src="">
+    <!-- Placeholder fallback message -->
+    <p>Your browser does not support iframes.</p>
+    <p>Please use a modern browser to view this content.</p>
+    <p>If you are using a mobile device, please try opening this page in a different app or browser.</p>
+    <p>If you are using a desktop, please try opening this page in a different browser.</p>
   </iframe>
   <script>
     window.onmessage = _komodoOnMessageHandler;
     window.addEventListener('message', _komodoOnMessageHandler, false);
+    window.addEventListener('load', function () {
+      _komodoSetIframeUrlFromParams(_komodoGetUrlParameter('fiatUrl'));
+    });
 
-    function getUrlParameter(name) {
+    /**
+     * Initialize the iframe URL based on URL parameters
+     * 
+     * @param {object} params - The URL parameters to use for initialization
+     */
+    function _komodoSetIframeUrlFromParams(params) {
+      const urlParam = _komodoGetUrlParameter('fiatUrl');
+
+      let targetUrl = null;
+      if (urlParam) {
+        try {
+          targetUrl = atob(urlParam); // base64 decode the `url` parameter
+        } catch (error) {
+          console.error('Error decoding base64 url parameter', error);
+        }
+      }
+
+      if (targetUrl) {
+        document.getElementById('fiat-onramp-iframe').src = targetUrl;
+      } else {
+        console.error('No URL parameter provided');
+      }
+    }
+
+    /**
+     * Get URL parameter by name
+     * 
+     * @param {string} name - The name of the URL parameter to retrieve
+     * @returns {string|null} - The value of the URL parameter or null if not found
+     */
+    function _komodoGetUrlParameter(name) {
       const params = new URLSearchParams(window.location.search);
       return params.get(name);
     }
 
-    const urlParam = getUrlParameter('fiatUrl');
-    let targetUrl = null;
-
-    if (urlParam) {
-      try {
-        targetUrl = atob(urlParam); // base64 decode the `url` parameter
-      } catch (error) {
-        console.error('Error decoding base64 url parameter', error);
-      }
-    }
-
-    if (targetUrl) {
-      document.getElementById('fiat-onramp-iframe').src = targetUrl;
-    } else {
-      console.error('No URL parameter provided');
-    }
-
+    /** 
+     * Handle messages from the iframe
+     * 
+     * @param {MessageEvent} messageEvent 
+     */
     function _komodoOnMessageHandler(messageEvent) {
       let messageData;
       try {
-        messageData = JSON.parse(messageEvent.data);
+        messageData = typeof messageEvent.data === 'string' ? JSON.parse(messageEvent.data) : messageEvent.data;
       } catch (parseError) {
         messageData = messageEvent.data;
       }
 
+      // forward navigation requests to parent
+      if (messageData && typeof messageData === 'object') {
+        if ((messageData.type === 'navigation' || messageData.action === 'checkout_complete') && messageData.url) {
+          window.location.href = messageData.url;
+          return;
+        }
+      }
+
       try {
-        postMessageToParent(messageData);
+        _komodoPostMessageToParent(messageData);
       } catch (postError) {
         console.error('Error posting message', postError);
       }
@@ -74,8 +109,7 @@
      * 
      * @param {string|object} messageData 
      */
-    function postMessageToParent(messageData) {
-      // Convert messageData to a string if it is an object
+    function _komodoPostMessageToParent(messageData) {
       const messageString = (typeof messageData === 'object') ? JSON.stringify(messageData) : String(messageData);
 
       // flutter_inappwebview
@@ -90,7 +124,8 @@
         return window.parent.postMessage(messageString, "*");
       }
 
-      // Windows WebView2 (desktop_webview_window) - https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/communicate-btwn-web-native 
+      // Windows WebView2 (desktop_webview_window)
+      // https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/communicate-btwn-web-native 
       if (window.chrome && window.chrome.webview) {
         return window.chrome.webview.postMessage(messageString);
       }
