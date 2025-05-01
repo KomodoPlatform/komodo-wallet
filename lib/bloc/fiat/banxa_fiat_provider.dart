@@ -24,7 +24,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
   FiatOrderStatus _parseStatusFromResponse(Map<String, dynamic> response) {
     final statusString = response['data']?['order']?['status'] as String?;
 
-    return _parseOrderStatus(statusString ?? '');
+    return FiatOrderStatus.fromString(statusString ?? '');
   }
 
   Future<dynamic> _getPaymentMethods(
@@ -95,34 +95,6 @@ class BanxaFiatProvider extends BaseFiatProvider {
           'orderType': 'buy',
         },
       );
-
-  FiatOrderStatus _parseOrderStatus(String status) {
-    // The case statements are references to Banxa's order statuses. See the
-    // docs link here for more info: https://docs.banxa.com/docs/order-status
-    switch (status) {
-      case 'complete':
-        return FiatOrderStatus.success;
-
-      case 'cancelled':
-      case 'declined':
-      case 'expired':
-      case 'refunded':
-        return FiatOrderStatus.failed;
-
-      case 'extraVerification':
-      case 'pendingPayment':
-      case 'waitingPayment':
-        return FiatOrderStatus.pendingPayment;
-
-      case 'paymentReceived':
-      case 'inProgress':
-      case 'coinTransferred':
-        return FiatOrderStatus.inProgress;
-
-      default:
-        throw Exception('Unknown status: $status');
-    }
-  }
 
   // These will be in BLOC:
   @override

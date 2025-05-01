@@ -48,14 +48,15 @@ enum FiatOrderStatus {
       case 'refunded':
         return FiatOrderStatus.failed;
 
-      case 'extraVerification':
-      case 'pendingPayment':
-      case 'waitingPayment':
+      case 'extraverification':
+      case 'pendingpayment':
+      case 'waitingpayment':
         return FiatOrderStatus.pendingPayment;
 
-      case 'paymentReceived':
-      case 'inProgress':
-      case 'coinTransferred':
+      case 'paymentreceived':
+      case 'inprogress':
+      case 'cointransferred':
+      case 'cryptotransferred':
         return FiatOrderStatus.inProgress;
 
       default:
