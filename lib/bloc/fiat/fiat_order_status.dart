@@ -28,7 +28,9 @@ enum FiatOrderStatus {
   bool get isTerminal =>
       this == FiatOrderStatus.success || this == FiatOrderStatus.failed;
   bool get isSubmitting =>
-      this == FiatOrderStatus.inProgress || this == FiatOrderStatus.submitted;
+      this == FiatOrderStatus.inProgress ||
+      this == FiatOrderStatus.submitted ||
+      this == FiatOrderStatus.pendingPayment;
   bool get isFailed => this == FiatOrderStatus.failed;
   bool get isSuccess => this == FiatOrderStatus.success;
 
@@ -60,9 +62,13 @@ enum FiatOrderStatus {
         return FiatOrderStatus.inProgress;
 
       default:
+        // Default to in progress if the status is not recognized
+        // to avoid alarming users with "Payment failed" popup messages
+        // unless we are sure that the payment has failed.
+        // Ideally, this section should not be reached.
         Logger('FiatOrderStatus')
-            .warning('Unknown status: $status, defaulting to failed');
-        return FiatOrderStatus.failed;
+            .warning('Unknown status: $status, defaulting to in progress');
+        return FiatOrderStatus.inProgress;
     }
   }
 }

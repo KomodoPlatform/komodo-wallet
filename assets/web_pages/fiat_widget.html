@@ -35,10 +35,9 @@
     <p>If you are using a desktop, please try opening this page in a different browser.</p>
   </iframe>
   <script>
-    window.onmessage = _komodoOnMessageHandler;
     window.addEventListener('message', _komodoOnMessageHandler, false);
     window.addEventListener('load', function () {
-      _komodoSetIframeUrlFromParams(_komodoGetUrlParameter('fiatUrl'));
+      _komodoSetIframeUrlFromParams();
     });
 
     /**
@@ -46,7 +45,7 @@
      * 
      * @param {object} params - The URL parameters to use for initialization
      */
-    function _komodoSetIframeUrlFromParams(params) {
+    function _komodoSetIframeUrlFromParams() {
       const urlParam = _komodoGetUrlParameter('fiatUrl');
 
       let targetUrl = null;
