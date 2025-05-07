@@ -221,16 +221,18 @@ class _FiatFormState extends State<FiatForm> {
     }
 
     if (status != FiatOrderStatus.initial) {
-      await _showPaymentStatusDialog(status);
+      await _showPaymentStatusDialog(stateSnapshot);
     }
   }
 
-  Future<void> _showPaymentStatusDialog(FiatOrderStatus status) async {
+  Future<void> _showPaymentStatusDialog(FiatFormState state) async {
     if (!mounted) return;
 
     String? title;
     String? content;
     Icon? icon;
+
+    final status = state.fiatOrderStatus;
 
     switch (status) {
       case FiatOrderStatus.inProgress:
@@ -250,6 +252,10 @@ class _FiatFormState extends State<FiatForm> {
       case FiatOrderStatus.failed:
         title = LocaleKeys.fiatPaymentFailedTitle.tr();
         content = LocaleKeys.fiatPaymentFailedMessage.tr();
+        if (state.providerError != null && state.providerError!.isNotEmpty) {
+          content = '$content\n\n${LocaleKeys.errorDetails.tr()}: '
+              '${state.providerError}';
+        }
         icon = const Icon(Icons.error_outline, color: Colors.red);
     }
 

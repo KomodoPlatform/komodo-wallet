@@ -249,8 +249,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
           return state;
         }
 
-        final asset =
-            _sdk.getSdkAsset(state.selectedAsset.value?.getAbbr() ?? 'BTC-segwit');
+        final asset = _sdk
+            .getSdkAsset(state.selectedAsset.value?.getAbbr() ?? 'BTC-segwit');
         final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
         final address = pubkeys.keys.firstOrNull;
 
@@ -431,6 +431,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       checkoutUrl: '',
       status: FiatFormStatus.failure,
       fiatOrderStatus: FiatOrderStatus.failed,
+      providerError: () => error.title,
     );
   }
 
@@ -472,6 +473,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
     yield state.copyWith(
       fiatAmount: _getAmountInputWithBounds(state.fiatAmount.value),
+      providerError: () => null,
     );
 
     try {
@@ -482,6 +484,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       yield state.copyWith(
         paymentMethods: [],
         status: FiatFormStatus.failure,
+        providerError: () => null,
       );
     }
   }
@@ -491,6 +494,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       yield state.copyWith(
         status: FiatFormStatus.loading,
         fiatOrderStatus: FiatOrderStatus.initial,
+        providerError: () => null,
       );
     } else {
       yield _defaultPaymentMethods();
@@ -513,6 +517,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       yield state.copyWith(
         paymentMethods: [],
         status: FiatFormStatus.failure,
+        providerError: () => null,
       );
     }
   }
@@ -544,6 +549,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
           paymentMethods: methods,
           selectedPaymentMethod: method,
           status: FiatFormStatus.success,
+          providerError: () => null,
           fiatAmount: _getAmountInputWithBounds(
             state.fiatAmount.value,
             selectedPaymentMethod: method,
@@ -551,10 +557,16 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         );
       }
 
-      return state.copyWith(status: FiatFormStatus.success);
+      return state.copyWith(
+        status: FiatFormStatus.success,
+        providerError: () => null,
+      );
     } catch (e, s) {
       _log.shout('Error updating payment methods', e, s);
-      return state.copyWith(paymentMethods: []);
+      return state.copyWith(
+        paymentMethods: [],
+        providerError: () => null,
+      );
     }
   }
 
@@ -564,6 +576,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       selectedPaymentMethod: defaultFiatPaymentMethods.first,
       status: FiatFormStatus.initial,
       fiatOrderStatus: FiatOrderStatus.initial,
+      providerError: () => null,
     );
   }
 }

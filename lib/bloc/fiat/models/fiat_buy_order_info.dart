@@ -59,12 +59,21 @@ class FiatBuyOrderInfo extends Equatable {
 
   factory FiatBuyOrderInfo.fromJson(Map<String, dynamic> json) {
     final jsonData = json['data'] as Map<String, dynamic>?;
-    if (json['data'] == null || jsonData?['order'] == null) {
+    final errors = json['errors'] as Map<String, dynamic>?;
+
+    if (json['data'] == null && errors == null) {
       return FiatBuyOrderInfo.empty().copyWith(
         error:
             const FiatBuyOrderError.parsing(message: 'Missing order payload'),
       );
     }
+
+    if (jsonData == null && errors != null) {
+      return FiatBuyOrderInfo.empty().copyWith(
+        error: FiatBuyOrderError.fromJson(errors),
+      );
+    }
+
     final data = jsonData!['order'] as Map<String, dynamic>;
 
     return FiatBuyOrderInfo(
@@ -81,8 +90,8 @@ class FiatBuyOrderInfo extends Equatable {
       paymentCode: data['payment_code'] as String? ?? '',
       checkoutUrl: data['checkout_url'] as String? ?? '',
       createdAt: assertString(data['created_at']) ?? '',
-      error: data['errors'] != null
-          ? FiatBuyOrderError.fromJson(data['errors'] as Map<String, dynamic>)
+      error: errors != null
+          ? FiatBuyOrderError.fromJson(errors)
           : const FiatBuyOrderError.none(),
     );
   }

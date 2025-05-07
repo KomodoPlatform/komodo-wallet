@@ -23,6 +23,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     this.selectedAssetAddress,
     this.selectedCoinPubkeys,
     this.webViewMode = WebViewDialogMode.fullscreen,
+    this.providerError,
   });
 
   /// Creates an initial state with default values.
@@ -45,7 +46,8 @@ final class FiatFormState extends Equatable with FormzMixin {
         fiatOrderStatus = FiatOrderStatus.initial,
         fiatMode = FiatMode.onramp,
         selectedCoinPubkeys = null,
-        webViewMode = WebViewDialogMode.fullscreen;
+        webViewMode = WebViewDialogMode.fullscreen,
+        providerError = null;
 
   /// The selected fiat currency to use to purchase [selectedAsset].
   final CurrencyInput<FiatCurrency> selectedFiat;
@@ -95,6 +97,9 @@ final class FiatFormState extends Equatable with FormzMixin {
   /// The mode to use for displaying the WebView dialog
   final WebViewDialogMode webViewMode;
 
+  /// Raw error message from the provider when there is an order error
+  final String? providerError;
+
   /// Gets the transaction limit from the selected payment method
   FiatTransactionLimit? get transactionLimit =>
       selectedPaymentMethod.transactionLimits.firstOrNull;
@@ -135,6 +140,7 @@ final class FiatFormState extends Equatable with FormzMixin {
     FiatMode? fiatMode,
     ValueGetter<AssetPubkeys?>? selectedCoinPubkeys,
     WebViewDialogMode? webViewMode,
+    ValueGetter<String?>? providerError,
   }) {
     return FiatFormState(
       selectedFiat: selectedFiat ?? this.selectedFiat,
@@ -157,6 +163,8 @@ final class FiatFormState extends Equatable with FormzMixin {
           ? selectedCoinPubkeys()
           : this.selectedCoinPubkeys,
       webViewMode: webViewMode ?? this.webViewMode,
+      providerError:
+          providerError != null ? providerError() : this.providerError,
     );
   }
 
@@ -184,5 +192,6 @@ final class FiatFormState extends Equatable with FormzMixin {
         fiatMode,
         selectedCoinPubkeys,
         webViewMode,
+        providerError,
       ];
 }
