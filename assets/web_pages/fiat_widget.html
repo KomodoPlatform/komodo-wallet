@@ -3,6 +3,7 @@
 
 <head>
   <title>Fiat OnRamp</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body,
@@ -25,8 +26,8 @@
 </head>
 
 <body>
-  <iframe id="fiat-onramp-iframe"
-    sandbox="allow-forms allow-scripts allow-same-origin allow-top-navigation allow-top-navigation-by-user-action allow-popups"
+  <iframe id="fiat-onramp-iframe" title="Fiat On-Ramp Widget"
+    sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-action"
     src="">
     <!-- Placeholder fallback message -->
     <p>Your browser does not support iframes.</p>
@@ -86,14 +87,6 @@
         messageData = typeof messageEvent.data === 'string' ? JSON.parse(messageEvent.data) : messageEvent.data;
       } catch (parseError) {
         messageData = messageEvent.data;
-      }
-
-      // forward navigation requests to parent
-      if (messageData && typeof messageData === 'object') {
-        if ((messageData.type === 'navigation' || messageData.action === 'checkout_complete') && messageData.url) {
-          window.location.href = messageData.url;
-          return;
-        }
       }
 
       try {
