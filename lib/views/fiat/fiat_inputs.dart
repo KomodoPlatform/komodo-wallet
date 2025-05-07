@@ -135,8 +135,8 @@ class FiatInputsState extends State<FiatInputs> {
             disabled: fiatListLoading,
             currency: widget.initialFiat,
             icon: FiatIcon(
-              key: Key('fiat_icon_${widget.initialFiat.symbol}'),
-              symbol: widget.initialFiat.symbol,
+              key: Key('fiat_icon_${widget.initialFiat.getAbbr()}'),
+              symbol: widget.initialFiat.getAbbr(),
             ),
             onTap: () => _showAssetSelectionDialog('fiat'),
             isListTile: false,

@@ -155,7 +155,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     try {
       final newOrder = await _fiatRepository.buyCoin(
         accountReference: state.selectedAssetAddress!.address,
-        source: state.selectedFiat.value!.symbol,
+        source: state.selectedFiat.value!.getAbbr(),
         target: state.selectedAsset.value!,
         walletAddress: state.selectedAssetAddress!.address,
         paymentMethod: state.selectedPaymentMethod,
@@ -250,7 +250,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         }
 
         final asset =
-            _sdk.getSdkAsset(state.selectedAsset.value?.symbol ?? 'BTC-segwit');
+            _sdk.getSdkAsset(state.selectedAsset.value?.getAbbr() ?? 'BTC-segwit');
         final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
         final address = pubkeys.keys.firstOrNull;
 
@@ -499,7 +499,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
   Stream<FiatFormState> _fetchAndUpdatePaymentMethods() async* {
     final methodsStream = _fiatRepository.getPaymentMethodsList(
-      state.selectedFiat.value!.symbol,
+      state.selectedFiat.value!.getAbbr(),
       state.selectedAsset.value!,
       _getSourceAmount(),
     );

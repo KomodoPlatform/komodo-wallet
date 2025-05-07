@@ -41,7 +41,6 @@ class FiatCurrency extends ICurrency {
   @override
   bool get isCrypto => false;
 
-  
   @override
   String get configSymbol => symbol;
 
@@ -82,10 +81,26 @@ class CryptoCurrency extends ICurrency {
 
   @override
   String getAbbr() {
-    return symbol;
+    // TODO: look into a better way to do this when migrating to the SDK
+    // Providers return "ETH" with chain type "ERC20", resultning in abbr of
+    // "ETH-ERC20", which is not how it is stored in our coins configuration
+    // files. "ETH" is the expected abbreviation, which would just be `symbol`.
+    if (chainType == CoinType.utxo ||
+        (chainType == CoinType.cosmos && symbol == 'ATOM') ||
+        (chainType == CoinType.erc20 && symbol == 'ETH') ||
+        (chainType == CoinType.bep20 && symbol == 'BNB') ||
+        (chainType == CoinType.avx20 && symbol == 'AVAX') ||
+        (chainType == CoinType.etc && symbol == 'ETC') ||
+        (chainType == CoinType.ftm20 && symbol == 'FTM') ||
+        (chainType == CoinType.arb20 && symbol == 'ARB') ||
+        (chainType == CoinType.hrc20 && symbol == 'ONE') ||
+        (chainType == CoinType.plg20 && symbol == 'MATIC') ||
+        (chainType == CoinType.mvr20 && symbol == 'MOVR') ||
+        (chainType == CoinType.krc20 && symbol == 'KCS')) {
+      return symbol;
+    }
 
-    // TODO: figure out if this is still necessary
-    // return '$symbol-${getCoinTypeName(chainType).replaceAll('-', '')}';
+    return '$symbol-${getCoinTypeName(chainType).replaceAll('-', '')}';
   }
 
   @override

@@ -51,7 +51,7 @@ class FiatCurrencyListTile extends StatelessWidget {
                 ),
               ],
             )
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
       onTap: onTap,
     );
   }

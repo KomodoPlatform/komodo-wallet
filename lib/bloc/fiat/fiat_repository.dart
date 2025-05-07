@@ -50,8 +50,12 @@ class FiatRepository {
 
     for (final currencyList in results) {
       for (final currency in currencyList) {
-        bool isCoinUnknown() => !knownCoins.containsKey(currency.getAbbr());
-        if (isCoin && (currency.isFiat || isCoinUnknown())) {
+        final isCoinSupported = knownCoins.containsKey(currency.getAbbr());
+        if (isCoin && (currency.isFiat || !isCoinSupported)) {
+          _log.fine(
+            'Skipping ${currency.getAbbr()} because it is not a coin or '
+            'not supported (${currency.configSymbol})',
+          );
           continue;
         }
 
