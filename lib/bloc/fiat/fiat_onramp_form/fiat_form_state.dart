@@ -28,12 +28,8 @@ final class FiatFormState extends Equatable with FormzMixin {
 
   /// Creates an initial state with default values.
   FiatFormState.initial()
-      : selectedFiat = const CurrencyInput.dirty(
-          FiatCurrency('USD', 'United States Dollar'),
-        ),
-        selectedAsset = const CurrencyInput.dirty(
-          CryptoCurrency('BTC-segwit', 'Bitcoin', CoinType.utxo),
-        ),
+      : selectedFiat = CurrencyInput.dirty(FiatCurrency.usd()),
+        selectedAsset = CurrencyInput.dirty(CryptoCurrency.bitcoin()),
         fiatAmount = const FiatAmountInput.pure(),
         selectedAssetAddress = null,
         selectedPaymentMethod = FiatPaymentMethod.none,
@@ -105,10 +101,10 @@ final class FiatFormState extends Equatable with FormzMixin {
       selectedPaymentMethod.transactionLimits.firstOrNull;
 
   /// The minimum fiat amount that is allowed for the selected payment method
-  Decimal? get minFiatAmount => transactionLimit?.min;
+  Decimal? get minFiatAmount => fiatAmount.minValue ?? transactionLimit?.min;
 
   /// The maximum fiat amount that is allowed for the selected payment method
-  Decimal? get maxFiatAmount => transactionLimit?.max;
+  Decimal? get maxFiatAmount => fiatAmount.maxValue ?? transactionLimit?.max;
 
   /// Whether currencies are still being loaded
   bool get isLoadingCurrencies => fiatList.length < 2 || coinList.length < 2;

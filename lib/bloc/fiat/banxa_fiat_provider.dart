@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:decimal/decimal.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
@@ -134,8 +135,9 @@ class BanxaFiatProvider extends BaseFiatProvider {
     return data
         .map(
           (item) => FiatCurrency(
-            item['fiat_code'] as String,
-            item['fiat_name'] as String,
+            symbol: item['fiat_code'] as String,
+            name: item['fiat_name'] as String,
+            minPurchaseAmount: Decimal.zero,
           ),
         )
         .toList();
@@ -143,6 +145,8 @@ class BanxaFiatProvider extends BaseFiatProvider {
 
   @override
   Future<List<CryptoCurrency>> getCoinList() async {
+    // TODO: add model classes to parse responses like these when migrating to
+    // the SDK
     final response = await _getCoins();
     final data = response['data']['coins'] as List<dynamic>;
 
@@ -158,11 +162,32 @@ class BanxaFiatProvider extends BaseFiatProvider {
           continue;
         }
 
+        // Parse min_value which can be a string, int, or double
+        final dynamic minValue = blockchain['min_value'];
+        Decimal minPurchaseAmount;
+
+        if (minValue == null) {
+          minPurchaseAmount = Decimal.fromInt(0);
+        } else if (minValue is String) {
+          minPurchaseAmount = Decimal.fromJson(minValue);
+        } else if (minValue is int) {
+          minPurchaseAmount = Decimal.fromInt(minValue);
+        } else if (minValue is double) {
+          minPurchaseAmount = Decimal.parse(minValue.toString());
+        } else {
+          // Default to zero for any other unexpected types
+          minPurchaseAmount = Decimal.fromInt(0);
+          // ignore: lines_longer_than_80_chars
+          _log.warning(
+              'Unexpected type for min_value: ${minValue.runtimeType}');
+        }
+
         currencyList.add(
           CryptoCurrency(
-            coinCode,
-            coinName,
-            coinType,
+            symbol: coinCode,
+            name: coinName,
+            chainType: coinType,
+            minPurchaseAmount: minPurchaseAmount,
           ),
         );
       }

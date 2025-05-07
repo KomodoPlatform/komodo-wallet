@@ -103,8 +103,9 @@ class RampFiatProvider extends BaseFiatProvider {
         .where((item) => item['onrampAvailable'] as bool)
         .map(
           (item) => FiatCurrency(
-            item['fiatCurrency'] as String,
-            item['name'] as String,
+            symbol: item['fiatCurrency'] as String,
+            name: item['name'] as String,
+            minPurchaseAmount: Decimal.zero,
           ),
         )
         .toList();
@@ -112,6 +113,8 @@ class RampFiatProvider extends BaseFiatProvider {
 
   @override
   Future<List<CryptoCurrency>> getCoinList() async {
+    // TODO: add model classes to parse responses like these when migrating to
+    // the SDK
     final response = await _getCoins();
     final data = response['assets'] as List<dynamic>;
     return data
@@ -120,10 +123,31 @@ class RampFiatProvider extends BaseFiatProvider {
           if (coinType == null) {
             return null;
           }
+
+          // Parse minPurchaseAmount which can be a string, int, or double
+          final dynamic minValue = item['minPurchaseAmount'];
+          Decimal minPurchaseAmount;
+
+          if (minValue == null) {
+            minPurchaseAmount = Decimal.fromInt(0);
+          } else if (minValue is String) {
+            minPurchaseAmount = Decimal.fromJson(minValue);
+          } else if (minValue is int) {
+            minPurchaseAmount = Decimal.fromInt(minValue);
+          } else if (minValue is double) {
+            minPurchaseAmount = Decimal.parse(minValue.toString());
+          } else {
+            // Default to zero for any other unexpected types
+            minPurchaseAmount = Decimal.fromInt(0);
+            _log.warning(
+                'Unexpected type for minPurchaseAmount: ${minValue.runtimeType}',);
+          }
+
           return CryptoCurrency(
-            item['symbol'] as String,
-            item['name'] as String,
-            coinType,
+            symbol: item['symbol'] as String,
+            name: item['name'] as String,
+            chainType: coinType,
+            minPurchaseAmount: minPurchaseAmount,
           );
         })
         .where((e) => e != null)

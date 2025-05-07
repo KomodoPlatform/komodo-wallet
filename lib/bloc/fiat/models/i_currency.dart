@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
@@ -6,10 +7,23 @@ import 'package:web_dex/model/coin_utils.dart';
 
 /// Base class for all currencies
 abstract class ICurrency {
-  const ICurrency(this.symbol, this.name);
+  const ICurrency({
+    required this.symbol,
+    required this.name,
+    required this.minPurchaseAmount,
+  });
 
+  /// The symbol/code of the currency (e.g. BTC, USD). Note that this usually
+  /// excludes any chain identifiers like "-segwit" or "-erc20".
   final String symbol;
+
+  /// The full name of the currency (e.g. Bitcoin, US Dollar).
   final String name;
+
+  /// The minimum purchase amount for this currency. This is used to
+  /// determine the minimum amount that can be purchased in a fiat
+  /// transaction.
+  final Decimal minPurchaseAmount;
 
   /// Returns true if the currency is a fiat currency (e.g. USD)
   bool get isFiat;
@@ -29,11 +43,22 @@ abstract class ICurrency {
   ICurrency copyWith({
     String? symbol,
     String? name,
+    Decimal? minPurchaseAmount,
   });
 }
 
 class FiatCurrency extends ICurrency {
-  const FiatCurrency(super.symbol, super.name);
+  const FiatCurrency({
+    required super.symbol,
+    required super.name,
+    required super.minPurchaseAmount,
+  });
+
+  factory FiatCurrency.usd() => FiatCurrency(
+        symbol: 'USD',
+        name: 'United States Dollar',
+        minPurchaseAmount: Decimal.zero,
+      );
 
   @override
   bool get isFiat => true;
@@ -48,23 +73,41 @@ class FiatCurrency extends ICurrency {
   FiatCurrency copyWith({
     String? symbol,
     String? name,
+    Decimal? minPurchaseAmount,
   }) {
     return FiatCurrency(
-      symbol ?? this.symbol,
-      name ?? this.name,
+      symbol: symbol ?? this.symbol,
+      name: name ?? this.name,
+      minPurchaseAmount: minPurchaseAmount ?? this.minPurchaseAmount,
     );
   }
 }
 
 class CryptoCurrency extends ICurrency {
-  const CryptoCurrency(super.symbol, super.name, this.chainType);
+  const CryptoCurrency({
+    required super.symbol,
+    required super.name,
+    required this.chainType,
+    required super.minPurchaseAmount,
+  });
 
-  factory CryptoCurrency.fromAsset(Asset asset) {
+  factory CryptoCurrency.bitcoin() => CryptoCurrency(
+        symbol: 'BTC-segwit',
+        name: 'Bitcoin',
+        chainType: CoinType.utxo,
+        minPurchaseAmount: Decimal.zero,
+      );
+
+  factory CryptoCurrency.fromAsset(
+    Asset asset, {
+    required Decimal minPurchaseAmount,
+  }) {
     final coin = asset.toCoin();
     return CryptoCurrency(
-      coin.id.id,
-      coin.name,
-      coin.type,
+      symbol: coin.id.id,
+      name: coin.name,
+      chainType: coin.type,
+      minPurchaseAmount: minPurchaseAmount,
     );
   }
 
@@ -118,11 +161,13 @@ class CryptoCurrency extends ICurrency {
     String? symbol,
     String? name,
     CoinType? chainType,
+    Decimal? minPurchaseAmount,
   }) {
     return CryptoCurrency(
-      symbol ?? this.symbol,
-      name ?? this.name,
-      chainType ?? this.chainType,
+      symbol: symbol ?? this.symbol,
+      name: name ?? this.name,
+      chainType: chainType ?? this.chainType,
+      minPurchaseAmount: minPurchaseAmount ?? this.minPurchaseAmount,
     );
   }
 }

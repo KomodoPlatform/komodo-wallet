@@ -46,8 +46,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     on<FiatFormWebViewClosed>(_onWebViewClosed);
     on<FiatFormAssetAddressUpdated>(_onAssetAddressUpdated);
 
-    // debounce used here instead of restartable, since multiple user actions
-    // can trigger this event, and restartable results in hitching
+    // transformer used here to restart the stream when a new event is added
+    // (i.e. from user input).
     on<FiatFormRefreshed>(_onRefreshForm, transformer: restartable());
     on<FiatFormCurrenciesFetched>(
       _onLoadCurrencyLists,
@@ -459,6 +459,22 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     if (firstLimit != null) {
       minAmount = Decimal.tryParse(firstLimit.min.toString());
       maxAmount = Decimal.tryParse(firstLimit.max.toString());
+    }
+
+    // Use the minimum transaction amount provided by Ramp and Banxa per coin
+    // to determine the minimum amount that can be purchased. The payment
+    // method list provides a minimum amount for the fiat currency, but this is
+    // not always the same as the minimum amount for the coin.
+    final coinAmount = paymentMethod.priceInfo.coinAmount;
+    final fiatAmount = paymentMethod.priceInfo.fiatAmount;
+    final minPurchaseAmount =
+        state.selectedAsset.value?.minPurchaseAmount ?? Decimal.zero;
+    if (coinAmount < minPurchaseAmount) {
+      final minFiatAmount = ((minPurchaseAmount * fiatAmount) / coinAmount)
+          .toDecimal(scaleOnInfinitePrecision: 18);
+      minAmount = minAmount != null && minAmount > minFiatAmount
+          ? minAmount
+          : minFiatAmount;
     }
 
     return FiatAmountInput.dirty(

@@ -288,7 +288,7 @@ extension on FiatAmountValidationError {
       case FiatAmountValidationError.belowMinimum:
         return LocaleKeys.fiatMinimumAmount.tr(
           args: [
-            state.minFiatAmount?.toString() ?? '',
+            state.minFiatAmount?.toStringAsFixed(2) ?? '',
             fiatId,
           ],
         );
