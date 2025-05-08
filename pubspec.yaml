@@ -161,6 +161,7 @@ dependencies:
       path: packages/komodo_ui
       ref: dev
   feedback: ^3.1.0
+  ntp: ^2.0.0
 
 dev_dependencies:
   integration_test: # SDK
