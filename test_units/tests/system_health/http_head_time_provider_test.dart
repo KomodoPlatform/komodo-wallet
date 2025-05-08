@@ -39,30 +39,32 @@ void testHttpHeadTimeProvider() {
       expect(result, equals(expectedDateTime));
     });
 
-    test('throws FormatException when date header is missing', () async {
+    // Timeout expected because other servers should be tried rather than
+    // exiting
+    test('throws TimeoutException when date header is missing', () async {
       mockClient.mockResponse = http.Response('', 200, headers: {});
 
       expect(
         () => provider.getCurrentUtcTime(),
-        throwsA(isA<FormatException>()),
+        throwsA(isA<TimeoutException>()),
       );
     });
 
-    test('throws HttpException when response status is not 200', () async {
+    test('throws TimeoutException when response status is not 200', () async {
       mockClient.mockResponse = http.Response('', 404);
 
       expect(
         () => provider.getCurrentUtcTime(),
-        throwsA(isA<HttpException>()),
+        throwsA(isA<TimeoutException>()),
       );
     });
 
-    test('throws HttpException when all servers fail', () async {
+    test('throws TimeoutException when all servers fail', () async {
       mockClient.mockResponse = http.Response('', 500);
 
       expect(
         () => provider.getCurrentUtcTime(),
-        throwsA(isA<HttpException>()),
+        throwsA(isA<TimeoutException>()),
       );
     });
 
@@ -76,7 +78,7 @@ void testHttpHeadTimeProvider() {
     });
 
     // HttpDate.parse is used, which throws HttpException
-    test('throws HttpException with invalid date', () async {
+    test('throws TimeoutException with invalid date', () async {
       mockClient.mockResponse = http.Response(
         '',
         200,
@@ -85,7 +87,7 @@ void testHttpHeadTimeProvider() {
 
       expect(
         () => provider.getCurrentUtcTime(),
-        throwsA(isA<HttpException>()),
+        throwsA(isA<TimeoutException>()),
       );
     });
   });

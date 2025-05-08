@@ -60,6 +60,10 @@ class HttpHeadTimeProvider extends TimeProvider {
           _logger.warning('Socket error with $serverUrl', e, s);
         } on TimeoutException catch (e, s) {
           _logger.warning('Timeout with $serverUrl', e, s);
+        } on HttpException catch (e, s) {
+          _logger.warning('HTTP error with $serverUrl', e, s);
+        } on FormatException catch (e, s) {
+          _logger.warning('Date header parse error with $serverUrl', e, s);
         } 
         retries++;
       }

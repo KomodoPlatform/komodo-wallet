@@ -52,7 +52,14 @@ class HttpTimeProvider extends TimeProvider {
       );
     }
 
-    final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+    final dynamic decoded = json.decode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      _logger.warning(
+        'Expected top-level JSON object, got ${decoded.runtimeType}',
+      );
+      throw const FormatException('Invalid JSON structure – object expected');
+    }
+    final Map<String, dynamic> jsonResponse = decoded;
     final parsedTime = await _parseTimeFromJson(jsonResponse);
 
     return parsedTime;
@@ -83,27 +90,13 @@ class HttpTimeProvider extends TimeProvider {
     return _parseDateTime(timeStr);
   }
 
-  Future<DateTime> _parseDateTime(String timeStr) async {
-    String formattedTime = timeStr;
-
+  DateTime _parseDateTime(String timeStr) {
     switch (timeFormat) {
       case TimeFormat.iso8601:
-        if (formattedTime.endsWith('+00:00')) {
-          formattedTime = formattedTime.replaceAll('+00:00', 'Z');
-        } else if (!formattedTime.endsWith('Z')) {
-          formattedTime += 'Z';
-        }
-
+        return DateTime.parse(timeStr).toUtc();
       case TimeFormat.custom:
         throw const FormatException('Custom time format not supported');
     }
-
-    final dateTime = DateTime.parse(formattedTime);
-    if (!dateTime.isUtc) {
-      throw const FormatException('Time is not in UTC');
-    }
-
-    return dateTime;
   }
 
   @override
