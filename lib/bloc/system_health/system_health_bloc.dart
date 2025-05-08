@@ -64,15 +64,18 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
     try {
       final bool systemClockValid =
           await _systemClockRepository.isSystemClockValid();
-      final bool connectedPeersHealthy = await _arePeersConnected();
-      final bool isSystemHealthy = systemClockValid || connectedPeersHealthy;
 
-      emit(SystemHealthLoadSuccess(isSystemHealthy));
+      emit(SystemHealthLoadSuccess(systemClockValid));
     } on Exception catch (_) {
       emit(SystemHealthLoadFailure());
     }
   }
 
+  // TODO: add an additional state or banner if there are no peers connected
+  // the current system health check indicates an out-of-sync clock message
+  // to the user, which might not be the reason for too few peers
+  // final bool connectedPeersHealthy = await _arePeersConnected();
+  // ignore: unused_element
   Future<bool> _arePeersConnected() async {
     try {
       final directlyConnectedPeers =
