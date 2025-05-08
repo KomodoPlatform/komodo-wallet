@@ -36,7 +36,7 @@ class BinanceTimeProvider extends TimeProvider {
   String get name => 'Binance';
 
   @override
-  Future<DateTime?> getCurrentUtcTime() async {
+  Future<DateTime> getCurrentUtcTime() async {
     int retries = 0;
 
     while (retries < maxRetries) {
@@ -54,12 +54,20 @@ class BinanceTimeProvider extends TimeProvider {
         _logger.severe('Error fetching time from Binance API', e, s);
       }
       retries++;
+
+      // Calculate exponential backoff: 100ms, 200ms, 400ms, 800ms...
+      if (retries < maxRetries) {
+        final delayDuration = Duration(milliseconds: 100 * (1 << retries));
+        await Future<void>.delayed(delayDuration);
+      }
     }
 
     _logger.severe(
       'Failed to get time from Binance API after $maxRetries retries',
     );
-    return null;
+    throw TimeoutException(
+      'Failed to get time from Binance API after $maxRetries retries',
+    );
   }
 
   /// Fetches server time from the Binance API

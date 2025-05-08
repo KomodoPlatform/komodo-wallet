@@ -1,5 +1,6 @@
 import 'dart:async' show TimeoutException;
 import 'dart:io';
+import 'dart:math' show Random;
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
@@ -40,8 +41,14 @@ class HttpHeadTimeProvider extends TimeProvider {
   String get name => 'HttpHead';
 
   @override
-  Future<DateTime?> getCurrentUtcTime() async {
-    for (final serverUrl in servers) {
+  Future<DateTime> getCurrentUtcTime() async {
+    // Randomize the order of servers to avoid overloading any single server
+    // and to provide a more even distribution of requests.
+    // This also avoid a single server being a single point of failure.
+    final shuffledServers = List<String>.from(servers)..shuffle(Random());
+    _logger.fine('Randomized server order for time retrieval');
+    
+    for (final serverUrl in shuffledServers) {
       int retries = 0;
 
       while (retries < maxRetries) {
@@ -53,25 +60,24 @@ class HttpHeadTimeProvider extends TimeProvider {
           _logger.warning('Socket error with $serverUrl', e, s);
         } on TimeoutException catch (e, s) {
           _logger.warning('Timeout with $serverUrl', e, s);
-        } on FormatException catch (e, s) {
-          _logger.severe('Failed to parse Date header from $serverUrl', e, s);
-        } on Exception catch (e, s) {
-          _logger.severe('Error fetching time from $serverUrl', e, s);
-        }
+        } 
         retries++;
       }
     }
 
     _logger
         .severe('Failed to get time from any server after $maxRetries retries');
-    return null;
+    throw TimeoutException(
+      'Failed to get time from any server after $maxRetries retries',
+    );
   }
 
   /// Fetches server time from the 'date' header of an HTTP HEAD response
   Future<DateTime> _fetchServerTime(String url) async {
     final response = await _httpClient.head(Uri.parse(url)).timeout(timeout);
 
-    if (response.statusCode != 200) {
+    // Treat any successful or redirect status as acceptable.
+    if (response.statusCode < 200 || response.statusCode >= 400) {
       _logger.warning('HTTP error from $url: ${response.statusCode}');
       throw HttpException(
         'HTTP error from $url: ${response.statusCode}',

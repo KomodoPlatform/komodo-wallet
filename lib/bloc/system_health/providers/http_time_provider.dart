@@ -41,96 +41,69 @@ class HttpTimeProvider extends TimeProvider {
   final Duration _apiTimeout;
 
   @override
-  Future<DateTime?> getCurrentUtcTime() async {
-    try {
-      final response = await _httpGet(url);
+  Future<DateTime> getCurrentUtcTime() async {
+    final response = await _httpClient.get(Uri.parse(url)).timeout(_apiTimeout);
 
-      if (response.statusCode != 200) {
-        _logger
-            .warning('API request failed with status ${response.statusCode}');
-        return null;
-      }
-
-      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-      final DateTime? parsedTime = await _parseTimeFromJson(jsonResponse);
-
-      if (parsedTime == null) {
-        _logger.warning('Failed to parse time from response');
-        return null;
-      }
-
-      return parsedTime;
-    } on Exception catch (e) {
-      _logger.severe('Error fetching time: $e');
-      return null;
+    if (response.statusCode != 200) {
+      _logger.warning('API request failed with status ${response.statusCode}');
+      throw HttpException(
+        'API request failed with status ${response.statusCode}',
+        uri: Uri.parse(url),
+      );
     }
+
+    final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+    final parsedTime = await _parseTimeFromJson(jsonResponse);
+
+    return parsedTime;
   }
 
-  Future<http.Response> _httpGet(String url) async {
-    try {
-      return await _httpClient.get(Uri.parse(url)).timeout(_apiTimeout);
-    } on Exception catch (e) {
-      return http.Response('Error: $e', HttpStatus.internalServerError);
+  Future<DateTime> _parseTimeFromJson(Map<String, dynamic> jsonResponse) async {
+    final fieldParts = timeFieldPath.split('.');
+    dynamic value = jsonResponse;
+
+    for (final part in fieldParts) {
+      if (value is! Map<String, dynamic>) {
+        _logger.warning('JSON path error: expected Map at $part');
+        throw FormatException('JSON path error: expected Map at $part');
+      }
+      value = value[part];
+      if (value == null) {
+        _logger.warning('JSON path error: null value at $part');
+        throw FormatException('JSON path error: null value at $part');
+      }
     }
+
+    final timeStr = value.toString();
+    if (timeStr.isEmpty) {
+      _logger.warning('Empty time string');
+      throw const FormatException('Empty time string');
+    }
+
+    return _parseDateTime(timeStr);
   }
 
-  Future<DateTime?> _parseTimeFromJson(
-      Map<String, dynamic> jsonResponse) async {
-    try {
-      final fieldParts = timeFieldPath.split('.');
-      dynamic value = jsonResponse;
+  Future<DateTime> _parseDateTime(String timeStr) async {
+    String formattedTime = timeStr;
 
-      for (final part in fieldParts) {
-        if (value is! Map<String, dynamic>) {
-          _logger.warning('JSON path error: expected Map at $part');
-          return null;
+    switch (timeFormat) {
+      case TimeFormat.iso8601:
+        if (formattedTime.endsWith('+00:00')) {
+          formattedTime = formattedTime.replaceAll('+00:00', 'Z');
+        } else if (!formattedTime.endsWith('Z')) {
+          formattedTime += 'Z';
         }
-        value = value[part];
-        if (value == null) {
-          _logger.warning('JSON path error: null value at $part');
-          return null;
-        }
-      }
 
-      final timeStr = value.toString();
-      if (timeStr.isEmpty) {
-        _logger.warning('Empty time string');
-        return null;
-      }
-
-      return await _parseDateTime(timeStr);
-    } on Exception catch (e) {
-      _logger.severe('JSON parsing error: $e');
-      return null;
+      case TimeFormat.custom:
+        throw const FormatException('Custom time format not supported');
     }
-  }
 
-  Future<DateTime?> _parseDateTime(String timeStr) async {
-    try {
-      String formattedTime = timeStr;
-
-      switch (timeFormat) {
-        case TimeFormat.iso8601:
-          if (formattedTime.endsWith('+00:00')) {
-            formattedTime = formattedTime.replaceAll('+00:00', 'Z');
-          } else if (!formattedTime.endsWith('Z')) {
-            formattedTime += 'Z';
-          }
-
-        case TimeFormat.custom:
-          throw const FormatException('Custom time format not supported');
-      }
-
-      final dateTime = DateTime.parse(formattedTime);
-      if (!dateTime.isUtc) {
-        throw const FormatException('Time is not in UTC');
-      }
-
-      return dateTime;
-    } on Exception catch (e) {
-      _logger.severe('Date parsing error: $e');
-      return null;
+    final dateTime = DateTime.parse(formattedTime);
+    if (!dateTime.isUtc) {
+      throw const FormatException('Time is not in UTC');
     }
+
+    return dateTime;
   }
 
   @override

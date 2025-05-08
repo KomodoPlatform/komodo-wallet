@@ -1,9 +1,7 @@
 /// Base interface for all time providers
 abstract class TimeProvider {
   /// Returns the current UTC time from an external source
-  ///
-  /// Returns null if the provider failed to get the time
-  Future<DateTime?> getCurrentUtcTime();
+  Future<DateTime> getCurrentUtcTime();
 
   /// Returns a descriptive name for the provider
   String get name;

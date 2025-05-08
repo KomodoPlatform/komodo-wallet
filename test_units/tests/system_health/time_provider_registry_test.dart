@@ -33,7 +33,7 @@ class _MockTimeProvider extends TimeProvider {
   @override
   String get name => 'mock';
   @override
-  Future<DateTime?> getCurrentUtcTime() async => null;
+  Future<DateTime> getCurrentUtcTime() async => DateTime.now();
   @override
   void dispose() {
     onDispose?.call();

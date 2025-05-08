@@ -16,7 +16,7 @@ final class AppBootstrapper {
 
     final timer = Stopwatch()..start();
     await logger.init();
-      await initializeLogger(mm2Api);
+    await initializeLogger(mm2Api);
 
     log('AppBootstrapper: Log initialized in ${timer.elapsedMilliseconds}ms');
     timer.reset();

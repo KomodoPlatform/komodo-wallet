@@ -10,8 +10,12 @@ part 'system_health_event.dart';
 part 'system_health_state.dart';
 
 class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
-  SystemHealthBloc(this._systemClockRepository, this._api)
-      : super(SystemHealthInitial()) {
+  SystemHealthBloc(
+    this._systemClockRepository,
+    this._api, {
+    Duration checkInterval = const Duration(seconds: 60),
+  })  : _checkInterval = checkInterval,
+        super(SystemHealthInitial()) {
     on<SystemHealthCheckRequested>(
       _onSystemHealthCheckRequested,
       transformer: restartable(),
@@ -24,6 +28,7 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
   }
 
   Timer? _timer;
+  final Duration _checkInterval;
   final SystemClockRepository _systemClockRepository;
   final Mm2Api _api;
 
@@ -39,7 +44,7 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
     _cancelPeriodicCheck();
 
     add(SystemHealthCheckRequested());
-    _timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    _timer = Timer.periodic(_checkInterval, (timer) {
       add(SystemHealthCheckRequested());
     });
   }

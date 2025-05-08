@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert' show jsonEncode;
 import 'dart:io' show HttpException;
 
@@ -33,30 +34,38 @@ void testHttpTimeProvider() {
       expect(result, equals(now));
     });
 
-    test('returns null on non-200 response', () async {
+    test('throws HttpException on non-200 response', () async {
       mockClient.mockResponse = http.Response('error', 500);
-      final result = await provider.getCurrentUtcTime();
-      expect(result, isNull);
+      expect(
+        () => provider.getCurrentUtcTime(),
+        throwsA(isA<HttpException>()),
+      );
     });
 
-    test('returns null if field missing', () async {
+    test('throws FormatException if field missing', () async {
       mockClient.mockResponse =
           http.Response(jsonEncode({'other': 'value'}), 200);
-      final result = await provider.getCurrentUtcTime();
-      expect(result, isNull);
+      expect(
+        () => provider.getCurrentUtcTime(),
+        throwsA(isA<FormatException>()),
+      );
     });
 
-    test('returns null on invalid date format', () async {
+    test('throws FormatException on invalid date format', () async {
       mockClient.mockResponse =
           http.Response(jsonEncode({'currentDateTime': 'not-a-date'}), 200);
-      final result = await provider.getCurrentUtcTime();
-      expect(result, isNull);
+      expect(
+        () => provider.getCurrentUtcTime(),
+        throwsA(isA<FormatException>()),
+      );
     });
 
-    test('returns null on exception', () async {
+    test('throws HttpException on exception', () async {
       mockClient.shouldThrow = true;
-      final result = await provider.getCurrentUtcTime();
-      expect(result, isNull);
+      expect(
+        () => provider.getCurrentUtcTime(),
+        throwsA(isA<HttpException>()),
+      );
     });
   });
 }

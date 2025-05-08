@@ -11,7 +11,6 @@ class SystemClockRepository {
     Logger? logger,
   })  : _maxAllowedDifference =
             maxAllowedDifference ?? const Duration(seconds: 60),
-        _httpClient = httpClient ?? http.Client(),
         _providerRegistry = providerRegistry ??
             TimeProviderRegistry(
               httpClient: httpClient,
@@ -20,7 +19,6 @@ class SystemClockRepository {
         _logger = logger ?? Logger('SystemClockRepository');
 
   final Duration _maxAllowedDifference;
-  final http.Client _httpClient;
   final TimeProviderRegistry _providerRegistry;
   final Logger _logger;
 
@@ -36,24 +34,21 @@ class SystemClockRepository {
       for (final provider in providers) {
         try {
           final apiTime = await provider.getCurrentUtcTime();
+          receivedValidResponse = true;
 
-          if (apiTime != null) {
-            receivedValidResponse = true;
-            final localTime = DateTime.timestamp();
-            final Duration difference = apiTime.difference(localTime).abs();
+          final localTime = DateTime.timestamp();
+          final Duration difference = apiTime.difference(localTime).abs();
 
-            final isValid = difference < _maxAllowedDifference;
-            if (isValid) {
-              _logger
-                  .info('System clock validated by ${provider.name} provider');
-            } else {
-              _logger.warning(
-                  'System clock differs by ${difference.inSeconds}s from '
-                  '${provider.name} provider');
-            }
-
-            return isValid;
+          final isValid = difference < _maxAllowedDifference;
+          if (isValid) {
+            _logger.info('System clock validated by ${provider.name} provider');
+          } else {
+            _logger.warning(
+                'System clock differs by ${difference.inSeconds}s from '
+                '${provider.name} provider');
           }
+
+          return isValid;
         } on Exception catch (e, s) {
           _logger.severe('Provider ${provider.name} failed', e, s);
         }
@@ -74,6 +69,5 @@ class SystemClockRepository {
 
   void dispose() {
     _providerRegistry.dispose();
-    _httpClient.close();
   }
 }

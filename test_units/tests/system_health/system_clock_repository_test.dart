@@ -51,7 +51,7 @@ void testSystemClockRepository() {
 
     test('returns true when no providers respond', () async {
       mockRegistry.mockProviders = [
-        MockTimeProvider(name: 'FailingProvider'),
+        MockTimeProvider(name: 'FailingProvider', returnTime: DateTime.now()),
       ];
 
       final result = await repository.isSystemClockValid();
@@ -61,7 +61,11 @@ void testSystemClockRepository() {
 
     test('returns true when provider throws exception', () async {
       mockRegistry.mockProviders = [
-        MockTimeProvider(name: 'ExceptionProvider', shouldThrow: true),
+        MockTimeProvider(
+          name: 'ExceptionProvider',
+          shouldThrow: true,
+          returnTime: DateTime.now(),
+        ),
       ];
 
       final result = await repository.isSystemClockValid();
@@ -74,7 +78,8 @@ void testSystemClockRepository() {
         name: 'ValidProvider',
         returnTime: DateTime.timestamp().toUtc(),
       );
-      final failingProvider = MockTimeProvider(name: 'FailingProvider');
+      final failingProvider =
+          MockTimeProvider(name: 'FailingProvider', returnTime: DateTime.now());
 
       mockRegistry.mockProviders = [validProvider, failingProvider];
       await repository.isSystemClockValid();
@@ -103,12 +108,12 @@ class MockTimeProviderRegistry implements TimeProviderRegistry {
 class MockTimeProvider extends TimeProvider {
   MockTimeProvider({
     required String name,
-    this.returnTime,
+    required this.returnTime,
     this.shouldThrow = false,
   }) : _name = name;
 
   final String _name;
-  final DateTime? returnTime;
+  final DateTime returnTime;
   final bool shouldThrow;
   int callCount = 0;
 
@@ -116,7 +121,7 @@ class MockTimeProvider extends TimeProvider {
   String get name => _name;
 
   @override
-  Future<DateTime?> getCurrentUtcTime() async {
+  Future<DateTime> getCurrentUtcTime() async {
     callCount++;
     if (shouldThrow) {
       throw Exception('Test exception');

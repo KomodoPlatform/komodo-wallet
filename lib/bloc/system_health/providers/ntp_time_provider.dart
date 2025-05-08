@@ -35,32 +35,22 @@ class NtpTimeProvider extends TimeProvider {
   String get name => 'NTP';
 
   @override
-  Future<DateTime?> getCurrentUtcTime() async {
+  Future<DateTime> getCurrentUtcTime() async {
     for (final server in ntpServers) {
       DateTime? time;
       int retries = 0;
 
       while (time == null && retries < maxRetries) {
         try {
+          final localNow = DateTime.now();
           final int offset = await NTP.getNtpOffset(
-            localTime: DateTime.now(),
+            localTime: localNow,
             lookUpAddress: server,
             timeout: lookupTimeout,
           );
 
-          final now = DateTime.now();
-          time = now.add(Duration(milliseconds: offset));
-
-          final utcTime = DateTime.utc(
-            time.year,
-            time.month,
-            time.day,
-            time.hour,
-            time.minute,
-            time.second,
-            time.millisecond,
-            time.microsecond,
-          );
+          time = localNow.add(Duration(milliseconds: offset));
+          final utcTime = time.toUtc();
 
           _logger.fine('Successfully retrieved time from $server');
           return utcTime;
@@ -80,6 +70,8 @@ class NtpTimeProvider extends TimeProvider {
     _logger.severe(
       'Failed to get time from any NTP server after $maxRetries retries',
     );
-    return null;
+    throw TimeoutException(
+      'Failed to get time from any NTP server after $maxRetries retries',
+    );
   }
 }
