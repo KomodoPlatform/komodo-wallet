@@ -17,14 +17,12 @@ class SystemClockRepository {
               httpClient: httpClient,
               apiTimeout: apiTimeout,
             ),
-        _logger = logger;
+        _logger = logger ?? Logger('SystemClockRepository');
 
   final Duration _maxAllowedDifference;
   final http.Client _httpClient;
   final TimeProviderRegistry _providerRegistry;
-  final Logger? _logger;
-
-  Logger? get logger => _logger;
+  final Logger _logger;
 
   /// Queries the available time providers to validate the system clock validity
   /// returning true if the system clock is within allowed difference of the
@@ -46,36 +44,32 @@ class SystemClockRepository {
 
             final isValid = difference < _maxAllowedDifference;
             if (isValid) {
-              await _log('System clock validated by ${provider.name} provider');
+              _logger
+                  .info('System clock validated by ${provider.name} provider');
             } else {
-              await _log(
+              _logger.warning(
                   'System clock differs by ${difference.inSeconds}s from '
                   '${provider.name} provider');
             }
 
             return isValid;
           }
-        } on Exception catch (e) {
-          await _log('Provider ${provider.name} failed: $e');
+        } on Exception catch (e, s) {
+          _logger.severe('Provider ${provider.name} failed', e, s);
         }
       }
 
       if (!receivedValidResponse) {
-        await _log('All time providers failed to provide a time');
+        _logger.warning('All time providers failed to provide a time');
       }
 
       // Default to allowing usage when no provider responded
       return true;
-    } on Exception catch (e) {
-      await _log('Failed to validate system clock: $e');
+    } on Exception catch (e, s) {
+      _logger.shout('Failed to validate system clock', e, s);
       // Don't block usage of dex if the time provider fetch fails
       return true;
     }
-  }
-
-  Future<void> _log(String message) async {
-    (logger ?? Logger('SystemClockRepository'))
-        .info('[SystemClockRepository] $message');
   }
 
   void dispose() {
