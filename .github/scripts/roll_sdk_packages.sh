@@ -241,8 +241,12 @@ done
 
 # Add the SDK rolls image at the bottom of the changes file
 if [ "$ROLLS_MADE" = true ]; then
-  echo "![SDK Package Rolls](/docs/assets/sdk-rolls.png)" >> "$CHANGES_FILE"
+  echo "![SDK Package Rolls](https://raw.githubusercontent.com/KomodoPlatform/komodo-wallet/aaf19e4605c62854ba176bf1ea75d75b3cb48df9/docs/assets/sdk-rolls.png)" >> "$CHANGES_FILE"
   echo "" >> "$CHANGES_FILE"
+  
+  # Clean up all .bak files to avoid committing them
+  echo "Cleaning up backup files..."
+  find "$REPO_ROOT" -name "*.bak" -type f -delete
 fi
 
 # Set output for GitHub Actions

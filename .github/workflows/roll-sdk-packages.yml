@@ -101,7 +101,13 @@ jobs:
 
           # Create new branch
           git checkout -b "${{ env.PR_BRANCH_NAME }}"
-          git add .
+
+          # Add all changed pubspec files in a single command
+          git add '**/pubspec.yaml' '**/pubspec.lock'
+
+          # Confirm which files will be committed
+          git status
+
           git commit -m "chore: roll SDK packages targeting ${{ env.TARGET_BRANCH }}"
           git push --set-upstream origin "${{ env.PR_BRANCH_NAME }}"
 
@@ -120,7 +126,7 @@ jobs:
           else
             # Create the pull request using gh CLI
             gh pr create \
-              --title "Roll SDK packages targeting ${{ env.TARGET_BRANCH }}" \
+              --title "ci(sdk): Roll SDK packages targeting ${{ env.TARGET_BRANCH }}" \
               --body-file SDK_CHANGELOG.md \
               --base "${{ env.TARGET_BRANCH }}" \
               --head "${{ env.PR_BRANCH_NAME }}" \
