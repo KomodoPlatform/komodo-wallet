@@ -1,0 +1,140 @@
+name: Roll SDK Packages
+
+on:
+  schedule:
+    # Run once a day at midnight
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      upgrade_all_packages:
+        description: "Upgrade all packages, not just SDK packages"
+        required: false
+        default: false
+        type: boolean
+      target_branch:
+        description: "Target branch for PR creation"
+        required: false
+        default: "dev"
+        type: string
+
+jobs:
+  roll-sdk-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+          channel: stable
+          cache: true
+
+      - name: Determine configuration
+        id: config
+        run: |
+          # Set target branch
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.target_branch }}" != "" ]]; then
+            TARGET_BRANCH="${{ github.event.inputs.target_branch }}"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            TARGET_BRANCH="${{ github.base_ref }}"
+          else
+            TARGET_BRANCH="dev"
+          fi
+          echo "TARGET_BRANCH=$TARGET_BRANCH" >> $GITHUB_ENV
+
+          # Set upgrade mode
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.upgrade_all_packages }}" == "true" ]]; then
+            UPGRADE_ALL="true"
+          else
+            UPGRADE_ALL="false"
+          fi
+          echo "UPGRADE_ALL=$UPGRADE_ALL" >> $GITHUB_ENV
+
+          # Branch naming based on target branch, not date
+          echo "PR_BRANCH_NAME=sdk-roll-${TARGET_BRANCH}" >> $GITHUB_ENV
+
+      - name: Make roll script executable
+        run: |
+          chmod +x .github/scripts/roll_sdk_packages.sh
+
+      - name: Run roll script
+        id: roll_packages
+        run: |
+          UPGRADE_ALL_PACKAGES=${{ env.UPGRADE_ALL }} TARGET_BRANCH=${{ env.TARGET_BRANCH }} .github/scripts/roll_sdk_packages.sh || echo "No rolls needed"
+          if [ -f "SDK_CHANGELOG.md" ]; then
+            echo "ROLLS_FOUND=true" >> $GITHUB_ENV
+          else
+            echo "ROLLS_FOUND=false" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Git identity
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create PR Branch
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          # Check if the branch already exists
+          if git ls-remote --heads origin ${{ env.PR_BRANCH_NAME }} | grep -q ${{ env.PR_BRANCH_NAME }}; then
+            # If it exists, delete it (force update)
+            git push origin --delete ${{ env.PR_BRANCH_NAME }}
+          fi
+
+          # Create new branch
+          git checkout -b "${{ env.PR_BRANCH_NAME }}"
+          git add .
+          git commit -m "chore: roll SDK packages targeting ${{ env.TARGET_BRANCH }}"
+          git push --set-upstream origin "${{ env.PR_BRANCH_NAME }}"
+
+      - name: Create Pull Request
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          # Check if a PR from this branch to target branch already exists
+          EXISTING_PR=$(gh pr list --head "${{ env.PR_BRANCH_NAME }}" --base "${{ env.TARGET_BRANCH }}" --json number --jq '.[0].number')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Updating existing PR #$EXISTING_PR with new changes"
+            # Update the PR body with the latest SDK roll changes
+            gh pr edit "$EXISTING_PR" --body-file SDK_CHANGELOG.md
+            # Add a comment to notify about the update
+            gh pr comment "$EXISTING_PR" --body "Updated SDK roll with new changes on $(date '+%Y-%m-%d %H:%M:%S')"
+          else
+            # Create the pull request using gh CLI
+            gh pr create \
+              --title "Roll SDK packages targeting ${{ env.TARGET_BRANCH }}" \
+              --body-file SDK_CHANGELOG.md \
+              --base "${{ env.TARGET_BRANCH }}" \
+              --head "${{ env.PR_BRANCH_NAME }}" \
+              --label "dependencies" \
+              --label "automated"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: PR Details
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          echo "Pull request created or updated successfully with rolled SDK package dependencies"
+
+      - name: No Updates
+        if: env.ROLLS_FOUND == 'false'
+        run: |
+          echo "No SDK package rolls needed"
