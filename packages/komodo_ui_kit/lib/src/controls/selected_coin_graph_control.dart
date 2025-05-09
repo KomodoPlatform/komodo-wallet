@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:komodo_ui_kit/src/images/coin_icon.dart';
 
 class SelectedCoinGraphControl extends StatelessWidget {
   const SelectedCoinGraphControl({
@@ -12,9 +11,10 @@ class SelectedCoinGraphControl extends StatelessWidget {
     this.selectedCoinId,
     this.availableCoins,
     this.customCoinItemBuilder,
+    this.forceDropdown = false,
     super.key,
   });
-
+  final bool forceDropdown;
   final Function(String?)? onCoinSelected;
   final bool emptySelectAllowed;
   final String? selectedCoinId;
@@ -39,11 +39,9 @@ class SelectedCoinGraphControl extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth >= 280) {
-          return _buildSegmentedButton(context);
-        } else {
-          return _buildDropdownButton(context);
-        }
+        return forceDropdown
+            ? _buildDropdownButton(context)
+            : _buildSegmentedButton(context);
       },
     );
   }
@@ -51,80 +49,111 @@ class SelectedCoinGraphControl extends StatelessWidget {
   Widget _buildSegmentedButton(BuildContext context) {
     return SizedBox(
       height: 40,
-      child: DividedButton(
-        onPressed: onCoinSelected == null
-            ? null
-            : () async {
-                final selectedCoin = await showCoinSearch(
-                  context,
-                  coins: availableCoins!,
-                  customCoinItemBuilder: customCoinItemBuilder,
-                );
-                if (selectedCoin != null) {
-                  onCoinSelected?.call(selectedCoin.id);
-                }
-              },
-        children: [
-          Container(
-            // Min width of 48
-            constraints: const BoxConstraints(minWidth: 48),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-
-            child: selectedCoinId != null
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CoinIcon(selectedCoinId!, size: 18),
-                      const SizedBox(width: 8),
-                      Text(
-                        selectedCoinId!,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      if (emptySelectAllowed && selectedCoinId != null) ...[
-                        const SizedBox(width: 4),
-                        SizedBox(
-                          width: 16,
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.clear),
-                            iconSize: 16,
-                            splashRadius: 20,
-                            onPressed: () => onCoinSelected?.call(null),
-                          ),
-                        ),
-                      ],
-                    ],
-                  )
-                : Text('All', style: Theme.of(context).textTheme.bodyLarge),
-          ),
-          Text(
-            (NumberFormat.currency(symbol: "\$")
-                  ..minimumSignificantDigits = 3
-                  ..minimumFractionDigits = 2)
-                .format(centreAmount),
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  // TODO: Incorporate into theme and remove duplication accross charts
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          Row(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 230),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: DividedButton(
+            onPressed: onCoinSelected == null
+                ? null
+                : () async {
+                    final selectedCoin = await showCoinSearch(
+                      context,
+                      coins: availableCoins!,
+                      customCoinItemBuilder: customCoinItemBuilder,
+                    );
+                    if (selectedCoin != null) {
+                      onCoinSelected?.call(selectedCoin.id);
+                    }
+                  },
             children: [
-              TrendPercentageText(
-                percentage: percentageIncrease,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (selectedCoinId != null) ...[
+                    AssetIcon.ofTicker(selectedCoinId!, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      selectedCoinId!,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (emptySelectAllowed) ...[
+                      const SizedBox(width: 4),
+                      SizedBox(
+                        width: 16,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(Icons.clear),
+                          iconSize: 16,
+                          splashRadius: 20,
+                          onPressed: () => onCoinSelected?.call(null),
+                        ),
+                      ),
+                    ],
+                  ] else
+                    Text('All', style: Theme.of(context).textTheme.bodyLarge),
+                ],
               ),
-              if (onCoinSelected != null) ...[
-                const SizedBox(width: 2),
-                const Icon(Icons.expand_more),
-              ],
+              Text(
+                (NumberFormat.currency(symbol: "\$")
+                      ..minimumSignificantDigits = 3
+                      ..minimumFractionDigits = 2)
+                    .format(centreAmount),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TrendPercentageText(percentage: percentageIncrease),
+                  if (onCoinSelected != null) ...[
+                    const SizedBox(width: 2),
+                    const Icon(Icons.expand_more),
+                  ],
+                ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildDropdownButton(BuildContext context) {
+    return DropdownWithSearch(
+      selectedId: selectedCoinId,
+      availableCoins: availableCoins!,
+      onCoinSelected: (String id) => onCoinSelected?.call(id),
+      customCoinItemBuilder: customCoinItemBuilder,
+      width: 230,
+    );
+  }
+}
+
+class DropdownWithSearch extends StatelessWidget {
+  const DropdownWithSearch({
+    super.key,
+    required this.availableCoins,
+    required this.onCoinSelected,
+    this.selectedId,
+    this.customCoinItemBuilder,
+    this.hint = 'Select coin',
+    this.width = 230,
+  });
+
+  final List<AssetId> availableCoins;
+  final void Function(String) onCoinSelected;
+  final String? selectedId;
+  final DropdownMenuItem<AssetId> Function(AssetId)? customCoinItemBuilder;
+  final String hint;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final segmentedStyle = theme.segmentedButtonTheme.style;
 
@@ -134,57 +163,82 @@ class SelectedCoinGraphControl extends StatelessWidget {
     final foregroundColor = segmentedStyle?.foregroundColor?.resolve({}) ??
         theme.colorScheme.onSurfaceVariant;
 
-    final borderRadius =
-        segmentedStyle?.shape?.resolve({}) is RoundedRectangleBorder
-            ? (segmentedStyle!.shape!.resolve({}) as RoundedRectangleBorder)
-                .borderRadius
-            : BorderRadius.circular(8);
+    final borderColor = segmentedStyle?.side?.resolve({})?.color ??
+        theme.colorScheme.outlineVariant;
+
+    final shape = segmentedStyle?.shape?.resolve({});
+    final BorderRadius borderRadius = switch (shape) {
+      RoundedRectangleBorder(:final borderRadius)
+          when borderRadius is BorderRadius =>
+        borderRadius,
+      _ => BorderRadius.circular(8),
+    };
 
     final textStyle = theme.textTheme.labelMedium?.copyWith(
       fontWeight: FontWeight.w600,
       color: foregroundColor,
     );
 
-    final validIds = availableCoins?.map((c) => c.id).toSet();
-    final safeSelectedId =
-        validIds?.contains(selectedCoinId) == true ? selectedCoinId : null;
+    AssetId? selectedCoin;
+    for (final coin in availableCoins) {
+      if (coin.id == selectedId) {
+        selectedCoin = coin;
+        break;
+      }
+    }
 
-    return SizedBox(
-      width: 135,
-      height: 40,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          color: backgroundColor,
+    return UnconstrainedBox(
+      constrainedAxis: Axis.horizontal,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: width),
+        child: InkWell(
           borderRadius: borderRadius,
-          border: Border.all(
-            color: segmentedStyle?.side?.resolve({})?.color ??
-                Theme.of(context).colorScheme.outlineVariant,
-          ),
-        ),
-        child: DropdownButton<String>(
-          value: safeSelectedId,
-          onChanged: onCoinSelected,
-          isExpanded: true,
-          underline: const SizedBox.shrink(),
-          icon: Icon(Icons.keyboard_arrow_down, color: foregroundColor),
-          style: textStyle,
-          dropdownColor: backgroundColor,
-          items: availableCoins?.map((coin) {
-            return DropdownMenuItem<String>(
-              value: coin.id,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Row(
-                  children: [
-                    AssetIcon(coin, size: 18),
-                    const SizedBox(width: 6),
-                    Text(coin.id, style: textStyle),
-                  ],
-                ),
-              ),
+          onTap: () async {
+            final selected = await showCoinSearch(
+              context,
+              coins: availableCoins,
+              customCoinItemBuilder: customCoinItemBuilder,
             );
-          }).toList(),
+            if (selected != null) {
+              onCoinSelected(selected.id);
+            }
+          },
+          child: Container(
+            height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: borderRadius,
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              children: [
+                if (selectedCoin != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: AssetIcon(selectedCoin, size: 18),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      selectedCoin.id,
+                      style: textStyle,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ] else ...[
+                  Expanded(
+                    child: Text(
+                      hint,
+                      style: textStyle,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+                Icon(Icons.keyboard_arrow_down, color: foregroundColor),
+              ],
+            ),
+          ),
         ),
       ),
     );

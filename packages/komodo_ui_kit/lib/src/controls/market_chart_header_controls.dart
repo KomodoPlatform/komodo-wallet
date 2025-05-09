@@ -47,63 +47,61 @@ class MarketChartHeaderControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final defaultTextStyle = Theme.of(context).textTheme.labelLarge;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useSegmented = constraints.maxWidth >= 600;
+        final double coinSelectorWidth = useSegmented ? 230 : 135;
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            DefaultTextStyle(
-              style: Theme.of(context).textTheme.labelMedium!,
-              child: title,
-            ),
-            const Gap(2),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (leadingIcon != null) ...[
-                  leadingIcon!,
-                  const Gap(2),
-                ],
                 DefaultTextStyle(
-                  style: defaultTextStyle!,
-                  child: leadingText,
+                  style: Theme.of(context).textTheme.labelMedium!,
+                  child: title,
+                ),
+                const Gap(2),
+                Row(
+                  children: [
+                    if (leadingIcon != null) ...[
+                      leadingIcon!,
+                      const Gap(2),
+                    ],
+                    DefaultTextStyle(
+                      style: defaultTextStyle!,
+                      child: leadingText,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        const SizedBox(width: 10),
-        Flexible(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 280),
-            child: SelectedCoinGraphControl(
-              emptySelectAllowed: emptySelectAllowed,
-              centreAmount: centreAmount,
-              percentageIncrease: percentageIncrease,
-              selectedCoinId: selectedCoinId,
-              availableCoins: availableCoins,
-              onCoinSelected: onCoinSelected,
-              customCoinItemBuilder: customCoinItemBuilder,
-            ),
-          ),
-        ),
-        const SizedBox(width: 2),
-        Flexible(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 70),
-            child: SizedBox(
-              height: 40,
-              child: Center(
-                child: TimePeriodSelector(
-                  selectedPeriod: selectedPeriod,
-                  onPeriodChanged: onPeriodChanged,
-                  intervals: timePeriods,
-                ),
+            const Spacer(),
+            SizedBox(
+              width: coinSelectorWidth,
+              child: SelectedCoinGraphControl(
+                forceDropdown: !useSegmented,
+                centreAmount: centreAmount,
+                percentageIncrease: percentageIncrease,
+                selectedCoinId: selectedCoinId,
+                availableCoins: availableCoins,
+                onCoinSelected: onCoinSelected,
+                customCoinItemBuilder: customCoinItemBuilder,
+                emptySelectAllowed: emptySelectAllowed,
               ),
             ),
-          ),
-        ),
-      ],
+            const Spacer(),
+            Flexible(
+              child: TimePeriodSelector(
+                selectedPeriod: selectedPeriod,
+                onPeriodChanged: onPeriodChanged,
+                intervals: timePeriods,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
