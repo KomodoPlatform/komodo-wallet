@@ -153,6 +153,11 @@ class BanxaFiatProvider extends BaseFiatProvider {
     final List<CryptoCurrency> currencyList = [];
     for (final item in data) {
       final coinCode = item['coin_code'] as String;
+      if (banxaUnsupportedCoinsList.contains(coinCode)) {
+        _log.warning('Banxa does not support $coinCode');
+        continue;
+      }
+
       final coinName = item['coin_name'] as String;
       final blockchains = item['blockchains'] as List<dynamic>;
 

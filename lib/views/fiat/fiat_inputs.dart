@@ -116,10 +116,12 @@ class FiatInputsState extends State<FiatInputs> {
     final fiatListLoading = widget.fiatList.length <= 1;
     final coinListLoading = widget.coinList.length <= 1;
 
-    final boundariesString = widget.fiatMaxAmount == null &&
-            widget.fiatMinAmount == null
-        ? ''
-        : '(${widget.fiatMinAmount ?? '1'} - ${widget.fiatMaxAmount ?? '∞'})';
+    final minFiatAmount = widget.fiatMinAmount?.toStringAsFixed(2);
+    final maxFiatAmount = widget.fiatMaxAmount?.toStringAsFixed(2);
+    final boundariesString =
+        widget.fiatMaxAmount == null && widget.fiatMinAmount == null
+            ? ''
+            : '(${minFiatAmount ?? '1'} - ${maxFiatAmount ?? '∞'})';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

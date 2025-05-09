@@ -124,6 +124,11 @@ class RampFiatProvider extends BaseFiatProvider {
             return null;
           }
 
+          if (rampUnsupportedCoinsList.contains(item['symbol'] as String)) {
+            _log.warning('Ramp does not support ${item['symbol']}');
+            return null;
+          }
+
           // Parse minPurchaseAmount which can be a string, int, or double
           final dynamic minValue = item['minPurchaseAmount'];
           Decimal minPurchaseAmount;
@@ -140,7 +145,8 @@ class RampFiatProvider extends BaseFiatProvider {
             // Default to zero for any other unexpected types
             minPurchaseAmount = Decimal.fromInt(0);
             _log.warning(
-                'Unexpected type for minPurchaseAmount: ${minValue.runtimeType}',);
+              'Unexpected type for minPurchaseAmount: ${minValue.runtimeType}',
+            );
           }
 
           return CryptoCurrency(

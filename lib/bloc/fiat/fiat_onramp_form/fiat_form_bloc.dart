@@ -17,7 +17,6 @@ import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/fiat_repository.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/bloc/fiat/payment_status_type.dart';
-import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
 import 'package:web_dex/shared/utils/extensions/string_extensions.dart';
@@ -265,7 +264,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
             e,
             s,
           );
-          return state.copyWith(selectedAssetAddress: () => null);
+          if (state.selectedAssetAddress == null) {
+            return state.copyWith(selectedAssetAddress: () => null);
+          }
         }
 
         _log.warning(

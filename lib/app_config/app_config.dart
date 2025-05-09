@@ -99,6 +99,24 @@ const List<String> excludedAssetListTrezor = [
   'VAL',
 ];
 
+/// Some coins returned by the Banxa API are returning errors when attempting
+/// to create an order. This is a temporary workaround to filter out those coins
+/// until the issue is resolved.
+const banxaUnsupportedCoinsList = [
+  'APE', // chain not configured for APE
+  'AVAX', // avax & bep20 - invalid wallet address error
+  'DOT', // bep20 - invalid wallet address error
+  'FIL', // bep20 - invalid wallet address error
+  'ONE', // invalid wallet address error (one14**** format expected)
+  'TON', // erc20 - invalid wallet address error
+  'TRC', // bep20 - invalid wallet address error
+  'XML', // invalid wallet address error
+];
+
+const rampUnsupportedCoinsList = [
+  'ONE', // invalid wallet address error (one14**** format expected)
+];
+
 // Assets in wallet-only mode on app level,
 // global wallet-only assets are defined in coins config files.
 const List<String> appWalletOnlyAssetList = [
