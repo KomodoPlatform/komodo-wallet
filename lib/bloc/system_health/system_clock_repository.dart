@@ -1,11 +1,9 @@
-import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/system_health/providers/time_provider_registry.dart';
 
 class SystemClockRepository {
   SystemClockRepository({
     TimeProviderRegistry? providerRegistry,
-    http.Client? httpClient,
     Duration? maxAllowedDifference,
     Duration? apiTimeout,
     Logger? logger,
@@ -13,7 +11,6 @@ class SystemClockRepository {
             maxAllowedDifference ?? const Duration(seconds: 60),
         _providerRegistry = providerRegistry ??
             TimeProviderRegistry(
-              httpClient: httpClient,
               apiTimeout: apiTimeout,
             ),
         _logger = logger ?? Logger('SystemClockRepository');

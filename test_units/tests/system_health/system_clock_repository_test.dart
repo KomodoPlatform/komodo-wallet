@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 import 'package:web_dex/bloc/system_health/providers/time_provider.dart';
 import 'package:web_dex/bloc/system_health/providers/time_provider_registry.dart';
@@ -13,7 +12,6 @@ void testSystemClockRepository() {
       mockRegistry = MockTimeProviderRegistry();
       repository = SystemClockRepository(
         providerRegistry: mockRegistry,
-        httpClient: http.Client(),
         maxAllowedDifference: const Duration(seconds: 30),
       );
     });

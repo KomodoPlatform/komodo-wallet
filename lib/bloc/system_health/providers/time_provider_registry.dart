@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:web_dex/bloc/system_health/providers/binance_time_provider.dart';
 import 'package:web_dex/bloc/system_health/providers/http_head_time_provider.dart';
 import 'package:web_dex/bloc/system_health/providers/http_time_provider.dart';
@@ -10,14 +9,11 @@ import 'package:web_dex/bloc/system_health/providers/time_provider.dart';
 class TimeProviderRegistry {
   TimeProviderRegistry({
     List<TimeProvider>? providers,
-    http.Client? httpClient,
     Duration? apiTimeout,
-  })  : _httpClient = httpClient ?? http.Client(),
-        _apiTimeout = apiTimeout ?? const Duration(seconds: 2) {
+  }) : _apiTimeout = apiTimeout ?? const Duration(seconds: 2) {
     _providers = providers ?? _createDefaultProviders();
   }
 
-  final http.Client _httpClient;
   final Duration _apiTimeout;
   late final List<TimeProvider> _providers;
 
@@ -32,28 +28,20 @@ class TimeProviderRegistry {
       // configure the CORS headers to allow all origins
       if (!kIsWeb && !kIsWasm) NtpTimeProvider(),
 
-      // CORS errors on web block head requests to external servers, so HTTP 
+      // CORS errors on web block head requests to external servers, so HTTP
       // header time providers are not available. We use REST APIs instead.
-      if (!kIsWeb && !kIsWasm)
-        HttpHeadTimeProvider(
-          httpClient: _httpClient,
-          timeout: _apiTimeout,
-        ),
+      if (!kIsWeb && !kIsWasm) HttpHeadTimeProvider(timeout: _apiTimeout),
 
       // Web fallback to NTP and HTTP head providers before trying the REST APIs
-      BinanceTimeProvider(
-        httpClient: _httpClient,
-        timeout: _apiTimeout,
-      ),
+      BinanceTimeProvider(timeout: _apiTimeout),
 
       // REST APIs that return the current UTC time
-      // NOTE: these are prone to change, outages, and rate limits. 
+      // NOTE: these are prone to change, outages, and rate limits.
       HttpTimeProvider(
         url: 'https://timeapi.io/api/time/current/zone?timeZone=UTC',
         timeFieldPath: 'currentDateTime',
         timeFormat: TimeFormat.iso8601,
         providerName: 'TimeAPI',
-        httpClient: _httpClient,
         apiTimeout: _apiTimeout,
       ),
       HttpTimeProvider(
@@ -61,7 +49,6 @@ class TimeProviderRegistry {
         timeFieldPath: 'utc_datetime',
         timeFormat: TimeFormat.iso8601,
         providerName: 'WorldTimeAPI',
-        httpClient: _httpClient,
         apiTimeout: _apiTimeout,
       ),
     ];
