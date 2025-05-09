@@ -470,7 +470,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     final fiatAmount = paymentMethod.priceInfo.fiatAmount;
     final minPurchaseAmount =
         state.selectedAsset.value?.minPurchaseAmount ?? Decimal.zero;
-    if (coinAmount < minPurchaseAmount) {
+    if (coinAmount < minPurchaseAmount && coinAmount > Decimal.zero) {
       final minFiatAmount = ((minPurchaseAmount * fiatAmount) / coinAmount)
           .toDecimal(scaleOnInfinitePrecision: 18);
       minAmount = minAmount != null && minAmount > minFiatAmount

@@ -113,52 +113,37 @@ class RampFiatProvider extends BaseFiatProvider {
 
   @override
   Future<List<CryptoCurrency>> getCoinList() async {
-    // TODO: add model classes to parse responses like these when migrating to
-    // the SDK
-    final response = await _getCoins();
-    final data = response['assets'] as List<dynamic>;
-    return data
-        .map((item) {
-          final coinType = getCoinType(item['chain'] as String);
-          if (coinType == null) {
-            return null;
-          }
+    try {
+      final response = await _getCoins();
+      final config =
+          HostAssetsConfig.fromJson(response as Map<String, dynamic>);
 
-          if (rampUnsupportedCoinsList.contains(item['symbol'] as String)) {
-            _log.warning('Ramp does not support ${item['symbol']}');
-            return null;
-          }
+      return config.assets
+          .map((asset) {
+            final coinType = getCoinType(asset.chain);
+            if (coinType == null) {
+              return null;
+            }
 
-          // Parse minPurchaseAmount which can be a string, int, or double
-          final dynamic minValue = item['minPurchaseAmount'];
-          Decimal minPurchaseAmount;
+            if (rampUnsupportedCoinsList.contains(asset.symbol)) {
+              _log.warning('Ramp does not support ${asset.symbol}');
+              return null;
+            }
 
-          if (minValue == null) {
-            minPurchaseAmount = Decimal.fromInt(0);
-          } else if (minValue is String) {
-            minPurchaseAmount = Decimal.fromJson(minValue);
-          } else if (minValue is int) {
-            minPurchaseAmount = Decimal.fromInt(minValue);
-          } else if (minValue is double) {
-            minPurchaseAmount = Decimal.parse(minValue.toString());
-          } else {
-            // Default to zero for any other unexpected types
-            minPurchaseAmount = Decimal.fromInt(0);
-            _log.warning(
-              'Unexpected type for minPurchaseAmount: ${minValue.runtimeType}',
+            return CryptoCurrency(
+              symbol: asset.symbol,
+              name: asset.name,
+              chainType: coinType,
+              minPurchaseAmount: asset.minPurchaseAmount ?? Decimal.zero,
             );
-          }
-
-          return CryptoCurrency(
-            symbol: item['symbol'] as String,
-            name: item['name'] as String,
-            chainType: coinType,
-            minPurchaseAmount: minPurchaseAmount,
-          );
-        })
-        .where((e) => e != null)
-        .cast<CryptoCurrency>()
-        .toList();
+          })
+          .where((e) => e != null)
+          .cast<CryptoCurrency>()
+          .toList();
+    } catch (e, s) {
+      _log.severe('Failed to parse coin list from Ramp', e, s);
+      return [];
+    }
   }
 
   // Turns `APPLE_PAY` to `Apple Pay`

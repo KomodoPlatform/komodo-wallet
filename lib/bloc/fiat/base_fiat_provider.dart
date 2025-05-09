@@ -235,6 +235,7 @@ abstract class BaseFiatProvider {
         return CoinType.etc;
       case 'FTM':
         return CoinType.ftm20;
+      case 'ARBITRUM':
       case 'ARB':
         return CoinType.arb20;
       case 'HARMONY':

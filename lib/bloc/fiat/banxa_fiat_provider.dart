@@ -182,9 +182,9 @@ class BanxaFiatProvider extends BaseFiatProvider {
         } else {
           // Default to zero for any other unexpected types
           minPurchaseAmount = Decimal.fromInt(0);
-          // ignore: lines_longer_than_80_chars
           _log.warning(
-              'Unexpected type for min_value: ${minValue.runtimeType}');
+            'Unexpected type for min_value: ${minValue.runtimeType}',
+          );
         }
 
         currencyList.add(
@@ -208,6 +208,11 @@ class BanxaFiatProvider extends BaseFiatProvider {
     String sourceAmount,
   ) async {
     try {
+      if (banxaUnsupportedCoinsList.contains(target.configSymbol)) {
+        _log.warning('Banxa does not support ${target.configSymbol}');
+        return [];
+      }
+
       final response =
           await _getPaymentMethods(source, target, sourceAmount: sourceAmount);
       final List<FiatPaymentMethod> paymentMethods = (response['data']
