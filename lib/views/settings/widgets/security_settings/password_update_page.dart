@@ -278,7 +278,7 @@ class _NewField extends StatelessWidget {
 
   final TextEditingController controller;
   final bool isObscured;
-  final Function(bool) onVisibilityChange;
+  final void Function(bool) onVisibilityChange;
 
   @override
   Widget build(BuildContext context) {
@@ -286,10 +286,7 @@ class _NewField extends StatelessWidget {
       hintText: LocaleKeys.enterNewPassword.tr(),
       controller: controller,
       isObscured: isObscured,
-      validator: (String? password) => validatePassword(
-        password ?? '',
-        LocaleKeys.walletCreationFormatPasswordError.tr(),
-      ),
+      validator: (String? password) => validatePassword(password ?? ''),
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: onVisibilityChange,
       ),

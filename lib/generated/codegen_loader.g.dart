@@ -363,6 +363,15 @@ abstract class  LocaleKeys {
   static const currentPassword = 'currentPassword';
   static const walletNotFound = 'walletNotFound';
   static const passwordIsEmpty = 'passwordIsEmpty';
+  static const passwordContainsTheWordPassword = 'passwordContainsTheWordPassword';
+  static const passwordTooShort = 'passwordTooShort';
+  static const passwordMissingDigit = 'passwordMissingDigit';
+  static const passwordMissingLowercase = 'passwordMissingLowercase';
+  static const passwordMissingUppercase = 'passwordMissingUppercase';
+  static const passwordMissingSpecialCharacter = 'passwordMissingSpecialCharacter';
+  static const passwordConsecutiveCharacters = 'passwordConsecutiveCharacters';
+  static const allowWeakPassword = 'allowWeakPassword';
+  static const allowWeakPasswordDescription = 'allowWeakPasswordDescription';
   static const dexBalanceNotSufficientError = 'dexBalanceNotSufficientError';
   static const dexEnterPriceError = 'dexEnterPriceError';
   static const dexZeroPriceError = 'dexZeroPriceError';
