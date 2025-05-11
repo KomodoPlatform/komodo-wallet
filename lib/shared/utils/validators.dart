@@ -42,6 +42,12 @@ String? validateConfirmPassword(String password, String confirmPassword) {
       : null;
 }
 
+String? validatePasswordLegacy(String password, String errorText) {
+  final RegExp exp =
+      RegExp(r'^(?:(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])).{12,}$');
+  return password.isEmpty || !password.contains(exp) ? errorText : null;
+}
+
 /// Validates password according to KDF password policy
 ///
 /// Password requirements:

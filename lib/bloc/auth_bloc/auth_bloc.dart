@@ -6,6 +6,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
@@ -19,7 +20,7 @@ part 'auth_bloc_state.dart';
 class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   /// Handles [AuthBlocEvent]s and emits [AuthBlocState]s.
   /// [_kdfSdk] is an instance of [KomodoDefiSdk] used for authentication.
-  AuthBloc(this._kdfSdk, this._walletsRepository)
+  AuthBloc(this._kdfSdk, this._walletsRepository, this._settingsRepository)
       : super(AuthBlocState.initial()) {
     on<AuthModeChanged>(_onAuthChanged);
     on<AuthStateClearRequested>(_onClearState);
@@ -33,6 +34,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
   final KomodoDefiSdk _kdfSdk;
   final WalletsRepository _walletsRepository;
+  final SettingsRepository _settingsRepository;
   StreamSubscription<KdfUser?>? _authChangesSubscription;
   final _log = Logger('AuthBloc');
 
@@ -40,6 +42,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   Future<void> close() async {
     await _authChangesSubscription?.cancel();
     await super.close();
+  }
+
+  Future<bool> _areWeakPasswordsAllowed() async {
+    final settings = await _settingsRepository.loadSettings();
+    return settings.weakPasswordsAllowed;
   }
 
   Future<void> _onLogout(
@@ -68,8 +75,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         );
       }
 
-      _log.info('login  from a wallet');
+      _log.info('login from a wallet');
       emit(AuthBlocState.loading());
+
+      final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
+
       await _kdfSdk.auth.signIn(
         walletName: event.wallet.name,
         password: event.password,
@@ -77,6 +87,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
           derivationMethod: event.wallet.config.type == WalletType.hdwallet
               ? DerivationMethod.hdWallet
               : DerivationMethod.iguana,
+          allowWeakPassword: weakPasswordsAllowed,
         ),
       );
       final KdfUser? currentUser = await _kdfSdk.auth.currentUser;
@@ -84,7 +95,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         return emit(AuthBlocState.error(AuthException.notSignedIn()));
       }
 
-      _log.info('logged in  from a wallet');
+      _log.info('logged in from a wallet');
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
@@ -135,7 +146,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         return;
       }
 
-      _log.info('register  from a wallet');
+      _log.info('register from a wallet');
+
+      final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
+
       await _kdfSdk.auth.register(
         password: event.password,
         walletName: event.wallet.name,
@@ -143,10 +157,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
           derivationMethod: event.wallet.config.type == WalletType.hdwallet
               ? DerivationMethod.hdWallet
               : DerivationMethod.iguana,
+          allowWeakPassword: weakPasswordsAllowed,
         ),
       );
 
-      _log.info('registered  from a wallet');
+      _log.info('registered from a wallet');
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: false);
       await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
@@ -179,7 +194,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         return;
       }
 
-      _log.info('restore  from a wallet');
+      _log.info('restore from a wallet');
+
+      final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
+
       await _kdfSdk.auth.register(
         password: event.password,
         walletName: event.wallet.name,
@@ -188,10 +206,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
           derivationMethod: event.wallet.config.type == WalletType.hdwallet
               ? DerivationMethod.hdWallet
               : DerivationMethod.iguana,
+          allowWeakPassword: weakPasswordsAllowed,
         ),
       );
 
-      _log.info('restored  from a wallet');
+      _log.info('restored from a wallet');
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
       await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);

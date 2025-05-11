@@ -370,6 +370,7 @@ abstract class  LocaleKeys {
   static const passwordMissingUppercase = 'passwordMissingUppercase';
   static const passwordMissingSpecialCharacter = 'passwordMissingSpecialCharacter';
   static const passwordConsecutiveCharacters = 'passwordConsecutiveCharacters';
+  static const passwordSecurity = 'passwordSecurity';
   static const allowWeakPassword = 'allowWeakPassword';
   static const allowWeakPasswordDescription = 'allowWeakPasswordDescription';
   static const dexBalanceNotSufficientError = 'dexBalanceNotSufficientError';

@@ -373,6 +373,7 @@
     "passwordMissingUppercase": "Password must contain at least 1 uppercase character",
     "passwordMissingSpecialCharacter": "Password must contain at least 1 special character",
     "passwordConsecutiveCharacters": "Password cannot contain the same character 3 times in a row",
+    "passwordSecurity": "Password Security",
     "allowWeakPassword": "Allow weak password",
     "allowWeakPasswordDescription": "For support and debugging purposes only. Bypasses password security requirements.",
     "dexBalanceNotSufficientError": "{} balance is not sufficient. {} {} required",
