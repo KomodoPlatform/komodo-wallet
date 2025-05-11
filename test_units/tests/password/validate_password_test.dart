@@ -383,7 +383,7 @@ void testcheckPasswordRequirements() {
         PasswordValidationError.none,
       );
       expect(
-        checkPasswordRequirements('🔑Abc123!'),
+        checkPasswordRequirements('🔑Abcasba123!'),
         PasswordValidationError.none,
       );
       expect(
@@ -395,7 +395,7 @@ void testcheckPasswordRequirements() {
         PasswordValidationError.none,
       );
       expect(
-        checkPasswordRequirements('🎮🎯A1!aa'),
+        checkPasswordRequirements('🎮🎯A1!abaa'),
         PasswordValidationError.none,
       );
       expect(
@@ -443,7 +443,7 @@ void testcheckPasswordRequirements() {
 
     test('Mixed emoji and text patterns', () {
       expect(
-        checkPasswordRequirements('Aa🔒1🔑!🚀'),
+        checkPasswordRequirements('Aaba🔒1🔑!🚀'),
         PasswordValidationError.none,
       );
       expect(

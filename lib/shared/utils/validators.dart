@@ -64,7 +64,13 @@ String? validatePassword(String password) {
 
 /// Internal validation method that returns the enum error type
 PasswordValidationError checkPasswordRequirements(String password) {
-  if (password.length < 8) {
+  // As suggested by CodeRabbitAI:
+  // password.length counts UTF-16 code units, so a single emoji or accented
+  // glyph can be reported as 2 – 4 characters, letting users create visually
+  // short (and possibly weak) passwords that still pass the length check.
+  // Switch to password.characters.length, already available via the characters
+  // package you import.
+  if (password.characters.length < 8) {
     return PasswordValidationError.tooShort;
   }
 
