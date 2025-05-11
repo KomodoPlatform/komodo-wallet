@@ -90,12 +90,8 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
     );
   }
 
-  // Password validator
   String? _validatePasswordField(String? passwordFieldInput) {
-    return validatePassword(
-      passwordFieldInput ?? '',
-      LocaleKeys.walletCreationFormatPasswordError.tr(),
-    );
+    return validatePassword(passwordFieldInput ?? '');
   }
 
   String? _validateConfirmPasswordField(String? confirmPasswordFieldInput) {

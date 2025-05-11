@@ -49,7 +49,7 @@ void main() {
 
   group('Password:', () {
     testValidateRPCPassword();
-    testValidatePassword();
+    testcheckPasswordRequirements();
   });
 
   group('Sorting:', () {
