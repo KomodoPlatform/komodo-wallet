@@ -73,7 +73,6 @@ const List<String> excludedAssetList = [
   'FENIX',
   'AWR',
   'BOT',
-  'ARRR',
   'ZOMBIE',
   'SMTF-v2',
   'SFUSD',
@@ -128,13 +127,6 @@ List<String> get enabledByDefaultCoins => [
       'FTM',
       if (kDebugMode) 'DOC',
       if (kDebugMode) 'MARTY',
-
-      // NFT v2 methods require the new NFT coins to be enabled by default.
-      'NFT_ETH',
-      'NFT_AVAX',
-      'NFT_BNB',
-      'NFT_FTM',
-      'NFT_MATIC',
     ];
 
 List<String> get enabledByDefaultTrezorCoins => [
