@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_repository.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
@@ -256,6 +257,12 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       type: BestOrdersRequestType.number,
       number: 1,
     ));
+
+
+    /// Unsupported coins like ARRR cause downstream errors, so we need to
+    /// remove them from the list here
+    bestOrders.result
+        ?.removeWhere((coinId, _) => excludedAssetList.contains(coinId));
 
     emit(state.copyWith(
       bestOrders: () => bestOrders,
