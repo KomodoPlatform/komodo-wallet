@@ -293,6 +293,11 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       ),
     );
 
+    /// Unsupported coins like ARRR cause downstream errors, so we need to
+    /// remove them from the list here
+    bestOrders.result
+        ?.removeWhere((coinId, _) => excludedAssetList.contains(coinId));
+
     emit(state.copyWith(bestOrders: () => bestOrders));
 
     final buyCoin = event.autoSelectOrderAbbr;

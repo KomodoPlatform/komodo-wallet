@@ -73,6 +73,9 @@ const List<String> excludedAssetList = [
   'FENIX',
   'AWR',
   'BOT',
+  // Pirate activation params are not yet implemented, so we need to
+  // exclude it from the list of coins for now.
+  'ARRR',
   'ZOMBIE',
   'SMTF-v2',
   'SFUSD',
