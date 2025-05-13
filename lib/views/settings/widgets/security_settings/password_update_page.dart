@@ -300,10 +300,7 @@ class _NewField extends StatelessWidget {
     final password = passwordText ?? '';
 
     if (allowWeakPassword) {
-      return validatePasswordLegacy(
-        password,
-        LocaleKeys.walletCreationFormatPasswordError.tr(),
-      );
+      return null;
     }
 
     return validatePassword(password);

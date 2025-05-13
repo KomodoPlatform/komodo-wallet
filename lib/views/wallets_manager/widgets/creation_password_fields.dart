@@ -98,10 +98,7 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
     final password = passwordFieldInput ?? '';
 
     if (allowWeakPassword) {
-      return validatePasswordLegacy(
-        password,
-        LocaleKeys.walletCreationFormatPasswordError.tr(),
-      );
+      return null;
     }
 
     return validatePassword(password);
