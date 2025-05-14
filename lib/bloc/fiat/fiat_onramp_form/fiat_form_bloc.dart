@@ -9,6 +9,7 @@ import 'package:formz/formz.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
@@ -319,6 +320,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     try {
       final fiatList = await _fiatRepository.getFiatList();
       final coinList = await _fiatRepository.getCoinList();
+      coinList
+          .removeWhere((coin) => excludedAssetList.contains(coin.getAbbr()));
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {
       _log.shout('Error loading currency list', e, s);
