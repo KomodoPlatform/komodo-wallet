@@ -43,7 +43,7 @@ class WalletsRepository {
   }
 
   Future<List<Wallet>> _getLegacyWallets() async {
-    var newVariable =
+    final newVariable =
         await _legacyWalletStorage.read(allWalletsStorageKey) as List?;
     final List<Map<String, dynamic>> json =
         newVariable?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
@@ -115,7 +115,7 @@ class WalletsRepository {
         type: LoadFileType.text,
       );
     } catch (e) {
-      throw Exception('Failed to download encrypted wallet: ${e.toString()}');
+      throw Exception('Failed to download encrypted wallet: $e');
     }
   }
 
