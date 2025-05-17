@@ -252,18 +252,15 @@ for PUBSPEC in $PUBSPEC_FILES; do
       fi
     else
       log_info "Running flutter pub upgrade for SDK packages only in $PROJECT_NAME"
-      # Upgrade only the SDK packages
-      PACKAGE_UPDATE_FAILED=false
-      for PACKAGE in "${SDK_PACKAGES_FOUND[@]}"; do
-        log_info "Upgrading $PACKAGE"
-        if ! flutter pub upgrade "$PACKAGE"; then
-          log_warning "Failed to upgrade $PACKAGE in $PROJECT_NAME"
+      # Upgrade all SDK packages at once
+      if [ ${#SDK_PACKAGES_FOUND[@]} -gt 0 ]; then
+        log_info "Upgrading packages: ${SDK_PACKAGES_FOUND[*]}"
+        if ! flutter pub upgrade --unlock-transitive ${SDK_PACKAGES_FOUND[@]}; then
+          log_warning "Failed to upgrade packages in $PROJECT_NAME"
           PACKAGE_UPDATE_FAILED=true
         fi
-      done
-      
-      if [ "$PACKAGE_UPDATE_FAILED" = true ]; then
-        log_warning "Some packages failed to upgrade in $PROJECT_NAME, but continuing with others"
+      else
+        log_info "No SDK packages found to upgrade in $PROJECT_NAME"
       fi
     fi
     
