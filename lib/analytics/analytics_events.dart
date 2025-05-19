@@ -69,7 +69,7 @@ class OnboardingStartedEventData implements AnalyticsEventData {
   final String? referralSource;
 
   @override
-  String get name => 'onboarding_started';
+  String get name => 'onboarding_start';
 
   @override
   JsonMap get parameters => {
@@ -97,11 +97,11 @@ class AnalyticsOnboardingStartedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on new-user conversion and platform preference.
 class WalletCreatedEventData implements AnalyticsEventData {
   const WalletCreatedEventData({
-    required this.platform,
+    required this.source,
     required this.walletType,
   });
 
-  final String platform;
+  final String source;
   final String walletType;
 
   @override
@@ -109,7 +109,7 @@ class WalletCreatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'platform': platform,
+        'source': source,
         'wallet_type': walletType,
       };
 }
@@ -117,10 +117,10 @@ class WalletCreatedEventData implements AnalyticsEventData {
 /// E03: New wallet generated
 class AnalyticsWalletCreatedEvent extends AnalyticsSendDataEvent {
   AnalyticsWalletCreatedEvent({
-    required String platform,
+    required String source,
     required String walletType,
   }) : super(WalletCreatedEventData(
-          platform: platform,
+          source: source,
           walletType: walletType,
         ));
 }
@@ -133,31 +133,36 @@ class AnalyticsWalletCreatedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on power-user acquisition and migration rate.
 class WalletImportedEventData implements AnalyticsEventData {
   const WalletImportedEventData({
-    required this.platform,
-    required this.importMethod,
+    required this.source,
+    required this.importType,
+    required this.walletType,
   });
 
-  final String platform;
-  final String importMethod;
+  final String source;
+  final String importType;
+  final String walletType;
 
   @override
   String get name => 'wallet_imported';
 
   @override
   JsonMap get parameters => {
-        'platform': platform,
-        'import_method': importMethod,
+        'source': source,
+        'import_type': importType,
+        'wallet_type': walletType,
       };
 }
 
 /// E04: Existing wallet imported
 class AnalyticsWalletImportedEvent extends AnalyticsSendDataEvent {
   AnalyticsWalletImportedEvent({
-    required String platform,
-    required String importMethod,
+    required String source,
+    required String importType,
+    required String walletType,
   }) : super(WalletImportedEventData(
-          platform: platform,
-          importMethod: importMethod,
+          source: source,
+          importType: importType,
+          walletType: walletType,
         ));
 }
 
@@ -169,26 +174,36 @@ class AnalyticsWalletImportedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on security uptake and UX health.
 class BackupCompletedEventData implements AnalyticsEventData {
   const BackupCompletedEventData({
-    required this.backupMethod,
+    required this.backupTime,
+    required this.method,
+    required this.walletType,
   });
 
-  final String backupMethod;
+  final int backupTime;
+  final String method;
+  final String walletType;
 
   @override
-  String get name => 'backup_completed';
+  String get name => 'backup_complete';
 
   @override
   JsonMap get parameters => {
-        'backup_method': backupMethod,
+        'backup_time': backupTime,
+        'method': method,
+        'wallet_type': walletType,
       };
 }
 
 /// E05: Seed backup finished
 class AnalyticsBackupCompletedEvent extends AnalyticsSendDataEvent {
   AnalyticsBackupCompletedEvent({
-    required String backupMethod,
+    required int backupTime,
+    required String method,
+    required String walletType,
   }) : super(BackupCompletedEventData(
-          backupMethod: backupMethod,
+          backupTime: backupTime,
+          method: method,
+          walletType: walletType,
         ));
 }
 
@@ -200,26 +215,31 @@ class AnalyticsBackupCompletedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on at-risk cohort size and friction stage.
 class BackupSkippedEventData implements AnalyticsEventData {
   const BackupSkippedEventData({
-    required this.reason,
+    required this.stageSkipped,
+    required this.walletType,
   });
 
-  final String reason;
+  final String stageSkipped;
+  final String walletType;
 
   @override
   String get name => 'backup_skipped';
 
   @override
   JsonMap get parameters => {
-        'reason': reason,
+        'stage_skipped': stageSkipped,
+        'wallet_type': walletType,
       };
 }
 
 /// E06: Backup skipped / postponed
 class AnalyticsBackupSkippedEvent extends AnalyticsSendDataEvent {
   AnalyticsBackupSkippedEvent({
-    required String reason,
+    required String stageSkipped,
+    required String walletType,
   }) : super(BackupSkippedEventData(
-          reason: reason,
+          stageSkipped: stageSkipped,
+          walletType: walletType,
         ));
 }
 
@@ -230,18 +250,33 @@ class AnalyticsBackupSkippedEvent extends AnalyticsSendDataEvent {
 /// Measures when the portfolio overview is viewed. Business category: Portfolio.
 /// Provides insights on balance-check engagement.
 class PortfolioViewedEventData implements AnalyticsEventData {
-  const PortfolioViewedEventData();
+  const PortfolioViewedEventData({
+    required this.totalCoins,
+    required this.totalValueUsd,
+  });
+
+  final int totalCoins;
+  final double totalValueUsd;
 
   @override
   String get name => 'portfolio_viewed';
 
   @override
-  JsonMap get parameters => {};
+  JsonMap get parameters => {
+        'total_coins': totalCoins,
+        'total_value_usd': totalValueUsd,
+      };
 }
 
 /// E07: Portfolio overview opened
 class AnalyticsPortfolioViewedEvent extends AnalyticsSendDataEvent {
-  AnalyticsPortfolioViewedEvent() : super(PortfolioViewedEventData());
+  AnalyticsPortfolioViewedEvent({
+    required int totalCoins,
+    required double totalValueUsd,
+  }) : super(PortfolioViewedEventData(
+          totalCoins: totalCoins,
+          totalValueUsd: totalValueUsd,
+        ));
 }
 
 // E08: Growth chart opened
@@ -252,26 +287,31 @@ class AnalyticsPortfolioViewedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on long-term performance interest.
 class PortfolioGrowthViewedEventData implements AnalyticsEventData {
   const PortfolioGrowthViewedEventData({
-    required this.timeFrame,
+    required this.period,
+    required this.growthPct,
   });
 
-  final String timeFrame;
+  final String period;
+  final double growthPct;
 
   @override
   String get name => 'portfolio_growth_viewed';
 
   @override
   JsonMap get parameters => {
-        'time_frame': timeFrame,
+        'period': period,
+        'growth_pct': growthPct,
       };
 }
 
 /// E08: Growth chart opened
 class AnalyticsPortfolioGrowthViewedEvent extends AnalyticsSendDataEvent {
   AnalyticsPortfolioGrowthViewedEvent({
-    required String timeFrame,
+    required String period,
+    required double growthPct,
   }) : super(PortfolioGrowthViewedEventData(
-          timeFrame: timeFrame,
+          period: period,
+          growthPct: growthPct,
         ));
 }
 
@@ -282,18 +322,38 @@ class AnalyticsPortfolioGrowthViewedEvent extends AnalyticsSendDataEvent {
 /// Measures when a user views the P&L breakdown. Business category: Portfolio.
 /// Provides insights on trading insight demand and upsell cues.
 class PortfolioPnlViewedEventData implements AnalyticsEventData {
-  const PortfolioPnlViewedEventData();
+  const PortfolioPnlViewedEventData({
+    required this.timeframe,
+    required this.realizedPnl,
+    required this.unrealizedPnl,
+  });
+
+  final String timeframe;
+  final double realizedPnl;
+  final double unrealizedPnl;
 
   @override
   String get name => 'portfolio_pnl_viewed';
 
   @override
-  JsonMap get parameters => {};
+  JsonMap get parameters => {
+        'timeframe': timeframe,
+        'realized_pnl': realizedPnl,
+        'unrealized_pnl': unrealizedPnl,
+      };
 }
 
 /// E09: P&L breakdown viewed
 class AnalyticsPortfolioPnlViewedEvent extends AnalyticsSendDataEvent {
-  AnalyticsPortfolioPnlViewedEvent() : super(PortfolioPnlViewedEventData());
+  AnalyticsPortfolioPnlViewedEvent({
+    required String timeframe,
+    required double realizedPnl,
+    required double unrealizedPnl,
+  }) : super(PortfolioPnlViewedEventData(
+          timeframe: timeframe,
+          realizedPnl: realizedPnl,
+          unrealizedPnl: unrealizedPnl,
+        ));
 }
 
 // E10: Custom token added
@@ -304,31 +364,36 @@ class AnalyticsPortfolioPnlViewedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on token diversity and network popularity.
 class AssetAddedEventData implements AnalyticsEventData {
   const AssetAddedEventData({
-    required this.assetTicker,
-    required this.blockchain,
+    required this.assetSymbol,
+    required this.assetNetwork,
+    required this.walletType,
   });
 
-  final String assetTicker;
-  final String blockchain;
+  final String assetSymbol;
+  final String assetNetwork;
+  final String walletType;
 
   @override
-  String get name => 'asset_added';
+  String get name => 'add_asset';
 
   @override
   JsonMap get parameters => {
-        'asset_ticker': assetTicker,
-        'blockchain': blockchain,
+        'asset_symbol': assetSymbol,
+        'asset_network': assetNetwork,
+        'wallet_type': walletType,
       };
 }
 
 /// E10: Custom token added
 class AnalyticsAssetAddedEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetAddedEvent({
-    required String assetTicker,
-    required String blockchain,
+    required String assetSymbol,
+    required String assetNetwork,
+    required String walletType,
   }) : super(AssetAddedEventData(
-          assetTicker: assetTicker,
-          blockchain: blockchain,
+          assetSymbol: assetSymbol,
+          assetNetwork: assetNetwork,
+          walletType: walletType,
         ));
 }
 
@@ -340,26 +405,36 @@ class AnalyticsAssetAddedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on asset popularity and research depth.
 class AssetViewedEventData implements AnalyticsEventData {
   const AssetViewedEventData({
-    required this.assetTicker,
+    required this.assetSymbol,
+    required this.assetNetwork,
+    required this.walletType,
   });
 
-  final String assetTicker;
+  final String assetSymbol;
+  final String assetNetwork;
+  final String walletType;
 
   @override
-  String get name => 'asset_viewed';
+  String get name => 'view_asset';
 
   @override
   JsonMap get parameters => {
-        'asset_ticker': assetTicker,
+        'asset_symbol': assetSymbol,
+        'asset_network': assetNetwork,
+        'wallet_type': walletType,
       };
 }
 
 /// E11: Asset detail viewed
 class AnalyticsAssetViewedEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetViewedEvent({
-    required String assetTicker,
+    required String assetSymbol,
+    required String assetNetwork,
+    required String walletType,
   }) : super(AssetViewedEventData(
-          assetTicker: assetTicker,
+          assetSymbol: assetSymbol,
+          assetNetwork: assetNetwork,
+          walletType: walletType,
         ));
 }
 
@@ -371,26 +446,36 @@ class AnalyticsAssetViewedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on which assets users want on dashboard and feature adoption.
 class AssetEnabledEventData implements AnalyticsEventData {
   const AssetEnabledEventData({
-    required this.assetTicker,
+    required this.assetSymbol,
+    required this.assetNetwork,
+    required this.walletType,
   });
 
-  final String assetTicker;
+  final String assetSymbol;
+  final String assetNetwork;
+  final String walletType;
 
   @override
   String get name => 'asset_enabled';
 
   @override
   JsonMap get parameters => {
-        'asset_ticker': assetTicker,
+        'asset_symbol': assetSymbol,
+        'asset_network': assetNetwork,
+        'wallet_type': walletType,
       };
 }
 
 /// E12: Existing asset toggled on / made visible
 class AnalyticsAssetEnabledEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetEnabledEvent({
-    required String assetTicker,
+    required String assetSymbol,
+    required String assetNetwork,
+    required String walletType,
   }) : super(AssetEnabledEventData(
-          assetTicker: assetTicker,
+          assetSymbol: assetSymbol,
+          assetNetwork: assetNetwork,
+          walletType: walletType,
         ));
 }
 
@@ -402,26 +487,36 @@ class AnalyticsAssetEnabledEvent extends AnalyticsSendDataEvent {
 /// Provides insights on portfolio-cleanup behavior and waning asset interest.
 class AssetDisabledEventData implements AnalyticsEventData {
   const AssetDisabledEventData({
-    required this.assetTicker,
+    required this.assetSymbol,
+    required this.assetNetwork,
+    required this.walletType,
   });
 
-  final String assetTicker;
+  final String assetSymbol;
+  final String assetNetwork;
+  final String walletType;
 
   @override
   String get name => 'asset_disabled';
 
   @override
   JsonMap get parameters => {
-        'asset_ticker': assetTicker,
+        'asset_symbol': assetSymbol,
+        'asset_network': assetNetwork,
+        'wallet_type': walletType,
       };
 }
 
 /// E13: Token toggled off / hidden
 class AnalyticsAssetDisabledEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetDisabledEvent({
-    required String assetTicker,
+    required String assetSymbol,
+    required String assetNetwork,
+    required String walletType,
   }) : super(AssetDisabledEventData(
-          assetTicker: assetTicker,
+          assetSymbol: assetSymbol,
+          assetNetwork: assetNetwork,
+          walletType: walletType,
         ));
 }
 
@@ -433,31 +528,41 @@ class AnalyticsAssetDisabledEvent extends AnalyticsSendDataEvent {
 /// Provides insights on transaction funnel start and popular send assets.
 class SendInitiatedEventData implements AnalyticsEventData {
   const SendInitiatedEventData({
-    required this.assetTicker,
-    required this.blockchain,
+    required this.assetSymbol,
+    required this.network,
+    required this.amount,
+    required this.walletType,
   });
 
-  final String assetTicker;
-  final String blockchain;
+  final String assetSymbol;
+  final String network;
+  final double amount;
+  final String walletType;
 
   @override
   String get name => 'send_initiated';
 
   @override
   JsonMap get parameters => {
-        'asset_ticker': assetTicker,
-        'blockchain': blockchain,
+        'asset_symbol': assetSymbol,
+        'network': network,
+        'amount': amount,
+        'wallet_type': walletType,
       };
 }
 
 /// E14: Send flow started
 class AnalyticsSendInitiatedEvent extends AnalyticsSendDataEvent {
   AnalyticsSendInitiatedEvent({
-    required String assetTicker,
-    required String blockchain,
+    required String assetSymbol,
+    required String network,
+    required double amount,
+    required String walletType,
   }) : super(SendInitiatedEventData(
-          assetTicker: assetTicker,
-          blockchain: blockchain,
+          assetSymbol: assetSymbol,
+          network: network,
+          amount: amount,
+          walletType: walletType,
         ));
 }
 
