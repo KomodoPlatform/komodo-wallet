@@ -51,7 +51,7 @@ class MessageSigningForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Signing Address',
+              LocaleKeys.signingAddress.tr(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -103,27 +103,32 @@ class MessageSigningForm extends StatelessWidget {
                         messageController.text = data!.text!;
                       }
                     },
-                    trailingIcon: IconButton.filled(
-                      icon: const Icon(Icons.qr_code_scanner, size: 16),
-                      splashRadius: 18,
-                      color: theme.textTheme.bodyMedium!.color,
-                      onPressed: () async {
-                        final result = await QrCodeReaderOverlay.show(context);
-                        if (result != null) {
-                          messageController.text = result;
-                        }
-                      },
+                    trailingIcon: UiPrimaryButton.flexible(
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              final result =
+                                  await QrCodeReaderOverlay.show(context);
+                              if (result != null) {
+                                messageController.text = result;
+                              }
+                            },
+                      child: const Icon(Icons.qr_code_scanner, size: 16),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            UiPrimaryButton(
-              text: LocaleKeys.signMessageButton.tr(),
-              onPressed: isSubmitting ? null : onSignPressed,
+            SizedBox(
               width: double.infinity,
               height: 56,
+              child: UiPrimaryButton.flexible(
+                text: LocaleKeys.signMessageButton.tr(),
+                onPressed: isSubmitting ? null : onSignPressed,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              ),
             ),
           ],
         ),
@@ -232,8 +237,8 @@ class _EnhancedMessageInputState extends State<EnhancedMessageInput> {
                         ),
                       ),
                       contentPadding: const EdgeInsets.all(16),
-                      fillColor:
-                          theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                      fillColor: theme.colorScheme.surfaceContainerHighest
+                          .withOpacity(0.3),
                       filled: true,
                     ),
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -245,18 +250,17 @@ class _EnhancedMessageInputState extends State<EnhancedMessageInput> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
+                SizedBox(
                   width: 48,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       if (widget.trailingIcon != null) widget.trailingIcon!,
                       if (widget.showCopyButton)
-                        IconButton.filled(
-                          icon: const Icon(Icons.content_paste, size: 16),
-                          splashRadius: 18,
-                          color: theme.textTheme.bodyMedium!.color,
+                        UiPrimaryButton.flexible(
+                          padding: const EdgeInsets.all(8),
                           onPressed: widget.onCopyPressed,
+                          child: const Icon(Icons.content_paste, size: 16),
                         ),
                     ],
                   ),

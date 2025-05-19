@@ -679,5 +679,7 @@ abstract class  LocaleKeys {
   static const messageSigningWarning = 'messageSigningWarning';
   static const messageSigningCheckboxText = 'messageSigningCheckboxText';
   static const messageSigned = 'messageSigned';
+  static const addressLabel = 'addressLabel';
+  static const signingAddress = 'signingAddress';
 
 }

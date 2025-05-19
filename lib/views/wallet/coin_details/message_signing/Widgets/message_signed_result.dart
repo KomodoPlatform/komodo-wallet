@@ -57,7 +57,7 @@ class MessageSignedResult extends StatelessWidget {
             ),
             Center(
               child: Text(
-                'Address - ${selected.address}',
+                LocaleKeys.addressLabel.tr(args: [selected.address]),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontFamily: 'monospace',

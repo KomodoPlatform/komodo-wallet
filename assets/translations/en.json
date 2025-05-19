@@ -681,5 +681,7 @@
     "confirmMessageSigning" : "Confirm Message Signing",
     "messageSigningWarning" : "Only sign messages from trusted sources.",
     "messageSigningCheckboxText" : "I understand that signing proves ownership of this address.",
-    "messageSigned" : "Message signed"
+    "messageSigned" : "Message signed",
+    "addressLabel" : "Address - ",
+    "signingAddress" : "Signing address"
 }
