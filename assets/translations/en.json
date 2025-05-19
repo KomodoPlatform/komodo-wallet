@@ -677,5 +677,11 @@
     "customNetworkFee": "Custom Network Fee",
     "previewWithdrawal": "Preview Withdrawal",
     "createNewAddress": "Create New Address",
-    "chart": "Chart"
+    "chart": "Chart",
+    "confirmMessageSigning" : "Confirm Message Signing",
+    "messageSigningWarning" : "Only sign messages from trusted sources.",
+    "messageSigningCheckboxText" : "I understand that signing proves ownership of this address.",
+    "messageSigned" : "Message signed",
+    "addressLabel" : "Address - ",
+    "signingAddress" : "Signing address"
 }
