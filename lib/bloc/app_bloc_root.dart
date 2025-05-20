@@ -400,7 +400,8 @@ class _MyAppViewState extends State<_MyAppView> {
     _currentPrecacheOperation = Completer<void>();
 
     try {
-      final coins = coinsRepo.getKnownCoinsMap().keys;
+      final coins =
+          coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true).keys;
 
       await for (final abbr in Stream.fromIterable(coins)) {
         // TODO: Test if necessary to complete prematurely with error if build
