@@ -12,6 +12,7 @@ abstract class FileLoader {
     required String fileName,
     required String data,
     required LoadFileType type,
+    String? extension,
   });
   Future<void> upload({
     required void Function(String name, String? content) onUpload,

@@ -15,21 +15,25 @@ class FileLoaderNativeIOS implements FileLoader {
     required String fileName,
     required String data,
     LoadFileType type = LoadFileType.text,
+    String? extension,
   }) async {
     switch (type) {
       case LoadFileType.text:
-        await _saveAsTextFile(fileName: fileName, data: data);
+        await _saveAsTextFile(
+            fileName: fileName, data: data, ext: extension ?? 'txt');
       case LoadFileType.compressed:
-        await _saveAsCompressedFile(fileName: fileName, data: data);
+        await _saveAsCompressedFile(
+            fileName: fileName, data: data, ext: extension ?? 'txt');
     }
   }
 
   Future<void> _saveAsTextFile({
     required String fileName,
     required String data,
+    required String ext,
   }) async {
     final directory = await getApplicationDocumentsDirectory();
-    final filePath = path.join(directory.path, '$fileName.txt');
+    final filePath = path.join(directory.path, '$fileName.$ext');
     final File file = File(filePath);
     await file.writeAsString(data);
 
@@ -39,12 +43,13 @@ class FileLoaderNativeIOS implements FileLoader {
   Future<void> _saveAsCompressedFile({
     required String fileName,
     required String data,
+    required String ext,
   }) async {
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, '$fileName.zip');
 
-    final compressedBytes =
-        createZipOfSingleFile(fileName: fileName, fileContent: data);
+    final compressedBytes = createZipOfSingleFile(
+        fileName: fileName, fileContent: data, extension: ext);
 
     final File compressedFile = File(filePath);
     await compressedFile.writeAsBytes(compressedBytes);

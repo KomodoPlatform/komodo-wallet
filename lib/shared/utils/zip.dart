@@ -5,8 +5,9 @@ import 'dart:typed_data';
 Uint8List createZipOfSingleFile({
   required String fileName,
   required String fileContent,
+  String extension = 'txt',
 }) {
-  final fileNameWithExtension = '$fileName.txt';
+  final fileNameWithExtension = '$fileName.$extension';
 
   final originalBytes = utf8.encode(fileContent);
   // use `raw: true` to exclude zlip header and trailer data that causes

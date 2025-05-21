@@ -11,6 +11,7 @@ import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_
 import 'package:web_dex/views/settings/widgets/general_settings/settings_reset_activated_coins.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_theme_switcher.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/show_swap_data.dart';
+import 'package:web_dex/views/settings/widgets/general_settings/settings_transaction_export.dart';
 
 class GeneralSettings extends StatelessWidget {
   const GeneralSettings({Key? key}) : super(key: key);
@@ -37,6 +38,10 @@ class GeneralSettings extends StatelessWidget {
         const SizedBox(height: 25),
         const HiddenWithWallet(
           child: SettingsResetActivatedCoins(),
+        ),
+        const SizedBox(height: 25),
+        const HiddenWithoutWallet(
+          child: SettingsTransactionExport(),
         ),
         const SizedBox(height: 25),
         const HiddenWithoutWallet(

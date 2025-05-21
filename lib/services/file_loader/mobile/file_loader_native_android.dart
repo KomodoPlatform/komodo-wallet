@@ -15,24 +15,28 @@ class FileLoaderNativeAndroid implements FileLoader {
     required String fileName,
     required String data,
     LoadFileType type = LoadFileType.text,
+    String? extension,
   }) async {
     switch (type) {
       case LoadFileType.text:
-        await _saveAsTextFile(fileName: fileName, data: data);
+        await _saveAsTextFile(
+            fileName: fileName, data: data, ext: extension ?? 'txt');
       case LoadFileType.compressed:
-        await _saveAsCompressedFile(fileName: fileName, data: data);
+        await _saveAsCompressedFile(
+            fileName: fileName, data: data, ext: extension ?? 'txt');
     }
   }
 
   Future<void> _saveAsTextFile({
     required String fileName,
     required String data,
+    required String ext,
   }) async {
     // On mobile, the file bytes are used to create the file to be saved.
     // On desktop a file is created first, then a file is saved.
     final Uint8List fileBytes = utf8.encode(data);
     final String? fileFullPath = await FilePicker.platform.saveFile(
-      fileName: '$fileName.txt',
+      fileName: '$fileName.$ext',
       bytes: fileBytes,
     );
     if (fileFullPath == null || fileFullPath.isEmpty == true) {
@@ -43,9 +47,10 @@ class FileLoaderNativeAndroid implements FileLoader {
   Future<void> _saveAsCompressedFile({
     required String fileName,
     required String data,
+    required String ext,
   }) async {
-    final Uint8List compressedBytes =
-        createZipOfSingleFile(fileName: fileName, fileContent: data);
+    final Uint8List compressedBytes = createZipOfSingleFile(
+        fileName: fileName, fileContent: data, extension: ext);
     final String? fileFullPath = await FilePicker.platform.saveFile(
       fileName: '$fileName.zip',
       bytes: compressedBytes,
