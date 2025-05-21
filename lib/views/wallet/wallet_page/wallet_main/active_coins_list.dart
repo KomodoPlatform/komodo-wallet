@@ -17,6 +17,7 @@ import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/expandable_coin_list_item.dart';
+import 'package:web_dex/views/wallet/wallet_page/common/wallet_coins_sort.dart';
 
 class ActiveCoinsList extends StatelessWidget {
   const ActiveCoinsList({
@@ -24,11 +25,13 @@ class ActiveCoinsList extends StatelessWidget {
     required this.searchPhrase,
     required this.withBalance,
     required this.onCoinItemTap,
+    required this.sortData,
   });
 
   final String searchPhrase;
   final bool withBalance;
   final Function(Coin) onCoinItemTap;
+  final WalletCoinsSortData sortData;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +53,7 @@ class ActiveCoinsList extends StatelessWidget {
         }
 
         List<Coin> sorted =
-            sortFiatBalance(displayedCoins.toList(), context.sdk);
+            sortWalletCoins(displayedCoins.toList(), sortData, context.sdk);
 
         if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
           sorted = removeTestCoins(sorted);
