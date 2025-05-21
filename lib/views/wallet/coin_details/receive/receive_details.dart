@@ -17,6 +17,7 @@ import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/b
 import 'package:web_dex/views/wallet/coin_details/constants.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/receive_address.dart';
+import 'package:web_dex/views/wallet/coin_details/receive/payment_request_widget.dart';
 
 class ReceiveDetails extends StatelessWidget {
   const ReceiveDetails({
@@ -163,6 +164,11 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
                               fontSize: 14,
                               color: themeData.textTheme.labelLarge?.color,
                             ),
+                      ),
+                      const SizedBox(height: 30),
+                      PaymentRequestWidget(
+                        asset: widget.asset,
+                        address: _currentAddress!.address,
                       ),
                     ],
                   ),

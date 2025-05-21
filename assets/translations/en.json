@@ -661,5 +661,9 @@
     "previewWithdrawal": "Preview Withdrawal",
     "createNewAddress": "Create New Address",
     "searchAddresses": "Search addresses",
-    "chart": "Chart"
+    "chart": "Chart",
+    "paymentRequest": "Payment Request",
+    "setAmount": "Set Amount",
+    "shareLink": "Share",
+    "copyLink": "Copy"
 }
