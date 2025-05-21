@@ -56,4 +56,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     );
     emitter(state.copyWith(testCoinsEnabled: event.testCoinsEnabled));
   }
+
+  Future<void> _onHideBalancesChanged(
+    HideBalancesChanged event,
+    Emitter<SettingsState> emitter,
+  ) async {
+    await _settingsRepo.updateSettings(
+      _storedSettings.copyWith(hideBalances: event.hideBalances),
+    );
+    emitter(state.copyWith(hideBalances: event.hideBalances));
+  }
 }

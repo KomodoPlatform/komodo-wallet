@@ -86,6 +86,7 @@ abstract class  LocaleKeys {
   static const portfolio = 'portfolio';
   static const editList = 'editList';
   static const withBalance = 'withBalance';
+  static const hideBalances = 'hideBalances';
   static const balance = 'balance';
   static const transactions = 'transactions';
   static const send = 'send';

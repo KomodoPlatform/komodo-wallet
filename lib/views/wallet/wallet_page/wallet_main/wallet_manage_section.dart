@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_event.dart';
+import 'package:web_dex/bloc/settings/settings_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/router/state/routing_state.dart';
@@ -63,6 +66,8 @@ class WalletManageSection extends StatelessWidget {
                     withBalance: withBalance,
                     onWithBalanceChange: onWithBalanceChange,
                   ),
+                  const SizedBox(width: 24),
+                  const HideBalancesSwitcher(),
                   SizedBox(width: 24),
                   UiPrimaryButton(
                     buttonKey: const Key('add-assets-button'),
@@ -128,6 +133,8 @@ class WalletManageSection extends StatelessWidget {
                   onWithBalanceChange: onWithBalanceChange,
                 ),
               ),
+              const SizedBox(width: 24),
+              const HideBalancesSwitcher(),
             ],
           ),
         ],
@@ -164,6 +171,30 @@ class CoinsWithBalanceCheckbox extends StatelessWidget {
           onChanged: onWithBalanceChange,
         ),
       ],
+    );
+  }
+}
+
+class HideBalancesSwitcher extends StatelessWidget {
+  const HideBalancesSwitcher({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, state) {
+        return Row(
+          children: [
+            UiSwitcher(
+              key: const Key('hide-balances-switcher'),
+              value: state.hideBalances,
+              onChanged: (value) =>
+                  context.read<SettingsBloc>().add(HideBalancesChanged(hideBalances: value)),
+            ),
+            const SizedBox(width: 8),
+            Text(LocaleKeys.hideBalances.tr()),
+          ],
+        );
+      },
     );
   }
 }
