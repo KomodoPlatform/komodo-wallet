@@ -661,5 +661,19 @@
     "previewWithdrawal": "Preview Withdrawal",
     "createNewAddress": "Create New Address",
     "searchAddresses": "Search addresses",
-    "chart": "Chart"
+    "chart": "Chart",
+    "transactionExport": "Export Transactions",
+    "transactionExportUserInfoTitle": "Transaction Export - Your Information",
+    "transactionExportFullName": "Full Name",
+    "transactionExportEmail": "Email Address",
+    "transactionExportContinue": "Continue",
+    "transactionExportSelectTxTitle": "Select Transactions to Export",
+    "transactionExportPreviewTitle": "Preview Export",
+    "transactionExportCompleteTitle": "Export Complete",
+    "transactionExportDone": "Done",
+    "transactionExportExportButton": "Export",
+    "transactionExportFormat": "Export Format",
+    "transactionExportCsv": "CSV",
+    "transactionExportPdf": "PDF",
+    "transactionExportMarkdown": "Markdown"
 }

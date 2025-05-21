@@ -14,12 +14,15 @@ class FileLoaderWeb implements FileLoader {
     required String fileName,
     required String data,
     required LoadFileType type,
+    String? extension,
   }) async {
     switch (type) {
       case LoadFileType.text:
-        await _saveAsTextFile(filename: fileName, data: data);
+        await _saveAsTextFile(
+            filename: '$fileName.${extension ?? 'txt'}', data: data);
       case LoadFileType.compressed:
-        await _saveAsCompressedFile(fileName: fileName, data: data);
+        await _saveAsCompressedFile(
+            fileName: fileName, data: data, ext: extension ?? 'txt');
     }
   }
 
@@ -54,11 +57,12 @@ class FileLoaderWeb implements FileLoader {
   Future<void> _saveAsCompressedFile({
     required String fileName,
     required String data,
+    required String ext,
   }) async {
     try {
       // add the extension of the contained file to the filename, so that the
       // extracted file is simply the filename excluding '.zip'
-      final fileNameWithExt = '$fileName.txt';
+      final fileNameWithExt = '$fileName.$ext';
 
       final encoder = web.TextEncoder();
       final dataArray = encoder.encode(data);
