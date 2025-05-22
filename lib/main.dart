@@ -16,7 +16,7 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_event.dart';
-import 'package:web_dex/analytics/analytics_factory.dart';
+import 'package:web_dex/analytics/events/user_engagement_events.dart';
 import 'package:web_dex/services/platform_info/plaftorm_info.dart';
 import 'package:web_dex/bloc/app_bloc_observer.dart';
 import 'package:web_dex/bloc/app_bloc_root.dart' deferred as app_bloc_root;
@@ -229,11 +229,9 @@ class _AnalyticsLifecycleHandlerState extends State<_AnalyticsLifecycleHandler>
     final platform = PlatformInfo.getInstance().platform;
     final appVersion = packageInformation.packageVersion ?? 'unknown';
     analyticsBloc.add(
-      AnalyticsSendDataEvent(
-        AnalyticsEvents.appOpened(
-          platform: platform,
-          appVersion: appVersion,
-        ),
+      AnalyticsAppOpenedEvent(
+        platform: platform,
+        appVersion: appVersion,
       ),
     );
   }
