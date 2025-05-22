@@ -7,6 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -53,10 +57,45 @@ class _WithdrawFormState extends State<WithdrawForm> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _formBloc,
-      child: BlocListener<WithdrawFormBloc, WithdrawFormState>(
-        listenWhen: (prev, curr) =>
-            prev.step != curr.step && curr.step == WithdrawFormStep.success,
-        listener: (_, __) => widget.onSuccess(),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<WithdrawFormBloc, WithdrawFormState>(
+            listenWhen: (prev, curr) =>
+                prev.step != curr.step && curr.step == WithdrawFormStep.success,
+            listener: (context, state) {
+              final authBloc = context.read<AuthBloc>();
+              final walletType =
+                  authBloc.state.currentUser?.wallet.config.type.name ?? '';
+              context.read<AnalyticsBloc>().add(
+                    AnalyticsSendSucceededEvent(
+                      assetSymbol: state.asset.id.id,
+                      network: state.asset.protocolType,
+                      amount: double.tryParse(state.amount) ?? 0.0,
+                      walletType: walletType,
+                    ),
+                  );
+              widget.onSuccess();
+            },
+          ),
+          BlocListener<WithdrawFormBloc, WithdrawFormState>(
+            listenWhen: (prev, curr) =>
+                prev.step != curr.step && curr.step == WithdrawFormStep.failed,
+            listener: (context, state) {
+              final authBloc = context.read<AuthBloc>();
+              final walletType =
+                  authBloc.state.currentUser?.wallet.config.type.name ?? '';
+              final reason = state.transactionError?.message ?? 'unknown';
+              context.read<AnalyticsBloc>().add(
+                    AnalyticsSendFailedEvent(
+                      assetSymbol: state.asset.id.id,
+                      network: state.asset.protocolType,
+                      failReason: reason,
+                      walletType: walletType,
+                    ),
+                  );
+            },
+          ),
+        ],
         child: WithdrawFormContent(
           onBackButtonPressed: widget.onBackButtonPressed,
         ),
@@ -377,6 +416,18 @@ class WithdrawFormFillSection extends StatelessWidget {
               onPressed: state.isSending || state.hasValidationErrors
                   ? null
                   : () {
+                      final authBloc = context.read<AuthBloc>();
+                      final walletType =
+                          authBloc.state.currentUser?.wallet.config.type.name ??
+                              '';
+                      context.read<AnalyticsBloc>().add(
+                            AnalyticsSendInitiatedEvent(
+                              assetSymbol: state.asset.id.id,
+                              network: state.asset.protocolType,
+                              amount: double.tryParse(state.amount) ?? 0.0,
+                              walletType: walletType,
+                            ),
+                          );
                       context
                           .read<WithdrawFormBloc>()
                           .add(const WithdrawFormPreviewSubmitted());
