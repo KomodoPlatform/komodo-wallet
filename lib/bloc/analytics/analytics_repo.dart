@@ -5,8 +5,8 @@ import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/firebase_options.dart';
 
 abstract class AnalyticsEventData {
-  late String name;
-  Map<String, Object> get parameters;
+  String get name;
+  Map<String, dynamic> get parameters;
 }
 
 abstract class AnalyticsRepo {

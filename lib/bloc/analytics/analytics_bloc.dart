@@ -61,3 +61,10 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
     }
   }
 }
+
+// Extension to provide a helper method for logging analytics
+extension AnalyticsBlocEventLogger on AnalyticsBloc {
+  void logEvent(AnalyticsEventData event) {
+    add(AnalyticsSendDataEvent(event));
+  }
+}
