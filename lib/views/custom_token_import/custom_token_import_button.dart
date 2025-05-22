@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_bloc.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
 import 'package:web_dex/bloc/custom_token_import/data/custom_token_import_repository.dart';
@@ -26,6 +27,8 @@ class CustomTokenImportButton extends StatelessWidget {
               create: (context) => CustomTokenImportBloc(
                 KdfCustomTokenImportRepository(kdfSdk, coinsRepo),
                 coinsRepo,
+                kdfSdk,
+                context.read<AnalyticsBloc>(),
               )..add(const ResetFormStatusEvent()),
               child: const CustomTokenImportDialog(),
             );

@@ -6,6 +6,9 @@ import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
 import 'package:web_dex/bloc/custom_token_import/data/custom_token_import_repository.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -13,9 +16,15 @@ class CustomTokenImportBloc
     extends Bloc<CustomTokenImportEvent, CustomTokenImportState> {
   final ICustomTokenImportRepository repository;
   final CoinsRepo _coinsRepo;
+  final KomodoDefiSdk sdk;
+  final AnalyticsBloc analyticsBloc;
 
-  CustomTokenImportBloc(this.repository, this._coinsRepo)
-      : super(CustomTokenImportState.defaults()) {
+  CustomTokenImportBloc(
+    this.repository,
+    this._coinsRepo,
+    this.sdk,
+    this.analyticsBloc,
+  ) : super(CustomTokenImportState.defaults()) {
     on<UpdateNetworkEvent>(_onUpdateAsset);
     on<UpdateAddressEvent>(_onUpdateAddress);
     on<SubmitImportCustomTokenEvent>(_onSubmitImportCustomToken);
@@ -124,6 +133,16 @@ class CustomTokenImportBloc
 
     try {
       await repository.importCustomToken(state.coin!);
+
+      final walletType =
+          (await sdk.auth.currentUser)?.wallet.config.type.name ?? '';
+      analyticsBloc.add(
+        AnalyticsAssetAddedEvent(
+          assetSymbol: state.coin!.id.id,
+          assetNetwork: state.network.ticker,
+          walletType: walletType,
+        ),
+      );
 
       emit(
         state.copyWith(

@@ -7,6 +7,10 @@ import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -301,7 +305,23 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       _inProgress = true;
     });
 
+    final authBloc = context.read<AuthBloc>();
+    final walletType =
+        authBloc.state.currentUser?.wallet.config.type.name ?? '';
     final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+    final sellCoin = makerFormBloc.sellCoin!.abbr;
+    final buyCoin = makerFormBloc.buyCoin!.abbr;
+    final networks =
+        '${makerFormBloc.sellCoin!.protocolType},${makerFormBloc.buyCoin!.protocolType}';
+    context.read<AnalyticsBloc>().add(
+          AnalyticsSwapInitiatedEvent(
+            fromAsset: sellCoin,
+            toAsset: buyCoin,
+            networks: networks,
+            walletType: walletType,
+          ),
+        );
+
     final TextError? error = await makerFormBloc.makeOrder();
 
     final tradingEntitiesBloc =
@@ -315,10 +335,27 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     setState(() => _inProgress = false);
 
     if (error != null) {
+      context.read<AnalyticsBloc>().add(
+            AnalyticsSwapFailedEvent(
+              fromAsset: sellCoin,
+              toAsset: buyCoin,
+              failStage: 'order_submission',
+              walletType: walletType,
+            ),
+          );
       setState(() => _errorMessage = error.error);
       return;
     }
 
+    context.read<AnalyticsBloc>().add(
+          AnalyticsSwapSucceededEvent(
+            fromAsset: sellCoin,
+            toAsset: buyCoin,
+            amount: makerFormBloc.sellAmount!.toDouble(),
+            fee: 0, // Fee data not available
+            walletType: walletType,
+          ),
+        );
     makerFormBloc.clear();
     widget.onCreateOrder();
   }
