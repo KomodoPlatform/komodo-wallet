@@ -9,12 +9,14 @@ class StoredSettings {
     required this.analytics,
     required this.marketMakerBotSettings,
     required this.testCoinsEnabled,
+    required this.hideBalances,
   });
 
   final ThemeMode mode;
   final AnalyticsSettings analytics;
   final MarketMakerBotSettings marketMakerBotSettings;
   final bool testCoinsEnabled;
+  final bool hideBalances;
 
   static StoredSettings initial() {
     return StoredSettings(
@@ -22,6 +24,7 @@ class StoredSettings {
       analytics: AnalyticsSettings.initial(),
       marketMakerBotSettings: MarketMakerBotSettings.initial(),
       testCoinsEnabled: true,
+      hideBalances: false,
     );
   }
 
@@ -35,6 +38,7 @@ class StoredSettings {
         json[storedMarketMakerSettingsKey],
       ),
       testCoinsEnabled: json['testCoinsEnabled'] ?? true,
+      hideBalances: json['hideBalances'] ?? false,
     );
   }
 
@@ -44,6 +48,7 @@ class StoredSettings {
       storedAnalyticsSettingsKey: analytics.toJson(),
       storedMarketMakerSettingsKey: marketMakerBotSettings.toJson(),
       'testCoinsEnabled': testCoinsEnabled,
+      'hideBalances': hideBalances,
     };
   }
 
@@ -52,6 +57,7 @@ class StoredSettings {
     AnalyticsSettings? analytics,
     MarketMakerBotSettings? marketMakerBotSettings,
     bool? testCoinsEnabled,
+    bool? hideBalances,
   }) {
     return StoredSettings(
       mode: mode ?? this.mode,
@@ -59,6 +65,7 @@ class StoredSettings {
       marketMakerBotSettings:
           marketMakerBotSettings ?? this.marketMakerBotSettings,
       testCoinsEnabled: testCoinsEnabled ?? this.testCoinsEnabled,
+      hideBalances: hideBalances ?? this.hideBalances,
     );
   }
 }

@@ -19,6 +19,11 @@ class TestCoinsEnabledChanged extends SettingsEvent {
   final bool testCoinsEnabled;
 }
 
+class HideBalancesChanged extends SettingsEvent {
+  const HideBalancesChanged({required this.hideBalances});
+  final bool hideBalances;
+}
+
 class MarketMakerBotSettingsChanged extends SettingsEvent {
   const MarketMakerBotSettingsChanged(this.settings);
 

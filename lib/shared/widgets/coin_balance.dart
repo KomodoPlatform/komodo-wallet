@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
@@ -11,10 +13,12 @@ class CoinBalance extends StatelessWidget {
     super.key,
     required this.coin,
     this.isVertical = false,
+    this.forceVisible = false,
   });
 
   final Coin coin;
   final bool isVertical;
+  final bool forceVisible;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +29,11 @@ class CoinBalance extends StatelessWidget {
 
     final balance =
         context.sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0;
+    final hideBalances =
+        context.select((SettingsBloc bloc) => bloc.state.hideBalances);
+    final balanceStr = hideBalances && !forceVisible
+        ? '*****'
+        : doubleToString(balance);
 
     final children = [
       Row(
@@ -33,7 +42,7 @@ class CoinBalance extends StatelessWidget {
           Flexible(
             child: AutoScrollText(
               key: Key('coin-balance-asset-${coin.abbr.toLowerCase()}'),
-              text: doubleToString(balance),
+              text: balanceStr,
               style: balanceStyle,
               textAlign: TextAlign.right,
             ),
@@ -54,6 +63,7 @@ class CoinBalance extends StatelessWidget {
             CoinFiatBalance(
               coin,
               isAutoScrollEnabled: true,
+              forceVisible: forceVisible,
             ),
             Text(')', style: balanceStyle),
           ],
