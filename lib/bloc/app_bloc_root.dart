@@ -251,6 +251,7 @@ class AppBlocRoot extends StatelessWidget {
                 coinsRepository,
               ),
               coinsRepository: coinsRepository,
+              analyticsBloc: BlocProvider.of<AnalyticsBloc>(context),
             ),
           ),
           BlocProvider(
