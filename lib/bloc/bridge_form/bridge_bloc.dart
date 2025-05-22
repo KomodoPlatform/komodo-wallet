@@ -26,6 +26,8 @@ import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/model/typedef.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/cross_chain_events.dart';
 
 class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   BridgeBloc({
@@ -33,9 +35,12 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     required DexRepository dexRepository,
     required CoinsRepo coinsRepository,
     required KomodoDefiSdk kdfSdk,
+    required AnalyticsBloc analyticsBloc,
   })  : _bridgeRepository = bridgeRepository,
         _dexRepository = dexRepository,
         _coinsRepository = coinsRepository,
+        _kdfSdk = kdfSdk,
+        _analyticsBloc = analyticsBloc,
         super(BridgeState.initial()) {
     on<BridgeInit>(_onInit);
     on<BridgeReInit>(_onReInit);
@@ -72,7 +77,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       dexRepository: dexRepository,
     );
 
-    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
+    _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((event) {
       _isLoggedIn = event != null;
       if (!_isLoggedIn) add(const BridgeLogout());
     });
@@ -81,6 +86,8 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   final BridgeRepository _bridgeRepository;
   final DexRepository _dexRepository;
   final CoinsRepo _coinsRepository;
+  final KomodoDefiSdk _kdfSdk;
+  final AnalyticsBloc _analyticsBloc;
 
   bool _activatingAssets = false;
   bool _waitingForWallet = true;
@@ -257,7 +264,6 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       type: BestOrdersRequestType.number,
       number: 1,
     ));
-
 
     /// Unsupported coins like ARRR cause downstream errors, so we need to
     /// remove them from the list here
@@ -511,6 +517,21 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     BridgeStartSwap event,
     Emitter<BridgeState> emit,
   ) async {
+    final sellCoin = state.sellCoin;
+    final bestOrder = state.bestOrder;
+    if (sellCoin != null && bestOrder != null) {
+      final buyCoin = _coinsRepository.getCoin(bestOrder.coin);
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
+      _analyticsBloc.add(
+        AnalyticsBridgeInitiatedEvent(
+          fromChain: sellCoin.protocolType,
+          toChain: buyCoin?.protocolType ?? '',
+          asset: sellCoin.abbr,
+          walletType: walletType,
+        ),
+      );
+    }
     emit(state.copyWith(
       inProgress: () => true,
     ));
@@ -522,11 +543,36 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       orderType: SellBuyOrderType.fillOrKill,
     ));
 
-    if (response.error != null) {
-      add(BridgeSetError(DexFormError(error: response.error!.message)));
-    }
-
     final String? uuid = response.result?.uuid;
+
+    if (uuid != null) {
+      final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
+      _analyticsBloc.add(
+        AnalyticsBridgeSucceededEvent(
+          fromChain: state.sellCoin!.protocolType,
+          toChain: buyCoin?.protocolType ?? '',
+          asset: state.sellCoin!.abbr,
+          amount: state.sellAmount?.toDouble() ?? 0.0,
+          walletType: walletType,
+        ),
+      );
+    } else {
+      final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
+      final error = response.error?.message ?? 'unknown';
+      _analyticsBloc.add(
+        AnalyticsBridgeFailedEvent(
+          fromChain: state.sellCoin!.protocolType,
+          toChain: buyCoin?.protocolType ?? '',
+          failError: error,
+          walletType: walletType,
+        ),
+      );
+      add(BridgeSetError(DexFormError(error: error)));
+    }
 
     emit(state.copyWith(
       inProgress: uuid == null ? () => false : null,
