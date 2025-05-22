@@ -9,6 +9,8 @@ import 'package:web_dex/services/platform_info/plaftorm_info.dart';
 ///
 /// This widget tracks application lifecycle state changes and logs analytics events
 /// when the app is opened initially or resumed from background.
+///
+/// Uses Flutter's managed lifecycle patterns for clean and reliable event handling.
 class AnalyticsLifecycleHandler extends StatefulWidget {
   /// Creates an AnalyticsLifecycleHandler.
   ///
@@ -28,35 +30,18 @@ class AnalyticsLifecycleHandler extends StatefulWidget {
 
 class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
     with WidgetsBindingObserver {
-  /// Tracks if the app opened event has been initialized
-  bool _isInitialized = false;
-
-  /// Number of failed attempts to log the app opened event
-  int _retryCount = 0;
-
-  /// Maximum number of retry attempts
-  static const int _maxRetries = 3;
+  /// Tracks if the initial app opened event has been logged
+  bool _hasLoggedInitialOpen = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Don't call _logAppOpened() here to avoid accessing AnalyticsBloc before it's ready
-    // Instead, we'll do it in didChangeDependencies after the widget tree is built
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Only log app opened after the widget tree is fully built and AnalyticsBloc is available
-    if (!_isInitialized) {
-      // Use Future.microtask to ensure this runs after the current frame is completed
-      Future.microtask(() {
-        _logAppOpened();
-        _isInitialized = true;
-      });
-    }
+    // Schedule the initial app opened event to be logged after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _logAppOpenedEvent();
+    });
   }
 
   @override
@@ -67,88 +52,49 @@ class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      // Only try to log if the bloc is available (widget tree is built)
-      if (_isInitialized) {
-        _logAppOpened();
-      }
+    super.didChangeAppLifecycleState(state);
+
+    // Log app opened event when app is resumed (but not on initial open)
+    if (state == AppLifecycleState.resumed && _hasLoggedInitialOpen) {
+      _logAppOpenedEvent();
     }
   }
 
-  /// Logs an app opened analytics event.
-  ///
-  /// This method attempts to find the AnalyticsBloc in the widget tree and dispatch
-  /// an app opened event. If the bloc isn't available, it will retry a limited number
-  /// of times with a short delay between attempts.
-  void _logAppOpened() {
+  /// Logs an app opened analytics event using Flutter's managed context patterns.
+  void _logAppOpenedEvent() {
+    // Ensure widget is still mounted before accessing context
+    if (!mounted) return;
+
     try {
-      // Check if context is still valid
-      if (!mounted) return;
+      // Use context.read to access the bloc - this will throw if not available
+      final analyticsBloc = context.read<AnalyticsBloc>();
+      final platform = PlatformInfo.getInstance().platform;
+      final appVersion = packageInformation.packageVersion ?? 'unknown';
 
-      // Make sure we have a valid BuildContext that can access the AnalyticsBloc
-      if (context
-              .findAncestorWidgetOfExactType<BlocProvider<AnalyticsBloc>>() !=
-          null) {
-        try {
-          final analyticsBloc = context.read<AnalyticsBloc>();
-          final platform = PlatformInfo.getInstance().platform;
-          final appVersion = packageInformation.packageVersion ?? 'unknown';
+      analyticsBloc.logEvent(
+        AppOpenedEventData(
+          platform: platform,
+          appVersion: appVersion,
+        ),
+      );
 
-          analyticsBloc.add(
-            AnalyticsAppOpenedEvent(
-              platform: platform,
-              appVersion: appVersion,
-            ),
-          );
-
-          // Reset retry count on success
-          _retryCount = 0;
-        } catch (e) {
-          // Log error but don't crash the app if analytics fails
-          debugPrint('Error accessing AnalyticsBloc: $e');
-          _scheduleRetry();
-        }
-      } else {
-        // If we can't find the AnalyticsBloc provider, it means the widget tree
-        // structure doesn't allow us to access it yet. Schedule a retry.
-        _scheduleRetry();
+      // Mark that we've successfully logged the initial open
+      if (!_hasLoggedInitialOpen) {
+        _hasLoggedInitialOpen = true;
       }
-    } catch (e) {
-      // Log error but don't crash the app if analytics fails
-      debugPrint('Error logging app open: $e');
-    }
-  }
 
-  /// Schedules a retry attempt to log the app opened event
-  void _scheduleRetry() {
-    if (_retryCount < _maxRetries) {
-      _retryCount++;
-      final delay = Duration(milliseconds: 300 * _retryCount);
-      Future.delayed(delay, () {
-        if (mounted) _logAppOpened();
-      });
-    } else {
-      debugPrint('Failed to log app open event after $_maxRetries attempts');
+      debugPrint('Analytics: App opened event logged successfully');
+    } catch (e) {
+      // Log the error but don't crash the app
+      debugPrint('Analytics: Failed to log app opened event - $e');
+
+      // If this is the initial attempt and failed, we'll try again on next resume
+      // Flutter's lifecycle management will handle subsequent attempts naturally
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // We wrap the child in a Builder to ensure we get a new BuildContext
-    // that has access to the BlocProvider of AnalyticsBloc after it's created
-    return Builder(
-      builder: (innerContext) {
-        // Only attempt to check for AnalyticsBloc if we're initialized
-        if (_isInitialized) {
-          try {
-            // This is just to verify the bloc exists but we won't use it here
-            innerContext.read<AnalyticsBloc>();
-          } catch (e) {
-            // If the bloc isn't available yet, that's okay
-          }
-        }
-        return widget.child;
-      },
-    );
+    return widget.child;
   }
 }

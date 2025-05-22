@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
@@ -35,8 +37,6 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
 
   Future<void> _initialize(AnalyticsSettings settings) async {
     try {
-      if (!settings.isSendAllowed) return;
-
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -55,11 +55,11 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
 
   @override
   Future<void> sendData(AnalyticsEventData event) async {
-    if (!_isInitialized) {
-      return;
-    }
-
     final sanitizedParameters = event.parameters.map((key, value) {
+      if (value == null) return MapEntry(key, "null");
+      if (value is Map || value is List) {
+        return MapEntry(key, jsonEncode(value));
+      }
       return MapEntry(key, value.toString());
     });
 
