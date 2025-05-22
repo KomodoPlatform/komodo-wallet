@@ -8,6 +8,7 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_claim_success.dart';
@@ -16,10 +17,10 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form.da
 
 class CoinDetails extends StatefulWidget {
   const CoinDetails({
-    Key? key,
+    super.key,
     required this.coin,
     required this.onBackButtonPressed,
-  }) : super(key: key);
+  });
 
   final Coin coin;
   final VoidCallback onBackButtonPressed;

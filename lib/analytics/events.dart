@@ -1,6 +1,17 @@
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 import 'package:web_dex/bloc/analytics/analytics_event.dart';
 
+//============================================================
+// Event categories should be organized in separate files:
+// - HD Wallet Operations
+// - UI Usability
+// - Data Sync
+// - Performance
+//============================================================
+
+// HD WALLET OPERATIONS
+//============================================================
+
 /// E38: Fresh receive address derived
 /// Measures when a fresh HD wallet address is generated. Business category: HD Wallet Operations.
 /// Provides insights on address-reuse risk and payment UX.
@@ -39,6 +50,9 @@ class AnalyticsHdAddressGeneratedEvent extends AnalyticsSendDataEvent {
         ));
 }
 
+// UI USABILITY
+//============================================================
+
 /// E40: Time until the top of the coins list crosses 50% of viewport
 /// Measures the time it takes for the coins list to reach halfway through the viewport. Business category: UI Usability.
 /// Provides insights on whether users struggle to reach balances and helps optimize list layout.
@@ -72,6 +86,9 @@ class AnalyticsWalletListHalfViewportReachedEvent
           walletSize: walletSize,
         ));
 }
+
+// DATA SYNC
+//============================================================
 
 /// E41: Coins config refresh completed on launch
 /// Measures when coins configuration data is refreshed upon app launch. Business category: Data Sync.
@@ -110,6 +127,9 @@ class AnalyticsCoinsDataUpdatedEvent extends AnalyticsSendDataEvent {
           coinsCount: coinsCount,
         ));
 }
+
+// PERFORMANCE
+//============================================================
 
 /// E44: Delay from page open until interactive (Loading logo hidden)
 /// Measures the delay between opening a page and when it becomes interactive. Business category: Performance.

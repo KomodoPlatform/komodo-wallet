@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -227,9 +228,9 @@ class AppBlocRoot extends StatelessWidget {
                 SettingsBloc(storedPrefs, SettingsRepository()),
           ),
           BlocProvider<AnalyticsBloc>(
-            // lazy: false,
+            lazy: false,
             create: (context) => AnalyticsBloc(
-              analytics: FirebaseAnalyticsRepo(storedPrefs.analytics),
+              analytics: GetIt.I<AnalyticsRepo>(),
               storedData: storedPrefs,
               repository: SettingsRepository(),
             ),

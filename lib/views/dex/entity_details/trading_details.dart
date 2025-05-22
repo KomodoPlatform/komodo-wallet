@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/analytics_factory.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/analytics/events/transaction_events.dart';
-import 'package:web_dex/analytics/events/cross_chain_events.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/swap.dart';
@@ -161,8 +161,8 @@ class _TradingDetailsState extends State<TradingDetails> {
           final fromChain =
               coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
           final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
-          context.read<AnalyticsBloc>().add(
-                AnalyticsBridgeSuccessEvent(
+          context.read<AnalyticsBloc>().logEvent(
+                BridgeSuccessEvent(
                   fromChain: fromChain,
                   toChain: toChain,
                   asset: fromAsset,
@@ -186,8 +186,8 @@ class _TradingDetailsState extends State<TradingDetails> {
           final fromChain =
               coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
           final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
-          context.read<AnalyticsBloc>().add(
-                AnalyticsBridgeFailureEvent(
+          context.read<AnalyticsBloc>().logEvent(
+                BridgeFailureEvent(
                   fromChain: fromChain,
                   toChain: toChain,
                   failError: swapStatus.status.name,

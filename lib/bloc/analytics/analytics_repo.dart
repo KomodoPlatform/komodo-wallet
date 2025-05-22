@@ -1,5 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get_it/get_it.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/firebase_options.dart';
@@ -23,6 +24,14 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
   late FirebaseAnalytics _instance;
 
   bool _isInitialized = false;
+
+  /// Registers the AnalyticsRepo instance with GetIt for dependency injection
+  static void register(AnalyticsSettings settings) {
+    if (!GetIt.I.isRegistered<AnalyticsRepo>()) {
+      final repo = FirebaseAnalyticsRepo(settings);
+      GetIt.I.registerSingleton<AnalyticsRepo>(repo);
+    }
+  }
 
   Future<void> _initialize(AnalyticsSettings settings) async {
     try {

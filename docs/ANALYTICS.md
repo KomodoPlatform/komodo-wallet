@@ -12,6 +12,29 @@ The analytics system is designed with a clear separation of concerns:
 4. `AnalyticsLogger` - Core logger that handles actual event logging
 5. `AnalyticsService` - Interface for analytics providers (Firebase, etc.)
 
+## Event Organization
+
+Analytics events are organized by their functional categories:
+
+- **HD Wallet Operations**: Events related to wallet address generation and management
+- **UI Usability**: Events that track user interaction metrics
+- **Data Sync**: Events for data synchronization and updates (e.g., `CoinsDataUpdatedEventData`)
+- **Performance**: Events that track application performance metrics
+
+For better maintainability, events should be organized in separate files by their functional category:
+
+```
+lib/analytics/events/
+├── user_engagement_events.dart
+├── user_acquisition_events.dart
+├── security_events.dart
+├── portfolio_events.dart
+├── transaction_events.dart
+├── data_sync_events.dart
+├── performance_events.dart
+└── ui_usability_events.dart
+```
+
 ## Usage Examples
 
 ### Initialize the analytics system
@@ -21,7 +44,7 @@ The analytics system is designed with a clear separation of concerns:
 final analyticsRepo = AnalyticsRepoImpl(settings);
 final analyticsBloc = AnalyticsBloc(
   analytics: analyticsRepo,
-  storedData: storedData, 
+  storedData: storedData,
   repository: settingsRepo,
 );
 ```
@@ -70,6 +93,7 @@ final isActive = analyticsRepo.isActive;
 To add a new analytics event:
 
 1. **Create an Event Data Class**:
+
    ```dart
    class NewFeatureEventData implements AnalyticsEventData {
      const NewFeatureEventData({
@@ -100,6 +124,7 @@ To add a new analytics event:
    ```
 
 2. **Add a Factory Method**:
+
    ```dart
    // In analytics_factory.dart
    class AnalyticsEvents {
@@ -379,11 +404,13 @@ analyticsRepo.logEvent(
 ### Best Practices for Analytics Events
 
 1. **Event Naming**:
+
    - Use snake_case for event names
    - Keep names descriptive but concise
    - Group related events with common prefixes (e.g., `asset_added`, `asset_viewed`)
 
 2. **Parameters**:
+
    - Include only necessary parameters
    - Use consistent parameter names across similar events
    - Consider privacy implications of each parameter
@@ -400,18 +427,44 @@ This analytics implementation uses Firebase Analytics as the default provider. T
 
 The setup includes generating necessary configuration files for each platform (iOS, Android, web, etc.) and integrating them into the project.
 
+## Data Sync Events Example
+
+The `CoinsDataUpdatedEventData` class is an example of a data sync event that tracks when coin configuration data is refreshed:
+
+```dart
+// Usage example in app_bloc_root.dart
+context.read<AnalyticsBloc>().add(
+      AnalyticsCoinsDataUpdatedEvent(
+        updateSource: 'remote',
+        updateDurationMs: stopwatch.elapsedMilliseconds,
+        coinsCount: coins.length,
+      ),
+    );
+```
+
+This event:
+
+1. Tracks how many coins were updated (`coinsCount`)
+2. Records the data source (`updateSource`: 'remote', 'cache', etc.)
+3. Measures how long the update took (`updateDurationMs`)
+
+This information helps identify potential performance issues with data synchronization and ensures data freshness.
+
 ## Benefits of this Architecture
 
 1. **Separation of Concerns**
+
    - `AnalyticsBloc` focuses only on user preferences
    - Event data classes define the structure of events
    - Repository pattern provides a clean API
 
 2. **OOP-based Design**
+
    - Events are proper objects with behavior
    - Follows Open/Closed Principle - add new events without modifying existing code
 
 3. **Flexibility**
+
    - Easy to add new events by creating new event classes
    - Easy to change analytics provider by implementing a different `AnalyticsService`
 
