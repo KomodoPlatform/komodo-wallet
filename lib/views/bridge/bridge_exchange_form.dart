@@ -9,7 +9,6 @@ import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
-import 'package:web_dex/bloc/system_health/system_health_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dart';
 import 'package:web_dex/views/bridge/bridge_group.dart';

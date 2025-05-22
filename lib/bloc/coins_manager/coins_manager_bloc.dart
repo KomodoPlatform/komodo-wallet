@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show Bloc, Emitter;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
@@ -35,18 +36,18 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   final KomodoDefiSdk _sdk;
 
   List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
-    Map<String, Coin> coinMap = {};
+    final Map<String, Coin> coinMap = {};
 
-    for (Coin coin in originalList) {
+    for (final Coin coin in originalList) {
       coinMap[coin.abbr] = coin;
     }
 
-    for (Coin coin in newList) {
+    for (final Coin coin in newList) {
       coinMap[coin.abbr] = coin;
     }
 
-    final list = coinMap.values.toList();
-    list.sort((a, b) => a.abbr.compareTo(b.abbr));
+    final list = coinMap.values.toList()
+      ..sort((a, b) => a.abbr.compareTo(b.abbr));
 
     return list;
   }
@@ -213,9 +214,9 @@ Future<List<Coin>> _getOriginalCoinList(
 
   switch (action) {
     case CoinsManagerAction.add:
-      return await _getDeactivatedCoins(coinsRepo, sdk, walletType);
+      return _getDeactivatedCoins(coinsRepo, sdk, walletType);
     case CoinsManagerAction.remove:
-      return await coinsRepo.getWalletCoins();
+      return coinsRepo.getWalletCoins();
     case CoinsManagerAction.none:
       return [];
   }
@@ -228,7 +229,8 @@ Future<List<Coin>> _getDeactivatedCoins(
 ) async {
   final Iterable<String> enabledCoins = await sdk.assets.getEnabledCoins();
   final Map<String, Coin> disabledCoins = coinsRepo.getKnownCoinsMap()
-    ..removeWhere((key, coin) => enabledCoins.contains(key));
+    ..removeWhere((coinId, coin) => enabledCoins.contains(coinId))
+    ..removeWhere((coinId, coin) => excludedAssetList.contains(coinId));
 
   switch (walletType) {
     case WalletType.iguana:

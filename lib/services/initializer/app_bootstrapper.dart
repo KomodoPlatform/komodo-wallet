@@ -9,13 +9,14 @@ final class AppBootstrapper {
 
   bool _isInitialized = false;
 
-  Future<void> ensureInitialized(KomodoDefiSdk kdfSdk) async {
+  Future<void> ensureInitialized(KomodoDefiSdk kdfSdk, Mm2Api mm2Api) async {
     if (_isInitialized) return;
 
     GetIt.I.registerSingleton<KomodoDefiSdk>(kdfSdk);
 
     final timer = Stopwatch()..start();
     await logger.init();
+    await initializeLogger(mm2Api);
 
     log('AppBootstrapper: Log initialized in ${timer.elapsedMilliseconds}ms');
     timer.reset();

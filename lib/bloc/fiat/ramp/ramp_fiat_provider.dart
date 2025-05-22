@@ -33,13 +33,13 @@ class RampFiatProvider extends BaseFiatProvider {
     return providerId;
   }
 
-  String getFullCoinCode(ICurrency target) {
-    return '${getCoinChainId(target as CryptoCurrency)}_${target.configSymbol}';
+  String getFullCoinCode(CryptoCurrency target) {
+    return '${getCoinChainId(target)}_${target.configSymbol}';
   }
 
   Future<dynamic> _getPaymentMethods(
     String source,
-    ICurrency target, {
+    CryptoCurrency target, {
     String? sourceAmount,
   }) =>
       apiRequest(
@@ -51,6 +51,8 @@ class RampFiatProvider extends BaseFiatProvider {
         body: {
           'fiatCurrency': source,
           'cryptoAssetSymbol': getFullCoinCode(target),
+          // fiatValue has to be a number, and not a string. Force it to be a
+          // double here to ensure that it is in the expected format.
           'fiatValue': sourceAmount != null
               ? Decimal.tryParse(sourceAmount)?.toDouble()
               : null,
@@ -59,7 +61,7 @@ class RampFiatProvider extends BaseFiatProvider {
 
   Future<dynamic> _getPricesWithPaymentMethod(
     String source,
-    ICurrency target,
+    CryptoCurrency target,
     String sourceAmount,
     FiatPaymentMethod paymentMethod,
   ) =>
@@ -101,8 +103,9 @@ class RampFiatProvider extends BaseFiatProvider {
         .where((item) => item['onrampAvailable'] as bool)
         .map(
           (item) => FiatCurrency(
-            item['fiatCurrency'] as String,
-            item['name'] as String,
+            symbol: item['fiatCurrency'] as String,
+            name: item['name'] as String,
+            minPurchaseAmount: Decimal.zero,
           ),
         )
         .toList();
@@ -110,23 +113,37 @@ class RampFiatProvider extends BaseFiatProvider {
 
   @override
   Future<List<CryptoCurrency>> getCoinList() async {
-    final response = await _getCoins();
-    final data = response['assets'] as List<dynamic>;
-    return data
-        .map((item) {
-          final coinType = getCoinType(item['chain'] as String);
-          if (coinType == null) {
-            return null;
-          }
-          return CryptoCurrency(
-            item['symbol'] as String,
-            item['name'] as String,
-            coinType,
-          );
-        })
-        .where((e) => e != null)
-        .cast<CryptoCurrency>()
-        .toList();
+    try {
+      final response = await _getCoins();
+      final config =
+          HostAssetsConfig.fromJson(response as Map<String, dynamic>);
+
+      return config.assets
+          .map((asset) {
+            final coinType = getCoinType(asset.chain);
+            if (coinType == null) {
+              return null;
+            }
+
+            if (rampUnsupportedCoinsList.contains(asset.symbol)) {
+              _log.warning('Ramp does not support ${asset.symbol}');
+              return null;
+            }
+
+            return CryptoCurrency(
+              symbol: asset.symbol,
+              name: asset.name,
+              chainType: coinType,
+              minPurchaseAmount: asset.minPurchaseAmount ?? Decimal.zero,
+            );
+          })
+          .where((e) => e != null)
+          .cast<CryptoCurrency>()
+          .toList();
+    } catch (e, s) {
+      _log.severe('Failed to parse coin list from Ramp', e, s);
+      return [];
+    }
   }
 
   // Turns `APPLE_PAY` to `Apple Pay`
@@ -144,6 +161,10 @@ class RampFiatProvider extends BaseFiatProvider {
     String sourceAmount,
   ) async {
     try {
+      if (target is! CryptoCurrency) {
+        throw ArgumentError('Target currency must be a CryptoCurrency');
+      }
+
       final List<FiatPaymentMethod> paymentMethodsList = [];
 
       final paymentMethodsFuture =
@@ -210,11 +231,12 @@ class RampFiatProvider extends BaseFiatProvider {
     return paymentMethod.transactionFees.first.fees.first.amount;
   }
 
-  Decimal _getFeeAdjustedPrice(
-    FiatPaymentMethod paymentMethod,
-    Decimal price,
-  ) {
-    return (price / (Decimal.one - _getPaymentMethodFee(paymentMethod)))
+  Decimal _getFeeAdjustedPrice(FiatPaymentMethod paymentMethod, Decimal price) {
+    final fee = _getPaymentMethodFee(paymentMethod);
+    if (fee >= Decimal.one) {
+      throw ArgumentError.value(fee, 'fee', 'Fee ratio must be < 1');
+    }
+    return (price / (Decimal.one - fee))
         .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision);
   }
 
@@ -233,6 +255,10 @@ class RampFiatProvider extends BaseFiatProvider {
     String sourceAmount,
     FiatPaymentMethod paymentMethod,
   ) async {
+    if (target is! CryptoCurrency) {
+      throw ArgumentError('Target currency must be a CryptoCurrency');
+    }
+
     final response = await _getPricesWithPaymentMethod(
       source,
       target,
@@ -272,6 +298,10 @@ class RampFiatProvider extends BaseFiatProvider {
     String sourceAmount,
     String returnUrlOnSuccess,
   ) async {
+    if (target is! CryptoCurrency) {
+      throw ArgumentError('Target currency must be a CryptoCurrency');
+    }
+
     final payload = {
       'hostApiKey': hostId,
       'hostAppName': appShortTitle,
@@ -283,6 +313,8 @@ class RampFiatProvider extends BaseFiatProvider {
       'fiatCurrency': source,
       'fiatValue': sourceAmount,
       'defaultAsset': getFullCoinCode(target),
+      'hideExitButton': 'true',
+      // 'variant': 'hosted', // desktop, mobile, auto, hosted-mobile
       // if(coinsBloc.walletCoins.isNotEmpty)
       //   "swapAsset": coinsBloc.walletCoins.map((e) => e.abbr).toList().toString(),
       // "swapAsset": fullAssetCode, // This limits the crypto asset list at the redirect page

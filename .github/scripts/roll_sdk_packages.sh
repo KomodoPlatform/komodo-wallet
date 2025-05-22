@@ -2,8 +2,54 @@
 
 # Script to roll SDK packages in all Flutter/Dart projects
 # Designed to handle git-based dependencies and work with the GitHub CI workflow
+#
+# Usage:
+#   UPGRADE_ALL_PACKAGES=false TARGET_BRANCH=dev .github/scripts/roll_sdk_packages.sh
+#
+# Parameters:
+#   UPGRADE_ALL_PACKAGES: Set to "true" to upgrade all packages, "false" to only upgrade SDK packages
+#   TARGET_BRANCH: The target branch for PR creation
+#
+# For more details, see `docs/SDK_DEPENDENCY_MANAGEMENT.md`
 
+# Exit on error, but with proper cleanup
 set -e
+
+# Error handling and cleanup function
+cleanup() {
+  local exit_code=$?
+  
+  # Only perform cleanup if there was an error
+  if [ $exit_code -ne 0 ] && [ $exit_code -ne 100 ]; then
+    echo "ERROR: Script failed with exit code $exit_code"
+    # Clean up any temporary files
+    find "$REPO_ROOT" -name "*.bak" -type f -delete
+  fi
+  
+  exit $exit_code
+}
+
+# Set up trap to catch errors
+trap cleanup EXIT
+
+# Log function for better reporting
+log_info() {
+  echo "INFO: $1"
+}
+
+log_warning() {
+  echo "WARNING: $1" >&2
+}
+
+log_error() {
+  echo "ERROR: $1" >&2
+}
+
+# Validate Flutter is available
+if ! command -v flutter &> /dev/null; then
+  log_error "Flutter command not found. Please ensure Flutter is installed and in your PATH."
+  exit 1
+fi
 
 # Configuration
 # Set to "true" to upgrade all packages, "false" to only upgrade SDK packages
@@ -15,6 +61,10 @@ TARGET_BRANCH=${TARGET_BRANCH:-"dev"}
 CURRENT_DATE=$(date '+%Y-%m-%d')
 REPO_ROOT=$(pwd)
 CHANGES_FILE="$REPO_ROOT/SDK_CHANGELOG.md"
+
+# List of external SDK packages to be updated (from KomodoPlatform/komodo-defi-sdk-flutter.git)
+# Local packages like 'komodo_ui_kit' and 'komodo_persistence_layer' are not included
+# as they're part of this repository, not the external SDK
 
 # SDK packages to check
 SDK_PACKAGES=(
@@ -117,7 +167,18 @@ for PUBSPEC in $PUBSPEC_FILES; do
   PROJECT_DIR=$(dirname "$PUBSPEC")
   PROJECT_NAME=$(basename "$PROJECT_DIR")
   
-  echo "Processing $PROJECT_NAME ($PROJECT_DIR)"
+  # Special handling for the root project
+  if [ "$PROJECT_DIR" = "$REPO_ROOT" ]; then
+    PROJECT_NAME="Root Project (komodo-wallet)"
+    echo "Processing ROOT PROJECT ($PROJECT_DIR)"
+  else
+    echo "Processing $PROJECT_NAME ($PROJECT_DIR)"
+  fi
+  
+  # Debug: Print information about processing the project
+  echo "Debug info for $PROJECT_NAME:"
+  echo "  - Project path: $PROJECT_DIR"
+  echo "  - Full pubspec path: $PUBSPEC"
   
   cd "$PROJECT_DIR"
   
@@ -126,9 +187,19 @@ for PUBSPEC in $PUBSPEC_FILES; do
   SDK_PACKAGES_FOUND=()
   
   for PACKAGE in "${SDK_PACKAGES[@]}"; do
-    if grep -q -E "^\s+$PACKAGE:" "$PUBSPEC"; then
-      CONTAINS_SDK_PACKAGE=true
-      SDK_PACKAGES_FOUND+=("$PACKAGE")
+    # More robust pattern matching that allows for comments and other formatting
+    if grep -q "^[[:space:]]*$PACKAGE:" "$PUBSPEC"; then
+      # Additional check: detect if it's a git-based package from the KomodoPlatform repo
+      if grep -A 10 "$PACKAGE:" "$PUBSPEC" | grep -q "github.com/KomodoPlatform/komodo-defi-sdk-flutter"; then
+        echo "Found SDK package $PACKAGE (git-based) in $PROJECT_NAME"
+        CONTAINS_SDK_PACKAGE=true
+        SDK_PACKAGES_FOUND+=("$PACKAGE")
+      else
+        echo "Package $PACKAGE found but may not be from the SDK repository"
+        # Still include it, but log for clarity
+        CONTAINS_SDK_PACKAGE=true
+        SDK_PACKAGES_FOUND+=("$PACKAGE")
+      fi
     fi
   done
   
@@ -150,7 +221,7 @@ for PUBSPEC in $PUBSPEC_FILES; do
     # Get the current git refs/versions for SDK packages before update
     SDK_PACKAGE_REFS_BEFORE=()
     for PACKAGE in "${SDK_PACKAGES_FOUND[@]}"; do
-      if grep -q "$PACKAGE:" "$PUBSPEC"; then
+      if grep -q "^[[:space:]]*$PACKAGE:" "$PUBSPEC"; then
         # Get the git reference line or version line
         if grep -q -A 10 "$PACKAGE:" "$PUBSPEC" | grep -q "git:"; then
           REF_LINE=$(grep -A 10 "$PACKAGE:" "$PUBSPEC" | grep -m 1 "ref:")
@@ -173,15 +244,24 @@ for PUBSPEC in $PUBSPEC_FILES; do
     
     # Perform the update - based on configuration
     if [ "$UPGRADE_ALL_PACKAGES" = "true" ]; then
-      echo "Running flutter pub upgrade --major-versions in $PROJECT_NAME (all packages)"
-      flutter pub upgrade --major-versions
+      log_info "Running flutter pub upgrade --major-versions in $PROJECT_NAME (all packages)"
+      if ! flutter pub upgrade --major-versions; then
+        log_error "Failed to upgrade all packages in $PROJECT_NAME"
+        cd "$REPO_ROOT"
+        continue
+      fi
     else
-      echo "Running flutter pub upgrade for SDK packages only in $PROJECT_NAME"
-      # Upgrade only the SDK packages
-      for PACKAGE in "${SDK_PACKAGES_FOUND[@]}"; do
-        echo "Upgrading $PACKAGE"
-        flutter pub upgrade "$PACKAGE"
-      done
+      log_info "Running flutter pub upgrade for SDK packages only in $PROJECT_NAME"
+      # Upgrade all SDK packages at once
+      if [ ${#SDK_PACKAGES_FOUND[@]} -gt 0 ]; then
+        log_info "Upgrading packages: ${SDK_PACKAGES_FOUND[*]}"
+        if ! flutter pub upgrade --unlock-transitive ${SDK_PACKAGES_FOUND[@]}; then
+          log_warning "Failed to upgrade packages in $PROJECT_NAME"
+          PACKAGE_UPDATE_FAILED=true
+        fi
+      else
+        log_info "No SDK packages found to upgrade in $PROJECT_NAME"
+      fi
     fi
     
     # Check if the pubspec.lock was modified
@@ -253,20 +333,22 @@ fi
 if [ -n "${GITHUB_OUTPUT}" ]; then
   if [ "$ROLLS_MADE" = true ]; then
     echo "updates_found=true" >> $GITHUB_OUTPUT
-    echo "Rolls found and applied!"
+    log_info "Rolls found and applied!"
     exit 0
   else
     echo "updates_found=false" >> $GITHUB_OUTPUT
-    echo "No rolls needed."
-    exit 1
+    log_info "No rolls needed."
+    # Exit with special code 100 to indicate no changes needed (not a failure)
+    exit 100
   fi
 else
   # When running outside of GitHub Actions
   if [ "$ROLLS_MADE" = true ]; then
-    echo "Rolls found and applied! See $CHANGES_FILE for details."
+    log_info "Rolls found and applied! See $CHANGES_FILE for details."
     exit 0
   else
-    echo "No rolls needed."
-    exit 1
+    log_info "No rolls needed."
+    # Exit with special code 100 to indicate no changes needed (not a failure)
+    exit 100
   fi
 fi
