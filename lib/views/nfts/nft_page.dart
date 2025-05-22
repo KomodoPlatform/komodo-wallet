@@ -90,8 +90,8 @@ class _NFTPageViewState extends State<NFTPageView> {
         _loggedOpen = true;
         final count = state.nftCount.values
             .fold<int>(0, (sum, item) => sum + (item ?? 0));
-        context.read<AnalyticsBloc>().add(
-              AnalyticsNftGalleryOpenedEvent(
+        context.read<AnalyticsBloc>().logEvent(
+              NftGalleryOpenedEventData(
                 nftCount: count,
                 loadTimeMs: _loadStopwatch.elapsedMilliseconds,
               ),

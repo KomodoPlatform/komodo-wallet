@@ -290,11 +290,11 @@ class _WalletMainState extends State<WalletMain>
     if (_scrollController.offset >= half) {
       _walletHalfLogged = true;
       final coinsCount = context.read<CoinsBloc>().state.walletCoins.length;
-      context.read<AnalyticsBloc>().add(
-            AnalyticsSendDataEvent(WalletListHalfViewportReachedEventData(
+      context.read<AnalyticsBloc>().logEvent(
+            WalletListHalfViewportReachedEventData(
               timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
               walletSize: coinsCount,
-            )),
+            ),
           );
     }
   }

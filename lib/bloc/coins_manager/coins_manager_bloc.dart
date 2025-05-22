@@ -135,8 +135,8 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
       if (state.action == CoinsManagerAction.add) {
         _coinsRepo.deactivateCoinsSync([event.coin]);
-        _analyticsBloc.add(
-          AnalyticsAssetDisabledEvent(
+        _analyticsBloc.logEvent(
+          AssetDisabledEventData(
             assetSymbol: coin.abbr,
             assetNetwork: coin.protocolType,
             walletType:
@@ -145,8 +145,8 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
         );
       } else {
         _coinsRepo.activateCoinsSync([event.coin]);
-        _analyticsBloc.add(
-          AnalyticsAssetEnabledEvent(
+        _analyticsBloc.logEvent(
+          AssetEnabledEventData(
             assetSymbol: coin.abbr,
             assetNetwork: coin.protocolType,
             walletType:
@@ -159,8 +159,8 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
       if (state.action == CoinsManagerAction.add) {
         _coinsRepo.activateCoinsSync([event.coin]);
-        _analyticsBloc.add(
-          AnalyticsAssetEnabledEvent(
+        _analyticsBloc.logEvent(
+          AssetEnabledEventData(
             assetSymbol: coin.abbr,
             assetNetwork: coin.protocolType,
             walletType:
@@ -169,8 +169,8 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
         );
       } else {
         _coinsRepo.deactivateCoinsSync([event.coin]);
-        _analyticsBloc.add(
-          AnalyticsAssetDisabledEvent(
+        _analyticsBloc.logEvent(
+          AssetDisabledEventData(
             assetSymbol: coin.abbr,
             assetNetwork: coin.protocolType,
             walletType:

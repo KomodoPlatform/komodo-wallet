@@ -312,8 +312,8 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     final buyCoin = makerFormBloc.buyCoin!.abbr;
     final networks =
         '${makerFormBloc.sellCoin!.protocolType},${makerFormBloc.buyCoin!.protocolType}';
-    context.read<AnalyticsBloc>().add(
-          AnalyticsSwapInitiatedEvent(
+    context.read<AnalyticsBloc>().logEvent(
+          SwapInitiatedEventData(
             fromAsset: sellCoin,
             toAsset: buyCoin,
             networks: networks,
@@ -334,8 +334,8 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     setState(() => _inProgress = false);
 
     if (error != null) {
-      context.read<AnalyticsBloc>().add(
-            AnalyticsSwapFailedEvent(
+      context.read<AnalyticsBloc>().logEvent(
+            SwapFailedEventData(
               fromAsset: sellCoin,
               toAsset: buyCoin,
               failStage: 'order_submission',
@@ -346,8 +346,8 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       return;
     }
 
-    context.read<AnalyticsBloc>().add(
-          AnalyticsSwapSucceededEvent(
+    context.read<AnalyticsBloc>().logEvent(
+          SwapSucceededEventData(
             fromAsset: sellCoin,
             toAsset: buyCoin,
             amount: makerFormBloc.sellAmount!.toDouble(),

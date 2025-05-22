@@ -524,8 +524,8 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       final buyCoin = _coinsRepository.getCoin(bestOrder.coin);
       final walletType =
           (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
-      _analyticsBloc.add(
-        AnalyticsBridgeInitiatedEvent(
+      _analyticsBloc.logEvent(
+        BridgeInitiatedEventData(
           fromChain: sellCoin.protocolType,
           toChain: buyCoin?.protocolType ?? '',
           asset: sellCoin.abbr,
@@ -550,8 +550,8 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
       final walletType =
           (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
-      _analyticsBloc.add(
-        AnalyticsBridgeSucceededEvent(
+      _analyticsBloc.logEvent(
+        BridgeSucceededEventData(
           fromChain: state.sellCoin!.protocolType,
           toChain: buyCoin?.protocolType ?? '',
           asset: state.sellCoin!.abbr,
@@ -564,8 +564,8 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       final walletType =
           (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
       final error = response.error?.message ?? 'unknown';
-      _analyticsBloc.add(
-        AnalyticsBridgeFailedEvent(
+      _analyticsBloc.logEvent(
+        BridgeFailedEventData(
           fromChain: state.sellCoin!.protocolType,
           toChain: buyCoin?.protocolType ?? '',
           failError: error,

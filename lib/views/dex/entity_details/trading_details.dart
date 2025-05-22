@@ -146,8 +146,8 @@ class _TradingDetailsState extends State<TradingDetails> {
             break;
           }
         }
-        context.read<AnalyticsBloc>().add(
-              AnalyticsSwapSucceededEvent(
+        context.read<AnalyticsBloc>().logEvent(
+              SwapSucceededEventData(
                 fromAsset: fromAsset,
                 toAsset: toAsset,
                 amount: swapStatus.sellAmount.toDouble(),
@@ -172,8 +172,8 @@ class _TradingDetailsState extends State<TradingDetails> {
         }
       } else if (swapStatus.isFailed && !_loggedFailure) {
         _loggedFailure = true;
-        context.read<AnalyticsBloc>().add(
-              AnalyticsSwapFailedEvent(
+        context.read<AnalyticsBloc>().logEvent(
+              SwapFailedEventData(
                 fromAsset: fromAsset,
                 toAsset: toAsset,
                 failStage: swapStatus.status.name,
