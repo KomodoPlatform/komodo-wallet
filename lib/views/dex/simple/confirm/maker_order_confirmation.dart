@@ -8,7 +8,6 @@ import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/common/screen.dart';
@@ -16,6 +15,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/utils/balances_formatter.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
@@ -28,8 +28,7 @@ import 'package:web_dex/views/dex/simple/form/maker/maker_form_total_fees.dart';
 
 class MakerOrderConfirmation extends StatefulWidget {
   const MakerOrderConfirmation(
-      {Key? key, required this.onCreateOrder, required this.onCancel})
-      : super(key: key);
+      {super.key, required this.onCreateOrder, required this.onCancel});
 
   final VoidCallback onCancel;
   final VoidCallback onCreateOrder;

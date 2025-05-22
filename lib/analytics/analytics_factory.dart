@@ -1,3 +1,5 @@
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
+
 import '../bloc/analytics/analytics_repo.dart';
 
 class PortfolioPnlViewedEvent extends AnalyticsEventData {
@@ -5,9 +7,10 @@ class PortfolioPnlViewedEvent extends AnalyticsEventData {
     required this.timeframe,
     required this.realizedPnl,
     required this.unrealizedPnl,
-  }) {
-    name = 'portfolio_pnl_viewed';
-  }
+  });
+
+  @override
+  String get name => 'portfolio_pnl_viewed';
 
   final String timeframe;
   final double realizedPnl;
@@ -22,9 +25,10 @@ class PortfolioPnlViewedEvent extends AnalyticsEventData {
 }
 
 class AppOpenedEvent extends AnalyticsEventData {
-  AppOpenedEvent({required this.platform, required this.appVersion}) {
-    name = 'app_open';
-  }
+  AppOpenedEvent({required this.platform, required this.appVersion});
+
+  @override
+  String get name => 'app_open';
 
   final String platform;
   final String appVersion;
@@ -37,9 +41,10 @@ class AppOpenedEvent extends AnalyticsEventData {
 }
 
 class OnboardingStartedEvent extends AnalyticsEventData {
-  OnboardingStartedEvent({required this.method, this.referralSource}) {
-    name = 'onboarding_start';
-  }
+  OnboardingStartedEvent({required this.method, this.referralSource});
+
+  @override
+  String get name => 'onboarding_start';
 
   final String method;
   final String? referralSource;
@@ -52,9 +57,10 @@ class OnboardingStartedEvent extends AnalyticsEventData {
 }
 
 class WalletCreatedEvent extends AnalyticsEventData {
-  WalletCreatedEvent({required this.source, required this.walletType}) {
-    name = 'wallet_created';
-  }
+  WalletCreatedEvent({required this.source, required this.walletType});
+
+  @override
+  String get name => 'wallet_created';
 
   final String source;
   final String walletType;
@@ -71,9 +77,10 @@ class WalletImportedEvent extends AnalyticsEventData {
     required this.source,
     required this.importType,
     required this.walletType,
-  }) {
-    name = 'wallet_imported';
-  }
+  });
+
+  @override
+  String get name => 'wallet_imported';
 
   final String source;
   final String importType;
@@ -92,9 +99,10 @@ class BackupCompletedEvent extends AnalyticsEventData {
     required this.backupTime,
     required this.method,
     required this.walletType,
-  }) {
-    name = 'backup_complete';
-  }
+  });
+
+  @override
+  String get name => 'backup_complete';
 
   final int backupTime;
   final String method;
@@ -109,9 +117,10 @@ class BackupCompletedEvent extends AnalyticsEventData {
 }
 
 class BackupSkippedEvent extends AnalyticsEventData {
-  BackupSkippedEvent({required this.stageSkipped, required this.walletType}) {
-    name = 'backup_skipped';
-  }
+  BackupSkippedEvent({required this.stageSkipped, required this.walletType});
+
+  @override
+  String get name => 'backup_skipped';
 
   final String stageSkipped;
   final String walletType;

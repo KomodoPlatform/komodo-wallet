@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/model/coin_type.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class CustomTokenImportBloc

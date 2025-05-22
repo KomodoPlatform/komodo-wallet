@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/analytics/analytics_factory.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_word_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';

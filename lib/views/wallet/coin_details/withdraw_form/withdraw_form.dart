@@ -8,12 +8,12 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
@@ -69,7 +69,7 @@ class _WithdrawFormState extends State<WithdrawForm> {
               context.read<AnalyticsBloc>().add(
                     AnalyticsSendSucceededEvent(
                       assetSymbol: state.asset.id.id,
-                      network: state.asset.protocolType,
+                      network: state.asset.id.subClass.name,
                       amount: double.tryParse(state.amount) ?? 0.0,
                       walletType: walletType,
                     ),
@@ -88,7 +88,7 @@ class _WithdrawFormState extends State<WithdrawForm> {
               context.read<AnalyticsBloc>().add(
                     AnalyticsSendFailedEvent(
                       assetSymbol: state.asset.id.id,
-                      network: state.asset.protocolType,
+                      network: state.asset.protocol.subClass.name,
                       failReason: reason,
                       walletType: walletType,
                     ),
@@ -423,7 +423,7 @@ class WithdrawFormFillSection extends StatelessWidget {
                       context.read<AnalyticsBloc>().add(
                             AnalyticsSendInitiatedEvent(
                               assetSymbol: state.asset.id.id,
-                              network: state.asset.protocolType,
+                              network: state.asset.protocol.subClass.name,
                               amount: double.tryParse(state.amount) ?? 0.0,
                               walletType: walletType,
                             ),

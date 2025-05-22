@@ -29,6 +29,7 @@ import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/animated_portfolio_charts.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
@@ -290,10 +291,10 @@ class _WalletMainState extends State<WalletMain>
       _walletHalfLogged = true;
       final coinsCount = context.read<CoinsBloc>().state.walletCoins.length;
       context.read<AnalyticsBloc>().add(
-            AnalyticsWalletListHalfViewportReachedEvent(
+            AnalyticsSendDataEvent(WalletListHalfViewportReachedEventData(
               timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
               walletSize: coinsCount,
-            ),
+            )),
           );
     }
   }

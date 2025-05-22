@@ -39,11 +39,11 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
         if (derivation != null) {
           final parsed = parseDerivationPath(derivation);
           analyticsBloc.add(
-            AnalyticsHdAddressGeneratedEvent(
+            AnalyticsSendDataEvent(HdAddressGeneratedEventData(
               accountIndex: parsed.accountIndex,
               addressIndex: parsed.addressIndex,
               assetSymbol: assetId,
-            ),
+            )),
           );
         }
 

@@ -1,4 +1,5 @@
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
 
 /// E38: Fresh receive address derived
 /// Measures when a fresh HD wallet address is generated. Business category: HD Wallet Operations.
