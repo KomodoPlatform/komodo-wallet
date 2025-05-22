@@ -8,6 +8,10 @@ import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/analytics/analytics_factory.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
@@ -40,9 +44,25 @@ class SeedShow extends StatelessWidget {
             if (!isMobile)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: SeedBackButton(() => context
-                    .read<SecuritySettingsBloc>()
-                    .add(const ResetEvent())),
+                child: SeedBackButton(() {
+                  context.read<AnalyticsBloc>().add(
+                        AnalyticsSendDataEvent(
+                          AnalyticsEvents.backupSkipped(
+                            stageSkipped: 'seed_show',
+                            walletType: context
+                                    .read<AuthBloc>()
+                                    .state
+                                    .currentUser
+                                    ?.wallet
+                                    .config
+                                    .type
+                                    .name ??
+                                '',
+                          ),
+                        ),
+                      );
+                  context.read<SecuritySettingsBloc>().add(const ResetEvent());
+                }),
               ),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 680),

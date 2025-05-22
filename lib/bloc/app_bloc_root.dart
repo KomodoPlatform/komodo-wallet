@@ -13,6 +13,7 @@ import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
+import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/assets_overview/investment_repository.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -320,9 +321,11 @@ class _MyAppViewState extends State<_MyAppView> {
   final AppRouterDelegate _routerDelegate = AppRouterDelegate();
   late final RootRouteInformationParser _routeInformationParser;
   late final AirDexBackButtonDispatcher _airDexBackButtonDispatcher;
+  late final DateTime _pageLoadStartTime;
 
   @override
   void initState() {
+    _pageLoadStartTime = DateTime.now();
     final coinsBloc = context.read<CoinsBloc>();
     _routeInformationParser = RootRouteInformationParser(coinsBloc);
     _airDexBackButtonDispatcher = AirDexBackButtonDispatcher(_routerDelegate);
@@ -383,6 +386,16 @@ class _MyAppViewState extends State<_MyAppView> {
 
       // Remove the loading indicator.
       loadingElement.remove();
+
+      final delay =
+          DateTime.now().difference(_pageLoadStartTime).inMilliseconds;
+      context.read<AnalyticsBloc>().add(
+            AnalyticsPageInteractiveDelayEvent(
+              pageName: 'app_root',
+              interactiveDelayMs: delay,
+              spinnerTimeMs: 200,
+            ),
+          );
     }
   }
 
@@ -400,6 +413,7 @@ class _MyAppViewState extends State<_MyAppView> {
     _currentPrecacheOperation = Completer<void>();
 
     try {
+      final stopwatch = Stopwatch()..start();
       final coins = coinsRepo.getKnownCoinsMap().keys;
 
       await for (final abbr in Stream.fromIterable(coins)) {
@@ -418,6 +432,14 @@ class _MyAppViewState extends State<_MyAppView> {
       }
 
       _currentPrecacheOperation!.complete();
+
+      context.read<AnalyticsBloc>().add(
+            AnalyticsCoinsDataUpdatedEvent(
+              updateSource: 'remote',
+              updateDurationMs: stopwatch.elapsedMilliseconds,
+              coinsCount: coins.length,
+            ),
+          );
     } catch (e) {
       log('Error precaching coin icons: $e');
       _currentPrecacheOperation!.completeError(e);
