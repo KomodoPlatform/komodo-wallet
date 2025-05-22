@@ -417,8 +417,8 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
       _successMessage = '';
     });
 
-    context.read<AnalyticsBloc>().add(
-          AnalyticsRewardClaimInitiatedEvent(
+    context.read<AnalyticsBloc>().logEvent(
+          RewardClaimInitiatedEventData(
             asset: widget.coin.abbr,
             expectedRewardAmount: _totalReward ?? 0,
           ),
@@ -434,8 +434,8 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
         _isClaiming = false;
         _errorMessage = error.message;
       });
-      context.read<AnalyticsBloc>().add(
-            AnalyticsRewardClaimFailureEvent(
+      context.read<AnalyticsBloc>().logEvent(
+            RewardClaimFailureEventData(
               asset: widget.coin.abbr,
               failReason: error.message,
             ),
@@ -455,8 +455,8 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
     setState(() {
       _isClaiming = false;
     });
-    context.read<AnalyticsBloc>().add(
-          AnalyticsRewardClaimSuccessEvent(
+    context.read<AnalyticsBloc>().logEvent(
+          RewardClaimSuccessEventData(
             asset: widget.coin.abbr,
             rewardAmount: double.tryParse(response.result!) ?? 0,
           ),

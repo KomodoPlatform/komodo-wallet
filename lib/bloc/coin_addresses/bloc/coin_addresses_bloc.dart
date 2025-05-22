@@ -38,12 +38,12 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
         final derivation = (newKey as dynamic).derivationPath as String?;
         if (derivation != null) {
           final parsed = parseDerivationPath(derivation);
-          analyticsBloc.add(
-            AnalyticsSendDataEvent(HdAddressGeneratedEventData(
+          analyticsBloc.logEvent(
+            HdAddressGeneratedEventData(
               accountIndex: parsed.accountIndex,
               addressIndex: parsed.addressIndex,
               assetSymbol: assetId,
-            )),
+            ),
           );
         }
 

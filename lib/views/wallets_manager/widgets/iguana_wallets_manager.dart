@@ -82,8 +82,8 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                         final method = newAction == WalletsManagerAction.create
                             ? 'create'
                             : 'import';
-                        context.read<AnalyticsBloc>().add(
-                              AnalyticsOnboardingStartedEvent(
+                        context.read<AnalyticsBloc>().logEvent(
+                              OnboardingStartedEventData(
                                 method: method,
                                 referralSource: widget.eventType.name,
                               ),
@@ -242,7 +242,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       widget.eventType,
       WalletsManagerEventMethod.loginExisting,
     );
-    analyticsBloc.add(AnalyticsSendDataEvent(analyticsEvent));
+    analyticsBloc.logEvent(analyticsEvent);
 
     context
         .read<AuthBloc>()

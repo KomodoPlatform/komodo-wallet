@@ -44,8 +44,8 @@ class _CoinDetailsState extends State<CoinDetails> {
       final walletType =
           context.read<AuthBloc>().state.currentUser?.wallet.config.type.name ??
               '';
-      context.read<AnalyticsBloc>().add(
-            AnalyticsAssetViewedEvent(
+      context.read<AnalyticsBloc>().logEvent(
+            AssetViewedEventData(
               assetSymbol: widget.coin.abbr,
               assetNetwork: widget.coin.protocolType,
               walletType: walletType,

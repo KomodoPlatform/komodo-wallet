@@ -324,8 +324,8 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     final buyCoin = buyCoinObj?.abbr ?? takerBloc.state.selectedOrder!.coin;
     final networks =
         '${sellCoinObj.protocolType},${buyCoinObj?.protocolType ?? ''}';
-    context.read<AnalyticsBloc>().add(
-          AnalyticsSwapInitiatedEvent(
+    context.read<AnalyticsBloc>().logEvent(
+          SwapInitiatedEventData(
             fromAsset: sellCoin,
             toAsset: buyCoin,
             networks: networks,

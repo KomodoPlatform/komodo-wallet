@@ -66,8 +66,8 @@ class _WithdrawFormState extends State<WithdrawForm> {
               final authBloc = context.read<AuthBloc>();
               final walletType =
                   authBloc.state.currentUser?.wallet.config.type.name ?? '';
-              context.read<AnalyticsBloc>().add(
-                    AnalyticsSendSucceededEvent(
+              context.read<AnalyticsBloc>().logEvent(
+                    SendSucceededEventData(
                       assetSymbol: state.asset.id.id,
                       network: state.asset.id.subClass.name,
                       amount: double.tryParse(state.amount) ?? 0.0,
@@ -85,8 +85,8 @@ class _WithdrawFormState extends State<WithdrawForm> {
               final walletType =
                   authBloc.state.currentUser?.wallet.config.type.name ?? '';
               final reason = state.transactionError?.message ?? 'unknown';
-              context.read<AnalyticsBloc>().add(
-                    AnalyticsSendFailedEvent(
+              context.read<AnalyticsBloc>().logEvent(
+                    SendFailedEventData(
                       assetSymbol: state.asset.id.id,
                       network: state.asset.protocol.subClass.name,
                       failReason: reason,
@@ -420,8 +420,8 @@ class WithdrawFormFillSection extends StatelessWidget {
                       final walletType =
                           authBloc.state.currentUser?.wallet.config.type.name ??
                               '';
-                      context.read<AnalyticsBloc>().add(
-                            AnalyticsSendInitiatedEvent(
+                      context.read<AnalyticsBloc>().logEvent(
+                            SendInitiatedEventData(
                               assetSymbol: state.asset.id.id,
                               network: state.asset.protocol.subClass.name,
                               amount: double.tryParse(state.amount) ?? 0.0,

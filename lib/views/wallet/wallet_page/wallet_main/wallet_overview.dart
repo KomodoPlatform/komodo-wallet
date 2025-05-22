@@ -42,8 +42,8 @@ class _WalletOverviewState extends State<WalletOverview> {
             : null;
 
         if (!_logged && stateWithData != null) {
-          context.read<AnalyticsBloc>().add(
-                AnalyticsPortfolioViewedEvent(
+          context.read<AnalyticsBloc>().logEvent(
+                PortfolioViewedEventData(
                   totalCoins: assetCount,
                   totalValueUsd: stateWithData.totalValue.value,
                 ),

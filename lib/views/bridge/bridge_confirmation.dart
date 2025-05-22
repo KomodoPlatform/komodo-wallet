@@ -114,8 +114,8 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
     final buyCoin = RepositoryProvider.of<CoinsRepo>(context)
         .getCoin(state.bestOrder?.coin ?? '');
     if (sellCoin != null && buyCoin != null) {
-      context.read<AnalyticsBloc>().add(
-            AnalyticsBridgeInitiatedEvent(
+      context.read<AnalyticsBloc>().logEvent(
+            BridgeInitiatedEventData(
               fromChain: sellCoin.protocolType,
               toChain: buyCoin.protocolType,
               asset: sellCoin.abbr,

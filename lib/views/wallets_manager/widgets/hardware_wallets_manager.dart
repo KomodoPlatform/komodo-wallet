@@ -90,11 +90,9 @@ class _HardwareWalletsManagerViewState
           AuthModeChanged(mode: AuthorizeMode.logIn, currentUser: kdfUser),
         );
     context.read<CoinsBloc>().add(CoinsSessionStarted(kdfUser));
-    context.read<AnalyticsBloc>().add(
-          AnalyticsSendDataEvent(
-            walletsManagerEventsFactory.createEvent(
-                widget.eventType, WalletsManagerEventMethod.hardware),
-          ),
+    context.read<AnalyticsBloc>().logEvent(
+          walletsManagerEventsFactory.createEvent(
+              widget.eventType, WalletsManagerEventMethod.hardware),
         );
 
     routingState.selectedMenu = MainMenuValue.wallet;

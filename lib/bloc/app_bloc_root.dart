@@ -393,12 +393,12 @@ class _MyAppViewState extends State<_MyAppView> {
 
       final delay =
           DateTime.now().difference(_pageLoadStartTime).inMilliseconds;
-      context.read<AnalyticsBloc>().add(
-            AnalyticsSendDataEvent(PageInteractiveDelayEventData(
+      context.read<AnalyticsBloc>().logEvent(
+            PageInteractiveDelayEventData(
               pageName: 'app_root',
               interactiveDelayMs: delay,
               spinnerTimeMs: 200,
-            )),
+            ),
           );
     }
   }
@@ -438,12 +438,12 @@ class _MyAppViewState extends State<_MyAppView> {
 
       _currentPrecacheOperation!.complete();
 
-      context.read<AnalyticsBloc>().add(
-            AnalyticsSendDataEvent(CoinsDataUpdatedEventData(
+      context.read<AnalyticsBloc>().logEvent(
+            CoinsDataUpdatedEventData(
               updateSource: 'remote',
               updateDurationMs: stopwatch.elapsedMilliseconds,
               coinsCount: coins.length,
-            )),
+            ),
           );
     } catch (e) {
       log('Error precaching coin icons: $e');

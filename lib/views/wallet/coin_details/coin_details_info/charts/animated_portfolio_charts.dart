@@ -53,8 +53,8 @@ class _AnimatedPortfolioChartsState extends State<AnimatedPortfolioCharts> {
         final growthState = context.read<PortfolioGrowthBloc>().state;
         if (growthState is PortfolioGrowthChartLoadSuccess) {
           final period = _formatDuration(growthState.selectedPeriod);
-          context.read<AnalyticsBloc>().add(
-                AnalyticsPortfolioGrowthViewedEvent(
+          context.read<AnalyticsBloc>().logEvent(
+                PortfolioGrowthViewedEventData(
                   period: period,
                   growthPct: growthState.percentageIncrease,
                 ),
@@ -64,8 +64,8 @@ class _AnimatedPortfolioChartsState extends State<AnimatedPortfolioCharts> {
         final profitLossState = context.read<ProfitLossBloc>().state;
         if (profitLossState is PortfolioProfitLossChartLoadSuccess) {
           final timeframe = _formatDuration(profitLossState.selectedPeriod);
-          context.read<AnalyticsBloc>().add(
-                AnalyticsPortfolioPnlViewedEvent(
+          context.read<AnalyticsBloc>().logEvent(
+                PortfolioPnlViewedEventData(
                   timeframe: timeframe,
                   realizedPnl: profitLossState.totalValue,
                   unrealizedPnl: 0,

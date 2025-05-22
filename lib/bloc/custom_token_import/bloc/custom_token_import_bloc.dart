@@ -137,8 +137,8 @@ class CustomTokenImportBloc
 
       final walletType =
           (await sdk.auth.currentUser)?.wallet.config.type.name ?? '';
-      analyticsBloc.add(
-        AnalyticsAssetAddedEvent(
+      analyticsBloc.logEvent(
+        AssetAddedEventData(
           assetSymbol: state.coin!.id.id,
           assetNetwork: state.network.ticker,
           walletType: walletType,
