@@ -2,6 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
+import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/analytics/analytics_factory.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_growth_chart.dart';
@@ -43,6 +47,32 @@ class _AnimatedPortfolioChartsState extends State<AnimatedPortfolioCharts> {
         _userHasInteracted = true;
       });
     }
+
+    if (widget.tabController.index == 1 &&
+        !widget.tabController.indexIsChanging) {
+      final profitLossState = context.read<ProfitLossBloc>().state;
+      if (profitLossState is PortfolioProfitLossChartLoadSuccess) {
+        final timeframe = _formatDuration(profitLossState.selectedPeriod);
+        context.read<AnalyticsBloc>().add(
+              AnalyticsSendDataEvent(
+                AnalyticsEvents.portfolioPnlViewed(
+                  timeframe: timeframe,
+                  realizedPnl: profitLossState.totalValue,
+                  unrealizedPnl: 0,
+                ),
+              ),
+            );
+      }
+    }
+  }
+
+  String _formatDuration(Duration duration) {
+    if (duration.inDays >= 365) return '${duration.inDays ~/ 365}y';
+    if (duration.inDays >= 30) return '${duration.inDays ~/ 30}M';
+    if (duration.inDays >= 1) return '${duration.inDays}d';
+    if (duration.inHours >= 1) return '${duration.inHours}h';
+    if (duration.inMinutes >= 1) return '${duration.inMinutes}m';
+    return '${duration.inSeconds}s';
   }
 
   @override
