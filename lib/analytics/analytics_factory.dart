@@ -211,4 +211,661 @@ class AnalyticsEvents {
       walletType: walletType,
     );
   }
+
+  /// Bridge initiated event
+  static BridgeInitiatedEvent bridgeInitiated({
+    required String fromChain,
+    required String toChain,
+    required String asset,
+  }) {
+    return BridgeInitiatedEvent(
+      fromChain: fromChain,
+      toChain: toChain,
+      asset: asset,
+    );
+  }
+
+  /// Bridge success event
+  static BridgeSuccessEvent bridgeSuccess({
+    required String fromChain,
+    required String toChain,
+    required String asset,
+    required double amount,
+  }) {
+    return BridgeSuccessEvent(
+      fromChain: fromChain,
+      toChain: toChain,
+      asset: asset,
+      amount: amount,
+    );
+  }
+
+  /// Bridge failure event
+  static BridgeFailureEvent bridgeFailure({
+    required String fromChain,
+    required String toChain,
+    required String failError,
+  }) {
+    return BridgeFailureEvent(
+      fromChain: fromChain,
+      toChain: toChain,
+      failError: failError,
+    );
+  }
+
+  /// NFT gallery opened event
+  static NftGalleryOpenedEvent nftGalleryOpened({
+    required int nftCount,
+    required int loadTimeMs,
+  }) {
+    return NftGalleryOpenedEvent(
+      nftCount: nftCount,
+      loadTimeMs: loadTimeMs,
+    );
+  }
+
+  /// NFT transfer initiated
+  static NftTransferInitiatedEvent nftTransferInitiated({
+    required String collectionName,
+    required String tokenId,
+    required String hdType,
+  }) {
+    return NftTransferInitiatedEvent(
+      collectionName: collectionName,
+      tokenId: tokenId,
+      hdType: hdType,
+    );
+  }
+
+  /// NFT transfer success
+  static NftTransferSuccessEvent nftTransferSuccess({
+    required String collectionName,
+    required String tokenId,
+    required double fee,
+    required String hdType,
+  }) {
+    return NftTransferSuccessEvent(
+      collectionName: collectionName,
+      tokenId: tokenId,
+      fee: fee,
+      hdType: hdType,
+    );
+  }
+
+  /// NFT transfer failure
+  static NftTransferFailureEvent nftTransferFailure({
+    required String collectionName,
+    required String failReason,
+    required String hdType,
+  }) {
+    return NftTransferFailureEvent(
+      collectionName: collectionName,
+      failReason: failReason,
+      hdType: hdType,
+    );
+  }
+
+  /// Marketbot setup started
+  static MarketbotSetupStartEvent marketbotSetupStart({
+    required String strategyType,
+    required int pairsCount,
+  }) {
+    return MarketbotSetupStartEvent(
+      strategyType: strategyType,
+      pairsCount: pairsCount,
+    );
+  }
+
+  /// Marketbot setup complete
+  static MarketbotSetupCompleteEvent marketbotSetupComplete({
+    required String strategyType,
+    required double baseCapital,
+  }) {
+    return MarketbotSetupCompleteEvent(
+      strategyType: strategyType,
+      baseCapital: baseCapital,
+    );
+  }
+
+  /// Marketbot trade executed
+  static MarketbotTradeExecutedEvent marketbotTradeExecuted({
+    required String pair,
+    required double tradeSize,
+    required double profitUsd,
+  }) {
+    return MarketbotTradeExecutedEvent(
+      pair: pair,
+      tradeSize: tradeSize,
+      profitUsd: profitUsd,
+    );
+  }
+
+  /// Marketbot error
+  static MarketbotErrorEvent marketbotError({
+    required String errorCode,
+    required String strategyType,
+  }) {
+    return MarketbotErrorEvent(
+      errorCode: errorCode,
+      strategyType: strategyType,
+    );
+  }
+
+  /// Reward claim initiated
+  static RewardClaimInitiatedEvent rewardClaimInitiated({
+    required String asset,
+    required double expectedRewardAmount,
+  }) {
+    return RewardClaimInitiatedEvent(
+      asset: asset,
+      expectedRewardAmount: expectedRewardAmount,
+    );
+  }
+
+  /// Reward claim success
+  static RewardClaimSuccessEvent rewardClaimSuccess({
+    required String asset,
+    required double rewardAmount,
+  }) {
+    return RewardClaimSuccessEvent(
+      asset: asset,
+      rewardAmount: rewardAmount,
+    );
+  }
+
+  /// Reward claim failure
+  static RewardClaimFailureEvent rewardClaimFailure({
+    required String asset,
+    required String failReason,
+  }) {
+    return RewardClaimFailureEvent(
+      asset: asset,
+      failReason: failReason,
+    );
+  }
+
+  /// DApp connected
+  static DappConnectEvent dappConnect({
+    required String dappName,
+    required String network,
+  }) {
+    return DappConnectEvent(
+      dappName: dappName,
+      network: network,
+    );
+  }
+
+  /// Settings change
+  static SettingsChangeEvent settingsChange({
+    required String settingName,
+    required String newValue,
+  }) {
+    return SettingsChangeEvent(
+      settingName: settingName,
+      newValue: newValue,
+    );
+  }
+
+  /// Error displayed
+  static ErrorDisplayedEvent errorDisplayed({
+    required String errorCode,
+    required String screenContext,
+  }) {
+    return ErrorDisplayedEvent(
+      errorCode: errorCode,
+      screenContext: screenContext,
+    );
+  }
+
+  /// App shared
+  static AppShareEvent appShare({
+    required String channel,
+  }) {
+    return AppShareEvent(channel: channel);
+  }
+
+  /// Scroll attempt outside content
+  static ScrollAttemptOutsideContentEvent scrollAttemptOutsideContent({
+    required String screenContext,
+    required double scrollDelta,
+  }) {
+    return ScrollAttemptOutsideContentEvent(
+      screenContext: screenContext,
+      scrollDelta: scrollDelta,
+    );
+  }
+
+  /// Searchbar input
+  static SearchbarInputEvent searchbarInput({
+    required int queryLength,
+    String? assetSymbol,
+  }) {
+    return SearchbarInputEvent(
+      queryLength: queryLength,
+      assetSymbol: assetSymbol,
+    );
+  }
+
+  /// Theme selected
+  static ThemeSelectedEvent themeSelected({
+    required String themeName,
+  }) {
+    return ThemeSelectedEvent(themeName: themeName);
+  }
+}
+
+class BridgeInitiatedEvent extends AnalyticsEventData {
+  BridgeInitiatedEvent({
+    required this.fromChain,
+    required this.toChain,
+    required this.asset,
+  });
+
+  @override
+  String get name => 'bridge_initiated';
+
+  final String fromChain;
+  final String toChain;
+  final String asset;
+
+  @override
+  JsonMap get parameters => {
+        'from_chain': fromChain,
+        'to_chain': toChain,
+        'asset': asset,
+      };
+}
+
+class BridgeSuccessEvent extends AnalyticsEventData {
+  BridgeSuccessEvent({
+    required this.fromChain,
+    required this.toChain,
+    required this.asset,
+    required this.amount,
+  });
+
+  @override
+  String get name => 'bridge_success';
+
+  final String fromChain;
+  final String toChain;
+  final String asset;
+  final double amount;
+
+  @override
+  JsonMap get parameters => {
+        'from_chain': fromChain,
+        'to_chain': toChain,
+        'asset': asset,
+        'amount': amount,
+      };
+}
+
+class BridgeFailureEvent extends AnalyticsEventData {
+  BridgeFailureEvent({
+    required this.fromChain,
+    required this.toChain,
+    required this.failError,
+  });
+
+  @override
+  String get name => 'bridge_failure';
+
+  final String fromChain;
+  final String toChain;
+  final String failError;
+
+  @override
+  JsonMap get parameters => {
+        'from_chain': fromChain,
+        'to_chain': toChain,
+        'fail_error': failError,
+      };
+}
+
+class NftGalleryOpenedEvent extends AnalyticsEventData {
+  NftGalleryOpenedEvent({
+    required this.nftCount,
+    required this.loadTimeMs,
+  });
+
+  @override
+  String get name => 'nft_gallery_opened';
+
+  final int nftCount;
+  final int loadTimeMs;
+
+  @override
+  JsonMap get parameters => {
+        'nft_count': nftCount,
+        'load_time_ms': loadTimeMs,
+      };
+}
+
+class NftTransferInitiatedEvent extends AnalyticsEventData {
+  NftTransferInitiatedEvent({
+    required this.collectionName,
+    required this.tokenId,
+    required this.hdType,
+  });
+
+  @override
+  String get name => 'nft_transfer_initiated';
+
+  final String collectionName;
+  final String tokenId;
+  final String hdType;
+
+  @override
+  JsonMap get parameters => {
+        'collection_name': collectionName,
+        'token_id': tokenId,
+        'hd_type': hdType,
+      };
+}
+
+class NftTransferSuccessEvent extends AnalyticsEventData {
+  NftTransferSuccessEvent({
+    required this.collectionName,
+    required this.tokenId,
+    required this.fee,
+    required this.hdType,
+  });
+
+  @override
+  String get name => 'nft_transfer_success';
+
+  final String collectionName;
+  final String tokenId;
+  final double fee;
+  final String hdType;
+
+  @override
+  JsonMap get parameters => {
+        'collection_name': collectionName,
+        'token_id': tokenId,
+        'fee': fee,
+        'hd_type': hdType,
+      };
+}
+
+class NftTransferFailureEvent extends AnalyticsEventData {
+  NftTransferFailureEvent({
+    required this.collectionName,
+    required this.failReason,
+    required this.hdType,
+  });
+
+  @override
+  String get name => 'nft_transfer_failure';
+
+  final String collectionName;
+  final String failReason;
+  final String hdType;
+
+  @override
+  JsonMap get parameters => {
+        'collection_name': collectionName,
+        'fail_reason': failReason,
+        'hd_type': hdType,
+      };
+}
+
+class MarketbotSetupStartEvent extends AnalyticsEventData {
+  MarketbotSetupStartEvent({
+    required this.strategyType,
+    required this.pairsCount,
+  });
+
+  @override
+  String get name => 'marketbot_setup_start';
+
+  final String strategyType;
+  final int pairsCount;
+
+  @override
+  JsonMap get parameters => {
+        'strategy_type': strategyType,
+        'pairs_count': pairsCount,
+      };
+}
+
+class MarketbotSetupCompleteEvent extends AnalyticsEventData {
+  MarketbotSetupCompleteEvent({
+    required this.strategyType,
+    required this.baseCapital,
+  });
+
+  @override
+  String get name => 'marketbot_setup_complete';
+
+  final String strategyType;
+  final double baseCapital;
+
+  @override
+  JsonMap get parameters => {
+        'strategy_type': strategyType,
+        'base_capital': baseCapital,
+      };
+}
+
+class MarketbotTradeExecutedEvent extends AnalyticsEventData {
+  MarketbotTradeExecutedEvent({
+    required this.pair,
+    required this.tradeSize,
+    required this.profitUsd,
+  });
+
+  @override
+  String get name => 'marketbot_trade_executed';
+
+  final String pair;
+  final double tradeSize;
+  final double profitUsd;
+
+  @override
+  JsonMap get parameters => {
+        'pair': pair,
+        'trade_size': tradeSize,
+        'profit_usd': profitUsd,
+      };
+}
+
+class MarketbotErrorEvent extends AnalyticsEventData {
+  MarketbotErrorEvent({
+    required this.errorCode,
+    required this.strategyType,
+  });
+
+  @override
+  String get name => 'marketbot_error';
+
+  final String errorCode;
+  final String strategyType;
+
+  @override
+  JsonMap get parameters => {
+        'error_code': errorCode,
+        'strategy_type': strategyType,
+      };
+}
+
+class RewardClaimInitiatedEvent extends AnalyticsEventData {
+  RewardClaimInitiatedEvent({
+    required this.asset,
+    required this.expectedRewardAmount,
+  });
+
+  @override
+  String get name => 'reward_claim_initiated';
+
+  final String asset;
+  final double expectedRewardAmount;
+
+  @override
+  JsonMap get parameters => {
+        'asset': asset,
+        'expected_reward_amount': expectedRewardAmount,
+      };
+}
+
+class RewardClaimSuccessEvent extends AnalyticsEventData {
+  RewardClaimSuccessEvent({
+    required this.asset,
+    required this.rewardAmount,
+  });
+
+  @override
+  String get name => 'reward_claim_success';
+
+  final String asset;
+  final double rewardAmount;
+
+  @override
+  JsonMap get parameters => {
+        'asset': asset,
+        'reward_amount': rewardAmount,
+      };
+}
+
+class RewardClaimFailureEvent extends AnalyticsEventData {
+  RewardClaimFailureEvent({
+    required this.asset,
+    required this.failReason,
+  });
+
+  @override
+  String get name => 'reward_claim_failure';
+
+  final String asset;
+  final String failReason;
+
+  @override
+  JsonMap get parameters => {
+        'asset': asset,
+        'fail_reason': failReason,
+      };
+}
+
+class DappConnectEvent extends AnalyticsEventData {
+  DappConnectEvent({
+    required this.dappName,
+    required this.network,
+  });
+
+  @override
+  String get name => 'dapp_connect';
+
+  final String dappName;
+  final String network;
+
+  @override
+  JsonMap get parameters => {
+        'dapp_name': dappName,
+        'network': network,
+      };
+}
+
+class SettingsChangeEvent extends AnalyticsEventData {
+  SettingsChangeEvent({
+    required this.settingName,
+    required this.newValue,
+  });
+
+  @override
+  String get name => 'settings_change';
+
+  final String settingName;
+  final String newValue;
+
+  @override
+  JsonMap get parameters => {
+        'setting_name': settingName,
+        'new_value': newValue,
+      };
+}
+
+class ErrorDisplayedEvent extends AnalyticsEventData {
+  ErrorDisplayedEvent({
+    required this.errorCode,
+    required this.screenContext,
+  });
+
+  @override
+  String get name => 'error_displayed';
+
+  final String errorCode;
+  final String screenContext;
+
+  @override
+  JsonMap get parameters => {
+        'error_code': errorCode,
+        'screen_context': screenContext,
+      };
+}
+
+class AppShareEvent extends AnalyticsEventData {
+  AppShareEvent({required this.channel});
+
+  @override
+  String get name => 'app_share';
+
+  final String channel;
+
+  @override
+  JsonMap get parameters => {
+        'channel': channel,
+      };
+}
+
+class ScrollAttemptOutsideContentEvent extends AnalyticsEventData {
+  ScrollAttemptOutsideContentEvent({
+    required this.screenContext,
+    required this.scrollDelta,
+  });
+
+  @override
+  String get name => 'scroll_attempt_outside_content';
+
+  final String screenContext;
+  final double scrollDelta;
+
+  @override
+  JsonMap get parameters => {
+        'screen_context': screenContext,
+        'scroll_delta': scrollDelta,
+      };
+}
+
+class SearchbarInputEvent extends AnalyticsEventData {
+  SearchbarInputEvent({
+    required this.queryLength,
+    this.assetSymbol,
+  });
+
+  @override
+  String get name => 'searchbar_input';
+
+  final int queryLength;
+  final String? assetSymbol;
+
+  @override
+  JsonMap get parameters => {
+        'query_length': queryLength,
+        if (assetSymbol != null) 'asset_symbol': assetSymbol!,
+      };
+}
+
+class ThemeSelectedEvent extends AnalyticsEventData {
+  ThemeSelectedEvent({required this.themeName});
+
+  @override
+  String get name => 'theme_selected';
+
+  final String themeName;
+
+  @override
+  JsonMap get parameters => {
+        'theme_name': themeName,
+      };
 }
