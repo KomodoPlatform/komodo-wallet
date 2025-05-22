@@ -11,6 +11,7 @@ import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_b
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
@@ -60,6 +61,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   late final _coinAddressesBloc = CoinAddressesBloc(
     context.sdk,
     widget.coin.abbr,
+    context.read<AnalyticsBloc>(),
   )..add(LoadAddressesEvent());
 
   @override
