@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-// ignore: unnecessary_import
-import 'package:universal_html/js.dart';
-import 'package:universal_html/js_util.dart';
+import 'dart:js_interop';
+import 'package:js/js_util.dart' as js_util;
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/rpc_web.dart';
@@ -21,15 +20,17 @@ class MM2Web extends MM2 implements MM2WithInit {
     }
 
     if (isPreloaded == false) {
-      await promiseToFuture<dynamic>(initWasm());
+      await initWasm().toDart;
     }
   }
 
   /// TODO: Document
-  bool? get isBusyPreloading => context['is_mm2_preload_busy'] as bool?;
+  bool? get isBusyPreloading =>
+      js_util.getProperty(js_util.globalThis, 'is_mm2_preload_busy') as bool?;
 
   /// TODO: Document
-  bool? get isPreloaded => context['is_mm2_preloaded'] as bool?;
+  bool? get isPreloaded =>
+      js_util.getProperty(js_util.globalThis, 'is_mm2_preloaded') as bool?;
 
   @override
   Future<void> start(String? passphrase) async {
@@ -40,14 +41,7 @@ class MM2Web extends MM2 implements MM2WithInit {
       userHome: null,
     );
 
-    await promiseToFuture<void>(
-      wasmRunMm2(
-        jsonEncode(params),
-        allowInterop<Future<void> Function(int level, String message)>(
-          _handleLog,
-        ),
-      ),
-    );
+    await wasmRunMm2(jsonEncode(params).toJS, _handleLog.toJS).toDart;
   }
 
   @override
@@ -58,7 +52,7 @@ class MM2Web extends MM2 implements MM2WithInit {
 
   @override
   Future<String> version() async {
-    return wasmVersion();
+    return wasmVersion().toDart;
   }
 
   @override
@@ -71,7 +65,7 @@ class MM2Web extends MM2 implements MM2WithInit {
     return await _rpc.call(MM2.prepareRequest(reqStr));
   }
 
-  Future<void> _handleLog(int level, String message) async {
+  void _handleLog(int level, String message) {
     log(message, path: 'mm2 log');
   }
 }

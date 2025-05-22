@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web/web.dart' as web;
 import 'package:web_dex/bloc/bitrefill/models/embedded_bitrefill_url.dart';
 
 class BitrefillProvider {
@@ -7,19 +7,19 @@ class BitrefillProvider {
   /// coin names. The keys are the coin abbreviations used in the app, and the
   /// values are the coin names used in the Bitrefill widget.
   Map<String, String> get supportedCoinAbbrMap => <String, String>{
-        'BTC': 'bitcoin',
-        'BTC-segwit': 'bitcoin',
-        'DASH': 'dash',
-        'DOGE': 'dogecoin',
-        'ETH': 'ethereum',
-        'LTC': 'litecoin',
-        'LTC-segwit': 'litecoin',
-        'USDT-ERC20': 'usdt_erc20',
-        'USDT-TRC20': 'usdt_trc20',
-        'USDT-PLG20': 'usdt_polygon',
-        'USDC-ERC20': 'usdc_erc20',
-        'USDC-PLG20': 'usdc_polygon',
-      };
+    'BTC': 'bitcoin',
+    'BTC-segwit': 'bitcoin',
+    'DASH': 'dash',
+    'DOGE': 'dogecoin',
+    'ETH': 'ethereum',
+    'LTC': 'litecoin',
+    'LTC-segwit': 'litecoin',
+    'USDT-ERC20': 'usdt_erc20',
+    'USDT-TRC20': 'usdt_trc20',
+    'USDT-PLG20': 'usdt_polygon',
+    'USDC-ERC20': 'usdc_erc20',
+    'USDC-PLG20': 'usdc_polygon',
+  };
 
   /// A list of supported Bitrefill coin abbreviations for payments.
   List<String> get supportedCoinAbbrs => supportedCoinAbbrMap.keys.toList();
@@ -60,7 +60,7 @@ class BitrefillProvider {
   String baseEmbeddedBitrefillUrl() {
     if (kIsWeb) {
       final String baseUrl =
-          '${html.window.location.origin}/assets/assets/web_pages/bitrefill_widget.html';
+          '${web.window.location.origin}/assets/assets/web_pages/bitrefill_widget.html';
       return baseUrl;
     }
 

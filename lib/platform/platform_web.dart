@@ -1,25 +1,23 @@
 @JS()
 library wasmlib;
 
+import 'dart:js_interop';
 import 'package:js/js.dart';
 
 @JS('init_wasm')
-external dynamic initWasm();
+external JSPromise<JSAny?> initWasm();
 
 @JS('run_mm2')
-external Future<void> wasmRunMm2(
-  String params,
-  void Function(int, String) handleLog,
-);
+external JSPromise<void> wasmRunMm2(JSString params, JSFunction handleLog);
 
 @JS('mm2_status')
-external dynamic wasmMm2Status();
+external int wasmMm2Status();
 
 @JS('mm2_version')
-external String wasmVersion();
+external JSString wasmVersion();
 
 @JS('rpc_request')
-external dynamic wasmRpc(String request);
+external JSPromise<JSAny?> wasmRpc(JSString request);
 
 @JS('reload_page')
 external void reloadPage();
@@ -28,4 +26,4 @@ external void reloadPage();
 external void changeHtmlTheme(int themeIndex);
 
 @JS('zip_encode')
-external Future<String?> zipEncode(String fileName, String fileContent);
+external JSPromise<String?> zipEncode(JSString fileName, JSString fileContent);

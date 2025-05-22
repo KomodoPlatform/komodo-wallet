@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:universal_html/html.dart';
+import 'package:web/web.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/services/auth_checker/auth_checker.dart';
@@ -22,8 +22,9 @@ class WebAuthChecker implements AuthChecker {
       return true;
     }
 
-    final confirmAnswer =
-        window.confirm(LocaleKeys.confirmLogoutOnAnotherTab.tr());
+    final confirmAnswer = window.confirm(
+      LocaleKeys.confirmLogoutOnAnotherTab.tr(),
+    );
     if (confirmAnswer) {
       window.localStorage[_appCloseCommandKey] = encryptedSeed;
       window.localStorage.remove(_appCloseCommandKey);
@@ -50,15 +51,9 @@ class WebAuthChecker implements AuthChecker {
   }
 
   void _initListeners() {
-    window.addEventListener(
-      'storage',
-      _onStorageListener,
-    );
+    window.addEventListener('storage', _onStorageListener.toJS);
 
-    window.addEventListener(
-      'beforeunload',
-      _onBeforeUnloadListener,
-    );
+    window.addEventListener('beforeunload', _onBeforeUnloadListener.toJS);
   }
 
   Future<void> _onStorageListener(Event event) async {

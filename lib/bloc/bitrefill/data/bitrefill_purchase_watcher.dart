@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:universal_html/html.dart' as html;
+import 'package:web/web.dart' as web;
 import 'package:web_dex/bloc/bitrefill/models/bitrefill_payment_intent_event.dart';
 
 class BitrefillPurchaseWatcher {
@@ -61,11 +61,11 @@ class BitrefillPurchaseWatcher {
     final StreamController<Map<String, dynamic>> paymentIntentsController =
         StreamController<Map<String, dynamic>>();
 
-    void handlerFunction(html.Event event) {
+    void handlerFunction(web.Event event) {
       if (paymentIntentsController.isClosed) {
         return;
       }
-      final html.MessageEvent messageEvent = event as html.MessageEvent;
+      final web.MessageEvent messageEvent = event as web.MessageEvent;
       if (messageEvent.data is String) {
         try {
           // TODO(Francois): convert to a model here (payment intent or invoice created atm)
@@ -79,13 +79,13 @@ class BitrefillPurchaseWatcher {
     }
 
     try {
-      html.window.addEventListener('message', handlerFunction);
+      web.window.addEventListener('message', handlerFunction.toJS);
 
       yield* paymentIntentsController.stream;
     } catch (e) {
       paymentIntentsController.addError(e);
     } finally {
-      html.window.removeEventListener('message', handlerFunction);
+      web.window.removeEventListener('message', handlerFunction.toJS);
 
       if (!paymentIntentsController.isClosed) {
         await paymentIntentsController.close();

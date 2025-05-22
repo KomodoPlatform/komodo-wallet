@@ -1,4 +1,4 @@
-import 'package:universal_html/html.dart';
+import 'package:web/web.dart';
 
 class BrowserInfo {
   final String browserName;
@@ -91,7 +91,7 @@ class BrowserInfoParser {
   }
 
   static String _getScreenSize() {
-    final BodyElement? body = document.body;
+    final HTMLBodyElement? body = document.body as HTMLBodyElement?;
     final width = document.documentElement?.clientWidth ?? body?.clientWidth;
     final height = document.documentElement?.clientHeight ?? body?.clientHeight;
 

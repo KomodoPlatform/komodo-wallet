@@ -5,8 +5,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:universal_html/html.dart'
-    as html; //TODO! Non-web implementation
+import 'package:web/web.dart' as web; // TODO! Non-web implementation
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/fiat_repository.dart';
@@ -74,10 +73,8 @@ class _FiatFormState extends State<FiatForm> {
   StreamSubscription<bool>? _loginActivationListener;
   StreamSubscription<List<Map<String, dynamic>>>? _paymentMethodsListener;
 
-  FiatMode get selectedFiatMode => [
-        FiatMode.onramp,
-        FiatMode.offramp,
-      ].elementAt(_activeTabIndex);
+  FiatMode get selectedFiatMode =>
+      [FiatMode.onramp, FiatMode.offramp].elementAt(_activeTabIndex);
 
   @override
   void dispose() {
@@ -115,8 +112,9 @@ class _FiatFormState extends State<FiatForm> {
       _handleAccountStatusChange(walletCoins.isNotEmpty);
     });
 
-    _loginActivationListener =
-        coinsBloc.outLoginActivationFinished.listen((isLoggedIn) async {
+    _loginActivationListener = coinsBloc.outLoginActivationFinished.listen((
+      isLoggedIn,
+    ) async {
       _handleAccountStatusChange(isLoggedIn);
     });
 
@@ -135,8 +133,9 @@ class _FiatFormState extends State<FiatForm> {
         return coinsBloc.addressCache[accountKey]![abbrKey];
       } else {
         await activateCoinIfNeeded(abbr);
-        final coin =
-            coinsBloc.walletCoins.firstWhereOrNull((c) => c.abbr == abbr);
+        final coin = coinsBloc.walletCoins.firstWhereOrNull(
+          (c) => c.abbr == abbr,
+        );
 
         if (coin != null && coin.address != null) {
           if (!coinsBloc.addressCache.containsKey(accountKey)) {
@@ -146,8 +145,9 @@ class _FiatFormState extends State<FiatForm> {
           // Cache this wallet's addresses
           for (final walletCoin in coinsBloc.walletCoins) {
             if (walletCoin.address != null &&
-                !coinsBloc.addressCache[accountKey]!
-                    .containsKey(walletCoin.abbr)) {
+                !coinsBloc.addressCache[accountKey]!.containsKey(
+                  walletCoin.abbr,
+                )) {
               // Exit if the address already exists in a different account
               // Address belongs to another account, this is a bug, gives outdated data
               for (final entry in coinsBloc.addressCache.entries) {
@@ -180,8 +180,11 @@ class _FiatFormState extends State<FiatForm> {
       _fiatInputDebounce!.cancel();
     }
     _fiatInputDebounce = Timer(const Duration(milliseconds: 500), () async {
-      fillPaymentMethods(_selectedFiat.symbol, _selectedCoin,
-          forceUpdate: true);
+      fillPaymentMethods(
+        _selectedFiat.symbol,
+        _selectedCoin,
+        forceUpdate: true,
+      );
     });
   }
 
@@ -222,8 +225,11 @@ class _FiatFormState extends State<FiatForm> {
     // Fetch new payment methods based on the selected options
     if (forceUpdate || (fiatChanged || coinChanged)) {
       fillAccountInformation();
-      fillPaymentMethods(_selectedFiat.symbol, _selectedCoin,
-          forceUpdate: true);
+      fillPaymentMethods(
+        _selectedFiat.symbol,
+        _selectedCoin,
+        forceUpdate: true,
+      );
     }
   }
 
@@ -250,34 +256,40 @@ class _FiatFormState extends State<FiatForm> {
     fillCoinReceiveAddress();
   }
 
-  Future<void> fillPaymentMethods(String fiat, Currency coin,
-      {bool forceUpdate = false}) async {
+  Future<void> fillPaymentMethods(
+    String fiat,
+    Currency coin, {
+    bool forceUpdate = false,
+  }) async {
     try {
       final sourceAmount = getNonZeroFiatAmount();
       _paymentMethodsListener = fiatRepository
           .getPaymentMethodsList(fiat, coin, sourceAmount ?? fillerFiatAmount)
           .listen((newPaymentMethods) {
-        setState(() {
-          paymentMethods = newPaymentMethods;
-        });
+            setState(() {
+              paymentMethods = newPaymentMethods;
+            });
 
-        // if fiat amount has changed, exit early
-        final fiatChanged = sourceAmount != getNonZeroFiatAmount();
-        final coinChanged = _selectedCoin != coin;
-        if (fiatChanged || coinChanged) {
-          return;
-        }
+            // if fiat amount has changed, exit early
+            final fiatChanged = sourceAmount != getNonZeroFiatAmount();
+            final coinChanged = _selectedCoin != coin;
+            if (fiatChanged || coinChanged) {
+              return;
+            }
 
-        if ((forceUpdate || selectedPaymentMethod == null) &&
-            paymentMethods!.isNotEmpty) {
-          final method = selectedPaymentMethod == null
-              ? paymentMethods!.first
-              : paymentMethods!.firstWhere(
-                  (method) => method['id'] == selectedPaymentMethod!['id'],
-                  orElse: () => paymentMethods!.first);
-          changePaymentMethod(method);
-        }
-      });
+            if ((forceUpdate || selectedPaymentMethod == null) &&
+                paymentMethods!.isNotEmpty) {
+              final method =
+                  selectedPaymentMethod == null
+                      ? paymentMethods!.first
+                      : paymentMethods!.firstWhere(
+                        (method) =>
+                            method['id'] == selectedPaymentMethod!['id'],
+                        orElse: () => paymentMethods!.first,
+                      );
+              changePaymentMethod(method);
+            }
+          });
     } catch (e) {
       setState(() {
         paymentMethods = [];
@@ -292,13 +304,15 @@ class _FiatFormState extends State<FiatForm> {
       if (selectedPaymentMethod != null) {
         final sourceAmount = getNonZeroFiatAmount();
         final currentPriceInfo = selectedPaymentMethod!['price_info'];
-        final priceInfo = sourceAmount == null ||
-                currentPriceInfo == null ||
-                double.parse(sourceAmount) !=
-                    double.parse(
-                        selectedPaymentMethod!['price_info']['fiat_amount'])
-            ? null
-            : currentPriceInfo;
+        final priceInfo =
+            sourceAmount == null ||
+                    currentPriceInfo == null ||
+                    double.parse(sourceAmount) !=
+                        double.parse(
+                          selectedPaymentMethod!['price_info']['fiat_amount'],
+                        )
+                ? null
+                : currentPriceInfo;
 
         selectedPaymentMethodPrice = priceInfo;
       } else {
@@ -359,8 +373,8 @@ class _FiatFormState extends State<FiatForm> {
     return isFiatAmountTooLow()
         ? 'Please enter more than ${getMinFiatAmount()} ${_selectedFiat.symbol}'
         : isFiatAmountTooHigh()
-            ? 'Please enter less than ${getMaxFiatAmount()} ${_selectedFiat.symbol}'
-            : null;
+        ? 'Please enter less than ${getMaxFiatAmount()} ${_selectedFiat.symbol}'
+        : null;
   }
 
   double? getFiatAmountValue() {
@@ -419,14 +433,14 @@ class _FiatFormState extends State<FiatForm> {
   //TODO! Non-web native implementation
   String successUrl() {
     // Base URL to the HTML redirect page
-    final baseUrl = '${html.window.location.origin}/assets'
+    final baseUrl =
+        '${web.window.location.origin}/assets'
         '/web_pages/checkout_status_redirect.html';
 
     final queryString = {
-      'account_reference': accountReference!,
-      'status': 'success',
-    }
-        .entries
+          'account_reference': accountReference!,
+          'status': 'success',
+        }.entries
         .map<String>((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
         .join('&');
 
@@ -469,9 +483,7 @@ class _FiatFormState extends State<FiatForm> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleKeys.orderFailedTryAgain.tr()),
-          ),
+          SnackBar(content: Text(LocaleKeys.orderFailedTryAgain.tr())),
         );
       });
 
@@ -481,7 +493,7 @@ class _FiatFormState extends State<FiatForm> {
         log(
           'Error message: ${'${error!['code'] ?? ''} '
               '- ${error!['title']}${error!['description'] != null ? ' - Details:'
-                  ' ${error!['description']}' : ''}'}',
+                      ' ${error!['description']}' : ''}'}',
         );
       }
 
@@ -514,8 +526,10 @@ class _FiatFormState extends State<FiatForm> {
   ) async {
     FiatOrderStatus? lastStatus;
     // TODO: Move to bloc & use bloc listener to show changes.
-    final statusStream =
-        fiatRepository.watchOrderStatus(paymentMethod, orderId);
+    final statusStream = fiatRepository.watchOrderStatus(
+      paymentMethod,
+      orderId,
+    );
 
     await for (final status in statusStream) {
       //TODO? We can still show the alerts if we're no mounted by using the
@@ -566,14 +580,16 @@ class _FiatFormState extends State<FiatForm> {
         title = 'Payment failed';
         // TODO: Localise all [FiatOrderStatus] messages. If we implement
         // provider-specific error messages, we can include support details.
-        content = 'Your payment has failed. Please check your email for '
+        content =
+            'Your payment has failed. Please check your email for '
             'more information or contact the provider\'s support.';
         icon = const Icon(Icons.error_outline, color: Colors.red);
         break;
 
       case FiatOrderStatus.inProgress:
         title = 'Payment received';
-        content = 'Congratulations! Your payment has been received and the '
+        content =
+            'Congratulations! Your payment has been received and the '
             'coins are on the way to your wallet. \n\n'
             'You will receive your coins in 1-60 minutes.';
         icon = const Icon(Icons.hourglass_bottom_outlined);
@@ -583,17 +599,18 @@ class _FiatFormState extends State<FiatForm> {
     //TODO: Localize
     showAdaptiveDialog(
       context: context,
-      builder: (context) => AlertDialog.adaptive(
-        title: Text(title!),
-        icon: icon,
-        content: Text(content!),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(LocaleKeys.ok.tr()),
+      builder:
+          (context) => AlertDialog.adaptive(
+            title: Text(title!),
+            icon: icon,
+            content: Text(content!),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(LocaleKeys.ok.tr()),
+              ),
+            ],
           ),
-        ],
-      ),
     ).ignore();
   }
 
@@ -601,11 +618,7 @@ class _FiatFormState extends State<FiatForm> {
     final isLoading = paymentMethods == null;
     if (isLoading) {
       return useSimpleLoadingSpinner
-          ? const UiSpinner(
-              width: 36,
-              height: 36,
-              strokeWidth: 4,
-            )
+          ? const UiSpinner(width: 36, height: 36, strokeWidth: 4)
           : _buildSkeleton();
     }
 
@@ -613,15 +626,17 @@ class _FiatFormState extends State<FiatForm> {
     if (!hasPaymentMethods) {
       return Center(
         child: Text(
-          LocaleKeys.noOptionsToPurchase
-              .tr(args: [_selectedCoin.symbol, _selectedFiat.symbol]),
+          LocaleKeys.noOptionsToPurchase.tr(
+            args: [_selectedCoin.symbol, _selectedFiat.symbol],
+          ),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       );
     } else {
-      final groupedPaymentMethods =
-          groupPaymentMethodsByProviderId(paymentMethods!);
+      final groupedPaymentMethods = groupPaymentMethodsByProviderId(
+        paymentMethods!,
+      );
       return Column(
         children: [
           for (var entry in groupedPaymentMethods.entries) ...[
@@ -634,7 +649,8 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   Map<String, List<Map<String, dynamic>>> groupPaymentMethodsByProviderId(
-      List<Map<String, dynamic>> paymentMethods) {
+    List<Map<String, dynamic>> paymentMethods,
+  ) {
     final groupedMethods = <String, List<Map<String, dynamic>>>{};
     for (final method in paymentMethods) {
       final providerId = method['provider_id'];
@@ -647,7 +663,9 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   Widget _buildPaymentMethodGroup(
-      String providerId, List<Map<String, dynamic>>? methods) {
+    String providerId,
+    List<Map<String, dynamic>>? methods,
+  ) {
     return Card(
       margin: const EdgeInsets.all(0),
       color: Theme.of(context).colorScheme.onSurface,
@@ -656,11 +674,13 @@ class _FiatFormState extends State<FiatForm> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-            color: Theme.of(context).primaryColor.withOpacity(
-                selectedPaymentMethod != null &&
-                        selectedPaymentMethod!['provider_id'] == providerId
-                    ? 1
-                    : 0.25)),
+          color: Theme.of(context).primaryColor.withOpacity(
+            selectedPaymentMethod != null &&
+                    selectedPaymentMethod!['provider_id'] == providerId
+                ? 1
+                : 0.25,
+          ),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -695,8 +715,10 @@ class _FiatFormState extends State<FiatForm> {
     return GridView(
       shrinkWrap: true,
       gridDelegate: _gridDelegate,
-      children:
-          List.generate(4, (index) => const Card(child: SkeletonListTile())),
+      children: List.generate(
+        4,
+        (index) => const Card(child: SkeletonListTile()),
+      ),
     );
   }
 
@@ -727,7 +749,8 @@ class _FiatFormState extends State<FiatForm> {
   Widget build(BuildContext context) {
     final formIssue = getFormIssue();
 
-    final canSubmit = !loading &&
+    final canSubmit =
+        !loading &&
         accountReference != null &&
         formIssue == null &&
         error == null;
@@ -789,9 +812,10 @@ class _FiatFormState extends State<FiatForm> {
                         eventType: WalletsManagerEventType.fiat,
                         child: UiPrimaryButton(
                           height: 40,
-                          text: loading
-                              ? '${LocaleKeys.submitting.tr()}...'
-                              : LocaleKeys.buyNow.tr(),
+                          text:
+                              loading
+                                  ? '${LocaleKeys.submitting.tr()}...'
+                                  : LocaleKeys.buyNow.tr(),
                           onPressed: canSubmit ? completeOrder : null,
                         ),
                       ),
@@ -804,11 +828,11 @@ class _FiatFormState extends State<FiatForm> {
                             : LocaleKeys.fiatConnectWallet.tr(),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodySmall,
-                      )
+                      ),
                     ],
                   ),
                 ),
-              )
+              ),
           ],
         ),
       ),

@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:universal_html/html.dart';
-import 'package:universal_html/js_util.dart';
+import 'dart:js_interop';
+import 'package:web/web.dart';
+import 'package:js/js_util.dart' as js_util;
 import 'package:web_dex/platform/platform.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
 
@@ -27,7 +28,7 @@ class FileLoaderWeb implements FileLoader {
     required String filename,
     required String data,
   }) async {
-    final AnchorElement anchor = AnchorElement();
+    final HTMLAnchorElement anchor = HTMLAnchorElement();
     anchor.href =
         '${Uri.dataFromString(data, mimeType: 'text/plain', encoding: utf8)}';
     anchor.download = filename;
@@ -40,11 +41,11 @@ class FileLoaderWeb implements FileLoader {
     required String data,
   }) async {
     final String? compressedData =
-        await promiseToFuture<String?>(zipEncode('$fileName.txt', data));
+        await zipEncode('$fileName.txt'.toJS, data.toJS).toDart;
 
     if (compressedData == null) return;
 
-    final anchor = AnchorElement();
+    final HTMLAnchorElement anchor = HTMLAnchorElement();
     anchor.href = 'data:application/zip;base64,$compressedData';
     anchor.download = '$fileName.zip';
     anchor.click();
@@ -56,7 +57,7 @@ class FileLoaderWeb implements FileLoader {
     required Function(String) onError,
     LoadFileType? fileType,
   }) async {
-    final FileUploadInputElement uploadInput = FileUploadInputElement();
+    final HTMLInputElement uploadInput = HTMLInputElement();
     if (fileType != null) {
       uploadInput.setAttribute('accept', _getMimeType(fileType));
     }

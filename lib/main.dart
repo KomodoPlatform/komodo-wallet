@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_coin_updates/komodo_coin_updates.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web/web.dart' as web;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/app_bloc_observer.dart';
@@ -58,12 +58,13 @@ Future<void> main() async {
 PerformanceMode? _getPerformanceModeFromUrl() {
   String? maybeEnvPerformanceMode;
 
-  maybeEnvPerformanceMode = const bool.hasEnvironment('DEMO_MODE_PERFORMANCE')
-      ? const String.fromEnvironment('DEMO_MODE_PERFORMANCE')
-      : null;
+  maybeEnvPerformanceMode =
+      const bool.hasEnvironment('DEMO_MODE_PERFORMANCE')
+          ? const String.fromEnvironment('DEMO_MODE_PERFORMANCE')
+          : null;
 
   if (kIsWeb) {
-    final url = html.window.location.href;
+    final url = web.window.location.href;
     final uri = Uri.parse(url);
     maybeEnvPerformanceMode =
         uri.queryParameters['demo_mode_performance'] ?? maybeEnvPerformanceMode;
@@ -86,9 +87,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthBloc>(
-          create: (_) => AuthBloc(authRepo: authRepo),
-        ),
+        BlocProvider<AuthBloc>(create: (_) => AuthBloc(authRepo: authRepo)),
       ],
       child: app_bloc_root.AppBlocRoot(
         storedPrefs: _storedSettings!,

@@ -10,7 +10,7 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_coin_updates/komodo_coin_updates.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web/web.dart' as web;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
@@ -79,8 +79,9 @@ class AppBlocRoot extends StatelessWidget {
   ) async {
     final sharedPrefs = await SharedPreferences.getInstance();
 
-    final storedLastPerformanceMode =
-        sharedPrefs.getString('last_performance_mode');
+    final storedLastPerformanceMode = sharedPrefs.getString(
+      'last_performance_mode',
+    );
 
     if (storedLastPerformanceMode != performanceMode?.name) {
       profitLossRepo.clearCache().ignore();
@@ -99,14 +100,15 @@ class AppBlocRoot extends StatelessWidget {
   Widget build(BuildContext context) {
     final performanceMode = appDemoPerformanceMode;
 
-    final transactionsRepo = performanceMode != null
-        ? MockTransactionHistoryRepo(
-            api: mm2Api,
-            client: Client(),
-            performanceMode: performanceMode,
-            demoDataGenerator: DemoDataCache.withDefaults(),
-          )
-        : TransactionHistoryRepo(api: mm2Api, client: Client());
+    final transactionsRepo =
+        performanceMode != null
+            ? MockTransactionHistoryRepo(
+              api: mm2Api,
+              client: Client(),
+              performanceMode: performanceMode,
+              demoDataGenerator: DemoDataCache.withDefaults(),
+            )
+            : TransactionHistoryRepo(api: mm2Api, client: Client());
 
     final profitLossRepo = ProfitLossRepository.withDefaults(
       transactionHistoryRepo: transactionsRepo,
@@ -133,110 +135,117 @@ class AppBlocRoot extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<PriceChartBloc>(
-            create: (context) => PriceChartBloc(binanceRepository)
-              ..add(
-                const PriceChartStarted(
-                  symbols: ['KMD'],
-                  period: Duration(days: 30),
+            create:
+                (context) => PriceChartBloc(binanceRepository)..add(
+                  const PriceChartStarted(
+                    symbols: ['KMD'],
+                    period: Duration(days: 30),
+                  ),
                 ),
-              ),
           ),
           BlocProvider<AssetOverviewBloc>(
-            create: (context) => AssetOverviewBloc(
-              investmentRepository: InvestmentRepository(
-                profitLossRepository: profitLossRepo,
-              ),
-              profitLossRepository: profitLossRepo,
-            ),
+            create:
+                (context) => AssetOverviewBloc(
+                  investmentRepository: InvestmentRepository(
+                    profitLossRepository: profitLossRepo,
+                  ),
+                  profitLossRepository: profitLossRepo,
+                ),
           ),
           BlocProvider<ProfitLossBloc>(
-            create: (context) => ProfitLossBloc(
-              profitLossRepository: profitLossRepo,
-            ),
+            create:
+                (context) =>
+                    ProfitLossBloc(profitLossRepository: profitLossRepo),
           ),
           BlocProvider<PortfolioGrowthBloc>(
-            create: (BuildContext ctx) => PortfolioGrowthBloc(
-              portfolioGrowthRepository: portfolioGrowthRepo,
-            ),
+            create:
+                (BuildContext ctx) => PortfolioGrowthBloc(
+                  portfolioGrowthRepository: portfolioGrowthRepo,
+                ),
           ),
           BlocProvider<TransactionHistoryBloc>(
-            create: (BuildContext ctx) => TransactionHistoryBloc(
-              repo: transactionsRepo,
-            ),
+            create:
+                (BuildContext ctx) =>
+                    TransactionHistoryBloc(repo: transactionsRepo),
           ),
           BlocProvider<SettingsBloc>(
-            create: (context) =>
-                SettingsBloc(storedPrefs, SettingsRepository()),
+            create:
+                (context) => SettingsBloc(storedPrefs, SettingsRepository()),
           ),
           BlocProvider<AnalyticsBloc>(
             // lazy: false,
-            create: (context) => AnalyticsBloc(
-              analytics: FirebaseAnalyticsRepo(storedPrefs.analytics),
-              storedData: storedPrefs,
-              repository: SettingsRepository(),
-            ),
+            create:
+                (context) => AnalyticsBloc(
+                  analytics: FirebaseAnalyticsRepo(storedPrefs.analytics),
+                  storedData: storedPrefs,
+                  repository: SettingsRepository(),
+                ),
           ),
           BlocProvider<TakerBloc>(
-            create: (context) => TakerBloc(
-              authRepo: authRepo,
-              dexRepository: dexRepository,
-              coinsRepository: coinsBloc,
-            ),
+            create:
+                (context) => TakerBloc(
+                  authRepo: authRepo,
+                  dexRepository: dexRepository,
+                  coinsRepository: coinsBloc,
+                ),
           ),
           BlocProvider<BridgeBloc>(
-            create: (context) => BridgeBloc(
-              authRepository: authRepo,
-              dexRepository: dexRepository,
-              bridgeRepository: BridgeRepository.instance,
-              coinsRepository: coinsBloc,
-            ),
+            create:
+                (context) => BridgeBloc(
+                  authRepository: authRepo,
+                  dexRepository: dexRepository,
+                  bridgeRepository: BridgeRepository.instance,
+                  coinsRepository: coinsBloc,
+                ),
           ),
           BlocProvider(
-            create: (_) => TrezorConnectionBloc(
-              trezorRepo: trezorRepo,
-              authRepo: authRepo,
-              walletRepo: currentWalletBloc,
-            ),
+            create:
+                (_) => TrezorConnectionBloc(
+                  trezorRepo: trezorRepo,
+                  authRepo: authRepo,
+                  walletRepo: currentWalletBloc,
+                ),
             lazy: false,
           ),
           BlocProvider(
             lazy: false,
-            create: (context) => NftMainBloc(
-              repo: context.read<NftsRepo>(),
-              authRepo: authRepo,
-              isLoggedIn:
-                  context.read<AuthBloc>().state.mode == AuthorizeMode.logIn,
-            ),
+            create:
+                (context) => NftMainBloc(
+                  repo: context.read<NftsRepo>(),
+                  authRepo: authRepo,
+                  isLoggedIn:
+                      context.read<AuthBloc>().state.mode ==
+                      AuthorizeMode.logIn,
+                ),
           ),
           if (isBitrefillIntegrationEnabled)
             BlocProvider(
-              create: (context) =>
-                  BitrefillBloc()..add(const BitrefillLoadRequested()),
+              create:
+                  (context) =>
+                      BitrefillBloc()..add(const BitrefillLoadRequested()),
             ),
           BlocProvider<MarketMakerBotBloc>(
-            create: (context) => MarketMakerBotBloc(
-              MarketMakerBotRepository(
-                mm2Api,
-                SettingsRepository(),
-              ),
-              MarketMakerBotOrderListRepository(
-                myOrdersService,
-                SettingsRepository(),
-              ),
-            ),
+            create:
+                (context) => MarketMakerBotBloc(
+                  MarketMakerBotRepository(mm2Api, SettingsRepository()),
+                  MarketMakerBotOrderListRepository(
+                    myOrdersService,
+                    SettingsRepository(),
+                  ),
+                ),
           ),
-          BlocProvider<SystemHealthBloc>(
-            create: (_) => SystemHealthBloc(),
-          ),
+          BlocProvider<SystemHealthBloc>(create: (_) => SystemHealthBloc()),
           BlocProvider<CoinConfigBloc>(
             lazy: false,
-            create: (_) => CoinConfigBloc(
-              coinsConfigRepo: CoinConfigRepository.withDefaults(
-                runtimeUpdateConfig,
-              ),
-            )
-              ..add(CoinConfigLoadRequested())
-              ..add(CoinConfigUpdateSubscribeRequested()),
+            create:
+                (_) =>
+                    CoinConfigBloc(
+                        coinsConfigRepo: CoinConfigRepository.withDefaults(
+                          runtimeUpdateConfig,
+                        ),
+                      )
+                      ..add(CoinConfigLoadRequested())
+                      ..add(CoinConfigUpdateSubscribeRequested()),
           ),
         ],
         child: _MyAppView(),
@@ -272,8 +281,9 @@ class _MyAppViewState extends State<_MyAppView> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       onGenerateTitle: (_) => appTitle,
-      themeMode: context
-          .select((SettingsBloc settingsBloc) => settingsBloc.state.themeMode),
+      themeMode: context.select(
+        (SettingsBloc settingsBloc) => settingsBloc.state.themeMode,
+      ),
       darkTheme: theme.global.dark,
       theme: theme.global.light,
       routerDelegate: _routerDelegate,
@@ -297,9 +307,9 @@ class _MyAppViewState extends State<_MyAppView> {
   // web and native to avoid web-code in code concerning all platforms.
   Future<void> _hideAppLoader() async {
     if (kIsWeb) {
-      html.document.getElementById('main-content')?.style.display = 'block';
+      web.document.getElementById('main-content')?.style.display = 'block';
 
-      final loadingElement = html.document.getElementById('loading');
+      final loadingElement = web.document.getElementById('loading');
 
       if (loadingElement == null) return;
 
@@ -319,8 +329,9 @@ class _MyAppViewState extends State<_MyAppView> {
   Future<void> _precacheCoinIcons() async {
     if (_currentPrecacheOperation != null &&
         !_currentPrecacheOperation!.isCompleted) {
-      _currentPrecacheOperation!
-          .completeError('New request to precache icons started.');
+      _currentPrecacheOperation!.completeError(
+        'New request to precache icons started.',
+      );
     }
 
     _currentPrecacheOperation = Completer<void>();
@@ -339,8 +350,10 @@ class _MyAppViewState extends State<_MyAppView> {
         // }
 
         // ignore: use_build_context_synchronously
-        await CoinIcon.precacheCoinIcon(context, abbr)
-            .onError((_, __) => debugPrint('Error precaching coin icon $abbr'));
+        await CoinIcon.precacheCoinIcon(
+          context,
+          abbr,
+        ).onError((_, __) => debugPrint('Error precaching coin icon $abbr'));
       }
 
       _currentPrecacheOperation!.complete();

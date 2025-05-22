@@ -1,4 +1,4 @@
-import 'package:universal_html/html.dart';
+import 'package:web/web.dart';
 import 'package:web_dex/services/platform_info/plaftorm_info.dart';
 import 'package:web_dex/shared/utils/browser_helpers.dart';
 

@@ -57,6 +57,7 @@ dependencies:
   http: 0.13.6 # dart.dev
   intl: 0.19.0 # dart.dev
   js: 0.6.7 # dart.dev
+  web: 1.1.0 # dart.dev
   shared_preferences: 2.1.1 # flutter.dev
   url_launcher: 6.1.11 # flutter.dev
   crypto: 3.0.3 # dart.dev
@@ -155,10 +156,6 @@ dependencies:
       ref: 84d8fe00e33560405c6d72b22a6e9c5c468db058 #1.2.1
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  universal_html:
-    git:
-      url: https://github.com/KomodoPlatform/universal_html.git
-      ref: 6a1bc7d9e6ed735ab9f7b319f9eedb138ce8b0e5 #2.2.2
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   file_picker:

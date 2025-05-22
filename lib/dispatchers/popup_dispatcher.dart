@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web/web.dart' as web;
 import 'package:web_dex/router/state/routing_state.dart';
 
 class PopupDispatcher {
@@ -36,7 +36,7 @@ class PopupDispatcher {
   bool _isShown = false;
   bool get isShown => _isShown;
 
-  StreamSubscription<html.PopStateEvent>? _popStreamSubscription;
+  StreamSubscription<web.PopStateEvent>? _popStreamSubscription;
 
   Future<void> show() async {
     if (_currentContext == null) return;
@@ -52,18 +52,21 @@ class PopupDispatcher {
       barrierColor: theme.custom.dialogBarrierColor,
       builder: (BuildContext dialogContext) {
         return SimpleDialog(
-          insetPadding: insetPadding ??
+          insetPadding:
+              insetPadding ??
               EdgeInsets.symmetric(
                 horizontal: isMobile ? 16 : 24,
                 vertical: isMobile ? 40 : 24,
               ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
-            side: borderColor != null
-                ? BorderSide(color: borderColor)
-                : BorderSide.none,
+            side:
+                borderColor != null
+                    ? BorderSide(color: borderColor)
+                    : BorderSide.none,
           ),
-          contentPadding: contentPadding ??
+          contentPadding:
+              contentPadding ??
               EdgeInsets.symmetric(
                 horizontal: isMobile ? 16 : 30,
                 vertical: isMobile ? 26 : 30,
@@ -73,7 +76,7 @@ class PopupDispatcher {
               width: width,
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: popupContent,
-            )
+            ),
           ],
         );
       },
@@ -99,7 +102,7 @@ class PopupDispatcher {
   }
 
   void _onPopStateSubscriptionWeb() {
-    _popStreamSubscription = html.window.onPopState.listen((_) {
+    _popStreamSubscription = web.window.onPopState.listen((_) {
       final navigator = Navigator.of(_currentContext!, rootNavigator: true);
       if (navigator.canPop()) {
         _resetBrowserNavigationToDefault();
