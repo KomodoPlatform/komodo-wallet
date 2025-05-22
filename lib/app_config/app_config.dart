@@ -60,7 +60,7 @@ Map<String, int> priorityCoinsAbbrMap = {
 
 /// List of coins that are excluded from the list of coins displayed on the
 /// coin lists (e.g. wallet page, coin selection dropdowns, etc.)
-const List<String> excludedAssetList = [
+const Set<String> excludedAssetList = {
   'ADEXBSCT',
   'ADEXBSC',
   'BRC',
@@ -90,7 +90,7 @@ const List<String> excludedAssetList = [
   'NFT_BNB',
   'NFT_FTM',
   'NFT_MATIC',
-];
+};
 
 const List<String> excludedAssetListTrezor = [
   // https://github.com/KomodoPlatform/atomicDEX-API/issues/1510

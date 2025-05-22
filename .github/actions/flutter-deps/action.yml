@@ -9,7 +9,6 @@ runs:
         # NB! Keep up-to-date with the flutter version used for development
         flutter-version: "3.29.2"
         channel: "stable"
-        cache: true
 
     - name: Prepare build directory
       shell: bash

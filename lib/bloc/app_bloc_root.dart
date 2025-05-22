@@ -416,7 +416,8 @@ class _MyAppViewState extends State<_MyAppView> {
 
     try {
       final stopwatch = Stopwatch()..start();
-      final coins = coinsRepo.getKnownCoinsMap().keys;
+      final coins =
+          coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true).keys;
 
       await for (final abbr in Stream.fromIterable(coins)) {
         // TODO: Test if necessary to complete prematurely with error if build
