@@ -77,6 +77,18 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                         setState(() {
                           _action = newAction;
                         });
+
+                        final method = newAction == WalletsManagerAction.create
+                            ? 'create'
+                            : 'import';
+                        context.read<AnalyticsBloc>().add(
+                              AnalyticsSendDataEvent(
+                                AnalyticsEvents.onboardingStarted(
+                                  method: method,
+                                  referralSource: widget.eventType.name,
+                                ),
+                              ),
+                            );
                       },
                     ),
                   ),
@@ -247,8 +259,32 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   void _onLogIn() {
     final currentUser = context.read<AuthBloc>().state.currentUser;
     final currentWallet = currentUser?.wallet;
+    final action = _action;
     _action = WalletsManagerAction.none;
     if (currentUser != null && currentWallet != null) {
+      final analyticsBloc = context.read<AnalyticsBloc>();
+      final source = isMobile ? 'mobile' : 'desktop';
+      final walletType = currentWallet.config.type.name;
+      if (action == WalletsManagerAction.create) {
+        analyticsBloc.add(
+          AnalyticsSendDataEvent(
+            AnalyticsEvents.walletCreated(
+              source: source,
+              walletType: walletType,
+            ),
+          ),
+        );
+      } else if (action == WalletsManagerAction.import) {
+        analyticsBloc.add(
+          AnalyticsSendDataEvent(
+            AnalyticsEvents.walletImported(
+              source: source,
+              importType: 'seed_phrase',
+              walletType: walletType,
+            ),
+          ),
+        );
+      }
       context.read<CoinsBloc>().add(CoinsSessionStarted(currentUser));
       widget.onSuccess(currentWallet);
     }
