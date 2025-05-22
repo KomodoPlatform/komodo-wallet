@@ -9,6 +9,10 @@ import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -309,6 +313,25 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
   }
 
   Future<void> _startSwap(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+    final walletType =
+        authBloc.state.currentUser?.wallet.config.type.name ?? '';
+    final takerBloc = context.read<TakerBloc>();
+    final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
+    final sellCoinObj = takerBloc.state.sellCoin!;
+    final buyCoinObj = coinsRepo.getCoin(takerBloc.state.selectedOrder!.coin);
+    final sellCoin = sellCoinObj.abbr;
+    final buyCoin = buyCoinObj?.abbr ?? takerBloc.state.selectedOrder!.coin;
+    final networks =
+        '${sellCoinObj.protocolType},${buyCoinObj?.protocolType ?? ''}';
+    context.read<AnalyticsBloc>().add(
+          AnalyticsSwapInitiatedEvent(
+            fromAsset: sellCoin,
+            toAsset: buyCoin,
+            networks: networks,
+            walletType: walletType,
+          ),
+        );
     context.read<TakerBloc>().add(TakerStartSwap());
   }
 
