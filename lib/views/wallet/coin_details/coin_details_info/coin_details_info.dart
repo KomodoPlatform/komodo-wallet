@@ -11,7 +11,7 @@ import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_b
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_event.dart';
-import 'package:web_dex/analytics/analytics_factory.dart';
+import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
@@ -411,19 +411,30 @@ class _CoinDetailsMarketMetricsTabBarState
         });
       }
 
-      if (_tabController!.index == 1 && !_tabController!.indexIsChanging) {
-        final profitLossState = context.read<ProfitLossBloc>().state;
-        if (profitLossState is PortfolioProfitLossChartLoadSuccess) {
-          final timeframe = _formatDuration(profitLossState.selectedPeriod);
-          context.read<AnalyticsBloc>().add(
-                AnalyticsSendDataEvent(
-                  AnalyticsEvents.portfolioPnlViewed(
+      if (!_tabController!.indexIsChanging) {
+        if (_tabController!.index == 0) {
+          final growthState = context.read<PortfolioGrowthBloc>().state;
+          if (growthState is PortfolioGrowthChartLoadSuccess) {
+            final period = _formatDuration(growthState.selectedPeriod);
+            context.read<AnalyticsBloc>().add(
+                  AnalyticsPortfolioGrowthViewedEvent(
+                    period: period,
+                    growthPct: growthState.percentageIncrease,
+                  ),
+                );
+          }
+        } else if (_tabController!.index == 1) {
+          final profitLossState = context.read<ProfitLossBloc>().state;
+          if (profitLossState is PortfolioProfitLossChartLoadSuccess) {
+            final timeframe = _formatDuration(profitLossState.selectedPeriod);
+            context.read<AnalyticsBloc>().add(
+                  AnalyticsPortfolioPnlViewedEvent(
                     timeframe: timeframe,
                     realizedPnl: profitLossState.totalValue,
                     unrealizedPnl: 0,
                   ),
-                ),
-              );
+                );
+          }
         }
       }
     });
