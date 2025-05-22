@@ -15,7 +15,7 @@ class CoinsManagerSwitchButton extends StatelessWidget {
     final state = context.watch<CoinsManagerBloc>().state;
 
     return UiPrimaryButton(
-      buttonKey: const Key('coins-manager-switch-button'),
+      key: const Key('coins-manager-switch-button'),
       prefix: state.isSwitching
           ? Padding(
               padding: const EdgeInsets.only(right: 8),

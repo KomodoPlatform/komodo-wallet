@@ -257,10 +257,10 @@ class _DesktopCoinDetails extends StatelessWidget {
               ),
             ],
           ),
-          Padding(
+          Container(
             padding: const EdgeInsets.fromLTRB(2, 28.0, 0, 0),
+            width: double.infinity,
             child: CoinDetailsCommonButtons(
-              isMobile: false,
               selectWidget: setPageType,
               onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
                   ? null
@@ -361,7 +361,6 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 12.0, bottom: 14.0),
             child: CoinDetailsCommonButtons(
-              isMobile: true,
               selectWidget: setPageType,
               onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
                   ? () => _goToSwap(context, coin)

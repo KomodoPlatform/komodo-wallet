@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class BitrefillTransactionCompletedDialog extends StatelessWidget {
   const BitrefillTransactionCompletedDialog({

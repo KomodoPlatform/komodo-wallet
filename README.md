@@ -34,6 +34,7 @@ Current production version is available here: https://app.komodoplatform.com
 - [Localization](docs/LOCALIZATION.md)
 - [Unit testing](docs/UNIT_TESTING.md)
 - [Integration testing](docs/INTEGRATION_TESTING.md)
+- [SDK Dependency Management](docs/SDK_DEPENDENCY_MANAGEMENT.md)
 - [Gitflow and branching strategy](docs/GITFLOW_BRANCHING.md)
 - [Issue: create and maintain](docs/ISSUE.md) ...in progress
 - [Contribution guide](docs/CONTRIBUTION_GUIDE.md)

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_bloc.dart';
@@ -68,9 +68,8 @@ class _FaucetButtonState extends State<FaucetButton> {
                   : themeData.colorScheme.tertiary,
               borderRadius: BorderRadius.circular(16.0),
             ),
-            child: UiPrimaryButton(
+            child: UiPrimaryButton.flexible(
               key: Key('coin-details-faucet-button-${widget.address.address}'),
-              height: isMobile ? 24.0 : 32.0,
               backgroundColor: themeData.colorScheme.tertiary,
               onPressed: isLoading
                   ? null
@@ -80,24 +79,22 @@ class _FaucetButtonState extends State<FaucetButton> {
                             address: widget.address.address,
                           ));
                     },
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: isMobile ? 6.0 : 8.0,
-                  horizontal: isMobile ? 8.0 : 12.0,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.local_drink_rounded,
-                        color: Colors.blue, size: isMobile ? 14 : 16),
-                    Text(
-                      LocaleKeys.faucet.tr(),
-                      style: TextStyle(
-                          fontSize: isMobile ? 9 : 12,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
+              padding: EdgeInsets.symmetric(
+                vertical: isMobile ? 6.0 : 8.0,
+                horizontal: isMobile ? 8.0 : 12.0,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.local_drink_rounded,
+                      color: Colors.blue, size: isMobile ? 14 : 16),
+                  Text(
+                    LocaleKeys.faucet.tr(),
+                    style: TextStyle(
+                        fontSize: isMobile ? 9 : 12,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ],
               ),
             ),
           ),

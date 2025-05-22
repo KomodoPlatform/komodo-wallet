@@ -10,6 +10,8 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_inappwebview_button.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:get_it/get_it.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 
 /// A button that opens the Bitrefill widget in a new window or tab.
 /// The Bitrefill widget is a web page that allows the user to purchase gift
@@ -67,26 +69,31 @@ class _BitrefillButtonState extends State<BitrefillButton> {
             sdk.balances.lastKnown(widget.coin.id)?.spendable.toDouble() ?? 0.0;
         final bool hasNonZeroBalance = coinBalance > 0;
 
-        final bool isEnabled = bitrefillLoadSuccess &&
-            isCoinSupported &&
-            !widget.coin.isSuspended &&
-            hasNonZeroBalance;
+        final bool shouldShow =
+            bitrefillLoadSuccess && isCoinSupported && !widget.coin.isSuspended;
+
+        final bool isEnabled = shouldShow && hasNonZeroBalance;
 
         final String url = state is BitrefillLoadSuccess ? state.url : '';
 
-        if (!isEnabled) {
+        if (!shouldShow) {
           return const SizedBox.shrink();
         }
 
-        return Column(
-          children: [
-            BitrefillInAppWebviewButton(
-              windowTitle: widget.windowTitle,
-              url: url,
-              enabled: isEnabled,
-              onMessage: handleMessage,
-            ),
-          ],
+        // Show tooltip if balance is zero
+        final String tooltipMessage =
+            !hasNonZeroBalance ? LocaleKeys.zeroBalanceTooltip.tr() : '';
+
+        return Tooltip(
+          message: tooltipMessage,
+          child: BitrefillInAppWebviewButton(
+            key: Key(
+                'coin-details-bitrefill-button-${widget.coin.abbr.toLowerCase()}'),
+            windowTitle: widget.windowTitle,
+            url: url,
+            enabled: isEnabled,
+            onMessage: handleMessage,
+          ),
         );
       },
     );

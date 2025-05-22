@@ -90,6 +90,17 @@ abstract class  LocaleKeys {
   static const transactions = 'transactions';
   static const send = 'send';
   static const receive = 'receive';
+  static const message = 'message';
+  static const signMessage = 'signMessage';
+  static const selectedAddress = 'selectedAddress';
+  static const selectAddress = 'selectAddress';
+  static const messageToSign = 'messageToSign';
+  static const enterMessage = 'enterMessage';
+  static const signMessageButton = 'signMessageButton';
+  static const signedMessage = 'signedMessage';
+  static const pleaseSelectAddress = 'pleaseSelectAddress';
+  static const pleaseEnterMessage = 'pleaseEnterMessage';
+  static const failedToSignMessage = 'failedToSignMessage';
   static const faucet = 'faucet';
   static const reward = 'reward';
   static const loadingSwap = 'loadingSwap';
@@ -448,6 +459,7 @@ abstract class  LocaleKeys {
   static const unknown = 'unknown';
   static const unableToActiveCoin = 'unableToActiveCoin';
   static const feedback = 'feedback';
+  static const failedToLoadAddresses = 'failedToLoadAddresses';
   static const feedbackViewTitle = 'feedbackViewTitle';
   static const feedbackPageDescription = 'feedbackPageDescription';
   static const sendFeedbackButton = 'sendFeedbackButton';
@@ -473,6 +485,7 @@ abstract class  LocaleKeys {
   static const cancelOrder = 'cancelOrder';
   static const version = 'version';
   static const copyToClipboard = 'copyToClipboard';
+  static const copyAllDetails = 'copyAllDetails';
   static const createdAt = 'createdAt';
   static const coin = 'coin';
   static const token = 'token';
@@ -549,6 +562,7 @@ abstract class  LocaleKeys {
   static const qrScannerErrorGenericError = 'qrScannerErrorGenericError';
   static const qrScannerErrorTitle = 'qrScannerErrorTitle';
   static const spend = 'spend';
+  static const zeroBalanceTooltip = 'zeroBalanceTooltip';
   static const viewInvoice = 'viewInvoice';
   static const systemTimeWarning = 'systemTimeWarning';
   static const errorCode = 'errorCode';
@@ -640,6 +654,9 @@ abstract class  LocaleKeys {
   static const allTimeInvestment = 'allTimeInvestment';
   static const allTimeProfit = 'allTimeProfit';
   static const profitAndLoss = 'profitAndLoss';
+  static const searchAddresses = 'searchAddresses';
+  static const userNotFoundError = 'userNotFoundError';
+  static const loginFailedError = 'loginFailedError';
   static const alertDialogBitrefill = 'alertDialogBitrefill';
   static const showNoTradingWarning = 'showNoTradingWarning';
   static const showNoTradingWarningMessage = 'showNoTradingWarningMessage';
@@ -657,7 +674,6 @@ abstract class  LocaleKeys {
   static const customNetworkFee = 'customNetworkFee';
   static const previewWithdrawal = 'previewWithdrawal';
   static const createNewAddress = 'createNewAddress';
-  static const searchAddresses = 'searchAddresses';
   static const chart = 'chart';
 
 }

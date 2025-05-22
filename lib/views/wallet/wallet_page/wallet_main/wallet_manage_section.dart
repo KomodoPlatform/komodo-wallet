@@ -65,7 +65,7 @@ class WalletManageSection extends StatelessWidget {
                   ),
                   SizedBox(width: 24),
                   UiPrimaryButton(
-                    buttonKey: const Key('add-assets-button'),
+                    key: const Key('add-assets-button'),
                     onPressed: () => _onAddAssetsPress(context),
                     text: LocaleKeys.addAssets.tr(),
                     height: 36,
@@ -101,7 +101,7 @@ class WalletManageSection extends StatelessWidget {
               Spacer(),
               if (isAuthenticated)
                 UiPrimaryButton(
-                  buttonKey: const Key('asset-management-button'),
+                  key: const Key('asset-management-button'),
                   onPressed: () => _onAddAssetsPress(context),
                   text: 'Asset management',
                   height: 36,

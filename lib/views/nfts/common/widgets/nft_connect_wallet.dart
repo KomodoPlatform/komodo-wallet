@@ -18,7 +18,7 @@ class NftConnectWallet extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 210),
             child: NftNoLogin(text: LocaleKeys.nftMainLoggedOut.tr())),
         if (isMobile)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 16),
             child: ConnectWalletButton(
               eventType: WalletsManagerEventType.nft,
