@@ -7,6 +7,8 @@ import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/cross_chain_events.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -104,7 +106,22 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
   }
 
   Future<void> startSwap() async {
-    context.read<BridgeBloc>().add(const BridgeStartSwap());
+    final bloc = context.read<BridgeBloc>();
+    final state = bloc.state;
+    final sellCoin = state.sellCoin;
+    final buyCoin = RepositoryProvider.of<CoinsRepo>(context)
+        .getCoin(state.bestOrder?.coin ?? '');
+    if (sellCoin != null && buyCoin != null) {
+      context.read<AnalyticsBloc>().add(
+            AnalyticsBridgeInitiatedEvent(
+              fromChain: sellCoin.protocolType,
+              toChain: buyCoin.protocolType,
+              asset: sellCoin.abbr,
+            ),
+          );
+    }
+
+    bloc.add(const BridgeStartSwap());
   }
 
   void onCancel() {
