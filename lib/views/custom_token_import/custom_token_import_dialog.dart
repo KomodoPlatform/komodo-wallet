@@ -12,6 +12,9 @@ import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/analytics_events.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 
 class CustomTokenImportDialog extends StatefulWidget {
   const CustomTokenImportDialog({super.key});
@@ -252,6 +255,25 @@ class ImportSubmitPage extends StatelessWidget {
           previous.importStatus != current.importStatus,
       listener: (context, state) {
         if (state.importStatus == FormStatus.success) {
+          final walletType = context
+                  .read<AuthBloc>()
+                  .state
+                  .currentUser
+                  ?.wallet
+                  .config
+                  .type
+                  .name ??
+              'unknown';
+          final asset = state.coin;
+          if (asset != null) {
+            context.read<AnalyticsBloc>().add(
+                  AnalyticsAssetAddedEvent(
+                    assetSymbol: asset.id.id,
+                    assetNetwork: state.network.name,
+                    walletType: walletType,
+                  ),
+                );
+          }
           Navigator.of(context).pop();
         }
       },

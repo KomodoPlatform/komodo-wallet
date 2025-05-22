@@ -7,8 +7,10 @@ import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/analytics_events.dart';
 
-class WalletOverview extends StatelessWidget {
+class WalletOverview extends StatefulWidget {
   const WalletOverview({
     super.key,
     this.onPortfolioGrowthPressed,
@@ -17,6 +19,13 @@ class WalletOverview extends StatelessWidget {
 
   final VoidCallback? onPortfolioGrowthPressed;
   final VoidCallback? onPortfolioProfitLossPressed;
+
+  @override
+  State<WalletOverview> createState() => _WalletOverviewState();
+}
+
+class _WalletOverviewState extends State<WalletOverview> {
+  bool _eventLogged = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +41,16 @@ class WalletOverview extends StatelessWidget {
                 as PortfolioAssetsOverviewLoadSuccess
             : null;
 
+        if (!_eventLogged && stateWithData != null) {
+          _eventLogged = true;
+          context.read<AnalyticsBloc>().add(
+                AnalyticsPortfolioViewedEvent(
+                  totalCoins: assetCount,
+                  totalValueUsd: stateWithData.totalInvestment.value,
+                ),
+              );
+        }
+
         return Wrap(
           runSpacing: 16,
           children: [
@@ -42,7 +61,7 @@ class WalletOverview extends StatelessWidget {
                 caption: Text(LocaleKeys.allTimeInvestment.tr()),
                 value: stateWithData?.totalInvestment.value ?? 0,
                 actionIcon: const Icon(CustomIcons.fiatIconCircle),
-                onPressed: onPortfolioGrowthPressed,
+                onPressed: widget.onPortfolioGrowthPressed,
                 footer: Container(
                   height: 28,
                   decoration: BoxDecoration(
@@ -73,7 +92,7 @@ class WalletOverview extends StatelessWidget {
                   percentage: stateWithData?.profitIncreasePercentage ?? 0,
                 ),
                 actionIcon: const Icon(Icons.trending_up),
-                onPressed: onPortfolioProfitLossPressed,
+                onPressed: widget.onPortfolioProfitLossPressed,
               ),
             ),
           ],

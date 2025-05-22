@@ -18,6 +18,9 @@ import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_list.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_list_header.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_selected_types_list.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/analytics/analytics_events.dart';
 
 class CoinsManagerListWrapper extends StatefulWidget {
   const CoinsManagerListWrapper({super.key});
@@ -125,6 +128,28 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       _informationPopup.show();
       return;
     }
+    final walletType =
+        context.read<AuthBloc>().state.currentUser?.wallet.config.type.name ??
+            'unknown';
+
+    if (bloc.state.action == CoinsManagerAction.add) {
+      context.read<AnalyticsBloc>().add(
+            AnalyticsAssetEnabledEvent(
+              assetSymbol: coin.abbr,
+              assetNetwork: coin.type.name,
+              walletType: walletType,
+            ),
+          );
+    } else if (bloc.state.action == CoinsManagerAction.remove) {
+      context.read<AnalyticsBloc>().add(
+            AnalyticsAssetDisabledEvent(
+              assetSymbol: coin.abbr,
+              assetNetwork: coin.type.name,
+              walletType: walletType,
+            ),
+          );
+    }
+
     bloc.add(CoinsManagerCoinSelect(coin: coin));
   }
 }
