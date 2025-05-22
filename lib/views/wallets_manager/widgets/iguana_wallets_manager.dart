@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/analytics/analytics_factory.dart';
+import 'package:web_dex/analytics/events/user_acquisition_events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -83,11 +83,9 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                             ? 'create'
                             : 'import';
                         context.read<AnalyticsBloc>().add(
-                              AnalyticsSendDataEvent(
-                                AnalyticsEvents.onboardingStarted(
-                                  method: method,
-                                  referralSource: widget.eventType.name,
-                                ),
+                              AnalyticsOnboardingStartedEvent(
+                                method: method,
+                                referralSource: widget.eventType.name,
                               ),
                             );
                       },
@@ -268,21 +266,17 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       final walletType = currentWallet.config.type.name;
       if (action == WalletsManagerAction.create) {
         analyticsBloc.add(
-          AnalyticsSendDataEvent(
-            AnalyticsEvents.walletCreated(
-              source: source,
-              walletType: walletType,
-            ),
+          AnalyticsWalletCreatedEvent(
+            source: source,
+            walletType: walletType,
           ),
         );
       } else if (action == WalletsManagerAction.import) {
         analyticsBloc.add(
-          AnalyticsSendDataEvent(
-            AnalyticsEvents.walletImported(
-              source: source,
-              importType: 'seed_phrase',
-              walletType: walletType,
-            ),
+          AnalyticsWalletImportedEvent(
+            source: source,
+            importType: 'seed_phrase',
+            walletType: walletType,
           ),
         );
       }
