@@ -23,6 +23,7 @@ import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/views/wallet/wallet_page/common/wallet_coins_sort.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
@@ -51,6 +52,10 @@ class _WalletMainState extends State<WalletMain>
   PopupDispatcher? _popupDispatcher;
   StreamSubscription<Wallet?>? _walletSubscription;
   late TabController _tabController;
+  WalletCoinsSortData _sortData = const WalletCoinsSortData(
+    sortDirection: SortDirection.decrease,
+    sortType: WalletCoinsSortType.value,
+  );
 
   @override
   void initState() {
@@ -136,6 +141,8 @@ class _WalletMainState extends State<WalletMain>
                         withBalance: _showCoinWithBalance,
                         onSearchChange: _onSearchChange,
                         onWithBalanceChange: _onShowCoinsWithBalanceClick,
+                        sortData: _sortData,
+                        onSortChange: _onSortChange,
                         mode: authStateMode,
                       ),
                     ),
@@ -219,6 +226,7 @@ class _WalletMainState extends State<WalletMain>
           searchPhrase: _searchKey,
           withBalance: _showCoinWithBalance,
           onCoinItemTap: _onActiveCoinItemTap,
+          sortData: _sortData,
         );
       case AuthorizeMode.hiddenLogin:
       case AuthorizeMode.noLogin:
@@ -254,6 +262,12 @@ class _WalletMainState extends State<WalletMain>
   void _onSearchChange(String searchKey) {
     setState(() {
       _searchKey = searchKey.toLowerCase();
+    });
+  }
+
+  void _onSortChange(WalletCoinsSortData data) {
+    setState(() {
+      _sortData = data;
     });
   }
 
@@ -299,11 +313,15 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
     required this.withBalance,
     required this.onSearchChange,
     required this.onWithBalanceChange,
+    required this.sortData,
+    required this.onSortChange,
     required this.mode,
   });
   final bool withBalance;
   final Function(String) onSearchChange;
   final Function(bool) onWithBalanceChange;
+  final WalletCoinsSortData sortData;
+  final void Function(WalletCoinsSortData) onSortChange;
   final AuthorizeMode mode;
 
   @override
@@ -323,6 +341,8 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
       withBalance: withBalance,
       onSearchChange: onSearchChange,
       onWithBalanceChange: onWithBalanceChange,
+      sortData: sortData,
+      onSortChange: onSortChange,
       mode: mode,
       pinned: shrinkOffset > 0,
     );
@@ -330,6 +350,8 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(_SliverSearchBarDelegate oldDelegate) {
-    return withBalance != oldDelegate.withBalance || mode != oldDelegate.mode;
+    return withBalance != oldDelegate.withBalance ||
+        mode != oldDelegate.mode ||
+        sortData != oldDelegate.sortData;
   }
 }

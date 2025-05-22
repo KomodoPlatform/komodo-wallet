@@ -11,6 +11,7 @@ import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/coins_list_header.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_manager_search_field.dart';
+import 'package:web_dex/views/wallet/wallet_page/common/wallet_coins_sort.dart';
 
 class WalletManageSection extends StatelessWidget {
   const WalletManageSection({
@@ -18,6 +19,8 @@ class WalletManageSection extends StatelessWidget {
     required this.withBalance,
     required this.onSearchChange,
     required this.onWithBalanceChange,
+    required this.sortData,
+    required this.onSortChange,
     required this.pinned,
     super.key,
   });
@@ -25,6 +28,8 @@ class WalletManageSection extends StatelessWidget {
   final AuthorizeMode mode;
   final Function(bool) onWithBalanceChange;
   final Function(String) onSearchChange;
+  final WalletCoinsSortData sortData;
+  final void Function(WalletCoinsSortData) onSortChange;
   final bool pinned;
 
   @override
@@ -77,7 +82,11 @@ class WalletManageSection extends StatelessWidget {
               ],
             ),
             Spacer(),
-            CoinsListHeader(isAuth: mode == AuthorizeMode.logIn),
+            CoinsListHeader(
+              isAuth: mode == AuthorizeMode.logIn,
+              sortData: sortData,
+              onSortChange: onSortChange,
+            ),
           ],
         ),
       ),
