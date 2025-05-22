@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/events/user_acquisition_events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -77,6 +78,16 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                         setState(() {
                           _action = newAction;
                         });
+
+                        final method = newAction == WalletsManagerAction.create
+                            ? 'create'
+                            : 'import';
+                        context.read<AnalyticsBloc>().add(
+                              AnalyticsOnboardingStartedEvent(
+                                method: method,
+                                referralSource: widget.eventType.name,
+                              ),
+                            );
                       },
                     ),
                   ),
@@ -247,8 +258,28 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   void _onLogIn() {
     final currentUser = context.read<AuthBloc>().state.currentUser;
     final currentWallet = currentUser?.wallet;
+    final action = _action;
     _action = WalletsManagerAction.none;
     if (currentUser != null && currentWallet != null) {
+      final analyticsBloc = context.read<AnalyticsBloc>();
+      final source = isMobile ? 'mobile' : 'desktop';
+      final walletType = currentWallet.config.type.name;
+      if (action == WalletsManagerAction.create) {
+        analyticsBloc.add(
+          AnalyticsWalletCreatedEvent(
+            source: source,
+            walletType: walletType,
+          ),
+        );
+      } else if (action == WalletsManagerAction.import) {
+        analyticsBloc.add(
+          AnalyticsWalletImportedEvent(
+            source: source,
+            importType: 'seed_phrase',
+            walletType: walletType,
+          ),
+        );
+      }
       context.read<CoinsBloc>().add(CoinsSessionStarted(currentUser));
       widget.onSuccess(currentWallet);
     }

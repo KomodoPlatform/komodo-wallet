@@ -28,6 +28,9 @@ import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/animated_portfolio_charts.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/assets_list.dart';
@@ -51,10 +54,16 @@ class _WalletMainState extends State<WalletMain>
   PopupDispatcher? _popupDispatcher;
   StreamSubscription<Wallet?>? _walletSubscription;
   late TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
+  late final Stopwatch _walletListStopwatch;
+  bool _walletHalfLogged = false;
 
   @override
   void initState() {
     super.initState();
+
+    _walletListStopwatch = Stopwatch()..start();
+    _scrollController.addListener(_onScroll);
 
     final authBloc = context.read<AuthBloc>();
     if (authBloc.state.currentUser != null) {
@@ -69,6 +78,7 @@ class _WalletMainState extends State<WalletMain>
     _walletSubscription?.cancel();
     _popupDispatcher?.close();
     _popupDispatcher = null;
+    _scrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -101,6 +111,7 @@ class _WalletMainState extends State<WalletMain>
               content: Expanded(
                 child: CustomScrollView(
                   key: const Key('wallet-page-scroll-view'),
+                  controller: _scrollController,
                   slivers: <Widget>[
                     SliverToBoxAdapter(
                       child: Column(
@@ -270,6 +281,22 @@ class _WalletMainState extends State<WalletMain>
   void _onAssetItemTap(Coin coin) {
     _popupDispatcher = _createPopupDispatcher();
     _popupDispatcher!.show();
+  }
+
+  void _onScroll() {
+    if (_walletHalfLogged || !_scrollController.hasClients) return;
+
+    final half = MediaQuery.of(context).size.height / 2;
+    if (_scrollController.offset >= half) {
+      _walletHalfLogged = true;
+      final coinsCount = context.read<CoinsBloc>().state.walletCoins.length;
+      context.read<AnalyticsBloc>().add(
+            AnalyticsSendDataEvent(WalletListHalfViewportReachedEventData(
+              timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
+              walletSize: coinsCount,
+            )),
+          );
+    }
   }
 
   PopupDispatcher _createPopupDispatcher() {
