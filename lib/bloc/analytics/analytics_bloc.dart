@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
@@ -57,10 +56,9 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
     AnalyticsSendDataEvent event,
     Emitter<AnalyticsState> emitter,
   ) async {
-    if (state.isSendDataAllowed) {
-      
-      await _analytics.sendData(event.data);
-    }
+    // Use queueEvent instead of sendData for consistency
+    // This will automatically handle the event based on analytics state
+    await _analytics.queueEvent(event.data);
   }
 }
 
