@@ -1,0 +1,48 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "komodo-wallet",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "--web-port=55353"
+            ],
+            "type": "dart"
+        },
+        {
+            "name": "komodo-wallet (no-cache)",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "type": "dart"
+        },
+        {
+            "name": "komodo-wallet (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--web-port=55353"
+            ],
+            // Specify testing mode here to show more verbose logging
+            // despite not being in debug mode.
+            "env": {
+                "testing_mode": "true"
+            },
+            "flutterMode": "profile"
+        },
+        {
+            "name": "komodo-wallet (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "release",
+            "args": [
+                "--web-port=55353"
+            ]
+        }
+    ]
+}
