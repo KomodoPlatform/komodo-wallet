@@ -9,8 +9,12 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
@@ -60,6 +64,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   late final _coinAddressesBloc = CoinAddressesBloc(
     context.sdk,
     widget.coin.abbr,
+    context.read<AnalyticsBloc>(),
   )..add(LoadAddressesEvent());
 
   @override
@@ -405,7 +410,43 @@ class _CoinDetailsMarketMetricsTabBarState
           _currentIndex = _tabController!.index;
         });
       }
+
+      if (!_tabController!.indexIsChanging) {
+        if (_tabController!.index == 0) {
+          final growthState = context.read<PortfolioGrowthBloc>().state;
+          if (growthState is PortfolioGrowthChartLoadSuccess) {
+            final period = _formatDuration(growthState.selectedPeriod);
+            context.read<AnalyticsBloc>().logEvent(
+                  PortfolioGrowthViewedEventData(
+                    period: period,
+                    growthPct: growthState.percentageIncrease,
+                  ),
+                );
+          }
+        } else if (_tabController!.index == 1) {
+          final profitLossState = context.read<ProfitLossBloc>().state;
+          if (profitLossState is PortfolioProfitLossChartLoadSuccess) {
+            final timeframe = _formatDuration(profitLossState.selectedPeriod);
+            context.read<AnalyticsBloc>().logEvent(
+                  PortfolioPnlViewedEventData(
+                    timeframe: timeframe,
+                    realizedPnl: profitLossState.totalValue,
+                    unrealizedPnl: 0,
+                  ),
+                );
+          }
+        }
+      }
     });
+  }
+
+  String _formatDuration(Duration duration) {
+    if (duration.inDays >= 365) return '${duration.inDays ~/ 365}y';
+    if (duration.inDays >= 30) return '${duration.inDays ~/ 30}M';
+    if (duration.inDays >= 1) return '${duration.inDays}d';
+    if (duration.inHours >= 1) return '${duration.inHours}h';
+    if (duration.inMinutes >= 1) return '${duration.inMinutes}m';
+    return '${duration.inSeconds}s';
   }
 
   @override

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:feedback/feedback.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, kIsWasm;
+import 'package:flutter/foundation.dart' show kIsWasm, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -12,9 +12,9 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
+import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 import 'package:web_dex/bloc/app_bloc_observer.dart';
 import 'package:web_dex/bloc/app_bloc_root.dart' deferred as app_bloc_root;
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -30,6 +30,8 @@ import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
+import 'package:web_dex/analytics/widgets/analytics_lifecycle_handler.dart';
+import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
@@ -55,8 +57,14 @@ Future<void> main() async {
         catchUnhandledExceptions(details.exception, details.stack);
       };
 
+      // Foundational dependencies / setup - everything else builds on these 3.
+      // The current focus is migrating mm2Api to the new sdk, so that the sdk
+      // is the only/primary API/repository for KDF
       final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
+      final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
+      await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api);
 
+      // Strange inter-dependencies here that should ideally not be the case.
       final trezorRepo = TrezorRepo(
         api: Mm2ApiTrezor(mm2.call),
         kdfSdk: komodoDefiSdk,
@@ -67,15 +75,11 @@ Future<void> main() async {
         mm2: mm2,
         trezorBloc: trezor,
       );
-      final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
       final walletsRepository = WalletsRepository(
         komodoDefiSdk,
         mm2Api,
         getStorage(),
       );
-
-      await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk);
-      await initializeLogger(mm2Api);
 
       runApp(
         EasyLocalization(
@@ -159,9 +163,11 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.light,
         darkTheme: _feedbackThemeData(theme),
         theme: _feedbackThemeData(theme),
-        child: app_bloc_root.AppBlocRoot(
-          storedPrefs: _storedSettings!,
-          komodoDefiSdk: komodoDefiSdk,
+        child: AnalyticsLifecycleHandler(
+          child: app_bloc_root.AppBlocRoot(
+            storedPrefs: _storedSettings!,
+            komodoDefiSdk: komodoDefiSdk,
+          ),
         ),
       ),
     );

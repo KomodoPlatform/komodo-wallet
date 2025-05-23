@@ -2,14 +2,11 @@ import 'dart:async';
 
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_mode.dart';
@@ -22,6 +19,7 @@ import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dar
 import 'package:web_dex/views/fiat/fiat_action_tab.dart';
 import 'package:web_dex/views/fiat/fiat_inputs.dart';
 import 'package:web_dex/views/fiat/fiat_payment_methods_grid.dart';
+import 'package:web_dex/views/fiat/fiat_provider_web_view_settings.dart';
 import 'package:web_dex/views/fiat/webview_dialog.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 
@@ -152,7 +150,7 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   void _completeOrder() =>
-      context.read<FiatFormBloc>().add(FiatFormSubmitted());
+      context.read<FiatFormBloc>().add(const FiatFormSubmitted());
 
   void _onFiatChanged(FiatCurrency value) => context.read<FiatFormBloc>()
     ..add(FiatFormFiatSelected(value))
@@ -185,31 +183,6 @@ class _FiatFormState extends State<FiatForm> {
     }
   }
 
-  void _showOrderFailedSnackbar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(LocaleKeys.orderFailedTryAgain.tr()),
-      ),
-    );
-  }
-
-  Future<void> _openCheckoutPage(String checkoutUrl, String orderId) async {
-    if (checkoutUrl.isEmpty) return;
-
-    // Only web requires the intermediate html page to satisfy cors rules and
-    // allow for console.log and postMessage events to be handled.
-    final url =
-        kIsWeb ? BaseFiatProvider.fiatWrapperPageUrl(checkoutUrl) : checkoutUrl;
-
-    return WebViewDialog.show(
-      context,
-      url: url,
-      title: LocaleKeys.buy.tr(),
-      onConsoleMessage: _onConsoleMessage,
-      onCloseWindow: _onCloseWebView,
-    );
-  }
-
   void _onConsoleMessage(String message) {
     context
         .read<FiatFormBloc>()
@@ -230,61 +203,65 @@ class _FiatFormState extends State<FiatForm> {
 
     final status = stateSnapshot.fiatOrderStatus;
     if (status == FiatOrderStatus.submitted) {
-      // ignore: use_build_context_synchronously
       context.read<FiatFormBloc>().add(const FiatFormOrderStatusWatchStarted());
-      await _openCheckoutPage(stateSnapshot.checkoutUrl, stateSnapshot.orderId);
-      return;
-    }
 
-    if (status == FiatOrderStatus.failed) {
-      _showOrderFailedSnackbar();
+      await WebViewDialog.show(
+        context,
+        url: stateSnapshot.checkoutUrl,
+        mode: stateSnapshot.webViewMode,
+        title: LocaleKeys.buy.tr(),
+        onMessage: _onConsoleMessage,
+        onCloseWindow: _onCloseWebView,
+        settings: FiatProviderWebViewSettings.createSecureProviderSettings(),
+      );
     }
 
     if (status == FiatOrderStatus.windowCloseRequested) {
       Navigator.of(context).pop();
     }
 
-    if (status != FiatOrderStatus.pending) {
-      await _showPaymentStatusDialog(status);
+    if (status != FiatOrderStatus.initial) {
+      await _showPaymentStatusDialog(stateSnapshot);
     }
   }
 
-  Future<void> _showPaymentStatusDialog(FiatOrderStatus status) async {
+  Future<void> _showPaymentStatusDialog(FiatFormState state) async {
     if (!mounted) return;
 
     String? title;
     String? content;
-
-    // TODO: Use theme-based semantic colors
     Icon? icon;
+
+    final status = state.fiatOrderStatus;
 
     switch (status) {
       case FiatOrderStatus.inProgress:
       case FiatOrderStatus.windowCloseRequested:
-      case FiatOrderStatus.pending:
+      case FiatOrderStatus.initial:
+      case FiatOrderStatus.pendingPayment:
         debugPrint('Pending status should not be shown in dialog.');
         return;
-
       case FiatOrderStatus.submitted:
         title = LocaleKeys.fiatPaymentSubmittedTitle.tr();
         content = LocaleKeys.fiatPaymentSubmittedMessage.tr();
         icon = const Icon(Icons.open_in_new);
-
       case FiatOrderStatus.success:
         title = LocaleKeys.fiatPaymentSuccessTitle.tr();
         content = LocaleKeys.fiatPaymentSuccessMessage.tr();
         icon = const Icon(Icons.check_circle_outline);
-
       case FiatOrderStatus.failed:
         title = LocaleKeys.fiatPaymentFailedTitle.tr();
-        // TODO: If we implement provider-specific error messages,
-        // we can include support details.
         content = LocaleKeys.fiatPaymentFailedMessage.tr();
+        if (state.providerError != null && state.providerError!.isNotEmpty) {
+          content = '$content\n\n${LocaleKeys.errorDetails.tr()}: '
+              '${state.providerError}';
+        }
         icon = const Icon(Icons.error_outline, color: Colors.red);
     }
 
     await showAdaptiveDialog<void>(
       context: context,
+      barrierDismissible: true,
       builder: (context) => AlertDialog.adaptive(
         title: Text(title!),
         icon: icon,
@@ -311,7 +288,7 @@ extension on FiatAmountValidationError {
       case FiatAmountValidationError.belowMinimum:
         return LocaleKeys.fiatMinimumAmount.tr(
           args: [
-            state.minFiatAmount?.toString() ?? '',
+            state.minFiatAmount?.toStringAsFixed(2) ?? '',
             fiatId,
           ],
         );

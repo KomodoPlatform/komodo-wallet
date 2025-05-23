@@ -2,7 +2,7 @@ class AnalyticsSettings {
   const AnalyticsSettings({required this.isSendAllowed});
 
   static AnalyticsSettings initial() {
-    return const AnalyticsSettings(isSendAllowed: false);
+    return const AnalyticsSettings(isSendAllowed: true);
   }
 
   final bool isSendAllowed;

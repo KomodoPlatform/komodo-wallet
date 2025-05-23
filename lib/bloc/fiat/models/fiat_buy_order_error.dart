@@ -18,6 +18,11 @@ class FiatBuyOrderError extends Equatable {
 
   const FiatBuyOrderError.none() : this(code: 0, status: 0, title: '');
 
+  /// Error indicating a parsing issue with the response data
+  const FiatBuyOrderError.parsing({
+    String message = 'Failed to parse response data',
+  }) : this(code: -1, status: 400, title: message);
+
   bool get isNone => this == const FiatBuyOrderError.none();
 
   final int code;

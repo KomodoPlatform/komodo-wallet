@@ -7,7 +7,7 @@ import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/widgets/alpha_version_warning.dart';
 
 final _serviceStorageKey =
-    'alpha_alert_shown_${packageInformation.packageVersion}';
+    'alpha_alert_v2_shown_${packageInformation.packageVersion}';
 
 class AlphaVersionWarningService {
   AlphaVersionWarningService() : _storage = getStorage();

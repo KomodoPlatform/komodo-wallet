@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -13,6 +14,8 @@ import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/assets_overview/investment_repository.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -225,9 +228,9 @@ class AppBlocRoot extends StatelessWidget {
                 SettingsBloc(storedPrefs, SettingsRepository()),
           ),
           BlocProvider<AnalyticsBloc>(
-            // lazy: false,
+            lazy: false,
             create: (context) => AnalyticsBloc(
-              analytics: FirebaseAnalyticsRepo(storedPrefs.analytics),
+              analytics: GetIt.I<AnalyticsRepo>(),
               storedData: storedPrefs,
               repository: SettingsRepository(),
             ),
@@ -249,6 +252,7 @@ class AppBlocRoot extends StatelessWidget {
                 coinsRepository,
               ),
               coinsRepository: coinsRepository,
+              analyticsBloc: BlocProvider.of<AnalyticsBloc>(context),
             ),
           ),
           BlocProvider(
@@ -284,7 +288,8 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider<SystemHealthBloc>(
-            create: (_) => SystemHealthBloc(SystemClockRepository(), mm2Api),
+            create: (_) => SystemHealthBloc(SystemClockRepository(), mm2Api)
+              ..add(SystemHealthPeriodicCheckStarted()),
           ),
           BlocProvider<TrezorInitBloc>(
             create: (context) => TrezorInitBloc(
@@ -297,10 +302,12 @@ class AppBlocRoot extends StatelessWidget {
             create: (context) => CoinsManagerBloc(
               coinsRepo: coinsRepository,
               sdk: komodoDefiSdk,
+              analyticsBloc: context.read<AnalyticsBloc>(),
             ),
           ),
           BlocProvider<FaucetBloc>(
-            create: (context) => FaucetBloc(kdfSdk: context.read<KomodoDefiSdk>()),
+            create: (context) =>
+                FaucetBloc(kdfSdk: context.read<KomodoDefiSdk>()),
           )
         ],
         child: _MyAppView(),
@@ -318,9 +325,11 @@ class _MyAppViewState extends State<_MyAppView> {
   final AppRouterDelegate _routerDelegate = AppRouterDelegate();
   late final RootRouteInformationParser _routeInformationParser;
   late final AirDexBackButtonDispatcher _airDexBackButtonDispatcher;
+  late final DateTime _pageLoadStartTime;
 
   @override
   void initState() {
+    _pageLoadStartTime = DateTime.now();
     final coinsBloc = context.read<CoinsBloc>();
     _routeInformationParser = RootRouteInformationParser(coinsBloc);
     _airDexBackButtonDispatcher = AirDexBackButtonDispatcher(_routerDelegate);
@@ -381,6 +390,16 @@ class _MyAppViewState extends State<_MyAppView> {
 
       // Remove the loading indicator.
       loadingElement.remove();
+
+      final delay =
+          DateTime.now().difference(_pageLoadStartTime).inMilliseconds;
+      context.read<AnalyticsBloc>().logEvent(
+            PageInteractiveDelayEventData(
+              pageName: 'app_root',
+              interactiveDelayMs: delay,
+              spinnerTimeMs: 200,
+            ),
+          );
     }
   }
 
@@ -398,7 +417,9 @@ class _MyAppViewState extends State<_MyAppView> {
     _currentPrecacheOperation = Completer<void>();
 
     try {
-      final coins = coinsRepo.getKnownCoinsMap().keys;
+      final stopwatch = Stopwatch()..start();
+      final coins =
+          coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true).keys;
 
       await for (final abbr in Stream.fromIterable(coins)) {
         // TODO: Test if necessary to complete prematurely with error if build
@@ -416,6 +437,14 @@ class _MyAppViewState extends State<_MyAppView> {
       }
 
       _currentPrecacheOperation!.complete();
+
+      context.read<AnalyticsBloc>().logEvent(
+            CoinsDataUpdatedEventData(
+              updateSource: 'remote',
+              updateDurationMs: stopwatch.elapsedMilliseconds,
+              coinsCount: coins.length,
+            ),
+          );
     } catch (e) {
       log('Error precaching coin icons: $e');
       _currentPrecacheOperation!.completeError(e);

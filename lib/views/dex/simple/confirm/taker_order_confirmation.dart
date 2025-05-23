@@ -9,11 +9,15 @@ import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/dex_form_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/utils/balances_formatter.dart';
@@ -26,7 +30,7 @@ import 'package:web_dex/views/dex/simple/form/taker/taker_form_exchange_rate.dar
 import 'package:web_dex/views/dex/simple/form/taker/taker_form_total_fees.dart';
 
 class TakerOrderConfirmation extends StatefulWidget {
-  const TakerOrderConfirmation({Key? key}) : super(key: key);
+  const TakerOrderConfirmation({super.key});
 
   @override
   State<TakerOrderConfirmation> createState() => _TakerOrderConfirmationState();
@@ -309,6 +313,25 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
   }
 
   Future<void> _startSwap(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+    final walletType =
+        authBloc.state.currentUser?.wallet.config.type.name ?? '';
+    final takerBloc = context.read<TakerBloc>();
+    final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
+    final sellCoinObj = takerBloc.state.sellCoin!;
+    final buyCoinObj = coinsRepo.getCoin(takerBloc.state.selectedOrder!.coin);
+    final sellCoin = sellCoinObj.abbr;
+    final buyCoin = buyCoinObj?.abbr ?? takerBloc.state.selectedOrder!.coin;
+    final networks =
+        '${sellCoinObj.protocolType},${buyCoinObj?.protocolType ?? ''}';
+    context.read<AnalyticsBloc>().logEvent(
+          SwapInitiatedEventData(
+            fromAsset: sellCoin,
+            toAsset: buyCoin,
+            networks: networks,
+            walletType: walletType,
+          ),
+        );
     context.read<TakerBloc>().add(TakerStartSwap());
   }
 

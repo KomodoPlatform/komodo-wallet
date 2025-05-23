@@ -58,9 +58,6 @@ class RampAssetInfo {
     required this.symbol,
     required this.decimals,
     required this.price,
-    this.minPurchaseAmount,
-    this.maxPurchaseAmount,
-    this.address,
     required this.chain,
     required this.currencyCode,
     required this.enabled,
@@ -69,6 +66,9 @@ class RampAssetInfo {
     required this.minPurchaseCryptoAmount,
     required this.networkFee,
     required this.type,
+    this.minPurchaseAmount,
+    this.maxPurchaseAmount,
+    this.address,
   });
 
   /// Returns true if this asset has a valid minimum purchase amount.

@@ -8,7 +8,7 @@ import 'package:web_dex/bloc/analytics/analytics_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class SendAnalyticsCheckbox extends StatelessWidget {
-  const SendAnalyticsCheckbox({Key? key}) : super(key: key);
+  const SendAnalyticsCheckbox({super.key});
 
   @override
   Widget build(BuildContext context) {

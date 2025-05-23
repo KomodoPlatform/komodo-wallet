@@ -56,8 +56,15 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
     AnalyticsSendDataEvent event,
     Emitter<AnalyticsState> emitter,
   ) async {
-    if (state.isSendDataAllowed) {
-      await _analytics.sendData(event.data);
-    }
+    // Use queueEvent instead of sendData for consistency
+    // This will automatically handle the event based on analytics state
+    await _analytics.queueEvent(event.data);
+  }
+}
+
+// Extension to provide a helper method for logging analytics
+extension AnalyticsBlocEventLogger on AnalyticsBloc {
+  void logEvent(AnalyticsEventData event) {
+    add(AnalyticsSendDataEvent(event));
   }
 }

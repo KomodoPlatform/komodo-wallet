@@ -24,6 +24,11 @@ import 'tests/helpers/update_sell_amount_test.dart';
 import 'tests/password/validate_password_test.dart';
 import 'tests/password/validate_rpc_password_test.dart';
 import 'tests/sorting/sorting_test.dart';
+import 'tests/system_health/http_head_time_provider_test.dart';
+import 'tests/system_health/http_time_provider_test.dart';
+import 'tests/system_health/ntp_time_provider_test.dart';
+import 'tests/system_health/system_clock_repository_test.dart';
+import 'tests/system_health/time_provider_registry_test.dart';
 import 'tests/utils/convert_double_to_string_test.dart';
 import 'tests/utils/convert_fract_rat_test.dart';
 import 'tests/utils/double_to_string_test.dart';
@@ -85,5 +90,13 @@ void main() {
     testFailingBinanceRepository();
     testProfitLossRepository();
     testGenerateDemoData();
+  });
+
+  group('SystemHealth: ', () {
+    testHttpHeadTimeProvider();
+    testSystemClockRepository();
+    testHttpTimeProvider();
+    testNtpTimeProvider();
+    testTimeProviderRegistry();
   });
 }

@@ -6,8 +6,8 @@ import 'package:web_dex/shared/widgets/coin_item/coin_logo.dart';
 
 class CoinItem extends StatelessWidget {
   const CoinItem({
-    super.key,
     required this.coin,
+    super.key,
     this.amount,
     this.size = CoinItemSize.medium,
     this.subtitleText,

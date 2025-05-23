@@ -11,6 +11,7 @@ import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:logging/logging.dart';
+import 'package:web_dex/app_config/app_config.dart' show excludedAssetList;
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -125,13 +126,25 @@ class CoinsRepo {
     enabledAssetsChanges.close();
   }
 
-  List<Coin> getKnownCoins() {
-    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
+  /// Returns all known coins, optionally filtering out excluded assets.
+  /// If [excludeExcludedAssets] is true, coins whose id is in
+  /// [excludedAssetList] are filtered out.
+  List<Coin> getKnownCoins({bool excludeExcludedAssets = false}) {
+    final assets = Map<AssetId, Asset>.of(_kdfSdk.assets.available);
+    if (excludeExcludedAssets) {
+      assets.removeWhere((key, _) => excludedAssetList.contains(key.id));
+    }
     return assets.values.map(_assetToCoinWithoutAddress).toList();
   }
 
-  Map<String, Coin> getKnownCoinsMap() {
-    final Map<AssetId, Asset> assets = _kdfSdk.assets.available;
+  /// Returns a map of all known coins, optionally filtering out excluded assets.
+  /// If [excludeExcludedAssets] is true, coins whose id is in
+  /// [excludedAssetList] are filtered out.
+  Map<String, Coin> getKnownCoinsMap({bool excludeExcludedAssets = false}) {
+    final assets = Map<AssetId, Asset>.of(_kdfSdk.assets.available);
+    if (excludeExcludedAssets) {
+      assets.removeWhere((key, _) => excludedAssetList.contains(key.id));
+    }
     return Map.fromEntries(
       assets.values.map(
         (asset) => MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),

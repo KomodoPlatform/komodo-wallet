@@ -13,6 +13,8 @@ import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/bloc_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/kmd_rewards_info/kmd_reward_item.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/reward_events.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
@@ -415,6 +417,13 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
       _successMessage = '';
     });
 
+    context.read<AnalyticsBloc>().logEvent(
+          RewardClaimInitiatedEventData(
+            asset: widget.coin.abbr,
+            expectedRewardAmount: _totalReward ?? 0,
+          ),
+        );
+
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final kmdRewardsBloc = RepositoryProvider.of<KmdRewardsBloc>(context);
     final BlocResponse<String, BaseError> response =
@@ -425,6 +434,12 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
         _isClaiming = false;
         _errorMessage = error.message;
       });
+      context.read<AnalyticsBloc>().logEvent(
+            RewardClaimFailureEventData(
+              asset: widget.coin.abbr,
+              failReason: error.message,
+            ),
+          );
       return;
     }
 
@@ -440,6 +455,12 @@ class _KmdRewardsInfoState extends State<KmdRewardsInfo> {
     setState(() {
       _isClaiming = false;
     });
+    context.read<AnalyticsBloc>().logEvent(
+          RewardClaimSuccessEventData(
+            asset: widget.coin.abbr,
+            rewardAmount: double.tryParse(response.result!) ?? 0,
+          ),
+        );
     widget.onSuccess(reward, formattedUsdPrice);
   }
 

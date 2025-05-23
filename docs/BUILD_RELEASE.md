@@ -8,10 +8,15 @@ Before building the app, make sure you have all the necessary tools installed. F
 
 Optionally, you can enable Firebase Analytics for the app. To do so, follow the instructions in the [Firebase Analytics Setup](./FIREBASE_SETUP.md) document.
 
+## Security Considerations
+
+⚠️ **IMPORTANT**: For all production builds, be sure to follow the security practices outlined in the [Build Security Advisory](./BUILD_SECURITY_ADVISORY.md). Always use `--enforce-lockfile` and `--no-pub` flags when building for production.
+
 ## Build for Web
 
 ```bash
-flutter build web --csp --no-web-resources-cdn
+flutter pub get --enforce-lockfile
+flutter build web --csp --no-web-resources-cdn --no-pub
 ```
 
 The release version of the app will be located in `build/web` folder. Specifying the `--release` flag is not necessary, as it is the default behavior.
@@ -50,7 +55,7 @@ docker build -f .docker/android-sdk.dockerfile . -t komodo/android-sdk:34
 docker build -f .docker/komodo-wallet-android.dockerfile . -t komodo/komodo-wallet
 # Build the app
 mkdir -p build
-docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get --enforce-lockfile && flutter build web --no-pub --release || flutter build web --no-pub --release"
+docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get --enforce-lockfile && flutter build web --no-pub --release"
 ```
 
 ### Build for Android
@@ -68,5 +73,5 @@ docker build -f .docker/android-sdk.dockerfile . -t komodo/android-sdk:34
 docker build -f .docker/komodo-wallet-android.dockerfile . -t komodo/komodo-wallet
 # Build the app
 mkdir -p build
-docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get --enforce-lockfile && flutter build apk --no-pub --release || flutter build apk --no-pub --release"
+docker run --rm -v ./build:/app/build komodo/komodo-wallet:latest bash -c "flutter pub get --enforce-lockfile && flutter build apk --no-pub --release"
 ```
