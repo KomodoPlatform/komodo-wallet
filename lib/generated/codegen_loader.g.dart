@@ -17,6 +17,7 @@ abstract class  LocaleKeys {
   static const change24h = 'change24h';
   static const change24hRevert = 'change24hRevert';
   static const viewOnExplorer = 'viewOnExplorer';
+  static const explorerUnavailable = 'explorerUnavailable';
   static const getRewards = 'getRewards';
   static const rewardBoxTitle = 'rewardBoxTitle';
   static const sendToAddress = 'sendToAddress';
