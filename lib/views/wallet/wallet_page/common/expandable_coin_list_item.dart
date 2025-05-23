@@ -15,6 +15,7 @@ import 'package:web_dex/shared/widgets/coin_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:web_dex/shared/widgets/coin_fiat_price.dart';
 import 'package:web_dex/views/wallet/common/wallet_helper.dart';
 import 'package:get_it/get_it.dart';
 
@@ -119,7 +120,12 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
             constraints: const BoxConstraints(maxWidth: 180),
             child: CoinItem(coin: widget.coin, size: CoinItemSize.large),
           ),
-          const Spacer(),
+          Expanded(
+            child: CoinFiatPrice(
+              widget.coin,
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
           Expanded(
             flex: 2,
             child: Align(
