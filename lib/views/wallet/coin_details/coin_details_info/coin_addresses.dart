@@ -360,7 +360,7 @@ class QrButton extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: theme.custom.subCardBackgroundColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -369,13 +369,9 @@ class QrButton extends StatelessWidget {
                         Expanded(
                           child: SelectableText(
                             address.address,
-                            style: const TextStyle(
-                              fontFamily: 'monospace',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
                             maxLines: 1,
-                            scrollPhysics: const BouncingScrollPhysics(),
+                            scrollPhysics: const NeverScrollableScrollPhysics(),
                           ),
                         ),
                         // Copy button
@@ -405,7 +401,7 @@ class QrButton extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     LocaleKeys.scanTheQrCode.tr(),
-                    style: const TextStyle(fontSize: 16),
+                    style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -479,7 +475,7 @@ class PubkeyReceiveDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: theme.custom.subCardBackgroundColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -488,13 +484,9 @@ class PubkeyReceiveDialog extends StatelessWidget {
                   Expanded(
                     child: SelectableText(
                       address.address,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 1,
-                      scrollPhysics: const BouncingScrollPhysics(),
+                      scrollPhysics: const NeverScrollableScrollPhysics(),
                     ),
                   ),
                   // Copy button
@@ -524,7 +516,7 @@ class PubkeyReceiveDialog extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               LocaleKeys.scanTheQrCode.tr(),
-              style: const TextStyle(fontSize: 16),
+              style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
