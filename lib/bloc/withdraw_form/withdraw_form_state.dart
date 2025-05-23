@@ -43,8 +43,7 @@ class WithdrawFormState extends Equatable {
 
   bool get hasPreviewError => previewError != null;
   bool get hasTransactionError => transactionError != null;
-  bool get hasAddressError =>
-      recipientAddressError != null;
+  bool get hasAddressError => recipientAddressError != null;
   bool get hasValidationErrors =>
       hasAddressError ||
       amountError != null ||
@@ -186,6 +185,8 @@ class WithdrawFormState extends Equatable {
           : null,
       memo: memo,
       ibcTransfer: isIbcTransfer ? true : null,
+      ibcSourceChannel:
+          ibcChannel?.isNotEmpty == true ? int.tryParse(ibcChannel!.trim()) : null,
       isMax: isMaxAmount,
     );
   }
