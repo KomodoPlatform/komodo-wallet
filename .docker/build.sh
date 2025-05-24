@@ -33,4 +33,4 @@ mkdir -p ./build
 docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
   -u "$(id -u):$(id -g)" \
   komodo/komodo-wallet:latest sh -c \
-  "flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE || flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE"
+  "sudo chown komodo:komodo /app/build; flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE || flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE"
