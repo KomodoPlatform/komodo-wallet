@@ -28,11 +28,12 @@ docker build $PLATFORM_FLAG -f .docker/komodo-wallet-android.dockerfile . -t kom
 # Create the build directory ourselves to prevent it from being created by the Docker daemon (as root)
 mkdir -p ./build
 
-ENV_VARS=(GITHUB_API_PUBLIC_READONLY_TOKEN TRELLO_API_KEY TRELLO_TOKEN TRELLO_BOARD_ID TRELLO_LIST_ID FEEDBACK_API_KEY FEEDBACK_PRODUCTION_URL FEEDBACK_TEST_URL)
+ENV_VARS="FARPID GITHUB_API_PUBLIC_READONLY_TOKEN TRELLO_API_KEY TRELLO_TOKEN TRELLO_BOARD_ID TRELLO_LIST_ID FEEDBACK_API_KEY FEEDBACK_PRODUCTION_URL FEEDBACK_TEST_URL"
 ENV_ARGS=""
-for VAR in "${ENV_VARS[@]}"; do
-    if [ -n "${!VAR}" ]; then
-        ENV_ARGS+=" -e $VAR=${!VAR}"
+for VAR in $ENV_VARS; do
+    VALUE=$(eval "echo \$$VAR")
+    if [ -n "$VALUE" ]; then
+        ENV_ARGS="$ENV_ARGS -e $VAR=$VALUE"
     fi
 done
 
