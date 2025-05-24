@@ -4,7 +4,8 @@ FROM docker.io/ubuntu:22.04
 # LABEL org.opencontainers.image.source=https://github.com/cirruslabs/docker-images-android
 
 ENV USER="komodo"
-ENV USER_ID=1000
+ARG BUILD_USER_ID=1000
+ENV USER_ID=${BUILD_USER_ID}
 
 RUN apt update && apt install -y sudo && \
     useradd -u $USER_ID -m $USER && \ 
