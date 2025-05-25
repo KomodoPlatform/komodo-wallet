@@ -9,6 +9,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -278,7 +279,7 @@ class _NewField extends StatelessWidget {
 
   final TextEditingController controller;
   final bool isObscured;
-  final Function(bool) onVisibilityChange;
+  final void Function(bool) onVisibilityChange;
 
   @override
   Widget build(BuildContext context) {
@@ -286,14 +287,23 @@ class _NewField extends StatelessWidget {
       hintText: LocaleKeys.enterNewPassword.tr(),
       controller: controller,
       isObscured: isObscured,
-      validator: (String? password) => validatePassword(
-        password ?? '',
-        LocaleKeys.walletCreationFormatPasswordError.tr(),
-      ),
+      validator: (password) => _validatePassword(password, context),
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: onVisibilityChange,
       ),
     );
+  }
+
+  String? _validatePassword(String? passwordText, BuildContext context) {
+    final settingsBlocState = context.read<SettingsBloc>().state;
+    final allowWeakPassword = settingsBlocState.weakPasswordsAllowed;
+    final password = passwordText ?? '';
+
+    if (allowWeakPassword) {
+      return null;
+    }
+
+    return validatePassword(password);
   }
 }
 

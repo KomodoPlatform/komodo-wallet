@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/utils/validators.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
@@ -90,12 +92,16 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
     );
   }
 
-  // Password validator
   String? _validatePasswordField(String? passwordFieldInput) {
-    return validatePassword(
-      passwordFieldInput ?? '',
-      LocaleKeys.walletCreationFormatPasswordError.tr(),
-    );
+    final settingsBlocState = context.read<SettingsBloc>().state;
+    final allowWeakPassword = settingsBlocState.weakPasswordsAllowed;
+    final password = passwordFieldInput ?? '';
+
+    if (allowWeakPassword) {
+      return null;
+    }
+
+    return validatePassword(password);
   }
 
   String? _validateConfirmPasswordField(String? confirmPasswordFieldInput) {
