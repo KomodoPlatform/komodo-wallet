@@ -112,7 +112,8 @@ class FeeSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(LocaleKeys.networkFee.tr(), style: Theme.of(context).textTheme.titleMedium),
+            Text(LocaleKeys.networkFee.tr(),
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             const CustomFeeToggle(),
             if (state.isCustomFee) ...[
@@ -578,17 +579,50 @@ class IbcTransferField extends StatelessWidget {
   }
 }
 
-class IbcChannelField extends StatelessWidget {
+class IbcChannelField extends StatefulWidget {
   const IbcChannelField({super.key});
 
   @override
+  State<IbcChannelField> createState() => _IbcChannelFieldState();
+}
+
+class _IbcChannelFieldState extends State<IbcChannelField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
+    return BlocConsumer<WithdrawFormBloc, WithdrawFormState>(
+      listenWhen: (previous, current) =>
+          previous.ibcChannel != current.ibcChannel &&
+          current.ibcChannel != _controller.text,
+      listener: (context, state) {
+        // Only update controller if the bloc state differs from current text
+        // This prevents the cursor from jumping when user is typing
+        if (state.ibcChannel != _controller.text) {
+          _controller.text = state.ibcChannel ?? '';
+        }
+      },
+      buildWhen: (previous, current) =>
+          previous.ibcChannelError != current.ibcChannelError,
       builder: (context, state) {
         return UiTextFormField(
           key: const Key('withdraw-ibc-channel-input'),
-          labelText: 'IBC Channel',
-          hintText: 'Enter IBC channel ID',
+          controller: _controller,
+          labelText: LocaleKeys.ibcChannel.tr(),
+          hintText: LocaleKeys.ibcChannelHint.tr(),
+          errorText: state.ibcChannelError?.message,
           onChanged: (value) {
             context
                 .read<WithdrawFormBloc>()
@@ -596,8 +630,15 @@ class IbcChannelField extends StatelessWidget {
           },
           validator: (value) {
             if (value?.isEmpty ?? true) {
-              return 'Please enter IBC channel';
+              return LocaleKeys.ibcChannelRequired.tr();
             }
+
+            // Validate format: channel-<number>
+            final channelRegex = RegExp(r'^channel-\d+$');
+            if (!channelRegex.hasMatch(value!)) {
+              return LocaleKeys.ibcChannelInvalidFormat.tr();
+            }
+
             return null;
           },
         );

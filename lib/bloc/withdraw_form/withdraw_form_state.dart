@@ -186,7 +186,7 @@ class WithdrawFormState extends Equatable {
       memo: memo,
       ibcTransfer: isIbcTransfer ? true : null,
       ibcSourceChannel:
-          ibcChannel?.isNotEmpty == true ? int.tryParse(ibcChannel!.trim()) : null,
+          ibcChannel?.isNotEmpty == true ? ibcChannel!.trim() : null,
       isMax: isMaxAmount,
     );
   }
