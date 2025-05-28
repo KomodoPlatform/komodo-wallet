@@ -1,3 +1,7 @@
+# Unreleased
+
+- Unified Swap Form combining maker and taker flows.
+
 # Komodo Wallet v0.9.0 Release Notes
 
 We are excited to announce Komodo Wallet v0.9.0. This release introduces HD wallet functionality, cross-platform fiat on-ramp improvements, a new feedback provider, and numerous bug fixes and dependency upgrades.

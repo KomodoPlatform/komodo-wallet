@@ -12,8 +12,7 @@ import 'package:web_dex/views/dex/dex_list_filter/mobile/dex_list_header_mobile.
 import 'package:web_dex/views/dex/entities_list/history/history_list.dart';
 import 'package:web_dex/views/dex/entities_list/in_progress/in_progress_list.dart';
 import 'package:web_dex/views/dex/entities_list/orders/orders_list.dart';
-import 'package:web_dex/views/dex/simple/form/maker/maker_form_layout.dart';
-import 'package:web_dex/views/dex/simple/form/taker/taker_form.dart';
+import 'package:web_dex/views/dex/simple/form/unified/unified_swap_form.dart';
 
 class DexListWrapper extends StatefulWidget {
   const DexListWrapper(this.listType, {super.key});
@@ -33,8 +32,9 @@ class _DexListWrapperState extends State<DexListWrapper> {
   bool _isFilterShown = false;
   DexListType? previouseType;
 
-  final TradingKindBloc tradingKindBloc =
-      TradingKindBloc(TradingKindState.initial());
+  final TradingKindBloc tradingKindBloc = TradingKindBloc(
+    TradingKindState.initial(),
+  );
 
   @override
   void initState() {
@@ -54,8 +54,9 @@ class _DexListWrapperState extends State<DexListWrapper> {
       if (type.isNotEmpty ||
           (routingState.dexState.fromCurrency.isNotEmpty ||
               routingState.dexState.toCurrency.isNotEmpty)) {
-        tradingKindBloc
-            .setKind(type == 'taker' ? TradingKind.taker : TradingKind.maker);
+        tradingKindBloc.setKind(
+          type == 'taker' ? TradingKind.taker : TradingKind.maker,
+        );
       }
     }
   }
@@ -67,7 +68,6 @@ class _DexListWrapperState extends State<DexListWrapper> {
       child: BlocBuilder<TradingKindBloc, TradingKindState>(
         builder: (context, state) {
           final filter = filters[widget.listType];
-          final isTaker = state.isTaker;
           previouseType ??= widget.listType;
           if (previouseType != widget.listType) {
             _isFilterShown = false;
@@ -78,27 +78,27 @@ class _DexListWrapperState extends State<DexListWrapper> {
             filter: filter,
             type: widget.listType,
             onSwapItemClick: _onSwapItemClick,
-            isTaker: isTaker,
           );
           return isMobile
               ? _MobileWidget(
-                  key: const Key('dex-list-wrapper-mobile'),
-                  type: widget.listType,
-                  filterData: filter,
-                  onApplyFilter: _setFilter,
-                  isFilterShown: _isFilterShown,
-                  onFilterTap: () => setState(() {
-                    _isFilterShown = !_isFilterShown;
-                  }),
-                  child: child,
-                )
+                key: const Key('dex-list-wrapper-mobile'),
+                type: widget.listType,
+                filterData: filter,
+                onApplyFilter: _setFilter,
+                isFilterShown: _isFilterShown,
+                onFilterTap:
+                    () => setState(() {
+                      _isFilterShown = !_isFilterShown;
+                    }),
+                child: child,
+              )
               : _DesktopWidget(
-                  key: const Key('dex-list-wrapper-desktop'),
-                  type: widget.listType,
-                  filterData: filter,
-                  onApplyFilter: _setFilter,
-                  child: child,
-                );
+                key: const Key('dex-list-wrapper-desktop'),
+                type: widget.listType,
+                filterData: filter,
+                onApplyFilter: _setFilter,
+                child: child,
+              );
         },
       ),
     );
@@ -119,12 +119,11 @@ class _DexListWidget extends StatelessWidget {
   final TradingEntitiesFilter? filter;
   final DexListType type;
   final void Function(Swap) onSwapItemClick;
-  final bool isTaker;
+
   const _DexListWidget({
     this.filter,
     required this.type,
     required this.onSwapItemClick,
-    required this.isTaker,
     super.key,
   });
 
@@ -132,9 +131,7 @@ class _DexListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (type) {
       case DexListType.orders:
-        return OrdersList(
-          entitiesFilterData: filter,
-        );
+        return OrdersList(entitiesFilterData: filter);
       case DexListType.inProgress:
         return InProgressList(
           entitiesFilterData: filter,
@@ -146,7 +143,7 @@ class _DexListWidget extends StatelessWidget {
           onItemClick: onSwapItemClick,
         );
       case DexListType.swap:
-        return isTaker ? const TakerForm() : const MakerFormLayout();
+        return const UnifiedSwapForm();
     }
   }
 }
@@ -175,12 +172,7 @@ class _MobileWidget extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 16),
-          Flexible(
-            child: child,
-          ),
-        ],
+        children: [const SizedBox(height: 16), Flexible(child: child)],
       );
     } else {
       return Column(
@@ -196,13 +188,14 @@ class _MobileWidget extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Flexible(
-            child: isFilterShown
-                ? DexListFilterMobile(
-                    filterData: filterData,
-                    onApplyFilter: onApplyFilter,
-                    listType: type,
-                  )
-                : child,
+            child:
+                isFilterShown
+                    ? DexListFilterMobile(
+                      filterData: filterData,
+                      onApplyFilter: onApplyFilter,
+                      listType: type,
+                    )
+                    : child,
           ),
         ],
       );
@@ -229,10 +222,7 @@ class _DesktopWidget extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 16),
-          Flexible(child: child),
-        ],
+        children: [const SizedBox(height: 16), Flexible(child: child)],
       );
     } else {
       return Column(
