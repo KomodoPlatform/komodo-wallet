@@ -4,6 +4,7 @@ import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
@@ -33,6 +34,20 @@ class DexRepository {
       return SellResponse.fromJson(response);
     } catch (e) {
       return SellResponse(error: TextError.fromString(e.toString()));
+    }
+  }
+
+  Future<Map<String, dynamic>?> setPrice(SetPriceRequest request) async {
+    try {
+      return await _mm2Api.setprice(request);
+    } catch (e, s) {
+      log(
+        'Error setprice ${request.base}/${request.rel}: $e',
+        path: 'dex_repository => setPrice',
+        trace: s,
+        isError: true,
+      ).ignore();
+      return <String, dynamic>{'error': e.toString()};
     }
   }
 
