@@ -356,9 +356,52 @@ class QrButton extends StatelessWidget {
                     coinAbbr: coin.abbr,
                   ),
                   const SizedBox(height: 16),
+                  // Address row with copy and explorer link
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: theme.custom.subCardBackgroundColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        // Address text (selectable)
+                        Expanded(
+                          child: SelectableText(
+                            address.address,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            maxLines: 1,
+                            scrollPhysics: const NeverScrollableScrollPhysics(),
+                          ),
+                        ),
+                        // Copy button
+                        IconButton(
+                          tooltip: LocaleKeys.copyToClipboard.tr(),
+                          icon: const Icon(Icons.copy_rounded, size: 20),
+                          onPressed: () => copyToClipBoard(context, address.address),
+                        ),
+                        // Explorer link button
+                        IconButton(
+                          tooltip: LocaleKeys.viewOnExplorer.tr(),
+                          icon: const Icon(Icons.open_in_new, size: 20),
+                          onPressed: () {
+                            final url = getAddressExplorerUrl(coin, address.address);
+                            if (url.isNotEmpty) {
+                              launchURLString(url, inSeparateTab: true);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     LocaleKeys.scanTheQrCode.tr(),
-                    style: const TextStyle(fontSize: 16),
+                    style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -428,9 +471,52 @@ class PubkeyReceiveDialog extends StatelessWidget {
               coinAbbr: coin.abbr,
             ),
             const SizedBox(height: 16),
+            // Address row with copy and explorer link
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: theme.custom.subCardBackgroundColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  // Address text (selectable)
+                  Expanded(
+                    child: SelectableText(
+                      address.address,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      maxLines: 1,
+                      scrollPhysics: const NeverScrollableScrollPhysics(),
+                    ),
+                  ),
+                  // Copy button
+                  IconButton(
+                    tooltip: LocaleKeys.copyToClipboard.tr(),
+                    icon: const Icon(Icons.copy_rounded, size: 20),
+                    onPressed: () => copyToClipBoard(context, address.address),
+                  ),
+                  // Explorer link button
+                  IconButton(
+                    tooltip: LocaleKeys.viewOnExplorer.tr(),
+                    icon: const Icon(Icons.open_in_new, size: 20),
+                    onPressed: () {
+                      final url = getAddressExplorerUrl(coin, address.address);
+                      if (url.isNotEmpty) {
+                        launchURLString(url, inSeparateTab: true);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
               LocaleKeys.scanTheQrCode.tr(),
-              style: const TextStyle(fontSize: 16),
+              style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
