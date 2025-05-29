@@ -4,7 +4,6 @@ import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/settings_menu_value.dart';
@@ -58,11 +57,6 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
     // Taker form
     context.read<TakerBloc>().add(TakerCoinSelectorOpen(false));
     context.read<TakerBloc>().add(TakerOrderSelectorOpen(false));
-
-    // Maker form
-    final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-    makerFormBloc.showSellCoinSelect = false;
-    makerFormBloc.showBuyCoinSelect = false;
 
     // Bridge form
     context.read<BridgeBloc>().add(const BridgeShowTickerDropdown(false));

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/coin.dart';
@@ -241,16 +240,7 @@ Future<List<DexFormError>> activateCoinIfNeeded(
   return errors;
 }
 
-Future<void> reInitTradingForms(BuildContext context) async {
-  // If some of the DEX or Bridge forms were modified by user during
-  // interaction in 'no-login' mode, their blocs may link to special
-  // instances of [Coin], initialized in that mode.
-  // After login to iguana wallet,
-  // we must replace them with regular [Coin] instances, and
-  // auto-activate corresponding coins if needed
-  final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-  await makerFormBloc.reInitForm();
-}
+Future<void> reInitTradingForms(BuildContext context) async {}
 
 /// unit tests: [testMaxMinRational]
 Rational? maxRational(List<Rational> values) {
