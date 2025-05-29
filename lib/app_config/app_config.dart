@@ -30,7 +30,7 @@ const bool isBitrefillIntegrationEnabled = false;
 ///! You are solely responsible for any losses/damage that may occur. Komodo
 ///! Platform does not condone the use of this app for trading purposes and
 ///! unequivocally forbids it.
-const bool kIsWalletOnly = !kDebugMode;
+const bool kIsWalletOnly = false;
 
 const Duration kPerformanceLogInterval = Duration(minutes: 1);
 
