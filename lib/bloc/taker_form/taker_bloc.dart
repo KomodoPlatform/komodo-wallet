@@ -17,6 +17,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_response.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/model/available_balance_state.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/data_from_service.dart';
@@ -92,13 +93,54 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       inProgress: () => true,
     ));
 
-    final SellResponse response = await _dexRepo.sell(SellRequest(
-      base: state.sellCoin!.abbr,
-      rel: state.selectedOrder!.coin,
-      volume: state.sellAmount!,
-      price: state.selectedOrder!.price,
-      orderType: SellBuyOrderType.fillOrKill,
-    ));
+    final base = state.sellCoin!.abbr;
+    final rel = state.selectedOrder!.coin;
+
+    BestOrders fetchedOrders = await _dexRepo.getBestOrders(
+      BestOrdersRequest(
+        coin: base,
+        type: BestOrdersRequestType.number,
+        number: 40,
+        action: 'sell',
+      ),
+    );
+
+    bool hasMatchingOrder = false;
+    final ordersForRel = fetchedOrders.result?[rel];
+    if (ordersForRel != null) {
+      hasMatchingOrder =
+          ordersForRel.any((order) => order.uuid == state.selectedOrder!.uuid);
+    }
+
+    if (!hasMatchingOrder) {
+      final response = await _dexRepo.setPrice(
+        SetPriceRequest(
+          base: base,
+          rel: rel,
+          volume: state.sellAmount!,
+          price: state.selectedOrder!.price,
+        ),
+      );
+      final String? uuid = response?['result']?['uuid'] as String?;
+      if (response == null || response['error'] != null || uuid == null) {
+        add(TakerAddError(DexFormError(
+            error: response?['error']?.toString() ?? 'Order failed')));
+        emit(state.copyWith(inProgress: () => false));
+        return;
+      }
+      emit(state.copyWith(swapUuid: () => uuid));
+      return;
+    }
+
+    final SellResponse response = await _dexRepo.sell(
+      SellRequest(
+        base: base,
+        rel: rel,
+        volume: state.sellAmount!,
+        price: state.selectedOrder!.price,
+        orderType: SellBuyOrderType.fillOrKill,
+      ),
+    );
 
     if (response.error != null) {
       add(TakerAddError(DexFormError(error: response.error!.message)));
