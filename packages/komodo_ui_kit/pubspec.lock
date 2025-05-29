@@ -95,7 +95,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: dev
-      resolved-ref: "41b554d08ed3f42f9f784a488cedf9ab4b3b3313"
+      resolved-ref: "9aa16b8299eb5fef3d6a3a85dc7dd883e0a0ecbd"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -104,7 +104,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: dev
-      resolved-ref: "41b554d08ed3f42f9f784a488cedf9ab4b3b3313"
+      resolved-ref: "9aa16b8299eb5fef3d6a3a85dc7dd883e0a0ecbd"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -113,7 +113,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: dev
-      resolved-ref: "41b554d08ed3f42f9f784a488cedf9ab4b3b3313"
+      resolved-ref: "9aa16b8299eb5fef3d6a3a85dc7dd883e0a0ecbd"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -145,10 +145,10 @@ packages:
     dependency: transitive
     description:
       name: mobile_scanner
-      sha256: "9cb9e371ee9b5b548714f9ab5fd33b530d799745c83d5729ecd1e8ab2935dbd1"
+      sha256: "72f06a071aa8b14acea3ab43ea7949eefe4a2469731ae210e006ba330a033a8c"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.7"
+    version: "7.0.0"
   path:
     dependency: transitive
     description:
