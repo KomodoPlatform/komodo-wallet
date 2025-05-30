@@ -24,7 +24,7 @@ import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/dex_form_error.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 
 class TakerBloc extends Bloc<TakerEvent, TakerState> {
@@ -80,6 +80,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
 
   final DexRepository _dexRepo;
   final CoinsRepo _coinsRepo;
+  final _log = Logger('TakerBloc');
   Timer? _maxSellAmountTimer;
   bool _activatingAssets = false;
   bool _waitingForWallet = true;
@@ -146,12 +147,52 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       add(TakerAddError(DexFormError(error: response.error!.message)));
     }
 
-    final String? uuid = response.result?.uuid;
+      bool hasMatchingOrder = false;
+      final ordersForRel = fetchedOrders.result?[rel];
+      if (ordersForRel != null) {
+        hasMatchingOrder = ordersForRel
+            .any((order) => order.uuid == state.selectedOrder!.uuid);
+      }
 
-    emit(state.copyWith(
-      inProgress: uuid == null ? () => false : null,
-      swapUuid: () => uuid,
-    ));
+      if (!hasMatchingOrder) {
+        _log.info('No matching order found, placing maker order');
+        final String uuid = await _dexRepo.setPrice(
+          SetPriceRequest(
+            base: base,
+            rel: rel,
+            volume: state.sellAmount!,
+            price: state.selectedOrder!.price,
+          ),
+        );
+        emit(state.copyWith(swapUuid: () => uuid));
+        return;
+      }
+
+      final SellResponse response = await _dexRepo.sell(
+        SellRequest(
+          base: base,
+          rel: rel,
+          volume: state.sellAmount!,
+          price: state.selectedOrder!.price,
+          orderType: SellBuyOrderType.fillOrKill,
+        ),
+      );
+
+      if (response.error != null) {
+        add(TakerAddError(DexFormError(error: response.error!.message)));
+      }
+
+      final String? uuid = response.result?.uuid;
+
+      emit(state.copyWith(
+        inProgress: uuid == null ? () => false : null,
+        swapUuid: () => uuid,
+      ));
+    } catch (e, s) {
+      _log.severe('Failed to start swap', e, s);
+      add(TakerAddError(DexFormError(error: e.toString())));
+      emit(state.copyWith(inProgress: () => false));
+    }
   }
 
   void _onBackButtonClick(
@@ -173,7 +214,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       autovalidate: () => true,
     ));
 
-    await pauseWhile(() => _waitingForWallet || _activatingAssets);
+    await _pauseWhile(() => _waitingForWallet || _activatingAssets);
 
     final bool isValid = await _validator.validate();
 
@@ -527,8 +568,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
         state.sellAmount,
       );
     } catch (e, s) {
-      log(e.toString(),
-          trace: s, path: 'taker_bloc::_getFeesData', isError: true);
+      _log.severe('Failed to get trade preimage', e, s);
       return DataFromService(error: TextError(error: 'Failed to request fees'));
     }
   }
@@ -584,5 +624,18 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     _authorizationSubscription.cancel();
 
     return super.close();
+  }
+}
+
+Future<void> _pauseWhile(
+  bool Function() condition, {
+  Duration timeout = const Duration(seconds: 30),
+}) async {
+  final int startMs = DateTime.now().millisecondsSinceEpoch;
+  bool timedOut = false;
+  while (condition() && !timedOut) {
+    await Future.delayed(const Duration(milliseconds: 10));
+    timedOut = DateTime.now().millisecondsSinceEpoch - startMs >
+        timeout.inMilliseconds;
   }
 }

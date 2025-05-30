@@ -37,9 +37,24 @@ class DexRepository {
     }
   }
 
-  Future<Map<String, dynamic>?> setPrice(SetPriceRequest request) async {
+  Future<String> setPrice(SetPriceRequest request) async {
     try {
-      return await _mm2Api.setprice(request);
+      final Map<String, dynamic>? response = await _mm2Api.setprice(request);
+      if (response == null) {
+        throw Exception('Null response from setprice');
+      }
+
+      final Object? error = response['error'];
+      if (error != null) {
+        throw Exception(error.toString());
+      }
+
+      final String? uuid = response['result']?['uuid'] as String?;
+      if (uuid == null) {
+        throw Exception('Missing uuid in setprice response');
+      }
+
+      return uuid;
     } catch (e, s) {
       log(
         'Error setprice ${request.base}/${request.rel}: $e',
@@ -47,7 +62,7 @@ class DexRepository {
         trace: s,
         isError: true,
       ).ignore();
-      return <String, dynamic>{'error': e.toString()};
+      rethrow;
     }
   }
 
