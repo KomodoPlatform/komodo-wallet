@@ -5,7 +5,6 @@ import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
@@ -14,6 +13,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.
 import 'package:web_dex/mm2/mm2_api/rpc/my_swap_status/my_swap_status_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_response.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.dart';
