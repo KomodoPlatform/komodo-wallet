@@ -150,8 +150,10 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       bool hasMatchingOrder = false;
       final ordersForRel = fetchedOrders.result?[rel];
       if (ordersForRel != null) {
-        hasMatchingOrder = ordersForRel
-            .any((order) => order.uuid == state.selectedOrder!.uuid);
+        hasMatchingOrder = ordersForRel.any((order) =>
+            order.uuid == state.selectedOrder!.uuid &&
+            order.price == state.selectedOrder!.price &&
+            order.maxVolume >= state.sellAmount!);
       }
 
       if (!hasMatchingOrder) {
@@ -183,9 +185,16 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       }
 
       final String? uuid = response.result?.uuid;
+      if (uuid == null || uuid.isEmpty) {
+        final error = 'Failed to start swap: no UUID returned from sell';
+        _log.severe(error);
+        add(TakerAddError(DexFormError(error: error)));
+        emit(state.copyWith(inProgress: () => false));
+        return;
+      }
 
       emit(state.copyWith(
-        inProgress: uuid == null ? () => false : null,
+        inProgress: () => false,
         swapUuid: () => uuid,
       ));
     } catch (e, s) {
@@ -627,6 +636,25 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   }
 }
 
+/// Pauses the execution of the current function until the given condition
+/// is false or the timeout is reached.
+///
+/// This is useful for waiting for asynchronous operations to complete
+/// or for certain conditions to be met before proceeding.
+///
+/// /// [condition] is a function that returns a boolean indicating whether
+/// the condition is still true.
+/// [timeout] is the maximum duration to wait before giving up.
+/// If the condition is still true after the timeout,
+/// the function will stop waiting and return.
+/// The function will periodically check the condition every 10 milliseconds
+/// until the condition is false or the timeout is reached.
+/// Note: This function is not cancellable and will block the current
+/// execution context until the condition is false or the timeout is reached.
+/// Example usage:
+/// ```dart
+/// await _pauseWhile(() => someCondition, timeout: Duration(seconds: 5));
+/// ```
 Future<void> _pauseWhile(
   bool Function() condition, {
   Duration timeout = const Duration(seconds: 30),

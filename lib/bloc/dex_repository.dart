@@ -1,3 +1,4 @@
+import 'package:logging/logging.dart' show Logger;
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
@@ -21,12 +22,13 @@ import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/services/mappers/trade_preimage_mappers.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/utils.dart' show fract2rat;
 
 class DexRepository {
   DexRepository(this._mm2Api);
 
   final Mm2Api _mm2Api;
+  final _log = Logger('DexRepository');
 
   Future<SellResponse> sell(SellRequest request) async {
     try {
@@ -56,12 +58,7 @@ class DexRepository {
 
       return uuid;
     } catch (e, s) {
-      log(
-        'Error setprice ${request.base}/${request.rel}: $e',
-        path: 'dex_repository => setPrice',
-        trace: s,
-        isError: true,
-      ).ignore();
+      _log.severe('Error setprice ${request.base}/${request.rel}', e, s);
       rethrow;
     }
   }
@@ -104,12 +101,10 @@ class DexRepository {
         ),
       );
     } catch (e, s) {
-      log(
-        e.toString(),
-        path:
-            'swaps_service => getTradePreimage => mapTradePreimageResponseToTradePreimage',
-        trace: s,
-        isError: true,
+      _log.severe(
+        'swaps_service => getTradePreimage => mapTradePreimageResponseToTradePreimage',
+        e,
+        s,
       );
       return DataFromService(error: TextError(error: 'Something wrong'));
     }
@@ -163,7 +158,7 @@ class DexRepository {
     try {
       return BestOrders.fromJson(response!);
     } catch (e, s) {
-      log('Error parsing best_orders response: $e', trace: s, isError: true);
+      _log.severe('Error parsing best_orders response', e, s);
 
       return BestOrders(
         error: TextError(
