@@ -4,6 +4,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -24,7 +25,6 @@ import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/dex_form_error.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 
 class TakerBloc extends Bloc<TakerEvent, TakerState> {
@@ -80,6 +80,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
 
   final DexRepository _dexRepo;
   final CoinsRepo _coinsRepo;
+  final _log = Logger('TakerBloc');
   Timer? _maxSellAmountTimer;
   bool _activatingAssets = false;
   bool _waitingForWallet = true;
@@ -88,99 +89,122 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   late StreamSubscription<KdfUser?> _authorizationSubscription;
 
   Future<void> _onStartSwap(
-      TakerStartSwap event, Emitter<TakerState> emit) async {
-    emit(state.copyWith(
-      inProgress: () => true,
-    ));
+    TakerStartSwap event,
+    Emitter<TakerState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        inProgress: () => true,
+      ),
+    );
 
     final base = state.sellCoin!.abbr;
     final rel = state.selectedOrder!.coin;
 
-    BestOrders fetchedOrders = await _dexRepo.getBestOrders(
-      BestOrdersRequest(
-        coin: base,
-        type: BestOrdersRequestType.number,
-        number: 40,
-        action: 'sell',
-      ),
-    );
+    try {
+      final fetchedOrders = await _dexRepo.getBestOrders(
+        BestOrdersRequest(
+          coin: base,
+          type: BestOrdersRequestType.number,
+          number: 10,
+          action: 'sell',
+        ),
+      );
 
-    bool hasMatchingOrder = false;
-    final ordersForRel = fetchedOrders.result?[rel];
-    if (ordersForRel != null) {
-      hasMatchingOrder =
-          ordersForRel.any((order) => order.uuid == state.selectedOrder!.uuid);
-    }
+      bool hasMatchingOrder = false;
+      final ordersForRel = fetchedOrders.result?[rel];
+      if (ordersForRel != null) {
+        hasMatchingOrder = ordersForRel.any(
+          (order) =>
+              order.uuid == state.selectedOrder!.uuid &&
+              order.price == state.selectedOrder!.price &&
+              order.maxVolume >= state.sellAmount!,
+        );
+      }
 
-    if (!hasMatchingOrder) {
-      final response = await _dexRepo.setPrice(
-        SetPriceRequest(
+      if (!hasMatchingOrder) {
+        _log.info('No matching order found, placing maker order');
+        final String uuid = await _dexRepo.setPrice(
+          SetPriceRequest(
+            base: base,
+            rel: rel,
+            volume: state.sellAmount!,
+            price: state.selectedOrder!.price,
+          ),
+        );
+        emit(state.copyWith(swapUuid: () => uuid));
+        return;
+      }
+
+      final SellResponse response = await _dexRepo.sell(
+        SellRequest(
           base: base,
           rel: rel,
           volume: state.sellAmount!,
           price: state.selectedOrder!.price,
+          orderType: SellBuyOrderType.fillOrKill,
         ),
       );
-      final String? uuid = response?['result']?['uuid'] as String?;
-      if (response == null || response['error'] != null || uuid == null) {
-        add(TakerAddError(DexFormError(
-            error: response?['error']?.toString() ?? 'Order failed')));
+
+      if (response.error != null) {
+        add(TakerAddError(DexFormError(error: response.error!.message)));
+      }
+
+      final String? uuid = response.result?.uuid;
+      if (uuid == null || uuid.isEmpty) {
+        const error = 'Failed to start swap: no UUID returned from sell';
+        _log.severe(error);
+        add(TakerAddError(DexFormError(error: error)));
         emit(state.copyWith(inProgress: () => false));
         return;
       }
-      emit(state.copyWith(swapUuid: () => uuid));
-      return;
+
+      emit(
+        state.copyWith(
+          inProgress: () => false,
+          swapUuid: () => uuid,
+        ),
+      );
+    } catch (e, s) {
+      _log.severe('Failed to start swap', e, s);
+      add(TakerAddError(DexFormError(error: e.toString())));
+      emit(state.copyWith(inProgress: () => false));
     }
-
-    final SellResponse response = await _dexRepo.sell(
-      SellRequest(
-        base: base,
-        rel: rel,
-        volume: state.sellAmount!,
-        price: state.selectedOrder!.price,
-        orderType: SellBuyOrderType.fillOrKill,
-      ),
-    );
-
-    if (response.error != null) {
-      add(TakerAddError(DexFormError(error: response.error!.message)));
-    }
-
-    final String? uuid = response.result?.uuid;
-
-    emit(state.copyWith(
-      inProgress: uuid == null ? () => false : null,
-      swapUuid: () => uuid,
-    ));
   }
 
   void _onBackButtonClick(
     TakerBackButtonClick event,
     Emitter<TakerState> emit,
   ) {
-    emit(state.copyWith(
-      step: () => TakerStep.form,
-      errors: () => [],
-    ));
+    emit(
+      state.copyWith(
+        step: () => TakerStep.form,
+        errors: () => [],
+      ),
+    );
   }
 
   Future<void> _onFormSubmitClick(
     TakerFormSubmitClick event,
     Emitter<TakerState> emit,
   ) async {
-    emit(state.copyWith(
-      inProgress: () => true,
-      autovalidate: () => true,
-    ));
+    emit(
+      state.copyWith(
+        inProgress: () => true,
+        autovalidate: () => true,
+      ),
+    );
 
-    await pauseWhile(() => _waitingForWallet || _activatingAssets);
+    await _pauseWhile(() => _waitingForWallet || _activatingAssets);
 
     final bool isValid = await _validator.validate();
 
-    emit(state.copyWith(
-      inProgress: () => false,
-      step: () => isValid ? TakerStep.confirm : TakerStep.form,
-    ));
+    emit(
+      state.copyWith(
+        inProgress: () => false,
+        step: () => isValid ? TakerStep.confirm : TakerStep.form,
+      ),
+    );
   }
 
   void _onAmountButtonClick(
@@ -212,13 +236,15 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     TakerSetSellAmount event,
     Emitter<TakerState> emit,
   ) {
-    emit(state.copyWith(
-      sellAmount: () => event.amount,
-      buyAmount: () => calculateBuyAmount(
-        selectedOrder: state.selectedOrder,
-        sellAmount: event.amount,
+    emit(
+      state.copyWith(
+        sellAmount: () => event.amount,
+        buyAmount: () => calculateBuyAmount(
+          selectedOrder: state.selectedOrder,
+          sellAmount: event.amount,
+        ),
       ),
-    ));
+    );
 
     if (state.autovalidate) {
       _validator.validateForm();
@@ -235,18 +261,22 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     final List<DexFormError> errorsList = List.from(state.errors);
     errorsList.add(event.error);
 
-    emit(state.copyWith(
-      errors: () => errorsList,
-    ));
+    emit(
+      state.copyWith(
+        errors: () => errorsList,
+      ),
+    );
   }
 
   void _onClearErrors(
     TakerClearErrors event,
     Emitter<TakerState> emit,
   ) {
-    emit(state.copyWith(
-      errors: () => [],
-    ));
+    emit(
+      state.copyWith(
+        errors: () => [],
+      ),
+    );
   }
 
   Future<void> _onSelectOrder(
@@ -257,17 +287,19 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
         event.order != null &&
         state.selectedOrder!.coin != event.order!.coin;
 
-    emit(state.copyWith(
-      selectedOrder: () => event.order,
-      showOrderSelector: () => false,
-      buyAmount: () => calculateBuyAmount(
-        sellAmount: state.sellAmount,
-        selectedOrder: event.order,
+    emit(
+      state.copyWith(
+        selectedOrder: () => event.order,
+        showOrderSelector: () => false,
+        buyAmount: () => calculateBuyAmount(
+          sellAmount: state.sellAmount,
+          selectedOrder: event.order,
+        ),
+        tradePreimage: () => null,
+        errors: () => [],
+        autovalidate: switchingCoin ? () => false : null,
       ),
-      tradePreimage: () => null,
-      errors: () => [],
-      autovalidate: switchingCoin ? () => false : null,
-    ));
+    );
 
     if (!state.autovalidate) add(TakerVerifyOrderVolume());
 
@@ -292,20 +324,22 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   ) async {
     if (event.setOnlyIfNotSet && state.sellCoin != null) return;
 
-    emit(state.copyWith(
-      sellCoin: () => event.coin,
-      showCoinSelector: () => false,
-      selectedOrder: () => null,
-      bestOrders: () => null,
-      sellAmount: () => null,
-      buyAmount: () => null,
-      tradePreimage: () => null,
-      maxSellAmount: () => null,
-      minSellAmount: () => null,
-      errors: () => [],
-      autovalidate: () => false,
-      availableBalanceState: () => AvailableBalanceState.initial,
-    ));
+    emit(
+      state.copyWith(
+        sellCoin: () => event.coin,
+        showCoinSelector: () => false,
+        selectedOrder: () => null,
+        bestOrders: () => null,
+        sellAmount: () => null,
+        buyAmount: () => null,
+        tradePreimage: () => null,
+        maxSellAmount: () => null,
+        minSellAmount: () => null,
+        errors: () => [],
+        autovalidate: () => false,
+        availableBalanceState: () => AvailableBalanceState.initial,
+      ),
+    );
 
     add(TakerUpdateBestOrders(autoSelectOrderAbbr: event.autoSelectOrderAbbr));
 
@@ -320,9 +354,11 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   ) async {
     final Coin? coin = state.sellCoin;
 
-    emit(state.copyWith(
-      bestOrders: () => null,
-    ));
+    emit(
+      state.copyWith(
+        bestOrders: () => null,
+      ),
+    );
 
     if (coin == null) return;
 
@@ -355,10 +391,12 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     TakerCoinSelectorClick event,
     Emitter<TakerState> emit,
   ) {
-    emit(state.copyWith(
-      showCoinSelector: () => !state.showCoinSelector,
-      showOrderSelector: () => false,
-    ));
+    emit(
+      state.copyWith(
+        showCoinSelector: () => !state.showCoinSelector,
+        showOrderSelector: () => false,
+      ),
+    );
   }
 
   Future<void> _onOrderSelectorClick(
@@ -370,11 +408,13 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       return;
     }
 
-    emit(state.copyWith(
-      showOrderSelector: () => !state.showOrderSelector,
-      showCoinSelector: () => false,
-      bestOrders: _haveBestOrders ? () => state.bestOrders : () => null,
-    ));
+    emit(
+      state.copyWith(
+        showOrderSelector: () => !state.showOrderSelector,
+        showCoinSelector: () => false,
+        bestOrders: _haveBestOrders ? () => state.bestOrders : () => null,
+      ),
+    );
 
     if (state.showOrderSelector && !_haveBestOrders) {
       add(TakerUpdateBestOrders());
@@ -391,18 +431,22 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     TakerCoinSelectorOpen event,
     Emitter<TakerState> emit,
   ) {
-    emit(state.copyWith(
-      showCoinSelector: () => event.isOpen,
-    ));
+    emit(
+      state.copyWith(
+        showCoinSelector: () => event.isOpen,
+      ),
+    );
   }
 
   void _onOrderSelectorOpen(
     TakerOrderSelectorOpen event,
     Emitter<TakerState> emit,
   ) {
-    emit(state.copyWith(
-      showOrderSelector: () => event.isOpen,
-    ));
+    emit(
+      state.copyWith(
+        showOrderSelector: () => event.isOpen,
+      ),
+    );
   }
 
   void _onClear(
@@ -411,9 +455,11 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   ) {
     _maxSellAmountTimer?.cancel();
 
-    emit(TakerState.initial().copyWith(
-      availableBalanceState: () => AvailableBalanceState.unavailable,
-    ));
+    emit(
+      TakerState.initial().copyWith(
+        availableBalanceState: () => AvailableBalanceState.unavailable,
+      ),
+    );
   }
 
   void _subscribeMaxSellAmount() {
@@ -435,29 +481,39 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     }
     if (state.availableBalanceState == AvailableBalanceState.initial ||
         event.setLoadingStatus) {
-      emitter(state.copyWith(
-          availableBalanceState: () => AvailableBalanceState.loading));
+      emitter(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.loading,
+        ),
+      );
     }
 
     if (!_isLoggedIn) {
-      emitter(state.copyWith(
-          availableBalanceState: () => AvailableBalanceState.unavailable));
+      emitter(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.unavailable,
+        ),
+      );
     } else {
       Rational? maxSellAmount =
           await _dexRepo.getMaxTakerVolume(state.sellCoin!.abbr);
       if (maxSellAmount != null) {
-        emitter(state.copyWith(
-          maxSellAmount: () => maxSellAmount,
-          availableBalanceState: () => AvailableBalanceState.success,
-        ));
+        emitter(
+          state.copyWith(
+            maxSellAmount: () => maxSellAmount,
+            availableBalanceState: () => AvailableBalanceState.success,
+          ),
+        );
       } else {
         maxSellAmount = await _frequentlyGetMaxTakerVolume();
-        emitter(state.copyWith(
-          maxSellAmount: () => maxSellAmount,
-          availableBalanceState: maxSellAmount == null
-              ? () => AvailableBalanceState.failure
-              : () => AvailableBalanceState.success,
-        ));
+        emitter(
+          state.copyWith(
+            maxSellAmount: () => maxSellAmount,
+            availableBalanceState: maxSellAmount == null
+                ? () => AvailableBalanceState.failure
+                : () => AvailableBalanceState.success,
+          ),
+        );
       }
     }
   }
@@ -471,7 +527,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
         return maxSellAmount;
       }
       attempts -= 1;
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
     }
     return null;
   }
@@ -482,27 +538,33 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   ) async {
     if (state.sellCoin == null) return;
     if (!_isLoggedIn) {
-      emit(state.copyWith(
-        minSellAmount: () => null,
-      ));
+      emit(
+        state.copyWith(
+          minSellAmount: () => null,
+        ),
+      );
       return;
     }
 
     final Rational? minSellAmount =
         await _dexRepo.getMinTradingVolume(state.sellCoin!.abbr);
 
-    emit(state.copyWith(
-      minSellAmount: () => minSellAmount,
-    ));
+    emit(
+      state.copyWith(
+        minSellAmount: () => minSellAmount,
+      ),
+    );
   }
 
   Future<void> _onUpdateFees(
     TakerUpdateFees event,
     Emitter<TakerState> emit,
   ) async {
-    emit(state.copyWith(
-      tradePreimage: () => null,
-    ));
+    emit(
+      state.copyWith(
+        tradePreimage: () => null,
+      ),
+    );
 
     if (!_validator.canRequestPreimage) return;
 
@@ -527,8 +589,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
         state.sellAmount,
       );
     } catch (e, s) {
-      log(e.toString(),
-          trace: s, path: 'taker_bloc::_getFeesData', isError: true);
+      _log.severe('Failed to get trade preimage', e, s);
       return DataFromService(error: TextError(error: 'Failed to request fees'));
     }
   }
@@ -550,9 +611,11 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     TakerSetInProgress event,
     Emitter<TakerState> emit,
   ) {
-    emit(state.copyWith(
-      inProgress: () => event.value,
-    ));
+    emit(
+      state.copyWith(
+        inProgress: () => event.value,
+      ),
+    );
   }
 
   void _onSetWalletReady(
@@ -570,10 +633,12 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   }
 
   Future<void> _onReInit(TakerReInit event, Emitter<TakerState> emit) async {
-    emit(state.copyWith(
-      errors: () => [],
-      autovalidate: () => false,
-    ));
+    emit(
+      state.copyWith(
+        errors: () => [],
+        autovalidate: () => false,
+      ),
+    );
     await _autoActivateCoin(state.sellCoin?.abbr);
     await _autoActivateCoin(state.selectedOrder?.coin);
   }
@@ -584,5 +649,37 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     _authorizationSubscription.cancel();
 
     return super.close();
+  }
+}
+
+/// Pauses the execution of the current function until the given condition
+/// is false or the timeout is reached.
+///
+/// This is useful for waiting for asynchronous operations to complete
+/// or for certain conditions to be met before proceeding.
+///
+/// /// [condition] is a function that returns a boolean indicating whether
+/// the condition is still true.
+/// [timeout] is the maximum duration to wait before giving up.
+/// If the condition is still true after the timeout,
+/// the function will stop waiting and return.
+/// The function will periodically check the condition every 10 milliseconds
+/// until the condition is false or the timeout is reached.
+/// Note: This function is not cancellable and will block the current
+/// execution context until the condition is false or the timeout is reached.
+/// Example usage:
+/// ```dart
+/// await _pauseWhile(() => someCondition, timeout: Duration(seconds: 5));
+/// ```
+Future<void> _pauseWhile(
+  bool Function() condition, {
+  Duration timeout = const Duration(seconds: 30),
+}) async {
+  final int startMs = DateTime.now().millisecondsSinceEpoch;
+  bool timedOut = false;
+  while (condition() && !timedOut) {
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    timedOut = DateTime.now().millisecondsSinceEpoch - startMs >
+        timeout.inMilliseconds;
   }
 }

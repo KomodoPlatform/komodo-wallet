@@ -1,10 +1,10 @@
+import 'package:logging/logging.dart' show Logger;
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
@@ -13,6 +13,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.
 import 'package:web_dex/mm2/mm2_api/rpc/my_swap_status/my_swap_status_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_response.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.dart';
@@ -21,12 +22,13 @@ import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/services/mappers/trade_preimage_mappers.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/utils.dart' show fract2rat;
 
 class DexRepository {
   DexRepository(this._mm2Api);
 
   final Mm2Api _mm2Api;
+  final _log = Logger('DexRepository');
 
   Future<SellResponse> sell(SellRequest request) async {
     try {
@@ -37,17 +39,27 @@ class DexRepository {
     }
   }
 
-  Future<Map<String, dynamic>?> setPrice(SetPriceRequest request) async {
+  Future<String> setPrice(SetPriceRequest request) async {
     try {
-      return await _mm2Api.setprice(request);
+      final Map<String, dynamic>? response = await _mm2Api.setprice(request);
+      if (response == null) {
+        throw Exception('Null response from setprice');
+      }
+
+      final Object? error = response['error'];
+      if (error != null) {
+        throw Exception(error.toString());
+      }
+
+      final String? uuid = response['result']?['uuid'] as String?;
+      if (uuid == null) {
+        throw Exception('Missing uuid in setprice response');
+      }
+
+      return uuid;
     } catch (e, s) {
-      log(
-        'Error setprice ${request.base}/${request.rel}: $e',
-        path: 'dex_repository => setPrice',
-        trace: s,
-        isError: true,
-      ).ignore();
-      return <String, dynamic>{'error': e.toString()};
+      _log.severe('Error setprice ${request.base}/${request.rel}', e, s);
+      rethrow;
     }
   }
 
@@ -89,12 +101,10 @@ class DexRepository {
         ),
       );
     } catch (e, s) {
-      log(
-        e.toString(),
-        path:
-            'swaps_service => getTradePreimage => mapTradePreimageResponseToTradePreimage',
-        trace: s,
-        isError: true,
+      _log.severe(
+        'swaps_service => getTradePreimage => mapTradePreimageResponseToTradePreimage',
+        e,
+        s,
       );
       return DataFromService(error: TextError(error: 'Something wrong'));
     }
@@ -148,7 +158,7 @@ class DexRepository {
     try {
       return BestOrders.fromJson(response!);
     } catch (e, s) {
-      log('Error parsing best_orders response: $e', trace: s, isError: true);
+      _log.severe('Error parsing best_orders response', e, s);
 
       return BestOrders(
         error: TextError(
