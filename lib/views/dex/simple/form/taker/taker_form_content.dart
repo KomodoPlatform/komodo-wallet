@@ -14,7 +14,6 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dart';
 import 'package:web_dex/views/dex/common/form_plate.dart';
-import 'package:web_dex/views/dex/common/section_switcher.dart';
 import 'package:web_dex/views/dex/simple/form/common/dex_flip_button_overlapper.dart';
 import 'package:web_dex/views/dex/simple/form/taker/coin_item/taker_form_buy_item.dart';
 import 'package:web_dex/views/dex/simple/form/taker/coin_item/taker_form_sell_item.dart';
@@ -33,8 +32,6 @@ class TakerFormContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 12),
-          SectionSwitcher(),
-          const SizedBox(height: 6),
           DexFlipButtonOverlapper(
             onTap: () async {
               final takerBloc = context.read<TakerBloc>();
