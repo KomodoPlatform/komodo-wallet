@@ -20,7 +20,6 @@ abstract class  LocaleKeys {
   static const explorerUnavailable = 'explorerUnavailable';
   static const getRewards = 'getRewards';
   static const rewardBoxTitle = 'rewardBoxTitle';
-  static const sendToAddress = 'sendToAddress';
   static const network = 'network';
   static const rewardBoxSubTitle = 'rewardBoxSubTitle';
   static const rewardBoxReadMore = 'rewardBoxReadMore';
