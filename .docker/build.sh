@@ -22,12 +22,37 @@ else
     PLATFORM_FLAG=""
 fi
 
-docker build $PLATFORM_FLAG -f .docker/android-sdk.dockerfile . -t komodo/android-sdk:35
+docker build $PLATFORM_FLAG --build-arg BUILD_USER_ID=$(id -u) -f .docker/android-sdk.dockerfile . -t komodo/android-sdk:35
 docker build $PLATFORM_FLAG -f .docker/komodo-wallet-android.dockerfile . -t komodo/komodo-wallet
+
+# Create the build directory ourselves to prevent it from being created by the Docker daemon (as root)
+mkdir -p ./build
+
+ENV_ARGS=""
+ENV_VARS="GITHUB_API_PUBLIC_READONLY_TOKEN TRELLO_API_KEY \
+TRELLO_TOKEN TRELLO_BOARD_ID TRELLO_LIST_ID \
+FEEDBACK_API_KEY FEEDBACK_PRODUCTION_URL FEEDBACK_TEST_URL"
+
+for VAR in $ENV_VARS; do
+  case "$VAR" in
+    GITHUB_API_PUBLIC_READONLY_TOKEN) VALUE=$GITHUB_API_PUBLIC_READONLY_TOKEN ;;
+    TRELLO_API_KEY) VALUE=$TRELLO_API_KEY ;;
+    TRELLO_TOKEN) VALUE=$TRELLO_TOKEN ;;
+    TRELLO_BOARD_ID) VALUE=$TRELLO_BOARD_ID ;;
+    TRELLO_LIST_ID) VALUE=$TRELLO_LIST_ID ;;
+    FEEDBACK_API_KEY) VALUE=$FEEDBACK_API_KEY ;;
+    FEEDBACK_PRODUCTION_URL) VALUE=$FEEDBACK_PRODUCTION_URL ;;
+    FEEDBACK_TEST_URL) VALUE=$FEEDBACK_TEST_URL ;;
+    *) VALUE= ;;
+  esac
+
+  [ -n "$VALUE" ] && ENV_ARGS="$ENV_ARGS -e $VAR=$VALUE"
+done
 
 # Use the provided arguments for flutter build
 # Build a second time if needed, as asset downloads will require a rebuild on the first attempt
 docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
   -u "$(id -u):$(id -g)" \
+  $ENV_ARGS \
   komodo/komodo-wallet:latest sh -c \
-  "flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE || flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE"
+  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE || flutter pub get --enforce-lockfile && flutter build $BUILD_TARGET --no-pub --$BUILD_MODE"

@@ -54,7 +54,7 @@ ThemeData get themeGlobalLight {
     fontFamily: 'Manrope',
     scaffoldBackgroundColor: colorScheme.onSurface,
     cardColor: colorScheme.surface,
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(18)),
@@ -67,7 +67,7 @@ ThemeData get themeGlobalLight {
     iconTheme: IconThemeData(color: colorScheme.primary),
     progressIndicatorTheme:
         ProgressIndicatorThemeData(color: colorScheme.primary),
-    dialogTheme: const DialogTheme(
+    dialogTheme: const DialogThemeData(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -152,7 +152,7 @@ ThemeData get themeGlobalLight {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       ),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       labelColor: textColor,
       indicator: UnderlineTabIndicator(
         borderSide: BorderSide(
