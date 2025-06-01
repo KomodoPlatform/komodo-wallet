@@ -6,7 +6,7 @@ ThemeData get themeGlobalLight {
   const Color textColor = Color.fromRGBO(69, 96, 120, 1);
 
   SnackBarThemeData snackBarThemeLight() => const SnackBarThemeData(
-        elevation: 12.0,
+        elevation: 1000.0,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4))),
         actionTextColor: Colors.green,

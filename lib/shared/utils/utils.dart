@@ -28,23 +28,61 @@ export 'package:web_dex/shared/utils/prominent_colors.dart';
 void copyToClipBoard(BuildContext context, String str) {
   final themeData = Theme.of(context);
   try {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text(
-          LocaleKeys.clipBoard.tr(),
-          style: themeData.textTheme.bodyLarge!.copyWith(
-            color: themeData.brightness == Brightness.dark
-                ? themeData.hintColor
-                : themeData.primaryColor,
+  // Copy to clipboard first
+  Clipboard.setData(ClipboardData(text: str));
+  
+  // Use overlay to show snackbar above everything including dialogs
+  final overlay = Overlay.of(context);
+  late OverlayEntry overlayEntry;
+  
+  overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      bottom: 50.0,
+      left: 20.0,
+      right: 20.0,
+      child: Material(
+        elevation: 1000.0,
+        borderRadius: BorderRadius.circular(4.0),
+        color: themeData.colorScheme.primaryContainer,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.green,
+                size: 20.0,
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: Text(
+                  LocaleKeys.clipBoard.tr(),
+                  style: themeData.textTheme.bodyLarge!.copyWith(
+                    color: themeData.brightness == Brightness.dark
+                        ? themeData.hintColor
+                        : themeData.primaryColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
-    );
-  } catch (_) {}
-
-  Clipboard.setData(ClipboardData(text: str));
+    ),
+  );
+  
+  overlay.insert(overlayEntry);
+  
+  // Remove the overlay after 2 seconds
+  Timer(const Duration(seconds: 2), () {
+    overlayEntry.remove();
+  });
+  } catch (e) {
+    log('Error copyToClipBoard: $e', isError: true);
+  }
 }
+
 
 /// Converts a double value [dv] to a string representation with specified decimal places [fractions].
 /// Parameters:
