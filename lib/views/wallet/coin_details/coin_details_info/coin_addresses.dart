@@ -16,6 +16,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_type_tag.dart';
+import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 import 'package:web_dex/views/wallet/common/address_copy_button.dart';
@@ -374,13 +375,12 @@ class QrButton extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          // Address text (selectable)
+                          // Address text
                           Expanded(
-                            child: SelectableText(
+                            child: TruncatedMiddleText(
                               address.address,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              maxLines: 1,
-                              scrollPhysics: const NeverScrollableScrollPhysics(),
+                              style: Theme.of(context).textTheme.bodySmall ?? 
+                                     const TextStyle(fontSize: 12),
                             ),
                           ),
                           // Copy button
@@ -505,13 +505,12 @@ class PubkeyReceiveDialog extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Address text (selectable)
+                  // Address text
                   Expanded(
-                    child: SelectableText(
+                    child: TruncatedMiddleText(
                       address.address,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 1,
-                      scrollPhysics: const NeverScrollableScrollPhysics(),
+                      style: Theme.of(context).textTheme.bodySmall ?? 
+                             const TextStyle(fontSize: 12),
                     ),
                   ),
                   // Copy button
