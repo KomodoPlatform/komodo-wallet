@@ -305,112 +305,132 @@ class QrButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      splashRadius: 18,
-      icon: const Icon(Icons.qr_code, size: 16),
-      color: Theme.of(context).textTheme.bodyMedium!.color,
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  LocaleKeys.receive.tr(),
-                  style: const TextStyle(fontSize: 16),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-            content: SizedBox(
-              width: 450,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      clipBehavior: Clip.hardEdge,
+      child: IconButton(
+        splashRadius: 18,
+        icon: const Icon(Icons.qr_code, size: 16),
+        color: Theme.of(context).textTheme.bodyMedium!.color,
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    LocaleKeys.onlySendToThisAddress
-                        .tr(args: [abbr2Ticker(coin.abbr)]),
-                    style: const TextStyle(fontSize: 14),
+                    LocaleKeys.receive.tr(),
+                    style: const TextStyle(fontSize: 16),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          LocaleKeys.network.tr(),
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        CoinTypeTag(coin),
-                      ],
+                  Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    clipBehavior: Clip.hardEdge,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ),
-                  QrCode(
-                    address: address.address,
-                    coinAbbr: coin.abbr,
-                  ),
-                  const SizedBox(height: 16),
-                  // Address row with copy and explorer link
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: theme.custom.subCardBackgroundColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        // Address text (selectable)
-                        Expanded(
-                          child: SelectableText(
-                            address.address,
-                            style: Theme.of(context).textTheme.bodySmall,
-                            maxLines: 1,
-                            scrollPhysics: const NeverScrollableScrollPhysics(),
-                          ),
-                        ),
-                        // Copy button
-                        IconButton(
-                          tooltip: LocaleKeys.copyToClipboard.tr(),
-                          icon: const Icon(Icons.copy_rounded, size: 20),
-                          onPressed: () => copyToClipBoard(context, address.address),
-                        ),
-                        // Explorer link button
-                        IconButton(
-                          tooltip: LocaleKeys.viewOnExplorer.tr(),
-                          icon: const Icon(Icons.open_in_new, size: 20),
-                          onPressed: () {
-                            final url = getAddressExplorerUrl(coin, address.address);
-                            if (url.isNotEmpty) {
-                              launchURLString(url, inSeparateTab: true);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
-                              );
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    LocaleKeys.scanTheQrCode.tr(),
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
                 ],
               ),
+              content: SizedBox(
+                width: 450,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      LocaleKeys.onlySendToThisAddress
+                          .tr(args: [abbr2Ticker(coin.abbr)]),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            LocaleKeys.network.tr(),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          CoinTypeTag(coin),
+                        ],
+                      ),
+                    ),
+                    QrCode(
+                      address: address.address,
+                      coinAbbr: coin.abbr,
+                    ),
+                    const SizedBox(height: 16),
+                    // Address row with copy and explorer link
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: theme.custom.subCardBackgroundColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          // Address text (selectable)
+                          Expanded(
+                            child: SelectableText(
+                              address.address,
+                              style: Theme.of(context).textTheme.bodySmall,
+                              maxLines: 1,
+                              scrollPhysics: const NeverScrollableScrollPhysics(),
+                            ),
+                          ),
+                          // Copy button
+                          Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                            clipBehavior: Clip.hardEdge,
+                            child: IconButton(
+                              tooltip: LocaleKeys.copyToClipboard.tr(),
+                              icon: const Icon(Icons.copy_rounded, size: 20),
+                              onPressed: () => copyToClipBoard(context, address.address),
+                            ),
+                          ),
+                          // Explorer link button
+                          Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                            clipBehavior: Clip.hardEdge,
+                            child: IconButton(
+                              tooltip: LocaleKeys.viewOnExplorer.tr(),
+                              icon: const Icon(Icons.open_in_new, size: 20),
+                              onPressed: () {
+                                final url = getAddressExplorerUrl(coin, address.address);
+                                if (url.isNotEmpty) {
+                                  launchURLString(url, inSeparateTab: true);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      LocaleKeys.scanTheQrCode.tr(),
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -435,11 +455,16 @@ class PubkeyReceiveDialog extends StatelessWidget {
             LocaleKeys.receive.tr(),
             style: const TextStyle(fontSize: 16),
           ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            clipBehavior: Clip.hardEdge,
+            child: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
           ),
         ],
       ),
@@ -490,25 +515,35 @@ class PubkeyReceiveDialog extends StatelessWidget {
                     ),
                   ),
                   // Copy button
-                  IconButton(
-                    tooltip: LocaleKeys.copyToClipboard.tr(),
-                    icon: const Icon(Icons.copy_rounded, size: 20),
-                    onPressed: () => copyToClipBoard(context, address.address),
+                  Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    clipBehavior: Clip.hardEdge,
+                    child: IconButton(
+                      tooltip: LocaleKeys.copyToClipboard.tr(),
+                      icon: const Icon(Icons.copy_rounded, size: 20),
+                      onPressed: () => copyToClipBoard(context, address.address),
+                    ),
                   ),
                   // Explorer link button
-                  IconButton(
-                    tooltip: LocaleKeys.viewOnExplorer.tr(),
-                    icon: const Icon(Icons.open_in_new, size: 20),
-                    onPressed: () {
-                      final url = getAddressExplorerUrl(coin, address.address);
-                      if (url.isNotEmpty) {
-                        launchURLString(url, inSeparateTab: true);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
-                        );
-                      }
-                    },
+                  Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    clipBehavior: Clip.hardEdge,
+                    child: IconButton(
+                      tooltip: LocaleKeys.viewOnExplorer.tr(),
+                      icon: const Icon(Icons.open_in_new, size: 20),
+                      onPressed: () {
+                        final url = getAddressExplorerUrl(coin, address.address);
+                        if (url.isNotEmpty) {
+                          launchURLString(url, inSeparateTab: true);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
