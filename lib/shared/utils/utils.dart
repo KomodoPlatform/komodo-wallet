@@ -38,25 +38,25 @@ void copyToClipBoard(BuildContext context, String str) {
   overlayEntry = OverlayEntry(
     builder: (context) => Positioned(
       bottom: 50.0,
-      left: 20.0,
-      right: 20.0,
-      child: Material(
-        elevation: 1000.0,
-        borderRadius: BorderRadius.circular(4.0),
-        color: themeData.colorScheme.primaryContainer,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.check_circle,
-                color: Colors.green,
-                size: 20.0,
-              ),
-              const SizedBox(width: 12.0),
-              Expanded(
-                child: Text(
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Material(
+          elevation: 1000.0,
+          borderRadius: BorderRadius.circular(4.0),
+          color: themeData.colorScheme.primaryContainer,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 20.0,
+                ),
+                const SizedBox(width: 12.0),
+                Text(
                   LocaleKeys.clipBoard.tr(),
                   style: themeData.textTheme.bodyLarge!.copyWith(
                     color: themeData.brightness == Brightness.dark
@@ -64,8 +64,8 @@ void copyToClipBoard(BuildContext context, String str) {
                         : themeData.primaryColor,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
