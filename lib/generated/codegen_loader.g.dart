@@ -482,7 +482,8 @@ abstract class  LocaleKeys {
   static const allowCustomFee = 'allowCustomFee';
   static const cancelOrder = 'cancelOrder';
   static const version = 'version';
-  static const copyToClipboard = 'copyToClipboard';
+  static const copyAddressToClipboard = 'copyAddressToClipboard';
+  static const copiedAddressToClipboard = 'copiedAddressToClipboard';
   static const createdAt = 'createdAt';
   static const coin = 'coin';
   static const token = 'token';

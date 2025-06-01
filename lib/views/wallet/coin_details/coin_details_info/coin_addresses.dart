@@ -233,7 +233,7 @@ class AddressCard extends StatelessWidget {
                         ),
                       SwapAddressTag(address: address),
                       const Spacer(),
-                      AddressCopyButton(address: address.address),
+                      AddressCopyButton(address: address.address, coinAbbr: coin.abbr),
                       QrButton(
                         coin: coin,
                         address: address,
@@ -251,7 +251,7 @@ class AddressCard extends StatelessWidget {
                   children: [
                     AddressText(address: address.address),
                     const SizedBox(width: 8),
-                    AddressCopyButton(address: address.address),
+                    AddressCopyButton(address: address.address, coinAbbr: coin.abbr),
                     QrButton(coin: coin, address: address),
                     if (coin.hasFaucet)
                       ConstrainedBox(
@@ -389,9 +389,9 @@ class QrButton extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             clipBehavior: Clip.hardEdge,
                             child: IconButton(
-                              tooltip: LocaleKeys.copyToClipboard.tr(),
+                              tooltip: LocaleKeys.copyAddressToClipboard.tr(args: [coin.abbr]),
                               icon: const Icon(Icons.copy_rounded, size: 20),
-                              onPressed: () => copyToClipBoard(context, address.address),
+                              onPressed: () => copyToClipBoard(context, address.address, LocaleKeys.copiedAddressToClipboard.tr(args: [coin.abbr])),
                             ),
                           ),
                           // Explorer link button
@@ -520,9 +520,9 @@ class PubkeyReceiveDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     clipBehavior: Clip.hardEdge,
                     child: IconButton(
-                      tooltip: LocaleKeys.copyToClipboard.tr(),
+                      tooltip: LocaleKeys.copyAddressToClipboard.tr(args: [coin.abbr]),
                       icon: const Icon(Icons.copy_rounded, size: 20),
-                      onPressed: () => copyToClipBoard(context, address.address),
+                      onPressed: () => copyToClipBoard(context, address.address, LocaleKeys.copiedAddressToClipboard.tr(args: [coin.abbr])),
                     ),
                   ),
                   // Explorer link button

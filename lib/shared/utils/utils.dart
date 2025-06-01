@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -25,11 +26,11 @@ export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
 
-void copyToClipBoard(BuildContext context, String str) {
+void copyToClipBoard(BuildContext context, String payload, [String? message]) {
   final themeData = Theme.of(context);
   try {
   // Copy to clipboard first
-  Clipboard.setData(ClipboardData(text: str));
+  Clipboard.setData(ClipboardData(text: payload));
   
   // Use overlay to show snackbar above everything including dialogs
   final overlay = Overlay.of(context);
@@ -57,7 +58,7 @@ void copyToClipBoard(BuildContext context, String str) {
                 ),
                 const SizedBox(width: 12.0),
                 Text(
-                  LocaleKeys.clipBoard.tr(),
+                  message ?? LocaleKeys.clipBoard.tr(),
                   style: themeData.textTheme.bodyLarge!.copyWith(
                     color: themeData.brightness == Brightness.dark
                         ? themeData.hintColor
