@@ -129,12 +129,13 @@ class BridgeRepository {
   }
 
   List<List<String>> _createPairs(List<Coin> group) {
-    final List<Coin> cloneGroup = List<Coin>.from(group);
     final List<List<String>> pairs = [];
-    while (cloneGroup.isNotEmpty) {
-      final Coin coin = cloneGroup.removeLast();
-      for (Coin item in cloneGroup) {
-        pairs.add([item.abbr, coin.abbr]);
+    for (int i = 0; i < group.length; i++) {
+      final Coin coinA = group[i];
+      for (int j = i + 1; j < group.length; j++) {
+        final Coin coinB = group[j];
+        pairs.add([coinA.abbr, coinB.abbr]);
+        pairs.add([coinB.abbr, coinA.abbr]);
       }
     }
     return pairs;
