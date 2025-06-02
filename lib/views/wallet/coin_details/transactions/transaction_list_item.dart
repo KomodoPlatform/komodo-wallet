@@ -263,17 +263,17 @@ class _TransactionListRowState extends State<TransactionListRow> {
   }
 
   Widget _buildAddress() {
-    final myAddress = widget.transaction.isIncoming
-        ? widget.transaction.to.first
-        : widget.transaction.from.first;
+    final address = widget.transaction.isIncoming
+        ? widget.transaction.from.first
+        : widget.transaction.to.first;
 
     return Row(
       children: [
         const SizedBox(width: 8),
-        AddressIcon(address: myAddress),
+        AddressIcon(address: address),
         const SizedBox(width: 8),
-        AddressText(address: myAddress),
-        AddressCopyButton(address: myAddress),
+        AddressText(address: address),
+        AddressCopyButton(address: address),
       ],
     );
   }
