@@ -33,12 +33,13 @@ class WalletLogIn extends StatefulWidget {
 class _WalletLogInState extends State<WalletLogIn> {
   final _backKeyButton = GlobalKey();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isHdMode = true;
+  late bool _isHdMode;
   KdfUser? _user;
 
   @override
   void initState() {
     super.initState();
+    _isHdMode = widget.wallet.config.type == WalletType.hdwallet;
     unawaited(_fetchKdfUser());
   }
 
@@ -118,6 +119,7 @@ class _WalletLogInState extends State<WalletLogIn> {
             if (_user != null && _user!.isBip39Seed == true)
               HDWalletModeSwitch(
                 value: _isHdMode,
+                highlight: true,
                 onChanged: (value) {
                   setState(() => _isHdMode = value);
                 },

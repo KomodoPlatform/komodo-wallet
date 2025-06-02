@@ -10,7 +10,6 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
-import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletCreation extends StatefulWidget {
   const WalletCreation({
@@ -39,7 +38,6 @@ class _WalletCreationState extends State<WalletCreation> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
-  bool _isHdMode = true;
 
   @override
   Widget build(BuildContext context) {
@@ -111,13 +109,6 @@ class _WalletCreationState extends State<WalletCreation> {
             if (_isCreateButtonEnabled) _onCreate();
           },
         ),
-        const SizedBox(height: 16),
-        HDWalletModeSwitch(
-          value: _isHdMode,
-          onChanged: (value) {
-            setState(() => _isHdMode = value);
-          },
-        ),
       ],
     );
   }
@@ -147,7 +138,7 @@ class _WalletCreationState extends State<WalletCreation> {
       widget.onCreate(
         name: _nameController.text,
         password: _passwordController.text,
-        walletType: _isHdMode ? WalletType.hdwallet : WalletType.iguana,
+        walletType: WalletType.hdwallet,
       );
     });
   }

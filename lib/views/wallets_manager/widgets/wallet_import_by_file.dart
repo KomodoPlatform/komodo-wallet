@@ -128,6 +128,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
               const SizedBox(height: 30),
               HDWalletModeSwitch(
                 value: _isHdMode,
+                highlight: true,
                 onChanged: (value) {
                   setState(() => _isHdMode = value);
                 },

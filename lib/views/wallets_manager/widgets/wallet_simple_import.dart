@@ -195,6 +195,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         const SizedBox(height: 16),
         HDWalletModeSwitch(
           value: _isHdMode,
+          highlight: true,
           onChanged: (value) {
             setState(() {
               _isHdMode = value;
