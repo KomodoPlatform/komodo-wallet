@@ -15,6 +15,8 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
     - [VS Code](https://code.visualstudio.com/)
       - install and enable `Dart` and `Flutter` extensions
       - enable `Dart: Use recommended settings` via the Command Pallette
+      - VS Code will suggest installing additional recommended extensions from
+        `.vscode/extensions.json` when you open the project
     - [Android Studio](https://developer.android.com/studio) - Ladybug | 2024.2.2
       - install and enable `Dart` and `Flutter` plugins
       - SDK Manager -> SDK Tools:

@@ -140,6 +140,13 @@ Look for entries starting with or containing "Runner" or "Komodo"
 
 Replace `$HOME` with your home directory if there are any issues with the path.
 
+The repository already contains a `.vscode/launch.json` with several predefined
+configurations. Each uses the `--web-port` argument so the development server
+runs on the same port every time (55353 by default). A static port allows the
+browser to keep its cache and local storage between runs, preventing local
+wallet data from being wiped and helping to catch issues that might break wallet
+loading.
+
 ```json
 {
     "version": "0.2.0",
@@ -251,3 +258,16 @@ Replace `$HOME` with your home directory if there are any issues with the path.
   }
 }
 ```
+
+### tasks.json
+
+`tasks.json` defines tasks for running unit and integration tests directly from
+VS Code. They match the commands used in CI so you can quickly verify changes
+within the editor.
+
+### Recommended extensions
+
+When opening the repository, VS Code will prompt you to install the extensions
+listed in `.vscode/extensions.json`. These include Flutter, Dart, Remote
+Containers and Bloc helpers to align your environment with the project
+standards.

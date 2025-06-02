@@ -59,6 +59,13 @@ Running on web-server (useful for testing/debugging in different browsers):
 flutter run -d web-server --web-port=8080
 ```
 
+The `--web-port` flag forces Flutter to use the same port each time you run the
+application locally. Keeping the port static ensures your browser reuses the
+same origin so that cache, cookies and any persisted wallet data remain
+available across runs. Without specifying a port, Flutter chooses a random one
+which clears local data on every launch, making it harder to test upgrades or
+identify wallet loading issues.
+
 ## Desktop
 
 #### macOS desktop
