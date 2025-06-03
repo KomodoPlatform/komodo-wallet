@@ -31,6 +31,7 @@ const bool isBitrefillIntegrationEnabled = false;
 ///! Platform does not condone the use of this app for trading purposes and
 ///! unequivocally forbids it.
 const bool kIsWalletOnly = false;
+const bool kShowTradingDisclaimer = false;
 
 const Duration kPerformanceLogInterval = Duration(minutes: 1);
 

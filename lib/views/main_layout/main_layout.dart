@@ -33,7 +33,8 @@ class _MainLayoutState extends State<MainLayout> {
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
-      if (!kIsWalletOnly && !await _hasAgreedNoTrading()) {
+      final showTradingDisclaimer = kShowTradingDisclaimer && !kIsWalletOnly;
+      if (showTradingDisclaimer && !await _hasAgreedNoTrading()) {
         _showNoTradingWarning().ignore();
       }
     });
