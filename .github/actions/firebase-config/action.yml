@@ -1,0 +1,51 @@
+name: "Firebase Config"
+description: "Decodes Firebase configuration files from Base64 secrets"
+inputs:
+  android-json-base64:
+    description: "Base64 encoded google-services.json for Android"
+    required: false
+    default: ""
+  ios-plist-base64:
+    description: "Base64 encoded GoogleService-Info.plist for iOS"
+    required: false
+    default: ""
+  ios-app-id-base64:
+    description: "Base64 encoded firebase_app_id_file.json for iOS"
+    required: false
+    default: ""
+  macos-plist-base64:
+    description: "Base64 encoded GoogleService-Info.plist for macOS"
+    required: false
+    default: ""
+  macos-app-id-base64:
+    description: "Base64 encoded firebase_app_id_file.json for macOS"
+    required: false
+    default: ""
+  options-dart-base64:
+    description: "Base64 encoded firebase_options.dart"
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - name: Decode Firebase config files
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.android-json-base64 }}" ]; then
+          echo "${{ inputs.android-json-base64 }}" | base64 -d > android/app/google-services.json
+        fi
+        if [ -n "${{ inputs.ios-plist-base64 }}" ]; then
+          echo "${{ inputs.ios-plist-base64 }}" | base64 -d > ios/Runner/GoogleService-Info.plist
+        fi
+        if [ -n "${{ inputs.ios-app-id-base64 }}" ]; then
+          echo "${{ inputs.ios-app-id-base64 }}" | base64 -d > ios/firebase_app_id_file.json
+        fi
+        if [ -n "${{ inputs.macos-plist-base64 }}" ]; then
+          echo "${{ inputs.macos-plist-base64 }}" | base64 -d > macos/Runner/GoogleService-Info.plist
+        fi
+        if [ -n "${{ inputs.macos-app-id-base64 }}" ]; then
+          echo "${{ inputs.macos-app-id-base64 }}" | base64 -d > macos/firebase_app_id_file.json
+        fi
+        if [ -n "${{ inputs.options-dart-base64 }}" ]; then
+          echo "${{ inputs.options-dart-base64 }}" | base64 -d > lib/firebase_options.dart
+        fi

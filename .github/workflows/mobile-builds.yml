@@ -34,9 +34,16 @@ jobs:
 
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps
+
+      - name: Setup Firebase config
+        uses: ./.github/actions/firebase-config
         with:
-          firebase_project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
-          firebase_service_account_key: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}
+          android-json-base64: ${{ secrets.FIREBASE_CONFIG_ANDROID }}
+          ios-plist-base64: ${{ secrets.FIREBASE_CONFIG_IOS }}
+          ios-app-id-base64: ${{ secrets.FIREBASE_CONFIG_IOS_APP_ID }}
+          macos-plist-base64: ${{ secrets.FIREBASE_CONFIG_MACOS }}
+          macos-app-id-base64: ${{ secrets.FIREBASE_CONFIG_MACOS_APP_ID }}
+          options-dart-base64: ${{ secrets.FIREBASE_CONFIG_DART }}
 
       - name: Setup iOS environment
         if: ${{ matrix.platform == 'iOS' }}

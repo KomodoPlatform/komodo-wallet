@@ -1,14 +1,5 @@
 name: "Flutter Dependencies"
 description: "Installs Flutter and any other dependencies required for the build"
-inputs:
-  firebase_project_id:
-    description: "Firebase project ID to configure"
-    required: false
-    default: ""
-  firebase_service_account_key:
-    description: "Firebase service account key JSON as a plain text string"
-    required: false
-    default: ""
 runs:
   using: "composite"
   steps:
@@ -27,33 +18,3 @@ runs:
         rm -rf web/src/mm2/*
         rm -rf web/src/kdfi/*
         rm -rf web/dist/*
-
-    - name: Install Firebase CLI and FlutterFire CLI
-      shell: bash
-      run: |
-        curl -sL https://firebase.tools | bash
-        firebase --version
-        dart pub global activate flutterfire_cli
-
-    - name: Configure Firebase
-      shell: bash
-      if: ${{ inputs.firebase_project_id != '' && inputs.firebase_service_account_key != '' }}
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ inputs.firebase_service_account_key }}
-      run: |
-        # Add flutterfire to PATH
-        export PATH="$PATH":"$HOME/.pub-cache/bin"
-        
-        # Authenticate with Firebase CLI using environment variable
-        echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" | firebase login:ci --token-stdin
-        
-        # Configure Firebase project
-        firebase use --add "${{ inputs.firebase_project_id }}"
-        
-        # Configure FlutterFire
-        flutterfire configure \
-          --project="${{ inputs.firebase_project_id }}" \
-          --platforms=android,ios,macos,web \
-          --yes \
-          --override-platforms \
-          --out=lib/firebase_options.dart
