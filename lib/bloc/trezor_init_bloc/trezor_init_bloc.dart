@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/shared/utils/password.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -274,8 +275,9 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
   /// into a static 'hidden' wallet to init trezor
   Future<void> _loginToTrezorWallet({
     String walletName = 'My Trezor',
-    String password = 'Hidden-login1!',
+    String? password
   }) async {
+    password ??= generatePassword();
     final bool mm2SignedIn = await _kdfSdk.auth.isSignedIn();
     if (state.kdfUser != null && mm2SignedIn) {
       return;
