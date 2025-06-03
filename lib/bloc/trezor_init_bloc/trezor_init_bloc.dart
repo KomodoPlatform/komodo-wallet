@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -200,6 +200,7 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
       // ignore
     }
     _trezorRepo.subscribeOnConnectionStatus(deviceDetails.pubKey);
+    await _kdfSdk.addActivatedCoins(enabledByDefaultTrezorCoins);
     emit(
       state.copyWith(
         inProgress: () => false,
