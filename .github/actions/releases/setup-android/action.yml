@@ -32,13 +32,6 @@ runs:
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-      
-    # "Fixes firebase build error when no valid google-services.json is present"
-    - name: Comment out Google Play Services import
-      shell: bash
-      run: |
-        sed -i 's/id .com\.google\.gms\.google-services./\/\/ id .com\.google\.gms\.google-services./' android/app/build.gradle
-        echo "Google Play Services import commented out"
 
     - name: Setup Android keystore
       if: inputs.keystore-base64 != '' && 'KomodoPlatform/komodo-wallet' == github.repository
