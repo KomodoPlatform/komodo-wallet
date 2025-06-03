@@ -273,7 +273,7 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
   /// into a static 'hidden' wallet to init trezor
   Future<void> _loginToTrezorWallet({
     String walletName = 'My Trezor',
-    String password = 'hidden-login',
+    String password = 'Hidden-login1!',
   }) async {
     final bool mm2SignedIn = await _kdfSdk.auth.isSignedIn();
     if (state.kdfUser != null && mm2SignedIn) {
