@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -25,26 +26,64 @@ export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
 
-void copyToClipBoard(BuildContext context, String str) {
+void copyToClipBoard(BuildContext context, String payload, [String? message]) {
   final themeData = Theme.of(context);
   try {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text(
-          LocaleKeys.clipBoard.tr(),
-          style: themeData.textTheme.bodyLarge!.copyWith(
-            color: themeData.brightness == Brightness.dark
-                ? themeData.hintColor
-                : themeData.primaryColor,
+  // Copy to clipboard first
+  Clipboard.setData(ClipboardData(text: payload));
+  
+  // Use overlay to show snackbar above everything including dialogs
+  final overlay = Overlay.of(context);
+  late OverlayEntry overlayEntry;
+  
+  overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      bottom: 50.0,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Material(
+          elevation: 1000.0,
+          borderRadius: BorderRadius.circular(4.0),
+          color: themeData.colorScheme.primaryContainer,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 20.0,
+                ),
+                const SizedBox(width: 12.0),
+                Text(
+                  message ?? LocaleKeys.clipBoard.tr(),
+                  style: themeData.textTheme.bodyLarge!.copyWith(
+                    color: themeData.brightness == Brightness.dark
+                        ? themeData.hintColor
+                        : themeData.primaryColor,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  } catch (_) {}
-
-  Clipboard.setData(ClipboardData(text: str));
+    ),
+  );
+  
+  overlay.insert(overlayEntry);
+  
+  // Remove the overlay after 2 seconds
+  Timer(const Duration(seconds: 2), () {
+    overlayEntry.remove();
+  });
+  } catch (e) {
+    log('Error copyToClipBoard: $e', isError: true);
+  }
 }
+
 
 /// Converts a double value [dv] to a string representation with specified decimal places [fractions].
 /// Parameters:

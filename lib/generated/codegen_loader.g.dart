@@ -17,9 +17,9 @@ abstract class  LocaleKeys {
   static const change24h = 'change24h';
   static const change24hRevert = 'change24hRevert';
   static const viewOnExplorer = 'viewOnExplorer';
+  static const explorerUnavailable = 'explorerUnavailable';
   static const getRewards = 'getRewards';
   static const rewardBoxTitle = 'rewardBoxTitle';
-  static const sendToAddress = 'sendToAddress';
   static const network = 'network';
   static const rewardBoxSubTitle = 'rewardBoxSubTitle';
   static const rewardBoxReadMore = 'rewardBoxReadMore';
@@ -482,7 +482,8 @@ abstract class  LocaleKeys {
   static const allowCustomFee = 'allowCustomFee';
   static const cancelOrder = 'cancelOrder';
   static const version = 'version';
-  static const copyToClipboard = 'copyToClipboard';
+  static const copyAddressToClipboard = 'copyAddressToClipboard';
+  static const copiedAddressToClipboard = 'copiedAddressToClipboard';
   static const createdAt = 'createdAt';
   static const coin = 'coin';
   static const token = 'token';
