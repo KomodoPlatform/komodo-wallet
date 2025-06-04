@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -22,6 +23,8 @@ import 'package:web_dex/shared/utils/utils.dart';
 
 part 'trezor_init_event.dart';
 part 'trezor_init_state.dart';
+
+const String _trezorPasswordKey = 'trezor_wallet_password';
 
 class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
   TrezorInitBloc({
@@ -50,6 +53,7 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
   final TrezorRepo _trezorRepo;
   final KomodoDefiSdk _kdfSdk;
   final CoinsRepo _coinsRepository;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   Timer? _statusTimer;
 
   void _unsubscribeStatus() {
@@ -275,9 +279,15 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
   /// into a static 'hidden' wallet to init trezor
   Future<void> _loginToTrezorWallet({
     String walletName = 'My Trezor',
-    String? password
+    String? password,
   }) async {
-    password ??= generatePassword();
+    password ??= await _secureStorage.read(key: _trezorPasswordKey);
+
+    if (password == null) {
+      password = generatePassword();
+      await _secureStorage.write(key: _trezorPasswordKey, value: password);
+    }
+
     final bool mm2SignedIn = await _kdfSdk.auth.isSignedIn();
     if (state.kdfUser != null && mm2SignedIn) {
       return;
@@ -291,7 +301,7 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
       await _kdfSdk.auth.signIn(
         walletName: walletName,
         password: password,
-        options: const AuthOptions(derivationMethod: DerivationMethod.iguana),
+        options: const AuthOptions(derivationMethod: DerivationMethod.hdWallet),
       );
       await _kdfSdk.setWalletType(WalletType.trezor);
       await _kdfSdk.confirmSeedBackup();
@@ -301,7 +311,7 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
     await _kdfSdk.auth.register(
       walletName: walletName,
       password: password,
-      options: const AuthOptions(derivationMethod: DerivationMethod.iguana),
+      options: const AuthOptions(derivationMethod: DerivationMethod.hdWallet),
     );
     await _kdfSdk.setWalletType(WalletType.trezor);
     await _kdfSdk.confirmSeedBackup();
