@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_amount.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_protocol_name.dart';
@@ -21,6 +22,7 @@ class CoinItemSubtitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isNativeCoin = isNativeErcType(coin!);
     return amount != null
         ? CoinAmount(
             amount: amount!,
@@ -29,7 +31,9 @@ class CoinItemSubtitle extends StatelessWidget {
         : coin?.mode == CoinMode.segwit && text == null
             ? SegwitIcon(height: size.segwitIconSize)
             : CoinProtocolName(
-                text: text ?? coin?.typeNameWithTestnet,
+                text: text?.isEmpty == false 
+                ? text : isNativeCoin
+                ? "Native" : coin?.typeNameWithTestnet,
                 upperCase: text == null,
                 size: size,
               );

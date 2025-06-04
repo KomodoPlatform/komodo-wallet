@@ -116,6 +116,8 @@ bool compareCoinByPhrase(Coin coin, String phrase) {
       compareAbbr.contains(lowerCasePhrase);
 }
 
+bool isNativeErcType(Coin coin) => coin.protocolType == coin.id.symbol.configSymbol;
+
 String getCoinTypeName(CoinType type) {
   switch (type) {
     case CoinType.erc20:

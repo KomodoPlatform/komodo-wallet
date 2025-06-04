@@ -1,6 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/widgets/segwit_icon.dart';
 
 class CoinGroupProtocol extends StatelessWidget {
@@ -31,8 +32,9 @@ class _CoinProtocol extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isNativeCoin = isNativeErcType(coin);
     return Text(
-      coin.typeNameWithTestnet.toUpperCase(),
+      isNativeCoin ? "NATIVE" : coin.typeNameWithTestnet.toUpperCase(),
       style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w700,
