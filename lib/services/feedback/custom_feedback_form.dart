@@ -217,33 +217,33 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
                       ),
                     ],
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (_isLoading)
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        theme.colorScheme.primary,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (_isLoading)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.0,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                theme.colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      TextButton(
+                        key: const Key('feedback-submit-button'),
+                        onPressed:
+                            isFormValid() ? () => _submitFeedback() : null,
+                        child: const Text('SUBMIT'),
                       ),
-                    ),
+                    ],
                   ),
-                ),
-              TextButton(
-                onPressed: isFormValid() ? () => _submitFeedback() : null,
-                child: const Text('SUBMIT'),
+                ],
               ),
             ],
           ),
