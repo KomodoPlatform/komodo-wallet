@@ -267,16 +267,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       return;
     }
 
-    // Remove coins from the state early to prevent reactivations
-    final updatedWalletCoins = Map.fromEntries(currentWalletCoins.entries
-        .where((entry) => !event.coinIds.contains(entry.key)));
-    final updatedCoins = Map<String, Coin>.of(currentCoins);
-    for (final assetId in event.coinIds) {
-      final coin = currentWalletCoins[assetId]!;
-      updatedCoins[coin.id.id] = coin.copyWith(state: CoinState.inactive);
-    }
-    emit(state.copyWith(walletCoins: updatedWalletCoins, coins: updatedCoins));
-
+    // Update SDK metadata and disable on the API first to avoid reactivation
     for (final assetId in event.coinIds) {
       final coin = currentWalletCoins[assetId]!;
       _log.info('Disabling a ${coin.name} ($assetId)');
@@ -290,6 +281,16 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         _log.severe('Failed to disable coin $assetId', e, s);
       }
     }
+
+    // Remove coins from the state after successful deactivation
+    final updatedWalletCoins = Map.fromEntries(currentWalletCoins.entries
+        .where((entry) => !event.coinIds.contains(entry.key)));
+    final updatedCoins = Map<String, Coin>.of(currentCoins);
+    for (final assetId in event.coinIds) {
+      final coin = currentWalletCoins[assetId]!;
+      updatedCoins[coin.id.id] = coin.copyWith(state: CoinState.inactive);
+    }
+    emit(state.copyWith(walletCoins: updatedWalletCoins, coins: updatedCoins));
   }
 
   Future<void> _onPricesUpdated(
