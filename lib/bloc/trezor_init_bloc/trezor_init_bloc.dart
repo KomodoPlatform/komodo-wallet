@@ -20,6 +20,8 @@ import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
+    show PrivateKeyPolicy;
 
 part 'trezor_init_event.dart';
 part 'trezor_init_state.dart';
@@ -205,7 +207,6 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
       // ignore
     }
     _trezorRepo.subscribeOnConnectionStatus(deviceDetails.pubKey);
-    await _kdfSdk.addActivatedCoins(enabledByDefaultTrezorCoins);
     emit(
       state.copyWith(
         inProgress: () => false,
@@ -280,6 +281,10 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
   Future<void> _loginToTrezorWallet({
     String walletName = 'My Trezor',
     String? password,
+    AuthOptions authOptions = const AuthOptions(
+      derivationMethod: DerivationMethod.hdWallet,
+      privKeyPolicy: PrivateKeyPolicy.trezor,
+    ),
   }) async {
     password ??= await _secureStorage.read(key: _trezorPasswordKey);
 
@@ -293,28 +298,27 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
       return;
     }
 
-    // final walletName = state.status?.trezorStatus.name ?? 'My Trezor';
-    // final password =
-    //   state.status?.details.deviceDetails?.deviceId ?? 'hidden-login';
     final existingWallets = await _kdfSdk.auth.getUsers();
     if (existingWallets.any((wallet) => wallet.walletId.name == walletName)) {
       await _kdfSdk.auth.signIn(
         walletName: walletName,
         password: password,
-        options: const AuthOptions(derivationMethod: DerivationMethod.hdWallet),
+        options: authOptions,
       );
       await _kdfSdk.setWalletType(WalletType.trezor);
       await _kdfSdk.confirmSeedBackup();
+      await _kdfSdk.addActivatedCoins(enabledByDefaultTrezorCoins);
       return;
     }
 
     await _kdfSdk.auth.register(
       walletName: walletName,
       password: password,
-      options: const AuthOptions(derivationMethod: DerivationMethod.hdWallet),
+      options: authOptions,
     );
     await _kdfSdk.setWalletType(WalletType.trezor);
     await _kdfSdk.confirmSeedBackup();
+    await _kdfSdk.addActivatedCoins(enabledByDefaultTrezorCoins);
   }
 
   Future<void> _logout() async {
