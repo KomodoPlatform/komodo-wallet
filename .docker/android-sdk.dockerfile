@@ -36,7 +36,7 @@ RUN set -o xtrace \
     && sudo chown -R $USER:$USER /opt \
     && cd /opt \
     && sudo apt-get update \
-    && sudo apt-get install -y jq openjdk-21-jdk nodejs npm \
+    && sudo apt-get install -y jq openjdk-17-jdk nodejs npm \
     wget zip unzip git openssh-client curl bc software-properties-common build-essential \
     ruby-full ruby-bundler libstdc++6 libpulse0 libglu1-mesa locales lcov libsqlite3-dev --no-install-recommends \
     # For Linux build
