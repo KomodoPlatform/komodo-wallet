@@ -1,0 +1,22 @@
+name: Build Android Docker image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Android image
+        run: |
+          chmod +x .docker/build.sh
+          sh .docker/build.sh android release
