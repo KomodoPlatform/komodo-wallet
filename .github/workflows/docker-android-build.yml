@@ -34,6 +34,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Temporary workaround until firebase configs are added to CI
+      - name: Comment out Google Play Services import
+        shell: bash
+        run: |
+          sed -i 's/id .com\.google\.gms\.google-services./\/\/ id .com\.google\.gms\.google-services./' android/app/build.gradle
+          echo "Google Play Services import commented out"
+
       - name: Build Android image
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
