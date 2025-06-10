@@ -53,3 +53,8 @@ class AuthWalletDownloadRequested extends AuthBlocEvent {
   const AuthWalletDownloadRequested({required this.password});
   final String password;
 }
+
+/// Event emitted to check if an existing user is already signed in.
+class AuthCurrentUserRequested extends AuthBlocEvent {
+  const AuthCurrentUserRequested();
+}
