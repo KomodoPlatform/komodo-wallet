@@ -337,10 +337,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_bloc
-      sha256: "1046d719fbdf230330d3443187cc33cc11963d15c9089f6cc56faa42a4c5f0cc"
+      sha256: cf51747952201a455a1c840f8171d273be009b932c75093020f9af64f2123e38
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.0"
+    version: "9.1.1"
   flutter_driver:
     dependency: transitive
     description: flutter
@@ -586,10 +586,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: fe7ab022b76f3034adc518fb6ea04a82387620e19977665ea18d30a1cf43442f
+      sha256: "2c11f3f94c687ee9bad77c171151672986360b2b001d109814ee7140b2cf261b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.4.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -648,7 +648,7 @@ packages:
     description:
       path: "packages/komodo_cex_market_data"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -657,7 +657,7 @@ packages:
     description:
       path: "packages/komodo_coins"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -666,7 +666,7 @@ packages:
     description:
       path: "packages/komodo_defi_framework"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0"
@@ -675,7 +675,7 @@ packages:
     description:
       path: "packages/komodo_defi_local_auth"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -684,7 +684,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -693,7 +693,7 @@ packages:
     description:
       path: "packages/komodo_defi_sdk"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -702,7 +702,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -718,7 +718,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -734,7 +734,7 @@ packages:
     description:
       path: "packages/komodo_wallet_build_transformer"
       ref: dev
-      resolved-ref: "4ecbdaba11f572aa3c46603622ad42d7ee995b1a"
+      resolved-ref: "27683558605b58387cf22e15fa06c29ecb62edb6"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -862,10 +862,10 @@ packages:
     dependency: transitive
     description:
       name: mobile_scanner
-      sha256: "9cb9e371ee9b5b548714f9ab5fd33b530d799745c83d5729ecd1e8ab2935dbd1"
+      sha256: "54005bdea7052d792d35b4fef0f84ec5ddc3a844b250ecd48dc192fb9b4ebc95"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.7"
+    version: "7.0.1"
   mutex:
     dependency: transitive
     description:
