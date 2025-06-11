@@ -211,7 +211,8 @@ class AddressBalanceCard extends StatelessWidget {
                       Row(
                         children: [
                           AddressText(address: pubkey.address),
-                          AddressCopyButton(address: pubkey.address, coinAbbr: coin.abbr),
+                          AddressCopyButton(
+                              address: pubkey.address, coinAbbr: coin.abbr),
                           if (pubkey.isActiveForSwap)
                             Chip(
                               label: Text(LocaleKeys.swapAddress.tr()),

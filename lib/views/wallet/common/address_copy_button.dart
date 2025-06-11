@@ -7,7 +7,8 @@ class AddressCopyButton extends StatelessWidget {
   final String address;
   final String coinAbbr;
 
-  const AddressCopyButton({Key? key, required this.address, this.coinAbbr = ''}) : super(key: key);
+  const AddressCopyButton({Key? key, required this.address, this.coinAbbr = ''})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,12 @@ class AddressCopyButton extends StatelessWidget {
       icon: const Icon(Icons.copy, size: 16),
       color: Theme.of(context).textTheme.bodyMedium!.color,
       onPressed: () {
-        copyToClipBoard(context, address, coinAbbr.isNotEmpty ? LocaleKeys.copiedAddressToClipboard.tr(args: [coinAbbr]) : null);
+        copyToClipBoard(
+            context,
+            address,
+            coinAbbr.isNotEmpty
+                ? LocaleKeys.copiedAddressToClipboard.tr(args: [coinAbbr])
+                : null);
       },
     );
   }

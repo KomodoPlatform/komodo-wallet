@@ -64,7 +64,8 @@ class ReceiveAddressTrezor extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(20),
         child: UiTooltip(
-          message: LocaleKeys.copyAddressToClipboard.tr(args: [asset.id.symbol.configSymbol]),
+          message: LocaleKeys.copyAddressToClipboard
+              .tr(args: [asset.id.symbol.configSymbol]),
           child: SizedBox(
             width: 40,
             height: 40,

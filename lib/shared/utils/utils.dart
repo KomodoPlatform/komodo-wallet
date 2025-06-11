@@ -26,64 +26,71 @@ export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
 
-void copyToClipBoard(BuildContext context, String payload, [String? message]) {
+Future<void> copyToClipBoard(BuildContext context, String payload,
+    [String? message]) async {
   final themeData = Theme.of(context);
   try {
-  // Copy to clipboard first
-  Clipboard.setData(ClipboardData(text: payload));
-  
-  // Use overlay to show snackbar above everything including dialogs
-  final overlay = Overlay.of(context);
-  late OverlayEntry overlayEntry;
-  
-  overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      bottom: 50.0,
-      left: 0,
-      right: 0,
-      child: Center(
-        child: Material(
-          elevation: 1000.0,
-          borderRadius: BorderRadius.circular(4.0),
-          color: themeData.colorScheme.primaryContainer,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 20.0,
-                ),
-                const SizedBox(width: 12.0),
-                Text(
-                  message ?? LocaleKeys.clipBoard.tr(),
-                  style: themeData.textTheme.bodyLarge!.copyWith(
-                    color: themeData.brightness == Brightness.dark
-                        ? themeData.hintColor
-                        : themeData.primaryColor,
+    if (!context.mounted) return;
+    // Copy to clipboard first
+    await Clipboard.setData(ClipboardData(text: payload));
+
+    // Use overlay to show snackbar above everything including dialogs
+    final overlay = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 50.0,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: Material(
+            elevation: 1000.0,
+            borderRadius: BorderRadius.circular(4.0),
+            color: themeData.colorScheme.primaryContainer,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: themeData.colorScheme.onPrimaryContainer,
+                    size: 20.0,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12.0),
+                  Text(
+                    message ?? LocaleKeys.clipBoard.tr(),
+                    style: themeData.textTheme.bodyLarge!.copyWith(
+                      color: themeData.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-  
-  overlay.insert(overlayEntry);
-  
-  // Remove the overlay after 2 seconds
-  Timer(const Duration(seconds: 2), () {
-    overlayEntry.remove();
-  });
+    );
+
+    overlay.insert(overlayEntry);
+
+    // Remove the overlay after 2 seconds
+    Timer(const Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
   } catch (e) {
     log('Error copyToClipBoard: $e', isError: true);
+    // Show error feedback to the user
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to copy to clipboard'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 }
-
 
 /// Converts a double value [dv] to a string representation with specified decimal places [fractions].
 /// Parameters:

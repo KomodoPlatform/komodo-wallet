@@ -234,7 +234,8 @@ class AddressCard extends StatelessWidget {
                         ),
                       SwapAddressTag(address: address),
                       const Spacer(),
-                      AddressCopyButton(address: address.address, coinAbbr: coin.abbr),
+                      AddressCopyButton(
+                          address: address.address, coinAbbr: coin.abbr),
                       QrButton(
                         coin: coin,
                         address: address,
@@ -252,7 +253,8 @@ class AddressCard extends StatelessWidget {
                   children: [
                     AddressText(address: address.address),
                     const SizedBox(width: 8),
-                    AddressCopyButton(address: address.address, coinAbbr: coin.abbr),
+                    AddressCopyButton(
+                        address: address.address, coinAbbr: coin.abbr),
                     QrButton(coin: coin, address: address),
                     if (coin.hasFaucet)
                       ConstrainedBox(
@@ -368,9 +370,10 @@ class QrButton extends StatelessWidget {
                     const SizedBox(height: 16),
                     // Address row with copy and explorer link
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: theme.custom.subCardBackgroundColor,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -379,8 +382,8 @@ class QrButton extends StatelessWidget {
                           Expanded(
                             child: TruncatedMiddleText(
                               address.address,
-                              style: Theme.of(context).textTheme.bodySmall ?? 
-                                     const TextStyle(fontSize: 12),
+                              style: Theme.of(context).textTheme.bodySmall ??
+                                  const TextStyle(fontSize: 12),
                             ),
                           ),
                           // Copy button
@@ -389,9 +392,14 @@ class QrButton extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             clipBehavior: Clip.hardEdge,
                             child: IconButton(
-                              tooltip: LocaleKeys.copyAddressToClipboard.tr(args: [coin.abbr]),
+                              tooltip: LocaleKeys.copyAddressToClipboard
+                                  .tr(args: [coin.abbr]),
                               icon: const Icon(Icons.copy_rounded, size: 20),
-                              onPressed: () => copyToClipBoard(context, address.address, LocaleKeys.copiedAddressToClipboard.tr(args: [coin.abbr])),
+                              onPressed: () => copyToClipBoard(
+                                  context,
+                                  address.address,
+                                  LocaleKeys.copiedAddressToClipboard
+                                      .tr(args: [coin.abbr])),
                             ),
                           ),
                           // Explorer link button
@@ -403,12 +411,16 @@ class QrButton extends StatelessWidget {
                               tooltip: LocaleKeys.viewOnExplorer.tr(),
                               icon: const Icon(Icons.open_in_new, size: 20),
                               onPressed: () {
-                                final url = getAddressExplorerUrl(coin, address.address);
+                                final url = getAddressExplorerUrl(
+                                    coin, address.address);
                                 if (url.isNotEmpty) {
                                   launchURLString(url, inSeparateTab: true);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
+                                    SnackBar(
+                                        content: Text(LocaleKeys
+                                            .explorerUnavailable
+                                            .tr())),
                                   );
                                 }
                               },
@@ -500,7 +512,7 @@ class PubkeyReceiveDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: theme.custom.subCardBackgroundColor,
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -509,8 +521,8 @@ class PubkeyReceiveDialog extends StatelessWidget {
                   Expanded(
                     child: TruncatedMiddleText(
                       address.address,
-                      style: Theme.of(context).textTheme.bodySmall ?? 
-                             const TextStyle(fontSize: 12),
+                      style: Theme.of(context).textTheme.bodySmall ??
+                          const TextStyle(fontSize: 12),
                     ),
                   ),
                   // Copy button
@@ -519,9 +531,14 @@ class PubkeyReceiveDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     clipBehavior: Clip.hardEdge,
                     child: IconButton(
-                      tooltip: LocaleKeys.copyAddressToClipboard.tr(args: [coin.abbr]),
+                      tooltip: LocaleKeys.copyAddressToClipboard
+                          .tr(args: [coin.abbr]),
                       icon: const Icon(Icons.copy_rounded, size: 20),
-                      onPressed: () => copyToClipBoard(context, address.address, LocaleKeys.copiedAddressToClipboard.tr(args: [coin.abbr])),
+                      onPressed: () => copyToClipBoard(
+                          context,
+                          address.address,
+                          LocaleKeys.copiedAddressToClipboard
+                              .tr(args: [coin.abbr])),
                     ),
                   ),
                   // Explorer link button
@@ -533,12 +550,15 @@ class PubkeyReceiveDialog extends StatelessWidget {
                       tooltip: LocaleKeys.viewOnExplorer.tr(),
                       icon: const Icon(Icons.open_in_new, size: 20),
                       onPressed: () {
-                        final url = getAddressExplorerUrl(coin, address.address);
+                        final url =
+                            getAddressExplorerUrl(coin, address.address);
                         if (url.isNotEmpty) {
                           launchURLString(url, inSeparateTab: true);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(LocaleKeys.explorerUnavailable.tr())),
+                            SnackBar(
+                                content:
+                                    Text(LocaleKeys.explorerUnavailable.tr())),
                           );
                         }
                       },
