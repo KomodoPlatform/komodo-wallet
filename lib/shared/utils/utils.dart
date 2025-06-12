@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
