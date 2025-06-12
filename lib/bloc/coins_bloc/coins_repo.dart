@@ -658,4 +658,11 @@ class CoinsRepo {
       result: withdrawDetails,
     );
   }
+
+  /// Get a cached price for a given coin symbol
+  ///
+  /// This returns the price from the cache without fetching new data
+  CexPrice? getCachedPrice(String symbol) {
+    return _pricesCache[symbol];
+  }
 }
