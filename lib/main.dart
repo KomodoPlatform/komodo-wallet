@@ -155,8 +155,11 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (_) =>
-              AuthBloc(komodoDefiSdk, walletsRepository, SettingsRepository()),
+          create: (_) => AuthBloc(
+            komodoDefiSdk,
+            walletsRepository,
+            SettingsRepository(),
+          )..add(const AuthSessionRestoreRequested()),
         ),
       ],
       child: BetterFeedback(

@@ -53,3 +53,7 @@ class AuthWalletDownloadRequested extends AuthBlocEvent {
   const AuthWalletDownloadRequested({required this.password});
   final String password;
 }
+
+class AuthSessionRestoreRequested extends AuthBlocEvent {
+  const AuthSessionRestoreRequested();
+}
