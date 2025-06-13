@@ -30,6 +30,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     on<AuthRestoreRequested>(_onRestore);
     on<AuthSeedBackupConfirmed>(_onSeedBackupConfirmed);
     on<AuthWalletDownloadRequested>(_onWalletDownloadRequested);
+    on<AuthCurrentUserRequested>(_onCurrentUserRequested);
   }
 
   final KomodoDefiSdk _kdfSdk;
@@ -289,6 +290,17 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
       );
     } catch (e, s) {
       _log.shout('Failed to download wallet data', e, s);
+    }
+  }
+
+  Future<void> _onCurrentUserRequested(
+    AuthCurrentUserRequested event,
+    Emitter<AuthBlocState> emit,
+  ) async {
+    final currentUser = await _kdfSdk.auth.currentUser;
+    if (currentUser != null) {
+      emit(AuthBlocState.loggedIn(currentUser));
+      _listenToAuthStateChanges();
     }
   }
 
