@@ -1,0 +1,49 @@
+name: Build Android Docker image
+
+on:
+  pull_request:
+    branches:
+      [
+        dev,
+        main,
+        release/*,
+        hotfix/*,
+        bugfix/*,
+        feature/*,
+        chore/*,
+        build/*,
+        ci/*,
+      ]
+    paths:
+      - ".docker/**"
+      - "android/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+  workflow_dispatch:
+
+jobs:
+  build-android-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Temporary workaround until firebase configs are added to CI
+      - name: Comment out Google Play Services import
+        shell: bash
+        run: |
+          sed -i 's/id .com\.google\.gms\.google-services./\/\/ id .com\.google\.gms\.google-services./' android/app/build.gradle
+          echo "Google Play Services import commented out"
+
+      - name: Build Android image
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x .docker/build.sh
+          sh .docker/build.sh apk release

@@ -16,6 +16,7 @@ import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
 
 class WithdrawForm extends StatefulWidget {
@@ -343,6 +344,14 @@ class WithdrawFormFillSection extends StatelessWidget {
                   : () => state.recipientAddressError?.message,
             ),
             const SizedBox(height: 16),
+            if (state.asset.protocol is TendermintProtocol) ...[
+              const IbcTransferField(),
+              if (state.isIbcTransfer) ...[
+                const SizedBox(height: 16),
+                const IbcChannelField(),
+              ],
+              const SizedBox(height: 16),
+            ],
             WithdrawAmountField(
               asset: state.asset,
               amount: state.amount,

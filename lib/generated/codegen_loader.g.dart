@@ -660,6 +660,10 @@ abstract class  LocaleKeys {
   static const statistics = 'statistics';
   static const ibcTransferFieldTitle = 'ibcTransferFieldTitle';
   static const ibcTransferFieldSubtitle = 'ibcTransferFieldSubtitle';
+  static const ibcChannel = 'ibcChannel';
+  static const ibcChannelHint = 'ibcChannelHint';
+  static const ibcChannelRequired = 'ibcChannelRequired';
+  static const ibcChannelInvalidFormat = 'ibcChannelInvalidFormat';
   static const successPageHeadline = 'successPageHeadline';
   static const successPageBodySmall = 'successPageBodySmall';
   static const withdrawErrorCardTileTitle = 'withdrawErrorCardTileTitle';
