@@ -101,7 +101,7 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (isBitrefillIntegrationEnabled)
+            if (isBitrefillIntegrationEnabled) ...[
               Flexible(
                 child: BitrefillButton(
                   key: Key(
@@ -109,9 +109,11 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
                   ),
                   coin: coin,
                   onPaymentRequested: (_) => selectWidget(CoinPageType.send),
+                  tooltip: _getBitrefillTooltip(coin),
                 ),
               ),
-            if (isBitrefillIntegrationEnabled) const SizedBox(width: 15),
+              const SizedBox(width: 12),
+            ],
             if (!coin.walletOnly)
               Flexible(
                 child: CoinDetailsSwapButton(
@@ -188,6 +190,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
               ),
               coin: coin,
               onPaymentRequested: (_) => selectWidget(CoinPageType.send),
+              tooltip: _getBitrefillTooltip(coin),
             ),
           ),
         Flexible(
@@ -411,4 +414,14 @@ class CoinDetailsSwapButton extends StatelessWidget {
       onPressed: coin.isSuspended ? null : onClickSwapButton,
     );
   }
+}
+
+/// Gets the appropriate tooltip message for the Bitrefill button
+String? _getBitrefillTooltip(Coin coin) {
+  if (coin.isSuspended) {
+    return '${coin.abbr} is currently suspended';
+  }
+
+  // Check if coin has zero balance (this could be enhanced with actual balance check)
+  return null; // Let BitrefillButton handle the zero balance tooltip
 }

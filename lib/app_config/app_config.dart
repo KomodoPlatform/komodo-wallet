@@ -19,14 +19,14 @@ final Uri discordSupportChannelUrl = Uri.parse(
     'https://discord.com/channels/412898016371015680/429676282196787200');
 final Uri discordInviteUrl = Uri.parse('https://komodoplatform.com/discord');
 
-// Temporary feature flag to allow merging of the PR
+/// Const to define if Bitrefill integration is enabled in the app.
 const bool isBitrefillIntegrationEnabled = true;
 
 /// Const to define if trading is enabled in the app.
-/// 
+///
 ///! You are solely responsible for any losses/damage that may occur due to
 ///! compliance issues, bugs, or other unforeseen circumstances. Komodo
-///! Platform and its legal entities do not condone the use of this app for 
+///! Platform and its legal entities do not condone the use of this app for
 ///! trading purposes where it is not legally compliant.
 const bool kIsWalletOnly = false;
 
