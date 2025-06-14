@@ -671,5 +671,7 @@ abstract class  LocaleKeys {
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
   static const chart = 'chart';
+  static const tradingDisabledTooltip = 'tradingDisabledTooltip';
+  static const tradingDisabled = 'tradingDisabled';
 
 }
