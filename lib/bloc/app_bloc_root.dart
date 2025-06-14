@@ -292,7 +292,7 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider<TradingStatusBloc>(
             lazy: false,
-            create: (_) => TradingStatusBloc(
+            create: (context) => TradingStatusBloc(
               context.read<TradingStatusRepository>(),
             )..add(TradingStatusCheckRequested()),
           ),
