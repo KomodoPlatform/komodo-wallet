@@ -35,6 +35,7 @@ import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/services/trading_bouncer/trading_bouncer_service.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -46,64 +47,61 @@ PerformanceMode? get appDemoPerformanceMode =>
     _appDemoPerformanceMode ?? _getPerformanceModeFromUrl();
 
 Future<void> main() async {
-  await runZonedGuarded(
-    () async {
-      usePathUrlStrategy();
-      WidgetsFlutterBinding.ensureInitialized();
-      Bloc.observer = AppBlocObserver();
-      PerformanceAnalytics.init();
+  await runZonedGuarded(() async {
+    usePathUrlStrategy();
+    WidgetsFlutterBinding.ensureInitialized();
+    Bloc.observer = AppBlocObserver();
+    PerformanceAnalytics.init();
 
-      FlutterError.onError = (FlutterErrorDetails details) {
-        catchUnhandledExceptions(details.exception, details.stack);
-      };
+    FlutterError.onError = (FlutterErrorDetails details) {
+      catchUnhandledExceptions(details.exception, details.stack);
+    };
 
-      // Foundational dependencies / setup - everything else builds on these 3.
-      // The current focus is migrating mm2Api to the new sdk, so that the sdk
-      // is the only/primary API/repository for KDF
-      final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
-      final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
-      await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api);
+    // Foundational dependencies / setup - everything else builds on these 3.
+    // The current focus is migrating mm2Api to the new sdk, so that the sdk
+    // is the only/primary API/repository for KDF
+    final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
+    final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
+    await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api);
 
-      // Strange inter-dependencies here that should ideally not be the case.
-      final trezorRepo = TrezorRepo(
-        api: Mm2ApiTrezor(mm2.call),
-        kdfSdk: komodoDefiSdk,
-      );
-      final trezor = TrezorCoinsBloc(trezorRepo: trezorRepo);
-      final coinsRepo = CoinsRepo(
-        kdfSdk: komodoDefiSdk,
-        mm2: mm2,
-        trezorBloc: trezor,
-      );
-      final walletsRepository = WalletsRepository(
-        komodoDefiSdk,
-        mm2Api,
-        getStorage(),
-      );
+    // Strange inter-dependencies here that should ideally not be the case.
+    final trezorRepo = TrezorRepo(
+      api: Mm2ApiTrezor(mm2.call),
+      kdfSdk: komodoDefiSdk,
+    );
+    final trezor = TrezorCoinsBloc(trezorRepo: trezorRepo);
+    final coinsRepo = CoinsRepo(
+      kdfSdk: komodoDefiSdk,
+      mm2: mm2,
+      trezorBloc: trezor,
+    );
+    final walletsRepository = WalletsRepository(
+      komodoDefiSdk,
+      mm2Api,
+      getStorage(),
+    );
 
-      runApp(
-        EasyLocalization(
-          supportedLocales: localeList,
-          fallbackLocale: localeList.first,
-          useFallbackTranslations: true,
-          useOnlyLangCode: true,
-          path: '$assetsPath/translations',
-          child: MultiRepositoryProvider(
-            providers: [
-              RepositoryProvider(create: (_) => komodoDefiSdk),
-              RepositoryProvider(create: (_) => mm2Api),
-              RepositoryProvider(create: (_) => coinsRepo),
-              RepositoryProvider(create: (_) => trezorRepo),
-              RepositoryProvider(create: (_) => trezor),
-              RepositoryProvider(create: (_) => walletsRepository),
-            ],
-            child: const MyApp(),
-          ),
+    runApp(
+      EasyLocalization(
+        supportedLocales: localeList,
+        fallbackLocale: localeList.first,
+        useFallbackTranslations: true,
+        useOnlyLangCode: true,
+        path: '$assetsPath/translations',
+        child: MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider(create: (_) => komodoDefiSdk),
+            RepositoryProvider(create: (_) => mm2Api),
+            RepositoryProvider(create: (_) => coinsRepo),
+            RepositoryProvider(create: (_) => trezorRepo),
+            RepositoryProvider(create: (_) => trezor),
+            RepositoryProvider(create: (_) => walletsRepository),
+          ],
+          child: const MyApp(),
         ),
-      );
-    },
-    catchUnhandledExceptions,
-  );
+      ),
+    );
+  }, catchUnhandledExceptions);
 }
 
 void catchUnhandledExceptions(Object error, StackTrace? stack) {
@@ -183,10 +181,6 @@ FeedbackThemeData _feedbackThemeData(ThemeData appTheme) {
     colorScheme: appTheme.colorScheme,
     sheetIsDraggable: true,
     feedbackSheetHeight: 0.3,
-    drawColors: [
-      Colors.red,
-      Colors.white,
-      Colors.green,
-    ],
+    drawColors: [Colors.red, Colors.white, Colors.green],
   );
 }

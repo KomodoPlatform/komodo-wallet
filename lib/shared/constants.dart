@@ -38,9 +38,14 @@ final Uri pricesUrlV3 = Uri.parse(
   'https://defi-stats.komodo.earth/api/v3/prices/tickers_v2?expire_at=60',
 );
 
+const String tradingBouncerEndpoint =
+    'https://defi-stats.komodo.earth/api/v3/utils/bouncer';
+
 const int millisecondsIn24H = 86400000;
 
-const bool isTestMode =
-    bool.fromEnvironment('testing_mode', defaultValue: false);
+const bool isTestMode = bool.fromEnvironment(
+  'testing_mode',
+  defaultValue: false,
+);
 const String moralisProxyUrl = 'https://moralis-proxy.komodo.earth';
 const String nftAntiSpamUrl = 'https://nft.antispam.dragonhound.info';

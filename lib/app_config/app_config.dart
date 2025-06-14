@@ -16,7 +16,8 @@ const String assetsPath = 'assets';
 const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
 
 final Uri discordSupportChannelUrl = Uri.parse(
-    'https://discord.com/channels/412898016371015680/429676282196787200');
+  'https://discord.com/channels/412898016371015680/429676282196787200',
+);
 final Uri discordInviteUrl = Uri.parse('https://komodoplatform.com/discord');
 
 // Temporary feature flag to allow merging of the PR
@@ -30,7 +31,11 @@ const bool isBitrefillIntegrationEnabled = false;
 ///! You are solely responsible for any losses/damage that may occur. Komodo
 ///! Platform does not condone the use of this app for trading purposes and
 ///! unequivocally forbids it.
-const bool kIsWalletOnly = !kDebugMode;
+bool kIsWalletOnly = !kDebugMode;
+
+void updateWalletOnly(bool value) {
+  kIsWalletOnly = value;
+}
 
 const Duration kPerformanceLogInterval = Duration(minutes: 1);
 
@@ -138,23 +143,19 @@ const List<String> appWalletOnlyAssetList = [
 /// Coins that are enabled by default on restore from seed or registration.
 /// This will not affect existing wallets.
 List<String> get enabledByDefaultCoins => [
-      'BTC-segwit',
-      'KMD',
-      'LTC-segwit',
-      'ETH',
-      'MATIC',
-      'BNB',
-      'AVAX',
-      'FTM',
-      if (kDebugMode) 'DOC',
-      if (kDebugMode) 'MARTY',
-    ];
+  'BTC-segwit',
+  'KMD',
+  'LTC-segwit',
+  'ETH',
+  'MATIC',
+  'BNB',
+  'AVAX',
+  'FTM',
+  if (kDebugMode) 'DOC',
+  if (kDebugMode) 'MARTY',
+];
 
-List<String> get enabledByDefaultTrezorCoins => [
-      'BTC',
-      'KMD',
-      'LTC',
-    ];
+List<String> get enabledByDefaultTrezorCoins => ['BTC', 'KMD', 'LTC'];
 
 List<String> get coinsWithFaucet => ['RICK', 'MORTY', 'DOC', 'MARTY'];
 

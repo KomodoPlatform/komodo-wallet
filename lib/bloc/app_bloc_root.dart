@@ -45,6 +45,7 @@ import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/bloc/system_health/system_clock_repository.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
+import 'package:web_dex/bloc/trading_bouncer/trading_bouncer_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
@@ -66,6 +67,7 @@ import 'package:web_dex/router/navigators/back_dispatcher.dart';
 import 'package:web_dex/router/parsers/root_route_parser.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
+import 'package:web_dex/services/trading_bouncer/trading_bouncer_service.dart';
 import 'package:web_dex/shared/utils/debug_utils.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_icon.dart';
@@ -88,8 +90,9 @@ class AppBlocRoot extends StatelessWidget {
   ) async {
     final sharedPrefs = await SharedPreferences.getInstance();
 
-    final storedLastPerformanceMode =
-        sharedPrefs.getString('last_performance_mode');
+    final storedLastPerformanceMode = sharedPrefs.getString(
+      'last_performance_mode',
+    );
 
     if (storedLastPerformanceMode != performanceMode?.name) {
       profitLossRepo.clearCache().ignore();
@@ -157,10 +160,7 @@ class AppBlocRoot extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (_) => NftsRepo(
-            api: mm2Api.nft,
-            coinsRepo: coinsRepository,
-          ),
+          create: (_) => NftsRepo(api: mm2Api.nft, coinsRepo: coinsRepository),
         ),
         RepositoryProvider(create: (_) => tradingEntitiesBloc),
         RepositoryProvider(create: (_) => dexRepository),
@@ -181,23 +181,18 @@ class AppBlocRoot extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => CoinsBloc(
-              komodoDefiSdk,
-              coinsRepository,
-              trezorBloc,
-              mm2Api,
-            )..add(CoinsStarted()),
+            create: (context) =>
+                CoinsBloc(komodoDefiSdk, coinsRepository, trezorBloc, mm2Api)
+                  ..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(
-            create: (context) => PriceChartBloc(
-              binanceRepository,
-              komodoDefiSdk,
-            )..add(
-                const PriceChartStarted(
-                  symbols: ['KMD'],
-                  period: Duration(days: 30),
+            create: (context) =>
+                PriceChartBloc(binanceRepository, komodoDefiSdk)..add(
+                  const PriceChartStarted(
+                    symbols: ['KMD'],
+                    period: Duration(days: 30),
+                  ),
                 ),
-              ),
           ),
           BlocProvider<AssetOverviewBloc>(
             create: (context) => AssetOverviewBloc(
@@ -207,10 +202,7 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider<ProfitLossBloc>(
-            create: (context) => ProfitLossBloc(
-              profitLossRepo,
-              komodoDefiSdk,
-            ),
+            create: (context) => ProfitLossBloc(profitLossRepo, komodoDefiSdk),
           ),
           BlocProvider<PortfolioGrowthBloc>(
             create: (BuildContext ctx) => PortfolioGrowthBloc(
@@ -219,13 +211,17 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider<TransactionHistoryBloc>(
-            create: (BuildContext ctx) => TransactionHistoryBloc(
-              sdk: komodoDefiSdk,
-            ),
+            create: (BuildContext ctx) =>
+                TransactionHistoryBloc(sdk: komodoDefiSdk),
           ),
           BlocProvider<SettingsBloc>(
             create: (context) =>
                 SettingsBloc(storedPrefs, SettingsRepository()),
+          ),
+          BlocProvider<TradingBouncerBloc>(
+            lazy: false,
+            create: (context) =>
+                TradingBouncerBloc(service: tradingBouncerService),
           ),
           BlocProvider<AnalyticsBloc>(
             lazy: false,
@@ -264,10 +260,8 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider(
             lazy: false,
-            create: (context) => NftMainBloc(
-              repo: context.read<NftsRepo>(),
-              sdk: komodoDefiSdk,
-            ),
+            create: (context) =>
+                NftMainBloc(repo: context.read<NftsRepo>(), sdk: komodoDefiSdk),
           ),
           if (isBitrefillIntegrationEnabled)
             BlocProvider(
@@ -276,10 +270,7 @@ class AppBlocRoot extends StatelessWidget {
             ),
           BlocProvider<MarketMakerBotBloc>(
             create: (context) => MarketMakerBotBloc(
-              MarketMakerBotRepository(
-                mm2Api,
-                SettingsRepository(),
-              ),
+              MarketMakerBotRepository(mm2Api, SettingsRepository()),
               MarketMakerBotOrderListRepository(
                 myOrdersService,
                 SettingsRepository(),
@@ -288,8 +279,9 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider<SystemHealthBloc>(
-            create: (_) => SystemHealthBloc(SystemClockRepository(), mm2Api)
-              ..add(SystemHealthPeriodicCheckStarted()),
+            create: (_) =>
+                SystemHealthBloc(SystemClockRepository(), mm2Api)
+                  ..add(SystemHealthPeriodicCheckStarted()),
           ),
           BlocProvider<TrezorInitBloc>(
             create: (context) => TrezorInitBloc(
@@ -308,7 +300,7 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider<FaucetBloc>(
             create: (context) =>
                 FaucetBloc(kdfSdk: context.read<KomodoDefiSdk>()),
-          )
+          ),
         ],
         child: _MyAppView(),
       ),
@@ -350,8 +342,9 @@ class _MyAppViewState extends State<_MyAppView> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       onGenerateTitle: (_) => appTitle,
-      themeMode: context
-          .select((SettingsBloc settingsBloc) => settingsBloc.state.themeMode),
+      themeMode: context.select(
+        (SettingsBloc settingsBloc) => settingsBloc.state.themeMode,
+      ),
       darkTheme: theme.global.dark,
       theme: theme.global.light,
       routerDelegate: _routerDelegate,
@@ -391,15 +384,16 @@ class _MyAppViewState extends State<_MyAppView> {
       // Remove the loading indicator.
       loadingElement.remove();
 
-      final delay =
-          DateTime.now().difference(_pageLoadStartTime).inMilliseconds;
+      final delay = DateTime.now()
+          .difference(_pageLoadStartTime)
+          .inMilliseconds;
       context.read<AnalyticsBloc>().logEvent(
-            PageInteractiveDelayEventData(
-              pageName: 'app_root',
-              interactiveDelayMs: delay,
-              spinnerTimeMs: 200,
-            ),
-          );
+        PageInteractiveDelayEventData(
+          pageName: 'app_root',
+          interactiveDelayMs: delay,
+          spinnerTimeMs: 200,
+        ),
+      );
     }
   }
 
@@ -418,8 +412,9 @@ class _MyAppViewState extends State<_MyAppView> {
 
     try {
       final stopwatch = Stopwatch()..start();
-      final coins =
-          coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true).keys;
+      final coins = coinsRepo
+          .getKnownCoinsMap(excludeExcludedAssets: true)
+          .keys;
 
       await for (final abbr in Stream.fromIterable(coins)) {
         // TODO: Test if necessary to complete prematurely with error if build
@@ -432,19 +427,21 @@ class _MyAppViewState extends State<_MyAppView> {
         // }
 
         // ignore: use_build_context_synchronously
-        await CoinIcon.precacheCoinIcon(context, abbr)
-            .onError((_, __) => debugPrint('Error precaching coin icon $abbr'));
+        await CoinIcon.precacheCoinIcon(
+          context,
+          abbr,
+        ).onError((_, __) => debugPrint('Error precaching coin icon $abbr'));
       }
 
       _currentPrecacheOperation!.complete();
 
       context.read<AnalyticsBloc>().logEvent(
-            CoinsDataUpdatedEventData(
-              updateSource: 'remote',
-              updateDurationMs: stopwatch.elapsedMilliseconds,
-              coinsCount: coins.length,
-            ),
-          );
+        CoinsDataUpdatedEventData(
+          updateSource: 'remote',
+          updateDurationMs: stopwatch.elapsedMilliseconds,
+          coinsCount: coins.length,
+        ),
+      );
     } catch (e) {
       log('Error precaching coin icons: $e');
       _currentPrecacheOperation!.completeError(e);

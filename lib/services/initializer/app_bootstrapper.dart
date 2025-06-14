@@ -23,7 +23,9 @@ final class AppBootstrapper {
     timer.reset();
 
     await _warmUpInitializers().awaitAll();
-    log('AppBootstrapper: Warm-up initializers completed in ${timer.elapsedMilliseconds}ms');
+    log(
+      'AppBootstrapper: Warm-up initializers completed in ${timer.elapsedMilliseconds}ms',
+    );
     timer.stop();
 
     _isInitialized = true;
@@ -46,9 +48,11 @@ final class AppBootstrapper {
       CexMarketData.ensureInitialized(),
       PlatformTuner.setWindowTitleAndSize(),
       _initializeSettings(),
-      _initHive(isWeb: kIsWeb || kIsWasm, appFolder: appFolder).then(
-        (_) => sparklineRepository.init(),
-      ),
+      tradingBouncerService.checkTradingStatus().then((_) {}),
+      _initHive(
+        isWeb: kIsWeb || kIsWasm,
+        appFolder: appFolder,
+      ).then((_) => sparklineRepository.init()),
     ];
   }
 
