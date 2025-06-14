@@ -167,7 +167,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
             context: context,
           ),
         ),
-        if (!coin.walletOnly && !kIsWalletOnly)
+        if (!coin.walletOnly)
           Container(
             margin: const EdgeInsets.only(left: 21),
             constraints: const BoxConstraints(maxWidth: 120),

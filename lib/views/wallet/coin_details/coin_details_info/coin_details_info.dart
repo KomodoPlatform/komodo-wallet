@@ -10,11 +10,9 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
@@ -268,8 +266,8 @@ class _DesktopCoinDetails extends StatelessWidget {
               isMobile: false,
               selectWidget: setPageType,
               onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
-                  ? null
-                  : () => _goToSwap(context, coin),
+                  ? () => _goToSwap(context, coin)
+                  : null,
               coin: coin,
             ),
           ),
