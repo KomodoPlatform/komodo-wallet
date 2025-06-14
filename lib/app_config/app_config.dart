@@ -20,7 +20,7 @@ final Uri discordSupportChannelUrl = Uri.parse(
 final Uri discordInviteUrl = Uri.parse('https://komodoplatform.com/discord');
 
 /// Const to define if Bitrefill integration is enabled in the app.
-const bool isBitrefillIntegrationEnabled = true;
+const bool isBitrefillIntegrationEnabled = false;
 
 /// Const to define whether to show trading warning dialogs and notices.
 /// This can be used to control the display of trading-related warnings
