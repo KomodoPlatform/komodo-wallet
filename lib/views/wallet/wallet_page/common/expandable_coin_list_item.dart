@@ -7,7 +7,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -272,7 +272,8 @@ class _AddressRow extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
               ),
             ),
-            if (isSwapAddress && !kIsWalletOnly) ...[
+            if (isSwapAddress &&
+                context.watch<TradingStatusBloc>().state is TradingEnabled) ...[
               const SizedBox(width: 8),
               const Chip(
                 label: Text(

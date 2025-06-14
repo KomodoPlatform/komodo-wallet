@@ -40,8 +40,7 @@ class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   }
 
   BaseRouteParser _getRoutParser(Uri uri) {
-    final defaultRouteParser =
-        kIsWalletOnly ? _parsers[firstUriSegment.wallet]! : dexRouteParser;
+    final defaultRouteParser = dexRouteParser;
 
     if (uri.pathSegments.isEmpty) return defaultRouteParser;
     return _parsers[uri.pathSegments.first] ?? defaultRouteParser;

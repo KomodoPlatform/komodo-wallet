@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_event.dart';
@@ -34,6 +35,8 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
             final bool isDarkTheme = settingsState.themeMode == ThemeMode.dark;
             final bool isMMBotEnabled =
                 settingsState.mmBotSettings.isMMBotEnabled;
+            final bool tradingEnabled =
+                context.watch<TradingStatusBloc>().state is TradingEnabled;
             final SettingsBloc settings = context.read<SettingsBloc>();
             final currentWallet = state.currentUser?.wallet;
             return Container(
@@ -63,28 +66,44 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                       onTap: onTapItem,
                       isSelected: _checkSelectedItem(MainMenuValue.fiat),
                     ),
-                    DesktopMenuDesktopItem(
-                      key: const Key('main-menu-dex'),
-                      enabled: currentWallet?.isHW != true,
-                      menu: MainMenuValue.dex,
-                      onTap: onTapItem,
-                      isSelected: _checkSelectedItem(MainMenuValue.dex),
+                    Tooltip(
+                      message: tradingEnabled
+                          ? ''
+                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                      child: DesktopMenuDesktopItem(
+                        key: const Key('main-menu-dex'),
+                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        menu: MainMenuValue.dex,
+                        onTap: onTapItem,
+                        isSelected: _checkSelectedItem(MainMenuValue.dex),
+                      ),
                     ),
-                    DesktopMenuDesktopItem(
-                      key: const Key('main-menu-bridge'),
-                      enabled: currentWallet?.isHW != true,
-                      menu: MainMenuValue.bridge,
-                      onTap: onTapItem,
-                      isSelected: _checkSelectedItem(MainMenuValue.bridge),
+                    Tooltip(
+                      message: tradingEnabled
+                          ? ''
+                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                      child: DesktopMenuDesktopItem(
+                        key: const Key('main-menu-bridge'),
+                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        menu: MainMenuValue.bridge,
+                        onTap: onTapItem,
+                        isSelected: _checkSelectedItem(MainMenuValue.bridge),
+                      ),
                     ),
                     if (isMMBotEnabled && isAuthenticated)
-                      DesktopMenuDesktopItem(
-                        key: const Key('main-menu-market-maker-bot'),
-                        enabled: currentWallet?.isHW != true,
-                        menu: MainMenuValue.marketMakerBot,
-                        onTap: onTapItem,
-                        isSelected:
-                            _checkSelectedItem(MainMenuValue.marketMakerBot),
+                      Tooltip(
+                        message: tradingEnabled
+                            ? ''
+                            : LocaleKeys.tradingDisabledTooltip.tr(),
+                        child: DesktopMenuDesktopItem(
+                          key: const Key('main-menu-market-maker-bot'),
+                          enabled:
+                              tradingEnabled && currentWallet?.isHW != true,
+                          menu: MainMenuValue.marketMakerBot,
+                          onTap: onTapItem,
+                          isSelected:
+                              _checkSelectedItem(MainMenuValue.marketMakerBot),
+                        ),
                       ),
                     DesktopMenuDesktopItem(
                         key: const Key('main-menu-nft'),
@@ -129,12 +148,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                       }),
                     ),
                     const SizedBox(height: 48),
-                  ]
-                      // Filter out disabled items
-                      .where((item) =>
-                          item is! DesktopMenuDesktopItem ||
-                          item.menu.isEnabledInCurrentMode())
-                      .toList(),
+                  ].toList(),
                 ),
               ),
             );

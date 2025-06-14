@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -18,12 +20,16 @@ class BitrefillInAppWebviewButton extends StatefulWidget {
   /// The [enabled] property determines if the button is clickable.
   /// The [windowTitle] property is used as the title of the window.
   /// The [url] property is the URL to open in the window.
+  /// The [tooltip] property is used to show a tooltip message when hovering or when button is disabled.
+  /// The [onPressed] property is called when the button is pressed, before opening the webview.
   const BitrefillInAppWebviewButton({
     required this.url,
     required this.windowTitle,
     required this.enabled,
     required this.onMessage,
     super.key,
+    this.tooltip,
+    this.onPressed,
   });
 
   /// The title of the pop-up browser window.
@@ -38,6 +44,12 @@ class BitrefillInAppWebviewButton extends StatefulWidget {
   /// The callback function that is called when a message is received from the
   /// webview as a console message.
   final dynamic Function(String) onMessage;
+
+  /// Optional tooltip message to show when hovering or when button is disabled.
+  final String? tooltip;
+
+  /// Optional callback that is called when the button is pressed, before opening the webview.
+  final Future<void> Function()? onPressed;
 
   @override
   BitrefillInAppWebviewButtonState createState() =>
@@ -63,9 +75,18 @@ class BitrefillInAppWebviewButtonState
         }
       },
       child: BitrefillButtonView(
-        onPressed: widget.enabled ? _openDialog : null,
+        onPressed: widget.enabled ? _handlePress : null,
+        tooltip: widget.tooltip,
       ),
     );
+  }
+
+  Future<void> _handlePress() async {
+    // Call the onPressed callback first if provided
+    await widget.onPressed;
+
+    // Then open the dialog
+    await _openDialog();
   }
 
   Future<void> _openDialog() async {

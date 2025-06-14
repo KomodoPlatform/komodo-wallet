@@ -213,7 +213,7 @@ class AddressBalanceCard extends StatelessWidget {
                           AddressCopyButton(address: pubkey.address),
                           if (pubkey.isActiveForSwap)
                             Chip(
-                              label: Text(LocaleKeys.swapAddress.tr()),
+                              label: Text(LocaleKeys.tradingAddress.tr()),
                               backgroundColor: Theme.of(context)
                                   .primaryColor
                                   .withOpacity(0.1),
