@@ -194,7 +194,7 @@ class AppBlocRoot extends StatelessWidget {
               komodoDefiSdk,
             )..add(
                 const PriceChartStarted(
-                  symbols: ['KMD'],
+                  symbols: ['BTC'],
                   period: Duration(days: 30),
                 ),
               ),

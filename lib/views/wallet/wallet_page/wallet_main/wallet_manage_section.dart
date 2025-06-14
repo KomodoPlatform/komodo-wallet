@@ -29,57 +29,56 @@ class WalletManageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isMobile
-        ? _buildMobileSection(context)
-        : _buildDesktopSection(context);
+    return Card(
+        clipBehavior: Clip.antiAlias,
+        color: Theme.of(context).colorScheme.surface,
+        margin: const EdgeInsets.all(0),
+        elevation: pinned ? 2 : 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: isMobile
+            ? _buildMobileSection(context)
+            : _buildDesktopSection(context));
   }
 
   bool get isAuthenticated => mode == AuthorizeMode.logIn;
   Widget _buildDesktopSection(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      color: theme.colorScheme.surface,
-      margin: const EdgeInsets.all(0),
-      elevation: pinned ? 2 : 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Flexible(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    child: WalletManagerSearchField(onChange: onSearchChange),
-                  ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Flexible(
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  constraints: const BoxConstraints(maxWidth: 300),
+                  child: WalletManagerSearchField(onChange: onSearchChange),
                 ),
-                if (isAuthenticated) ...[
-                  Spacer(),
-                  CoinsWithBalanceCheckbox(
-                    withBalance: withBalance,
-                    onWithBalanceChange: onWithBalanceChange,
-                  ),
-                  SizedBox(width: 24),
-                  UiPrimaryButton(
-                    buttonKey: const Key('add-assets-button'),
-                    onPressed: () => _onAddAssetsPress(context),
-                    text: LocaleKeys.addAssets.tr(),
-                    height: 36,
-                    width: 147,
-                    borderRadius: 10,
-                    textStyle: theme.textTheme.bodySmall,
-                  ),
-                ],
+              ),
+              if (isAuthenticated ) ...[
+                Spacer(),
+                CoinsWithBalanceCheckbox(
+                  withBalance: withBalance,
+                  onWithBalanceChange: onWithBalanceChange,
+                ),
+                SizedBox(width: 24),
+                UiPrimaryButton(
+                  buttonKey: const Key('add-assets-button'),
+                  onPressed: () => _onAddAssetsPress(context),
+                  text: LocaleKeys.addAssets.tr(),
+                  height: 36,
+                  width: 147,
+                  borderRadius: 10,
+                  textStyle: theme.textTheme.bodySmall,
+                ),
               ],
-            ),
-            Spacer(),
-            CoinsListHeader(isAuth: mode == AuthorizeMode.logIn),
-          ],
-        ),
+            ],
+          ),
+          Spacer(),
+          CoinsListHeader(isAuth: mode == AuthorizeMode.logIn),
+        ],
       ),
     );
   }
@@ -95,7 +94,7 @@ class WalletManageSection extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Currency',
+                'Portfolio',
                 style: theme.textTheme.titleLarge,
               ),
               Spacer(),
@@ -103,7 +102,7 @@ class WalletManageSection extends StatelessWidget {
                 UiPrimaryButton(
                   buttonKey: const Key('asset-management-button'),
                   onPressed: () => _onAddAssetsPress(context),
-                  text: 'Asset management',
+                  text: 'Add assets',
                   height: 36,
                   width: 147,
                   borderRadius: 10,
@@ -130,6 +129,7 @@ class WalletManageSection extends StatelessWidget {
               ),
             ],
           ),
+          Spacer(),
         ],
       ),
     );

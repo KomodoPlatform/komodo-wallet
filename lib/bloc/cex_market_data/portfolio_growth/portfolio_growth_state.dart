@@ -19,16 +19,25 @@ final class PortfolioGrowthChartLoadSuccess extends PortfolioGrowthState {
     required this.portfolioGrowth,
     required this.percentageIncrease,
     required super.selectedPeriod,
+    required this.totalBalance,
+    required this.totalChange24h,
+    required this.percentageChange24h,
   });
 
   final ChartData portfolioGrowth;
   final double percentageIncrease;
+  final double totalBalance;
+  final double totalChange24h;
+  final double percentageChange24h;
 
   @override
   List<Object> get props => <Object>[
         portfolioGrowth,
         percentageIncrease,
         selectedPeriod,
+        totalBalance,
+        totalChange24h,
+        percentageChange24h,
       ];
 }
 
