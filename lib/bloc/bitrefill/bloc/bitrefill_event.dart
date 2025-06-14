@@ -10,12 +10,13 @@ sealed class BitrefillEvent extends Equatable {
 /// Request to load the bitrefill state with the url and supported coins
 /// from the bitrefill provider.
 final class BitrefillLoadRequested extends BitrefillEvent {
-  const BitrefillLoadRequested({this.coin});
+  const BitrefillLoadRequested({this.coin, this.refundAddress});
 
   final Coin? coin;
+  final String? refundAddress;
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [coin?.abbr ?? '', refundAddress ?? ''];
 }
 
 /// Request to open the Bitrefill widget to make a purchase

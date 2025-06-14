@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/widgets/hidden_with_wallet.dart';
 import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
@@ -31,7 +32,7 @@ class GeneralSettings extends StatelessWidget {
         const SizedBox(height: 25),
         const SettingsManageWeakPasswords(),
         const SizedBox(height: 25),
-        if (!kIsWalletOnly)
+        if (context.watch<TradingStatusBloc>().state is TradingEnabled)
           const HiddenWithoutWallet(
             child: SettingsManageTradingBot(),
           ),

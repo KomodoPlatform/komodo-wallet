@@ -270,6 +270,8 @@
     "cancelAll": "Cancel all",
     "type": "Type",
     "sell": "Sell",
+    "sellCrypto": "Sell Crypto",
+    "sellCryptoDescription": "Select a cryptocurrency to sell through our integrated Bitrefill service.",
     "buy": "Buy",
     "changingWalletPassword": "Changing your wallet password",
     "changingWalletPasswordDescription": "This password will be used for logging in to your wallet",
@@ -639,7 +641,7 @@
     "decimals": "Decimals",
     "onlySendToThisAddress": "Only send {} to this address",
     "scanTheQrCode": "Scan the QR code on any mobile device wallet",
-    "swapAddress": "Swap Address",
+    "tradingAddress": "Trading Address",
     "addresses": "Addresses",
     "creating": "Creating",
     "createAddress": "Create Address",
@@ -675,5 +677,7 @@
     "previewWithdrawal": "Preview Withdrawal",
     "createNewAddress": "Create New Address",
     "searchAddresses": "Search addresses",
-    "chart": "Chart"
+    "chart": "Chart",
+    "tradingDisabledTooltip": "Trading features are currently disabled",
+    "tradingDisabled": "Trading is currently unavailable"
 }
