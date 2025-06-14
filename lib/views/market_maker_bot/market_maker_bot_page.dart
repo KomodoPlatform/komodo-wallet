@@ -11,6 +11,8 @@ import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_mak
 import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
@@ -52,7 +54,9 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
       coinsRepository,
     );
 
-    return MultiBlocProvider(
+    final tradingEnabled =
+        context.watch<TradingStatusBloc>().state is TradingEnabled;
+    final pageContent = MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(
           create: (BuildContext context) => DexTabBarBloc(
@@ -90,6 +94,15 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
             : MarketMakerBotView(),
       ),
     );
+    if (!tradingEnabled) {
+      return Stack(
+        children: [
+          AbsorbPointer(child: pageContent),
+          Center(child: Text(LocaleKeys.tradingDisabled.tr())),
+        ],
+      );
+    }
+    return pageContent;
   }
 
   void _onRouteChange() {

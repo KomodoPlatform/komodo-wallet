@@ -45,6 +45,7 @@ import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/bloc/system_health/system_clock_repository.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
@@ -177,6 +178,7 @@ class AppBlocRoot extends StatelessWidget {
         RepositoryProvider(
           create: (_) => KmdRewardsBloc(coinsRepository, mm2Api),
         ),
+        RepositoryProvider(create: (_) => TradingStatusRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -286,6 +288,12 @@ class AppBlocRoot extends StatelessWidget {
                 coinsRepository,
               ),
             ),
+          ),
+          BlocProvider<TradingStatusBloc>(
+            lazy: false,
+            create: (_) => TradingStatusBloc(
+              context.read<TradingStatusRepository>(),
+            )..add(TradingStatusCheckRequested()),
           ),
           BlocProvider<SystemHealthBloc>(
             create: (_) => SystemHealthBloc(SystemClockRepository(), mm2Api)
