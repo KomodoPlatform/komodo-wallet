@@ -22,17 +22,14 @@ final Uri discordInviteUrl = Uri.parse('https://komodoplatform.com/discord');
 /// Const to define if Bitrefill integration is enabled in the app.
 const bool isBitrefillIntegrationEnabled = true;
 
-/// Const to define if trading is enabled in the app.
+/// Const to define whether to show trading warning dialogs and notices.
+/// This can be used to control the display of trading-related warnings
+/// throughout the application.
 ///
 ///! You are solely responsible for any losses/damage that may occur due to
 ///! compliance issues, bugs, or other unforeseen circumstances. Komodo
 ///! Platform and its legal entities do not condone the use of this app for
 ///! trading purposes where it is not legally compliant.
-const bool kIsWalletOnly = false;
-
-/// Const to define whether to show trading warning dialogs and notices.
-/// This can be used to control the display of trading-related warnings
-/// throughout the application.
 const bool kShowTradingWarning = false;
 
 const Duration kPerformanceLogInterval = Duration(minutes: 1);

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -169,7 +169,8 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
             context: context,
           ),
         ),
-        if (!coin.walletOnly)
+        if (!coin.walletOnly &&
+            context.watch<TradingStatusBloc>().state is TradingEnabled)
           Container(
             margin: const EdgeInsets.only(left: 21),
             constraints: const BoxConstraints(maxWidth: 120),

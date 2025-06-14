@@ -674,4 +674,6 @@
     "createNewAddress": "Create New Address",
     "searchAddresses": "Search addresses",
     "chart": "Chart"
+    "tradingDisabledTooltip": "Trading features are currently disabled",
+    "tradingDisabled": "Trading is currently unavailable",
 }

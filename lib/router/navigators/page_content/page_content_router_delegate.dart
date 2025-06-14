@@ -19,15 +19,6 @@ class PageContentRouterDelegate extends RouterDelegate<AppRoutePath>
 
   @override
   Widget build(BuildContext context) {
-    // Redirect to the Wallet page if the selected menu is disabled in
-    // wallet-only mode and the wallet is in wallet-only mode.
-    if (routingState.selectedMenu.isDisabledWhenWalletOnly && kIsWalletOnly) {
-      return WalletPage(
-        coinAbbr: routingState.walletState.selectedCoin,
-        action: routingState.walletState.coinsManagerAction,
-      );
-    }
-
     switch (routingState.selectedMenu) {
       case MainMenuValue.fiat:
         return const FiatPage();
