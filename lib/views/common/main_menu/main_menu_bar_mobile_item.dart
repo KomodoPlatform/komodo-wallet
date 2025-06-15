@@ -18,46 +18,44 @@ class MainMenuBarMobileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Opacity(
-        opacity: enabled ? 1 : 0.5,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: enabled
-                ? () {
-                    routingState.selectedMenu = value;
-                  }
-                : null,
-            highlightColor: Colors.transparent,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    key: Key('main-menu-item-icon-${value.name}'),
-                    padding: const EdgeInsets.only(bottom: 6.0),
-                    child: NavIcon(item: value, isActive: isActive),
-                  ),
-                  AutoScrollText(
-                    text: value.title,
-                    style: isActive
-                        ? theme.currentGlobal.bottomNavigationBarTheme
-                            .selectedLabelStyle
-                            ?.copyWith(
-                            color: theme.currentGlobal.bottomNavigationBarTheme
-                                .selectedItemColor,
-                          )
-                        : theme.currentGlobal.bottomNavigationBarTheme
-                            .unselectedLabelStyle
-                            ?.copyWith(
-                            color: theme.currentGlobal.bottomNavigationBarTheme
-                                .unselectedItemColor,
-                          ),
-                  ),
-                ],
-              ),
+    return Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: enabled
+              ? () {
+                  routingState.selectedMenu = value;
+                }
+              : null,
+          highlightColor: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  key: Key('main-menu-item-icon-${value.name}'),
+                  padding: const EdgeInsets.only(bottom: 6.0),
+                  child: NavIcon(item: value, isActive: isActive),
+                ),
+                AutoScrollText(
+                  text: value.title,
+                  style: isActive
+                      ? theme.currentGlobal.bottomNavigationBarTheme
+                          .selectedLabelStyle
+                          ?.copyWith(
+                          color: theme.currentGlobal.bottomNavigationBarTheme
+                              .selectedItemColor,
+                        )
+                      : theme.currentGlobal.bottomNavigationBarTheme
+                          .unselectedLabelStyle
+                          ?.copyWith(
+                          color: theme.currentGlobal.bottomNavigationBarTheme
+                              .unselectedItemColor,
+                        ),
+                ),
+              ],
             ),
           ),
         ),

@@ -41,54 +41,69 @@ class MainMenuBarMobile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.wallet,
-                    isActive: selected == MainMenuValue.wallet,
-                  ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.fiat,
-                    enabled: currentWallet?.isHW != true,
-                    isActive: selected == MainMenuValue.fiat,
-                  ),
-                  Tooltip(
-                    message: tradingEnabled
-                        ? ''
-                        : LocaleKeys.tradingDisabledTooltip.tr(),
+                  Expanded(
                     child: MainMenuBarMobileItem(
-                      value: MainMenuValue.dex,
-                      enabled: tradingEnabled && currentWallet?.isHW != true,
-                      isActive: selected == MainMenuValue.dex,
+                      value: MainMenuValue.wallet,
+                      isActive: selected == MainMenuValue.wallet,
                     ),
                   ),
-                  Tooltip(
-                    message: tradingEnabled
-                        ? ''
-                        : LocaleKeys.tradingDisabledTooltip.tr(),
+                  Expanded(
                     child: MainMenuBarMobileItem(
-                      value: MainMenuValue.bridge,
-                      enabled: tradingEnabled && currentWallet?.isHW != true,
-                      isActive: selected == MainMenuValue.bridge,
+                      value: MainMenuValue.fiat,
+                      enabled: currentWallet?.isHW != true,
+                      isActive: selected == MainMenuValue.fiat,
                     ),
                   ),
-                  if (isMMBotEnabled)
-                    Tooltip(
+                  Expanded(
+                    child: Tooltip(
                       message: tradingEnabled
                           ? ''
                           : LocaleKeys.tradingDisabledTooltip.tr(),
                       child: MainMenuBarMobileItem(
+                        value: MainMenuValue.dex,
                         enabled: tradingEnabled && currentWallet?.isHW != true,
-                        value: MainMenuValue.marketMakerBot,
-                        isActive: selected == MainMenuValue.marketMakerBot,
+                        isActive: selected == MainMenuValue.dex,
                       ),
                     ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.nft,
-                    enabled: currentWallet?.isHW != true,
-                    isActive: selected == MainMenuValue.nft,
                   ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.settings,
-                    isActive: selected == MainMenuValue.settings,
+                  Expanded(
+                    child: Tooltip(
+                      message: tradingEnabled
+                          ? ''
+                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                      child: MainMenuBarMobileItem(
+                        value: MainMenuValue.bridge,
+                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        isActive: selected == MainMenuValue.bridge,
+                      ),
+                    ),
+                  ),
+                  if (isMMBotEnabled)
+                    Expanded(
+                      child: Tooltip(
+                        message: tradingEnabled
+                            ? ''
+                            : LocaleKeys.tradingDisabledTooltip.tr(),
+                        child: MainMenuBarMobileItem(
+                          enabled:
+                              tradingEnabled && currentWallet?.isHW != true,
+                          value: MainMenuValue.marketMakerBot,
+                          isActive: selected == MainMenuValue.marketMakerBot,
+                        ),
+                      ),
+                    ),
+                  Expanded(
+                    child: MainMenuBarMobileItem(
+                      value: MainMenuValue.nft,
+                      enabled: currentWallet?.isHW != true,
+                      isActive: selected == MainMenuValue.nft,
+                    ),
+                  ),
+                  Expanded(
+                    child: MainMenuBarMobileItem(
+                      value: MainMenuValue.settings,
+                      isActive: selected == MainMenuValue.settings,
+                    ),
                   ),
                 ],
               ),
