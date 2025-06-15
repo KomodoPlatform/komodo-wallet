@@ -93,7 +93,7 @@ class StatisticCard extends StatelessWidget {
                     child: IconButton.filledTonal(
                       isSelected: false,
                       icon: actionIcon,
-                      iconSize: 36,
+                      iconSize: 42,
                       onPressed: onPressed,
                     ),
                   ),
