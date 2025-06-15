@@ -47,7 +47,6 @@ class AssetsList extends StatelessWidget {
             assetId: asset,
             backgroundColor: backgroundColor,
             onTap: onAssetItemTap,
-            priceChangePercentage24h: priceChangePercentages[asset.id],
           );
         },
         childCount: filteredAssets.length,

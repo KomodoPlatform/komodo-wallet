@@ -128,6 +128,7 @@ class Coin {
 
   bool get hasTrezorSupport {
     if (excludedAssetListTrezor.contains(abbr)) return false;
+    if (checkSegwitByAbbr(abbr)) return false;
     if (type == CoinType.utxo) return true;
     if (type == CoinType.smartChain) return true;
 

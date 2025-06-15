@@ -50,7 +50,7 @@ class CoinBalance extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(' (', style: balanceStyle),
+            Text('(', style: balanceStyle),
             CoinFiatBalance(
               coin,
               isAutoScrollEnabled: true,
