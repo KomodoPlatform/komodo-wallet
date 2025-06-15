@@ -61,7 +61,7 @@ class MainMenuBarMobile extends StatelessWidget {
                           : LocaleKeys.tradingDisabledTooltip.tr(),
                       child: MainMenuBarMobileItem(
                         value: MainMenuValue.dex,
-                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        enabled: currentWallet?.isHW != true,
                         isActive: selected == MainMenuValue.dex,
                       ),
                     ),
@@ -73,7 +73,7 @@ class MainMenuBarMobile extends StatelessWidget {
                           : LocaleKeys.tradingDisabledTooltip.tr(),
                       child: MainMenuBarMobileItem(
                         value: MainMenuValue.bridge,
-                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        enabled: currentWallet?.isHW != true,
                         isActive: selected == MainMenuValue.bridge,
                       ),
                     ),
@@ -85,8 +85,7 @@ class MainMenuBarMobile extends StatelessWidget {
                             ? ''
                             : LocaleKeys.tradingDisabledTooltip.tr(),
                         child: MainMenuBarMobileItem(
-                          enabled:
-                              tradingEnabled && currentWallet?.isHW != true,
+                          enabled: currentWallet?.isHW != true,
                           value: MainMenuValue.marketMakerBot,
                           isActive: selected == MainMenuValue.marketMakerBot,
                         ),

@@ -1,5 +1,4 @@
 import 'package:app_theme/app_theme.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -9,8 +8,6 @@ import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/router/state/bridge_section_state.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/ui/clock_warning_banner.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
 import 'package:web_dex/views/bridge/bridge_form.dart';
@@ -54,17 +51,7 @@ class _BridgePageState extends State<BridgePage> with TickerProviderStateMixin {
         }
       },
       child: Builder(builder: (context) {
-        final tradingEnabled =
-            context.watch<TradingStatusBloc>().state is TradingEnabled;
         final page = _showSwap ? _buildTradingDetails() : _buildBridgePage();
-        if (!tradingEnabled) {
-          return Stack(
-            children: [
-              AbsorbPointer(child: page),
-              Center(child: Text(LocaleKeys.tradingDisabled.tr())),
-            ],
-          );
-        }
         return page;
       }),
     );

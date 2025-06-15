@@ -9,6 +9,7 @@ import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/analytics/events/cross_chain_events.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
@@ -408,22 +409,26 @@ class _ConfirmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingStatusState = context.watch<TradingStatusBloc>().state;
+    final tradingEnabled = tradingStatusState.isEnabled;
+    
     return Flexible(
-      child: BlocSelector<BridgeBloc, BridgeState, bool>(
-          selector: (state) => state.inProgress,
-          builder: (context, inProgress) {
-            return Opacity(
-              opacity: inProgress ? 0.8 : 1,
-              child: UiPrimaryButton(
-                key: const Key('bridge-order-confirm-button'),
-                height: 40,
-                prefix: inProgress ? const _ProgressIndicator() : null,
-                text: LocaleKeys.confirm.tr(),
-                onPressed: inProgress ? null : onPressed,
-              ),
-            );
-          }),
-    );
+        child: BlocSelector<BridgeBloc, BridgeState, bool>(
+            selector: (state) => state.inProgress,
+            builder: (context, inProgress) {
+              return Opacity(
+                opacity: inProgress ? 0.8 : 1,
+                child: UiPrimaryButton(
+                  key: const Key('bridge-order-confirm-button'),
+                  height: 40,
+                  prefix: inProgress ? const _ProgressIndicator() : null,
+                  text: tradingEnabled
+                      ? LocaleKeys.confirm.tr()
+                      : LocaleKeys.tradingDisabledTooltip.tr(),
+                  onPressed: inProgress || !tradingEnabled ? null : onPressed,
+                ),
+              );
+            }));
   }
 }
 

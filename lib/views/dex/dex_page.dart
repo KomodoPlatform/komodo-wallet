@@ -1,8 +1,6 @@
 import 'package:app_theme/app_theme.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
@@ -15,7 +13,6 @@ import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 import 'package:web_dex/shared/ui/clock_warning_banner.dart';
 import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_tab_bar.dart';
 import 'package:web_dex/views/dex/entities_list/dex_list_wrapper.dart';
@@ -45,8 +42,6 @@ class _DexPageState extends State<DexPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tradingEnabled =
-        context.watch<TradingStatusBloc>().state is TradingEnabled;
     final tradingEntitiesBloc =
         RepositoryProvider.of<TradingEntitiesBloc>(context);
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
@@ -71,14 +66,6 @@ class _DexPageState extends State<DexPage> {
           ? TradingDetails(uuid: routingState.dexState.uuid)
           : _DexContent(),
     );
-    if (!tradingEnabled) {
-      return Stack(
-        children: [
-          AbsorbPointer(child: pageContent),
-          Center(child: Text(LocaleKeys.tradingDisabled.tr())),
-        ],
-      );
-    }
     return pageContent;
   }
 

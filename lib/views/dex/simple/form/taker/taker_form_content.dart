@@ -9,6 +9,7 @@ import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
@@ -125,6 +126,10 @@ class TradeButton extends StatelessWidget {
             systemHealthState is SystemHealthLoadSuccess &&
                 systemHealthState.isValid;
 
+        final tradingStatusState = context.watch<TradingStatusBloc>().state;
+
+        final isTradingEnabled = tradingStatusState.isEnabled;
+
         return BlocSelector<TakerBloc, TakerState, bool>(
           selector: (state) => state.inProgress,
           builder: (context, inProgress) {
@@ -134,9 +139,11 @@ class TradeButton extends StatelessWidget {
               opacity: disabled ? 0.8 : 1,
               child: UiPrimaryButton(
                 key: const Key('take-order-button'),
-                text: LocaleKeys.swapNow.tr(),
+                text: isTradingEnabled
+                    ? LocaleKeys.swapNow.tr()
+                    : LocaleKeys.tradingDisabledTooltip.tr(),
                 prefix: inProgress ? const TradeButtonSpinner() : null,
-                onPressed: disabled
+                onPressed: disabled || !isTradingEnabled
                     ? null
                     : () =>
                         context.read<TakerBloc>().add(TakerFormSubmitClick()),

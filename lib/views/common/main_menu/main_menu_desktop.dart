@@ -72,7 +72,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                           : LocaleKeys.tradingDisabledTooltip.tr(),
                       child: DesktopMenuDesktopItem(
                         key: const Key('main-menu-dex'),
-                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        enabled: currentWallet?.isHW != true,
                         menu: MainMenuValue.dex,
                         onTap: onTapItem,
                         isSelected: _checkSelectedItem(MainMenuValue.dex),
@@ -84,7 +84,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                           : LocaleKeys.tradingDisabledTooltip.tr(),
                       child: DesktopMenuDesktopItem(
                         key: const Key('main-menu-bridge'),
-                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        enabled: currentWallet?.isHW != true,
                         menu: MainMenuValue.bridge,
                         onTap: onTapItem,
                         isSelected: _checkSelectedItem(MainMenuValue.bridge),
@@ -97,8 +97,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                             : LocaleKeys.tradingDisabledTooltip.tr(),
                         child: DesktopMenuDesktopItem(
                           key: const Key('main-menu-market-maker-bot'),
-                          enabled:
-                              tradingEnabled && currentWallet?.isHW != true,
+                          enabled: currentWallet?.isHW != true,
                           menu: MainMenuValue.marketMakerBot,
                           onTap: onTapItem,
                           isSelected:
