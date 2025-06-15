@@ -23,9 +23,6 @@ enum TimePeriod {
     }
   }
 
-  // TODO: Localize
-  String formatted() => name;
-
   Duration get duration {
     switch (this) {
       case TimePeriod.oneHour:

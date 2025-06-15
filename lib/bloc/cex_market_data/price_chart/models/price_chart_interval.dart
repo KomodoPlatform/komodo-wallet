@@ -23,8 +23,7 @@ enum PriceChartPeriod {
     }
   }
 
-  // TODO: Localize this
-  String get formatted {
+  String get intervalString {
     switch (this) {
       case PriceChartPeriod.oneHour:
         return '1h';
