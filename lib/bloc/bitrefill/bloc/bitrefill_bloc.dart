@@ -28,7 +28,7 @@ class BitrefillBloc extends Bloc<BitrefillEvent, BitrefillState> {
     emit(const BitrefillLoadInProgress());
     final String url = _bitrefillRepository.embeddedBitrefillUrl(
       coinAbbr: event.coin?.abbr,
-      refundAddress: event.coin?.address,
+      refundAddress: event.refundAddress ?? event.coin?.address,
     );
 
     final List<String> supportedCoins =

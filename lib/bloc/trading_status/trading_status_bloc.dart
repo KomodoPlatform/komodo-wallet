@@ -12,6 +12,8 @@ class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
 
   final TradingStatusRepository _repository;
 
+  // TODO (@takenagain): Retry periodically if the failure was caused by a
+  // network issue.
   Future<void> _onCheckRequested(
     TradingStatusCheckRequested event,
     Emitter<TradingStatusState> emit,
@@ -20,6 +22,9 @@ class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
     try {
       final enabled = await _repository.isTradingEnabled();
       emit(enabled ? TradingEnabled() : TradingDisabled());
+
+      // This catch will never be triggered by the repository. This will require
+      // changes to meet the "TODO" above.
     } catch (_) {
       emit(TradingStatusLoadFailure());
     }

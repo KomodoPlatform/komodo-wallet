@@ -1,23 +1,28 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class TradingStatusRepository {
   TradingStatusRepository({http.Client? httpClient, Duration? timeout})
       : _httpClient = httpClient ?? http.Client(),
-        _timeout = timeout ?? const Duration(seconds: 4);
+        _timeout = timeout ?? const Duration(seconds: 10);
 
   final http.Client _httpClient;
   final Duration _timeout;
 
-  Future<bool> isTradingEnabled() async {
+  Future<bool> isTradingEnabled({bool? forceFail}) async {
     try {
-      final uri =
-          Uri.parse('https://defi-stats.komodo.earth/api/v3/utils/bouncer');
+      final uri = Uri.parse(
+        (forceFail ?? false)
+            ? 'https://defi-stats.komodo.earth/api/v3/utils/blacklist'
+            : 'https://defi-stats.komodo.earth/api/v3/utils/bouncer',
+      );
       final res = await _httpClient.get(uri).timeout(_timeout);
       return res.statusCode == 200;
     } catch (_) {
-      // Do not block trading features on network failure
-      return true;
+      debugPrint('Network error: Trading status check failed');
+      // Block trading features on network failure
+      return false;
     }
   }
 

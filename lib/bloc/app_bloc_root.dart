@@ -47,6 +47,7 @@ import 'package:web_dex/bloc/system_health/system_clock_repository.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_repository.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
@@ -291,7 +292,7 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider<TradingStatusBloc>(
             lazy: false,
-            create: (_) => TradingStatusBloc(
+            create: (context) => TradingStatusBloc(
               context.read<TradingStatusRepository>(),
             )..add(TradingStatusCheckRequested()),
           ),

@@ -1,10 +1,12 @@
 import 'package:app_theme/app_theme.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_state.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/routing_state.dart';
@@ -39,54 +41,69 @@ class MainMenuBarMobile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.wallet,
-                    isActive: selected == MainMenuValue.wallet,
-                  ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.fiat,
-                    enabled: currentWallet?.isHW != true,
-                    isActive: selected == MainMenuValue.fiat,
-                  ),
-                  Tooltip(
-                    message: tradingEnabled
-                        ? ''
-                        : LocaleKeys.tradingDisabledTooltip.tr(),
+                  Expanded(
                     child: MainMenuBarMobileItem(
-                      value: MainMenuValue.dex,
-                      enabled: tradingEnabled && currentWallet?.isHW != true,
-                      isActive: selected == MainMenuValue.dex,
+                      value: MainMenuValue.wallet,
+                      isActive: selected == MainMenuValue.wallet,
                     ),
                   ),
-                  Tooltip(
-                    message: tradingEnabled
-                        ? ''
-                        : LocaleKeys.tradingDisabledTooltip.tr(),
+                  Expanded(
                     child: MainMenuBarMobileItem(
-                      value: MainMenuValue.bridge,
-                      enabled: tradingEnabled && currentWallet?.isHW != true,
-                      isActive: selected == MainMenuValue.bridge,
+                      value: MainMenuValue.fiat,
+                      enabled: currentWallet?.isHW != true,
+                      isActive: selected == MainMenuValue.fiat,
                     ),
                   ),
-                  if (isMMBotEnabled)
-                    Tooltip(
+                  Expanded(
+                    child: Tooltip(
                       message: tradingEnabled
                           ? ''
                           : LocaleKeys.tradingDisabledTooltip.tr(),
                       child: MainMenuBarMobileItem(
+                        value: MainMenuValue.dex,
                         enabled: tradingEnabled && currentWallet?.isHW != true,
-                        value: MainMenuValue.marketMakerBot,
-                        isActive: selected == MainMenuValue.marketMakerBot,
+                        isActive: selected == MainMenuValue.dex,
                       ),
                     ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.nft,
-                    enabled: currentWallet?.isHW != true,
-                    isActive: selected == MainMenuValue.nft,
                   ),
-                  MainMenuBarMobileItem(
-                    value: MainMenuValue.settings,
-                    isActive: selected == MainMenuValue.settings,
+                  Expanded(
+                    child: Tooltip(
+                      message: tradingEnabled
+                          ? ''
+                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                      child: MainMenuBarMobileItem(
+                        value: MainMenuValue.bridge,
+                        enabled: tradingEnabled && currentWallet?.isHW != true,
+                        isActive: selected == MainMenuValue.bridge,
+                      ),
+                    ),
+                  ),
+                  if (isMMBotEnabled)
+                    Expanded(
+                      child: Tooltip(
+                        message: tradingEnabled
+                            ? ''
+                            : LocaleKeys.tradingDisabledTooltip.tr(),
+                        child: MainMenuBarMobileItem(
+                          enabled:
+                              tradingEnabled && currentWallet?.isHW != true,
+                          value: MainMenuValue.marketMakerBot,
+                          isActive: selected == MainMenuValue.marketMakerBot,
+                        ),
+                      ),
+                    ),
+                  Expanded(
+                    child: MainMenuBarMobileItem(
+                      value: MainMenuValue.nft,
+                      enabled: currentWallet?.isHW != true,
+                      isActive: selected == MainMenuValue.nft,
+                    ),
+                  ),
+                  Expanded(
+                    child: MainMenuBarMobileItem(
+                      value: MainMenuValue.settings,
+                      isActive: selected == MainMenuValue.settings,
+                    ),
                   ),
                 ],
               ),

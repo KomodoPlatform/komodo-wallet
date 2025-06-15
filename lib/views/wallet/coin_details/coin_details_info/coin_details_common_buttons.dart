@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
@@ -101,7 +102,7 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (isBitrefillIntegrationEnabled)
+            if (isBitrefillIntegrationEnabled) ...[
               Flexible(
                 child: BitrefillButton(
                   key: Key(
@@ -109,9 +110,11 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
                   ),
                   coin: coin,
                   onPaymentRequested: (_) => selectWidget(CoinPageType.send),
+                  tooltip: _getBitrefillTooltip(coin),
                 ),
               ),
-            if (isBitrefillIntegrationEnabled) const SizedBox(width: 15),
+              const SizedBox(width: 12),
+            ],
             if (!coin.walletOnly)
               Flexible(
                 child: CoinDetailsSwapButton(
@@ -189,6 +192,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
               ),
               coin: coin,
               onPaymentRequested: (_) => selectWidget(CoinPageType.send),
+              tooltip: _getBitrefillTooltip(coin),
             ),
           ),
         Flexible(
@@ -412,4 +416,14 @@ class CoinDetailsSwapButton extends StatelessWidget {
       onPressed: coin.isSuspended ? null : onClickSwapButton,
     );
   }
+}
+
+/// Gets the appropriate tooltip message for the Bitrefill button
+String? _getBitrefillTooltip(Coin coin) {
+  if (coin.isSuspended) {
+    return '${coin.abbr} is currently suspended';
+  }
+
+  // Check if coin has zero balance (this could be enhanced with actual balance check)
+  return null; // Let BitrefillButton handle the zero balance tooltip
 }
