@@ -106,7 +106,7 @@ class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
 
   void _checkAuthStatus() {
     try {
-      context.read<AuthBloc>().add(const AuthCurrentUserRequested());
+      context.read<AuthBloc>().add(const AuthLifecycleCheckRequested());
     } catch (e) {
       log('AnalyticsLifecycleHandler: Failed to check auth status - $e');
     }

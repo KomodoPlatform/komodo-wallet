@@ -30,7 +30,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     on<AuthRestoreRequested>(_onRestore);
     on<AuthSeedBackupConfirmed>(_onSeedBackupConfirmed);
     on<AuthWalletDownloadRequested>(_onWalletDownloadRequested);
-    on<AuthCurrentUserRequested>(_onCurrentUserRequested);
+    on<AuthLifecycleCheckRequested>(_onLifecycleCheckRequested);
   }
 
   final KomodoDefiSdk _kdfSdk;
@@ -293,8 +293,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     }
   }
 
-  Future<void> _onCurrentUserRequested(
-    AuthCurrentUserRequested event,
+  Future<void> _onLifecycleCheckRequested(
+    AuthLifecycleCheckRequested event,
     Emitter<AuthBlocState> emit,
   ) async {
     final currentUser = await _kdfSdk.auth.currentUser;

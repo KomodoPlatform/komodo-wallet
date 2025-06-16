@@ -54,7 +54,8 @@ class AuthWalletDownloadRequested extends AuthBlocEvent {
   final String password;
 }
 
-/// Event emitted to check if an existing user is already signed in.
-class AuthCurrentUserRequested extends AuthBlocEvent {
-  const AuthCurrentUserRequested();
+/// Event emitted on app lifecycle changes to check if a user is already signed
+/// in and restore the auth state.
+class AuthLifecycleCheckRequested extends AuthBlocEvent {
+  const AuthLifecycleCheckRequested();
 }

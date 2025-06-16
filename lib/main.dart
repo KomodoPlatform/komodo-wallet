@@ -158,7 +158,7 @@ class MyApp extends StatelessWidget {
           create: (_) {
             final bloc = AuthBloc(
                 komodoDefiSdk, walletsRepository, SettingsRepository());
-            bloc.add(const AuthCurrentUserRequested());
+            bloc.add(const AuthLifecycleCheckRequested());
             return bloc;
           },
         ),
