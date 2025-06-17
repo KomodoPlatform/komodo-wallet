@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -18,6 +19,9 @@ import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:web_dex/views/wallet/common/wallet_helper.dart';
 import 'package:get_it/get_it.dart';
 
+/// Widget for showing an authenticated user's balance and anddresses for a
+/// given coin
+// TODO: Refactor to `AssetId` and migrate to the SDK UI library.
 class ExpandableCoinListItem extends StatefulWidget {
   final Coin coin;
   final AssetPubkeys? pubkeys;
@@ -73,12 +77,17 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
           ..sort((a, b) => b.balance.spendable.compareTo(a.balance.spendable)))
         : null;
 
+    final horizontalPadding = isMobile ? 16.0 : 18.0;
+    final verticalPadding = isMobile ? 12.0 : 12.0;
+
     return CollapsibleCard(
       key: PageStorageKey('coin_${widget.coin.abbr}'),
       borderRadius: BorderRadius.circular(12),
-      headerPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      headerPadding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding, vertical: verticalPadding),
       onTap: widget.onTap,
-      childrenMargin: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      childrenMargin: EdgeInsets.symmetric(
+          horizontal: horizontalPadding, vertical: verticalPadding),
       childrenDecoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
@@ -109,6 +118,79 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
   Widget _buildTitle(BuildContext context) {
     final theme = Theme.of(context);
 
+    if (isMobile) {
+      return _buildMobileTitle(context, theme);
+    } else {
+      return _buildDesktopTitle(context, theme);
+    }
+  }
+
+  Widget _buildMobileTitle(BuildContext context, ThemeData theme) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top row: Asset info and additional info (like BEP-20)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: CoinItem(coin: widget.coin, size: CoinItemSize.large),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Bottom row: Balance and 24h change
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Balance',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    CoinBalance(coin: widget.coin),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '24h %',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  TrendPercentageText(
+                    percentage: getTotal24Change(
+                          [widget.coin],
+                          context.sdk,
+                        ) ??
+                        0,
+                    iconSize: 16,
+                    spacing: 4,
+                    textStyle: theme.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopTitle(BuildContext context, ThemeData theme) {
     return Container(
       alignment: Alignment.centerLeft,
       child: Row(
@@ -163,62 +245,63 @@ class _AddressRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      leading: CircleAvatar(
-        radius: 16,
-        backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        child: const Icon(Icons.person_outline),
-      ),
-      title: Row(
-        children: [
-          Text(
-            pubkey.addressShort,
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(width: 8),
-          Material(
-            color: Colors.transparent,
-            child: IconButton(
-              iconSize: 16,
-              icon: const Icon(Icons.copy),
-              onPressed: onCopy,
-              visualDensity: VisualDensity.compact,
-              // constraints: const BoxConstraints(
-              //   minWidth: 32,
-              //   minHeight: 32,
-              // ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: ListTile(
+        onTap: onTap,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        leading: CircleAvatar(
+          radius: 16,
+          backgroundColor: theme.colorScheme.surfaceContainerHigh,
+          child: const Icon(Icons.person_outline),
+        ),
+        title: Row(
+          children: [
+            Text(
+              pubkey.addressShort,
+              style: theme.textTheme.bodyMedium,
             ),
-          ),
-          if (isSwapAddress && !kIsWalletOnly) ...[
             const SizedBox(width: 8),
-            const Chip(
-              label: Text(
-                'Swap',
-                // style: theme.textTheme.labelSmall,
+            Material(
+              color: Colors.transparent,
+              child: IconButton(
+                iconSize: 16,
+                icon: const Icon(Icons.copy),
+                onPressed: onCopy,
+                visualDensity: VisualDensity.compact,
               ),
-              // backgroundColor: theme.colorScheme.primaryContainer,
+            ),
+            if (isSwapAddress &&
+                context.watch<TradingStatusBloc>().state is TradingEnabled) ...[
+              const SizedBox(width: 8),
+              const Chip(
+                label: Text(
+                  'Swap',
+                  // style: theme.textTheme.labelSmall,
+                ),
+                // backgroundColor: theme.colorScheme.primaryContainer,
+              ),
+            ],
+          ],
+        ),
+        trailing: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              '${doubleToString(pubkey.balance.spendable.toDouble())} ${coin.abbr}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            CoinFiatBalance(
+              coin,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
-        ],
-      ),
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            '${doubleToString(pubkey.balance.spendable.toDouble())} ${coin.abbr}',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          CoinFiatBalance(
-            coin,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

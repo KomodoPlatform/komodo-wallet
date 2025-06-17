@@ -56,30 +56,29 @@ class ActiveCoinsList extends StatelessWidget {
           sorted = removeTestCoins(sorted);
         }
 
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final coin = sorted[index];
+        return SliverList.builder(
+          itemCount: sorted.length,
+          itemBuilder: (context, index) {
+            final coin = sorted[index];
 
-              // Fetch pubkeys if not already loaded
-              if (!state.pubkeys.containsKey(coin.abbr)) {
-                context.read<CoinsBloc>().add(CoinsPubkeysRequested(coin.abbr));
-              }
+            // Fetch pubkeys if not already loaded
+            if (!state.pubkeys.containsKey(coin.abbr)) {
+              // TODO: Investigate if this is causing performance issues
+              context.read<CoinsBloc>().add(CoinsPubkeysRequested(coin.abbr));
+            }
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: ExpandableCoinListItem(
-                  // Changed from ExpandableCoinListItem
-                  key: Key('coin-list-item-${coin.abbr.toLowerCase()}'),
-                  coin: coin,
-                  pubkeys: state.pubkeys[coin.abbr],
-                  isSelected: false,
-                  onTap: () => onCoinItemTap(coin),
-                ),
-              );
-            },
-            childCount: sorted.length,
-          ),
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: ExpandableCoinListItem(
+                // Changed from ExpandableCoinListItem
+                key: Key('coin-list-item-${coin.abbr.toLowerCase()}'),
+                coin: coin,
+                pubkeys: state.pubkeys[coin.abbr],
+                isSelected: false,
+                onTap: () => onCoinItemTap(coin),
+              ),
+            );
+          },
         );
       },
     );
@@ -214,7 +213,7 @@ class AddressBalanceCard extends StatelessWidget {
                           AddressCopyButton(address: pubkey.address),
                           if (pubkey.isActiveForSwap)
                             Chip(
-                              label: Text(LocaleKeys.swapAddress.tr()),
+                              label: Text(LocaleKeys.tradingAddress.tr()),
                               backgroundColor: Theme.of(context)
                                   .primaryColor
                                   .withOpacity(0.1),
