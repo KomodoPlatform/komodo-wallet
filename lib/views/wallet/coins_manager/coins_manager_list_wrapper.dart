@@ -12,6 +12,7 @@ import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/information_popup.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_controls.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
@@ -125,7 +126,24 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       _informationPopup.show();
       return;
     }
-    bloc.add(CoinsManagerCoinSelect(coin: coin));
+    if (bloc.state.action == CoinsManagerAction.remove &&
+        coin.parentCoin == null) {
+      final childTokens = bloc.state.coins
+          .where((c) => c.parentCoin?.abbr == coin.abbr)
+          .map((c) => c.abbr)
+          .toList();
+      confirmParentCoinDisable(
+        context,
+        parent: coin.abbr,
+        tokens: childTokens,
+      ).then((confirmed) {
+        if (confirmed) {
+          bloc.add(CoinsManagerCoinSelect(coin: coin));
+        }
+      });
+    } else {
+      bloc.add(CoinsManagerCoinSelect(coin: coin));
+    }
   }
 }
 

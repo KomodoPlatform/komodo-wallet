@@ -231,6 +231,7 @@
     "clickAssetToAddHint": "No assets selected",
     "clickAssetToRemoveHint": "Select assets to remove",
     "defaultCoinDisableWarning": "You can't disable {}, it is a default coin",
+    "parentCoinDisableWarning": "Disabling {0} will also disable its tokens: {1}. Continue?",
     "supportFrequentlyQuestionSpan": "Frequently asked questions",
     "support": "Support",
     "supportInfoTitle1": "Do you store my private keys?",
