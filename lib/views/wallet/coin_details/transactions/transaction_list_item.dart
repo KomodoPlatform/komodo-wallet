@@ -160,7 +160,10 @@ class _TransactionListRowState extends State<TransactionListRow> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildAddress(),
+          _TransactionAddress(
+            transaction: widget.transaction,
+            coinAbbr: widget.coinAbbr,
+          ),
           Row(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +195,13 @@ class _TransactionListRowState extends State<TransactionListRow> {
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        Expanded(flex: 4, child: _buildAddress()),
+        Expanded(
+          flex: 4,
+          child: _TransactionAddress(
+            transaction: widget.transaction,
+            coinAbbr: widget.coinAbbr,
+          ),
+        ),
         Expanded(
           flex: 4,
           child: Text(
@@ -261,11 +270,31 @@ class _TransactionListRowState extends State<TransactionListRow> {
       ),
     );
   }
+}
 
-  Widget _buildAddress() {
-    final myAddress = widget.transaction.isIncoming
-        ? widget.transaction.to.first
-        : widget.transaction.from.first;
+class _TransactionAddress extends StatelessWidget {
+  const _TransactionAddress({
+    required this.transaction,
+    required this.coinAbbr,
+  });
+
+  final Transaction transaction;
+  final String coinAbbr;
+
+  @override
+  Widget build(BuildContext context) {
+    final coinsBloc = context.read<CoinsBloc>();
+    final pubkeys = coinsBloc.state.pubkeys[coinAbbr]?.keys ?? [];
+    final Set<String> myAddresses = pubkeys.map((p) => p.address).toSet();
+
+    final fromAddresses = transaction.from;
+    final List<String> toAddresses = transaction.to;
+
+    final searchList = transaction.isIncoming ? toAddresses : fromAddresses;
+    final String myAddress = searchList.firstWhere(
+      (addr) => myAddresses.contains(addr),
+      orElse: () => searchList.isNotEmpty ? searchList.first : '',
+    );
 
     return Row(
       children: [

@@ -125,40 +125,11 @@ class TransactionDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildAddress(
-    BuildContext context, {
-    required String title,
-    required String address,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style:
-                Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
-          ),
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 200),
-            child: CopiedText(
-              copiedValue: address,
-              isTruncated: true,
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 16,
-              ),
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAddresses(bool isMobile, BuildContext context) {
+    final fromAddress =
+        transaction.from.isNotEmpty ? transaction.from.first : '';
+    final List<String> toAddresses = List<String>.from(transaction.to);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(bottom: 10),
@@ -166,39 +137,33 @@ class TransactionDetails extends StatelessWidget {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildAddress(
-                  context,
+                _TransactionAddressRow(
                   title: LocaleKeys.from.tr(),
-                  address: transaction.from.first,
+                  address: fromAddress,
                 ),
-                _buildAddress(
-                  context,
+                _TransactionAddressList(
                   title: LocaleKeys.to.tr(),
-                  address: transaction.to.first,
+                  addresses: toAddresses,
                 ),
               ],
             )
           : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Container(
                     alignment: Alignment.centerLeft,
-                    child: _buildAddress(
-                      context,
+                    child: _TransactionAddressRow(
                       title: LocaleKeys.from.tr(),
-                      address: transaction.from.first,
+                      address: fromAddress,
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    child: _buildAddress(
-                      context,
-                      title: LocaleKeys.to.tr(),
-                      address: transaction.to.first,
-                    ),
+                  child: _TransactionAddressList(
+                    title: LocaleKeys.to.tr(),
+                    addresses: toAddresses,
                   ),
                 ),
               ],
@@ -401,5 +366,66 @@ class TransactionDetails extends StatelessWidget {
     return transaction.fee != null && transaction.fee!.coin.isNotEmpty
         ? transaction.fee!.coin
         : transaction.assetId.id;
+  }
+}
+
+class _TransactionAddressRow extends StatelessWidget {
+  const _TransactionAddressRow({
+    required this.title,
+    required this.address,
+  });
+
+  final String title;
+  final String address;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style:
+                Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
+          ),
+          const SizedBox(width: 8),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: CopiedText(
+              copiedValue: address,
+              isTruncated: true,
+              padding: const EdgeInsets.symmetric(
+                vertical: 8,
+                horizontal: 16,
+              ),
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TransactionAddressList extends StatelessWidget {
+  const _TransactionAddressList({
+    required this.title,
+    required this.addresses,
+  });
+
+  final String title;
+  final List<String> addresses;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final addr in addresses)
+          _TransactionAddressRow(title: title, address: addr),
+      ],
+    );
   }
 }

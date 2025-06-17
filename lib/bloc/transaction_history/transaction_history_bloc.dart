@@ -30,6 +30,7 @@ class TransactionHistoryBloc
 
   // TODO: Remove or move to SDK
   final Set<String> _processedTxIds = {};
+  Set<String> _myAddresses = {};
 
   @override
   Future<void> close() async {
@@ -68,6 +69,9 @@ class TransactionHistoryBloc
         throw Exception('Asset ${event.coin.id} not found in known coins list');
       }
 
+      final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
+      _myAddresses = pubkeys.keys.map((p) => p.address).toSet();
+
       // Subscribe to historical transactions
       _historySubscription =
           _sdk.transactions.getTransactionsStreamed(asset).listen(
@@ -83,8 +87,11 @@ class TransactionHistoryBloc
 
           if (uniqueTransactions.isEmpty) return;
 
+          final sanitized = uniqueTransactions
+              .map((tx) => _sanitizeTransaction(tx, _myAddresses))
+              .toList();
           final updatedTransactions = List<Transaction>.of(state.transactions)
-            ..addAll(uniqueTransactions)
+            ..addAll(sanitized)
             ..sort(_sortTransactions);
 
           if (event.coin.isErcType) {
@@ -131,8 +138,9 @@ class TransactionHistoryBloc
 
         _processedTxIds.add(newTransaction.internalId);
 
+        final sanitized = _sanitizeTransaction(newTransaction, _myAddresses);
         final updatedTransactions = List<Transaction>.of(state.transactions)
-          ..add(newTransaction)
+          ..add(sanitized)
           ..sort(_sortTransactions);
 
         if (coin.isErcType) {
@@ -196,6 +204,23 @@ void _flagTransactions(List<Transaction> transactions, Coin coin) {
   if (!coin.isErcType) return;
   transactions
       .removeWhere((tx) => tx.balanceChanges.totalAmount.toDouble() == 0.0);
+}
+
+Transaction _sanitizeTransaction(Transaction tx, Set<String> myAddresses) {
+  if (tx.from.isEmpty) return tx;
+  final fromAddr = tx.from.first;
+  final List<String> sanitizedTo = List<String>.from(tx.to)..remove(fromAddr);
+
+  if (sanitizedTo.length > 1 && myAddresses.isNotEmpty) {
+    sanitizedTo.sort((a, b) {
+      final aMine = myAddresses.contains(a);
+      final bMine = myAddresses.contains(b);
+      if (aMine == bMine) return 0;
+      return aMine ? -1 : 1;
+    });
+  }
+
+  return tx.copyWith(to: sanitizedTo);
 }
 
 class Pagination {
