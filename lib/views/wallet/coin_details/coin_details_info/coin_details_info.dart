@@ -137,8 +137,19 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
     return DisableCoinButton(
       onClick: () async {
         final coinsBloc = context.read<CoinsBloc>();
-        coinsBloc.add(CoinsDeactivated([widget.coin.abbr]));
-        widget.onBackButtonPressed();
+        final childTokens = coinsBloc.state.walletCoins.values
+            .where((c) => c.parentCoin?.abbr == widget.coin.abbr)
+            .map((c) => c.abbr)
+            .toList();
+        final confirmed = await confirmParentCoinDisable(
+          context,
+          parent: widget.coin.abbr,
+          tokens: childTokens,
+        );
+        if (confirmed) {
+          coinsBloc.add(CoinsDeactivated([widget.coin.abbr]));
+          widget.onBackButtonPressed();
+        }
       },
     );
   }

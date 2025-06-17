@@ -384,8 +384,20 @@ class CoinsRepo {
       _balanceWatchers[coin.id]?.cancel();
       _balanceWatchers.remove(coin.id);
 
+      final List<Coin> children = _kdfSdk.assets.available.values
+          .where((asset) => asset.id.parentId?.id == coin.id.id)
+          .map(_assetToCoinWithoutAddress)
+          .toList();
+
       await _disableCoin(coin.id.id);
       await _broadcastAsset(coin.copyWith(state: CoinState.inactive));
+
+      for (final child in children) {
+        _balanceWatchers[child.id]?.cancel();
+        _balanceWatchers.remove(child.id);
+        await _disableCoin(child.id.id);
+        await _broadcastAsset(child.copyWith(state: CoinState.inactive));
+      }
     }
   }
 

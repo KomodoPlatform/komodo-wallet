@@ -682,3 +682,32 @@ enum HashExplorerType {
   address,
   tx,
 }
+
+Future<bool> confirmParentCoinDisable(
+  BuildContext context, {
+  required String parent,
+  required List<String> tokens,
+}) async {
+  if (tokens.isEmpty) return true;
+  final tokenList = tokens.join(', ');
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(LocaleKeys.disable.tr()),
+      content: Text(
+        LocaleKeys.parentCoinDisableWarning.tr(args: [parent, tokenList]),
+      ),
+      actions: [
+        TextButton(
+          child: Text(LocaleKeys.cancel.tr()),
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+        TextButton(
+          child: Text(LocaleKeys.disable.tr()),
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
+}

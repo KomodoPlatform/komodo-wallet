@@ -267,8 +267,19 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       return;
     }
 
-    // Update SDK metadata and disable on the API first to avoid reactivation
+    final Set<String> coinsToDisable = {...event.coinIds};
+
     for (final assetId in event.coinIds) {
+      final coin = currentWalletCoins[assetId];
+      if (coin != null) {
+        coinsToDisable.addAll(currentWalletCoins.values
+            .where((c) => c.parentCoin?.abbr == coin.abbr)
+            .map((c) => c.abbr));
+      }
+    }
+
+    // Update SDK metadata and disable on the API first to avoid reactivation
+    for (final assetId in coinsToDisable) {
       final coin = currentWalletCoins[assetId]!;
       _log.info('Disabling a ${coin.name} ($assetId)');
 
@@ -284,9 +295,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     // Remove coins from the state after successful deactivation
     final updatedWalletCoins = Map.fromEntries(currentWalletCoins.entries
-        .where((entry) => !event.coinIds.contains(entry.key)));
+        .where((entry) => !coinsToDisable.contains(entry.key)));
     final updatedCoins = Map<String, Coin>.of(currentCoins);
-    for (final assetId in event.coinIds) {
+    for (final assetId in coinsToDisable) {
       final coin = currentWalletCoins[assetId]!;
       updatedCoins[coin.id.id] = coin.copyWith(state: CoinState.inactive);
     }
