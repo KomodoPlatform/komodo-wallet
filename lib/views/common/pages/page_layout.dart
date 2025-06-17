@@ -4,8 +4,11 @@ import 'package:web_dex/views/common/pages/page_plate.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
 
 class PageLayout extends StatelessWidget {
-  const PageLayout(
-      {required this.content, this.header, this.noBackground = false});
+  const PageLayout({
+    required this.content,
+    this.header,
+    this.noBackground = false,
+  });
 
   final Widget content;
   final Widget? header;
@@ -49,14 +52,9 @@ class _MobileLayout extends StatelessWidget {
         Flexible(
           child: PagePlate(
             noBackground: noBackground,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                content,
-              ],
-            ),
+            child: Column(mainAxisSize: MainAxisSize.max, children: [content]),
           ),
-        )
+        ),
       ],
     );
   }
@@ -77,7 +75,6 @@ class _DesktopLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const BackupSeedNotification(),
         Flexible(
           child: PagePlate(
             noBackground: noBackground,
