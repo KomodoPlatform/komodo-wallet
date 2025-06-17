@@ -228,6 +228,7 @@ abstract class  LocaleKeys {
   static const clickAssetToAddHint = 'clickAssetToAddHint';
   static const clickAssetToRemoveHint = 'clickAssetToRemoveHint';
   static const defaultCoinDisableWarning = 'defaultCoinDisableWarning';
+  static const parentCoinDisableWarning = 'parentCoinDisableWarning';
   static const supportFrequentlyQuestionSpan = 'supportFrequentlyQuestionSpan';
   static const support = 'support';
   static const supportInfoTitle1 = 'supportInfoTitle1';
