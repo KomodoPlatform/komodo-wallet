@@ -40,13 +40,13 @@ docker build $PLATFORM_FLAG -f .docker/komodo-wallet-android.dockerfile . -t kom
 # Create the build directory ourselves to prevent it from being created by the Docker daemon (as root)
 mkdir -p ./build
 
-GIT_COMMIT=$(git rev-parse --short HEAD | cut -c1-7)
+COMMIT_HASH=$(git rev-parse --short HEAD | cut -c1-7)
 
 ENV_ARGS=""
 ENV_VARS="GITHUB_API_PUBLIC_READONLY_TOKEN TRELLO_API_KEY \
 TRELLO_TOKEN TRELLO_BOARD_ID TRELLO_LIST_ID \
 FEEDBACK_API_KEY FEEDBACK_PRODUCTION_URL FEEDBACK_TEST_URL \
-GIT_COMMIT"
+COMMIT_HASH"
 
 for VAR in $ENV_VARS; do
   case "$VAR" in
@@ -58,7 +58,7 @@ for VAR in $ENV_VARS; do
     FEEDBACK_API_KEY) VALUE=$FEEDBACK_API_KEY ;;
     FEEDBACK_PRODUCTION_URL) VALUE=$FEEDBACK_PRODUCTION_URL ;;
     FEEDBACK_TEST_URL) VALUE=$FEEDBACK_TEST_URL ;;
-    GIT_COMMIT) VALUE=$GIT_COMMIT ;;
+    COMMIT_HASH) VALUE=$COMMIT_HASH ;;
     *) VALUE= ;;
   esac
 
@@ -72,4 +72,4 @@ docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
   -u "$HOST_UID:$HOST_GID" \
   $ENV_ARGS \
   komodo/komodo-wallet:latest sh -c \
-  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; flutter build web --no-pub || true; flutter build $BUILD_TARGET --config-only; flutter build $BUILD_TARGET --no-pub --dart-define=GIT_COMMIT=$GIT_COMMIT --$BUILD_MODE"
+  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; flutter build web --no-pub || true; flutter build $BUILD_TARGET --config-only; flutter build $BUILD_TARGET --no-pub --dart-define=COMMIT_HASH=$COMMIT_HASH --$BUILD_MODE"

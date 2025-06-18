@@ -8,7 +8,7 @@ class PackageInformation {
   String? commitHash;
 
   static const String _kCommitHash =
-      String.fromEnvironment('GIT_COMMIT', defaultValue: 'dev');
+      String.fromEnvironment('COMMIT_HASH', defaultValue: 'unknown');
 
   Future<void> init() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
