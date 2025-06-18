@@ -577,6 +577,7 @@ abstract class  LocaleKeys {
   static const komodoWallet = 'komodoWallet';
   static const loadingNfts = 'loadingNfts';
   static const coinAssets = 'coinAssets';
+  static const commit = 'Commit';
   static const bundled = 'bundled';
   static const updated = 'updated';
   static const notUpdated = 'notUpdated';
