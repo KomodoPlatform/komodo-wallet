@@ -67,7 +67,7 @@ runs:
         fi
 
         # Get the current commit hash
-        COMMIT_HASH=$(git rev-parse --short HEAD)
+        COMMIT_HASH=$(git rev-parse --short HEAD | cut -c1-7)
 
         # Prepare build command with feedback service credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
