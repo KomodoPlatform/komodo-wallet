@@ -19,22 +19,26 @@ jobs:
         include:
           - platform: macos
             runner: macos-latest
-            build_command: flutter build macos --no-pub --release
+            build_command: flutter build macos --no-pub --dart-define=GIT_COMMIT="$GIT_COMMIT" --release
             artifact_path: build/macos/Build/Products/Release/*.app
             artifact_name: komodo-wallet-macos
           - platform: windows
             runner: windows-latest
-            build_command: flutter build windows --no-pub --release
+            build_command: flutter build windows --dart-define=GIT_COMMIT="$GIT_COMMIT" --no-pub --release
             artifact_path: build/windows/x64/runner/Release/*
             artifact_name: komodo-wallet-windows
           - platform: linux
             runner: ubuntu-latest
-            build_command: flutter build linux --no-pub --release
+            build_command: flutter build linux --dart-define=GIT_COMMIT="$GIT_COMMIT" --no-pub --release
             artifact_path: build/linux/x64/release/bundle/*
             artifact_name: komodo-wallet-linux
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set short commit hash
+        run: |
+          echo "GIT_COMMIT=$(git rev-parse --short HEAD | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps
@@ -84,6 +88,7 @@ jobs:
       - name: Build for ${{ matrix.platform }}
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT: ${{ env.GIT_COMMIT }}
         run: ${{ matrix.build_command }}
 
       - name: Upload artifact

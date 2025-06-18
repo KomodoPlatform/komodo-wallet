@@ -28,6 +28,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set short commit hash
+        run: |
+          echo "GIT_COMMIT=$(git rev-parse --short HEAD | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -44,6 +48,7 @@ jobs:
       - name: Build Android image
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_COMMIT: ${{ env.GIT_COMMIT }}
         run: |
           chmod +x .docker/build.sh
           sh .docker/build.sh apk release
