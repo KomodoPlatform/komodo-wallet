@@ -19,26 +19,22 @@ jobs:
         include:
           - platform: macos
             runner: macos-latest
-            build_command: flutter build macos --no-pub --dart-define=COMMIT_HASH="$COMMIT_HASH" --release
+            build_command: flutter build macos --no-pub --release
             artifact_path: build/macos/Build/Products/Release/*.app
             artifact_name: komodo-wallet-macos
           - platform: windows
             runner: windows-latest
-            build_command: flutter build windows --dart-define=COMMIT_HASH="$COMMIT_HASH" --no-pub --release
+            build_command: flutter build windows --no-pub --release
             artifact_path: build/windows/x64/runner/Release/*
             artifact_name: komodo-wallet-windows
           - platform: linux
             runner: ubuntu-latest
-            build_command: flutter build linux --dart-define=COMMIT_HASH="$COMMIT_HASH" --no-pub --release
+            build_command: flutter build linux --no-pub --release
             artifact_path: build/linux/x64/release/bundle/*
             artifact_name: komodo-wallet-linux
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set short commit hash
-        run: |
-          echo "COMMIT_HASH=$(git rev-parse --short HEAD | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps

@@ -19,22 +19,18 @@ jobs:
         include:
           - platform: iOS
             runner: macos-latest
-            build_command: flutter build ios --no-pub --dart-define=COMMIT_HASH="$COMMIT_HASH" --release --no-codesign
+            build_command: flutter build ios --no-pub --release --no-codesign
             artifact_path: build/ios/iphoneos/Runner.app
             artifact_name: komodo-wallet-ios-unsigned.app
           - platform: Android
             runner: ubuntu-latest
-            build_command: flutter build apk --no-pub --dart-define=COMMIT_HASH="$COMMIT_HASH" --release
+            build_command: flutter build apk --no-pub --release
             artifact_path: build/app/outputs/flutter-apk/app-release.apk
             artifact_name: komodo-wallet-android-unsigned.apk
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set short commit hash
-        run: |
-          echo "COMMIT_HASH=$(git rev-parse --short HEAD | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps
@@ -83,7 +79,6 @@ jobs:
       - name: Build for ${{ matrix.platform }}
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_HASH: ${{ env.COMMIT_HASH }}
         run: ${{ matrix.build_command }}
 
       - name: Upload artifact
