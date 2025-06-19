@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart'
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/shared/utils/extensions/transaction_extensions.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class TransactionHistoryBloc
@@ -86,9 +87,8 @@ class TransactionHistoryBloc
 
           if (uniqueTransactions.isEmpty) return;
 
-          final sanitized = uniqueTransactions
-              .map((tx) => _sanitizeTransaction(tx, myAddresses))
-              .toList();
+          final sanitized =
+              uniqueTransactions.map((tx) => tx.sanitize(myAddresses)).toList();
           final updatedTransactions = List<Transaction>.of(state.transactions)
             ..addAll(sanitized)
             ..sort(_sortTransactions);
@@ -129,7 +129,8 @@ class TransactionHistoryBloc
     }
   }
 
-  void _subscribeToNewTransactions(Asset asset, Coin coin, Set<String> myAddresses) {
+  void _subscribeToNewTransactions(
+      Asset asset, Coin coin, Set<String> myAddresses) {
     _newTransactionsSubscription =
         _sdk.transactions.watchTransactions(asset).listen(
       (newTransaction) {
@@ -137,7 +138,7 @@ class TransactionHistoryBloc
 
         _processedTxIds.add(newTransaction.internalId);
 
-        final sanitized = _sanitizeTransaction(newTransaction, myAddresses);
+        final sanitized = newTransaction.sanitize(myAddresses);
         final updatedTransactions = List<Transaction>.of(state.transactions)
           ..add(sanitized)
           ..sort(_sortTransactions);
@@ -203,23 +204,6 @@ void _flagTransactions(List<Transaction> transactions, Coin coin) {
   if (!coin.isErcType) return;
   transactions
       .removeWhere((tx) => tx.balanceChanges.totalAmount.toDouble() == 0.0);
-}
-
-Transaction _sanitizeTransaction(Transaction tx, Set<String> myAddresses) {
-  if (tx.from.isEmpty) return tx;
-  final fromAddr = tx.from.first;
-  final List<String> sanitizedTo = List<String>.from(tx.to)..remove(fromAddr);
-
-  if (sanitizedTo.length > 1 && myAddresses.isNotEmpty) {
-    sanitizedTo.sort((a, b) {
-      final aMine = myAddresses.contains(a);
-      final bMine = myAddresses.contains(b);
-      if (aMine == bMine) return 0;
-      return aMine ? -1 : 1;
-    });
-  }
-
-  return tx.copyWith(to: sanitizedTo);
 }
 
 class Pagination {
