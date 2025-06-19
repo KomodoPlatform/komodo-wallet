@@ -240,7 +240,7 @@ void testSanitizeTransaction() {
         final result = tx.sanitize(walletAddresses);
 
         // Should remove all occurrences of sender1
-        expect(result.to.where((addr) => addr == 'sender1').length, equals(1));
+        expect(result.to.where((addr) => addr == 'sender1').length, equals(0));
         expect(result.to, contains('recipient1'));
         expect(result.to, contains('wallet1'));
       });
