@@ -283,18 +283,8 @@ class _TransactionAddress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final coinsBloc = context.read<CoinsBloc>();
-    final pubkeys = coinsBloc.state.pubkeys[coinAbbr]?.keys ?? [];
-    final Set<String> myAddresses = pubkeys.map((p) => p.address).toSet();
-
-    final fromAddresses = transaction.from;
-    final List<String> toAddresses = transaction.to;
-
-    final searchList = transaction.isIncoming ? toAddresses : fromAddresses;
-    final String myAddress = searchList.firstWhere(
-      (addr) => myAddresses.contains(addr),
-      orElse: () => searchList.isNotEmpty ? searchList.first : '',
-    );
+    final myAddress =
+        transaction.isIncoming ? transaction.to.first : transaction.from.first;
 
     return Row(
       children: [

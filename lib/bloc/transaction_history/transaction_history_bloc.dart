@@ -30,7 +30,6 @@ class TransactionHistoryBloc
 
   // TODO: Remove or move to SDK
   final Set<String> _processedTxIds = {};
-  Set<String> _myAddresses = {};
 
   @override
   Future<void> close() async {
@@ -70,7 +69,7 @@ class TransactionHistoryBloc
       }
 
       final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
-      _myAddresses = pubkeys.keys.map((p) => p.address).toSet();
+      final myAddresses = pubkeys.keys.map((p) => p.address).toSet();
 
       // Subscribe to historical transactions
       _historySubscription =
@@ -88,7 +87,7 @@ class TransactionHistoryBloc
           if (uniqueTransactions.isEmpty) return;
 
           final sanitized = uniqueTransactions
-              .map((tx) => _sanitizeTransaction(tx, _myAddresses))
+              .map((tx) => _sanitizeTransaction(tx, myAddresses))
               .toList();
           final updatedTransactions = List<Transaction>.of(state.transactions)
             ..addAll(sanitized)
@@ -112,7 +111,7 @@ class TransactionHistoryBloc
             add(TransactionHistoryUpdated(transactions: state.transactions));
           }
           // Once historical load is complete, start watching for new transactions
-          _subscribeToNewTransactions(asset, event.coin);
+          _subscribeToNewTransactions(asset, event.coin, myAddresses);
         },
       );
     } catch (e, s) {
@@ -130,7 +129,7 @@ class TransactionHistoryBloc
     }
   }
 
-  void _subscribeToNewTransactions(Asset asset, Coin coin) {
+  void _subscribeToNewTransactions(Asset asset, Coin coin, Set<String> myAddresses) {
     _newTransactionsSubscription =
         _sdk.transactions.watchTransactions(asset).listen(
       (newTransaction) {
@@ -138,7 +137,7 @@ class TransactionHistoryBloc
 
         _processedTxIds.add(newTransaction.internalId);
 
-        final sanitized = _sanitizeTransaction(newTransaction, _myAddresses);
+        final sanitized = _sanitizeTransaction(newTransaction, myAddresses);
         final updatedTransactions = List<Transaction>.of(state.transactions)
           ..add(sanitized)
           ..sort(_sortTransactions);
