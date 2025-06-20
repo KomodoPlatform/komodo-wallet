@@ -437,26 +437,16 @@ extension BuildContextShowFeedback on BuildContext {
           }
 
           // Show success message
-          final theme = Theme.of(this);
           ScaffoldMessenger.of(this).showSnackBar(
             SnackBar(
               content: Text(
                 'Thank you! ${LocaleKeys.feedbackFormDescription.tr()}',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
               ),
-              backgroundColor: theme.colorScheme.primaryContainer,
               action: SnackBarAction(
                 label: LocaleKeys.addMoreFeedback.tr(),
-                textColor: theme.colorScheme.onPrimaryContainer,
                 onPressed: () => showFeedback(),
               ),
               duration: const Duration(seconds: 5),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
             ),
           );
         } else {
@@ -471,10 +461,6 @@ extension BuildContextShowFeedback on BuildContext {
                 ),
               ),
               backgroundColor: theme.colorScheme.errorContainer,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
             ),
           );
         }
@@ -492,10 +478,6 @@ extension BuildContextShowFeedback on BuildContext {
               ),
             ),
             backgroundColor: theme.colorScheme.errorContainer,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
           ),
         );
       }

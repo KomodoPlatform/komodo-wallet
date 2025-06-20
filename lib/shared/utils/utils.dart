@@ -25,6 +25,8 @@ export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
 
+// TODO: Refactor this (and all its references) to remove the context dependency
+// and/or make it optional, and then use the global `scaffoldKey` instead.
 Future<void> copyToClipBoard(
   BuildContext context,
   String payload, [
@@ -32,64 +34,39 @@ Future<void> copyToClipBoard(
 ]) async {
   if (!context.mounted) return;
   final themeData = Theme.of(context);
-  try {
-    // Use root overlay to ensure message appears above dialogs
-    final overlay = Overlay.maybeOf(context, rootOverlay: true);
-    if (overlay == null) return;
 
+  try {
     await Clipboard.setData(ClipboardData(text: payload));
 
-    late OverlayEntry overlayEntry;
-
-    overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 50.0,
-        left: 0,
-        right: 0,
-        child: Center(
-          child: Material(
-            elevation: 12.0,
-            borderRadius: BorderRadius.circular(4.0),
-            color: themeData.colorScheme.primaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 14.0,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: themeData.colorScheme.onPrimaryContainer,
-                    size: 20.0,
-                  ),
-                  const SizedBox(width: 12.0),
-                  Text(
-                    message ?? LocaleKeys.clipBoard.tr(),
-                    style: themeData.textTheme.bodyLarge!.copyWith(
-                      color: themeData.colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ],
-              ),
+    if (!context.mounted) return;
+    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context) ??
+        ScaffoldMessenger.of(scaffoldKey.currentContext!);    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        width: isMobile ? null : 400.0,
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: themeData.colorScheme.onPrimaryContainer,
             ),
-          ),
+            const SizedBox(width: 12.0),
+            Text(
+              message ?? LocaleKeys.clipBoard.tr(),
+            ),
+          ],
         ),
+        duration: const Duration(seconds: 2),
       ),
     );
-
-    overlay.insert(overlayEntry);
-
-    // Remove the overlay after 2 seconds
-    Future.delayed(const Duration(seconds: 2), overlayEntry.remove);
   } catch (e) {
     log('Error copyToClipBoard: $e', isError: true);
-    // Show error feedback to the user
+    if (!context.mounted) return;    // Show error feedback using SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Failed to copy to clipboard'),
-        backgroundColor: Colors.red,
+        content: const Text('Failed to copy to clipboard'),
+        backgroundColor: themeData.colorScheme.error,
+        duration: const Duration(seconds: 2),
       ),
     );
   }

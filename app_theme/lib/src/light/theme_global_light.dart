@@ -5,15 +5,6 @@ ThemeData get themeGlobalLight {
   const Color inputBackgroundColor = Color.fromRGBO(243, 245, 246, 1);
   const Color textColor = Color.fromRGBO(69, 96, 120, 1);
 
-  SnackBarThemeData snackBarThemeLight() => const SnackBarThemeData(
-        elevation: 12.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4)),
-        ),
-        actionTextColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-      );
-
   OutlineInputBorder outlineBorderLight(Color lightAccentColor) =>
       OutlineInputBorder(
         borderSide: BorderSide(color: lightAccentColor),
@@ -62,6 +53,21 @@ ThemeData get themeGlobalLight {
       fontWeight: FontWeight.w400,
     ),
   );
+
+  SnackBarThemeData snackBarThemeLight() => SnackBarThemeData(
+        elevation: 12.0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: colorScheme.primaryContainer,
+        contentTextStyle: textTheme.bodyLarge!.copyWith(
+          color: colorScheme.onPrimaryContainer,
+        ),
+        actionTextColor: colorScheme.onPrimaryContainer,
+        showCloseIcon: true,
+        closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
+      );
 
   final customTheme = ThemeCustomLight();
   final theme = ThemeData(
