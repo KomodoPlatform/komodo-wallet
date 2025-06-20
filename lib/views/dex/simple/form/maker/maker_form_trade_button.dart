@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
@@ -20,6 +21,9 @@ class MakerFormTradeButton extends StatelessWidget {
           systemHealthState is SystemHealthLoadSuccess &&
               systemHealthState.isValid;
 
+      final tradingState = context.watch<TradingStatusBloc>().state;
+      final isTradingEnabled = tradingState.isEnabled;
+
       final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
       final authBloc = context.watch<AuthBloc>();
 
@@ -34,7 +38,9 @@ class MakerFormTradeButton extends StatelessWidget {
               opacity: disabled ? 0.8 : 1,
               child: UiPrimaryButton(
                 key: const Key('make-order-button'),
-                text: LocaleKeys.makeOrder.tr(),
+                text: isTradingEnabled
+                    ? LocaleKeys.makeOrder.tr()
+                    : LocaleKeys.tradingDisabledTooltip.tr(),
                 prefix: inProgress
                     ? Padding(
                         padding: const EdgeInsets.only(right: 4),
@@ -46,7 +52,7 @@ class MakerFormTradeButton extends StatelessWidget {
                         ),
                       )
                     : null,
-                onPressed: disabled
+                onPressed: disabled || !isTradingEnabled
                     ? null
                     : () async {
                         while (!authBloc.state.isSignedIn) {

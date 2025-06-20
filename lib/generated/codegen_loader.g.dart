@@ -294,6 +294,8 @@ abstract class LocaleKeys {
   static const cancelAll = 'cancelAll';
   static const type = 'type';
   static const sell = 'sell';
+  static const sellCrypto = 'sellCrypto';
+  static const sellCryptoDescription = 'sellCryptoDescription';
   static const buy = 'buy';
   static const changingWalletPassword = 'changingWalletPassword';
   static const changingWalletPasswordDescription =
@@ -679,7 +681,7 @@ abstract class LocaleKeys {
   static const decimals = 'decimals';
   static const onlySendToThisAddress = 'onlySendToThisAddress';
   static const scanTheQrCode = 'scanTheQrCode';
-  static const swapAddress = 'swapAddress';
+  static const tradingAddress = 'tradingAddress';
   static const addresses = 'addresses';
   static const creating = 'creating';
   static const createAddress = 'createAddress';
@@ -716,4 +718,7 @@ abstract class LocaleKeys {
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
   static const chart = 'chart';
+  static const tradingDisabledTooltip = 'tradingDisabledTooltip';
+  static const tradingDisabled = 'tradingDisabled';
+
 }

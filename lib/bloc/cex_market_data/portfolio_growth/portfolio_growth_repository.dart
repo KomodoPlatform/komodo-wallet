@@ -71,8 +71,11 @@ class PortfolioGrowthRepository {
   /// The graph cache provider to store the portfolio growth graph data.
   final PersistenceProvider<String, GraphCache> _graphCache;
 
-  final CoinsRepo _coinsRepository;
+  /// The SDK needed for connecting to blockchain nodes
   final KomodoDefiSdk _sdk;
+
+  /// The coins repository for detailed coin info
+  final CoinsRepo _coinsRepository;
 
   final _log = Logger('PortfolioGrowthRepository');
 
@@ -514,4 +517,38 @@ class PortfolioGrowthRepository {
   }
 
   Future<void> clearCache() => _graphCache.deleteAll();
+
+  /// Calculate the total 24h change in USD value for a list of coins
+  ///
+  /// This method fetches the current prices for all coins and calculates
+  /// the 24h change by multiplying each coin's percentage change by its USD balance
+  Future<double> calculateTotalChange24h(List<Coin> coins) async {
+    // Fetch current prices including 24h change data
+    final prices = await _coinsRepository.fetchCurrentPrices() ?? {};
+
+    // Calculate the 24h change by summing the change percentage of each coin
+    // multiplied by its USD balance and divided by 100 (to convert percentage to decimal)
+    double totalChange = 0.0;
+    for (final coin in coins) {
+      final price = prices[coin.id.symbol.configSymbol.toUpperCase()];
+      final change24h = price?.change24h ?? 0.0;
+      final usdBalance = coin.lastKnownUsdBalance(_sdk) ?? 0.0;
+      totalChange += (change24h * usdBalance / 100);
+    }
+    return totalChange;
+  }
+
+  /// Get the cached price for a given coin symbol
+  ///
+  /// This is used to avoid fetching prices for every calculation
+  CexPrice? getCachedPrice(String symbol) {
+    return _coinsRepository.getCachedPrice(symbol);
+  }
+
+  /// Update prices for all coins by fetching from market data
+  ///
+  /// This method ensures we have up-to-date price data before calculations
+  Future<void> updatePrices() async {
+    await _coinsRepository.fetchCurrentPrices();
+  }
 }

@@ -604,7 +604,7 @@ class SwapAddressTag extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16.0),
               ),
               child: Text(
-                LocaleKeys.swapAddress.tr(),
+                LocaleKeys.tradingAddress.tr(),
                 style: TextStyle(fontSize: isMobile ? 9 : 12),
               ),
             ),

@@ -1,3 +1,15 @@
+# Komodo Wallet v0.9.1 Release Notes
+
+This is a hotfix release that addresses critical issues with Trezor hardware wallet login functionality.
+
+## 🐛 Bug Fixes
+
+- **Trezor Login Issues** - Fixed critical bugs in the Trezor hardware wallet login flow that were preventing users from accessing their wallets.
+
+**Full Changelog**: [0.9.0...0.9.1](https://github.com/KomodoPlatform/komodo-wallet/compare/0.9.0...0.9.1)
+
+---
+
 # Komodo Wallet v0.9.0 Release Notes
 
 We are excited to announce Komodo Wallet v0.9.0. This release introduces HD wallet functionality, cross-platform fiat on-ramp improvements, a new feedback provider, and numerous bug fixes and dependency upgrades.
