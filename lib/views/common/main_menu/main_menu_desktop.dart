@@ -9,6 +9,7 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_event.dart';
 import 'package:web_dex/bloc/settings/settings_state.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/authorize_mode.dart';
@@ -25,8 +26,9 @@ class MainMenuDesktop extends StatefulWidget {
 class _MainMenuDesktopState extends State<MainMenuDesktop> {
   @override
   Widget build(BuildContext context) {
-    final isAuthenticated = context
-        .select((AuthBloc bloc) => bloc.state.mode == AuthorizeMode.logIn);
+    final isAuthenticated = context.select(
+      (AuthBloc bloc) => bloc.state.mode == AuthorizeMode.logIn,
+    );
 
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
@@ -100,16 +102,18 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                           enabled: currentWallet?.isHW != true,
                           menu: MainMenuValue.marketMakerBot,
                           onTap: onTapItem,
-                          isSelected:
-                              _checkSelectedItem(MainMenuValue.marketMakerBot),
+                          isSelected: _checkSelectedItem(
+                            MainMenuValue.marketMakerBot,
+                          ),
                         ),
                       ),
                     DesktopMenuDesktopItem(
-                        key: const Key('main-menu-nft'),
-                        enabled: currentWallet?.isHW != true,
-                        menu: MainMenuValue.nft,
-                        onTap: onTapItem,
-                        isSelected: _checkSelectedItem(MainMenuValue.nft)),
+                      key: const Key('main-menu-nft'),
+                      enabled: currentWallet?.isHW != true,
+                      menu: MainMenuValue.nft,
+                      onTap: onTapItem,
+                      isSelected: _checkSelectedItem(MainMenuValue.nft),
+                    ),
                     const Spacer(),
                     DesktopMenuDesktopItem(
                       key: const Key('main-menu-settings'),
@@ -118,33 +122,36 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                       needAttention: currentWallet?.config.hasBackup == false,
                       isSelected: _checkSelectedItem(MainMenuValue.settings),
                     ),
+                    const BackupSeedNotification(),
                     Theme(
                       data: isDarkTheme ? newThemeDark : newThemeLight,
-                      child: Builder(builder: (context) {
-                        final ColorSchemeExtension colorScheme =
-                            Theme.of(context)
-                                .extension<ColorSchemeExtension>()!;
-                        return DexThemeSwitcher(
-                          isDarkTheme: isDarkTheme,
-                          lightThemeTitle: LocaleKeys.lightMode.tr(),
-                          darkThemeTitle: LocaleKeys.darkMode.tr(),
-                          buttonKeyValue: 'theme-switcher',
-                          onThemeModeChanged: (mode) {
-                            settings.add(
-                              ThemeModeChanged(
-                                mode: isDarkTheme
-                                    ? ThemeMode.light
-                                    : ThemeMode.dark,
-                              ),
-                            );
-                          },
-                          switcherStyle: DexThemeSwitcherStyle(
-                            textColor: colorScheme.primary,
-                            thumbBgColor: colorScheme.surfContLow,
-                            switcherBgColor: colorScheme.p10,
-                          ),
-                        );
-                      }),
+                      child: Builder(
+                        builder: (context) {
+                          final ColorSchemeExtension colorScheme = Theme.of(
+                            context,
+                          ).extension<ColorSchemeExtension>()!;
+                          return DexThemeSwitcher(
+                            isDarkTheme: isDarkTheme,
+                            lightThemeTitle: LocaleKeys.lightMode.tr(),
+                            darkThemeTitle: LocaleKeys.darkMode.tr(),
+                            buttonKeyValue: 'theme-switcher',
+                            onThemeModeChanged: (mode) {
+                              settings.add(
+                                ThemeModeChanged(
+                                  mode: isDarkTheme
+                                      ? ThemeMode.light
+                                      : ThemeMode.dark,
+                                ),
+                              );
+                            },
+                            switcherStyle: DexThemeSwitcherStyle(
+                              textColor: colorScheme.primary,
+                              thumbBgColor: colorScheme.surfContLow,
+                              switcherBgColor: colorScheme.p10,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                     const SizedBox(height: 48),
                   ].toList(),
