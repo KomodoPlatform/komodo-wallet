@@ -33,11 +33,12 @@ Future<void> copyToClipBoard(
   if (!context.mounted) return;
   final themeData = Theme.of(context);
   try {
+    // Use root overlay to ensure message appears above dialogs
+    final overlay = Overlay.maybeOf(context, rootOverlay: true);
+    if (overlay == null) return;
+
     await Clipboard.setData(ClipboardData(text: payload));
 
-    // Use root overlay to ensure message appears above dialogs
-    final overlay = Overlay.of(context, rootOverlay: true);
-    if (overlay == null) return;
     late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
