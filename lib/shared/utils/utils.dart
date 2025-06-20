@@ -258,8 +258,8 @@ Future<void> openUrl(Uri uri, {bool? inSeparateTab}) async {
     mode: inSeparateTab == null
         ? LaunchMode.platformDefault
         : inSeparateTab == true
-        ? LaunchMode.externalApplication
-        : LaunchMode.inAppWebView,
+            ? LaunchMode.externalApplication
+            : LaunchMode.inAppWebView,
   );
 }
 
@@ -272,8 +272,8 @@ Future<void> launchURLString(String url, {bool? inSeparateTab}) async {
       mode: inSeparateTab == null
           ? LaunchMode.platformDefault
           : inSeparateTab == true
-          ? LaunchMode.externalApplication
-          : LaunchMode.inAppWebView,
+              ? LaunchMode.externalApplication
+              : LaunchMode.inAppWebView,
     );
   } else {
     throw 'Could not launch $url';

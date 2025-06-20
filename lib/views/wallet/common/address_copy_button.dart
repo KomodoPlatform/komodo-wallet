@@ -7,8 +7,8 @@ class AddressCopyButton extends StatelessWidget {
   final String address;
   final String coinAbbr;
 
-  const AddressCopyButton({Key? key, required this.address, this.coinAbbr = ''})
-      : super(key: key);
+  const AddressCopyButton(
+      {super.key, required this.address, this.coinAbbr = ''});
 
   @override
   Widget build(BuildContext context) {
