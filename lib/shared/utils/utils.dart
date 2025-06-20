@@ -25,16 +25,19 @@ export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
 
-Future<void> copyToClipBoard(BuildContext context, String payload,
-    [String? message]) async {
+Future<void> copyToClipBoard(
+  BuildContext context,
+  String payload, [
+  String? message,
+]) async {
+  if (!context.mounted) return;
   final themeData = Theme.of(context);
   try {
-    if (!context.mounted) return;
-    // Copy to clipboard first
     await Clipboard.setData(ClipboardData(text: payload));
 
-    // Use overlay to show snackbar above everything including dialogs
-    final overlay = Overlay.of(context);
+    // Use root overlay to ensure message appears above dialogs
+    final overlay = Overlay.of(context, rootOverlay: true);
+    if (overlay == null) return;
     late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
@@ -44,12 +47,14 @@ Future<void> copyToClipBoard(BuildContext context, String payload,
         right: 0,
         child: Center(
           child: Material(
-            elevation: 1000.0,
+            elevation: 12.0,
             borderRadius: BorderRadius.circular(4.0),
             color: themeData.colorScheme.primaryContainer,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 14.0,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -76,9 +81,7 @@ Future<void> copyToClipBoard(BuildContext context, String payload,
     overlay.insert(overlayEntry);
 
     // Remove the overlay after 2 seconds
-    Timer(const Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
+    Future.delayed(const Duration(seconds: 2), overlayEntry.remove);
   } catch (e) {
     log('Error copyToClipBoard: $e', isError: true);
     // Show error feedback to the user
@@ -255,15 +258,12 @@ Future<void> openUrl(Uri uri, {bool? inSeparateTab}) async {
     mode: inSeparateTab == null
         ? LaunchMode.platformDefault
         : inSeparateTab == true
-            ? LaunchMode.externalApplication
-            : LaunchMode.inAppWebView,
+        ? LaunchMode.externalApplication
+        : LaunchMode.inAppWebView,
   );
 }
 
-Future<void> launchURLString(
-  String url, {
-  bool? inSeparateTab,
-}) async {
+Future<void> launchURLString(String url, {bool? inSeparateTab}) async {
   final uri = Uri.parse(url);
 
   if (await canLaunchUrl(uri)) {
@@ -272,8 +272,8 @@ Future<void> launchURLString(
       mode: inSeparateTab == null
           ? LaunchMode.platformDefault
           : inSeparateTab == true
-              ? LaunchMode.externalApplication
-              : LaunchMode.inAppWebView,
+          ? LaunchMode.externalApplication
+          : LaunchMode.inAppWebView,
     );
   } else {
     throw 'Could not launch $url';
@@ -723,7 +723,4 @@ Future<void> pauseWhile(
   }
 }
 
-enum HashExplorerType {
-  address,
-  tx,
-}
+enum HashExplorerType { address, tx }
