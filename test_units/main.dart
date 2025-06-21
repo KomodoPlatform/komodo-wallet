@@ -33,6 +33,7 @@ import 'tests/utils/convert_double_to_string_test.dart';
 import 'tests/utils/convert_fract_rat_test.dart';
 import 'tests/utils/double_to_string_test.dart';
 import 'tests/utils/get_fiat_amount_tests.dart';
+import 'tests/utils/transaction_history/sanitize_transaction_test.dart';
 
 /// Run in terminal flutter test test_units/main.dart
 /// More info at documentation "Unit and Widget testing" section
@@ -69,6 +70,7 @@ void main() {
     testRatToFracAndViseVersa();
 
     testDoubleToString();
+    testSanitizeTransaction();
   });
 
   group('Helpers: ', () {
