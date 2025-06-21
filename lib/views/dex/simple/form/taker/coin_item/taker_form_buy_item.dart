@@ -20,6 +20,7 @@ class TakerFormBuyItem extends StatelessWidget {
       buildWhen: (prev, curr) {
         if (prev.selectedOrder != curr.selectedOrder) return true;
         if (prev.sellCoin != curr.sellCoin) return true;
+        if (prev.isBuyCoinActivating != curr.isBuyCoinActivating) return true;
 
         return false;
       },
@@ -37,11 +38,33 @@ class TakerFormBuyItem extends StatelessWidget {
           },
         );
 
+        final content = Column(
+          children: [
+            _BuyHeader(),
+            TakerFormBuySwitcher(controller),
+          ],
+        );
+
+        if (!state.isBuyCoinActivating) {
+          return FrontPlate(child: content);
+        }
+
         return FrontPlate(
-          child: Column(
+          child: Stack(
             children: [
-              _BuyHeader(),
-              TakerFormBuySwitcher(controller),
+              content,
+              const Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black12,
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );

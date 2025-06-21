@@ -229,7 +229,13 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
 
     if (!state.autovalidate) add(TakerVerifyOrderVolume());
 
-    await _autoActivateCoin(state.selectedOrder?.coin);
+    await emit.forEach<TakerState>(
+      _autoActivateCoin(
+        state.selectedOrder?.coin,
+        isSellCoin: false,
+      ),
+      onData: (newState) => newState,
+    );
     if (state.autovalidate) _validator.validateForm();
     add(TakerUpdateFees());
   }
@@ -267,7 +273,13 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
 
     add(TakerUpdateBestOrders(autoSelectOrderAbbr: event.autoSelectOrderAbbr));
 
-    await _autoActivateCoin(state.sellCoin?.abbr);
+    await emit.forEach<TakerState>(
+      _autoActivateCoin(
+        state.sellCoin?.abbr,
+        isSellCoin: true,
+      ),
+      onData: (newState) => newState,
+    );
     _subscribeMaxSellAmount();
     add(TakerGetMinSellAmount());
   }
@@ -491,17 +503,26 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     }
   }
 
-  Future<void> _autoActivateCoin(String? abbr) async {
+  Stream<TakerState> _autoActivateCoin(
+    String? abbr, {
+    required bool isSellCoin,
+  }) async* {
     if (abbr == null || !_isLoggedIn) return;
-
     _activatingAssets = true;
+    yield state.copyWith(
+      isSellCoinActivating: isSellCoin ? () => true : null,
+      isBuyCoinActivating: isSellCoin ? null : () => true,
+    );
     final List<DexFormError> activationErrors =
         await activateCoinIfNeeded(abbr, _coinsRepo);
     _activatingAssets = false;
-
     if (activationErrors.isNotEmpty) {
       add(TakerAddError(activationErrors.first));
     }
+    yield state.copyWith(
+      isSellCoinActivating: isSellCoin ? () => false : null,
+      isBuyCoinActivating: isSellCoin ? null : () => false,
+    );
   }
 
   void _onSetInProgress(
@@ -532,8 +553,20 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       errors: () => [],
       autovalidate: () => false,
     ));
-    await _autoActivateCoin(state.sellCoin?.abbr);
-    await _autoActivateCoin(state.selectedOrder?.coin);
+    await emit.forEach<TakerState>(
+      _autoActivateCoin(
+        state.sellCoin?.abbr,
+        isSellCoin: true,
+      ),
+      onData: (newState) => newState,
+    );
+    await emit.forEach<TakerState>(
+      _autoActivateCoin(
+        state.selectedOrder?.coin,
+        isSellCoin: false,
+      ),
+      onData: (newState) => newState,
+    );
   }
 
   @override

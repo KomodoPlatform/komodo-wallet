@@ -18,20 +18,47 @@ class TakerFormSellItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<TakerBloc, TakerState, Coin?>(
-      selector: (state) => state.sellCoin,
-      builder: (context, sellCoin) {
+    return BlocBuilder<TakerBloc, TakerState>(
+      buildWhen: (prev, curr) {
+        if (prev.sellCoin != curr.sellCoin) return true;
+        if (prev.isSellCoinActivating != curr.isSellCoinActivating) return true;
+        return false;
+      },
+      builder: (context, state) {
+        final sellCoin = state.sellCoin;
+        final content = Column(
+          children: [
+            _SellHeader(),
+            TakerFormSellSwitcher(
+              controller: TradeCoinController(
+                coin: sellCoin,
+                onTap: () =>
+                    context.read<TakerBloc>().add(TakerCoinSelectorClick()),
+                isEnabled: sellCoin != null && !state.isSellCoinActivating,
+                isOpened: false,
+              ),
+            ),
+          ],
+        );
+
+        if (!state.isSellCoinActivating) {
+          return FrontPlate(child: content);
+        }
+
         return FrontPlate(
-          child: Column(
+          child: Stack(
             children: [
-              _SellHeader(),
-              TakerFormSellSwitcher(
-                controller: TradeCoinController(
-                  coin: sellCoin,
-                  onTap: () =>
-                      context.read<TakerBloc>().add(TakerCoinSelectorClick()),
-                  isEnabled: sellCoin != null,
-                  isOpened: false,
+              content,
+              const Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black12,
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
                 ),
               ),
             ],

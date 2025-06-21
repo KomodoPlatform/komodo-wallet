@@ -9,6 +9,8 @@ class TakerState {
   TakerState({
     required this.step,
     required this.inProgress,
+    this.isSellCoinActivating = false,
+    this.isBuyCoinActivating = false,
     this.sellCoin,
     this.selectedOrder,
     this.bestOrders,
@@ -29,6 +31,8 @@ class TakerState {
     return TakerState(
       step: TakerStep.form,
       inProgress: false,
+      isSellCoinActivating: false,
+      isBuyCoinActivating: false,
       sellCoin: null,
       selectedOrder: null,
       bestOrders: null,
@@ -46,6 +50,8 @@ class TakerState {
 
   TakerStep step;
   bool inProgress;
+  bool isSellCoinActivating;
+  bool isBuyCoinActivating;
   Coin? sellCoin;
   BestOrder? selectedOrder;
   BestOrders? bestOrders;
@@ -67,6 +73,8 @@ class TakerState {
   TakerState copyWith({
     TakerStep Function()? step,
     bool Function()? inProgress,
+    bool Function()? isSellCoinActivating,
+    bool Function()? isBuyCoinActivating,
     Coin? Function()? sellCoin,
     BestOrder? Function()? selectedOrder,
     BestOrders? Function()? bestOrders,
@@ -85,6 +93,12 @@ class TakerState {
     return TakerState(
       step: step == null ? this.step : step(),
       inProgress: inProgress == null ? this.inProgress : inProgress(),
+      isSellCoinActivating: isSellCoinActivating == null
+          ? this.isSellCoinActivating
+          : isSellCoinActivating(),
+      isBuyCoinActivating: isBuyCoinActivating == null
+          ? this.isBuyCoinActivating
+          : isBuyCoinActivating(),
       sellCoin: sellCoin == null ? this.sellCoin : sellCoin(),
       selectedOrder:
           selectedOrder == null ? this.selectedOrder : selectedOrder(),
