@@ -412,7 +412,15 @@ class SwapMyInfo extends Equatable {
     required this.startedAt,
   });
 
-  factory SwapMyInfo.fromJson(Map<String, dynamic> json) {
+  const SwapMyInfo.empty()
+      : myCoin = '',
+        otherCoin = '',
+        myAmount = 0,
+        otherAmount = 0,
+        startedAt = 0;
+
+  factory SwapMyInfo.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const SwapMyInfo.empty();
     return SwapMyInfo(
       myCoin: json['my_coin'],
       otherCoin: json['other_coin'],
