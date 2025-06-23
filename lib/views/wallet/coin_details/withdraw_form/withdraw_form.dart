@@ -316,7 +316,8 @@ class WithdrawFormFillSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (state.asset.supportsMultipleAddresses) ...[
+            if (state.asset.supportsMultipleAddresses &&
+                (state.pubkeys?.keys.length ?? 0) > 1) ...[
               SourceAddressField(
                 asset: state.asset,
                 pubkeys: state.pubkeys,

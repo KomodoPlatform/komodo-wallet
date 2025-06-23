@@ -6,6 +6,7 @@ import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:collection/collection.dart';
 
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_event.dart';
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_state.dart';
@@ -54,13 +55,19 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     try {
       final pubkeys = await state.asset.getPubkeys(_sdk);
       if (pubkeys.keys.isNotEmpty) {
+        final current = state.selectedSourceAddress;
+        final newSelection = current != null
+            ? pubkeys.keys.firstWhereOrNull(
+                  (key) => key.address == current.address,
+                ) ??
+                pubkeys.keys.first
+            : (pubkeys.keys.length == 1 ? pubkeys.keys.first : null);
+
         emit(
           state.copyWith(
             pubkeys: () => pubkeys,
             networkError: () => null,
-            selectedSourceAddress: state.selectedSourceAddress == null
-                ? null
-                : () => pubkeys.keys.firstOrNull,
+            selectedSourceAddress: () => newSelection,
           ),
         );
       } else {
