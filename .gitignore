@@ -83,3 +83,4 @@ venv/
 # FVM Version Cache
 .fvm/
 /macos/build
+AGENTS_1.md
