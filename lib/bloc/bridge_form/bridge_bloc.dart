@@ -17,6 +17,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_response.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/setprice/setprice_request.dart';
 import 'package:web_dex/model/available_balance_state.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/data_from_service.dart';
@@ -270,6 +271,11 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     /// remove them from the list here
     bestOrders.result
         ?.removeWhere((coinId, _) => excludedAssetList.contains(coinId));
+
+    if (bestOrders.result == null || bestOrders.result!.isEmpty) {
+      bestOrders.error = null;
+      bestOrders.result = <String, List<BestOrder>>{};
+    }
 
     emit(state.copyWith(
       bestOrders: () => bestOrders,
@@ -536,43 +542,83 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     emit(state.copyWith(
       inProgress: () => true,
     ));
-    final SellResponse response = await _dexRepository.sell(SellRequest(
-      base: state.sellCoin!.abbr,
-      rel: state.bestOrder!.coin,
-      volume: state.sellAmount!,
-      price: state.bestOrder!.price,
-      orderType: SellBuyOrderType.fillOrKill,
-    ));
-
-    final String? uuid = response.result?.uuid;
-
-    if (uuid != null) {
-      final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
-      final walletType =
-          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
-      _analyticsBloc.logEvent(
-        BridgeSucceededEventData(
-          fromChain: state.sellCoin!.protocolType,
-          toChain: buyCoin?.protocolType ?? '',
-          asset: state.sellCoin!.abbr,
-          amount: state.sellAmount?.toDouble() ?? 0.0,
-          walletType: walletType,
+    String? uuid;
+    if (state.bestOrder!.uuid.isEmpty) {
+      final response = await _bridgeRepository.setprice(
+        SetPriceRequest(
+          base: state.sellCoin!.abbr,
+          rel: state.bestOrder!.coin,
+          volume: state.sellAmount!,
+          price: state.bestOrder!.price,
         ),
       );
+      uuid = response?['result']?['uuid'] as String?;
+      if (response?['error'] != null) {
+        final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
+        final walletType =
+            (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
+        _analyticsBloc.logEvent(
+          BridgeFailedEventData(
+            fromChain: state.sellCoin!.protocolType,
+            toChain: buyCoin?.protocolType ?? '',
+            failError: response!['error'].toString(),
+            walletType: walletType,
+          ),
+        );
+        add(BridgeSetError(DexFormError(error: response['error'].toString())));
+      } else {
+        final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
+        final walletType =
+            (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
+        _analyticsBloc.logEvent(
+          BridgeSucceededEventData(
+            fromChain: state.sellCoin!.protocolType,
+            toChain: buyCoin?.protocolType ?? '',
+            asset: state.sellCoin!.abbr,
+            amount: state.sellAmount?.toDouble() ?? 0.0,
+            walletType: walletType,
+          ),
+        );
+      }
     } else {
-      final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
-      final walletType =
-          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
-      final error = response.error?.message ?? 'unknown';
-      _analyticsBloc.logEvent(
-        BridgeFailedEventData(
-          fromChain: state.sellCoin!.protocolType,
-          toChain: buyCoin?.protocolType ?? '',
-          failError: error,
-          walletType: walletType,
-        ),
-      );
-      add(BridgeSetError(DexFormError(error: error)));
+      final SellResponse response = await _dexRepository.sell(SellRequest(
+        base: state.sellCoin!.abbr,
+        rel: state.bestOrder!.coin,
+        volume: state.sellAmount!,
+        price: state.bestOrder!.price,
+        orderType: SellBuyOrderType.fillOrKill,
+      ));
+
+      uuid = response.result?.uuid;
+
+      if (uuid != null) {
+        final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
+        final walletType =
+            (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
+        _analyticsBloc.logEvent(
+          BridgeSucceededEventData(
+            fromChain: state.sellCoin!.protocolType,
+            toChain: buyCoin?.protocolType ?? '',
+            asset: state.sellCoin!.abbr,
+            amount: state.sellAmount?.toDouble() ?? 0.0,
+            walletType: walletType,
+          ),
+        );
+      } else {
+        final buyCoin = _coinsRepository.getCoin(state.bestOrder!.coin);
+        final walletType =
+            (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
+        final error = response.error?.message ?? 'unknown';
+        _analyticsBloc.logEvent(
+          BridgeFailedEventData(
+            fromChain: state.sellCoin!.protocolType,
+            toChain: buyCoin?.protocolType ?? '',
+            failError: error,
+            walletType: walletType,
+          ),
+        );
+        add(BridgeSetError(DexFormError(error: error)));
+      }
     }
 
     emit(state.copyWith(
@@ -630,6 +676,25 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     if (sellCoin == null) return list;
 
     bestOrders.forEach((key, value) => list.addAll(value));
+
+    final tickerCoins =
+        state.sellCoins?[abbr2Ticker(sellCoin.abbr)] ?? <Coin>[];
+    for (final coin in tickerCoins) {
+      if (coin.abbr == sellCoin.abbr) continue;
+      final exists = list.any((o) => o.coin == coin.abbr);
+      if (!exists) {
+        list.add(
+          BestOrder(
+            price: Rational.one,
+            maxVolume: Rational.parse('1000000000'),
+            minVolume: Rational.zero,
+            coin: coin.abbr,
+            address: const OrderAddress.transparent(null),
+            uuid: '',
+          ),
+        );
+      }
+    }
 
     list.removeWhere(
       (order) {
