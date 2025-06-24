@@ -6,6 +6,7 @@ import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:collection/collection.dart';
 
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_event.dart';
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_state.dart';
@@ -54,13 +55,19 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     try {
       final pubkeys = await state.asset.getPubkeys(_sdk);
       if (pubkeys.keys.isNotEmpty) {
+        final current = state.selectedSourceAddress;
+        final newSelection = current != null
+            ? pubkeys.keys.firstWhereOrNull(
+                  (key) => key.address == current.address,
+                ) ??
+                pubkeys.keys.first
+            : (pubkeys.keys.length == 1 ? pubkeys.keys.first : null);
+
         emit(
           state.copyWith(
             pubkeys: () => pubkeys,
             networkError: () => null,
-            selectedSourceAddress: state.selectedSourceAddress == null
-                ? null
-                : () => pubkeys.keys.firstOrNull,
+            selectedSourceAddress: () => newSelection,
           ),
         );
       } else {
@@ -189,8 +196,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
 
     try {
       final amount = Decimal.parse(event.amount);
-      final balance = state.selectedSourceAddress?.balance.spendable ??
-          state.pubkeys?.balance.spendable;
+      // Use the selected address balance if available
+      final balance = state.selectedSourceAddress?.balance.spendable;
 
       if (balance != null && amount > balance) {
         emit(
@@ -248,8 +255,10 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       ),
     );
 
-    // Required to re-run the validation logic
-    add(WithdrawFormAmountChanged(updatedAmount));
+    // Re-validate the amount with the new source address balance
+    if (!state.isMaxAmount) {
+      add(WithdrawFormAmountChanged(updatedAmount));
+    }
   }
 
   void _onMaxAmountEnabled(
@@ -258,11 +267,15 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   ) {
     final balance =
         state.selectedSourceAddress?.balance ?? state.pubkeys?.balance;
+    final maxAmount =
+        event.isEnabled ? (balance?.spendable.toString() ?? '0') : '0';
+
     emit(
       state.copyWith(
         isMaxAmount: event.isEnabled,
-        amount: event.isEnabled ? balance?.spendable.toString() : '0',
+        amount: maxAmount,
         amountError: () => null,
+        previewError: () => null, // Clear preview error when toggling max
       ),
     );
   }
