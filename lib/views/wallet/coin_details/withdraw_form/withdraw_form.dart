@@ -313,24 +313,30 @@ class WithdrawFormFillSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
       builder: (context, state) {
+        final isSourceInputEnabled =
+            // Enabled if the asset has multiple source addresses or if there is
+            // no selected address and pubkeys are available.
+            (state.pubkeys?.keys.length ?? 0) > 1 ||
+                (state.selectedSourceAddress == null &&
+                    (state.pubkeys?.isNotEmpty ?? false));
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (state.asset.supportsMultipleAddresses &&
-                (state.pubkeys?.keys.length ?? 0) > 1) ...[
-              SourceAddressField(
-                asset: state.asset,
-                pubkeys: state.pubkeys,
-                selectedAddress: state.selectedSourceAddress,
-                isLoading: state.pubkeys?.isEmpty ?? true,
-                onChanged: (address) => address == null
-                    ? null
-                    : context
-                        .read<WithdrawFormBloc>()
-                        .add(WithdrawFormSourceChanged(address)),
-              ),
-              const SizedBox(height: 16),
-            ],
+            SourceAddressField(
+              asset: state.asset,
+              pubkeys: state.pubkeys,
+              selectedAddress: state.selectedSourceAddress,
+              isLoading: state.pubkeys?.isEmpty ?? true,
+              onChanged: isSourceInputEnabled
+                  ? (address) => address == null
+                      ? null
+                      : context
+                          .read<WithdrawFormBloc>()
+                          .add(WithdrawFormSourceChanged(address))
+                  : null,
+            ),
+            const SizedBox(height: 16),
             RecipientAddressWithNotification(
               address: state.recipientAddress,
               isMixedAddress: state.isMixedCaseAddress,
