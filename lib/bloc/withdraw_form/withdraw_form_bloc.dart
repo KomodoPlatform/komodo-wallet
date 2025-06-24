@@ -189,8 +189,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
 
     try {
       final amount = Decimal.parse(event.amount);
-      final balance = state.selectedSourceAddress?.balance.spendable ??
-          state.pubkeys?.balance.spendable;
+      // Use the selected address balance if available
+      final balance = state.selectedSourceAddress?.balance.spendable;
 
       if (balance != null && amount > balance) {
         emit(
@@ -248,8 +248,10 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       ),
     );
 
-    // Required to re-run the validation logic
-    add(WithdrawFormAmountChanged(updatedAmount));
+    // Re-validate the amount with the new source address balance
+    if (!state.isMaxAmount) {
+      add(WithdrawFormAmountChanged(updatedAmount));
+    }
   }
 
   void _onMaxAmountEnabled(
@@ -258,11 +260,15 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   ) {
     final balance =
         state.selectedSourceAddress?.balance ?? state.pubkeys?.balance;
+    final maxAmount =
+        event.isEnabled ? (balance?.spendable.toString() ?? '0') : '0';
+
     emit(
       state.copyWith(
         isMaxAmount: event.isEnabled,
-        amount: event.isEnabled ? balance?.spendable.toString() : '0',
+        amount: maxAmount,
         amountError: () => null,
+        previewError: () => null, // Clear preview error when toggling max
       ),
     );
   }
