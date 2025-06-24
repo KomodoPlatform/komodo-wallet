@@ -94,9 +94,18 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _coinAddressesBloc,
-      child: PageLayout(
-        header: PageHeader(
-          title: widget.coin.name,
+      child: BlocListener<CoinAddressesBloc, CoinAddressesState>(
+        listenWhen: (previous, current) =>
+            previous.createAddressStatus != current.createAddressStatus &&
+            current.createAddressStatus == FormStatus.success,
+        listener: (context, state) {
+          context
+              .read<CoinsBloc>()
+              .add(CoinsPubkeysRequested(widget.coin.abbr));
+        },
+        child: PageLayout(
+          header: PageHeader(
+            title: widget.coin.name,
           widgetTitle: widget.coin.mode == CoinMode.segwit
               ? const Padding(
                   padding: EdgeInsets.only(left: 6.0),
@@ -107,8 +116,9 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
           onBackButtonPressed: _onBackButtonPressed,
           actions: [_buildDisableButton()],
         ),
-        content: Expanded(
-          child: _buildContent(context),
+          content: Expanded(
+            child: _buildContent(context),
+          ),
         ),
       ),
     );
