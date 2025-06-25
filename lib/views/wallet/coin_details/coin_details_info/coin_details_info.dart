@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
@@ -106,16 +107,16 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
         child: PageLayout(
           header: PageHeader(
             title: widget.coin.name,
-          widgetTitle: widget.coin.mode == CoinMode.segwit
-              ? const Padding(
-                  padding: EdgeInsets.only(left: 6.0),
-                  child: SegwitIcon(height: 22),
-                )
-              : null,
-          backText: _backText,
-          onBackButtonPressed: _onBackButtonPressed,
-          actions: [_buildDisableButton()],
-        ),
+            widgetTitle: widget.coin.mode == CoinMode.segwit
+                ? const Padding(
+                    padding: EdgeInsets.only(left: 6.0),
+                    child: SegwitIcon(height: 22),
+                  )
+                : null,
+            backText: _backText,
+            onBackButtonPressed: _onBackButtonPressed,
+            actions: [_buildDisableButton()],
+          ),
           content: Expanded(
             child: _buildContent(context),
           ),
