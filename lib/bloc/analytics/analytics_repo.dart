@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:io';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -115,7 +116,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
   /// Initialize with retry mechanism
   Future<void> _initializeWithRetry(AnalyticsSettings settings) async {
     // Firebase is not supported on Linux
-    if (Platform.isLinux) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
       _isInitialized = false;
       _isEnabled = false;
       _initCompleter.completeError(UnsupportedError);
