@@ -1,5 +1,6 @@
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/constants.dart';
@@ -74,9 +75,9 @@ class CustomFeedbackForm extends StatefulWidget {
 
   static FeedbackBuilder get feedbackBuilder =>
       (context, onSubmit, scrollController) => CustomFeedbackForm(
-            onSubmit: onSubmit,
-            scrollController: scrollController,
-          );
+        onSubmit: onSubmit,
+        scrollController: scrollController,
+      );
 
   @override
   State<CustomFeedbackForm> createState() => _CustomFeedbackFormState();
@@ -86,6 +87,7 @@ class CustomFeedbackForm extends StatefulWidget {
 class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
   final CustomFeedback _customFeedback = CustomFeedback();
   String? _contactError;
+  String? _feedbackError;
   bool _isLoading = false;
 
   /// Determines if the feedback form is valid and can be submitted
@@ -96,10 +98,12 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
     // Contact details validation: if either contact method or details is provided,
     // then both must be provided
     bool hasContactMethod = _customFeedback.contactMethod != null;
-    bool hasContactDetails = _customFeedback.contactDetails != null &&
+    bool hasContactDetails =
+        _customFeedback.contactDetails != null &&
         _customFeedback.contactDetails!.trim().isNotEmpty;
 
     _contactError = null;
+    _feedbackError = null;
     if (_customFeedback.feedbackType == FeedbackType.support) {
       if (!hasContactMethod || !hasContactDetails) {
         isValid = false;
@@ -118,6 +122,17 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
         !_isValidEmail(_customFeedback.contactDetails!.trim())) {
       isValid = false;
       _contactError = LocaleKeys.emailValidatorError.tr();
+    }
+
+    final feedbackText = _customFeedback.feedbackText?.trim() ?? '';
+    if (isValid && feedbackText.isEmpty) {
+      isValid = false;
+      _feedbackError = LocaleKeys.feedbackValidatorEmptyError.tr();
+    } else if (isValid && feedbackText.length > feedbackMaxLength) {
+      isValid = false;
+      _feedbackError = LocaleKeys.feedbackValidatorMaxLengthError.tr(
+        args: [feedbackMaxLength.toString()],
+      );
     }
 
     return isValid;
@@ -165,8 +180,8 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
                     onChanged: _isLoading
                         ? null
                         : (feedbackType) => setState(
-                              () => _customFeedback.feedbackType = feedbackType,
-                            ),
+                            () => _customFeedback.feedbackType = feedbackType,
+                          ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -176,15 +191,21 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
                   const SizedBox(height: 8),
                   TextField(
                     maxLines: 3,
+                    maxLength: feedbackMaxLength,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(feedbackMaxLength),
+                    ],
                     enabled: !_isLoading,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                       hintText: 'Enter your feedback here...',
+                      errorText: _feedbackError,
                     ),
-                    onChanged: (newFeedback) =>
-                        _customFeedback.feedbackText = newFeedback,
+                    onChanged: (newFeedback) => setState(
+                      () => _customFeedback.feedbackText = newFeedback,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -219,9 +240,9 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
                           onChanged: _isLoading
                               ? null
                               : (contactMethod) => setState(
-                                    () => _customFeedback.contactMethod =
-                                        contactMethod,
-                                  ),
+                                  () => _customFeedback.contactMethod =
+                                      contactMethod,
+                                ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -294,7 +315,13 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
   void _submitFeedback() {
     if (!isFormValid()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(LocaleKeys.contactRequiredError.tr())),
+        SnackBar(
+          content: Text(
+            _feedbackError ??
+                _contactError ??
+                LocaleKeys.contactRequiredError.tr(),
+          ),
+        ),
       );
       return;
     }
@@ -306,22 +333,23 @@ class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
     // Call the onSubmit callback provided by BetterFeedback
     widget
         .onSubmit(
-      _customFeedback.feedbackText ?? '',
-      extras: _customFeedback.toMap(),
-    )
+          _customFeedback.feedbackText ?? '',
+          extras: _customFeedback.toMap(),
+        )
         .then((_) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        })
+        .catchError((error) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
         });
-      }
-    }).catchError((error) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
   }
 
   bool _isValidEmail(String email) {
