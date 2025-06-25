@@ -11,9 +11,8 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
   final KomodoDefiSdk sdk;
   final String assetId;
   final AnalyticsBloc analyticsBloc;
-
   CoinAddressesBloc(this.sdk, this.assetId, this.analyticsBloc)
-      : super(const CoinAddressesState()) {
+    : super(const CoinAddressesState()) {
     on<SubmitCreateAddressEvent>(_onSubmitCreateAddress);
     on<LoadAddressesEvent>(_onLoadAddresses);
     on<UpdateHideZeroBalanceEvent>(_onUpdateHideZeroBalance);
@@ -32,8 +31,9 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
     while (attempts < maxAttempts) {
       attempts++;
       try {
-        final newKey =
-            await sdk.pubkeys.createNewPubkey(getSdkAsset(sdk, assetId));
+        final newKey = await sdk.pubkeys.createNewPubkey(
+          getSdkAsset(sdk, assetId),
+        );
 
         final derivation = (newKey as dynamic).derivationPath as String?;
         if (derivation != null) {
@@ -49,11 +49,7 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
 
         add(const LoadAddressesEvent());
 
-        emit(
-          state.copyWith(
-            createAddressStatus: () => FormStatus.success,
-          ),
-        );
+        emit(state.copyWith(createAddressStatus: () => FormStatus.success));
         return;
       } catch (e) {
         lastException = e is Exception ? e : Exception(e.toString());
