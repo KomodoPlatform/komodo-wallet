@@ -72,22 +72,22 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
     const selectedDurationInitial = Duration(hours: 1);
 
     context.read<PortfolioGrowthBloc>().add(
-          PortfolioGrowthLoadRequested(
-            coins: [widget.coin],
-            fiatCoinId: 'USDT',
-            selectedPeriod: selectedDurationInitial,
-            walletId: _walletId!,
-          ),
-        );
+      PortfolioGrowthLoadRequested(
+        coins: [widget.coin],
+        fiatCoinId: 'USDT',
+        selectedPeriod: selectedDurationInitial,
+        walletId: _walletId!,
+      ),
+    );
 
     context.read<ProfitLossBloc>().add(
-          ProfitLossPortfolioChartLoadRequested(
-            coins: [widget.coin],
-            selectedPeriod: const Duration(hours: 1),
-            fiatCoinId: 'USDT',
-            walletId: _walletId!,
-          ),
-        );
+      ProfitLossPortfolioChartLoadRequested(
+        coins: [widget.coin],
+        selectedPeriod: const Duration(hours: 1),
+        fiatCoinId: 'USDT',
+        walletId: _walletId!,
+      ),
+    );
   }
 
   @override
@@ -107,9 +107,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
           onBackButtonPressed: _onBackButtonPressed,
           actions: [_buildDisableButton()],
         ),
-        content: Expanded(
-          child: _buildContent(context),
-        ),
+        content: Expanded(child: _buildContent(context)),
       ),
     );
   }
@@ -194,25 +192,13 @@ class _DesktopContent extends StatelessWidget {
       ),
       child: CustomScrollView(
         slivers: <Widget>[
-          if (selectedTransaction == null)
-            SliverToBoxAdapter(
-              child: _DesktopCoinDetails(
-                coin: coin,
-                setPageType: setPageType,
-              ),
+          SliverToBoxAdapter(
+            child: _DesktopCoinDetails(
+              coin: coin,
+              setPageType: setPageType,
+              selectedTransaction: selectedTransaction,
+              setTransaction: setTransaction,
             ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 20),
-          ),
-          if (selectedTransaction == null)
-            CoinAddresses(coin: coin, setPageType: setPageType),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 20),
-          ),
-          TransactionTable(
-            coin: coin,
-            selectedTransaction: selectedTransaction,
-            setTransaction: setTransaction,
           ),
         ],
       ),
@@ -224,10 +210,14 @@ class _DesktopCoinDetails extends StatelessWidget {
   const _DesktopCoinDetails({
     required this.coin,
     required this.setPageType,
+    required this.selectedTransaction,
+    required this.setTransaction,
   });
 
   final Coin coin;
   final void Function(CoinPageType) setPageType;
+  final Transaction? selectedTransaction;
+  final Function(Transaction?) setTransaction;
 
   @override
   Widget build(BuildContext context) {
@@ -240,25 +230,16 @@ class _DesktopCoinDetails extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 12, 0),
-                child: CoinIcon(
-                  coin.abbr,
-                  size: 50,
-                ),
+                child: CoinIcon(coin.abbr, size: 50),
               ),
               _Balance(coin: coin),
               const SizedBox(width: 10),
               Padding(
                 padding: const EdgeInsets.only(top: 18.0),
-                child: _SpecificButton(
-                  coin: coin,
-                  selectWidget: setPageType,
-                ),
+                child: _SpecificButton(coin: coin, selectWidget: setPageType),
               ),
               const Spacer(),
-              CoinDetailsInfoFiat(
-                coin: coin,
-                isMobile: false,
-              ),
+              CoinDetailsInfoFiat(coin: coin, isMobile: false),
             ],
           ),
           Padding(
@@ -268,13 +249,18 @@ class _DesktopCoinDetails extends StatelessWidget {
               selectWidget: setPageType,
               onClickSwapButton:
                   context.watch<TradingStatusBloc>().state is TradingEnabled
-                      ? () => _goToSwap(context, coin)
-                      : null,
+                  ? () => _goToSwap(context, coin)
+                  : null,
               coin: coin,
             ),
           ),
           const Gap(16),
-          _CoinDetailsMarketMetricsTabBar(coin: coin),
+          _CoinDetailsMarketMetricsTabBar(
+            coin: coin,
+            setPageType: setPageType,
+            selectedTransaction: selectedTransaction,
+            setTransaction: setTransaction,
+          ),
         ],
       ),
     );
@@ -298,29 +284,14 @@ class _MobileContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: <Widget>[
-        if (selectedTransaction == null)
-          SliverToBoxAdapter(
-            child: _CoinDetailsInfoHeader(
-              coin: coin,
-              setPageType: setPageType,
-              context: context,
-            ),
-          ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 20),
-        ),
-        if (selectedTransaction == null)
-          CoinAddresses(
+        SliverToBoxAdapter(
+          child: _CoinDetailsInfoHeader(
             coin: coin,
             setPageType: setPageType,
+            selectedTransaction: selectedTransaction,
+            setTransaction: setTransaction,
+            context: context,
           ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 20),
-        ),
-        TransactionTable(
-          coin: coin,
-          selectedTransaction: selectedTransaction,
-          setTransaction: setTransaction,
         ),
       ],
     );
@@ -331,11 +302,15 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
   const _CoinDetailsInfoHeader({
     required this.coin,
     required this.setPageType,
+    required this.selectedTransaction,
+    required this.setTransaction,
     required this.context,
   });
 
   final Coin coin;
   final void Function(CoinPageType p1) setPageType;
+  final Transaction? selectedTransaction;
+  final Function(Transaction?) setTransaction;
   final BuildContext context;
 
   @override
@@ -348,20 +323,14 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          CoinIcon(
-            coin.abbr,
-            size: 35,
-          ),
+          CoinIcon(coin.abbr, size: 35),
           const SizedBox(height: 8),
           _Balance(coin: coin),
           const SizedBox(height: 12),
           _SpecificButton(coin: coin, selectWidget: setPageType),
           Padding(
             padding: const EdgeInsets.only(top: 15.0),
-            child: CoinDetailsInfoFiat(
-              coin: coin,
-              isMobile: true,
-            ),
+            child: CoinDetailsInfoFiat(coin: coin, isMobile: true),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 12.0, bottom: 14.0),
@@ -370,12 +339,17 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
               selectWidget: setPageType,
               onClickSwapButton:
                   context.watch<TradingStatusBloc>().state is TradingEnabled
-                      ? () => _goToSwap(context, coin)
-                      : null,
+                  ? () => _goToSwap(context, coin)
+                  : null,
               coin: coin,
             ),
           ),
-          _CoinDetailsMarketMetricsTabBar(coin: coin),
+          _CoinDetailsMarketMetricsTabBar(
+            coin: coin,
+            setPageType: setPageType,
+            selectedTransaction: selectedTransaction,
+            setTransaction: setTransaction,
+          ),
         ],
       ),
     );
@@ -383,9 +357,17 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
 }
 
 class _CoinDetailsMarketMetricsTabBar extends StatefulWidget {
-  const _CoinDetailsMarketMetricsTabBar({required this.coin});
+  const _CoinDetailsMarketMetricsTabBar({
+    required this.coin,
+    required this.setPageType,
+    required this.selectedTransaction,
+    required this.setTransaction,
+  });
 
   final Coin coin;
+  final void Function(CoinPageType) setPageType;
+  final Transaction? selectedTransaction;
+  final Function(Transaction?) setTransaction;
 
   @override
   _CoinDetailsMarketMetricsTabBarState createState() =>
@@ -413,28 +395,34 @@ class _CoinDetailsMarketMetricsTabBarState
       }
 
       if (!_tabController!.indexIsChanging) {
-        if (_tabController!.index == 0) {
-          final growthState = context.read<PortfolioGrowthBloc>().state;
+        final growthState = context.read<PortfolioGrowthBloc>().state;
+        final profitLossState = context.read<ProfitLossBloc>().state;
+        final isGrowthSupported =
+            growthState is! PortfolioGrowthChartUnsupported;
+        final isProfitLossSupported =
+            profitLossState is! PortfolioProfitLossChartUnsupported;
+
+        if (isGrowthSupported && _tabController!.index == 0) {
           if (growthState is PortfolioGrowthChartLoadSuccess) {
             final period = _formatDuration(growthState.selectedPeriod);
             context.read<AnalyticsBloc>().logEvent(
-                  PortfolioGrowthViewedEventData(
-                    period: period,
-                    growthPct: growthState.percentageIncrease,
-                  ),
-                );
+              PortfolioGrowthViewedEventData(
+                period: period,
+                growthPct: growthState.percentageIncrease,
+              ),
+            );
           }
-        } else if (_tabController!.index == 1) {
-          final profitLossState = context.read<ProfitLossBloc>().state;
+        } else if (isProfitLossSupported &&
+            _tabController!.index == (isGrowthSupported ? 1 : 0)) {
           if (profitLossState is PortfolioProfitLossChartLoadSuccess) {
             final timeframe = _formatDuration(profitLossState.selectedPeriod);
             context.read<AnalyticsBloc>().logEvent(
-                  PortfolioPnlViewedEventData(
-                    timeframe: timeframe,
-                    realizedPnl: profitLossState.totalValue,
-                    unrealizedPnl: 0,
-                  ),
-                );
+              PortfolioPnlViewedEventData(
+                timeframe: timeframe,
+                realizedPnl: profitLossState.totalValue,
+                unrealizedPnl: 0,
+              ),
+            );
           }
         }
       }
@@ -460,19 +448,12 @@ class _CoinDetailsMarketMetricsTabBarState
         portfolioGrowthState is! PortfolioGrowthChartUnsupported;
     final isProfitLossSupported =
         profitLossState is! PortfolioProfitLossChartUnsupported;
-    final areChartsSupported =
-        isPortfolioGrowthSupported || isProfitLossSupported;
     final numChartsSupported =
         (isPortfolioGrowthSupported ? 1 : 0) + (isProfitLossSupported ? 1 : 0);
+    final totalTabs = numChartsSupported + 1;
 
-    if (areChartsSupported) {
-      if (_tabController == null ||
-          _tabController!.length != numChartsSupported) {
-        _initializeTabController(numChartsSupported);
-      }
-    } else {
-      _tabController?.dispose();
-      _tabController = null;
+    if (_tabController == null || _tabController!.length != totalTabs) {
+      _initializeTabController(totalTabs);
     }
   }
 
@@ -491,17 +472,12 @@ class _CoinDetailsMarketMetricsTabBarState
         portfolioGrowthState is! PortfolioGrowthChartUnsupported;
     final isProfitLossSupported =
         profitLossState is! PortfolioProfitLossChartUnsupported;
-    final areChartsSupported =
-        isPortfolioGrowthSupported || isProfitLossSupported;
     final numChartsSupported =
         (isPortfolioGrowthSupported ? 1 : 0) + (isProfitLossSupported ? 1 : 0);
-
-    if (!areChartsSupported) {
-      return const SizedBox.shrink();
-    }
+    final totalTabs = numChartsSupported + 1;
 
     if (_tabController == null) {
-      _initializeTabController(numChartsSupported);
+      _initializeTabController(totalTabs);
     }
 
     return Column(
@@ -513,11 +489,12 @@ class _CoinDetailsMarketMetricsTabBarState
               if (isPortfolioGrowthSupported) Tab(text: LocaleKeys.growth.tr()),
               if (isProfitLossSupported)
                 Tab(text: LocaleKeys.profitAndLoss.tr()),
+              Tab(text: LocaleKeys.addressesAndTransactions.tr()),
             ],
           ),
         ),
         SizedBox(
-          height: 340,
+          width: double.infinity,
           child: TabBarView(
             controller: _tabController,
             children: [
@@ -533,6 +510,20 @@ class _CoinDetailsMarketMetricsTabBarState
                   height: 340,
                   child: PortfolioProfitLossChart(initialCoins: [widget.coin]),
                 ),
+              CustomScrollView(
+                slivers: [
+                  CoinAddresses(
+                    coin: widget.coin,
+                    setPageType: widget.setPageType,
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  TransactionTable(
+                    coin: widget.coin,
+                    selectedTransaction: widget.selectedTransaction,
+                    setTransaction: widget.setTransaction,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -552,8 +543,9 @@ class _Balance extends StatelessWidget {
     final value = balance == null ? null : doubleToString(balance);
 
     return Column(
-      crossAxisAlignment:
-          isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: isMobile
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (isMobile)
@@ -570,8 +562,9 @@ class _Balance extends StatelessWidget {
         Flexible(
           child: Row(
             mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment:
-                isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
+            mainAxisAlignment: isMobile
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
             children: [
               Flexible(
                 child: AutoScrollText(
@@ -618,9 +611,9 @@ class _FiatBalance extends StatelessWidget {
           Text(
             LocaleKeys.fiatBalance.tr(),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 6.0),

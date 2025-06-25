@@ -678,6 +678,7 @@
     "customNetworkFee": "Custom Network Fee",
     "previewWithdrawal": "Preview Withdrawal",
     "createNewAddress": "Create New Address",
+    "addressesAndTransactions": "Addresses & Transactions",
     "searchAddresses": "Search addresses",
     "chart": "Chart",
     "tradingDisabledTooltip": "Trading features are currently disabled",
