@@ -32,11 +32,15 @@ class Wallet {
     List<String>? activatedCoins,
     bool hasBackup = false,
   }) {
+    final defaultCoins = walletType == WalletType.trezor
+        ? enabledByDefaultTrezorCoins
+        : enabledByDefaultCoins;
+
     return Wallet(
       id: const Uuid().v1(),
       name: name,
       config: WalletConfig(
-        activatedCoins: activatedCoins ?? enabledByDefaultCoins,
+        activatedCoins: activatedCoins ?? defaultCoins,
         hasBackup: hasBackup,
         type: walletType,
         seedPhrase: '',
@@ -166,7 +170,8 @@ extension KdfUserWalletExtension on KdfUser {
       config: WalletConfig(
         seedPhrase: '',
         pubKey: walletId.pubkeyHash,
-        activatedCoins: metadata.valueOrNull<List<String>>('activated_coins') ?? [],
+        activatedCoins:
+            metadata.valueOrNull<List<String>>('activated_coins') ?? [],
         hasBackup: metadata['has_backup'] as bool? ?? false,
         type: walletType,
       ),

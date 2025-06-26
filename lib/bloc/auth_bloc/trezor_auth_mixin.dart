@@ -39,7 +39,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
             );
 
       await for (final authState in authStream) {
-        final mappedState = _handleAuthenticationState(authState);
+        final mappedState = await _handleAuthenticationState(authState);
         emit(mappedState);
         if (authState.status == AuthenticationStatus.completed ||
             authState.status == AuthenticationStatus.error ||
@@ -59,7 +59,8 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     }
   }
 
-  AuthBlocState _handleAuthenticationState(AuthenticationState authState) {
+  Future<AuthBlocState> _handleAuthenticationState(
+      AuthenticationState authState) async {
     switch (authState.status) {
       case AuthenticationStatus.initializing:
         return AuthBlocState.trezorInitializing(
@@ -92,6 +93,9 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         return AuthBlocState.loading();
       case AuthenticationStatus.completed:
         if (authState.user != null) {
+          await _sdk.setWalletType(WalletType.trezor);
+          await _sdk.confirmSeedBackup(hasBackup: true);
+          await _sdk.addActivatedCoins(enabledByDefaultTrezorCoins);
           return AuthBlocState.loggedIn(authState.user!);
         } else {
           return AuthBlocState.trezorReady();
