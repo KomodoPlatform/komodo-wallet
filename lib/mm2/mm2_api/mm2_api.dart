@@ -7,7 +7,6 @@ import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api_nft.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/active_swaps/active_swaps_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
@@ -61,7 +60,6 @@ class Mm2Api {
     required KomodoDefiSdk sdk,
   })  : _sdk = sdk,
         _mm2 = mm2 {
-    trezor = Mm2ApiTrezor(_mm2.call);
     nft = Mm2ApiNft(_mm2.call, sdk);
   }
 
@@ -72,7 +70,6 @@ class Mm2Api {
   // changes, we will tie into the SDK here.
   final KomodoDefiSdk _sdk;
 
-  late Mm2ApiTrezor trezor;
   late Mm2ApiNft nft;
   VersionResponse? _versionResponse;
 

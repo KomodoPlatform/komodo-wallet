@@ -55,29 +55,18 @@ class AuthWalletDownloadRequested extends AuthBlocEvent {
 }
 
 class AuthTrezorInitAndAuthStarted extends AuthBlocEvent {
-  const AuthTrezorInitAndAuthStarted({
-    required this.isRegister,
-    required this.derivationMethod,
-  });
-
-  final bool isRegister;
-  final DerivationMethod derivationMethod;
+  const AuthTrezorInitAndAuthStarted();
 }
 
 class AuthTrezorPinProvided extends AuthBlocEvent {
-  const AuthTrezorPinProvided({required this.taskId, required this.pin});
+  const AuthTrezorPinProvided(this.pin);
 
-  final int taskId;
   final String pin;
 }
 
 class AuthTrezorPassphraseProvided extends AuthBlocEvent {
-  const AuthTrezorPassphraseProvided({
-    required this.taskId,
-    required this.passphrase,
-  });
+  const AuthTrezorPassphraseProvided(this.passphrase);
 
-  final int taskId;
   final String passphrase;
 }
 

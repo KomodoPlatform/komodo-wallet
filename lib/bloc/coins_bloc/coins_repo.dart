@@ -13,7 +13,6 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart' show excludedAssetList;
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
@@ -32,10 +31,8 @@ class CoinsRepo {
   CoinsRepo({
     required KomodoDefiSdk kdfSdk,
     required MM2 mm2,
-    required TrezorCoinsBloc trezorBloc,
   })  : _kdfSdk = kdfSdk,
-        _mm2 = mm2,
-        trezor = trezorBloc {
+        _mm2 = mm2 {
     enabledAssetsChanges = StreamController<Coin>.broadcast(
       onListen: () => _enabledAssetListenerCount += 1,
       onCancel: () => _enabledAssetListenerCount -= 1,
@@ -44,9 +41,6 @@ class CoinsRepo {
 
   final KomodoDefiSdk _kdfSdk;
   final MM2 _mm2;
-  // TODO: refactor to use repository - pin/password input events need to be
-  // handled, which are currently done through the trezor "bloc"
-  final TrezorCoinsBloc trezor;
 
   final _log = Logger('CoinsRepo');
 
@@ -563,19 +557,7 @@ class CoinsRepo {
     return prices;
   }
 
-  Future<Map<String, Coin>> updateTrezorBalances(
-    Map<String, Coin> walletCoins,
-  ) async {
-    final walletCoinsCopy = Map<String, Coin>.from(walletCoins);
-    final coins =
-        walletCoinsCopy.entries.where((entry) => entry.value.isActive).toList();
-    for (final MapEntry<String, Coin> entry in coins) {
-      walletCoinsCopy[entry.key]!.accounts =
-          await trezor.trezorRepo.getAccounts(entry.value);
-    }
-
-    return walletCoinsCopy;
-  }
+  // updateTrezorBalances removed (TrezorRepo deleted)
 
   /// Updates balances for active coins by querying the SDK
   /// Yields coins that have balance changes

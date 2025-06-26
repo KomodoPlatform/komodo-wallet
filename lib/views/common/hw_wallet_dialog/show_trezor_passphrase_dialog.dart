@@ -26,12 +26,7 @@ Future<void> showTrezorPassphraseDialog(TrezorTask task) async {
     popupContent: TrezorDialogSelectWallet(
       onComplete: (String passphrase) async {
         final authBloc = context.read<AuthBloc>();
-        authBloc.add(
-          AuthTrezorPassphraseProvided(
-            taskId: task.taskId,
-            passphrase: passphrase,
-          ),
-        );
+        authBloc.add(AuthTrezorPassphraseProvided(passphrase));
         close();
       },
     ),

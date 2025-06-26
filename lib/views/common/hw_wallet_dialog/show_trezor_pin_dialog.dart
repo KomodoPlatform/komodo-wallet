@@ -25,9 +25,7 @@ Future<void> showTrezorPinDialog(TrezorTask task) async {
     popupContent: TrezorDialogPinPad(
       onComplete: (String pin) async {
         final authBloc = context.read<AuthBloc>();
-        authBloc.add(
-          AuthTrezorPinProvided(taskId: task.taskId, pin: pin),
-        );
+        authBloc.add(AuthTrezorPinProvided(pin));
         close();
       },
       onClose: close,

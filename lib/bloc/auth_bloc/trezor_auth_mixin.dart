@@ -18,12 +18,16 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
   ) async {
     try {
       final authOptions = AuthOptions(
-        derivationMethod: event.derivationMethod,
+        derivationMethod: DerivationMethod.hdWallet,
         privKeyPolicy: const PrivateKeyPolicy.trezor(),
       );
 
-      final Stream<AuthenticationState> authStream = event.isRegister
-          ? _sdk.auth.registerStream(
+      final existingWallets = await _sdk.wallets;
+      final trezorWalletExists =
+          existingWallets.any((w) => w.name == 'My Trezor');
+
+      final Stream<AuthenticationState> authStream = trezorWalletExists
+          ? _sdk.auth.signInStream(
               walletName: 'My Trezor',
               password: '',
               options: authOptions,
@@ -110,7 +114,14 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     Emitter<AuthBlocState> emit,
   ) async {
     try {
-      await _sdk.auth.setHardwareDevicePin(event.taskId, event.pin);
+      final taskId = state.authenticationState?.taskId;
+      if (taskId == null) {
+        emit(AuthBlocState.error(AuthException('No task ID found',
+            type: AuthExceptionType.generalAuthError)));
+        return;
+      }
+
+      await _sdk.auth.setHardwareDevicePin(taskId, event.pin);
     } catch (_) {
       emit(AuthBlocState.error(AuthException('Failed to provide PIN',
           type: AuthExceptionType.generalAuthError)));
@@ -122,8 +133,15 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     Emitter<AuthBlocState> emit,
   ) async {
     try {
+      final taskId = state.authenticationState?.taskId;
+      if (taskId == null) {
+        emit(AuthBlocState.error(AuthException('No task ID found',
+            type: AuthExceptionType.generalAuthError)));
+        return;
+      }
+
       await _sdk.auth.setHardwareDevicePassphrase(
-        event.taskId,
+        taskId,
         event.passphrase,
       );
     } catch (_) {
