@@ -285,7 +285,7 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
     String? password,
     AuthOptions authOptions = const AuthOptions(
       derivationMethod: DerivationMethod.hdWallet,
-      privKeyPolicy: PrivateKeyPolicy.trezor,
+      privKeyPolicy: PrivateKeyPolicy.trezor(),
     ),
   }) async {
     try {
