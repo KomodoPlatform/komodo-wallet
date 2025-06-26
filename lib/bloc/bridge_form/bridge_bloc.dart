@@ -404,8 +404,8 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
         availableBalanceState: () => AvailableBalanceState.unavailable,
       ));
     } else {
-      Rational? maxSellAmount =
-          await _dexRepository.getMaxTakerVolume(state.sellCoin!.abbr);
+      final balanceInfo = await _coinsRepository.balance(state.sellCoin!.id);
+      Rational? maxSellAmount = balanceInfo?.spendable.toRational();
       if (maxSellAmount != null) {
         emit(state.copyWith(
           maxSellAmount: () => maxSellAmount,
@@ -599,8 +599,8 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     int attempts = 5;
     Rational? maxSellAmount;
     while (attempts > 0) {
-      maxSellAmount =
-          await _dexRepository.getMaxTakerVolume(state.sellCoin!.abbr);
+      final balanceInfo = await _coinsRepository.balance(state.sellCoin!.id);
+      maxSellAmount = balanceInfo?.spendable.toRational();
       if (maxSellAmount != null) {
         return maxSellAmount;
       }

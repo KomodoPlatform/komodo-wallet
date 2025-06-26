@@ -401,8 +401,8 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       emitter(state.copyWith(
           availableBalanceState: () => AvailableBalanceState.unavailable));
     } else {
-      Rational? maxSellAmount =
-          await _dexRepo.getMaxTakerVolume(state.sellCoin!.abbr);
+      final balanceInfo = await _coinsRepo.balance(state.sellCoin!.id);
+      Rational? maxSellAmount = balanceInfo?.spendable.toRational();
       if (maxSellAmount != null) {
         emitter(state.copyWith(
           maxSellAmount: () => maxSellAmount,
@@ -424,7 +424,8 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     int attempts = 5;
     Rational? maxSellAmount;
     while (attempts > 0) {
-      maxSellAmount = await _dexRepo.getMaxTakerVolume(state.sellCoin!.abbr);
+      final balanceInfo = await _coinsRepo.balance(state.sellCoin!.id);
+      maxSellAmount = balanceInfo?.spendable.toRational();
       if (maxSellAmount != null) {
         return maxSellAmount;
       }
