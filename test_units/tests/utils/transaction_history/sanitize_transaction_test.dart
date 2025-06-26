@@ -38,6 +38,28 @@ void testSanitizeTransaction() {
       );
     }
 
+    group('Self-transfer edge case', () {
+      test(
+          'leaves address untouched when to and from are identical (self-transfer)',
+          () {
+        final selfAddress = 'self1';
+        final tx = createTransaction(
+          from: [selfAddress],
+          to: [selfAddress],
+        );
+        final walletAddresses = {selfAddress};
+
+        final result = tx.sanitize(walletAddresses);
+
+        // The address should remain in both to and from
+        expect(result.to, equals([selfAddress]));
+        expect(result.from, equals([selfAddress]));
+        // There should never be 0 to or from addresses
+        expect(result.to, isNotEmpty);
+        expect(result.from, isNotEmpty);
+      });
+    });
+
     group('Basic functionality', () {
       test('returns original transaction when from list is empty', () {
         final tx = createTransaction(from: [], to: ['addr1', 'addr2']);
@@ -83,7 +105,7 @@ void testSanitizeTransaction() {
 
         final result = tx.sanitize(walletAddresses);
 
-        expect(result.to, isEmpty);
+        expect(result.to, ['sender1']);
       });
 
       test('handles case where to list is empty', () {

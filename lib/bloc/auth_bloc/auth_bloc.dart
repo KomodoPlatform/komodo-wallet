@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
+    show PrivateKeyPolicy;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
@@ -14,10 +16,11 @@ import 'package:web_dex/model/wallet.dart';
 
 part 'auth_bloc_event.dart';
 part 'auth_bloc_state.dart';
+part 'trezor_auth_mixin.dart';
 
 /// AuthBloc is responsible for managing the authentication state of the
 /// application. It handles events such as login and logout changes.
-class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
+class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   /// Handles [AuthBlocEvent]s and emits [AuthBlocState]s.
   /// [_kdfSdk] is an instance of [KomodoDefiSdk] used for authentication.
   AuthBloc(this._kdfSdk, this._walletsRepository, this._settingsRepository)
@@ -30,6 +33,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     on<AuthRestoreRequested>(_onRestore);
     on<AuthSeedBackupConfirmed>(_onSeedBackupConfirmed);
     on<AuthWalletDownloadRequested>(_onWalletDownloadRequested);
+    setupTrezorEventHandlers();
   }
 
   final KomodoDefiSdk _kdfSdk;
@@ -37,6 +41,9 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   final SettingsRepository _settingsRepository;
   StreamSubscription<KdfUser?>? _authChangesSubscription;
   final _log = Logger('AuthBloc');
+
+  @override
+  KomodoDefiSdk get _sdk => _kdfSdk;
 
   @override
   Future<void> close() async {
@@ -80,7 +87,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
 
-      await _kdfSdk.auth.signIn(
+      final authStream = _kdfSdk.auth.signInStream(
         walletName: event.wallet.name,
         password: event.password,
         options: AuthOptions(
@@ -90,14 +97,28 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
           allowWeakPassword: weakPasswordsAllowed,
         ),
       );
-      final KdfUser? currentUser = await _kdfSdk.auth.currentUser;
-      if (currentUser == null) {
-        return emit(AuthBlocState.error(AuthException.notSignedIn()));
-      }
 
-      _log.info('logged in from a wallet');
-      emit(AuthBlocState.loggedIn(currentUser));
-      _listenToAuthStateChanges();
+      await for (final authState in authStream) {
+        if (authState.status == AuthenticationStatus.completed) {
+          final user = authState.user;
+          if (user != null) {
+            _log.info('logged in from a wallet');
+            emit(AuthBlocState.loggedIn(user));
+            _listenToAuthStateChanges();
+          } else {
+            emit(AuthBlocState.error(AuthException.notSignedIn()));
+          }
+          break;
+        } else if (authState.status == AuthenticationStatus.error) {
+          emit(AuthBlocState.error(
+            AuthException(authState.message ?? 'Login failed',
+                type: AuthExceptionType.generalAuthError),
+          ));
+          break;
+        } else {
+          emit(AuthBlocState.loading());
+        }
+      }
     } catch (e, s) {
       if (e is AuthException) {
         // Preserve the original error type for specific errors like incorrect password
@@ -150,7 +171,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
 
-      await _kdfSdk.auth.register(
+      final authStream = _kdfSdk.auth.registerStream(
         password: event.password,
         walletName: event.wallet.name,
         options: AuthOptions(
@@ -161,17 +182,33 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         ),
       );
 
-      _log.info('registered from a wallet');
-      await _kdfSdk.setWalletType(event.wallet.config.type);
-      await _kdfSdk.confirmSeedBackup(hasBackup: false);
-      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
-
-      final currentUser = await _kdfSdk.auth.currentUser;
-      if (currentUser == null) {
-        throw Exception('Registration failed: user is not signed in');
+      await for (final authState in authStream) {
+        if (authState.status == AuthenticationStatus.completed) {
+          final user = authState.user;
+          if (user != null) {
+            _log.info('registered from a wallet');
+            await _kdfSdk.setWalletType(event.wallet.config.type);
+            await _kdfSdk.confirmSeedBackup(hasBackup: false);
+            await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+            emit(AuthBlocState.loggedIn(user));
+            _listenToAuthStateChanges();
+          } else {
+            emit(AuthBlocState.error(
+              AuthException('Registration failed',
+                  type: AuthExceptionType.generalAuthError),
+            ));
+          }
+          break;
+        } else if (authState.status == AuthenticationStatus.error) {
+          emit(AuthBlocState.error(
+            AuthException(authState.message ?? 'Registration failed',
+                type: AuthExceptionType.generalAuthError),
+          ));
+          break;
+        } else {
+          emit(AuthBlocState.loading());
+        }
       }
-      emit(AuthBlocState.loggedIn(currentUser));
-      _listenToAuthStateChanges();
     } catch (e, s) {
       final errorMsg = 'Failed to register wallet ${event.wallet.name}';
       _log.shout(errorMsg, e, s);
@@ -198,7 +235,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
 
-      await _kdfSdk.auth.register(
+      final authStream = _kdfSdk.auth.registerStream(
         password: event.password,
         walletName: event.wallet.name,
         mnemonic: Mnemonic.plaintext(event.seed),
@@ -210,16 +247,40 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
         ),
       );
 
-      _log.info('restored from a wallet');
-      await _kdfSdk.setWalletType(event.wallet.config.type);
-      await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
-      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+      await for (final authState in authStream) {
+        if (authState.status == AuthenticationStatus.completed) {
+          final user = authState.user;
+          if (user != null) {
+            _log.info('restored from a wallet');
+            await _kdfSdk.setWalletType(event.wallet.config.type);
+            await _kdfSdk.confirmSeedBackup(
+                hasBackup: event.wallet.config.hasBackup);
+            await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+            emit(AuthBlocState.loggedIn(user));
 
-      final currentUser = await _kdfSdk.auth.currentUser;
-      if (currentUser == null) {
-        throw Exception('Registration failed: user is not signed in');
+            if (event.wallet.isLegacyWallet) {
+              await _kdfSdk
+                  .addActivatedCoins(event.wallet.config.activatedCoins);
+              await _walletsRepository.deleteWallet(event.wallet);
+            }
+            _listenToAuthStateChanges();
+          } else {
+            emit(AuthBlocState.error(
+              AuthException('Restoration failed',
+                  type: AuthExceptionType.generalAuthError),
+            ));
+          }
+          break;
+        } else if (authState.status == AuthenticationStatus.error) {
+          emit(AuthBlocState.error(
+            AuthException(authState.message ?? 'Restoration failed',
+                type: AuthExceptionType.generalAuthError),
+          ));
+          break;
+        } else {
+          emit(AuthBlocState.loading());
+        }
       }
-      emit(AuthBlocState.loggedIn(currentUser));
 
       // Delete legacy wallet on successful restoration & login to avoid
       // duplicates in the wallet list

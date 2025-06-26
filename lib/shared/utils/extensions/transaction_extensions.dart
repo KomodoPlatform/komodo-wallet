@@ -13,8 +13,9 @@ extension TransactionExtensions on Transaction {
   Transaction sanitize(Set<String> walletAddresses) {
     if (from.isEmpty) return this;
     final fromAddr = from.first;
-    final List<String> sanitizedTo = List<String>.from(to)
-      ..removeWhere((addr) => addr == fromAddr);
+    final List<String> sanitizedTo = to.length > 1
+        ? (List<String>.from(to)..removeWhere((addr) => addr == fromAddr))
+        : List<String>.from(to);
 
     if (sanitizedTo.length > 1 && walletAddresses.isNotEmpty) {
       sanitizedTo.sort((a, b) {

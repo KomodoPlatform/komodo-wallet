@@ -283,8 +283,15 @@ class _TransactionAddress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final myAddress =
-        transaction.isIncoming ? transaction.to.first : transaction.from.first;
+    String myAddress;
+    List<String> addressList =
+        transaction.isIncoming ? transaction.to : transaction.from;
+
+    if (addressList.isNotEmpty) {
+      myAddress = addressList.first;
+    } else {
+      myAddress = LocaleKeys.unknown.tr();
+    }
 
     return Row(
       children: [
