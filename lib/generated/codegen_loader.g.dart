@@ -293,6 +293,7 @@ abstract class  LocaleKeys {
   static const feedbackFormThanksDescription = 'feedbackFormThanksDescription';
   static const email = 'email';
   static const emailValidatorError = 'emailValidatorError';
+  static const contactRequiredError = 'contactRequiredError';
   static const feedbackValidatorEmptyError = 'feedbackValidatorEmptyError';
   static const feedbackValidatorMaxLengthError = 'feedbackValidatorMaxLengthError';
   static const yourFeedback = 'yourFeedback';
