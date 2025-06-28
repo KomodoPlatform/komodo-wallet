@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math' as math;
+import 'package:flutter/gestures.dart';
 
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -30,6 +32,7 @@ import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events.dart';
+import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_growth_chart.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_profit_loss_chart.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
@@ -54,6 +57,7 @@ class _WalletMainState extends State<WalletMain>
   PopupDispatcher? _popupDispatcher;
   StreamSubscription<Wallet?>? _walletSubscription;
   late TabController _tabController;
+  int _activeTabIndex = 0;
   final ScrollController _scrollController = ScrollController();
   late final Stopwatch _walletListStopwatch;
   bool _walletHalfLogged = false;
@@ -70,7 +74,12 @@ class _WalletMainState extends State<WalletMain>
       _loadWalletData(authBloc.state.currentUser!.wallet.id).ignore();
     }
 
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this)
+      ..addListener(() {
+        if (_activeTabIndex != _tabController.index) {
+          setState(() => _activeTabIndex = _tabController.index);
+        }
+      });
   }
 
   @override
@@ -106,147 +115,71 @@ class _WalletMainState extends State<WalletMain>
 
             return PageLayout(
               noBackground: true,
-              header:
-                  isMobile ? PageHeader(title: LocaleKeys.wallet.tr()) : null,
+              header: isMobile
+                  ? PageHeader(title: LocaleKeys.wallet.tr())
+                  : null,
               content: Expanded(
-                child: Column(
-                  children: [
-                    if (authStateMode == AuthorizeMode.logIn) ...[
-                      WalletOverview(
-                        key: const Key('wallet-overview'),
-                        onPortfolioGrowthPressed: () =>
-                            _tabController.animateTo(1),
-                        onPortfolioProfitLossPressed: () =>
-                            _tabController.animateTo(2),
-                        onAssetsPressed: () => _tabController.animateTo(0),
-                      ),
-                      const Gap(8),
-                      // Tab structure with charts and coins list using NestedScrollView
-                      Expanded(
-                        child: NestedScrollView(
-                          headerSliverBuilder:
-                              (BuildContext context, bool innerBoxIsScrolled) {
-                            return <Widget>[
-                              SliverToBoxAdapter(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Card(
-                                    clipBehavior: Clip.antiAlias,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: TabBar(
-                                      controller: _tabController,
-                                      tabs: [
-                                        Tab(text: LocaleKeys.assets.tr()),
-                                        Tab(
-                                            text: LocaleKeys.portfolioGrowth
-                                                .tr()),
-                                        Tab(
-                                            text:
-                                                LocaleKeys.profitAndLoss.tr()),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ];
-                          },
-                          body: TabBarView(
-                            // // Clamp to horizontal scrolling
-                            // physics: const NeverScrollableScrollPhysics(),
-                            controller: _tabController,
-                            children: [
-                              // Coins List Tab
-                              CustomScrollView(
-                                // physics: const ClampingScrollPhysics(),
-                                key: const Key('wallet-page-scroll-view'),
-                                controller: _scrollController,
-                                slivers: [
-                                  SliverPersistentHeader(
-                                    pinned: true,
-                                    delegate: _SliverSearchBarDelegate(
-                                      withBalance: _showCoinWithBalance,
-                                      onSearchChange: _onSearchChange,
-                                      onWithBalanceChange:
-                                          _onShowCoinsWithBalanceClick,
-                                      mode: authStateMode,
-                                    ),
-                                  ),
-                                  SliverToBoxAdapter(
-                                    child: SizedBox(height: 8),
-                                  ),
-                                  CoinListView(
-                                    mode: authStateMode,
-                                    searchPhrase: _searchKey,
-                                    withBalance: _showCoinWithBalance,
-                                    onActiveCoinItemTap: _onActiveCoinItemTap,
-                                    onAssetItemTap: _onAssetItemTap,
-                                  ),
-                                ],
-                              ),
-                              // Portfolio Growth Chart Tab
-                              SingleChildScrollView(
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 340,
-                                  child: PortfolioGrowthChart(
-                                    initialCoins: walletCoinsFiltered,
-                                  ),
-                                ),
-                              ),
-                              // Profit/Loss Chart Tab
-                              SingleChildScrollView(
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 340,
-                                  child: PortfolioProfitLossChart(
-                                    initialCoins: walletCoinsFiltered,
-                                  ),
-                                ),
-                              ),
-                            ],
+                child: Listener(
+                  onPointerSignal: _onPointerSignal,
+                  child: CustomScrollView(
+                    key: const Key('wallet-page-scroll-view'),
+                    controller: _scrollController,
+                    slivers: [
+                      if (authStateMode == AuthorizeMode.logIn) ...[
+                        SliverToBoxAdapter(
+                          child: WalletOverview(
+                            key: const Key('wallet-overview'),
+                            onPortfolioGrowthPressed: () =>
+                                _tabController.animateTo(1),
+                            onPortfolioProfitLossPressed: () =>
+                                _tabController.animateTo(2),
+                            onAssetsPressed: () => _tabController.animateTo(0),
                           ),
                         ),
-                      ),
-                    ] else ...[
-                      // For non-logged in users, show the price chart and coins list
-                      const SizedBox(
-                        width: double.infinity,
-                        height: 340,
-                        child: PriceChartPage(key: Key('price-chart')),
-                      ),
-                      const Gap(8),
-                      Expanded(
-                        child: CustomScrollView(
-                          key: const Key('wallet-page-scroll-view'),
-                          controller: _scrollController,
-                          slivers: <Widget>[
-                            SliverPersistentHeader(
-                              pinned: true,
-                              delegate: _SliverSearchBarDelegate(
-                                withBalance: _showCoinWithBalance,
-                                onSearchChange: _onSearchChange,
-                                onWithBalanceChange:
-                                    _onShowCoinsWithBalanceClick,
-                                mode: authStateMode,
-                              ),
+                        const SliverToBoxAdapter(child: Gap(8)),
+                        SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _SliverTabBarDelegate(
+                            TabBar(
+                              controller: _tabController,
+                              tabs: [
+                                Tab(text: LocaleKeys.assets.tr()),
+                                Tab(text: LocaleKeys.portfolioGrowth.tr()),
+                                Tab(text: LocaleKeys.profitAndLoss.tr()),
+                              ],
                             ),
-                            SliverToBoxAdapter(
-                              child: SizedBox(height: 8),
-                            ),
-                            CoinListView(
-                              mode: authStateMode,
-                              searchPhrase: _searchKey,
-                              withBalance: _showCoinWithBalance,
-                              onActiveCoinItemTap: _onActiveCoinItemTap,
-                              onAssetItemTap: _onAssetItemTap,
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        ..._buildTabSlivers(authStateMode, walletCoinsFiltered),
+                      ] else ...[
+                        const SliverToBoxAdapter(
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 340,
+                            child: PriceChartPage(key: Key('price-chart')),
+                          ),
+                        ),
+                        const SliverToBoxAdapter(child: Gap(8)),
+                        SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _SliverSearchBarDelegate(
+                            withBalance: _showCoinWithBalance,
+                            onSearchChange: _onSearchChange,
+                            onWithBalanceChange: _onShowCoinsWithBalanceClick,
+                            mode: authStateMode,
+                          ),
+                        ),
+                        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+                        CoinListView(
+                          mode: authStateMode,
+                          searchPhrase: _searchKey,
+                          withBalance: _showCoinWithBalance,
+                          onActiveCoinItemTap: _onActiveCoinItemTap,
+                          onAssetItemTap: _onAssetItemTap,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             );
@@ -337,6 +270,53 @@ class _WalletMainState extends State<WalletMain>
     _popupDispatcher!.show();
   }
 
+  List<Widget> _buildTabSlivers(AuthorizeMode mode, List<Coin> walletCoins) {
+    switch (_activeTabIndex) {
+      case 0:
+        return [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverSearchBarDelegate(
+              withBalance: _showCoinWithBalance,
+              onSearchChange: _onSearchChange,
+              onWithBalanceChange: _onShowCoinsWithBalanceClick,
+              mode: mode,
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          CoinListView(
+            mode: mode,
+            searchPhrase: _searchKey,
+            withBalance: _showCoinWithBalance,
+            onActiveCoinItemTap: _onActiveCoinItemTap,
+            onAssetItemTap: _onAssetItemTap,
+          ),
+        ];
+      case 1:
+        return [
+          SliverToBoxAdapter(
+            child: SizedBox(
+              width: double.infinity,
+              height: 340,
+              child: PortfolioGrowthChart(initialCoins: walletCoins),
+            ),
+          ),
+        ];
+      case 2:
+        return [
+          SliverToBoxAdapter(
+            child: SizedBox(
+              width: double.infinity,
+              height: 340,
+              child: PortfolioProfitLossChart(initialCoins: walletCoins),
+            ),
+          ),
+        ];
+      default:
+        return [];
+    }
+  }
+
   void _onScroll() {
     if (_walletHalfLogged || !_scrollController.hasClients) return;
 
@@ -345,12 +325,32 @@ class _WalletMainState extends State<WalletMain>
       _walletHalfLogged = true;
       final coinsCount = context.read<CoinsBloc>().state.walletCoins.length;
       context.read<AnalyticsBloc>().logEvent(
-            WalletListHalfViewportReachedEventData(
-              timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
-              walletSize: coinsCount,
-            ),
-          );
+        WalletListHalfViewportReachedEventData(
+          timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
+          walletSize: coinsCount,
+        ),
+      );
     }
+  }
+
+  void _onPointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent || !_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    final double newOffset = (_scrollController.offset + event.scrollDelta.dy)
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+
+    if (newOffset == _scrollController.offset) {
+      context.read<AnalyticsBloc>().logEvent(
+        ScrollAttemptOutsideContentEventData(
+          screenContext: 'wallet_page',
+          scrollDelta: event.scrollDelta.dy,
+        ),
+      );
+      return;
+    }
+
+    _scrollController.jumpTo(newOffset);
   }
 
   PopupDispatcher _createPopupDispatcher() {
@@ -414,12 +414,9 @@ class CoinListView extends StatelessWidget {
           withBalance: false,
           searchPhrase: searchPhrase,
           onAssetItemTap: (assetId) => onAssetItemTap(
-            context
-                .read<CoinsBloc>()
-                .state
-                .coins
-                .values
-                .firstWhere((coin) => coin.assetId == assetId),
+            context.read<CoinsBloc>().state.coins.values.firstWhere(
+              (coin) => coin.assetId == assetId,
+            ),
           ),
         );
     }
@@ -463,5 +460,36 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(_SliverSearchBarDelegate oldDelegate) {
     return withBalance != oldDelegate.withBalance || mode != oldDelegate.mode;
+  }
+}
+
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverTabBarDelegate(this.tabBar);
+
+  final TabBar tabBar;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _SliverTabBarDelegate oldDelegate) {
+    return tabBar != oldDelegate.tabBar;
   }
 }
