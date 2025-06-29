@@ -9,6 +9,7 @@ class SettingsState extends Equatable {
     required this.mmBotSettings,
     required this.testCoinsEnabled,
     required this.weakPasswordsAllowed,
+    required this.fiatCurrency,
   });
 
   factory SettingsState.fromStored(StoredSettings stored) {
@@ -17,6 +18,7 @@ class SettingsState extends Equatable {
       mmBotSettings: stored.marketMakerBotSettings,
       testCoinsEnabled: stored.testCoinsEnabled,
       weakPasswordsAllowed: stored.weakPasswordsAllowed,
+      fiatCurrency: stored.fiatCurrency,
     );
   }
 
@@ -24,26 +26,30 @@ class SettingsState extends Equatable {
   final MarketMakerBotSettings mmBotSettings;
   final bool testCoinsEnabled;
   final bool weakPasswordsAllowed;
+  final String fiatCurrency;
 
   @override
   List<Object?> get props => [
-        themeMode,
-        mmBotSettings,
-        testCoinsEnabled,
-        weakPasswordsAllowed,
-      ];
+    themeMode,
+    mmBotSettings,
+    testCoinsEnabled,
+    weakPasswordsAllowed,
+    fiatCurrency,
+  ];
 
   SettingsState copyWith({
     ThemeMode? mode,
     MarketMakerBotSettings? marketMakerBotSettings,
     bool? testCoinsEnabled,
     bool? weakPasswordsAllowed,
+    String? fiatCurrency,
   }) {
     return SettingsState(
       themeMode: mode ?? themeMode,
       mmBotSettings: marketMakerBotSettings ?? mmBotSettings,
       testCoinsEnabled: testCoinsEnabled ?? this.testCoinsEnabled,
       weakPasswordsAllowed: weakPasswordsAllowed ?? this.weakPasswordsAllowed,
+      fiatCurrency: fiatCurrency ?? this.fiatCurrency,
     );
   }
 }

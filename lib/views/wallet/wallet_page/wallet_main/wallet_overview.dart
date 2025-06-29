@@ -10,10 +10,12 @@ import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 // TODO(@takenagain): Please clean up the widget structure and bloc usage for
 // the wallet overview. It may be better to split this into a separate bloc
@@ -53,21 +55,22 @@ class _WalletOverviewState extends State<WalletOverview> {
         // Get total balance from the PortfolioGrowthBloc if available, otherwise calculate
         final double totalBalance =
             portfolioGrowthState is PortfolioGrowthChartLoadSuccess
-                ? portfolioGrowthState.totalBalance
-                : _getTotalBalance(state.walletCoins.values, context);
+            ? portfolioGrowthState.totalBalance
+            : _getTotalBalance(state.walletCoins.values, context);
 
-        final stateWithData = portfolioAssetsOverviewBloc.state
+        final stateWithData =
+            portfolioAssetsOverviewBloc.state
                 is PortfolioAssetsOverviewLoadSuccess
             ? portfolioAssetsOverviewBloc.state
-                as PortfolioAssetsOverviewLoadSuccess
+                  as PortfolioAssetsOverviewLoadSuccess
             : null;
         if (!_logged && stateWithData != null) {
           context.read<AnalyticsBloc>().logEvent(
-                PortfolioViewedEventData(
-                  totalCoins: assetCount,
-                  totalValueUsd: stateWithData.totalValue.value,
-                ),
-              );
+            PortfolioViewedEventData(
+              totalCoins: assetCount,
+              totalValueUsd: stateWithData.totalValue.value,
+            ),
+          );
           _logged = true;
         }
 
@@ -79,16 +82,18 @@ class _WalletOverviewState extends State<WalletOverview> {
             value: totalBalance,
             actionIcon: const Icon(Icons.copy),
             onPressed: () {
-              final formattedValue =
-                  NumberFormat.currency(symbol: '\$').format(totalBalance);
+              final fiat = context.read<SettingsBloc>().state.fiatCurrency;
+              final formattedValue = NumberFormat.currency(
+                symbol: getCurrencySymbol(fiat),
+              ).format(totalBalance);
               copyToClipBoard(context, formattedValue);
             },
             footer: BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
               builder: (context, state) {
                 final double totalChange =
                     state is PortfolioGrowthChartLoadSuccess
-                        ? state.percentageChange24h
-                        : 0.0;
+                    ? state.percentageChange24h
+                    : 0.0;
 
                 return Chip(
                   visualDensity: const VisualDensity(vertical: -4),
@@ -111,9 +116,7 @@ class _WalletOverviewState extends State<WalletOverview> {
             actionIcon: const Icon(CustomIcons.fiatIconCircle),
             onPressed: widget.onPortfolioGrowthPressed,
             footer: ActionChip(
-              avatar: Icon(
-                Icons.pie_chart,
-              ),
+              avatar: Icon(Icons.pie_chart),
               onPressed: widget.onAssetsPressed,
               visualDensity: const VisualDensity(vertical: -4),
               label: Text(
@@ -152,10 +155,7 @@ class _WalletOverviewState extends State<WalletOverview> {
           return Wrap(
             runSpacing: 16,
             children: statisticCards.map((card) {
-              return FractionallySizedBox(
-                widthFactor: 1 / 3,
-                child: card,
-              );
+              return FractionallySizedBox(widthFactor: 1 / 3, child: card);
             }).toList(),
           );
         }
@@ -166,19 +166,16 @@ class _WalletOverviewState extends State<WalletOverview> {
   Widget _buildSpinner() {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-          padding: EdgeInsets.all(20.0),
-          child: UiSpinner(),
-        ),
-      ],
+      children: [Padding(padding: EdgeInsets.all(20.0), child: UiSpinner())],
     );
   }
 
   // TODO: Migrate these values to a new/existing bloc e.g. PortfolioGrowthBloc
   double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
     double total = coins.fold(
-        0, (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0));
+      0,
+      (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0),
+    );
 
     if (total > 0.01) {
       return total;
@@ -192,10 +189,7 @@ class _WalletOverviewState extends State<WalletOverview> {
 class StatisticsCarousel extends StatefulWidget {
   final List<Widget> cards;
 
-  const StatisticsCarousel({
-    super.key,
-    required this.cards,
-  });
+  const StatisticsCarousel({super.key, required this.cards});
 
   @override
   State<StatisticsCarousel> createState() => _StatisticsCarouselState();

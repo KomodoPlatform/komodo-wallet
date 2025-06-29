@@ -9,6 +9,8 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item_size.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 /// A widget that displays a group of assets sharing the same ticker symbol.
 ///
@@ -63,7 +65,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);  
+    final theme = Theme.of(context);
     return Opacity(
       opacity: widget.isActivating ? 0.3 : 1,
       child: Material(
@@ -72,8 +74,9 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
         clipBehavior: Clip.hardEdge,
         type: MaterialType.card,
         child: InkWell(
-          onTap:
-              widget.onTap == null ? null : () => widget.onTap!(_primaryAsset),
+          onTap: widget.onTap == null
+              ? null
+              : () => widget.onTap!(_primaryAsset),
           child: Column(
             children: [
               Container(
@@ -96,9 +99,13 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                       child: BlocBuilder<CoinsBloc, CoinsState>(
                         builder: (context, state) {
                           final price = state.getPriceForAsset(_primaryAsset);
+                          final fiat = context
+                              .read<SettingsBloc>()
+                              .state
+                              .fiatCurrency;
                           final formattedPrice = price?.price != null
                               ? NumberFormat.currency(
-                                  symbol: '\$',
+                                  symbol: getCurrencySymbol(fiat),
                                   decimalDigits: 2,
                                 ).format(price!.price)
                               : '';
@@ -169,10 +176,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 }
 
 class _ExpandedView extends StatelessWidget {
-  const _ExpandedView({
-    required this.assets,
-    required this.theme,
-  });
+  const _ExpandedView({required this.assets, required this.theme});
 
   final List<AssetId> assets;
   final ThemeData theme;
@@ -181,11 +185,7 @@ class _ExpandedView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(
-        left: 16.0,
-        right: 16.0,
-        bottom: 16.0,
-      ),
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -207,9 +207,7 @@ class _ExpandedView extends StatelessWidget {
 }
 
 class _AssetIconsRow extends StatelessWidget {
-  const _AssetIconsRow({
-    required this.assets,
-  });
+  const _AssetIconsRow({required this.assets});
 
   final List<AssetId> assets;
 
@@ -228,9 +226,7 @@ class _AssetIconsRow extends StatelessWidget {
 }
 
 class _AssetIconItem extends StatelessWidget {
-  const _AssetIconItem({
-    required this.asset,
-  });
+  const _AssetIconItem({required this.asset});
 
   final AssetId asset;
 
@@ -246,9 +242,7 @@ class _AssetIconItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
         child: Container(
           height: size,
-          constraints: BoxConstraints(
-            minWidth: size,
-          ),
+          constraints: BoxConstraints(minWidth: size),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface.withOpacity(0.3),
             borderRadius: BorderRadius.circular(8.0),

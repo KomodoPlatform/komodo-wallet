@@ -10,8 +10,8 @@ import 'package:web_dex/shared/utils/utils.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc(StoredSettings stored, SettingsRepository repository)
-      : _settingsRepo = repository,
-        super(SettingsState.fromStored(stored)) {
+    : _settingsRepo = repository,
+      super(SettingsState.fromStored(stored)) {
     _storedSettings = stored;
     theme.mode = state.themeMode;
 
@@ -19,6 +19,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<MarketMakerBotSettingsChanged>(_onMarketMakerBotSettingsChanged);
     on<TestCoinsEnabledChanged>(_onTestCoinsEnabledChanged);
     on<WeakPasswordsAllowedChanged>(_onWeakPasswordsAllowedChanged);
+    on<FiatCurrencyChanged>(_onFiatCurrencyChanged);
   }
 
   late StoredSettings _storedSettings;
@@ -63,8 +64,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emitter,
   ) async {
     await _settingsRepo.updateSettings(
-      _storedSettings.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed),
+      _storedSettings.copyWith(
+        weakPasswordsAllowed: event.weakPasswordsAllowed,
+      ),
     );
     emitter(state.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed));
+  }
+
+  Future<void> _onFiatCurrencyChanged(
+    FiatCurrencyChanged event,
+    Emitter<SettingsState> emitter,
+  ) async {
+    await _settingsRepo.updateSettings(
+      _storedSettings.copyWith(fiatCurrency: event.fiatCurrency),
+    );
+    emitter(state.copyWith(fiatCurrency: event.fiatCurrency));
   }
 }

@@ -8,6 +8,8 @@ import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_state.dart';
@@ -27,9 +29,7 @@ class PriceChartPage extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         height: 340,
         padding: const EdgeInsets.all(16),
@@ -45,11 +45,22 @@ class PriceChartPage extends StatelessWidget {
                           state.data.firstOrNull?.info.ticker ?? '',
                           size: 22,
                         ),
-                  leadingText: Text(
-                    NumberFormat.currency(symbol: '\$', decimalDigits: 4)
-                        .format(
-                      state.data.firstOrNull?.data.lastOrNull?.usdValue ?? 0,
-                    ),
+                  leadingText: Builder(
+                    builder: (context) {
+                      final fiat = context
+                          .read<SettingsBloc>()
+                          .state
+                          .fiatCurrency;
+                      return Text(
+                        NumberFormat.currency(
+                          symbol: getCurrencySymbol(fiat),
+                          decimalDigits: 4,
+                        ).format(
+                          state.data.firstOrNull?.data.lastOrNull?.usdValue ??
+                              0,
+                        ),
+                      );
+                    },
                   ),
                   availableCoins: state.availableCoins.keys
                       .map(
@@ -59,21 +70,23 @@ class PriceChartPage extends StatelessWidget {
                   selectedCoinId: state.data.firstOrNull?.info.ticker,
                   onCoinSelected: (coinId) {
                     context.read<PriceChartBloc>().add(
-                          PriceChartCoinsSelected(
-                            coinId == null ? [] : [coinId],
-                          ),
-                        );
+                      PriceChartCoinsSelected(coinId == null ? [] : [coinId]),
+                    );
                   },
                   centreAmount:
                       state.data.firstOrNull?.data.lastOrNull?.usdValue ?? 0,
-                  percentageIncrease: state.data.firstOrNull?.info
+                  percentageIncrease:
+                      state
+                          .data
+                          .firstOrNull
+                          ?.info
                           .selectedPeriodIncreasePercentage ??
                       0,
                   selectedPeriod: state.selectedPeriod,
                   onPeriodChanged: (newPeriod) {
                     context.read<PriceChartBloc>().add(
-                          PriceChartPeriodChanged(newPeriod!),
-                        );
+                      PriceChartPeriodChanged(newPeriod!),
+                    );
                   },
                   customCoinItemBuilder: (coinId) {
                     final coin = state.availableCoins[coinId.symbol.common];
@@ -105,8 +118,9 @@ class PriceChartPage extends StatelessWidget {
                           child: LineChart(
                             key: const Key('price_chart'),
                             domainExtent: const ChartExtent.tight(),
-                            rangeExtent:
-                                const ChartExtent.tight(paddingPortion: 0.1),
+                            rangeExtent: const ChartExtent.tight(
+                              paddingPortion: 0.1,
+                            ),
                             elements: [
                               ChartAxisLabels(
                                 isVertical: true,
@@ -134,7 +148,8 @@ class PriceChartPage extends StatelessWidget {
                                       y: e.usdValue,
                                     );
                                   }).toList(),
-                                  color: getCoinColor(
+                                  color:
+                                      getCoinColor(
                                         coinsData.elementAt(i).info.ticker,
                                       ) ??
                                       Theme.of(context).colorScheme.primary,
@@ -145,7 +160,7 @@ class PriceChartPage extends StatelessWidget {
                             backgroundColor: Colors.transparent,
                             tooltipBuilder: (context, dataPoints, dataColors) {
                               final Map<PriceChartSeriesPoint, CoinPriceInfo>
-                                  dataPointCoinMap = {
+                              dataPointCoinMap = {
                                 for (var i = 0; i < dataPoints.length; i++)
                                   PriceChartSeriesPoint(
                                     usdValue: dataPoints[i].y,
@@ -225,7 +240,6 @@ class PriceChartPage extends StatelessWidget {
       format = DateFormat("d"); // e.g. 1
       return (count, format);
     }
-
     // Otherwise if it's more than 3 days, but less than 1 week, show a label
     // for each day with the short day name.
     else if (period.inDays > 3) {
