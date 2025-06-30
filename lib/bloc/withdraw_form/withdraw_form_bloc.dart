@@ -112,6 +112,16 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     try {
       final trimmedAddress = event.address.trim();
 
+      // Optimistically update the address and clear previous errors so the UI
+      // reflects user input immediately. Validation results will update the
+      // state again when available.
+      emit(
+        state.copyWith(
+          recipientAddress: trimmedAddress,
+          recipientAddressError: () => null,
+        ),
+      );
+
       // First check if it's an EVM address that needs conversion
       if (state.asset.protocol is Erc20Protocol &&
           _isValidEthAddressFormat(trimmedAddress) &&
