@@ -54,7 +54,10 @@ class WalletsRepository {
         .toList();
   }
 
-  Future<bool> deleteWallet(Wallet wallet) async {
+  Future<bool> deleteWallet(
+    Wallet wallet, {
+    required String password,
+  }) async {
     log(
       'Deleting a wallet ${wallet.id}',
       path: 'wallet_bloc => deleteWallet',
@@ -67,8 +70,19 @@ class WalletsRepository {
       return true;
     }
 
-    // TODO!: implement
-    throw UnimplementedError('Not yet supported');
+    try {
+      await _kdfSdk.auth.deleteWallet(
+        walletName: wallet.name,
+        password: password,
+      );
+      _cachedWallets?.removeWhere((w) => w.name == wallet.name);
+      return true;
+    } catch (e, s) {
+      log('Failed to delete wallet: $e',
+              path: 'wallet_bloc => deleteWallet', isError: true)
+          .ignore();
+      return false;
+    }
   }
 
   String? validateWalletName(String name) {

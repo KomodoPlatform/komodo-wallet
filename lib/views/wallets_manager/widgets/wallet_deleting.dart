@@ -1,9 +1,13 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 
 class WalletDeleting extends StatefulWidget {
   const WalletDeleting({
@@ -19,7 +23,15 @@ class WalletDeleting extends StatefulWidget {
 }
 
 class _WalletDeletingState extends State<WalletDeleting> {
-  // final bool _isDeleting = false;
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isDeleting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +56,14 @@ class _WalletDeletingState extends State<WalletDeleting> {
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: _PasswordField(
+            controller: _passwordController,
+            errorText: _error,
+            onFieldSubmitted: _isDeleting ? null : _deleteWallet,
           ),
         ),
         Padding(
@@ -92,31 +112,81 @@ class _WalletDeletingState extends State<WalletDeleting> {
             borderColor: theme.custom.specificButtonBorderColor,
           ),
         ),
-        // TODO!: uncomment once re-implemented
-        // const SizedBox(width: 8.0),
-        // Flexible(
-        //   child: UiPrimaryButton(
-        //     text: LocaleKeys.delete.tr(),
-        //     onPressed: _isDeleting ? null : _deleteWallet,
-        //     prefix: _isDeleting ? const UiSpinner() : null,
-        //     height: 40,
-        //     width: 150,
-        //   ),
-        // )
+        const SizedBox(width: 8.0),
+        Flexible(
+          child: UiPrimaryButton(
+            text: LocaleKeys.delete.tr(),
+            onPressed: _isDeleting ? null : _deleteWallet,
+            prefix: _isDeleting ? const UiSpinner() : null,
+            height: 40,
+            width: 150,
+          ),
+        )
       ],
     );
   }
 
-  // TODO!: uncomment once re-implemented
-  // Future<void> _deleteWallet() async {
-  //   setState(() {
-  //     _isDeleting = true;
-  //   });
-  //   final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
-  //   await walletsRepository.deleteWallet(widget.wallet);
-  //   setState(() {
-  //     _isDeleting = false;
-  //   });
-  //   widget.close();
-  // }
+  Future<void> _deleteWallet() async {
+    setState(() {
+      _isDeleting = true;
+      _error = null;
+    });
+    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+    try {
+      final success = await walletsRepository.deleteWallet(
+        widget.wallet,
+        password: _passwordController.text,
+      );
+      if (success) {
+        widget.close();
+      }
+    } catch (e) {
+      if (e is AuthException && e.type == AuthExceptionType.incorrectPassword) {
+        _error = LocaleKeys.incorrectPassword.tr();
+      } else {
+        _error = e.toString();
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDeleting = false;
+        });
+      }
+    }
+  }
+}
+
+class _PasswordField extends StatefulWidget {
+  const _PasswordField({
+    required this.controller,
+    required this.errorText,
+    required this.onFieldSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String? errorText;
+  final VoidCallback? onFieldSubmitted;
+
+  @override
+  State<_PasswordField> createState() => _PasswordFieldState();
+}
+
+class _PasswordFieldState extends State<_PasswordField> {
+  bool _isObscured = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return UiTextFormField(
+      key: const Key('delete-wallet-password'),
+      controller: widget.controller,
+      autocorrect: false,
+      obscureText: _isObscured,
+      errorText: widget.errorText,
+      hintText: LocaleKeys.walletCreationPasswordHint.tr(),
+      suffixIcon: PasswordVisibilityControl(
+        onVisibilityChange: (v) => setState(() => _isObscured = v),
+      ),
+      onFieldSubmitted: (_) => widget.onFieldSubmitted?.call(),
+    );
+  }
 }
