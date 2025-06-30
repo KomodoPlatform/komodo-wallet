@@ -1,6 +1,6 @@
 // extension to allow for separation of BLoC and UI concerns
 // Localisation should be handled in the UI layer
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
