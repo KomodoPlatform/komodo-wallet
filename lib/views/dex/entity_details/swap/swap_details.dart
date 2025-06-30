@@ -48,10 +48,11 @@ class SwapDetails extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              TradingDetailsTotalTime(
-                startedTime: swapStatus.myInfo.startedAt * 1000,
-                finishedTime: _finishedTime,
-              ),
+              if (swapStatus.myInfo != null)
+                TradingDetailsTotalTime(
+                  startedTime: swapStatus.myInfo!.startedAt * 1000,
+                  finishedTime: _finishedTime,
+                ),
               const SizedBox(height: 24),
               Flexible(
                 child: Padding(

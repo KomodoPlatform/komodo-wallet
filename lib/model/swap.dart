@@ -20,7 +20,7 @@ class Swap extends Equatable {
     required this.mmVersion,
     required this.successEvents,
     required this.errorEvents,
-    required this.myInfo,
+    this.myInfo,
     required this.recoverable,
   });
 
@@ -46,7 +46,9 @@ class Swap extends Equatable {
       mmVersion: json['mm_version'] ?? '',
       successEvents: List.castFrom<dynamic, String>(json['success_events']),
       errorEvents: List.castFrom<dynamic, String>(json['error_events']),
-      myInfo: SwapMyInfo.fromJson(json['my_info']),
+      myInfo: json['my_info'] != null
+          ? SwapMyInfo.fromJson(Map<String, dynamic>.from(json['my_info']))
+          : null,
       recoverable: json['recoverable'] ?? false,
     );
   }
@@ -63,7 +65,7 @@ class Swap extends Equatable {
   final String mmVersion;
   final List<String> successEvents;
   final List<String> errorEvents;
-  final SwapMyInfo myInfo;
+  final SwapMyInfo? myInfo;
   final bool recoverable;
 
   Map<String, dynamic> toJson() {
@@ -83,7 +85,7 @@ class Swap extends Equatable {
     data['mm_version'] = mmVersion;
     data['success_events'] = successEvents;
     data['error_events'] = errorEvents;
-    data['my_info'] = myInfo.toJson();
+    data['my_info'] = myInfo?.toJson();
     data['recoverable'] = recoverable;
 
     return data;
@@ -162,7 +164,7 @@ class Swap extends Equatable {
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         type,
         uuid,
         myOrderUuid,
