@@ -207,8 +207,10 @@ Iterable<Coin> sortByPriority(Iterable<Coin> list) {
   sortedList.sort((a, b) {
     final int priorityA = a.priority;
     final int priorityB = b.priority;
+    if (priorityA != priorityB) return priorityB - priorityA;
 
-    return priorityB - priorityA;
+    // Ensure deterministic ordering when priorities are equal
+    return a.abbr.compareTo(b.abbr);
   });
   return sortedList;
 }
