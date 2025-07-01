@@ -51,11 +51,7 @@ class PriceChartPage extends StatelessWidget {
                       state.data.firstOrNull?.data.lastOrNull?.usdValue ?? 0,
                     ),
                   ),
-                  availableCoins: state.availableCoins.keys
-                      .map(
-                        (e) => getSdkAsset(context.read<KomodoDefiSdk>(), e).id,
-                      )
-                      .toList(),
+                  availableCoins: state.availableCoins.keys.toList(),
                   selectedCoinId: state.data.firstOrNull?.info.ticker,
                   onCoinSelected: (coinId) {
                     context.read<PriceChartBloc>().add(
