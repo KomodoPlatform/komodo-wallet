@@ -46,20 +46,20 @@ class _WalletDeletingState extends State<WalletDeleting> {
             padding: const EdgeInsets.only(top: 18.0),
             child: Text(
               LocaleKeys.deleteWalletTitle.tr(args: [widget.wallet.name]),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontSize: 16),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               LocaleKeys.deleteWalletInfo.tr(),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
           Padding(
