@@ -22,6 +22,7 @@ import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class MakerFormBloc implements BlocBase {
   MakerFormBloc({
@@ -261,17 +262,47 @@ class MakerFormBloc implements BlocBase {
       availableBalanceState = AvailableBalanceState.loading;
     }
 
-    bool isSignedIn = await kdfSdk.auth.isSignedIn();
+    final bool isSignedIn = await kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       availableBalanceState = AvailableBalanceState.unavailable;
+      return;
+    }
+
+    if (coin == null) {
+      maxSellAmount = null;
+      availableBalanceState = AvailableBalanceState.unavailable;
+      return;
+    }
+
+    Rational? amount = await dexRepository.getMaxTakerVolume(coin.abbr);
+    if (amount != null) {
+      maxSellAmount = amount;
+      availableBalanceState = AvailableBalanceState.success;
     } else {
-      if (coin == null) {
-        maxSellAmount = null;
-        availableBalanceState = AvailableBalanceState.unavailable;
-      } else {
-        maxSellAmount = Rational.parse(coin.balance(kdfSdk).toString());
-        availableBalanceState = AvailableBalanceState.success;
-      }
+      amount = await _frequentlyGetMaxTakerVolume();
+      maxSellAmount = amount;
+      availableBalanceState = amount == null
+          ? AvailableBalanceState.failure
+          : AvailableBalanceState.success;
+    }
+  }
+
+  Future<Rational?> _frequentlyGetMaxTakerVolume() async {
+    final String? abbr = sellCoin?.abbr;
+    if (abbr == null) return null;
+
+    try {
+      return await retry(
+        () => dexRepository.getMaxTakerVolume(abbr),
+        maxAttempts: 5,
+        backoffStrategy: LinearBackoff(
+          initialDelay: const Duration(seconds: 2),
+          increment: const Duration(seconds: 2),
+          maxDelay: const Duration(seconds: 10),
+        ),
+      );
+    } catch (_) {
+      return null;
     }
   }
 
