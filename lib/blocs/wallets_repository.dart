@@ -77,7 +77,7 @@ class WalletsRepository {
       );
       _cachedWallets?.removeWhere((w) => w.name == wallet.name);
       return true;
-    } catch (e, s) {
+    } catch (e) {
       log('Failed to delete wallet: $e',
               path: 'wallet_bloc => deleteWallet', isError: true)
           .ignore();
