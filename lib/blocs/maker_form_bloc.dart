@@ -264,6 +264,7 @@ class MakerFormBloc implements BlocBase {
 
     final bool isSignedIn = await kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
+      maxSellAmount = null;
       availableBalanceState = AvailableBalanceState.unavailable;
       return;
     }
@@ -274,12 +275,12 @@ class MakerFormBloc implements BlocBase {
       return;
     }
 
-    Rational? amount = await dexRepository.getMaxTakerVolume(coin.abbr);
+    Rational? amount = await dexRepository.getMaxMakerVolume(coin.abbr);
     if (amount != null) {
       maxSellAmount = amount;
       availableBalanceState = AvailableBalanceState.success;
     } else {
-      amount = await _frequentlyGetMaxTakerVolume();
+      amount = await _retryGetMaxMakerVolume(coin.abbr);
       maxSellAmount = amount;
       availableBalanceState = amount == null
           ? AvailableBalanceState.failure
@@ -287,14 +288,14 @@ class MakerFormBloc implements BlocBase {
     }
   }
 
-  Future<Rational?> _frequentlyGetMaxTakerVolume() async {
-    final String? abbr = sellCoin?.abbr;
-    if (abbr == null) return null;
-
+  Future<Rational?> _retryGetMaxMakerVolume(
+    String coinTicker, {
+    int maxAttempts = 5,
+  }) async {
     try {
       return await retry(
-        () => dexRepository.getMaxTakerVolume(abbr),
-        maxAttempts: 5,
+        () => dexRepository.getMaxMakerVolume(coinTicker),
+        maxAttempts: maxAttempts,
         backoffStrategy: LinearBackoff(
           initialDelay: const Duration(seconds: 2),
           increment: const Duration(seconds: 2),
