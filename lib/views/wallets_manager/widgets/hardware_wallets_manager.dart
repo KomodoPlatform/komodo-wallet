@@ -7,9 +7,7 @@ import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/hw_dialog_init.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/trezor_steps/trezor_dialog_error.dart';
@@ -74,16 +72,13 @@ class _HardwareWalletsManagerViewState
             return TrezorDialogError(error.message);
           }
 
-          return _buildContent();
+          return _HardwareWalletManagerPopupContent(widget: widget);
         },
       ),
     );
   }
 
   void _successfulTrezorLogin(BuildContext context, KdfUser kdfUser) {
-    context.read<AuthBloc>().add(
-          AuthModeChanged(mode: AuthorizeMode.logIn, currentUser: kdfUser),
-        );
     context.read<CoinsBloc>().add(CoinsSessionStarted(kdfUser));
     context.read<AnalyticsBloc>().logEvent(
           walletsManagerEventsFactory.createEvent(
@@ -93,8 +88,17 @@ class _HardwareWalletsManagerViewState
     routingState.selectedMenu = MainMenuValue.wallet;
     widget.close();
   }
+}
 
-  Widget _buildContent() {
+class _HardwareWalletManagerPopupContent extends StatelessWidget {
+  const _HardwareWalletManagerPopupContent({
+    required this.widget,
+  });
+
+  final HardwareWalletsManagerView widget;
+
+  @override
+  Widget build(BuildContext context) {
     return BlocSelector<AuthBloc, AuthBlocState, AuthenticationState?>(
       selector: (state) => state.authenticationState,
       builder: (context, state) {

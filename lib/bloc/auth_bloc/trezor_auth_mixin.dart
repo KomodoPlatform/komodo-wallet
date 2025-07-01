@@ -22,21 +22,11 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         privKeyPolicy: const PrivateKeyPolicy.trezor(),
       );
 
-      final existingWallets = await _sdk.wallets;
-      final trezorWalletExists =
-          existingWallets.any((w) => w.name == 'My Trezor');
-
-      final Stream<AuthenticationState> authStream = trezorWalletExists
-          ? _sdk.auth.signInStream(
-              walletName: 'My Trezor',
-              password: '',
-              options: authOptions,
-            )
-          : _sdk.auth.signInStream(
-              walletName: 'My Trezor',
-              password: '',
-              options: authOptions,
-            );
+      final Stream<AuthenticationState> authStream = _sdk.auth.signInStream(
+        walletName: '', // handled internally by sdk
+        password: '', // handled internally by sdk
+        options: authOptions,
+      );
 
       await for (final authState in authStream) {
         final mappedState = await _handleAuthenticationState(authState);
@@ -92,25 +82,47 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       case AuthenticationStatus.authenticating:
         return AuthBlocState.loading();
       case AuthenticationStatus.completed:
-        if (authState.user != null) {
-          await _sdk.setWalletType(WalletType.trezor);
-          await _sdk.confirmSeedBackup(hasBackup: true);
-          await _sdk.addActivatedCoins(enabledByDefaultTrezorCoins);
-          return AuthBlocState.loggedIn(authState.user!);
-        } else {
-          return AuthBlocState.trezorReady();
-        }
+        return await _setupTrezorWallet(authState);
       case AuthenticationStatus.error:
-        return AuthBlocState.error(
-          AuthException('Trezor authentication failed: ${authState.message}',
-              type: AuthExceptionType.generalAuthError),
-        );
+        return AuthBlocState.error(AuthException(
+          authState.error ?? 'Trezor authentication failed',
+          type: AuthExceptionType.generalAuthError,
+        ));
       case AuthenticationStatus.cancelled:
-        return AuthBlocState.error(
-          AuthException('Trezor authentication was cancelled',
-              type: AuthExceptionType.generalAuthError),
-        );
+        return AuthBlocState.error(AuthException(
+          'Trezor authentication was cancelled',
+          type: AuthExceptionType.generalAuthError,
+        ));
     }
+  }
+
+  /// Sets up the Trezor wallet after successful authentication.
+  /// This includes setting the wallet type, confirming seed backup,
+  /// and adding the default activated coins.
+  Future<AuthBlocState> _setupTrezorWallet(
+    AuthenticationState authState,
+  ) async {
+    // This should not happen, but if it does then trezor initialization failed
+    // and we should not proceed.
+    if (authState.user == null) {
+      return AuthBlocState.error(AuthException(
+        'Trezor initialization failed',
+        type: AuthExceptionType.generalAuthError,
+      ));
+    }
+
+    await _sdk.setWalletType(WalletType.trezor);
+    await _sdk.confirmSeedBackup(hasBackup: true);
+    if (authState.user!.wallet.config.activatedCoins.isEmpty) {
+      // If no coins are activated, we assume this is the first time
+      // the user is setting up their Trezor wallet.
+      await _sdk.addActivatedCoins(enabledByDefaultTrezorCoins);
+    }
+
+    // Refresh the current user to pull in the updated wallet metadata
+    // configured above.
+    final updatedUser = await _sdk.auth.currentUser;
+    return AuthBlocState.loggedIn(updatedUser!);
   }
 
   Future<void> _onTrezorProvidePin(

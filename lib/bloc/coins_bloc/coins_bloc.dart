@@ -409,6 +409,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   Future<CoinsState> _prePopulateListWithActivatingCoins(
       Iterable<String> coins) async {
     final currentWallet = await _kdfSdk.currentWallet();
+    final knownCoins = _coinsRepo.getKnownCoinsMap();
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
           .map(
@@ -426,7 +427,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     );
     return state.copyWith(
       walletCoins: {...state.walletCoins, ...activatingCoins},
-      coins: {...state.coins, ...activatingCoins},
+      coins: {...knownCoins, ...state.coins, ...activatingCoins},
     );
   }
 
