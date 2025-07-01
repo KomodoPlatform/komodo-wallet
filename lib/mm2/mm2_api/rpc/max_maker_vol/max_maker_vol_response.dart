@@ -38,12 +38,22 @@ class MaxMakerVolResponseValue {
     required this.denom,
   });
 
-  factory MaxMakerVolResponseValue.fromJson(Map<String, dynamic> json) =>
-      MaxMakerVolResponseValue(
-        decimal: json['decimal'] as String,
-        numer: json['fraction']['numer'] as String,
-        denom: json['fraction']['denom'] as String,
+  factory MaxMakerVolResponseValue.fromJson(Map<String, dynamic> json) {
+    final fraction = json['fraction'] as Map<String, dynamic>?;
+    if (fraction == null) {
+      throw ArgumentError.value(
+        json,
+        'json',
+        'Expected a non-null fraction field in MaxMakerVolResponseValue',
       );
+    }
+
+    return MaxMakerVolResponseValue(
+      decimal: json['decimal'] as String,
+      numer: fraction['numer'] as String,
+      denom: fraction['denom'] as String,
+    );
+  }
 
   final String decimal;
   final String numer;

@@ -450,7 +450,7 @@ class Mm2Api {
     try {
       final JsonMap json = await _mm2.call(request);
       if (json['error'] != null) {
-        await _fallbackToBalanceMaker(request.coin);
+        return await _fallbackToBalanceMaker(request.coin);
       }
       return MaxMakerVolResponse.fromJson(json);
     } catch (e, s) {
