@@ -27,6 +27,7 @@ class _WalletDeletingState extends State<WalletDeleting> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isDeleting = false;
   String? _error;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -36,42 +37,51 @@ class _WalletDeletingState extends State<WalletDeleting> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildHeader(),
-        Padding(
-          padding: const EdgeInsets.only(top: 18.0),
-          child: Text(
-            LocaleKeys.deleteWalletTitle.tr(args: [widget.wallet.name]),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          _buildHeader(),
+          Padding(
+            padding: const EdgeInsets.only(top: 18.0),
+            child: Text(
+              LocaleKeys.deleteWalletTitle.tr(args: [widget.wallet.name]),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontSize: 16),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            LocaleKeys.deleteWalletInfo.tr(),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              LocaleKeys.deleteWalletInfo.tr(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 20.0),
-          child: _PasswordField(
-            controller: _passwordController,
-            errorText: _error,
-            onFieldSubmitted: _isDeleting ? null : _deleteWallet,
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: _PasswordField(
+              controller: _passwordController,
+              errorText: _error,
+              onFieldSubmitted: _isDeleting ? null : _deleteWallet,
+              validator: (password) {
+                if (password == null || password.isEmpty) {
+                  return LocaleKeys.passwordIsEmpty.tr();
+                }
+                return null;
+              },
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 25.0),
-          child: _buildButtons(),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(top: 25.0),
+            child: _buildButtons(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -128,6 +138,9 @@ class _WalletDeletingState extends State<WalletDeleting> {
   }
 
   Future<void> _deleteWallet() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
     setState(() {
       _isDeleting = true;
       _error = null;
@@ -162,11 +175,13 @@ class _PasswordField extends StatefulWidget {
     required this.controller,
     required this.errorText,
     required this.onFieldSubmitted,
+    required this.validator,
   });
 
   final TextEditingController controller;
   final String? errorText;
   final VoidCallback? onFieldSubmitted;
+  final String? Function(String?) validator;
 
   @override
   State<_PasswordField> createState() => _PasswordFieldState();
@@ -183,6 +198,8 @@ class _PasswordFieldState extends State<_PasswordField> {
       autocorrect: false,
       obscureText: _isObscured,
       errorText: widget.errorText,
+      validator: widget.validator,
+      validationMode: InputValidationMode.eager,
       hintText: LocaleKeys.walletCreationPasswordHint.tr(),
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: (v) => setState(() => _isObscured = v),
