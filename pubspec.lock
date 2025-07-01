@@ -647,8 +647,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_cex_market_data"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -656,8 +656,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coin_updates"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "1.0.0"
@@ -665,8 +665,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coins"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -674,8 +674,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_framework"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0"
@@ -683,8 +683,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_local_auth"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -692,8 +692,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -701,8 +701,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_sdk"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -710,8 +710,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -726,8 +726,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -742,8 +742,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_wallet_build_transformer"
-      ref: dev
-      resolved-ref: "7dfe68bae615b444240f18c3912bdbaba813ab2d"
+      ref: "codex/update-assetlogo-with-fromticker-and-fromid-methods"
+      resolved-ref: "058874265492e729a8bb8717330046db7a55f6e0"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"

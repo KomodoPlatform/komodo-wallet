@@ -27,7 +27,7 @@ class AssetItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AssetIcon(
+        AssetLogo.fromId(
           assetId,
           size: size.assetLogo,
         ),

@@ -300,7 +300,7 @@ class ImportSubmitPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          AssetIcon.ofTicker(
+                          AssetLogo.fromTicker(
                             newCoin.id.id,
                             size: 80,
                           ),

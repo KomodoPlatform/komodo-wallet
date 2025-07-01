@@ -63,7 +63,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);  
+    final theme = Theme.of(context);
     return Opacity(
       opacity: widget.isActivating ? 0.3 : 1,
       child: Material(
@@ -258,7 +258,7 @@ class _AssetIconItem extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AssetIcon.ofTicker(
+                AssetLogo.fromTicker(
                   asset.subClass.iconTicker,
                   size: min(36, size * 0.6),
                 ),
