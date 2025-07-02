@@ -14,12 +14,14 @@ class AssetListItemDesktop extends StatelessWidget {
     required this.assetId,
     required this.backgroundColor,
     required this.onTap,
+    this.onStatisticsTap,
     this.priceChangePercentage24h,
   });
 
   final AssetId assetId;
   final Color backgroundColor;
   final void Function(AssetId) onTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
 
   /// The 24-hour price change percentage for the asset
   final double? priceChangePercentage24h;
@@ -58,17 +60,29 @@ class AssetListItemDesktop extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: TrendPercentageText(
-                      percentage: priceChangePercentage24h ?? 0,
-                      showIcon: true,
-                      iconSize: 16,
-                      precision: 2,
+                    child: InkWell(
+                      onTap: () => onStatisticsTap?.call(
+                        assetId,
+                        const Duration(days: 1),
+                      ),
+                      child: TrendPercentageText(
+                        percentage: priceChangePercentage24h ?? 0,
+                        showIcon: true,
+                        iconSize: 16,
+                        precision: 2,
+                      ),
                     ),
                   ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: CoinSparkline(coinId: assetId.id),
+                  child: InkWell(
+                    onTap: () => onStatisticsTap?.call(
+                      assetId,
+                      const Duration(days: 7),
+                    ),
+                    child: CoinSparkline(coinId: assetId.id),
+                  ),
                 ),
               ],
             ),

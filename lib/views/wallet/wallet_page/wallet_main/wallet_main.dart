@@ -35,6 +35,9 @@ import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_growth_chart.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_profit_loss_chart.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
+import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
+import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/assets_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/active_coins_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_manage_section.dart';
@@ -256,6 +259,16 @@ class _WalletMainState extends State<WalletMain>
     _popupDispatcher!.show();
   }
 
+  void _onAssetStatisticsTap(AssetId assetId, Duration period) {
+    context.read<PriceChartBloc>().add(
+          PriceChartStarted(
+            symbols: [assetId.symbol.configSymbol],
+            period: period,
+          ),
+        );
+    _tabController.animateTo(1);
+  }
+
   List<Widget> _buildTabSlivers(AuthorizeMode mode, List<Coin> walletCoins) {
     switch (_activeTabIndex) {
       case 0:
@@ -276,6 +289,7 @@ class _WalletMainState extends State<WalletMain>
             withBalance: _showCoinWithBalance,
             onActiveCoinItemTap: _onActiveCoinItemTap,
             onAssetItemTap: _onAssetItemTap,
+            onAssetStatisticsTap: _onAssetStatisticsTap,
           ),
         ];
       case 1:
@@ -372,6 +386,7 @@ class CoinListView extends StatelessWidget {
     required this.withBalance,
     required this.onActiveCoinItemTap,
     required this.onAssetItemTap,
+    required this.onAssetStatisticsTap,
   });
 
   final AuthorizeMode mode;
@@ -379,6 +394,7 @@ class CoinListView extends StatelessWidget {
   final bool withBalance;
   final Function(Coin) onActiveCoinItemTap;
   final Function(Coin) onAssetItemTap;
+  final void Function(AssetId, Duration period) onAssetStatisticsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -407,6 +423,7 @@ class CoinListView extends StatelessWidget {
                   (coin) => coin.assetId == assetId,
                 ),
           ),
+          onStatisticsTap: onAssetStatisticsTap,
         );
     }
   }
@@ -425,8 +442,7 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
   final AuthorizeMode mode;
 
   @override
-  double get minExtent =>
-      isMobile ? 64 : 68;
+  double get minExtent => isMobile ? 64 : 68;
   @override
   double get maxExtent =>
       isMobile ? (mode == AuthorizeMode.logIn ? 112 : 64) : 106;

@@ -12,6 +12,7 @@ class GroupedAssetsList extends StatelessWidget {
     super.key,
     required this.assets,
     required this.onAssetItemTap,
+    this.onStatisticsTap,
     this.searchPhrase = '',
   });
 
@@ -20,6 +21,7 @@ class GroupedAssetsList extends StatelessWidget {
 
   /// Callback function when an asset is tapped
   final Function(AssetId) onAssetItemTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
 
   /// Optional search phrase to filter assets
   final String searchPhrase;
@@ -45,6 +47,7 @@ class GroupedAssetsList extends StatelessWidget {
           assets: assetGroup,
           backgroundColor: backgroundColor,
           onTap: onAssetItemTap,
+          onStatisticsTap: onStatisticsTap,
         );
       },
       itemCount: groupedAssets.length,

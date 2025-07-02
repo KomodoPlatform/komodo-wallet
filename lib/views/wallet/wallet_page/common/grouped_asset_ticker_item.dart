@@ -20,6 +20,7 @@ class GroupedAssetTickerItem extends StatefulWidget {
     required this.assets,
     required this.backgroundColor,
     required this.onTap,
+    this.onStatisticsTap,
     this.expanded,
     this.isActivating = false,
   });
@@ -27,6 +28,7 @@ class GroupedAssetTickerItem extends StatefulWidget {
   final List<AssetId> assets;
   final Color backgroundColor;
   final void Function(AssetId)? onTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
   final bool? expanded;
   final bool isActivating;
 
@@ -63,7 +65,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);  
+    final theme = Theme.of(context);
     return Opacity(
       opacity: widget.isActivating ? 0.3 : 1,
       child: Material(
@@ -114,15 +116,22 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                       flex: 2,
                       child: BlocBuilder<CoinsBloc, CoinsState>(
                         builder: (context, state) {
-                          return TrendPercentageText(
-                            textStyle: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
+                          return InkWell(
+                            onTap: () => widget.onStatisticsTap?.call(
+                              _primaryAsset,
+                              const Duration(days: 1),
                             ),
-                            percentage:
-                                state.get24hChangeForAsset(_primaryAsset) ?? 0,
-                            showIcon: true,
-                            iconSize: 16,
-                            precision: 2,
+                            child: TrendPercentageText(
+                              textStyle: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                              percentage:
+                                  state.get24hChangeForAsset(_primaryAsset) ??
+                                      0,
+                              showIcon: true,
+                              iconSize: 16,
+                              precision: 2,
+                            ),
                           );
                         },
                       ),
@@ -134,7 +143,13 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                           maxWidth: 130,
                           maxHeight: 35,
                         ),
-                        child: CoinSparkline(coinId: _primaryAsset.id),
+                        child: InkWell(
+                          onTap: () => widget.onStatisticsTap?.call(
+                            _primaryAsset,
+                            const Duration(days: 7),
+                          ),
+                          child: CoinSparkline(coinId: _primaryAsset.id),
+                        ),
                       ),
                     ),
                     ConstrainedBox(
