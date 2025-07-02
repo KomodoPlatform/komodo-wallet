@@ -61,6 +61,15 @@ class _WalletMainState extends State<WalletMain>
   late final Stopwatch _walletListStopwatch;
   bool _walletHalfLogged = false;
 
+  void _initTabController(bool authenticated) {
+    _tabController = TabController(length: authenticated ? 3 : 2, vsync: this)
+      ..addListener(() {
+        if (_activeTabIndex != _tabController.index) {
+          setState(() => _activeTabIndex = _tabController.index);
+        }
+      });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,12 +82,7 @@ class _WalletMainState extends State<WalletMain>
       _loadWalletData(authBloc.state.currentUser!.wallet.id).ignore();
     }
 
-    _tabController = TabController(length: 3, vsync: this)
-      ..addListener(() {
-        if (_activeTabIndex != _tabController.index) {
-          setState(() => _activeTabIndex = _tabController.index);
-        }
-      });
+    _initTabController(authBloc.state.currentUser != null);
   }
 
   @override
@@ -100,8 +104,14 @@ class _WalletMainState extends State<WalletMain>
       listener: (context, state) {
         if (state.currentUser?.wallet != null) {
           _loadWalletData(state.currentUser!.wallet.id).ignore();
+          if (_tabController.length != 3) {
+            _initTabController(true);
+          }
         } else {
           _clearWalletData();
+          if (_tabController.length != 2) {
+            _initTabController(false);
+          }
         }
       },
       builder: (authContext, authState) {
@@ -135,47 +145,25 @@ class _WalletMainState extends State<WalletMain>
                           ),
                         ),
                         const SliverToBoxAdapter(child: Gap(8)),
-                        SliverPersistentHeader(
-                          pinned: true,
-                          delegate: _SliverTabBarDelegate(
-                            TabBar(
-                              controller: _tabController,
-                              tabs: [
-                                Tab(text: LocaleKeys.assets.tr()),
-                                Tab(text: LocaleKeys.portfolioGrowth.tr()),
-                                Tab(text: LocaleKeys.profitAndLoss.tr()),
-                              ],
-                            ),
-                          ),
-                        ),
-                        ..._buildTabSlivers(authStateMode, walletCoinsFiltered),
-                      ] else ...[
-                        const SliverToBoxAdapter(
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 340,
-                            child: PriceChartPage(key: Key('price-chart')),
-                          ),
-                        ),
-                        const SliverToBoxAdapter(child: Gap(8)),
-                        SliverPersistentHeader(
-                          pinned: true,
-                          delegate: _SliverSearchBarDelegate(
-                            withBalance: _showCoinWithBalance,
-                            onSearchChange: _onSearchChange,
-                            onWithBalanceChange: _onShowCoinsWithBalanceClick,
-                            mode: authStateMode,
-                          ),
-                        ),
-                        const SliverToBoxAdapter(child: SizedBox(height: 8)),
-                        CoinListView(
-                          mode: authStateMode,
-                          searchPhrase: _searchKey,
-                          withBalance: _showCoinWithBalance,
-                          onActiveCoinItemTap: _onActiveCoinItemTap,
-                          onAssetItemTap: _onAssetItemTap,
-                        ),
                       ],
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _SliverTabBarDelegate(
+                          TabBar(
+                            controller: _tabController,
+                            tabs: [
+                              Tab(text: LocaleKeys.assets.tr()),
+                              if (authStateMode == AuthorizeMode.logIn)
+                                Tab(text: LocaleKeys.portfolioGrowth.tr())
+                              else
+                                Tab(text: LocaleKeys.statistics.tr()),
+                              if (authStateMode == AuthorizeMode.logIn)
+                                Tab(text: LocaleKeys.profitAndLoss.tr()),
+                            ],
+                          ),
+                        ),
+                      ),
+                      ..._buildTabSlivers(authStateMode, walletCoinsFiltered),
                     ],
                   ),
                 ),
@@ -296,11 +284,14 @@ class _WalletMainState extends State<WalletMain>
             child: SizedBox(
               width: double.infinity,
               height: 340,
-              child: PortfolioGrowthChart(initialCoins: walletCoins),
+              child: mode == AuthorizeMode.logIn
+                  ? PortfolioGrowthChart(initialCoins: walletCoins)
+                  : const PriceChartPage(),
             ),
           ),
         ];
       case 2:
+        if (mode != AuthorizeMode.logIn) return [];
         return [
           SliverToBoxAdapter(
             child: SizedBox(
