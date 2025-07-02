@@ -48,7 +48,7 @@ class TrezorInitBloc extends Bloc<TrezorInitEvent, TrezorInitState> {
     on<TrezorInitSendPassphrase>(_onSendPassphrase);
     on<TrezorInitUpdateAuthMode>(_onAuthModeChange);
 
-    _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
+    _authorizationSubscription = _kdfSdk.auth.watchCurrentUser().listen((user) {
       add(TrezorInitUpdateAuthMode(user));
     });
   }

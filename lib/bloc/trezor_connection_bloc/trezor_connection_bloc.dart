@@ -19,7 +19,8 @@ class TrezorConnectionBloc
         super(TrezorConnectionState.initial()) {
     _trezorConnectionStatusListener = trezorRepo.connectionStatusStream
         .listen(_onTrezorConnectionStatusChanged);
-    _authModeListener = kdfSdk.auth.authStateChanges.listen(_onAuthModeChanged);
+    _authModeListener =
+        kdfSdk.auth.watchCurrentUser().listen(_onAuthModeChanged);
 
     on<TrezorConnectionStatusChange>(_onConnectionStatusChange);
   }
