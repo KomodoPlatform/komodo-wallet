@@ -24,6 +24,7 @@ class TrezorDialogError extends StatelessWidget {
         ErrorDisplay(
           message: LocaleKeys.trezorErrorBusy.tr(),
           detailedMessage: error,
+          showIcon: false,
         ),
         const SizedBox(height: 24),
         UiPrimaryButton(
