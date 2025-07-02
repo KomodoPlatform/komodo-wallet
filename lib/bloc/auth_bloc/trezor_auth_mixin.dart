@@ -3,6 +3,7 @@ part of 'auth_bloc.dart';
 /// Mixin that exposes Trezor authentication helpers for [AuthBloc].
 mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
   KomodoDefiSdk get _sdk;
+  final _log = Logger('TrezorAuthMixin');
 
   /// Registers handlers for Trezor specific events.
   void setupTrezorEventHandlers() {
@@ -38,6 +39,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         }
       }
     } catch (e) {
+      _log.shout('Trezor authentication failed', e);
       emit(
         AuthBlocState.error(
           AuthException(
@@ -138,7 +140,8 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       }
 
       await _sdk.auth.setHardwareDevicePin(taskId, event.pin);
-    } catch (_) {
+    } catch (e) {
+      _log.shout('Failed to provide PIN', e);
       emit(AuthBlocState.error(AuthException('Failed to provide PIN',
           type: AuthExceptionType.generalAuthError)));
     }
@@ -160,9 +163,12 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         taskId,
         event.passphrase,
       );
-    } catch (_) {
-      emit(AuthBlocState.error(AuthException('Failed to provide passphrase',
-          type: AuthExceptionType.generalAuthError)));
+    } catch (e) {
+      _log.shout('Failed to provide passphrase', e);
+      emit(AuthBlocState.error(AuthException(
+        'Failed to provide passphrase',
+        type: AuthExceptionType.generalAuthError,
+      )));
     }
   }
 

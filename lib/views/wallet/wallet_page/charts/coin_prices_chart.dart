@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
@@ -11,7 +10,6 @@ import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_state.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_select_item_widget.dart';
 

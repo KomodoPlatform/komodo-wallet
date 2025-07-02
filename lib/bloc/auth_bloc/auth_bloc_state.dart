@@ -66,7 +66,7 @@ class AuthBlocState extends Equatable {
   factory AuthBlocState.trezorReady() => const AuthBlocState(
         mode: AuthorizeMode.noLogin,
         authenticationState:
-            AuthenticationState(status: AuthenticationStatus.initializing),
+            AuthenticationState(status: AuthenticationStatus.cancelled),
       );
 
   final KdfUser? currentUser;
