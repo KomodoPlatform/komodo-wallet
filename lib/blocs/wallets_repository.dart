@@ -88,11 +88,8 @@ class WalletsRepository {
   }
 
   Future<void> resetSpecificWallet(Wallet wallet) async {
-    final defaultCoins = wallet.config.type == WalletType.trezor
-        ? enabledByDefaultTrezorCoins
-        : enabledByDefaultCoins;
     final coinsToDeactivate = wallet.config.activatedCoins
-        .where((coin) => !defaultCoins.contains(coin));
+        .where((coin) => !enabledByDefaultCoins.contains(coin));
     for (final coin in coinsToDeactivate) {
       await _mm2Api.disableCoin(coin);
     }

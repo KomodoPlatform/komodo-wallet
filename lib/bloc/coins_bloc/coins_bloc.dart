@@ -386,8 +386,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     final enabledAssets = await _kdfSdk.assets.getEnabledCoins();
-    final coinsToActivate =
-        coins.where((coin) => !enabledAssets.contains(coin));
+    final coinsToActivate = coins
+        .where((coin) => !enabledAssets.contains(coin))
+        .where((coin) => _coinsRepo.getKnownCoinsMap().containsKey(coin));
 
     final enableFutures =
         coinsToActivate.map((coin) => _activateCoin(coin)).toList();
@@ -414,7 +415,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       coins
           .map(
             (coin) {
-              final sdkCoin = state.coins[coin] ?? _coinsRepo.getCoin(coin);
+              final sdkCoin = knownCoins[coin];
               return sdkCoin?.copyWith(
                 state: CoinState.activating,
                 enabledType: currentWallet?.config.type,

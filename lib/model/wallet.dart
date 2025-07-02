@@ -32,15 +32,11 @@ class Wallet {
     List<String>? activatedCoins,
     bool hasBackup = false,
   }) {
-    final defaultCoins = walletType == WalletType.trezor
-        ? enabledByDefaultTrezorCoins
-        : enabledByDefaultCoins;
-
     return Wallet(
       id: const Uuid().v1(),
       name: name,
       config: WalletConfig(
-        activatedCoins: activatedCoins ?? defaultCoins,
+        activatedCoins: activatedCoins ?? enabledByDefaultCoins,
         hasBackup: hasBackup,
         type: walletType,
         seedPhrase: '',

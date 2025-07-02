@@ -116,7 +116,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     if (authState.user!.wallet.config.activatedCoins.isEmpty) {
       // If no coins are activated, we assume this is the first time
       // the user is setting up their Trezor wallet.
-      await _sdk.addActivatedCoins(enabledByDefaultTrezorCoins);
+      await _sdk.addActivatedCoins(enabledByDefaultCoins);
     }
 
     // Refresh the current user to pull in the updated wallet metadata

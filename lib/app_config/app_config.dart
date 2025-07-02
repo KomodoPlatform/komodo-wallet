@@ -141,12 +141,6 @@ List<String> get enabledByDefaultCoins => [
       if (kDebugMode) 'MARTY',
     ];
 
-List<String> get enabledByDefaultTrezorCoins => [
-      'BTC-segwit',
-      'KMD',
-      'LTC-segwit',
-    ];
-
 List<String> get coinsWithFaucet => ['RICK', 'MORTY', 'DOC', 'MARTY'];
 
 const String logsDbName = 'logs';
