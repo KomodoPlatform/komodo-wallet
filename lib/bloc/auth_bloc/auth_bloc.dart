@@ -87,7 +87,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
 
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
 
-      final authStream = _kdfSdk.auth.signInStream(
+      await _kdfSdk.auth.signIn(
         walletName: event.wallet.name,
         password: event.password,
         options: AuthOptions(
@@ -97,28 +97,14 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
           allowWeakPassword: weakPasswordsAllowed,
         ),
       );
-
-      await for (final authState in authStream) {
-        if (authState.status == AuthenticationStatus.completed) {
-          final user = authState.user;
-          if (user != null) {
-            _log.info('logged in from a wallet');
-            emit(AuthBlocState.loggedIn(user));
-            _listenToAuthStateChanges();
-          } else {
-            emit(AuthBlocState.error(AuthException.notSignedIn()));
-          }
-          break;
-        } else if (authState.status == AuthenticationStatus.error) {
-          emit(AuthBlocState.error(
-            AuthException(authState.message ?? 'Login failed',
-                type: AuthExceptionType.generalAuthError),
-          ));
-          break;
-        } else {
-          emit(AuthBlocState.loading());
-        }
+      final KdfUser? currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        return emit(AuthBlocState.error(AuthException.notSignedIn()));
       }
+
+      _log.info('logged in from a wallet');
+      emit(AuthBlocState.loggedIn(currentUser));
+      _listenToAuthStateChanges();
     } catch (e, s) {
       if (e is AuthException) {
         // Preserve the original error type for specific errors like incorrect password
@@ -171,7 +157,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
 
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
 
-      final authStream = _kdfSdk.auth.registerStream(
+      await _kdfSdk.auth.register(
         password: event.password,
         walletName: event.wallet.name,
         options: AuthOptions(
@@ -182,33 +168,17 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
         ),
       );
 
-      await for (final authState in authStream) {
-        if (authState.status == AuthenticationStatus.completed) {
-          final user = authState.user;
-          if (user != null) {
-            _log.info('registered from a wallet');
-            await _kdfSdk.setWalletType(event.wallet.config.type);
-            await _kdfSdk.confirmSeedBackup(hasBackup: false);
-            await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
-            emit(AuthBlocState.loggedIn(user));
-            _listenToAuthStateChanges();
-          } else {
-            emit(AuthBlocState.error(
-              AuthException('Registration failed',
-                  type: AuthExceptionType.generalAuthError),
-            ));
-          }
-          break;
-        } else if (authState.status == AuthenticationStatus.error) {
-          emit(AuthBlocState.error(
-            AuthException(authState.message ?? 'Registration failed',
-                type: AuthExceptionType.generalAuthError),
-          ));
-          break;
-        } else {
-          emit(AuthBlocState.loading());
-        }
+      _log.info('registered from a wallet');
+      await _kdfSdk.setWalletType(event.wallet.config.type);
+      await _kdfSdk.confirmSeedBackup(hasBackup: false);
+      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+
+      final currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('Registration failed: user is not signed in');
       }
+      emit(AuthBlocState.loggedIn(currentUser));
+      _listenToAuthStateChanges();
     } catch (e, s) {
       final errorMsg = 'Failed to register wallet ${event.wallet.name}';
       _log.shout(errorMsg, e, s);
@@ -235,7 +205,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
 
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
 
-      final authStream = _kdfSdk.auth.registerStream(
+      await _kdfSdk.auth.register(
         password: event.password,
         walletName: event.wallet.name,
         mnemonic: Mnemonic.plaintext(event.seed),
@@ -247,40 +217,16 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
         ),
       );
 
-      await for (final authState in authStream) {
-        if (authState.status == AuthenticationStatus.completed) {
-          final user = authState.user;
-          if (user != null) {
-            _log.info('restored from a wallet');
-            await _kdfSdk.setWalletType(event.wallet.config.type);
-            await _kdfSdk.confirmSeedBackup(
-                hasBackup: event.wallet.config.hasBackup);
-            await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
-            emit(AuthBlocState.loggedIn(user));
+      _log.info('restored from a wallet');
+      await _kdfSdk.setWalletType(event.wallet.config.type);
+      await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
+      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
 
-            if (event.wallet.isLegacyWallet) {
-              await _kdfSdk
-                  .addActivatedCoins(event.wallet.config.activatedCoins);
-              await _walletsRepository.deleteWallet(event.wallet);
-            }
-            _listenToAuthStateChanges();
-          } else {
-            emit(AuthBlocState.error(
-              AuthException('Restoration failed',
-                  type: AuthExceptionType.generalAuthError),
-            ));
-          }
-          break;
-        } else if (authState.status == AuthenticationStatus.error) {
-          emit(AuthBlocState.error(
-            AuthException(authState.message ?? 'Restoration failed',
-                type: AuthExceptionType.generalAuthError),
-          ));
-          break;
-        } else {
-          emit(AuthBlocState.loading());
-        }
+      final currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('Registration failed: user is not signed in');
       }
+      emit(AuthBlocState.loggedIn(currentUser));
 
       // Delete legacy wallet on successful restoration & login to avoid
       // duplicates in the wallet list
