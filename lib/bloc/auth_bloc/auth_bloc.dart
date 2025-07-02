@@ -306,7 +306,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
 
   void _listenToAuthStateChanges() {
     _authChangesSubscription?.cancel();
-    _authChangesSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
+    _authChangesSubscription = _kdfSdk.auth.watchCurrentUser().listen((user) {
       final AuthorizeMode event =
           user != null ? AuthorizeMode.logIn : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));

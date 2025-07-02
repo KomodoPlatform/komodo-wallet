@@ -27,7 +27,7 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     on<NftMainUpdateNftsStarted>(_onStartUpdate);
     on<NftMainUpdateNftsStopped>(_onStopUpdate);
 
-    _authorizationSubscription = _sdk.auth.authStateChanges.listen((event) {
+    _authorizationSubscription = _sdk.auth.watchCurrentUser().listen((event) {
       final isSignedIn = event != null;
       if (isSignedIn) {
         add(const NftMainChainUpdateRequested());
