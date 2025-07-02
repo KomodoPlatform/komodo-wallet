@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 abstract class ICustomTokenImportRepository {
   Future<Asset> fetchCustomToken(CoinSubClass network, String address);
@@ -107,8 +107,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       }).copyWith(isCustomToken: true),
     );
 
-    CoinIcon.registerCustomIcon(
-      newCoin.id.id,
+    AssetIcon.registerCustomIcon(
+      newCoin.id,
       NetworkImage(
         tokenApi?['image']?['large'] ??
             'assets/coin_icons/png/${ticker.toLowerCase()}.png',
