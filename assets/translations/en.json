@@ -679,7 +679,7 @@
     "previewWithdrawal": "Preview Withdrawal",
     "createNewAddress": "Create New Address",
     "searchAddresses": "Search addresses",
-    "chart": "Chart",
+    "trend7d": "7d trend",
     "tradingDisabledTooltip": "Trading features are currently disabled",
     "tradingDisabled": "Trading is currently unavailable"
 }
