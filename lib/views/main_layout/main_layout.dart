@@ -31,11 +31,12 @@ class _MainLayoutState extends State<MainLayout> {
     showMessageBeforeUnload('Are you sure you want to leave?');
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final tradingEnabled =
+          context.read<TradingStatusBloc>().state is TradingEnabled;
+
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
-      final tradingEnabled =
-          context.read<TradingStatusBloc>().state is TradingEnabled;
       if (tradingEnabled &&
           kShowTradingWarning &&
           !await _hasAgreedNoTrading()) {

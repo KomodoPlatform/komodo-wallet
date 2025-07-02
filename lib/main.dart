@@ -31,7 +31,7 @@ import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/analytics/widgets/analytics_lifecycle_handler.dart';
-import 'package:web_dex/sdk/widgets/sdk_lifecycle_handler.dart';
+import 'package:web_dex/sdk/widgets/window_close_handler.dart';
 import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
@@ -166,7 +166,7 @@ class MyApp extends StatelessWidget {
         darkTheme: _feedbackThemeData(theme),
         theme: _feedbackThemeData(theme),
         child: AnalyticsLifecycleHandler(
-          child: SdkLifecycleHandler(
+          child: WindowCloseHandler(
             child: app_bloc_root.AppBlocRoot(
               storedPrefs: _storedSettings!,
               komodoDefiSdk: komodoDefiSdk,
