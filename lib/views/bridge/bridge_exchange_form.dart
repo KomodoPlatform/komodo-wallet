@@ -9,6 +9,7 @@ import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_wrapper.dart';
 import 'package:web_dex/views/bridge/bridge_group.dart';
@@ -121,6 +122,9 @@ class _ExchangeButton extends StatelessWidget {
       final isSystemClockValid = systemHealthState is SystemHealthLoadSuccess &&
           systemHealthState.isValid;
 
+      final tradingStatusState = context.watch<TradingStatusBloc>().state;
+      final tradingEnabled = tradingStatusState.isEnabled;
+
       return BlocSelector<BridgeBloc, BridgeState, bool>(
           selector: (state) => state.inProgress,
           builder: (context, inProgress) {
@@ -136,8 +140,12 @@ class _ExchangeButton extends StatelessWidget {
                     child: UiPrimaryButton(
                       height: 40,
                       prefix: inProgress ? const _Spinner() : null,
-                      text: LocaleKeys.exchange.tr(),
-                      onPressed: isDisabled ? null : () => _onPressed(context),
+                      text: tradingEnabled
+                          ? LocaleKeys.exchange.tr()
+                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                      onPressed: isDisabled || !tradingEnabled
+                          ? null
+                          : () => _onPressed(context),
                     ),
                   ),
                 ),

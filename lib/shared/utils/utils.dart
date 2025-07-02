@@ -25,25 +25,51 @@ export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 export 'package:web_dex/shared/utils/prominent_colors.dart';
 
-void copyToClipBoard(BuildContext context, String str) {
+// TODO: Refactor this (and all its references) to remove the context dependency
+// and/or make it optional, and then use the global `scaffoldKey` instead.
+Future<void> copyToClipBoard(
+  BuildContext context,
+  String payload, [
+  String? message,
+]) async {
+  if (!context.mounted) return;
   final themeData = Theme.of(context);
+
   try {
-    ScaffoldMessenger.of(context).showSnackBar(
+    await Clipboard.setData(ClipboardData(text: payload));
+
+    if (!context.mounted) return;
+    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context) ??
+        ScaffoldMessenger.of(scaffoldKey.currentContext!);    scaffoldMessenger.showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text(
-          LocaleKeys.clipBoard.tr(),
-          style: themeData.textTheme.bodyLarge!.copyWith(
-            color: themeData.brightness == Brightness.dark
-                ? themeData.hintColor
-                : themeData.primaryColor,
-          ),
+        width: isMobile ? null : 400.0,
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: themeData.colorScheme.onPrimaryContainer,
+            ),
+            const SizedBox(width: 12.0),
+            Text(
+              message ?? LocaleKeys.clipBoard.tr(),
+            ),
+          ],
         ),
+        duration: const Duration(seconds: 2),
       ),
     );
-  } catch (_) {}
-
-  Clipboard.setData(ClipboardData(text: str));
+  } catch (e) {
+    log('Error copyToClipBoard: $e', isError: true);
+    if (!context.mounted) return;    // Show error feedback using SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Failed to copy to clipboard'),
+        backgroundColor: themeData.colorScheme.error,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 }
 
 /// Converts a double value [dv] to a string representation with specified decimal places [fractions].
@@ -215,10 +241,7 @@ Future<void> openUrl(Uri uri, {bool? inSeparateTab}) async {
   );
 }
 
-Future<void> launchURLString(
-  String url, {
-  bool? inSeparateTab,
-}) async {
+Future<void> launchURLString(String url, {bool? inSeparateTab}) async {
   final uri = Uri.parse(url);
 
   if (await canLaunchUrl(uri)) {
@@ -678,7 +701,4 @@ Future<void> pauseWhile(
   }
 }
 
-enum HashExplorerType {
-  address,
-  tx,
-}
+enum HashExplorerType { address, tx }

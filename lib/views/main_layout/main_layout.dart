@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/update_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -33,7 +34,11 @@ class _MainLayoutState extends State<MainLayout> {
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
-      if (!kIsWalletOnly && !await _hasAgreedNoTrading()) {
+      final tradingEnabled =
+          context.read<TradingStatusBloc>().state is TradingEnabled;
+      if (tradingEnabled &&
+          kShowTradingWarning &&
+          !await _hasAgreedNoTrading()) {
         _showNoTradingWarning().ignore();
       }
     });

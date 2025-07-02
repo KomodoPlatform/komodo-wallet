@@ -64,11 +64,12 @@ List<Swap> applyFiltersForSwap(
 
     if (sellCoin != null && swap.sellCoin != sellCoin) return false;
     if (buyCoin != null && swap.buyCoin != buyCoin) return false;
-    if (startDate != null && swap.myInfo.startedAt < startDate / 1000) {
+    if (startDate != null &&
+        (swap.myInfo?.startedAt ?? 0) < startDate / 1000) {
       return false;
     }
     if (endDate != null &&
-        swap.myInfo.startedAt > (endDate + millisecondsIn24H) / 1000) {
+        (swap.myInfo?.startedAt ?? 0) > (endDate + millisecondsIn24H) / 1000) {
       return false;
     }
     if (statuses != null && statuses.isNotEmpty) {

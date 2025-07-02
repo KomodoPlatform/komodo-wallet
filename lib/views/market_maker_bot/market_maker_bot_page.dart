@@ -52,7 +52,7 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
       coinsRepository,
     );
 
-    return MultiBlocProvider(
+    final pageContent = MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(
           create: (BuildContext context) => DexTabBarBloc(
@@ -90,6 +90,7 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
             : MarketMakerBotView(),
       ),
     );
+    return pageContent;
   }
 
   void _onRouteChange() {

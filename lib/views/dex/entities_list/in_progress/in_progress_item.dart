@@ -27,7 +27,8 @@ class InProgressItem extends StatelessWidget {
     final Rational sellAmount = swap.sellAmount;
     final String buyCoin = swap.buyCoin;
     final Rational buyAmount = swap.buyAmount;
-    final String date = getFormattedDate(swap.myInfo.startedAt);
+    final String date =
+        swap.myInfo != null ? getFormattedDate(swap.myInfo!.startedAt) : '-';
     final bool isTaker = swap.isTaker;
     final tradingEntitiesBloc =
         RepositoryProvider.of<TradingEntitiesBloc>(context);

@@ -50,7 +50,10 @@ class _BridgePageState extends State<BridgePage> with TickerProviderStateMixin {
           });
         }
       },
-      child: _showSwap ? _buildTradingDetails() : _buildBridgePage(),
+      child: Builder(builder: (context) {
+        final page = _showSwap ? _buildTradingDetails() : _buildBridgePage();
+        return page;
+      }),
     );
   }
 

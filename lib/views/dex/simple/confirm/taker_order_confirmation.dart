@@ -8,6 +8,7 @@ import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
@@ -130,6 +131,9 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
   }
 
   Widget _buildConfirmButton() {
+    final tradingStatusState = context.watch<TradingStatusBloc>().state;
+    final bool tradingEnabled = tradingStatusState.isEnabled;
+
     return BlocSelector<TakerBloc, TakerState, bool>(
       selector: (state) => state.inProgress,
       builder: (context, inProgress) {
@@ -148,8 +152,12 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
                       ),
                     )
                   : null,
-              onPressed: inProgress ? null : () => _startSwap(context),
-              text: LocaleKeys.confirm.tr()),
+              onPressed: inProgress || !tradingEnabled
+                  ? null
+                  : () => _startSwap(context),
+              text: tradingEnabled
+                  ? LocaleKeys.confirm.tr()
+                  : LocaleKeys.tradingDisabledTooltip.tr()),
         );
       },
     );
