@@ -13,7 +13,7 @@ class CoinItem extends StatelessWidget {
     this.subtitleText,
   });
 
-  final Coin? coin;
+  final Coin coin;
   final double? amount;
   final CoinItemSize size;
   final String? subtitleText;
@@ -25,7 +25,7 @@ class CoinItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AssetLogo.fromId(
-          coin?.id,
+          coin.id,
           size: size.coinLogo,
         ),
         SizedBox(width: size.spacer),

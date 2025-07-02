@@ -16,7 +16,7 @@ class AssetItem extends StatelessWidget {
     this.subtitleText,
   });
 
-  final AssetId? assetId;
+  final AssetId assetId;
   final double? amount;
   final AssetItemSize size;
   final String? subtitleText;

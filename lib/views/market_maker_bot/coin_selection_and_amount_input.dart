@@ -98,7 +98,9 @@ class _CoinSelectionAndAmountInputState
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AssetLogo.fromId(widget.selectedCoin?.id),
+                  widget.selectedCoin == null
+                      ? AssetLogo.placeholder(isBlank: true)
+                      : AssetLogo.fromId(widget.selectedCoin!.id),
                   const SizedBox(width: 9),
                   CoinNameAndProtocol(widget.selectedCoin, true),
                   const SizedBox(width: 9),
