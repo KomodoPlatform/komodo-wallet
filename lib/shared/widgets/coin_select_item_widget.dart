@@ -73,7 +73,7 @@ class CoinSelectItemWidget extends StatelessWidget {
           else
             Padding(
               padding: const EdgeInsets.only(right: 12),
-              child: AssetLogo.fromTicker(coinId, size: 20),
+              child: AssetLogo.ofTicker(coinId, size: 20),
             ),
           Expanded(
             child: DefaultTextStyle(

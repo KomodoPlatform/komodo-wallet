@@ -5,12 +5,10 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_bloc.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 
 class CustomTokenImportDialog extends StatefulWidget {
@@ -300,7 +298,7 @@ class ImportSubmitPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          AssetLogo.fromId(
+                          AssetLogo.ofId(
                             newCoin.id,
                             size: 80,
                           ),

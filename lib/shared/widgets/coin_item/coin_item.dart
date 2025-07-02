@@ -24,7 +24,7 @@ class CoinItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AssetLogo.fromId(
+        AssetLogo.ofId(
           coin.id,
           size: size.coinLogo,
         ),

@@ -100,7 +100,7 @@ class _CoinSelectionAndAmountInputState
                 children: [
                   widget.selectedCoin == null
                       ? AssetLogo.placeholder(isBlank: true)
-                      : AssetLogo.fromId(widget.selectedCoin!.id),
+                      : AssetLogo.ofId(widget.selectedCoin!.id),
                   const SizedBox(width: 9),
                   CoinNameAndProtocol(widget.selectedCoin, true),
                   const SizedBox(width: 9),

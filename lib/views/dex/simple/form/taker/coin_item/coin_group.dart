@@ -22,7 +22,7 @@ class CoinGroup extends StatelessWidget {
                 // Use the legacy blank placeholder rather than the
                 // default monetised icon placeholder
                 ? AssetLogo.placeholder(isBlank: true)
-                : AssetLogo.fromId(controller.coin!.id),
+                : AssetLogo.ofId(controller.coin!.id),
             const SizedBox(width: 9),
             CoinNameAndProtocol(controller.coin, controller.isOpened),
             const SizedBox(width: 9),
