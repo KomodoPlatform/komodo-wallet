@@ -16,7 +16,7 @@ enum CoinType {
   sbch,
   ubiq,
   krc20,
-  cosmos,
-  iris,
+  tendermintToken,
+  tendermint,
   slp,
 }

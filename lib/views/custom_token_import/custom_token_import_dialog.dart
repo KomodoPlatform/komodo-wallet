@@ -191,10 +191,10 @@ class ImportFormPage extends StatelessWidget {
                   labelText: LocaleKeys.selectNetwork.tr(),
                   border: const OutlineInputBorder(),
                 ),
-                items: state.evmNetworks.map((CoinSubClass coinType) {
+                items: state.evmNetworks.map((CoinSubClass coinSubClass) {
                   return DropdownMenuItem<CoinSubClass>(
-                    value: coinType,
-                    child: Text(getCoinTypeNameLong(coinType.toCoinType())),
+                    value: coinSubClass,
+                    child: Text(coinSubClass.formatted),
                   );
                 }).toList(),
                 onChanged: !initialState

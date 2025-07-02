@@ -40,7 +40,8 @@ Future<void> copyToClipBoard(
 
     if (!context.mounted) return;
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context) ??
-        ScaffoldMessenger.of(scaffoldKey.currentContext!);    scaffoldMessenger.showSnackBar(
+        ScaffoldMessenger.of(scaffoldKey.currentContext!);
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         width: isMobile ? null : 400.0,
         content: Row(
@@ -61,7 +62,7 @@ Future<void> copyToClipBoard(
     );
   } catch (e) {
     log('Error copyToClipBoard: $e', isError: true);
-    if (!context.mounted) return;    // Show error feedback using SnackBar
+    if (!context.mounted) return; // Show error feedback using SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Failed to copy to clipboard'),
@@ -188,7 +189,10 @@ String getTxExplorerUrl(Coin coin, String txHash) {
   final String explorerTxUrl = coin.explorerTxUrl;
   if (explorerUrl.isEmpty) return '';
 
-  final hash = coin.type == CoinType.iris ? txHash.toUpperCase() : txHash;
+  final hash =
+      coin.type == CoinType.tendermint || coin.type == CoinType.tendermintToken
+          ? txHash.toUpperCase()
+          : txHash;
 
   return coin.need0xPrefixForTxHash && !hash.startsWith('0x')
       ? '$explorerUrl${explorerTxUrl}0x$hash'
@@ -502,8 +506,8 @@ String? getErcTransactionHistoryUrl(Coin coin) {
         contractAddress,
         coin.isTestCoin,
       ); // KCS
-    case CoinType.cosmos:
-    case CoinType.iris:
+    case CoinType.tendermint:
+    case CoinType.tendermintToken:
     case CoinType.qrc20:
     case CoinType.smartChain:
     case CoinType.utxo:
@@ -560,9 +564,9 @@ Color getProtocolColor(CoinType type) {
       return const Color.fromRGBO(0, 234, 144, 1);
     case CoinType.krc20:
       return const Color.fromRGBO(66, 229, 174, 1);
-    case CoinType.cosmos:
+    case CoinType.tendermintToken:
       return const Color.fromRGBO(60, 60, 85, 1);
-    case CoinType.iris:
+    case CoinType.tendermint:
       return const Color.fromRGBO(136, 87, 138, 1);
     case CoinType.slp:
       return const Color.fromRGBO(134, 184, 124, 1);
@@ -579,8 +583,8 @@ bool hasTxHistorySupport(Coin coin) {
     case CoinType.hrc20:
       return false;
     case CoinType.krc20:
-    case CoinType.cosmos:
-    case CoinType.iris:
+    case CoinType.tendermint:
+    case CoinType.tendermintToken:
     case CoinType.utxo:
     case CoinType.erc20:
     case CoinType.smartChain:
@@ -600,14 +604,15 @@ bool hasTxHistorySupport(Coin coin) {
 
 String getNativeExplorerUrlByCoin(Coin coin, String? address) {
   final bool hasSupport = hasTxHistorySupport(coin);
+  final coinAddress = address ?? coin.address;
   assert(!hasSupport);
 
   switch (coin.type) {
     case CoinType.sbch:
-    case CoinType.iris:
-      return '${coin.explorerUrl}address/${coin.address}';
-    case CoinType.cosmos:
-      return '${coin.explorerUrl}account/${coin.address}';
+    case CoinType.tendermint:
+      return '${coin.explorerUrl}address/$coinAddress';
+    case CoinType.tendermintToken:
+      return '${coin.explorerUrl}account/$coinAddress';
 
     case CoinType.utxo:
     case CoinType.smartChain:
@@ -625,7 +630,7 @@ String getNativeExplorerUrlByCoin(Coin coin, String? address) {
     case CoinType.ubiq:
     case CoinType.krc20:
     case CoinType.slp:
-      return '${coin.explorerUrl}address/${address ?? coin.address}';
+      return '${coin.explorerUrl}address/$coinAddress';
   }
 }
 
