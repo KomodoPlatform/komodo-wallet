@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class AddressCopyButton extends StatelessWidget {
   final String address;
+  final String coinAbbr;
 
-  const AddressCopyButton({Key? key, required this.address}) : super(key: key);
+  const AddressCopyButton(
+      {super.key, required this.address, this.coinAbbr = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +17,12 @@ class AddressCopyButton extends StatelessWidget {
       icon: const Icon(Icons.copy, size: 16),
       color: Theme.of(context).textTheme.bodyMedium!.color,
       onPressed: () {
-        copyToClipBoard(context, address);
+        copyToClipBoard(
+            context,
+            address,
+            coinAbbr.isNotEmpty
+                ? LocaleKeys.copiedAddressToClipboard.tr(args: [coinAbbr])
+                : null);
       },
     );
   }

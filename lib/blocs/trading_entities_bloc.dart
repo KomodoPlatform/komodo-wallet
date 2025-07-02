@@ -55,7 +55,8 @@ class TradingEntitiesBloc implements BlocBase {
   List<Swap> get swaps => _swaps;
   set swaps(List<Swap> swapList) {
     swapList.sort(
-        (first, second) => second.myInfo.startedAt - first.myInfo.startedAt);
+        (first, second) =>
+            (second.myInfo?.startedAt ?? 0) - (first.myInfo?.startedAt ?? 0));
     _swaps = swapList;
     _inSwaps.add(_swaps);
   }
@@ -126,7 +127,7 @@ class TradingEntitiesBloc implements BlocBase {
     final double swapFill = swaps.fold(
         0,
         (previousValue, swap) =>
-            previousValue + swap.myInfo.myAmount.toDouble());
+            previousValue + (swap.myInfo?.myAmount ?? 0));
     return swapFill / order.baseAmount.toDouble();
   }
 

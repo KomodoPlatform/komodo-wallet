@@ -27,9 +27,7 @@ class FeedbackService {
       TrelloFeedbackProvider.fromEnvironment(),
       // Use debug console provider as fallback in debug mode
       if (kDebugMode) DebugConsoleFeedbackProvider(),
-    ].firstWhereOrNull(
-      (provider) => provider != null && provider.isAvailable,
-    );
+    ].firstWhereOrNull((provider) => provider != null && provider.isAvailable);
 
     return provider != null ? FeedbackService(provider: provider) : null;
   }
@@ -46,8 +44,8 @@ class FeedbackService {
     final buildMode = kReleaseMode
         ? 'release'
         : kDebugMode
-            ? 'debug'
-            : (kProfileMode ? 'profile' : 'unknown');
+        ? 'debug'
+        : (kProfileMode ? 'profile' : 'unknown');
 
     // Extract contact information from the extras if provided
     String? contactMethod;
@@ -63,8 +61,10 @@ class FeedbackService {
 
     final Map<String, dynamic> metadata = {
       'platform': kIsWeb ? 'web' : 'native',
-      'commitHash':
-          const String.fromEnvironment('COMMIT_HASH', defaultValue: 'unknown'),
+      'commitHash': const String.fromEnvironment(
+        'COMMIT_HASH',
+        defaultValue: 'unknown',
+      ),
       // We don't want to expose the base URI for native builds as this could
       // contain personal information.
       'baseUrl': kIsWeb ? Uri.base.toString() : null,
@@ -85,7 +85,14 @@ class FeedbackService {
       );
       return true;
     } catch (e) {
-      debugPrint('Failed to submit feedback: $e');
+      final altAvailable = provider is TrelloFeedbackProvider
+          ? CloudflareFeedbackProvider.fromEnvironment().isAvailable
+          : provider is CloudflareFeedbackProvider
+          ? TrelloFeedbackProvider.hasEnvironmentVariables()
+          : true;
+      if (kDebugMode && !altAvailable) {
+        debugPrint('Failed to submit feedback: $e');
+      }
       return false;
     }
   }
@@ -149,16 +156,22 @@ class TrelloFeedbackProvider implements FeedbackProvider {
       'TRELLO_API_KEY': const String.fromEnvironment('TRELLO_API_KEY'),
       'TRELLO_TOKEN': const String.fromEnvironment('TRELLO_TOKEN'),
       'TRELLO_BOARD_ID': const String.fromEnvironment('TRELLO_BOARD_ID'),
-      'TRELLO_LIST_ID': const String.fromEnvironment('TRELLO_LIST_ID')
+      'TRELLO_LIST_ID': const String.fromEnvironment('TRELLO_LIST_ID'),
     };
 
-    final missingVars =
-        requiredVars.entries.where((e) => e.value.isEmpty).toList();
+    final missingVars = requiredVars.entries
+        .where((e) => e.value.isEmpty)
+        .toList();
 
     if (missingVars.isNotEmpty) {
-      debugPrint(
-        'Missing required environment variables for Trello feedback provider: ${missingVars.join(", ")}',
-      );
+      final altAvailable =
+          CloudflareFeedbackProvider.fromEnvironment().isAvailable;
+      if (kDebugMode && !altAvailable) {
+        debugPrint(
+          'Missing required environment variables for Trello feedback provider: ' +
+              missingVars.join(', '),
+        );
+      }
       return false;
     }
 
@@ -200,7 +213,8 @@ class TrelloFeedbackProvider implements FeedbackProvider {
           'key': apiKey,
           'token': token,
           'name': 'Feedback: $type',
-          'desc': '''
+          'desc':
+              '''
 Description:
 $description
 
@@ -212,7 +226,8 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
 
       if (cardResponse.statusCode != 200) {
         throw Exception(
-            'Failed to create Trello card (${cardResponse.statusCode}): ${cardResponse.body}');
+          'Failed to create Trello card (${cardResponse.statusCode}): ${cardResponse.body}',
+        );
       }
 
       final cardId = jsonDecode(cardResponse.body)['id'];
@@ -223,10 +238,7 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
         Uri.parse('https://api.trello.com/1/cards/$cardId/attachments'),
       );
 
-      attachmentRequest.fields.addAll({
-        'key': apiKey,
-        'token': token,
-      });
+      attachmentRequest.fields.addAll({'key': apiKey, 'token': token});
 
       attachmentRequest.files.add(
         http.MultipartFile.fromBytes(
@@ -237,8 +249,9 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
       );
 
       final attachmentResponse = await attachmentRequest.send();
-      final streamedResponse =
-          await http.Response.fromStream(attachmentResponse);
+      final streamedResponse = await http.Response.fromStream(
+        attachmentResponse,
+      );
 
       if (streamedResponse.statusCode != 200) {
         throw Exception(
@@ -246,7 +259,11 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
         );
       }
     } catch (e) {
-      debugPrint('Error in Trello submitFeedback: $e');
+      final altAvailable =
+          CloudflareFeedbackProvider.fromEnvironment().isAvailable;
+      if (kDebugMode && !altAvailable) {
+        debugPrint('Error in Trello submitFeedback: $e');
+      }
       rethrow;
     }
   }
@@ -331,7 +348,8 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
   }) async {
     try {
       // Format description text exactly like in the test script
-      final formattedDesc = '''
+      final formattedDesc =
+          '''
 Description:
 $description
 
@@ -341,9 +359,7 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
 
       final request = http.MultipartRequest('POST', Uri.parse(_endpoint));
 
-      request.headers.addAll({
-        'X-KW-KEY': apiKey,
-      });
+      request.headers.addAll({'X-KW-KEY': apiKey});
 
       request.fields.addAll({
         'idBoard': boardId,
@@ -372,7 +388,10 @@ ${metadata.entries.map((e) => '${e.key}: ${e.value}').join('\n')}
         );
       }
     } catch (e) {
-      debugPrint('Error in Cloudflare submitFeedback: $e');
+      final altAvailable = TrelloFeedbackProvider.hasEnvironmentVariables();
+      if (kDebugMode && !altAvailable) {
+        debugPrint('Error in Cloudflare submitFeedback: $e');
+      }
       rethrow;
     }
   }
@@ -408,7 +427,8 @@ extension BuildContextShowFeedback on BuildContext {
     final feedbackService = FeedbackService.create();
     if (feedbackService == null) {
       debugPrint(
-          'Feedback dialog not shown: feedback service is not configured');
+        'Feedback dialog not shown: feedback service is not configured',
+      );
       return;
     }
 
@@ -437,26 +457,16 @@ extension BuildContextShowFeedback on BuildContext {
           }
 
           // Show success message
-          final theme = Theme.of(this);
           ScaffoldMessenger.of(this).showSnackBar(
             SnackBar(
               content: Text(
                 'Thank you! ${LocaleKeys.feedbackFormDescription.tr()}',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
               ),
-              backgroundColor: theme.colorScheme.primaryContainer,
               action: SnackBarAction(
                 label: LocaleKeys.addMoreFeedback.tr(),
-                textColor: theme.colorScheme.onPrimaryContainer,
                 onPressed: () => showFeedback(),
               ),
               duration: const Duration(seconds: 5),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
             ),
           );
         } else {
@@ -471,10 +481,6 @@ extension BuildContextShowFeedback on BuildContext {
                 ),
               ),
               backgroundColor: theme.colorScheme.errorContainer,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
             ),
           );
         }
@@ -492,10 +498,6 @@ extension BuildContextShowFeedback on BuildContext {
               ),
             ),
             backgroundColor: theme.colorScheme.errorContainer,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
           ),
         );
       }
@@ -574,10 +576,7 @@ Future<void> _showDiscordInfoDialog(BuildContext context) {
 
 Future<void> _openDiscordSupport() async {
   try {
-    await launchUrl(
-      discordInviteUrl,
-      mode: LaunchMode.externalApplication,
-    );
+    await launchUrl(discordInviteUrl, mode: LaunchMode.externalApplication);
   } catch (e) {
     debugPrint('Error opening Discord link: $e');
   }
