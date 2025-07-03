@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
@@ -26,14 +28,17 @@ class TakerValidator {
     required TakerBloc bloc,
     required CoinsRepo coinsRepo,
     required DexRepository dexRepo,
+    required KomodoDefiSdk sdk,
   })  : _bloc = bloc,
         _coinsRepo = coinsRepo,
         _dexRepo = dexRepo,
+        _sdk = sdk,
         add = bloc.add;
 
   final TakerBloc _bloc;
   final CoinsRepo _coinsRepo;
   final DexRepository _dexRepo;
+  final KomodoDefiSdk _sdk;
 
   final Function(TakerEvent) add;
   TakerState get state => _bloc.state;
@@ -212,32 +217,21 @@ class TakerValidator {
   }
 
   Future<bool> _validateCoinAndParent(String abbr) async {
-    final Coin? coin = await _coinsRepo.getEnabledCoin(abbr);
-
-    if (coin == null) {
-      add(TakerAddError(_unknownCoinError(abbr)));
+    final coin = _sdk.getSdkAsset(abbr);
+    final enabledAssets = await _sdk.assets.getActivatedAssets();
+    final isAssetEnabled = enabledAssets.contains(coin);
+    final parentId = coin.id.parentId;
+    final parent = _sdk.assets.available[parentId];
+    
+    if (!isAssetEnabled) {
+      add(TakerAddError(_coinNotActiveError(coin.id.id)));
       return false;
     }
 
-    if (coin.enabledType == null) {
-      add(TakerAddError(_coinNotActiveError(coin.abbr)));
-      return false;
-    }
-
-    if (coin.isSuspended) {
-      add(TakerAddError(_coinSuspendedError(coin.abbr)));
-      return false;
-    }
-
-    final Coin? parent = coin.parentCoin;
     if (parent != null) {
-      if (parent.enabledType == null) {
-        add(TakerAddError(_coinNotActiveError(parent.abbr)));
-        return false;
-      }
-
-      if (parent.isSuspended) {
-        add(TakerAddError(_coinSuspendedError(parent.abbr)));
+      final isParentEnabled = enabledAssets.contains(parent);
+      if (!isParentEnabled) {
+        add(TakerAddError(_coinNotActiveError(parent.id.id)));
         return false;
       }
     }
@@ -255,7 +249,6 @@ class TakerValidator {
 
     final Coin? sellCoin = state.sellCoin;
     if (sellCoin == null) return false;
-    if (sellCoin.enabledType == null) return false;
     if (sellCoin.isSuspended) return false;
 
     final Rational? sellAmount = state.sellAmount;
@@ -268,7 +261,6 @@ class TakerValidator {
 
     final Coin? parentSell = sellCoin.parentCoin;
     if (parentSell != null) {
-      if (parentSell.enabledType == null) return false;
       if (parentSell.isSuspended) return false;
       if (parentSell.balance(sdk) == 0.00) return false;
     }
@@ -277,11 +269,9 @@ class TakerValidator {
     if (selectedOrder == null) return false;
     final Coin? buyCoin = _coinsRepo.getCoin(selectedOrder.coin);
     if (buyCoin == null) return false;
-    if (buyCoin.enabledType == null) return false;
 
     final Coin? parentBuy = buyCoin.parentCoin;
     if (parentBuy != null) {
-      if (parentBuy.enabledType == null) return false;
       if (parentBuy.isSuspended) return false;
       if (parentBuy.balance(sdk) == 0.00) return false;
     }
@@ -320,13 +310,6 @@ class TakerValidator {
       return DataFromService(
           error: TextError(error: 'Failed to request trade preimage'));
     }
-  }
-
-  DexFormError _unknownCoinError(String abbr) =>
-      DexFormError(error: 'Unknown coin $abbr.');
-
-  DexFormError _coinSuspendedError(String abbr) {
-    return DexFormError(error: '$abbr suspended.');
   }
 
   DexFormError _coinNotActiveError(String abbr) {

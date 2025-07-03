@@ -39,6 +39,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       bloc: this,
       coinsRepo: _coinsRepo,
       dexRepo: _dexRepo,
+      sdk: kdfSdk,
     );
 
     on<TakerSetDefaults>(_onSetDefaults);
