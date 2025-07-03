@@ -14,12 +14,14 @@ class AssetListItem extends StatelessWidget {
     required this.backgroundColor,
     required this.onTap,
     this.isActivating = false,
+    this.priceChangePercentage24h,
   });
 
   final AssetId assetId;
   final Color backgroundColor;
   final void Function(AssetId) onTap;
   final bool isActivating;
+  final double? priceChangePercentage24h;
 
   @override
   Widget build(BuildContext context) {

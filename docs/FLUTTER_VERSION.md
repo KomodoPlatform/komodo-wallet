@@ -2,7 +2,7 @@
 
 ## Supported Flutter Version
 
-This project supports Flutter `3.32.0` (latest stable release). We aim to keep the project up-to-date with the most recent stable Flutter versions.
+This project supports Flutter `3.32.5` (latest stable release). We aim to keep the project up-to-date with the most recent stable Flutter versions.
 
 ## Recommended Approach: Multiple Flutter Versions
 
@@ -15,14 +15,14 @@ See our guide on [Multiple Flutter Versions](MULTIPLE_FLUTTER_VERSIONS.md) for d
 While it's possible to pin your global Flutter installation to a specific version, **this approach is not recommended** due to:
 
 - Lack of isolation between projects
-- Known issues with `flutter pub get` when using Flutter 3.32.0
+- Known issues with `flutter pub get` when using Flutter 3.32.5
 - Difficulty switching between versions for different projects
 
 If you still choose to use this method, you can run:
 
 ```bash
 cd ~/flutter
-git checkout 3.32.0
+git checkout 3.32.5
 flutter doctor
 ```
 

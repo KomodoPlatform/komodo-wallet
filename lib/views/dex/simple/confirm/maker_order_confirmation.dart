@@ -9,6 +9,7 @@ import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -126,6 +127,9 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
   }
 
   Widget _buildConfirmButton() {
+    final tradingState = context.watch<TradingStatusBloc>().state;
+    final bool tradingEnabled = tradingState.isEnabled;
+
     return Opacity(
       opacity: _inProgress ? 0.8 : 1,
       child: UiPrimaryButton(
@@ -141,8 +145,10 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
                   ),
                 )
               : null,
-          onPressed: _inProgress ? null : _startSwap,
-          text: LocaleKeys.confirm.tr()),
+          onPressed: _inProgress || !tradingEnabled ? null : _startSwap,
+          text: tradingEnabled
+              ? LocaleKeys.confirm.tr()
+              : LocaleKeys.tradingDisabledTooltip.tr()),
     );
   }
 

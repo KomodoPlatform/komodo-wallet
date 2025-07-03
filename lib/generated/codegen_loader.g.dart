@@ -17,9 +17,9 @@ abstract class  LocaleKeys {
   static const change24h = 'change24h';
   static const change24hRevert = 'change24hRevert';
   static const viewOnExplorer = 'viewOnExplorer';
+  static const explorerUnavailable = 'explorerUnavailable';
   static const getRewards = 'getRewards';
   static const rewardBoxTitle = 'rewardBoxTitle';
-  static const sendToAddress = 'sendToAddress';
   static const network = 'network';
   static const rewardBoxSubTitle = 'rewardBoxSubTitle';
   static const rewardBoxReadMore = 'rewardBoxReadMore';
@@ -267,6 +267,8 @@ abstract class  LocaleKeys {
   static const cancelAll = 'cancelAll';
   static const type = 'type';
   static const sell = 'sell';
+  static const sellCrypto = 'sellCrypto';
+  static const sellCryptoDescription = 'sellCryptoDescription';
   static const buy = 'buy';
   static const changingWalletPassword = 'changingWalletPassword';
   static const changingWalletPasswordDescription = 'changingWalletPasswordDescription';
@@ -482,7 +484,8 @@ abstract class  LocaleKeys {
   static const allowCustomFee = 'allowCustomFee';
   static const cancelOrder = 'cancelOrder';
   static const version = 'version';
-  static const copyToClipboard = 'copyToClipboard';
+  static const copyAddressToClipboard = 'copyAddressToClipboard';
+  static const copiedAddressToClipboard = 'copiedAddressToClipboard';
   static const createdAt = 'createdAt';
   static const coin = 'coin';
   static const token = 'token';
@@ -575,6 +578,7 @@ abstract class  LocaleKeys {
   static const komodoWallet = 'komodoWallet';
   static const loadingNfts = 'loadingNfts';
   static const coinAssets = 'coinAssets';
+  static const commit = 'commit';
   static const bundled = 'bundled';
   static const updated = 'updated';
   static const notUpdated = 'notUpdated';
@@ -636,7 +640,7 @@ abstract class  LocaleKeys {
   static const decimals = 'decimals';
   static const onlySendToThisAddress = 'onlySendToThisAddress';
   static const scanTheQrCode = 'scanTheQrCode';
-  static const swapAddress = 'swapAddress';
+  static const tradingAddress = 'tradingAddress';
   static const addresses = 'addresses';
   static const creating = 'creating';
   static const createAddress = 'createAddress';
@@ -672,6 +676,9 @@ abstract class  LocaleKeys {
   static const previewWithdrawal = 'previewWithdrawal';
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
+  static const trend7d = 'trend7d';
+  static const tradingDisabledTooltip = 'tradingDisabledTooltip';
+  static const tradingDisabled = 'tradingDisabled';
   static const chart = 'chart';
   static const sendFrom = 'sendFrom';
   static const confirmWithdrawal = 'confirmWithdrawal';

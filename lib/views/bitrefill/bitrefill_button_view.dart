@@ -10,14 +10,16 @@ class BitrefillButtonView extends StatelessWidget {
   const BitrefillButtonView({
     super.key,
     required this.onPressed,
+    this.tooltip,
   });
 
   final void Function()? onPressed;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    return UiPrimaryButton(
+    final buttonWidget = UiPrimaryButton(
       height: isMobile ? 52 : 40,
       prefix: Container(
         padding: const EdgeInsets.only(right: 14),
@@ -31,5 +33,16 @@ class BitrefillButtonView extends StatelessWidget {
       onPressed: onPressed,
       text: LocaleKeys.spend.tr(),
     );
+
+    // Always wrap with tooltip if provided, especially important for disabled buttons
+    if (tooltip != null && tooltip!.isNotEmpty) {
+      return Tooltip(
+        message: tooltip!,
+        preferBelow: false,
+        child: buttonWidget,
+      );
+    }
+
+    return buttonWidget;
   }
 }

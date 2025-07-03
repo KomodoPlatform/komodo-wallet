@@ -6,15 +6,15 @@ import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
@@ -95,21 +95,31 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _coinAddressesBloc,
-      child: PageLayout(
-        header: PageHeader(
-          title: widget.coin.name,
-          widgetTitle: widget.coin.mode == CoinMode.segwit
-              ? const Padding(
-                  padding: EdgeInsets.only(left: 6.0),
-                  child: SegwitIcon(height: 22),
-                )
-              : null,
-          backText: _backText,
-          onBackButtonPressed: _onBackButtonPressed,
-          actions: [_buildDisableButton()],
-        ),
-        content: Expanded(
-          child: _buildContent(context),
+      child: BlocListener<CoinAddressesBloc, CoinAddressesState>(
+        listenWhen: (previous, current) =>
+            previous.createAddressStatus != current.createAddressStatus &&
+            current.createAddressStatus == FormStatus.success,
+        listener: (context, state) {
+          context
+              .read<CoinsBloc>()
+              .add(CoinsPubkeysRequested(widget.coin.abbr));
+        },
+        child: PageLayout(
+          header: PageHeader(
+            title: widget.coin.name,
+            widgetTitle: widget.coin.mode == CoinMode.segwit
+                ? const Padding(
+                    padding: EdgeInsets.only(left: 6.0),
+                    child: SegwitIcon(height: 22),
+                  )
+                : null,
+            backText: _backText,
+            onBackButtonPressed: _onBackButtonPressed,
+            actions: [_buildDisableButton()],
+          ),
+          content: Expanded(
+            child: _buildContent(context),
+          ),
         ),
       ),
     );
@@ -267,9 +277,10 @@ class _DesktopCoinDetails extends StatelessWidget {
             child: CoinDetailsCommonButtons(
               isMobile: false,
               selectWidget: setPageType,
-              onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
-                  ? null
-                  : () => _goToSwap(context, coin),
+              onClickSwapButton:
+                  context.watch<TradingStatusBloc>().state is TradingEnabled
+                      ? () => _goToSwap(context, coin)
+                      : null,
               coin: coin,
             ),
           ),
@@ -368,9 +379,10 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
             child: CoinDetailsCommonButtons(
               isMobile: true,
               selectWidget: setPageType,
-              onClickSwapButton: MainMenuValue.dex.isEnabledInCurrentMode()
-                  ? () => _goToSwap(context, coin)
-                  : null,
+              onClickSwapButton:
+                  context.watch<TradingStatusBloc>().state is TradingEnabled
+                      ? () => _goToSwap(context, coin)
+                      : null,
               coin: coin,
             ),
           ),
