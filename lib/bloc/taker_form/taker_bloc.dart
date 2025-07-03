@@ -47,7 +47,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     on<TakerOrderSelectorClick>(_onOrderSelectorClick);
     on<TakerCoinSelectorOpen>(_onCoinSelectorOpen);
     on<TakerOrderSelectorOpen>(_onOrderSelectorOpen);
-    on<TakerSetSellCoin>(_onSetSellCoin);
+    on<TakerSetSellCoin>(_onSetSellCoin, transformer: restartable());
     on<TakerSelectOrder>(_onSelectOrder);
     on<TakerAddError>(_onAddError);
     on<TakerClearErrors>(_onClearErrors);
@@ -193,6 +193,10 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     Emitter<TakerState> emit,
   ) {
     final List<DexFormError> errorsList = List.from(state.errors);
+    if (errorsList.any((e) => e.error == event.error.error)) {
+      // Avoid adding duplicate errors
+      return;
+    }
     errorsList.add(event.error);
 
     emit(state.copyWith(
