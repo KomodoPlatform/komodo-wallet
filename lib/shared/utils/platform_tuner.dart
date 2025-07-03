@@ -17,6 +17,13 @@ abstract class PlatformTuner {
         defaultTargetPlatform == TargetPlatform.linux;
   }
 
+  static bool get isNativeMobile {
+    if (kIsWeb) return false;
+
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
   static Future<void> setWindowTitleAndSize() async {
     if (!isNativeDesktop) return;
 
