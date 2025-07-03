@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
+import 'package:flutter/services.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
@@ -135,12 +136,27 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
       WidgetsBinding.instance.removeObserver(this);
     }
 
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.child;
+    final child = widget.child;
+
+    if (!PlatformTuner.isNativeDesktop && !kIsWeb) {
+      return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (didPop) return;
+          final shouldClose = await _handleWindowClose();
+          if (shouldClose) {
+            await SystemNavigator.pop();
+          }
+        },
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
