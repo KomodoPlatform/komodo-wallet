@@ -168,10 +168,10 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     add(TakerSetSellAmount(amount));
   }
 
-  void _onSetSellAmount(
+  Future<void> _onSetSellAmount(
     TakerSetSellAmount event,
     Emitter<TakerState> emit,
-  ) {
+  ) async {
     emit(state.copyWith(
       sellAmount: () => event.amount,
       buyAmount: () => calculateBuyAmount(
@@ -181,7 +181,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     ));
 
     if (state.autovalidate) {
-      _validator.validateForm();
+      await _validator.validateForm();
     } else {
       add(TakerVerifyOrderVolume());
     }
@@ -232,7 +232,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     if (!state.autovalidate) add(TakerVerifyOrderVolume());
 
     await _autoActivateCoin(state.selectedOrder?.coin);
-    if (state.autovalidate) _validator.validateForm();
+    if (state.autovalidate) await _validator.validateForm();
     add(TakerUpdateFees());
   }
 
@@ -326,7 +326,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     Emitter<TakerState> emit,
   ) async {
     if (state.sellCoin == null) {
-      _validator.validateForm();
+      await _validator.validateForm();
       return;
     }
 

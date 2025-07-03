@@ -77,6 +77,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       bloc: this,
       coinsRepository: coinsRepository,
       dexRepository: dexRepository,
+      sdk: _kdfSdk,
     );
 
     _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((event) {
@@ -297,7 +298,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     if (!state.autovalidate) add(const BridgeVerifyOrderVolume());
 
     await _autoActivateCoin(event.order?.coin);
-    if (state.autovalidate) _validator.validateForm();
+    if (state.autovalidate) await _validator.validateForm();
     _subscribeFees();
   }
 
@@ -361,10 +362,10 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     add(BridgeSetSellAmount(amount));
   }
 
-  void _onSetSellAmount(
+  Future<void> _onSetSellAmount(
     BridgeSetSellAmount event,
     Emitter<BridgeState> emit,
-  ) {
+  ) async {
     emit(state.copyWith(
       sellAmount: () => event.amount,
       buyAmount: () => calculateBuyAmount(
@@ -374,7 +375,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     ));
 
     if (state.autovalidate) {
-      _validator.validateForm();
+      await _validator.validateForm();
     } else {
       add(const BridgeVerifyOrderVolume());
     }

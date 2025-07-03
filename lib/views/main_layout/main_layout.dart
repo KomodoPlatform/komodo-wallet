@@ -29,13 +29,13 @@ class _MainLayoutState extends State<MainLayout> {
   void initState() {
     // TODO: localize
     showMessageBeforeUnload('Are you sure you want to leave?');
+    final tradingStatusBloc = context.read<TradingStatusBloc>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
-      final tradingEnabled =
-          context.read<TradingStatusBloc>().state is TradingEnabled;
+      final tradingEnabled = tradingStatusBloc.state is TradingEnabled;
       if (tradingEnabled &&
           kShowTradingWarning &&
           !await _hasAgreedNoTrading()) {

@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -138,10 +137,14 @@ class TakerValidator {
     final BestOrder selectedOrder = state.selectedOrder!;
 
     final selectedOrderAddress = selectedOrder.address;
-    final coin = await _coinsRepo.getEnabledCoin(selectedOrder.coin);
-    final ownAddress = coin?.address;
+    final asset = _sdk.getSdkAsset(selectedOrder.coin);
+    final ownPubkeys = await _sdk.pubkeys.getPubkeys(asset);
+    final ownAddresses = ownPubkeys.keys
+        .where((pubkeyInfo) => pubkeyInfo.isActiveForSwap)
+        .map((e) => e.address)
+        .toSet();
 
-    if (selectedOrderAddress.addressData == ownAddress) {
+    if (ownAddresses.contains(selectedOrderAddress.addressData)) {
       add(TakerAddError(_tradingWithSelfError()));
       return true;
     }
@@ -222,7 +225,7 @@ class TakerValidator {
     final isAssetEnabled = enabledAssets.contains(coin);
     final parentId = coin.id.parentId;
     final parent = _sdk.assets.available[parentId];
-    
+
     if (!isAssetEnabled) {
       add(TakerAddError(_coinNotActiveError(coin.id.id)));
       return false;

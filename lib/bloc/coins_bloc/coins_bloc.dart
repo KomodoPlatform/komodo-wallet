@@ -354,21 +354,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     final List<Coin> coins = [...state.walletCoins.values];
     for (final Coin coin in coins) {
-      switch (coin.enabledType) {
-        case WalletType.iguana:
-        case WalletType.hdwallet:
-          coin.reset();
-          final newWalletCoins = Map<String, Coin>.of(state.walletCoins);
-          newWalletCoins.remove(coin.id.id.toUpperCase());
-          emit(state.copyWith(walletCoins: newWalletCoins));
-          _log.info('Logout: ${coin.name} has been removed from wallet coins');
-        case WalletType.trezor:
-        case WalletType.metamask:
-        case WalletType.keplr:
-        case null:
-          break;
-      }
       coin.reset();
+      final newWalletCoins = Map<String, Coin>.of(state.walletCoins);
+      newWalletCoins.remove(coin.id.id.toUpperCase());
+      emit(state.copyWith(walletCoins: newWalletCoins));
+      _log.info('Logout: ${coin.name} has been removed from wallet coins');
     }
 
     emit(
