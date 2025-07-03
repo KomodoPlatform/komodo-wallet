@@ -10,6 +10,7 @@ class SettingsState extends Equatable {
     required this.testCoinsEnabled,
     required this.weakPasswordsAllowed,
     required this.ultraDark,
+    required this.coinThemeFromIcon,
   });
 
   factory SettingsState.fromStored(StoredSettings stored) {
@@ -19,6 +20,7 @@ class SettingsState extends Equatable {
       testCoinsEnabled: stored.testCoinsEnabled,
       weakPasswordsAllowed: stored.weakPasswordsAllowed,
       ultraDark: stored.ultraDark,
+      coinThemeFromIcon: stored.coinThemeFromIcon,
     );
   }
 
@@ -27,6 +29,7 @@ class SettingsState extends Equatable {
   final bool testCoinsEnabled;
   final bool weakPasswordsAllowed;
   final bool ultraDark;
+  final bool coinThemeFromIcon;
 
   @override
   List<Object?> get props => [
@@ -35,6 +38,7 @@ class SettingsState extends Equatable {
         testCoinsEnabled,
         weakPasswordsAllowed,
         ultraDark,
+        coinThemeFromIcon,
       ];
 
   SettingsState copyWith({
@@ -43,6 +47,7 @@ class SettingsState extends Equatable {
     bool? testCoinsEnabled,
     bool? weakPasswordsAllowed,
     bool? ultraDark,
+    bool? coinThemeFromIcon,
   }) {
     return SettingsState(
       themeMode: mode ?? themeMode,
@@ -50,6 +55,7 @@ class SettingsState extends Equatable {
       testCoinsEnabled: testCoinsEnabled ?? this.testCoinsEnabled,
       weakPasswordsAllowed: weakPasswordsAllowed ?? this.weakPasswordsAllowed,
       ultraDark: ultraDark ?? this.ultraDark,
+      coinThemeFromIcon: coinThemeFromIcon ?? this.coinThemeFromIcon,
     );
   }
 }

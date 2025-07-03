@@ -615,6 +615,7 @@
     "testCoins": "Test coins",
     "enableTradingBot": "Enable Trading Bot",
     "enableTestCoins": "Enable Test Coins",
+    "coinThemeFromIcon": "Match coin page colors to icon",
     "makeMarket": "Make Market",
     "custom": "Custom",
     "edit": "Edit",
