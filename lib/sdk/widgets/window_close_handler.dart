@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2.dart';
@@ -13,6 +14,7 @@ import 'package:web_dex/shared/utils/window/window.dart';
 /// - Desktop (Windows, macOS, Linux): Uses flutter_window_close for native window close handling
 /// - Web: Uses showMessageBeforeUnload for browser beforeunload event
 /// - Mobile (iOS, Android): Uses WidgetsBindingObserver for lifecycle management
+///   and PopScope for exit confirmation
 ///
 /// In all cases, it ensures the KomodoDefiSdk is properly disposed when the app is closed.
 class WindowCloseHandler extends StatefulWidget {
@@ -110,6 +112,13 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
     return false;
   }
 
+  Future<void> _handlePop() async {
+    final shouldClose = await _handleWindowClose();
+    if (shouldClose) {
+      await SystemNavigator.pop();
+    }
+  }
+
   /// Disposes the SDK if it hasn't been disposed already.
   Future<void> _disposeSDKIfNeeded() async {
     if (!_hasSdkBeenDisposed) {
@@ -135,12 +144,23 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
       WidgetsBinding.instance.removeObserver(this);
     }
 
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (PlatformTuner.isNativeMobile) {
+      return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (!didPop) {
+            _handlePop();
+          }
+        },
+        child: widget.child,
+      );
+    }
+
     return widget.child;
   }
 }
