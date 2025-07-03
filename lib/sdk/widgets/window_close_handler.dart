@@ -99,7 +99,7 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
             },
           );
 
-    print('Window close handler: User confirmed close - $shouldClose');
+    log('Window close handler: User confirmed close - $shouldClose');
 
     // If user confirmed, dispose the SDK
     if (shouldClose == true) {
@@ -117,10 +117,10 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
 
       try {
         await mm2.dispose();
-        print('Window close handler: SDK disposed successfully');
+        log('Window close handler: SDK disposed successfully');
       } catch (e, s) {
-        print('Window close handler: error during SDK disposal - $e');
-        print('Stack trace: ${s.toString()}');
+        log('Window close handler: error during SDK disposal - $e');
+        log('Stack trace: ${s.toString()}');
       }
     }
   }

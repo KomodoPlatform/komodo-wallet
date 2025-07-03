@@ -513,6 +513,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_window_close:
+    dependency: "direct main"
+    description:
+      name: flutter_window_close
+      sha256: bbdd1ec57259cbffc3f978c1709a3314a0991f042490d9d0a02c5fd70ac8dff6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   formz:
     dependency: "direct main"
     description:
