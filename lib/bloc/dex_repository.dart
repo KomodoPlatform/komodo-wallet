@@ -104,7 +104,7 @@ class DexRepository {
       return null;
     }
 
-    return fract2rat(response.volume.toJson());
+    return fract2rat(response.volume.toFractionalJson());
   }
 
   Future<Rational?> getMinTradingVolume(String coinAbbr) async {

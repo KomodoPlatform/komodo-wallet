@@ -49,7 +49,7 @@ class MaxMakerVolResponseValue {
     }
 
     return MaxMakerVolResponseValue(
-      decimal: json['decimal'] as String,
+      decimal: json['decimal'] as String? ?? '',
       numer: fraction['numer'] as String,
       denom: fraction['denom'] as String,
     );
@@ -59,8 +59,7 @@ class MaxMakerVolResponseValue {
   final String numer;
   final String denom;
 
-  Map<String, String> toJson() => <String, String>{
-        'decimal': decimal,
+  Map<String, String> toFractionalJson() => <String, String>{
         'numer': numer,
         'denom': denom,
       };

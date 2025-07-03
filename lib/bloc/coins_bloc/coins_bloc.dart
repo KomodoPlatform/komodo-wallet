@@ -355,10 +355,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final List<Coin> coins = [...state.walletCoins.values];
     for (final Coin coin in coins) {
       coin.reset();
-      final newWalletCoins = Map<String, Coin>.of(state.walletCoins);
-      newWalletCoins.remove(coin.id.id.toUpperCase());
-      emit(state.copyWith(walletCoins: newWalletCoins));
-      _log.info('Logout: ${coin.name} has been removed from wallet coins');
+      _log.info('Logout: ${coin.name} has been reset (legacy operation)');
     }
 
     emit(
