@@ -60,7 +60,7 @@
     "showMore": "Show more",
     "settings": "Settings",
     "somethingWrong": "Something went wrong!",
-    "transactionComplete": "Transaction complete!",
+    "transactionComplete": "Tx Submitted",
     "transactionDenied": "Denied",
     "coinDisableSpan1": "You can't disable {} while it has a swap in progress",
     "confirmSending": "Confirm sending",
@@ -675,5 +675,18 @@
     "previewWithdrawal": "Preview Withdrawal",
     "createNewAddress": "Create New Address",
     "searchAddresses": "Search addresses",
-    "chart": "Chart"
+    "chart": "Chart",
+    "sendFrom": "Send from",
+    "confirmWithdrawal": "Confirm Withdrawal",
+    "transactionDetails": "Transaction Details",
+    "transactionFrom": "From:",
+    "transactionTo": "To:",
+    "transactionAmount": "Amount:",
+    "transactionMemo": "Memo:",
+    "networkFeeAndTotal" : "Network Fee & Total Amount",
+    "totalAmount": "Total Amount",
+    "youSent": "You sent",
+    "copyAddress": "Copy Address",
+    "copyAddressSuccess": "Address copied to clipboard",
+    "selectAddress": "Select Address"
 }

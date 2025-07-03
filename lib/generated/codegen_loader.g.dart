@@ -673,5 +673,18 @@ abstract class  LocaleKeys {
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
   static const chart = 'chart';
+  static const sendFrom = 'sendFrom';
+  static const confirmWithdrawal = 'confirmWithdrawal';
+  static const transactionDetails = 'transactionDetails';
+  static const transactionFrom = 'transactionFrom';
+  static const transactionTo = 'transactionTo';
+  static const transactionAmount = 'transactionAmount';
+  static const transactionMemo = 'transactionMemo';
+  static const networkFeeAndTotal = 'networkFeeAndTotal';
+  static const totalAmount = 'totalAmount';
+  static const youSent = 'youSent';
+  static const copyAddress = 'copyAddress';
+  static const copyAddressSuccess = 'copyAddressSuccess';
+  static const selectAddress = 'selectAddress';
 
 }
