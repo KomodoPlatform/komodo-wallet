@@ -1,6 +1,8 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/nft_transactions/bloc/nft_transactions_filters.dart';
@@ -55,10 +57,13 @@ class _NftTxnMobileFiltersState extends State<NftTxnMobileFilters> {
         dateFrom == null &&
         dateTo == null;
 
+    final settings = context.watch<SettingsBloc>().state;
     return Theme(
       data: Theme.of(context).brightness == Brightness.light
           ? newThemeLight
-          : newThemeDark,
+          : settings.ultraDark
+              ? newThemeUltraDark
+              : newThemeDark,
       child: Builder(builder: (context) {
         final colorScheme = Theme.of(context).extension<ColorSchemeExtension>();
         final textScheme = Theme.of(context).extension<TextThemeExtension>();

@@ -7,6 +7,7 @@
     }
     const lightBackgroundColor = '#f5f5f5';
     const darkBackgroundColor = '#121420';
+    const ultraDarkBackgroundColor = '#000000';
     const headTag = document.querySelector('head');
     const lightThemeColorMetaTag = document.createElement('meta');
     lightThemeColorMetaTag.setAttribute('media', '(prefers-color-scheme: light)');
@@ -21,6 +22,9 @@
     } else if (themeIndex === 2) {
         lightThemeColorMetaTag.setAttribute('content', darkBackgroundColor);
         darkThemeColorMetaTag.setAttribute('content', darkBackgroundColor);
+    } else if (themeIndex === 3) {
+        lightThemeColorMetaTag.setAttribute('content', ultraDarkBackgroundColor);
+        darkThemeColorMetaTag.setAttribute('content', ultraDarkBackgroundColor);
     }
     headTag.appendChild(lightThemeColorMetaTag);
     headTag.appendChild(darkThemeColorMetaTag);
@@ -31,6 +35,9 @@
         } else if (themeIndex === 2) {
             lightThemeColorMetaTag.setAttribute('content', darkBackgroundColor);
             darkThemeColorMetaTag.setAttribute('content', darkBackgroundColor);
+        } else if (themeIndex === 3) {
+            lightThemeColorMetaTag.setAttribute('content', ultraDarkBackgroundColor);
+            darkThemeColorMetaTag.setAttribute('content', ultraDarkBackgroundColor);
         }
     }
 })();

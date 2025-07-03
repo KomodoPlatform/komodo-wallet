@@ -361,7 +361,9 @@ class _MyAppViewState extends State<_MyAppView> {
       onGenerateTitle: (_) => appTitle,
       themeMode: context
           .select((SettingsBloc settingsBloc) => settingsBloc.state.themeMode),
-      darkTheme: theme.global.dark,
+      darkTheme: context.watch<SettingsBloc>().state.ultraDark
+          ? theme.global.ultraDark
+          : theme.global.dark,
       theme: theme.global.light,
       routerDelegate: _routerDelegate,
       locale: context.locale,
