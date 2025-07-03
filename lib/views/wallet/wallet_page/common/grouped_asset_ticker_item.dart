@@ -122,7 +122,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                                 state.get24hChangeForAsset(_primaryAsset) ?? 0,
                             showIcon: true,
                             iconSize: 16,
-                            precision: 2,
+                            valuePrecision: 2,
                           );
                         },
                       ),
