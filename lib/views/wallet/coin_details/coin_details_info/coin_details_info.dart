@@ -252,8 +252,8 @@ class _DesktopCoinDetails extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 12, 0),
-                child: AssetIcon.ofTicker(
-                  coin.abbr,
+                child: AssetLogo.ofId(
+                  coin.id,
                   size: 50,
                 ),
               ),
