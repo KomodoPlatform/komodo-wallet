@@ -309,7 +309,7 @@ class RampFiatProvider extends BaseFiatProvider {
       'userAddress': walletAddress,
       'finalUrl': returnUrlOnSuccess,
       'defaultFlow': 'ONRAMP',
-      'enabledFlows': '[ONRAMP]',
+      'enabledFlows': 'ONRAMP',
       'fiatCurrency': source,
       'fiatValue': sourceAmount,
       'defaultAsset': getFullCoinCode(target),
