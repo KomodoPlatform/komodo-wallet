@@ -13,6 +13,9 @@ import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/alpha_version_alert_service/alpha_version_alert_service.dart';
 import 'package:web_dex/services/feedback/feedback_service.dart';
+import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
+import 'package:web_dex/router/state/wallet_state.dart';
+import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/shared/utils/window/window.dart';
 import 'package:web_dex/views/common/header/app_header.dart';
 import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
@@ -65,14 +68,7 @@ class _MainLayoutState extends State<MainLayout> {
               ),
         body: SafeArea(child: MainLayoutRouter()),
         bottomNavigationBar: !isDesktop ? MainMenuBarMobile() : null,
-        floatingActionButton: context.isFeedbackAvailable
-            ? FloatingActionButton(
-                onPressed: () => context.showFeedback(),
-                tooltip: 'Report a bug or feedback',
-                mini: isMobile,
-                child: const Icon(Icons.bug_report),
-              )
-            : null,
+        floatingActionButton: const MainLayoutFab(),
       ),
     );
   }
@@ -110,5 +106,55 @@ class _MainLayoutState extends State<MainLayout> {
   Future<bool> _hasAgreedNoTrading() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt('wallet_only_agreed') != null;
+  }
+}
+
+class MainLayoutFab extends StatelessWidget {
+  const MainLayoutFab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = context.watch<AuthBloc>().state;
+    final bool showAddAssetsFab = isMobile &&
+        routingState.selectedMenu == MainMenuValue.wallet &&
+        routingState.walletState.selectedCoin.isEmpty &&
+        routingState.walletState.action.isEmpty &&
+        authState.mode == AuthorizeMode.logIn;
+
+    final Widget? feedbackFab = context.isFeedbackAvailable
+        ? FloatingActionButton(
+            onPressed: () => context.showFeedback(),
+            tooltip: 'Report a bug or feedback',
+            mini: isMobile,
+            child: const Icon(Icons.bug_report),
+          )
+        : null;
+
+    final Widget? addAssetsFab = showAddAssetsFab
+        ? FloatingActionButton(
+            heroTag: 'add-assets-fab',
+            onPressed: () {
+              context.read<CoinsManagerBloc>().add(
+                  const CoinsManagerCoinsListReset(CoinsManagerAction.add));
+              routingState.walletState.action =
+                  coinsManagerRouteAction.addAssets;
+            },
+            tooltip: LocaleKeys.addAssets.tr(),
+            child: const Icon(Icons.add),
+          )
+        : null;
+
+    if (feedbackFab != null && addAssetsFab != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          feedbackFab,
+          const SizedBox(height: 16),
+          addAssetsFab,
+        ],
+      );
+    }
+
+    return addAssetsFab ?? feedbackFab;
   }
 }
