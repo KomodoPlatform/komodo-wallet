@@ -3,12 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_response.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_response.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class SwapRecoverButton extends StatefulWidget {
   const SwapRecoverButton({Key? key, required this.uuid}) : super(key: key);

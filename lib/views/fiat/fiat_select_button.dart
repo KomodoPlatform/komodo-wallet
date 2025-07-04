@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/bloc/fiat/models/i_currency.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/views/fiat/fiat_asset_icon.dart';
+import 'package:komodo_wallet/bloc/fiat/models/i_currency.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/views/fiat/fiat_asset_icon.dart';
 
 class FiatSelectButton extends StatelessWidget {
   const FiatSelectButton({

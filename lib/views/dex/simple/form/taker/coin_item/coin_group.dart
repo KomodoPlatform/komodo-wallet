@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_logo.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/coin_name_and_protocol.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_logo.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/coin_name_and_protocol.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/trade_controller.dart';
 
 class CoinGroup extends StatelessWidget {
   const CoinGroup(this.controller, {Key? key}) : super(key: key);

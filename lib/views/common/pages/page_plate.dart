@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
+import 'package:komodo_wallet/common/screen.dart';
 
 class PagePlate extends StatelessWidget {
   const PagePlate({required this.child, this.noBackground = false});

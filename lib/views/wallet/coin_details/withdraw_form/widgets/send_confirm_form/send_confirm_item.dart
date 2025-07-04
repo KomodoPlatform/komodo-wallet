@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/widgets/copied_text.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/widgets/copied_text.dart';
 
 class SendConfirmItem extends StatelessWidget {
   const SendConfirmItem({

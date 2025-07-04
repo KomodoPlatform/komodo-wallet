@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/views/wallets_manager/widgets/wallet_import_by_file.dart';
-import 'package:web_dex/views/wallets_manager/widgets/wallet_simple_import.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/wallet_import_by_file.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/wallet_simple_import.dart';
 
 class WalletImportWrapper extends StatefulWidget {
   const WalletImportWrapper({

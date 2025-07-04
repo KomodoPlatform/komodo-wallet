@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
 class CustomFiatInputField extends StatelessWidget {
   const CustomFiatInputField({

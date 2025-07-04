@@ -1,6 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class CopyableLink extends StatefulWidget {
   const CopyableLink({

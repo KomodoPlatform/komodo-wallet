@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:hive/hive.dart';
-import 'package:web_dex/bloc/cex_market_data/models/graph_cache.dart';
-import 'package:web_dex/bloc/cex_market_data/models/graph_type.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/models/graph_cache.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/models/graph_type.dart';
 
 class GraphCacheAdapter extends TypeAdapter<GraphCache> {
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
 
 class PriceChartTooltip extends StatelessWidget {
   final Map<PriceChartSeriesPoint, CoinPriceInfo> dataPointCoinMap;

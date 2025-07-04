@@ -2,13 +2,14 @@ import 'dart:async';
 
 import 'package:dragon_logs/dragon_logs.dart';
 import 'package:intl/intl.dart';
-import 'package:web_dex/app_config/package_information.dart';
-import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/services/logger/log_message.dart';
-import 'package:web_dex/services/logger/logger.dart';
-import 'package:web_dex/services/logger/logger_metadata_mixin.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
-import 'package:web_dex/shared/utils/utils.dart' as initialised_logger show log;
+import 'package:komodo_wallet/app_config/package_information.dart';
+import 'package:komodo_wallet/services/file_loader/file_loader.dart';
+import 'package:komodo_wallet/services/logger/log_message.dart';
+import 'package:komodo_wallet/services/logger/logger.dart';
+import 'package:komodo_wallet/services/logger/logger_metadata_mixin.dart';
+import 'package:komodo_wallet/services/platform_info/plaftorm_info.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart' as initialised_logger
+    show log;
 
 class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
   UniversalLogger({required this.platformInfo});

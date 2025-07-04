@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/services/orders_service/my_orders_service.dart';
-import 'package:web_dex/views/dex/entity_details/swap/swap_details_step.dart';
-import 'package:web_dex/views/dex/entity_details/trading_details_coin_pair.dart';
+import 'package:komodo_wallet/services/orders_service/my_orders_service.dart';
+import 'package:komodo_wallet/views/dex/entity_details/swap/swap_details_step.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_details_coin_pair.dart';
 
 class TakerOrderDetails extends StatelessWidget {
   const TakerOrderDetails({

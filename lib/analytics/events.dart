@@ -1,5 +1,5 @@
-import 'package:web_dex/bloc/analytics/analytics_repo.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_repo.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_event.dart';
 
 //============================================================
 // Event categories should be organized in separate files:

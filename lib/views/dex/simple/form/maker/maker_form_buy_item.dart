@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/simple/form/maker/maker_form_buy_switcher.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
+import 'package:komodo_wallet/blocs/maker_form_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/simple/form/maker/maker_form_buy_switcher.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/trade_controller.dart';
 
 class MakerFormBuyItem extends StatefulWidget {
   const MakerFormBuyItem({

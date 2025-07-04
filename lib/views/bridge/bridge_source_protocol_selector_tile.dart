@@ -1,11 +1,11 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/bridge/bridge_protocol_label.dart';
-import 'package:web_dex/views/bridge/pick_item.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/bridge/bridge_protocol_label.dart';
+import 'package:komodo_wallet/views/bridge/pick_item.dart';
 
 class BridgeSourceProtocolSelectorTile extends StatefulWidget {
   const BridgeSourceProtocolSelectorTile(

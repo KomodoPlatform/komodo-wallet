@@ -5,20 +5,20 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/cancel_order/cancel_order_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_response.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/services/orders_service/my_orders_service.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/blocs/bloc_base.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/cancel_order/cancel_order_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_response.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/services/orders_service/my_orders_service.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class TradingEntitiesBloc implements BlocBase {
   TradingEntitiesBloc(

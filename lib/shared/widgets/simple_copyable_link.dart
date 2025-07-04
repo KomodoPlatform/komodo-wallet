@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/copyable_link.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/copyable_link.dart';
 
 class SimpleCopyableLink extends StatelessWidget {
   const SimpleCopyableLink({

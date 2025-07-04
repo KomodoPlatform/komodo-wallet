@@ -1,6 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/app_assets.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
 
 class DexFlipButton extends StatefulWidget {
   final Future<bool> Function()? onTap;

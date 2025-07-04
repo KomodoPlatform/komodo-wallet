@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/common/screen_type.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/common/screen_type.dart';
 
-export 'package:web_dex/common/screen_type.dart';
+export 'package:komodo_wallet/common/screen_type.dart';
 
 bool get isMobile => screenType == ScreenType.mobile;
 bool get isTablet => screenType == ScreenType.tablet;

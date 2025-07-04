@@ -1,6 +1,6 @@
 import 'package:rational/rational.dart';
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/balances_formatter.dart';
+import 'package:komodo_wallet/shared/utils/balances_formatter.dart';
 
 import 'test_util.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class HtmlParser extends StatefulWidget {
   const HtmlParser(

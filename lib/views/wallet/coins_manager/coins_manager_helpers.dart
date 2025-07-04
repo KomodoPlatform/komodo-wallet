@@ -1,7 +1,7 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 List<Coin> sortByName(List<Coin> coins, SortDirection sortDirection) {
   if (sortDirection == SortDirection.none) return coins;

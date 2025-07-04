@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/bitrefill/models/bitrefill_event.dart';
+import 'package:komodo_wallet/bloc/bitrefill/models/bitrefill_event.dart';
 
 /// The event that is dispatched when a Bitrefill payment intent is created (i.e. user clicks "Pay").
 class BitrefillPaymentIntentEvent extends Equatable

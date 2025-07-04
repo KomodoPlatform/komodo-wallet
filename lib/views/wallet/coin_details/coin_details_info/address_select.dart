@@ -2,12 +2,12 @@ import 'package:app_theme/app_theme.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/common/app_assets.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/hd_account/hd_account.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/hd_account/hd_account.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/truncate_middle_text.dart';
 
 class AddressSelect extends StatefulWidget {
   const AddressSelect({

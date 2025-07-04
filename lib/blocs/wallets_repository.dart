@@ -4,14 +4,14 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/services/storage/base_storage.dart';
-import 'package:web_dex/shared/utils/encryption_tool.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/services/file_loader/file_loader.dart';
+import 'package:komodo_wallet/services/storage/base_storage.dart';
+import 'package:komodo_wallet/shared/utils/encryption_tool.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class WalletsRepository {
   WalletsRepository(

@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_bloc.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_repo.dart';
-import 'package:web_dex/bloc/nfts/nft_main_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/views/nfts/details_page/desktop/nft_details_header_desktop.dart';
-import 'package:web_dex/views/nfts/details_page/desktop/nft_details_page_desktop.dart';
-import 'package:web_dex/views/nfts/details_page/mobile/nft_details_page_mobile.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/nft_withdraw/nft_withdraw_bloc.dart';
+import 'package:komodo_wallet/bloc/nft_withdraw/nft_withdraw_repo.dart';
+import 'package:komodo_wallet/bloc/nfts/nft_main_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/views/nfts/details_page/desktop/nft_details_header_desktop.dart';
+import 'package:komodo_wallet/views/nfts/details_page/desktop/nft_details_page_desktop.dart';
+import 'package:komodo_wallet/views/nfts/details_page/mobile/nft_details_page_mobile.dart';
 
 class NftDetailsPage extends StatelessWidget {
   const NftDetailsPage({super.key, required this.uuid, required this.isSend});

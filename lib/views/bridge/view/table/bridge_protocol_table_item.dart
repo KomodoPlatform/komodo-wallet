@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/bridge/bridge_protocol_label.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/bridge/bridge_protocol_label.dart';
 
 class BridgeProtocolTableItem extends StatelessWidget {
   const BridgeProtocolTableItem({

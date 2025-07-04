@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/request_address_button.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/receive/request_address_button.dart';
 
 class ReceiveAddressTrezor extends StatelessWidget {
   const ReceiveAddressTrezor(

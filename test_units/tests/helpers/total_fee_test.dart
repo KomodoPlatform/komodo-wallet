@@ -1,7 +1,7 @@
 import 'package:rational/rational.dart';
 import 'package:test/test.dart';
-import 'package:web_dex/model/trade_preimage_extended_fee_info.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/model/trade_preimage_extended_fee_info.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
 
 import '../utils/test_util.dart';
 

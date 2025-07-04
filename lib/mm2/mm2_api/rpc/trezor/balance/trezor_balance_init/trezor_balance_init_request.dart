@@ -1,4 +1,4 @@
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 class TrezorBalanceInitRequest {
   TrezorBalanceInitRequest({

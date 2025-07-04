@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/wallet_coins_list.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/wallet_coins_list.dart';
 
 class AllCoinsList extends StatefulWidget {
   const AllCoinsList({

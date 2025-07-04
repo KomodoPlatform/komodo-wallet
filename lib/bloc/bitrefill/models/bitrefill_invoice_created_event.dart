@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/bitrefill/models/bitrefill_event.dart';
+import 'package:komodo_wallet/bloc/bitrefill/models/bitrefill_event.dart';
 
 /// An event that is dispatched when a Bitrefill invoice is created.
 /// This happens before a payment request is made (i.e. before the user clicks "Pay").

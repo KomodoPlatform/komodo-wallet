@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/hd_account/hd_account.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/address_select.dart';
-import 'package:web_dex/views/wallet/coin_details/constants.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/hd_account/hd_account.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/address_select.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/constants.dart';
 
 class FillFormTrezorSenderAddress extends StatelessWidget {
   const FillFormTrezorSenderAddress({

@@ -1,5 +1,5 @@
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 class OrderBookDepthResponse {
   OrderBookDepthResponse(this.list);

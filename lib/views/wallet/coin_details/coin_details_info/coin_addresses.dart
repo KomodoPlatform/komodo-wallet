@@ -6,21 +6,21 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
-import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
-import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_type_tag.dart';
-import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
-import 'package:web_dex/views/wallet/common/address_copy_button.dart';
-import 'package:web_dex/views/wallet/common/address_icon.dart';
-import 'package:web_dex/views/wallet/common/address_text.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
+import 'package:komodo_wallet/bloc/coin_addresses/bloc/coin_addresses_event.dart';
+import 'package:komodo_wallet/bloc/coin_addresses/bloc/coin_addresses_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/coin_type_tag.dart';
+import 'package:komodo_wallet/shared/widgets/truncate_middle_text.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_page_type.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/faucet/faucet_button.dart';
+import 'package:komodo_wallet/views/wallet/common/address_copy_button.dart';
+import 'package:komodo_wallet/views/wallet/common/address_icon.dart';
+import 'package:komodo_wallet/views/wallet/common/address_text.dart';
 
 class CoinAddresses extends StatefulWidget {
   const CoinAddresses({

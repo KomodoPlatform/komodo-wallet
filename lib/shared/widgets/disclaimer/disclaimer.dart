@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
-import 'package:web_dex/shared/widgets/disclaimer/constants.dart';
-import 'package:web_dex/shared/widgets/disclaimer/tos_content.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/ui/ui_primary_button.dart';
+import 'package:komodo_wallet/shared/widgets/disclaimer/constants.dart';
+import 'package:komodo_wallet/shared/widgets/disclaimer/tos_content.dart';
 
 class Disclaimer extends StatefulWidget {
   const Disclaimer({Key? key, required this.onClose}) : super(key: key);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:web_dex/views/wallets_manager/widgets/hardware_wallets_manager.dart';
-import 'package:web_dex/views/wallets_manager/widgets/iguana_wallets_manager.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/views/wallets_manager/wallets_manager_events_factory.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/hardware_wallets_manager.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/iguana_wallets_manager.dart';
 
 class WalletsManager extends StatelessWidget {
   const WalletsManager({

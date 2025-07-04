@@ -1,7 +1,7 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 extension SdkAuthActivationExtension on KomodoDefiSdk {
   /// Waits for the enabled coins to pass the provided threshold of the provided

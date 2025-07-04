@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/dex_repository.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/dex/simple/form/taker/taker_form_layout.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/dex_repository.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_event.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/taker_form_layout.dart';
 
 class TakerForm extends StatefulWidget {
   const TakerForm({super.key});

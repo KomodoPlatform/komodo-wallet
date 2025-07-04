@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_wallet/model/wallet.dart';
 
 Future<void> tapOnAppBarConnectWallet(
     WidgetTester tester, WalletType walletType) async {

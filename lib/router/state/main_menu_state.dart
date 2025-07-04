@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/main_menu_value.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
 
 class MainMenuState extends ChangeNotifier {
   MainMenuState() : _selectedMenu = MainMenuValue.none;

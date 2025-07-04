@@ -2,15 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/router/state/wallet_state.dart';
-import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/coins_list_header.dart';
-import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_manager_search_field.dart';
+import 'package:komodo_wallet/bloc/coins_manager/coins_manager_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/authorize_mode.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/router/state/wallet_state.dart';
+import 'package:komodo_wallet/shared/widgets/hidden_without_wallet.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/coins_list_header.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/wallet_main/wallet_manager_search_field.dart';
 
 class WalletManageSection extends StatelessWidget {
   const WalletManageSection({
@@ -57,7 +57,7 @@ class WalletManageSection extends StatelessWidget {
                   child: WalletManagerSearchField(onChange: onSearchChange),
                 ),
               ),
-              if (isAuthenticated ) ...[
+              if (isAuthenticated) ...[
                 Spacer(),
                 CoinsWithBalanceCheckbox(
                   withBalance: withBalance,

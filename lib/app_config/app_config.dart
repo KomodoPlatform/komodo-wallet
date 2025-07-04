@@ -93,11 +93,11 @@ const Set<String> excludedAssetList = {
 };
 
 const List<String> excludedAssetListTrezor = [
-  // https://github.com/KomodoPlatform/atomicDEX-API/issues/1510
+  // https://github.com/KomodoPlatform/komodo-defi-framework/issues/1510
   'BCH',
   // https://github.com/KomodoPlatform/coins/pull/619/files
   // Can't use modified config directly, since it includes features,
-  // not implemented on webdex side yet (e.g. 0.4.2 doesn't have segwit)
+  // not implemented on KW side yet (e.g. 0.4.2 doesn't have segwit)
   'VAL',
 ];
 

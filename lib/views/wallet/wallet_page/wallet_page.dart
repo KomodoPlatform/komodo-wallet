@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/router/state/wallet_state.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details.dart';
-import 'package:web_dex/views/wallet/coins_manager/coins_manager_page.dart';
-import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_main.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/router/state/wallet_state.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details.dart';
+import 'package:komodo_wallet/views/wallet/coins_manager/coins_manager_page.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/wallet_main/wallet_main.dart';
 
 class WalletPage extends StatelessWidget {
   const WalletPage({

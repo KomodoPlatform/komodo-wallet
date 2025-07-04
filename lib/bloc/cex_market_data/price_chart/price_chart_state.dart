@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
 
 enum PriceChartStatus { initial, loading, success, failure }
 

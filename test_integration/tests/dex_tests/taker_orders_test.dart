@@ -5,9 +5,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:web_dex/main.dart' as app;
-import 'package:web_dex/shared/widgets/copied_text.dart';
-import 'package:web_dex/views/dex/entities_list/history/history_item.dart';
+import 'package:komodo_wallet/main.dart' as app;
+import 'package:komodo_wallet/shared/widgets/copied_text.dart';
+import 'package:komodo_wallet/views/dex/entities_list/history/history_item.dart';
 
 import '../../common/pause.dart';
 import '../../common/widget_tester_action_extensions.dart';

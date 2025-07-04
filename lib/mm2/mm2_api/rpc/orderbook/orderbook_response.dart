@@ -1,6 +1,6 @@
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_request.dart';
-import 'package:web_dex/model/orderbook/orderbook.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/orderbook/orderbook_request.dart';
+import 'package:komodo_wallet/model/orderbook/orderbook.dart';
 
 class OrderbookResponse
     implements ApiResponse<OrderbookRequest, Orderbook, String> {

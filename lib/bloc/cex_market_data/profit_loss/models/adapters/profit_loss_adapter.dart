@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 
 class ProfitLossAdapter extends TypeAdapter<ProfitLoss> {
   @override

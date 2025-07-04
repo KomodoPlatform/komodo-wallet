@@ -1,21 +1,21 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/router/state/bridge_section_state.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/shared/ui/clock_warning_banner.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
-import 'package:web_dex/views/bridge/bridge_form.dart';
-import 'package:web_dex/views/bridge/bridge_tab_bar.dart';
-import 'package:web_dex/views/common/pages/page_layout.dart';
-import 'package:web_dex/views/dex/entities_list/history/history_list.dart';
-import 'package:web_dex/views/dex/entities_list/in_progress/in_progress_list.dart';
-import 'package:web_dex/views/dex/entity_details/trading_details.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/authorize_mode.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/router/state/bridge_section_state.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/shared/ui/clock_warning_banner.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/hidden_without_wallet.dart';
+import 'package:komodo_wallet/views/bridge/bridge_form.dart';
+import 'package:komodo_wallet/views/bridge/bridge_tab_bar.dart';
+import 'package:komodo_wallet/views/common/pages/page_layout.dart';
+import 'package:komodo_wallet/views/dex/entities_list/history/history_list.dart';
+import 'package:komodo_wallet/views/dex/entities_list/in_progress/in_progress_list.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_details.dart';
 
 class BridgePage extends StatefulWidget {
   const BridgePage() : super(key: const Key('bridge-page'));

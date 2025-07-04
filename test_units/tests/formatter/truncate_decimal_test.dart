@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
 
 void testTruncateDecimal() {
   test('truncate decimal according to decimalRange param', () {

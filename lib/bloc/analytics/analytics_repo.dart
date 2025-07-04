@@ -8,9 +8,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_dex/model/settings/analytics_settings.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/firebase_options.dart';
+import 'package:komodo_wallet/model/settings/analytics_settings.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/firebase_options.dart';
 
 abstract class AnalyticsEventData {
   String get name;

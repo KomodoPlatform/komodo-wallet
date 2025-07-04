@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/common/front_plate.dart';
-import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table_content.dart';
-import 'package:web_dex/views/dex/simple/form/tables/table_search_field.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/common/front_plate.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/coins_table/coins_table_content.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/table_search_field.dart';
 
 class CoinsTable extends StatefulWidget {
   const CoinsTable({

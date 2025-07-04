@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/dex_form_error.dart';
-import 'package:web_dex/views/bridge/bridge_target_protocol_selector_tile.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_event.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/dex_form_error.dart';
+import 'package:komodo_wallet/views/bridge/bridge_target_protocol_selector_tile.dart';
 
 class BridgeTargetProtocolRow extends StatelessWidget {
   const BridgeTargetProtocolRow({Key? key}) : super(key: key);

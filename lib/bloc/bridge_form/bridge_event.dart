@@ -1,10 +1,10 @@
 import 'package:rational/rational.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/data_from_service.dart';
-import 'package:web_dex/model/dex_form_error.dart';
-import 'package:web_dex/model/trade_preimage.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/data_from_service.dart';
+import 'package:komodo_wallet/model/dex_form_error.dart';
+import 'package:komodo_wallet/model/trade_preimage.dart';
 
 abstract class BridgeEvent {
   const BridgeEvent();

@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/widgets/focusable_widget.dart';
-import 'package:web_dex/views/dex/entities_list/common/buy_price_mobile.dart';
-import 'package:web_dex/views/dex/entities_list/common/coin_amount_mobile.dart';
-import 'package:web_dex/views/dex/entities_list/common/entity_item_status_wrapper.dart';
-import 'package:web_dex/views/dex/entities_list/common/trade_amount_desktop.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/widgets/focusable_widget.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/buy_price_mobile.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/coin_amount_mobile.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/entity_item_status_wrapper.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/trade_amount_desktop.dart';
 
 class InProgressItem extends StatelessWidget {
   const InProgressItem(this.swap, {Key? key, required this.onClick})

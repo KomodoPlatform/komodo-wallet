@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/coin_group_name.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/coin_group_protocol.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/coin_group_name.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/coin_group_protocol.dart';
 
 class CoinNameAndProtocol extends StatelessWidget {
   const CoinNameAndProtocol(this.coin, this.opened);

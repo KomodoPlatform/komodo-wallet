@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:web_dex/common/screen_type.dart';
+import 'package:komodo_wallet/common/screen_type.dart';
 
 import 'widget_tester_action_extensions.dart';
 import 'widget_tester_find_extension.dart';

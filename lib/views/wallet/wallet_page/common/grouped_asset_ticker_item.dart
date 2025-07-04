@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/shared/widgets/asset_item/asset_item.dart';
-import 'package:web_dex/shared/widgets/asset_item/asset_item_size.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/shared/widgets/asset_item/asset_item.dart';
+import 'package:komodo_wallet/shared/widgets/asset_item/asset_item_size.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
 
 /// A widget that displays a group of assets sharing the same ticker symbol.
 ///
@@ -63,7 +63,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);  
+    final theme = Theme.of(context);
     return Opacity(
       opacity: widget.isActivating ? 0.3 : 1,
       child: Material(

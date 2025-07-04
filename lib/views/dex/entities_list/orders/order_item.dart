@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
 import 'package:vector_math/vector_math_64.dart' as vector_math;
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/widgets/focusable_widget.dart';
-import 'package:web_dex/views/dex/entities_list/common/buy_price_mobile.dart';
-import 'package:web_dex/views/dex/entities_list/common/coin_amount_mobile.dart';
-import 'package:web_dex/views/dex/entities_list/common/count_down_timer.dart';
-import 'package:web_dex/views/dex/entities_list/common/trade_amount_desktop.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/widgets/focusable_widget.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/buy_price_mobile.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/coin_amount_mobile.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/count_down_timer.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/trade_amount_desktop.dart';
 
 class OrderItem extends StatefulWidget {
   const OrderItem(this.order, {super.key, this.actions = const []});

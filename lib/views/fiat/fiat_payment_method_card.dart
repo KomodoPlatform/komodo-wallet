@@ -2,8 +2,8 @@ import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_payment_method.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_payment_method.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
 
 class FiatPaymentMethodCard extends StatefulWidget {
   const FiatPaymentMethodCard({
@@ -30,7 +30,6 @@ class FiatPaymentMethodCardState extends State<FiatPaymentMethodCard> {
 
     final relativePercent = widget.paymentMethodData.relativePercent;
     final isBestOffer = relativePercent == Decimal.zero;
-
 
     return InkWell(
       onTap: () {

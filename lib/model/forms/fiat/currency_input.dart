@@ -1,5 +1,5 @@
 import 'package:formz/formz.dart';
-import 'package:web_dex/bloc/fiat/models/i_currency.dart';
+import 'package:komodo_wallet/bloc/fiat/models/i_currency.dart';
 
 /// Validation errors for the currency selection form field.
 enum CurrencyValidationError {

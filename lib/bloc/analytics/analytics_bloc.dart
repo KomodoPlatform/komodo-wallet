@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_repo.dart';
-import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/model/stored_settings.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_repo.dart';
+import 'package:komodo_wallet/bloc/settings/settings_repository.dart';
+import 'package:komodo_wallet/model/stored_settings.dart';
 
 import 'analytics_event.dart';
 import 'analytics_state.dart';

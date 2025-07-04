@@ -3,18 +3,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_event.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_event.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/dispatchers/popup_dispatcher.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/ui/ui_primary_button.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/views/wallets_manager/wallets_manager_events_factory.dart';
+import 'package:komodo_wallet/views/wallets_manager/wallets_manager_wrapper.dart';
 
 class ConnectWalletButton extends StatefulWidget {
   const ConnectWalletButton({

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/shared/utils/zip.dart';
+import 'package:komodo_wallet/services/file_loader/file_loader.dart';
+import 'package:komodo_wallet/shared/utils/zip.dart';
 
 class FileLoaderNativeDesktop implements FileLoader {
   const FileLoaderNativeDesktop();

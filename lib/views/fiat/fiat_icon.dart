@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
 
 class FiatIcon extends StatefulWidget {
   const FiatIcon({required this.symbol, super.key});

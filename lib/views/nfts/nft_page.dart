@@ -1,21 +1,21 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/nft_transactions/nft_txn_repository.dart';
-import 'package:web_dex/bloc/nfts/nft_main_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/nft_events.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/router/state/nfts_state.dart';
-import 'package:web_dex/views/common/pages/page_layout.dart';
-import 'package:web_dex/views/nfts/details_page/nft_details_page.dart';
-import 'package:web_dex/views/nfts/nft_main/nft_main.dart';
-import 'package:web_dex/views/nfts/nft_receive/nft_receive_page.dart';
-import 'package:web_dex/views/nfts/nft_transactions/nft_txn_page.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/nft_transactions/nft_txn_repository.dart';
+import 'package:komodo_wallet/bloc/nfts/nft_main_bloc.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_bloc.dart';
+import 'package:komodo_wallet/analytics/events/nft_events.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/router/state/nfts_state.dart';
+import 'package:komodo_wallet/views/common/pages/page_layout.dart';
+import 'package:komodo_wallet/views/nfts/details_page/nft_details_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_main/nft_main.dart';
+import 'package:komodo_wallet/views/nfts/nft_receive/nft_receive_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/nft_txn_page.dart';
 
 class NftPage extends StatelessWidget {
   const NftPage({super.key, required this.pageState, required this.uuid});

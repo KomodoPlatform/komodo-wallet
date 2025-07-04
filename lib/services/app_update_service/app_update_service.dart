@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:web_dex/blocs/update_bloc.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/blocs/update_bloc.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
 const AppUpdateService appUpdateService = AppUpdateService();
 

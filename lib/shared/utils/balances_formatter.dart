@@ -1,5 +1,5 @@
 import 'package:rational/rational.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 /// Calculates the fiat amount equivalent of the given [amount] of a [Coin] in USD.
 ///

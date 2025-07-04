@@ -1,7 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/extensions/transaction_extensions.dart';
+import 'package:komodo_wallet/shared/utils/extensions/transaction_extensions.dart';
 
 void testSanitizeTransaction() {
   group('Transaction.sanitize()', () {

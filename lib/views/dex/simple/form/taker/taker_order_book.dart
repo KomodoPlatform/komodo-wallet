@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/model/orderbook/order.dart';
-import 'package:web_dex/views/dex/orderbook/orderbook_view.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_event.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_state.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:komodo_wallet/model/orderbook/order.dart';
+import 'package:komodo_wallet/views/dex/orderbook/orderbook_view.dart';
 
 class TakerOrderbook extends StatelessWidget {
   const TakerOrderbook();

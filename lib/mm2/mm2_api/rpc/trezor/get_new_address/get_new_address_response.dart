@@ -1,4 +1,4 @@
-import 'package:web_dex/model/hd_account/hd_account.dart';
+import 'package:komodo_wallet/model/hd_account/hd_account.dart';
 
 class TrezorGetNewAddressInitResponse {
   TrezorGetNewAddressInitResponse({this.result, this.error});

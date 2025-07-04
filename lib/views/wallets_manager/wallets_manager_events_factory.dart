@@ -1,4 +1,4 @@
-import 'package:web_dex/bloc/analytics/analytics_repo.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_repo.dart';
 
 final WalletsManagerEventsFactory walletsManagerEventsFactory =
     WalletsManagerEventsFactory();

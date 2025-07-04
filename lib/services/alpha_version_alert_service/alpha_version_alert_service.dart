@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/package_information.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/services/storage/base_storage.dart';
-import 'package:web_dex/services/storage/get_storage.dart';
-import 'package:web_dex/shared/widgets/alpha_version_warning.dart';
+import 'package:komodo_wallet/app_config/package_information.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/dispatchers/popup_dispatcher.dart';
+import 'package:komodo_wallet/services/storage/base_storage.dart';
+import 'package:komodo_wallet/services/storage/get_storage.dart';
+import 'package:komodo_wallet/shared/widgets/alpha_version_warning.dart';
 
 final _serviceStorageKey =
     'alpha_alert_v2_shown_${packageInformation.packageVersion}';

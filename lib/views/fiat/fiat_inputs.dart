@@ -4,13 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
-import 'package:web_dex/bloc/fiat/models/i_currency.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/views/fiat/custom_fiat_input_field.dart';
-import 'package:web_dex/views/fiat/fiat_currency_item.dart';
-import 'package:web_dex/views/fiat/fiat_icon.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_price_info.dart';
+import 'package:komodo_wallet/bloc/fiat/models/i_currency.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_wallet/views/fiat/custom_fiat_input_field.dart';
+import 'package:komodo_wallet/views/fiat/fiat_currency_item.dart';
+import 'package:komodo_wallet/views/fiat/fiat_icon.dart';
 
 class FiatInputs extends StatefulWidget {
   const FiatInputs({

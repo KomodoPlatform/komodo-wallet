@@ -1,11 +1,11 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/kmd_rewards_info/kmd_reward_item.dart';
-import 'package:web_dex/shared/ui/custom_tooltip.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/kmd_rewards_info/kmd_reward_item.dart';
+import 'package:komodo_wallet/shared/ui/custom_tooltip.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
 
 class KmdRewardListItem extends StatelessWidget {
   const KmdRewardListItem({

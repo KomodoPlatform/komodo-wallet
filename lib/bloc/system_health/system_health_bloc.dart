@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:web_dex/bloc/system_health/system_clock_repository.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/directly_connected_peers/get_directly_connected_peers.dart';
+import 'package:komodo_wallet/bloc/system_health/system_clock_repository.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/directly_connected_peers/get_directly_connected_peers.dart';
 
 part 'system_health_event.dart';
 part 'system_health_state.dart';

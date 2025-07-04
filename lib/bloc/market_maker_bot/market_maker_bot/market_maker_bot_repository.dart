@@ -1,13 +1,13 @@
-import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_method.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_status.dart';
-import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/market_maker_bot_parameters.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/market_maker_bot_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/rpc_error.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/rpc_error_type.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_bot/market_maker_bot_method.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_bot/market_maker_bot_status.dart';
+import 'package:komodo_wallet/bloc/settings/settings_repository.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/market_maker_bot/market_maker_bot_parameters.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/market_maker_bot/market_maker_bot_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/rpc_error.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/rpc_error_type.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class MarketMakerBotRepository {
   MarketMakerBotRepository(this._mm2Api, this._settingsRepository);

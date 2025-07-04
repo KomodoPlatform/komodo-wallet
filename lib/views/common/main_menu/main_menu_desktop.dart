@@ -3,19 +3,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_event.dart';
-import 'package:web_dex/bloc/settings/settings_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/common/main_menu/main_menu_desktop_item.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/trading_status/trading_status_bloc.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_event.dart';
+import 'package:komodo_wallet/bloc/settings/settings_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/authorize_mode.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/common/main_menu/main_menu_desktop_item.dart';
 
 class MainMenuDesktop extends StatefulWidget {
   @override

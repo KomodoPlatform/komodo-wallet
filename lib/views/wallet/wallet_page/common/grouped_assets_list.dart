@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/grouped_asset_ticker_item.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/grouped_asset_ticker_item.dart';
 
 /// A widget that displays a list of assets grouped by their ticker symbols.
 ///

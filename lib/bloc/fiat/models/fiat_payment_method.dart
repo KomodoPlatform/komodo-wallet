@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:decimal/decimal.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_transaction_fee.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_transaction_limit.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_price_info.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_transaction_fee.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_transaction_limit.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class FiatPaymentMethod extends Equatable {
   const FiatPaymentMethod({

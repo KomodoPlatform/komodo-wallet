@@ -2,16 +2,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/nft_transactions/bloc/nft_transactions_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/nfts/common/widgets/nft_no_login.dart';
-import 'package:web_dex/views/nfts/nft_transactions/common/pages/nft_txn_empty_page.dart';
-import 'package:web_dex/views/nfts/nft_transactions/common/pages/nft_txn_failure_page.dart';
-import 'package:web_dex/views/nfts/nft_transactions/common/pages/nft_txn_loading_page.dart';
-import 'package:web_dex/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_card.dart';
-import 'package:web_dex/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_filters.dart';
-import 'package:web_dex/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_header.dart';
+import 'package:komodo_wallet/bloc/nft_transactions/bloc/nft_transactions_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/nfts/common/widgets/nft_no_login.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/common/pages/nft_txn_empty_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/common/pages/nft_txn_failure_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/common/pages/nft_txn_loading_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_card.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_filters.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_header.dart';
 
 class NftTxnDesktopPage extends StatelessWidget {
   const NftTxnDesktopPage({

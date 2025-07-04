@@ -1,12 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/3p_api/faucet/faucet.dart' as api;
-import 'package:web_dex/3p_api/faucet/faucet_response.dart';
-import 'package:web_dex/bloc/faucet_button/faucet_button_event.dart';
-import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
+import 'package:komodo_wallet/3p_api/faucet/faucet.dart' as api;
+import 'package:komodo_wallet/3p_api/faucet/faucet_response.dart';
+import 'package:komodo_wallet/bloc/faucet_button/faucet_button_event.dart';
+import 'package:komodo_wallet/bloc/faucet_button/faucet_button_state.dart';
 import 'package:logging/logging.dart';
 
-class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamable<FaucetState> {
+class FaucetBloc extends Bloc<FaucetEvent, FaucetState>
+    implements StateStreamable<FaucetState> {
   final KomodoDefiSdk kdfSdk;
   final _log = Logger('FaucetBloc');
 

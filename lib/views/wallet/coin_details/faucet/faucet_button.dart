@@ -1,14 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/ui/ui_primary_button.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/faucet_button/faucet_button_bloc.dart';
-import 'package:web_dex/bloc/faucet_button/faucet_button_event.dart';
-import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/faucet_view.dart';
+import 'package:komodo_wallet/bloc/faucet_button/faucet_button_bloc.dart';
+import 'package:komodo_wallet/bloc/faucet_button/faucet_button_event.dart';
+import 'package:komodo_wallet/bloc/faucet_button/faucet_button_state.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/faucet/faucet_view.dart';
 
 class FaucetButton extends StatefulWidget {
   const FaucetButton({
@@ -33,8 +33,10 @@ class _FaucetButtonState extends State<FaucetButton> {
 
     return BlocConsumer<FaucetBloc, FaucetState>(
       listenWhen: (previous, current) {
-        final isLoading = current is FaucetRequestInProgress && current.address == widget.address.address;
-        final didStopLoading = previous is FaucetRequestInProgress && previous.address == widget.address.address;
+        final isLoading = current is FaucetRequestInProgress &&
+            current.address == widget.address.address;
+        final didStopLoading = previous is FaucetRequestInProgress &&
+            previous.address == widget.address.address;
 
         return isLoading || didStopLoading;
       },
@@ -57,8 +59,8 @@ class _FaucetButtonState extends State<FaucetButton> {
         }
       },
       builder: (context, state) {
-        final isLoading =
-            state is FaucetRequestInProgress && state.address == widget.address.address;
+        final isLoading = state is FaucetRequestInProgress &&
+            state.address == widget.address.address;
         return Padding(
           padding: EdgeInsets.only(left: isMobile ? 4 : 8),
           child: Container(

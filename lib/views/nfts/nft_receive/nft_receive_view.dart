@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/nft_receive/bloc/nft_receive_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
-import 'package:web_dex/views/nfts/nft_receive/common/nft_failure_page.dart';
-import 'package:web_dex/views/nfts/nft_receive/common/nft_receive_card.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
+import 'package:komodo_wallet/bloc/nft_receive/bloc/nft_receive_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/views/nfts/nft_receive/common/nft_failure_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_receive/common/nft_receive_card.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
 
 class NftReceiveView extends StatelessWidget {
   @override

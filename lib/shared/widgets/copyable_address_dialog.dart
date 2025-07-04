@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart' show showAddressSearch;
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/truncate_middle_text.dart';
 
 class CopyableAddressDialog extends StatelessWidget {
   const CopyableAddressDialog({

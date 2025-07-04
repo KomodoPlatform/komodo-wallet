@@ -1,6 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 extension LegacyCoinMigrationExtensions on Coin {
   /// Gets the current USD price of this coin

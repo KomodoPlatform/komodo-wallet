@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:web_dex/services/logger/log_message.dart';
+import 'package:komodo_wallet/services/logger/log_message.dart';
 
 String formatLogs(Iterable<LogMessage> logs) {
   final logIterable = logs.map((e) => jsonEncode(e));

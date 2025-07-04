@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/common/screen.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/common/screen.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:web_dex/router/state/routing_state.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
 
 class PopupDispatcher {
   PopupDispatcher({

@@ -2,10 +2,10 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/blocs/maker_form_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
 
 class MakerFormBuyAmount extends StatelessWidget {
   const MakerFormBuyAmount(this.isEnabled, {Key? key}) : super(key: key);

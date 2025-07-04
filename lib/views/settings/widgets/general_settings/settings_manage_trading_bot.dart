@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_event.dart';
-import 'package:web_dex/bloc/settings/settings_state.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/settings/widgets/common/settings_section.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_event.dart';
+import 'package:komodo_wallet/bloc/settings/settings_state.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/settings/widgets/common/settings_section.dart';
 
 class SettingsManageTradingBot extends StatelessWidget {
   const SettingsManageTradingBot({Key? key}) : super(key: key);

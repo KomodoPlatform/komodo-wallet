@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab.dart';
-import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab_bar.dart';
+import 'package:komodo_wallet/shared/ui/ui_tab_bar/ui_tab.dart';
+import 'package:komodo_wallet/shared/ui/ui_tab_bar/ui_tab_bar.dart';
 
 class FiatTabBar extends StatefulWidget {
   const FiatTabBar({

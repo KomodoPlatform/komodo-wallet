@@ -6,16 +6,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/utils/validators.dart';
-import 'package:web_dex/shared/widgets/password_visibility_control.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_bloc.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_event.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/shared/utils/validators.dart';
+import 'package:komodo_wallet/shared/widgets/password_visibility_control.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
 
 class PasswordUpdatePage extends StatefulWidget {
   const PasswordUpdatePage({super.key});

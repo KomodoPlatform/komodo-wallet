@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/router/routes.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/bridge/bridge_page.dart';
-import 'package:web_dex/views/dex/dex_page.dart';
-import 'package:web_dex/views/fiat/fiat_page.dart';
-import 'package:web_dex/views/market_maker_bot/market_maker_bot_page.dart';
-import 'package:web_dex/views/nfts/nft_page.dart';
-import 'package:web_dex/views/settings/settings_page.dart';
-import 'package:web_dex/views/settings/widgets/support_page/support_page.dart';
-import 'package:web_dex/views/wallet/wallet_page/wallet_page.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
+import 'package:komodo_wallet/router/routes.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/bridge/bridge_page.dart';
+import 'package:komodo_wallet/views/dex/dex_page.dart';
+import 'package:komodo_wallet/views/fiat/fiat_page.dart';
+import 'package:komodo_wallet/views/market_maker_bot/market_maker_bot_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_page.dart';
+import 'package:komodo_wallet/views/settings/settings_page.dart';
+import 'package:komodo_wallet/views/settings/widgets/support_page/support_page.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/wallet_page.dart';
 
 class PageMenuRouterDelegate extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {

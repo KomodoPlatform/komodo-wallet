@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/constants.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class CustomNumericTextFormField extends StatelessWidget {

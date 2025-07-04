@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/portfolio_events.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
-import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_claim_success.dart';
-import 'package:web_dex/views/wallet/coin_details/rewards/kmd_rewards_info.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/bloc/transaction_history/transaction_history_bloc.dart';
+import 'package:komodo_wallet/bloc/transaction_history/transaction_history_event.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_bloc.dart';
+import 'package:komodo_wallet/analytics/events/portfolio_events.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_page_type.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/rewards/kmd_reward_claim_success.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/rewards/kmd_rewards_info.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/withdraw_form.dart';
 
 class CoinDetails extends StatefulWidget {
   const CoinDetails({

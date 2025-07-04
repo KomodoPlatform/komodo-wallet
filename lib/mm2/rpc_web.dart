@@ -1,6 +1,6 @@
 import 'package:universal_html/js_util.dart';
-import 'package:web_dex/mm2/rpc.dart';
-import 'package:web_dex/platform/platform.dart';
+import 'package:komodo_wallet/mm2/rpc.dart';
+import 'package:komodo_wallet/platform/platform.dart';
 
 class RPCWeb extends RPC {
   const RPCWeb();

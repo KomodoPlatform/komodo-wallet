@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/views/market_maker_bot/trade_volume_type.dart';
+import 'package:komodo_wallet/views/market_maker_bot/trade_volume_type.dart';
 
 /// The trade volume for the market maker bot.
 class TradeVolume extends Equatable {

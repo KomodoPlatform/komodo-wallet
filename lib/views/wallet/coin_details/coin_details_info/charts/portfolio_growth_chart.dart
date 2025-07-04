@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/charts/coin_prices_chart.dart';
 
 class PortfolioGrowthChart extends StatefulWidget {
   const PortfolioGrowthChart({super.key, required this.initialCoins});

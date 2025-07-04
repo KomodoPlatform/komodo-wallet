@@ -1,5 +1,5 @@
 import 'package:formz/formz.dart';
-import 'package:web_dex/views/market_maker_bot/trade_bot_update_interval.dart';
+import 'package:komodo_wallet/views/market_maker_bot/trade_bot_update_interval.dart';
 
 enum UpdateIntervalValidationError {
   /// Input is empty

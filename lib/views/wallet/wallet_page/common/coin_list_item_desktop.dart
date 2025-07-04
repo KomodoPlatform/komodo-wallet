@@ -3,15 +3,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/ui/ui_simple_border_button.dart';
-import 'package:web_dex/shared/widgets/coin_fiat_price.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/shared/widgets/need_attention_mark.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/ui/ui_simple_border_button.dart';
+import 'package:komodo_wallet/shared/widgets/coin_fiat_price.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/shared/widgets/need_attention_mark.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
 
 class CoinListItemDesktop extends StatelessWidget {
   const CoinListItemDesktop({

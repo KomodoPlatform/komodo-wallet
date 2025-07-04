@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/views/wallet/coin_details/constants.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_buttons.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/constants.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_buttons.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class SendConfirmFooter extends StatelessWidget {

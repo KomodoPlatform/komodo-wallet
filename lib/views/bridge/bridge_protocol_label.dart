@@ -1,10 +1,10 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class BridgeProtocolLabel extends StatelessWidget {
   const BridgeProtocolLabel(this.coin);

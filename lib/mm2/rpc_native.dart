@@ -1,5 +1,5 @@
 import 'package:http/http.dart';
-import 'package:web_dex/mm2/rpc.dart';
+import 'package:komodo_wallet/mm2/rpc.dart';
 
 class RPCNative extends RPC {
   RPCNative();

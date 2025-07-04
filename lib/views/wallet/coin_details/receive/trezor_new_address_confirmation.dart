@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/receive/qr_code_address.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class TrezorNewAddressConfirmation extends StatelessWidget {

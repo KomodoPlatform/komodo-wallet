@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/nfts/nft_main_bloc.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/shared/ui/fading_edge_scroll_view.dart';
-import 'package:web_dex/views/nfts/nft_tabs/nft_tab.dart';
+import 'package:komodo_wallet/bloc/nfts/nft_main_bloc.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/shared/ui/fading_edge_scroll_view.dart';
+import 'package:komodo_wallet/views/nfts/nft_tabs/nft_tab.dart';
 
 class NftTabs extends StatelessWidget {
   final List<NftBlockchains> tabs;

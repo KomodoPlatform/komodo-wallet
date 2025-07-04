@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:web_dex/services/storage/app_storage.dart';
-import 'package:web_dex/services/storage/base_storage.dart';
-import 'package:web_dex/services/storage/mock_storage.dart';
+import 'package:komodo_wallet/services/storage/app_storage.dart';
+import 'package:komodo_wallet/services/storage/base_storage.dart';
+import 'package:komodo_wallet/services/storage/mock_storage.dart';
 
 final BaseStorage _storage = kIsWeb ||
         Platform.isWindows ||

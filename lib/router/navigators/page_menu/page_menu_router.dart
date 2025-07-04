@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/router/navigators/page_menu/page_menu_router_delegate.dart';
+import 'package:komodo_wallet/router/navigators/page_menu/page_menu_router_delegate.dart';
 
 class PageMenuRouter extends StatefulWidget {
   @override

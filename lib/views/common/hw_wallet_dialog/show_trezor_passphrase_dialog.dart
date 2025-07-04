@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/model/hw_wallet/trezor_task.dart';
-import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
+import 'package:komodo_wallet/bloc/trezor_bloc/trezor_repo.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/dispatchers/popup_dispatcher.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_task.dart';
+import 'package:komodo_wallet/views/common/hw_wallet_dialog/constants.dart';
 
 import 'trezor_steps/trezor_dialog_select_wallet.dart';
 

@@ -1,8 +1,8 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/mm2/rpc/nft_transaction/nft_transactions_response.dart';
 
 class NftTxnStatus extends StatelessWidget {
   final NftTransactionStatuses? status;

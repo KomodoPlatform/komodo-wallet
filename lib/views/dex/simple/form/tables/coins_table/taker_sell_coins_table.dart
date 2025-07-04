@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/taker_form_sell_switcher.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_event.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_state.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/coins_table/coins_table.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/taker_form_sell_switcher.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/trade_controller.dart';
 
 class TakerSellCoinsTable extends StatelessWidget {
   @override

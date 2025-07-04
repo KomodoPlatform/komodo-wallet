@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/hash_explorer_link.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/mm2/rpc/nft_transaction/nft_transactions_response.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/hash_explorer_link.dart';
 
 class NftTxnHash extends StatelessWidget {
   const NftTxnHash({super.key, required this.transaction});

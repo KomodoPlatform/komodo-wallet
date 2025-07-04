@@ -1,7 +1,7 @@
 import 'package:rational/rational.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/trade_preimage_extended_fee_info.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/model/trade_preimage_extended_fee_info.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class TradePreimageResponse
     implements BaseResponse<TradePreimageResponseResult> {

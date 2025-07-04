@@ -2,15 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/app_button.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/wallet/coin_details/constants.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/bitrefill/bloc/bitrefill_bloc.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/ui/app_button.dart';
+import 'package:komodo_wallet/shared/ui/ui_primary_button.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/constants.dart';
 
 class SendCompleteFormButtons extends StatelessWidget {
   const SendCompleteFormButtons({Key? key}) : super(key: key);

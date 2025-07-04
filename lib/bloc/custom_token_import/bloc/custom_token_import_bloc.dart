@@ -1,17 +1,17 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.dart';
-import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
-import 'package:web_dex/bloc/custom_token_import/data/custom_token_import_repository.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/custom_token_import/bloc/custom_token_import_event.dart';
+import 'package:komodo_wallet/bloc/custom_token_import/bloc/custom_token_import_state.dart';
+import 'package:komodo_wallet/bloc/custom_token_import/data/custom_token_import_repository.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_bloc.dart';
+import 'package:komodo_wallet/analytics/events/portfolio_events.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class CustomTokenImportBloc
     extends Bloc<CustomTokenImportEvent, CustomTokenImportState> {

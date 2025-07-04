@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
 
 void testToStringAmount() {
   test('formatting amount to String tests:', () {

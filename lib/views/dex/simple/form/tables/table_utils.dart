@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/shared/utils/balances_formatter.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:komodo_wallet/model/authorize_mode.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/shared/utils/balances_formatter.dart';
 
 List<Coin> prepareCoinsForTable(
   BuildContext context,

@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
-import 'package:web_dex/model/withdraw_details/fee_details.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/model/withdraw_details/fee_details.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class Transaction {
   Transaction({

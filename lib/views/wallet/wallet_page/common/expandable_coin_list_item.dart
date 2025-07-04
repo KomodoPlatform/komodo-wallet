@@ -2,21 +2,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/bloc/trading_status/trading_status_bloc.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_balance.dart';
-import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/views/wallet/common/wallet_helper.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/coin_balance.dart';
+import 'package:komodo_wallet/shared/widgets/coin_fiat_balance.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/views/wallet/common/wallet_helper.dart';
 import 'package:get_it/get_it.dart';
 
 /// Widget for showing an authenticated user's balance and anddresses for a

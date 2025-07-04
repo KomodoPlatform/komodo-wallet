@@ -5,12 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/settings/settings_repository.dart';
+import 'package:komodo_wallet/blocs/wallets_repository.dart';
+import 'package:komodo_wallet/model/authorize_mode.dart';
+import 'package:komodo_wallet/model/kdf_auth_metadata_extension.dart';
+import 'package:komodo_wallet/model/wallet.dart';
 
 part 'auth_bloc_event.dart';
 part 'auth_bloc_state.dart';

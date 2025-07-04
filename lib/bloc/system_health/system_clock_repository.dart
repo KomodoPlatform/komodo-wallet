@@ -1,5 +1,5 @@
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/system_health/providers/time_provider_registry.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/time_provider_registry.dart';
 
 class SystemClockRepository {
   SystemClockRepository({

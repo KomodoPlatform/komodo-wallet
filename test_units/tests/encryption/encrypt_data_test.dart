@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/encryption_tool.dart';
+import 'package:komodo_wallet/shared/utils/encryption_tool.dart';
 
 void testEncryptDataTool() {
   test('Test that algorithm is consistent', () async {

@@ -3,15 +3,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui/utils.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/views/wallet/coin_details/constants.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_form_error.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_item.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/constants.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/constants.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_form_error.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_item.dart';
 
 class SendConfirmForm extends StatelessWidget {
   const SendConfirmForm({super.key});

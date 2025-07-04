@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/views/nfts/details_page/withdraw/nft_withdraw_confirmation.dart';
-import 'package:web_dex/views/nfts/details_page/withdraw/nft_withdraw_footer.dart';
-import 'package:web_dex/views/nfts/details_page/withdraw/nft_withdraw_form.dart';
-import 'package:web_dex/views/nfts/details_page/withdraw/nft_withdraw_success.dart';
+import 'package:komodo_wallet/bloc/nft_withdraw/nft_withdraw_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/views/nfts/details_page/withdraw/nft_withdraw_confirmation.dart';
+import 'package:komodo_wallet/views/nfts/details_page/withdraw/nft_withdraw_footer.dart';
+import 'package:komodo_wallet/views/nfts/details_page/withdraw/nft_withdraw_form.dart';
+import 'package:komodo_wallet/views/nfts/details_page/withdraw/nft_withdraw_success.dart';
 
 class NftWithdrawView extends StatefulWidget {
   const NftWithdrawView({

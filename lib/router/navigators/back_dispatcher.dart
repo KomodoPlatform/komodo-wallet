@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/router/navigators/app_router_delegate.dart';
+import 'package:komodo_wallet/router/navigators/app_router_delegate.dart';
 
 class AirDexBackButtonDispatcher extends RootBackButtonDispatcher {
   AirDexBackButtonDispatcher(this._routerDelegate) : super();

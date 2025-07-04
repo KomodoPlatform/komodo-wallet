@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/model/settings/analytics_settings.dart';
+import 'package:komodo_wallet/model/settings/analytics_settings.dart';
 
 class AnalyticsState extends Equatable {
   const AnalyticsState({

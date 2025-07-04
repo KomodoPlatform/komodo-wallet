@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/withdraw_details/fee_details.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/model/withdraw_details/fee_details.dart';
 
 class NftToken {
   NftToken({

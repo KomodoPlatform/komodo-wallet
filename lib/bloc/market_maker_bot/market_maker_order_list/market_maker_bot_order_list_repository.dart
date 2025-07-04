@@ -1,11 +1,11 @@
 import 'package:decimal/decimal.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
-import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/services/orders_service/my_orders_service.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
+import 'package:komodo_wallet/bloc/settings/settings_repository.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/services/orders_service/my_orders_service.dart';
 
 class MarketMakerBotOrderListRepository {
   const MarketMakerBotOrderListRepository(

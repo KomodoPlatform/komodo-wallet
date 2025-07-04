@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 abstract class TradeController {
   TradeController({

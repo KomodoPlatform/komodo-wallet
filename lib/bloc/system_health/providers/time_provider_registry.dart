@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:web_dex/bloc/system_health/providers/binance_time_provider.dart';
-import 'package:web_dex/bloc/system_health/providers/http_head_time_provider.dart';
-import 'package:web_dex/bloc/system_health/providers/http_time_provider.dart';
-import 'package:web_dex/bloc/system_health/providers/ntp_time_provider.dart';
-import 'package:web_dex/bloc/system_health/providers/time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/binance_time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/http_head_time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/http_time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/ntp_time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/time_provider.dart';
 
 /// Registry of all available time providers
 class TimeProviderRegistry {

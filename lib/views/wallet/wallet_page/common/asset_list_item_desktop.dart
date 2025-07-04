@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/shared/widgets/asset_item/asset_item.dart';
-import 'package:web_dex/shared/widgets/asset_item/asset_item_size.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
+import 'package:komodo_wallet/shared/widgets/asset_item/asset_item.dart';
+import 'package:komodo_wallet/shared/widgets/asset_item/asset_item_size.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
 
 /// A widget that displays an asset in a list item format optimized for desktop devices.
 ///

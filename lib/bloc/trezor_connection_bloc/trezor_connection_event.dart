@@ -1,4 +1,4 @@
-import 'package:web_dex/model/hw_wallet/trezor_connection_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_connection_status.dart';
 
 abstract class TrezorConnectionEvent {
   const TrezorConnectionEvent();

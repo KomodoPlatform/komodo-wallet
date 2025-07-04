@@ -1,6 +1,6 @@
 import 'package:rational/rational.dart';
 import 'package:test/test.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
 
 void testUpdateSellAmount() {
   test('updateSellAmount updates buyAmount correctly when price is provided',

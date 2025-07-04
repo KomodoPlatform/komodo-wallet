@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
-import 'package:web_dex/app_config/package_information.dart';
-import 'package:web_dex/bloc/analytics/analytics_repo.dart';
-import 'package:web_dex/analytics/events/user_engagement_events.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/app_config/package_information.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_repo.dart';
+import 'package:komodo_wallet/analytics/events/user_engagement_events.dart';
+import 'package:komodo_wallet/services/platform_info/plaftorm_info.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 /// A widget that handles analytics lifecycle events like app opened/resumed.
 ///

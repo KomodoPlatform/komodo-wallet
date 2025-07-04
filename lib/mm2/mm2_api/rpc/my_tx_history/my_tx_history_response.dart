@@ -1,4 +1,4 @@
-import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
 
 class MyTxHistoryResponse {
   MyTxHistoryResponse({

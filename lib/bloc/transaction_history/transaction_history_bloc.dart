@@ -5,13 +5,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/shared/utils/extensions/transaction_extensions.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/transaction_history/transaction_history_event.dart';
+import 'package:komodo_wallet/bloc/transaction_history/transaction_history_state.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/text_error.dart';
+import 'package:komodo_wallet/shared/utils/extensions/transaction_extensions.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class TransactionHistoryBloc
     extends Bloc<TransactionHistoryEvent, TransactionHistoryState> {

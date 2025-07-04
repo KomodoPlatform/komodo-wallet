@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/model/first_uri_segment.dart';
-import 'package:web_dex/router/parsers/base_route_parser.dart';
-import 'package:web_dex/router/parsers/bridge_route_parser.dart';
-import 'package:web_dex/router/parsers/dex_route_parser.dart';
-import 'package:web_dex/router/parsers/fiat_route_parser.dart';
-import 'package:web_dex/router/parsers/nft_route_parser.dart';
-import 'package:web_dex/router/parsers/settings_route_parser.dart';
-import 'package:web_dex/router/parsers/wallet_route_parser.dart';
-import 'package:web_dex/router/routes.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/model/first_uri_segment.dart';
+import 'package:komodo_wallet/router/parsers/base_route_parser.dart';
+import 'package:komodo_wallet/router/parsers/bridge_route_parser.dart';
+import 'package:komodo_wallet/router/parsers/dex_route_parser.dart';
+import 'package:komodo_wallet/router/parsers/fiat_route_parser.dart';
+import 'package:komodo_wallet/router/parsers/nft_route_parser.dart';
+import 'package:komodo_wallet/router/parsers/settings_route_parser.dart';
+import 'package:komodo_wallet/router/parsers/wallet_route_parser.dart';
+import 'package:komodo_wallet/router/routes.dart';
 
 class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   RootRouteInformationParser(this.coinsBloc);

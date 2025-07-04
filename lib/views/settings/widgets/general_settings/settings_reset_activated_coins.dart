@@ -3,12 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_wallet/blocs/wallets_repository.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/dispatchers/popup_dispatcher.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/shared/widgets/auto_scroll_text.dart';
 
 class SettingsResetActivatedCoins extends StatefulWidget {
   const SettingsResetActivatedCoins({Key? key}) : super(key: key);

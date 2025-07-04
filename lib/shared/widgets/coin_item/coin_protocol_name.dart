@@ -1,7 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
 
 class CoinProtocolName extends StatelessWidget {
   const CoinProtocolName({

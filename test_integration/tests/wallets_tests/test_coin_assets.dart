@@ -4,24 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/main.dart' as app;
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/main.dart' as app;
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/coin_icon.dart';
 
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
 
 Future<void> testCoinIcons(WidgetTester tester) async {
   print('🔍 COIN ICONS: Starting coin icons test');
-  
+
   final Finder walletTab = find.byKey(const Key('main-menu-wallet'));
   final Finder addAssetsButton = find.byKey(const Key('add-assets-button'));
 
   await tester.tap(walletTab);
   print('🔍 COIN ICONS: Tapped wallet tab');
   await tester.pumpAndSettle();
-  
+
   await tester.tap(addAssetsButton);
   print('🔍 COIN ICONS: Tapped add assets button');
   await tester.pumpAndSettle();
@@ -30,13 +30,13 @@ Future<void> testCoinIcons(WidgetTester tester) async {
 
   bool keepScrolling = true;
   print('🔍 COIN ICONS: Starting icon verification loop');
-  
+
   int pageCount = 0;
   // Scroll down the list until we reach the end
   while (keepScrolling) {
     pageCount++;
     print('🔍 COIN ICONS: Checking page $pageCount');
-    
+
     // Check the icons before scrolling
     final coinIcons = find
         .descendant(of: listFinder, matching: find.byType(CoinIcon))
@@ -47,8 +47,10 @@ Future<void> testCoinIcons(WidgetTester tester) async {
       final coinAbr = abbr2Ticker(coinIcon.coinAbbr).toLowerCase();
       final assetPath = '$coinsAssetsPath/coin_icons/png/$coinAbr.png';
       final assetExists = await canLoadAsset(assetPath);
-      print('🔍 COIN ICONS: Checking asset for $coinAbr: ${assetExists ? "✓" : "✗"}');
-      expect(assetExists, true, reason: 'Asset $coinsAssetsPath does not exist');
+      print(
+          '🔍 COIN ICONS: Checking asset for $coinAbr: ${assetExists ? "✓" : "✗"}');
+      expect(assetExists, true,
+          reason: 'Asset $coinsAssetsPath does not exist');
     }
 
     // Scroll the list
@@ -62,7 +64,7 @@ Future<void> testCoinIcons(WidgetTester tester) async {
     final maxScrollExtent = scrollable.controller!.position.maxScrollExtent;
     keepScrolling = currentPosition < maxScrollExtent;
   }
-  
+
   print('🔍 COIN ICONS: Completed verification of all coin icons');
 }
 
@@ -84,13 +86,13 @@ void main() {
     tester.testTextInput.register();
     await app.main();
     await tester.pumpAndSettle();
-    
+
     print('🔍 MAIN: Accepting alpha warning');
     await acceptAlphaWarning(tester);
-    
+
     await restoreWalletToTest(tester);
     print('🔍 MAIN: Wallet restored');
-    
+
     await testCoinIcons(tester);
     await tester.pumpAndSettle();
 

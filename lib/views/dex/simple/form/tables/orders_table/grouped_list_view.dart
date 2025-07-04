@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table_item.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/coins_table/coins_table_item.dart';
 
 class GroupedListView<T> extends StatelessWidget {
   const GroupedListView({

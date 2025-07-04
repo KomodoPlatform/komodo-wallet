@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/router/state/menu_state_interface.dart';
+import 'package:komodo_wallet/router/state/menu_state_interface.dart';
 
 class NFTsState extends ChangeNotifier implements IResettableOnLogout {
   NFTsState()

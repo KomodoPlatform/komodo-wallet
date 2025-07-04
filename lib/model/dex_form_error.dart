@@ -1,6 +1,6 @@
 import 'package:uuid/uuid.dart';
-import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
+import 'package:komodo_wallet/model/text_error.dart';
+import 'package:komodo_wallet/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
 
 class DexFormError implements TextError {
   DexFormError({

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:web_dex/services/platform_info/native_platform_info.dart';
-import 'package:web_dex/services/platform_info/web_platform_info.dart';
+import 'package:komodo_wallet/services/platform_info/native_platform_info.dart';
+import 'package:komodo_wallet/services/platform_info/web_platform_info.dart';
 
 abstract class PlatformInfo {
   String get osLanguage;

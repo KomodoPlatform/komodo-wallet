@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/bloc/fiat/models/i_currency.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
-import 'package:web_dex/views/fiat/fiat_currency_list_tile.dart';
-import 'package:web_dex/views/fiat/fiat_select_button.dart';
+import 'package:komodo_wallet/bloc/fiat/models/i_currency.dart';
+import 'package:komodo_wallet/shared/widgets/coin_icon.dart';
+import 'package:komodo_wallet/views/fiat/fiat_currency_list_tile.dart';
+import 'package:komodo_wallet/views/fiat/fiat_select_button.dart';
 
 class FiatCurrencyItem extends StatelessWidget {
   const FiatCurrencyItem({

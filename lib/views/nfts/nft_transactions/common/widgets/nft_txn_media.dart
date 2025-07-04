@@ -1,6 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/views/nfts/common/widgets/nft_image.dart';
+import 'package:komodo_wallet/views/nfts/common/widgets/nft_image.dart';
 
 class NftTxnMedia extends StatelessWidget {
   final String? imagePath;

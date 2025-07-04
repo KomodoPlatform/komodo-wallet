@@ -9,9 +9,9 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
 
-import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
 
 /// Service that handles user feedback submission
 class FeedbackService {
@@ -44,8 +44,8 @@ class FeedbackService {
     final buildMode = kReleaseMode
         ? 'release'
         : kDebugMode
-        ? 'debug'
-        : (kProfileMode ? 'profile' : 'unknown');
+            ? 'debug'
+            : (kProfileMode ? 'profile' : 'unknown');
 
     // Extract contact information from the extras if provided
     String? contactMethod;
@@ -88,8 +88,8 @@ class FeedbackService {
       final altAvailable = provider is TrelloFeedbackProvider
           ? CloudflareFeedbackProvider.fromEnvironment().isAvailable
           : provider is CloudflareFeedbackProvider
-          ? TrelloFeedbackProvider.hasEnvironmentVariables()
-          : true;
+              ? TrelloFeedbackProvider.hasEnvironmentVariables()
+              : true;
       if (kDebugMode && !altAvailable) {
         debugPrint('Failed to submit feedback: $e');
       }
@@ -159,9 +159,8 @@ class TrelloFeedbackProvider implements FeedbackProvider {
       'TRELLO_LIST_ID': const String.fromEnvironment('TRELLO_LIST_ID'),
     };
 
-    final missingVars = requiredVars.entries
-        .where((e) => e.value.isEmpty)
-        .toList();
+    final missingVars =
+        requiredVars.entries.where((e) => e.value.isEmpty).toList();
 
     if (missingVars.isNotEmpty) {
       final altAvailable =
@@ -213,8 +212,7 @@ class TrelloFeedbackProvider implements FeedbackProvider {
           'key': apiKey,
           'token': token,
           'name': 'Feedback: $type',
-          'desc':
-              '''
+          'desc': '''
 Description:
 $description
 
@@ -348,8 +346,7 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
   }) async {
     try {
       // Format description text exactly like in the test script
-      final formattedDesc =
-          '''
+      final formattedDesc = '''
 Description:
 $description
 

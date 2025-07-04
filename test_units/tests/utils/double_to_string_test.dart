@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 void testCustomDoubleToString() {
   test('doubleToString formats whole number without decimal places', () {

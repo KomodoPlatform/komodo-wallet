@@ -4,8 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/shared/utils/zip.dart';
+import 'package:komodo_wallet/services/file_loader/file_loader.dart';
+import 'package:komodo_wallet/shared/utils/zip.dart';
 
 class FileLoaderNativeIOS implements FileLoader {
   const FileLoaderNativeIOS();

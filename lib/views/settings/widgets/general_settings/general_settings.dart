@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/shared/widgets/hidden_with_wallet.dart';
-import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/import_swaps.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/settings_download_logs.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_analytics.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_test_coins.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_trading_bot.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_weak_passwords.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/settings_reset_activated_coins.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/settings_theme_switcher.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/show_swap_data.dart';
+import 'package:komodo_wallet/bloc/trading_status/trading_status_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/shared/widgets/hidden_with_wallet.dart';
+import 'package:komodo_wallet/shared/widgets/hidden_without_wallet.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/import_swaps.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/settings_download_logs.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/settings_manage_analytics.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/settings_manage_test_coins.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/settings_manage_trading_bot.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/settings_manage_weak_passwords.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/settings_reset_activated_coins.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/settings_theme_switcher.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/show_swap_data.dart';
 
 class GeneralSettings extends StatelessWidget {
   const GeneralSettings({Key? key}) : super(key: key);

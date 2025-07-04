@@ -1,6 +1,6 @@
 import 'package:characters/characters.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
 
 /// Enum representing different types of password validation errors
 enum PasswordValidationError {

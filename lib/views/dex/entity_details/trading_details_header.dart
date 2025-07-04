@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/router/state/bridge_section_state.dart';
-import 'package:web_dex/router/state/dex_state.dart';
-import 'package:web_dex/router/state/market_maker_bot_state.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
+import 'package:komodo_wallet/router/state/bridge_section_state.dart';
+import 'package:komodo_wallet/router/state/dex_state.dart';
+import 'package:komodo_wallet/router/state/market_maker_bot_state.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
 
 class TradingDetailsHeader extends StatelessWidget {
   const TradingDetailsHeader({

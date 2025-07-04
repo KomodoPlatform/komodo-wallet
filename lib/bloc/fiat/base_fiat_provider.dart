@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
-import 'package:web_dex/bloc/fiat/models/models.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/shared/utils/window/window.dart';
+import 'package:komodo_wallet/bloc/fiat/fiat_order_status.dart';
+import 'package:komodo_wallet/bloc/fiat/models/models.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/shared/utils/window/window.dart';
 
 const String domain = 'https://fiat-ramps-proxy.komodo.earth';
 

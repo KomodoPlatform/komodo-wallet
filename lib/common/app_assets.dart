@@ -1,9 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/main_menu_value.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
 
 class Assets {
   static const seedSuccess = '$assetsPath/others/seed_success.svg';

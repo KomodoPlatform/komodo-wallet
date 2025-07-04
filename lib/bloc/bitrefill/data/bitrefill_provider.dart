@@ -1,5 +1,5 @@
-import 'package:web_dex/bloc/bitrefill/models/embedded_bitrefill_url.dart';
-import 'package:web_dex/shared/utils/window/window.dart';
+import 'package:komodo_wallet/bloc/bitrefill/models/embedded_bitrefill_url.dart';
+import 'package:komodo_wallet/shared/utils/window/window.dart';
 
 class BitrefillProvider {
   /// A map of supported coin abbreviations to their corresponding Bitrefill

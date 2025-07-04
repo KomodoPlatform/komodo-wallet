@@ -5,8 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 final List<TextInputFormatter> currencyInputFormatters = [

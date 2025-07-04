@@ -3,11 +3,11 @@ import 'package:badges/badges.dart' as badges;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/nft_transactions/bloc/nft_transactions_filters.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/nft_transactions/bloc/nft_transactions_filters.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
 
 class NftTxnMobileAppBar extends StatelessWidget
     implements PreferredSizeWidget {

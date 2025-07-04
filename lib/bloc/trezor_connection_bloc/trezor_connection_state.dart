@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/model/hw_wallet/trezor_connection_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_connection_status.dart';
 
 class TrezorConnectionState extends Equatable {
   const TrezorConnectionState({required this.status});

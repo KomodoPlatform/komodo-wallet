@@ -1,4 +1,4 @@
-part of 'package:web_dex/main.dart';
+part of 'package:komodo_wallet/main.dart';
 
 final class AppBootstrapper {
   AppBootstrapper._();

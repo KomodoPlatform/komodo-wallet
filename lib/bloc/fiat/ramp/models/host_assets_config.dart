@@ -1,5 +1,5 @@
 import 'package:decimal/decimal.dart';
-import 'package:web_dex/bloc/fiat/ramp/models/ramp_asset_info.dart';
+import 'package:komodo_wallet/bloc/fiat/ramp/models/ramp_asset_info.dart';
 
 /// Configuration for on/off ramp provider assets and fees
 ///

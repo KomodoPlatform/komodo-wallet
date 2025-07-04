@@ -2,22 +2,22 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/bloc_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/trezor/get_new_address/get_new_address_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw/trezor_withdraw_request.dart';
-import 'package:web_dex/model/hd_account/hd_account.dart';
-import 'package:web_dex/model/hw_wallet/init_trezor.dart';
-import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';
-import 'package:web_dex/model/hw_wallet/trezor_status.dart';
-import 'package:web_dex/model/hw_wallet/trezor_task.dart';
-import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/common/hw_wallet_dialog/show_trezor_passphrase_dialog.dart';
-import 'package:web_dex/views/common/hw_wallet_dialog/show_trezor_pin_dialog.dart';
+import 'package:komodo_wallet/bloc/trezor_bloc/trezor_repo.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/bloc_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/trezor/get_new_address/get_new_address_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/trezor/withdraw/trezor_withdraw/trezor_withdraw_request.dart';
+import 'package:komodo_wallet/model/hd_account/hd_account.dart';
+import 'package:komodo_wallet/model/hw_wallet/init_trezor.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_progress_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_task.dart';
+import 'package:komodo_wallet/model/text_error.dart';
+import 'package:komodo_wallet/model/withdraw_details/withdraw_details.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/common/hw_wallet_dialog/show_trezor_passphrase_dialog.dart';
+import 'package:komodo_wallet/views/common/hw_wallet_dialog/show_trezor_pin_dialog.dart';
 
 class TrezorCoinsBloc {
   TrezorCoinsBloc({
@@ -43,7 +43,7 @@ class TrezorCoinsBloc {
     _initNewAddressStatusTimer =
         Timer.periodic(const Duration(seconds: 1), (timer) async {
       final GetNewAddressResponse initNewAddressStatus =
-        await trezorRepo.getNewAddressStatus(taskId, asset);
+          await trezorRepo.getNewAddressStatus(taskId, asset);
       callback(initNewAddressStatus);
     });
   }

@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/market_maker_bot/tab_type_enum.dart';
+import 'package:komodo_wallet/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/market_maker_bot/tab_type_enum.dart';
 
 /// The order in this enum is important.
 /// When you rearrange the elements, the order of the tabs must change.

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
-import 'package:web_dex/model/nft.dart';
+import 'package:komodo_wallet/mm2/rpc/nft_transaction/nft_transactions_response.dart';
+import 'package:komodo_wallet/model/nft.dart';
 
 class NftTransactionsFilter extends Equatable {
   const NftTransactionsFilter({

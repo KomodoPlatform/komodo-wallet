@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/show_priv_key/show_priv_key_request.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/settings_menu_value.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
-import 'package:web_dex/views/common/pages/page_layout.dart';
-import 'package:web_dex/views/common/wallet_password_dialog/wallet_password_dialog.dart';
-import 'package:web_dex/views/settings/widgets/common/settings_content_wrapper.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/password_update_page.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/security_settings_main_page.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_confirm_success.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_confirmation/seed_confirmation.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_show.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_bloc.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_event.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/show_priv_key/show_priv_key_request.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/settings_menu_value.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/views/common/pages/page_layout.dart';
+import 'package:komodo_wallet/views/common/wallet_password_dialog/wallet_password_dialog.dart';
+import 'package:komodo_wallet/views/settings/widgets/common/settings_content_wrapper.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/password_update_page.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/security_settings_main_page.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/seed_confirm_success.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/seed_confirmation/seed_confirmation.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/seed_show.dart';
 
 class SecuritySettingsPage extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables

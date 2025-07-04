@@ -2,8 +2,8 @@ import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
-import 'package:web_dex/model/text_error.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_step.dart';
+import 'package:komodo_wallet/model/text_error.dart';
 
 class WithdrawFormState extends Equatable {
   final Asset asset;

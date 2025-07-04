@@ -4,7 +4,7 @@ import 'dart:io' show HttpException;
 
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
-import 'package:web_dex/bloc/system_health/providers/http_time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/http_time_provider.dart';
 
 void testHttpTimeProvider() {
   group('HttpTimeProvider', () {

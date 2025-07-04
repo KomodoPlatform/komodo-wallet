@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_payment_method.dart';
-import 'package:web_dex/views/fiat/fiat_payment_method_card.dart';
+import 'package:komodo_wallet/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_payment_method.dart';
+import 'package:komodo_wallet/views/fiat/fiat_payment_method_card.dart';
 
 class FiatPaymentMethodGroup extends StatelessWidget {
   const FiatPaymentMethodGroup({

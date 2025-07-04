@@ -7,16 +7,16 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/cex_market_data/charts.dart';
-import 'package:web_dex/bloc/cex_market_data/mockup/mock_portfolio_growth_repository.dart';
-import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
-import 'package:web_dex/bloc/cex_market_data/models/graph_type.dart';
-import 'package:web_dex/bloc/cex_market_data/models/models.dart';
-import 'package:web_dex/bloc/cex_market_data/portfolio_growth/cache_miss_exception.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/charts.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/mockup/mock_portfolio_growth_repository.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/mockup/performance_mode.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/models/graph_type.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/models/models.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/portfolio_growth/cache_miss_exception.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/transaction_history/transaction_history_repo.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
 /// A repository for fetching the growth chart for the portfolio and coins.
 class PortfolioGrowthRepository {

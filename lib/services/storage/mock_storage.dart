@@ -1,4 +1,4 @@
-import 'package:web_dex/services/storage/base_storage.dart';
+import 'package:komodo_wallet/services/storage/base_storage.dart';
 
 class MockStorage implements BaseStorage {
   @override

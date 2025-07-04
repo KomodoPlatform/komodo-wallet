@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/nft_transactions/bloc/nft_transactions_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
-import 'package:web_dex/model/nft.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/nft_transactions/bloc/nft_transactions_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/rpc/nft_transaction/nft_transactions_response.dart';
+import 'package:komodo_wallet/model/nft.dart';
 
 const double _itemHeight = 42;
 

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:web_dex/main.dart' as app;
+import 'package:komodo_wallet/main.dart' as app;
 
 import '../../common/goto.dart' as goto;
 import '../../common/pause.dart';
@@ -21,7 +21,7 @@ Future<void> testCexPrices(WidgetTester tester) async {
     const Key('overview-total-balance'),
   );
 
-  // re-enable with coin details click 
+  // re-enable with coin details click
   // final Finder coinDetailsReturnButton = find.byKey(
   //   const Key('back-button'),
   // );

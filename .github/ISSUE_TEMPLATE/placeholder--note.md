@@ -1,12 +1,11 @@
 ---
 name: Placeholder, note
 about: Place for future issue
-title: ''
+title: ""
 labels: placeholder
-assignees: ''
-
+assignees: ""
 ---
 
 This issue is a placeholder and not supposed to be planned or prioritised until more details provided by its author.
 
-<!--Please consider open [discussion](https://github.com/KomodoPlatform/WebDEX/discussions) instead -->
+<!--Please consider open [discussion](https://github.com/KomodoPlatform/komodo-wallet/discussions) instead -->

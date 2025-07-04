@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/orderbook/order.dart';
-import 'package:web_dex/views/dex/orderbook/orderbook_view.dart';
+import 'package:komodo_wallet/blocs/maker_form_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/orderbook/order.dart';
+import 'package:komodo_wallet/views/dex/orderbook/orderbook_view.dart';
 
 class MakerFormOrderbook extends StatelessWidget {
   const MakerFormOrderbook({Key? key}) : super(key: key);

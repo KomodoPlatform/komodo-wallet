@@ -3,13 +3,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/wallet/coins_manager/coins_manager_filter_type_label.dart';
+import 'package:komodo_wallet/bloc/coins_manager/coins_manager_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/wallet/coins_manager/coins_manager_filter_type_label.dart';
 
 class CoinsManagerSelectedTypesList extends StatelessWidget {
   const CoinsManagerSelectedTypesList({Key? key}) : super(key: key);

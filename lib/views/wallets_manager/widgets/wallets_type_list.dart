@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/views/wallets_manager/widgets/wallet_type_list_item.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/wallet_type_list_item.dart';
 
 class WalletsTypeList extends StatelessWidget {
   const WalletsTypeList({Key? key, required this.onWalletTypeClick})

@@ -1,4 +1,4 @@
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 /// [Ticker] is a part of coin abbr without protocol sufix,
 /// e.g. `KMD` for `KMD-BEP20`

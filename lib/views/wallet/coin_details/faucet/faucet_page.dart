@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/views/wallet/coin_details/faucet/faucet_view.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/faucet/faucet_view.dart';
 
 class FaucetPage extends StatefulWidget {
   const FaucetPage({

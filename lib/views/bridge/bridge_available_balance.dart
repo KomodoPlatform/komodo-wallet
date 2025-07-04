@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/views/dex/simple/form/taker/available_balance.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/available_balance.dart';
 
 class BridgeAvailableBalance extends StatelessWidget {
   const BridgeAvailableBalance({Key? key}) : super(key: key);

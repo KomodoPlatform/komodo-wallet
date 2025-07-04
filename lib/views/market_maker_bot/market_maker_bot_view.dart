@@ -1,14 +1,14 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/shared/ui/clock_warning_banner.dart';
-import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
-import 'package:web_dex/views/common/pages/page_layout.dart';
-import 'package:web_dex/views/market_maker_bot/market_maker_bot_tab_bar.dart';
-import 'package:web_dex/views/market_maker_bot/market_maker_bot_tab_content_wrapper.dart';
-import 'package:web_dex/views/market_maker_bot/market_maker_bot_tab_type.dart';
+import 'package:komodo_wallet/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/shared/ui/clock_warning_banner.dart';
+import 'package:komodo_wallet/shared/widgets/hidden_without_wallet.dart';
+import 'package:komodo_wallet/views/common/pages/page_layout.dart';
+import 'package:komodo_wallet/views/market_maker_bot/market_maker_bot_tab_bar.dart';
+import 'package:komodo_wallet/views/market_maker_bot/market_maker_bot_tab_content_wrapper.dart';
+import 'package:komodo_wallet/views/market_maker_bot/market_maker_bot_tab_type.dart';
 
 class MarketMakerBotView extends StatelessWidget {
   @override

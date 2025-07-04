@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/views/dex/common/trading_amount_field.dart';
-import 'package:web_dex/views/dex/simple/form/dex_fiat_amount.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_event.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/views/dex/common/trading_amount_field.dart';
+import 'package:komodo_wallet/views/dex/simple/form/dex_fiat_amount.dart';
 
 class BridgeSourceAmountGroup extends StatelessWidget {
   const BridgeSourceAmountGroup({Key? key}) : super(key: key);

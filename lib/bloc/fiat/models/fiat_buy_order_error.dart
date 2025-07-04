@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class FiatBuyOrderError extends Equatable {
   const FiatBuyOrderError({

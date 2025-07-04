@@ -4,7 +4,7 @@ import 'dart:math' show Random;
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/system_health/providers/time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/time_provider.dart';
 
 /// A time provider that fetches time from server 'Date' headers via HEAD requests
 class HttpHeadTimeProvider extends TimeProvider {
@@ -47,7 +47,7 @@ class HttpHeadTimeProvider extends TimeProvider {
     // This also avoid a single server being a single point of failure.
     final shuffledServers = List<String>.from(servers)..shuffle(Random());
     _logger.fine('Randomized server order for time retrieval');
-    
+
     for (final serverUrl in shuffledServers) {
       int retries = 0;
 
@@ -64,7 +64,7 @@ class HttpHeadTimeProvider extends TimeProvider {
           _logger.warning('HTTP error with $serverUrl', e, s);
         } on FormatException catch (e, s) {
           _logger.warning('Date header parse error with $serverUrl', e, s);
-        } 
+        }
         retries++;
       }
     }

@@ -6,12 +6,12 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/cex_market_data/charts.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
-import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/text_error.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/charts.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/sdk_auth_activation_extension.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/text_error.dart';
 
 part 'profit_loss_event.dart';
 part 'profit_loss_state.dart';

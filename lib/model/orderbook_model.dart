@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:web_dex/blocs/orderbook_bloc.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/blocs/orderbook_bloc.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 class OrderbookModel {
   OrderbookModel({

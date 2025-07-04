@@ -1,9 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/shared/ui/gradient_border.dart';
-import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/shared/ui/gradient_border.dart';
+import 'package:komodo_wallet/shared/ui/ui_tab_bar/ui_tab.dart';
 
 class UiTabBar extends StatefulWidget {
   const UiTabBar({

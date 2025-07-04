@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
-import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_event.dart';
-import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_state.dart';
-import 'package:web_dex/model/hw_wallet/trezor_connection_status.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_wallet/bloc/trezor_bloc/trezor_repo.dart';
+import 'package:komodo_wallet/bloc/trezor_connection_bloc/trezor_connection_event.dart';
+import 'package:komodo_wallet/bloc/trezor_connection_bloc/trezor_connection_state.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_connection_status.dart';
+import 'package:komodo_wallet/model/wallet.dart';
 
 class TrezorConnectionBloc
     extends Bloc<TrezorConnectionEvent, TrezorConnectionState> {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/simple/form/tables/nothing_found.dart';
-import 'package:web_dex/views/dex/simple/form/tables/orders_table/grouped_list_view.dart';
-import 'package:web_dex/views/dex/simple/form/tables/table_utils.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/nothing_found.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/orders_table/grouped_list_view.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/table_utils.dart';
 
 class CoinsTableContent extends StatelessWidget {
   const CoinsTableContent({

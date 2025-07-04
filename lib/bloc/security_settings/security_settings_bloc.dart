@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_event.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_state.dart';
 
 class SecuritySettingsBloc
     extends Bloc<SecuritySettingsEvent, SecuritySettingsState> {

@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
+import 'package:komodo_wallet/mm2/rpc/nft_transaction/nft_transactions_response.dart';
 
 class NftTxFormatter {
   static String getFeeValue(NftTransaction tx) {

@@ -1,9 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
+import 'package:komodo_wallet/common/screen.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
-import 'package:web_dex/shared/widgets/html_parser.dart';
+import 'package:komodo_wallet/shared/ui/ui_gradient_icon.dart';
+import 'package:komodo_wallet/shared/widgets/html_parser.dart';
 
 class SupportItem extends StatefulWidget {
   const SupportItem({Key? key, required this.data, this.isLast = false})

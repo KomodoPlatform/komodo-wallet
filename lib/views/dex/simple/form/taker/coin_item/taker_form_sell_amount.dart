@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/views/dex/common/trading_amount_field.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_event.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_state.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/views/dex/common/trading_amount_field.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
 
 class TakerFormSellAmount extends StatelessWidget {
   const TakerFormSellAmount(this.isEnabled);

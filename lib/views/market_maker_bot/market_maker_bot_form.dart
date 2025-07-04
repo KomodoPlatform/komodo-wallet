@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/orderbook/order.dart';
-import 'package:web_dex/views/dex/orderbook/orderbook_view.dart';
-import 'package:web_dex/views/market_maker_bot/market_maker_bot_confirmation_form.dart';
-import 'package:web_dex/views/market_maker_bot/market_maker_bot_form_content.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/bloc/dex_tab_bar/dex_tab_bar_bloc.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/orderbook/order.dart';
+import 'package:komodo_wallet/views/dex/orderbook/orderbook_view.dart';
+import 'package:komodo_wallet/views/market_maker_bot/market_maker_bot_confirmation_form.dart';
+import 'package:komodo_wallet/views/market_maker_bot/market_maker_bot_form_content.dart';
 
 class MarketMakerBotForm extends StatelessWidget {
   const MarketMakerBotForm();

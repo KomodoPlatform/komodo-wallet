@@ -1,6 +1,6 @@
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/withdraw/fee/fee_request.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/withdraw/fee/fee_request.dart';
 
 class WithdrawRequestParams {
   WithdrawRequestParams({

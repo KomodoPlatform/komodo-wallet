@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
 
 import 'mocks/mock_binance_provider.dart';
 import 'transaction_generation.dart';

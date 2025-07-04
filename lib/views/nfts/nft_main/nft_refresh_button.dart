@@ -3,9 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/nfts/nft_main_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/nft.dart';
+import 'package:komodo_wallet/bloc/nfts/nft_main_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/nft.dart';
 
 class NftRefreshButton extends StatelessWidget {
   const NftRefreshButton({super.key});

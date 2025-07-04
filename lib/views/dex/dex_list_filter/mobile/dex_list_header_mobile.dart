@@ -3,13 +3,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/dex_list_type.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/model/trading_entities_filter.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/dex_list_type.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/model/trading_entities_filter.dart';
+import 'package:komodo_wallet/shared/ui/ui_primary_button.dart';
 
 class DexListHeaderMobile extends StatelessWidget {
   const DexListHeaderMobile({

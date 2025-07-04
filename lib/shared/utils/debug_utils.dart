@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/blocs/wallets_repository.dart';
+import 'package:komodo_wallet/model/wallet.dart';
 
 Future<void> initDebugData(
   AuthBloc authBloc,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/model/wallets_manager_models.dart';
-import 'package:web_dex/views/wallets_manager/widgets/wallet_list_item.dart';
+import 'package:komodo_wallet/blocs/wallets_repository.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/model/wallets_manager_models.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/wallet_list_item.dart';
 
 class WalletsList extends StatelessWidget {
   const WalletsList(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/asset_list_item_desktop.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/asset_list_item_mobile.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/asset_list_item_desktop.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/asset_list_item_mobile.dart';
 
 /// A widget that displays an asset in a list item format with different layouts for mobile and desktop.
 ///

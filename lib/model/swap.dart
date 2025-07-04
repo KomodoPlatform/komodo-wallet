@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 import 'package:equatable/equatable.dart';
 
 class Swap extends Equatable {

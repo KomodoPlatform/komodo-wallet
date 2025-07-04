@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/settings/market_maker_bot_settings.dart';
+import 'package:komodo_wallet/model/settings/market_maker_bot_settings.dart';
 
 abstract class SettingsEvent extends Equatable {
   const SettingsEvent();
@@ -31,7 +31,7 @@ class MarketMakerBotSettingsChanged extends SettingsEvent {
 class WeakPasswordsAllowedChanged extends SettingsEvent {
   const WeakPasswordsAllowedChanged({required this.weakPasswordsAllowed});
   final bool weakPasswordsAllowed;
-  
+
   @override
   List<Object> get props => [weakPasswordsAllowed];
 }

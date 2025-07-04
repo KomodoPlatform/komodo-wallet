@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_info_container.dart';
-import 'package:web_dex/views/dex/simple/form/exchange_info/dex_compared_to_cex.dart';
-import 'package:web_dex/views/dex/simple/form/taker/taker_form_exchange_rate.dart';
-import 'package:web_dex/views/dex/simple/form/taker/taker_form_total_fees.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_state.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_info_container.dart';
+import 'package:komodo_wallet/views/dex/simple/form/exchange_info/dex_compared_to_cex.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/taker_form_exchange_rate.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/taker_form_total_fees.dart';
 
 class TakerFormExchangeInfo extends StatelessWidget {
   const TakerFormExchangeInfo();

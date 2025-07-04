@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
 
 class AddressText extends StatelessWidget {
   const AddressText({

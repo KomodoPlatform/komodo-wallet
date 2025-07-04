@@ -2,16 +2,16 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/ui/custom_tooltip.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/views/wallet/common/address_copy_button.dart';
-import 'package:web_dex/views/wallet/common/address_icon.dart';
-import 'package:web_dex/views/wallet/common/address_text.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/ui/custom_tooltip.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/views/wallet/common/address_copy_button.dart';
+import 'package:komodo_wallet/views/wallet/common/address_icon.dart';
+import 'package:komodo_wallet/views/wallet/common/address_text.dart';
 
 class TransactionListRow extends StatefulWidget {
   const TransactionListRow({

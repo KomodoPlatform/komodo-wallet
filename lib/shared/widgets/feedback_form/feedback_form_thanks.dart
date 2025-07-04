@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/services/feedback/feedback_service.dart';
-import 'package:web_dex/shared/ui/ui_light_button.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/services/feedback/feedback_service.dart';
+import 'package:komodo_wallet/shared/ui/ui_light_button.dart';
 
 // TODO: Repurpose this widget to show a thank you message after feedback is.
 // This code is no longer used since the feedback form is now handled by the

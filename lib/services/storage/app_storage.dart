@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_dex/services/storage/base_storage.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/services/storage/base_storage.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class AppStorage implements BaseStorage {
   SharedPreferences? _prefs;

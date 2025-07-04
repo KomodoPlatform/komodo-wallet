@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/app_assets.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_complete_form/send_complete_form.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_complete_form/send_complete_form_footer.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/send_complete_form/send_complete_form.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/send_complete_form/send_complete_form_footer.dart';
 
 class CompletePage extends StatelessWidget {
   const CompletePage();

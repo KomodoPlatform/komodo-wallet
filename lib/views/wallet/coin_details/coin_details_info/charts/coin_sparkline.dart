@@ -1,7 +1,7 @@
 import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class CoinSparkline extends StatelessWidget {
   final String coinId;

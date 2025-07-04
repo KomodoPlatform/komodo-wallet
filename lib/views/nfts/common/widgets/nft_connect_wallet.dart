@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/connect_wallet/connect_wallet_button.dart';
-import 'package:web_dex/views/nfts/common/widgets/nft_no_login.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/widgets/connect_wallet/connect_wallet_button.dart';
+import 'package:komodo_wallet/views/nfts/common/widgets/nft_no_login.dart';
+import 'package:komodo_wallet/views/wallets_manager/wallets_manager_events_factory.dart';
 
 class NftConnectWallet extends StatelessWidget {
   const NftConnectWallet();

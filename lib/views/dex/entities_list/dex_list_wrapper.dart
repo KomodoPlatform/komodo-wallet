@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/trading_kind/trading_kind_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/dex_list_type.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/model/trading_entities_filter.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/dex/dex_list_filter/desktop/dex_list_filter_desktop.dart';
-import 'package:web_dex/views/dex/dex_list_filter/mobile/dex_list_filter_mobile.dart';
-import 'package:web_dex/views/dex/dex_list_filter/mobile/dex_list_header_mobile.dart';
-import 'package:web_dex/views/dex/entities_list/history/history_list.dart';
-import 'package:web_dex/views/dex/entities_list/in_progress/in_progress_list.dart';
-import 'package:web_dex/views/dex/entities_list/orders/orders_list.dart';
-import 'package:web_dex/views/dex/simple/form/maker/maker_form_layout.dart';
-import 'package:web_dex/views/dex/simple/form/taker/taker_form.dart';
+import 'package:komodo_wallet/bloc/trading_kind/trading_kind_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/dex_list_type.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/model/trading_entities_filter.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/dex/dex_list_filter/desktop/dex_list_filter_desktop.dart';
+import 'package:komodo_wallet/views/dex/dex_list_filter/mobile/dex_list_filter_mobile.dart';
+import 'package:komodo_wallet/views/dex/dex_list_filter/mobile/dex_list_header_mobile.dart';
+import 'package:komodo_wallet/views/dex/entities_list/history/history_list.dart';
+import 'package:komodo_wallet/views/dex/entities_list/in_progress/in_progress_list.dart';
+import 'package:komodo_wallet/views/dex/entities_list/orders/orders_list.dart';
+import 'package:komodo_wallet/views/dex/simple/form/maker/maker_form_layout.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/taker_form.dart';
 
 class DexListWrapper extends StatefulWidget {
   const DexListWrapper(this.listType, {super.key});

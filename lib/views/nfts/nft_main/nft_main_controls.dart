@@ -5,15 +5,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/nfts/nft_main_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/nfts/nft_main_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/dispatchers/popup_dispatcher.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/wallets_manager/wallets_manager_events_factory.dart';
+import 'package:komodo_wallet/views/wallets_manager/wallets_manager_wrapper.dart';
 
 class NftMainControls extends StatefulWidget {
   const NftMainControls({super.key});

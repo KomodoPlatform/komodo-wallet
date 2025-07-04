@@ -1,4 +1,4 @@
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 class PriceStampedTransaction extends Transaction {

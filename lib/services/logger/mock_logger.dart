@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 
-import 'package:web_dex/services/logger/logger.dart';
+import 'package:komodo_wallet/services/logger/logger.dart';
 
 class MockLogger implements LoggerInterface {
   const MockLogger();

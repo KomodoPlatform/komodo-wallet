@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/router/navigators/main_layout/main_layout_router_delegate.dart';
+import 'package:komodo_wallet/router/navigators/main_layout/main_layout_router_delegate.dart';
 
 class MainLayoutRouter extends StatefulWidget {
   @override

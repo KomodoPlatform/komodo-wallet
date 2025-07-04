@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab.dart';
-import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab_bar.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/ui/ui_tab_bar/ui_tab.dart';
+import 'package:komodo_wallet/shared/ui/ui_tab_bar/ui_tab_bar.dart';
 
 class BridgeTabBar extends StatefulWidget {
   const BridgeTabBar(

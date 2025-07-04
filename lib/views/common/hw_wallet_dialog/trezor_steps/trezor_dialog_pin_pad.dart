@@ -3,9 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_light_button.dart';
-import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/ui/ui_light_button.dart';
+import 'package:komodo_wallet/views/common/hw_wallet_dialog/constants.dart';
 
 const List<List<int>> _keys = [
   [7, 8, 9],

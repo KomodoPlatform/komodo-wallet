@@ -1,7 +1,7 @@
 import 'package:rational/rational.dart';
 import 'package:test/test.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
 
 void testCalculateBuyAmount() {
   test('Calculation sellAmount on selectedOrder', () {

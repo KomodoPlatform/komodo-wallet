@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/blocs/update_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/services/alpha_version_alert_service/alpha_version_alert_service.dart';
-import 'package:web_dex/services/feedback/feedback_service.dart';
-import 'package:web_dex/shared/utils/window/window.dart';
-import 'package:web_dex/views/common/header/app_header.dart';
-import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
+import 'package:komodo_wallet/bloc/trading_status/trading_status_bloc.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/blocs/update_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/authorize_mode.dart';
+import 'package:komodo_wallet/router/navigators/main_layout/main_layout_router.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/services/alpha_version_alert_service/alpha_version_alert_service.dart';
+import 'package:komodo_wallet/services/feedback/feedback_service.dart';
+import 'package:komodo_wallet/shared/utils/window/window.dart';
+import 'package:komodo_wallet/views/common/header/app_header.dart';
+import 'package:komodo_wallet/views/common/main_menu/main_menu_bar_mobile.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});

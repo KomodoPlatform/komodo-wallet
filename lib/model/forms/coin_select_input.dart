@@ -1,5 +1,5 @@
 import 'package:formz/formz.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:get_it/get_it.dart';
 

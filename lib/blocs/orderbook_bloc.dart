@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
+import 'package:komodo_wallet/blocs/bloc_base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/orderbook/orderbook_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
 
 class OrderbookBloc implements BlocBase {
   OrderbookBloc({required Mm2Api api}) {

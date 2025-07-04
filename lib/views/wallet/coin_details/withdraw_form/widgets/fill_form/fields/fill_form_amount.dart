@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/ui/custom_numeric_text_form_field.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/buttons/sell_max_button.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/constants.dart';
+import 'package:komodo_wallet/shared/ui/custom_numeric_text_form_field.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/fill_form/buttons/sell_max_button.dart';
 
 class FillFormAmount extends StatefulWidget {
   const FillFormAmount({super.key});

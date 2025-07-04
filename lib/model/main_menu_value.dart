@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/bloc/trading_status/trading_status_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
 
 enum MainMenuValue {
   wallet,

@@ -1,5 +1,5 @@
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_event.dart';
 
 import '../../bloc/analytics/analytics_repo.dart';
 

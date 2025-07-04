@@ -1,6 +1,6 @@
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/sorting.dart';
+import 'package:komodo_wallet/shared/utils/sorting.dart';
 
 void testSorting() {
   test('Sort 2 numbers in desired direction', () {

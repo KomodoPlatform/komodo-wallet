@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
-import 'package:web_dex/bloc/cex_market_data/mockup/generate_demo_data.dart';
-import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/mockup/generate_demo_data.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/mockup/performance_mode.dart';
 
 import 'mocks/mock_binance_provider.dart';
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/router/navigators/page_content/page_content_router.dart';
-import 'package:web_dex/router/navigators/page_menu/page_menu_router.dart';
-import 'package:web_dex/router/routes.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/common/main_menu/main_menu_desktop.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/router/navigators/page_content/page_content_router.dart';
+import 'package:komodo_wallet/router/navigators/page_menu/page_menu_router.dart';
+import 'package:komodo_wallet/router/routes.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/common/main_menu/main_menu_desktop.dart';
 
 class MainLayoutRouterDelegate extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {

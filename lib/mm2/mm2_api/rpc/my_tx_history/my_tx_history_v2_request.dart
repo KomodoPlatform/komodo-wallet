@@ -1,5 +1,5 @@
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/model/wallet.dart';
 
 class MyTxHistoryV2Request
     implements BaseRequest, BaseRequestWithParams<MyTxHistoryV2ParamsRequest> {
@@ -41,7 +41,8 @@ class MyTxHistoryV2ParamsRequest {
     }
     return <String, dynamic>{
       'coin': coin,
-      'limit': 10000 // https://github.com/KomodoPlatform/WebDEX/issues/795
+      'limit':
+          10000 // https://github.com/KomodoPlatform/komodo-wallet/issues/795
     };
   }
 }

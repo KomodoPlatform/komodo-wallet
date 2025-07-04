@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/version/version_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/version/version_response.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/version/version_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/version/version_response.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 final MM2 mm2 = MM2();
 

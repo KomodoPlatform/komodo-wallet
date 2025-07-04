@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/dex_form_error.dart';
+import 'package:komodo_wallet/model/dex_form_error.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class DexFormErrorWithAction extends StatefulWidget {

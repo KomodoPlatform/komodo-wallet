@@ -1,13 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/model/cex_price.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/model/hd_account/hd_account.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/model/cex_price.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/model/hd_account/hd_account.dart';
+import 'package:komodo_wallet/model/wallet.dart';
 
 class Coin {
   Coin({

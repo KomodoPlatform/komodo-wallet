@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/dex_form_error.dart';
-import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_simple.dart';
-import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
+import 'package:komodo_wallet/model/dex_form_error.dart';
+import 'package:komodo_wallet/views/dex/simple/form/error_list/dex_form_error_simple.dart';
+import 'package:komodo_wallet/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
 
 class DexFormErrorList extends StatefulWidget {
   const DexFormErrorList({

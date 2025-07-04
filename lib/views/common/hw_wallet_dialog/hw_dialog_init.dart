@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/hw_wallet/hw_wallet.dart';
+import 'package:komodo_wallet/bloc/trezor_init_bloc/trezor_init_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/hw_wallet/hw_wallet.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/views/common/hw_wallet_dialog/hw_dialog_wallet_select.dart';
+import 'package:komodo_wallet/views/common/hw_wallet_dialog/hw_dialog_wallet_select.dart';
 
 class HwDialogInit extends StatelessWidget {
   const HwDialogInit({Key? key, required this.close}) : super(key: key);

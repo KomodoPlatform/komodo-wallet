@@ -3,11 +3,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/router/state/nfts_state.dart';
-import 'package:web_dex/router/state/routing_state.dart';
+import 'package:komodo_wallet/bloc/nft_withdraw/nft_withdraw_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/router/state/nfts_state.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
 
 class NftWithdrawFooter extends StatelessWidget {
   const NftWithdrawFooter();

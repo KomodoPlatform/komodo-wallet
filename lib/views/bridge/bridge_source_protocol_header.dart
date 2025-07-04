@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/bridge/bridge_available_balance.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_form_group_header.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_small_button.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_event.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/bridge/bridge_available_balance.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_form_group_header.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_small_button.dart';
 
 class SourceProtocolHeader extends StatelessWidget {
   const SourceProtocolHeader({Key? key}) : super(key: key);

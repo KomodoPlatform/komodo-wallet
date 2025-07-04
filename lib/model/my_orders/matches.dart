@@ -1,5 +1,5 @@
-import 'package:web_dex/model/my_orders/match_connect.dart';
-import 'package:web_dex/model/my_orders/match_request.dart';
+import 'package:komodo_wallet/model/my_orders/match_connect.dart';
+import 'package:komodo_wallet/model/my_orders/match_request.dart';
 
 class Matches {
   Matches({

@@ -1,5 +1,5 @@
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
 class UpdateNftRequest implements BaseRequest {
   UpdateNftRequest({

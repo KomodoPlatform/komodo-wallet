@@ -4,10 +4,10 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/simple/form/amount_input_field.dart';
+import 'package:komodo_wallet/blocs/maker_form_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/dex/simple/form/amount_input_field.dart';
 
 class MakerFormPriceItem extends StatefulWidget {
   const MakerFormPriceItem({Key? key}) : super(key: key);

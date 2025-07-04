@@ -1,6 +1,6 @@
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
-import 'package:web_dex/bloc/analytics/analytics_repo.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_event.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_repo.dart';
 
 /// E01: App launched / foregrounded
 /// Measures when the application is opened or returns to foreground.

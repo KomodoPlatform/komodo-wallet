@@ -1,13 +1,13 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/constants.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
-import 'package:web_dex/views/nfts/details_page/common/nft_data_row.dart';
+import 'package:komodo_wallet/bloc/nft_withdraw/nft_withdraw_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/constants.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/widgets/truncate_middle_text.dart';
+import 'package:komodo_wallet/views/nfts/details_page/common/nft_data_row.dart';
 
 class NftWithdrawConfirmation extends StatelessWidget {
   const NftWithdrawConfirmation({required this.state});

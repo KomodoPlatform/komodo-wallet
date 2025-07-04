@@ -1,5 +1,5 @@
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/model/withdraw_details/fee_details.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/model/withdraw_details/fee_details.dart';
 
 class NftTxsResponse {
   NftTxsResponse({

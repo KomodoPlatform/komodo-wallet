@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_response.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/model/typedef.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_response.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/model/typedef.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class BridgeRepository {
   BridgeRepository(this._mm2Api, this._kdfSdk, this._coinsRepository);

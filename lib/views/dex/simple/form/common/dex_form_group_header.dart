@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_form_title.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_form_title.dart';
 
 class DexFormGroupHeader extends StatelessWidget {
   const DexFormGroupHeader(

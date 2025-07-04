@@ -1,8 +1,8 @@
-import 'package:web_dex/model/hw_wallet/init_trezor.dart';
-import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';
-import 'package:web_dex/model/hw_wallet/trezor_status.dart';
-import 'package:web_dex/model/hw_wallet/trezor_status_error.dart';
-import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
+import 'package:komodo_wallet/model/hw_wallet/init_trezor.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_progress_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_status_error.dart';
+import 'package:komodo_wallet/model/withdraw_details/withdraw_details.dart';
 
 class TrezorWithdrawStatusResponse {
   TrezorWithdrawStatusResponse({this.result, this.error});

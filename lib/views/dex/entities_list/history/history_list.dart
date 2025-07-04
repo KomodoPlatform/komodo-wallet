@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/model/trading_entities_filter.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
-import 'package:web_dex/views/dex/entities_list/common/dex_empty_list.dart';
-import 'package:web_dex/views/dex/entities_list/common/dex_error_message.dart';
-import 'package:web_dex/views/dex/entities_list/history/history_item.dart';
-import 'package:web_dex/views/dex/entities_list/history/history_list_header.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/model/trading_entities_filter.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/dex_empty_list.dart';
+import 'package:komodo_wallet/views/dex/entities_list/common/dex_error_message.dart';
+import 'package:komodo_wallet/views/dex/entities_list/history/history_item.dart';
+import 'package:komodo_wallet/views/dex/entities_list/history/history_list_header.dart';
 
 import 'swap_history_sort_mixin.dart';
 

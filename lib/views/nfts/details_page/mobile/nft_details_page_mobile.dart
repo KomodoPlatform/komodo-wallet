@@ -3,17 +3,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/router/state/nfts_state.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
-import 'package:web_dex/views/nfts/common/widgets/nft_image.dart';
-import 'package:web_dex/views/nfts/details_page/common/nft_data.dart';
-import 'package:web_dex/views/nfts/details_page/common/nft_description.dart';
-import 'package:web_dex/views/nfts/details_page/mobile/nft_details_header_mobile.dart';
-import 'package:web_dex/views/nfts/details_page/withdraw/nft_withdraw_view.dart';
+import 'package:komodo_wallet/bloc/nft_withdraw/nft_withdraw_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/router/state/nfts_state.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/views/nfts/common/widgets/nft_image.dart';
+import 'package:komodo_wallet/views/nfts/details_page/common/nft_data.dart';
+import 'package:komodo_wallet/views/nfts/details_page/common/nft_description.dart';
+import 'package:komodo_wallet/views/nfts/details_page/mobile/nft_details_header_mobile.dart';
+import 'package:komodo_wallet/views/nfts/details_page/withdraw/nft_withdraw_view.dart';
 
 class NftDetailsPageMobile extends StatefulWidget {
   const NftDetailsPageMobile({required this.isRouterSend});

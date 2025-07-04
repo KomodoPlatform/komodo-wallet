@@ -1,6 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
+import 'package:komodo_wallet/shared/ui/ui_gradient_icon.dart';
 
 class BackButtonDesktop extends StatelessWidget {
   const BackButtonDesktop({

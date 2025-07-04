@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_list_header_with_sortings.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/ui/ui_list_header_with_sortings.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class OrderListHeader extends StatelessWidget {

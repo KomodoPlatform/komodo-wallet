@@ -1,4 +1,4 @@
-import 'package:web_dex/model/hw_wallet/init_trezor.dart';
+import 'package:komodo_wallet/model/hw_wallet/init_trezor.dart';
 
 class InitTrezorRes {
   InitTrezorRes({

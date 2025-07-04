@@ -2,15 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/model/wallets_manager_models.dart';
+import 'package:komodo_wallet/blocs/wallets_repository.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/model/wallets_manager_models.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
-import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
-import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
-import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:komodo_wallet/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/creation_password_fields.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletCreation extends StatefulWidget {
   const WalletCreation({

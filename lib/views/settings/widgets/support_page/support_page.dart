@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/app_assets.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/settings/widgets/support_page/support_item.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/settings/widgets/support_page/support_item.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class SupportPage extends StatelessWidget {

@@ -5,10 +5,10 @@ import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/nfts/nft_main_repo.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/model/text_error.dart';
+import 'package:komodo_wallet/bloc/nfts/nft_main_repo.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/model/text_error.dart';
 
 part 'nft_main_event.dart';
 part 'nft_main_state.dart';

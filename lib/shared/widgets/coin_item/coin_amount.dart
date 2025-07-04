@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/widgets/auto_scroll_text.dart';
 
 class CoinAmount extends StatelessWidget {
   const CoinAmount({

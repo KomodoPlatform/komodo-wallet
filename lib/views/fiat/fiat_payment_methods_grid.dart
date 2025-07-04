@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_payment_method.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/fiat/fiat_payment_method_group.dart';
+import 'package:komodo_wallet/bloc/fiat/fiat_onramp_form/fiat_form_bloc.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_payment_method.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/fiat/fiat_payment_method_group.dart';
 
 class FiatPaymentMethodsGrid extends StatelessWidget {
   const FiatPaymentMethodsGrid({

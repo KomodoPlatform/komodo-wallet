@@ -3,11 +3,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
-import 'package:web_dex/common/app_assets.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/custom_fee/custom_fee_field_evm.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/custom_fee/custom_fee_field_utxo.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/custom_fee/custom_fee_field_evm.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/custom_fee/custom_fee_field_utxo.dart';
 
 class FillFormCustomFee extends StatefulWidget {
   const FillFormCustomFee({super.key});

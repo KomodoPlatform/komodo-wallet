@@ -1,4 +1,4 @@
 import 'package:flutter/services.dart';
 
-const MethodChannel nativeChannel = MethodChannel('komodo-web-dex');
-const EventChannel nativeEventChannel = EventChannel('komodo-web-dex/event');
+const MethodChannel nativeChannel = MethodChannel('komodo-wallet');
+const EventChannel nativeEventChannel = EventChannel('komodo-wallet/event');

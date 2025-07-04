@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/views/dex/entity_details/swap/swap_details_step.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/views/dex/entity_details/swap/swap_details_step.dart';
 
 class SwapDetailsStepList extends StatelessWidget {
   const SwapDetailsStepList({Key? key, required this.swapStatus})

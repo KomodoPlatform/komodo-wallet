@@ -5,8 +5,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/main.dart' as app;
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/main.dart' as app;
 
 import '../../common/goto.dart' as goto;
 import '../../helpers/accept_alpha_warning.dart';

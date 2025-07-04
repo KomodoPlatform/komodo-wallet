@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:komodo_wallet/bloc/withdraw_form/withdraw_form_bloc.dart';
 
 class SendConfirmFormError extends StatelessWidget {
   const SendConfirmFormError({super.key});

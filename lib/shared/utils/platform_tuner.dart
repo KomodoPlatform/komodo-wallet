@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
 import 'package:window_size/window_size.dart';
 
 abstract class PlatformTuner {

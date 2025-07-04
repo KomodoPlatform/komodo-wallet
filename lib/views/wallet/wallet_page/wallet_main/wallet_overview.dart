@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
-import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
-import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/portfolio_events.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/assets_overview/bloc/asset_overview_bloc.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/price_chart/models/time_period.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_bloc.dart';
+import 'package:komodo_wallet/analytics/events/portfolio_events.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 // TODO(@takenagain): Please clean up the widget structure and bloc usage for
 // the wallet overview. It may be better to split this into a separate bloc

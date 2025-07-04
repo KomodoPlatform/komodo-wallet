@@ -1,5 +1,5 @@
-import 'package:web_dex/model/hd_account/hd_account.dart';
-import 'package:web_dex/model/hw_wallet/trezor_status.dart';
+import 'package:komodo_wallet/model/hd_account/hd_account.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_status.dart';
 
 class TrezorBalanceStatusResponse {
   TrezorBalanceStatusResponse({this.result, this.error});

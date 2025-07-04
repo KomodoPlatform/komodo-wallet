@@ -1,15 +1,15 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/hash_explorer_link.dart';
-import 'package:web_dex/shared/widgets/nft/nft_badge.dart';
-import 'package:web_dex/shared/widgets/simple_copyable_link.dart';
-import 'package:web_dex/views/nfts/details_page/common/nft_data_row.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/hash_explorer_link.dart';
+import 'package:komodo_wallet/shared/widgets/nft/nft_badge.dart';
+import 'package:komodo_wallet/shared/widgets/simple_copyable_link.dart';
+import 'package:komodo_wallet/views/nfts/details_page/common/nft_data_row.dart';
 
 class NftData extends StatelessWidget {
   const NftData({required this.nft, this.header});

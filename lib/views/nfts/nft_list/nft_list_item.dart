@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/views/nfts/common/widgets/nft_image.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/views/nfts/common/widgets/nft_image.dart';
 
 class NftListItem extends StatefulWidget {
   const NftListItem({

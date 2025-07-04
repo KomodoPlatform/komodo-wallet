@@ -1,6 +1,6 @@
 import 'package:rational/rational.dart';
-import 'package:web_dex/model/my_orders/match_request.dart';
-import 'package:web_dex/model/my_orders/matches.dart';
+import 'package:komodo_wallet/model/my_orders/match_request.dart';
+import 'package:komodo_wallet/model/my_orders/matches.dart';
 
 class TakerOrder {
   TakerOrder({

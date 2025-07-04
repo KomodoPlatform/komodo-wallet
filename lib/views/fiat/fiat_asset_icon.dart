@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/bloc/fiat/models/i_currency.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart' show CoinItem;
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/views/fiat/fiat_icon.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/bloc/fiat/models/i_currency.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item.dart'
+    show CoinItem;
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/views/fiat/fiat_icon.dart';
 
 class FiatAssetIcon extends StatelessWidget {
   const FiatAssetIcon({
@@ -27,7 +28,7 @@ class FiatAssetIcon extends StatelessWidget {
       return FiatIcon(symbol: currency.getAbbr());
     }
 
-    // TODO: standardise the icon layout. CoinItem contains the icon and the 
+    // TODO: standardise the icon layout. CoinItem contains the icon and the
     // coin name + protocol, but the provided icon Widget could be anything
     // and on failure it's usually just the Icon
     if (assetExists ?? false) {

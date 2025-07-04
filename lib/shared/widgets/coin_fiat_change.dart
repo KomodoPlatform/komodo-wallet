@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_ui/src/defi/asset/trend_percentage_text.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/model/coin.dart';
 import 'package:app_theme/src/dark/theme_custom_dark.dart';
 import 'package:app_theme/src/light/theme_custom_light.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/coin_group.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/taker_form_buy_amount.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/coin_group.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/taker_form_buy_amount.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/trade_controller.dart';
 
 class TakerFormBuySwitcher extends StatelessWidget {
   const TakerFormBuySwitcher(

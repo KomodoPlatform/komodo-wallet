@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/utils/window/window.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/window/window.dart';
 
 /// The display mode for the webview dialog.
 enum WebViewDialogMode {

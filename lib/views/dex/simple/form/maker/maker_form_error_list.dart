@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
-import 'package:web_dex/model/dex_form_error.dart';
-import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_list.dart';
+import 'package:komodo_wallet/blocs/maker_form_bloc.dart';
+import 'package:komodo_wallet/model/dex_form_error.dart';
+import 'package:komodo_wallet/views/dex/simple/form/error_list/dex_form_error_list.dart';
 
 class MakerFormErrorList extends StatelessWidget {
   const MakerFormErrorList({Key? key}) : super(key: key);

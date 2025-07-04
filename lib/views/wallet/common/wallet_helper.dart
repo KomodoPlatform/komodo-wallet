@@ -1,8 +1,8 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
 /// Calculates the total 24-hour change percentage for a list of coins.
 ///

@@ -2,14 +2,14 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/views/dex/simple/confirm/taker_order_confirmation.dart';
-import 'package:web_dex/views/dex/simple/form/tables/coins_table/taker_sell_coins_table.dart';
-import 'package:web_dex/views/dex/simple/form/tables/orders_table/taker_orders_table.dart';
-import 'package:web_dex/views/dex/simple/form/taker/taker_form_content.dart';
-import 'package:web_dex/views/dex/simple/form/taker/taker_order_book.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/views/dex/simple/confirm/taker_order_confirmation.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/coins_table/taker_sell_coins_table.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/orders_table/taker_orders_table.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/taker_form_content.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/taker_order_book.dart';
 
 class TakerFormLayout extends StatelessWidget {
   const TakerFormLayout({super.key});

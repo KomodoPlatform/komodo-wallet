@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:dragon_logs/dragon_logs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/app_config/package_information.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/performance_analytics/performance_analytics.dart';
-import 'package:web_dex/services/logger/logger.dart';
-import 'package:web_dex/services/logger/mock_logger.dart';
-import 'package:web_dex/services/logger/universal_logger.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
-import 'package:web_dex/services/storage/get_storage.dart';
-import 'package:web_dex/shared/constants.dart' show isTestMode;
+import 'package:komodo_wallet/app_config/package_information.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/performance_analytics/performance_analytics.dart';
+import 'package:komodo_wallet/services/logger/logger.dart';
+import 'package:komodo_wallet/services/logger/mock_logger.dart';
+import 'package:komodo_wallet/services/logger/universal_logger.dart';
+import 'package:komodo_wallet/services/platform_info/plaftorm_info.dart';
+import 'package:komodo_wallet/services/storage/get_storage.dart';
+import 'package:komodo_wallet/shared/constants.dart' show isTestMode;
 
 final LoggerInterface logger = _getLogger();
 LoggerInterface _getLogger() {

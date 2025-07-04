@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/widgets/coin_type_tag.dart';
-import 'package:web_dex/shared/widgets/segwit_icon.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
-import 'package:web_dex/views/common/pages/page_layout.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
-import 'package:web_dex/views/wallet/coin_details/constants.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/receive_address.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/shared/widgets/coin_type_tag.dart';
+import 'package:komodo_wallet/shared/widgets/segwit_icon.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/views/common/pages/page_layout.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/constants.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/receive/qr_code_address.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/receive/receive_address.dart';
 
 class ReceiveDetails extends StatelessWidget {
   const ReceiveDetails({

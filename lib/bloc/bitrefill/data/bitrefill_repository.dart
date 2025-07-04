@@ -1,4 +1,4 @@
-import 'package:web_dex/bloc/bitrefill/data/bitrefill_provider.dart';
+import 'package:komodo_wallet/bloc/bitrefill/data/bitrefill_provider.dart';
 
 class BitrefillRepository {
   final BitrefillProvider _bitrefillProvider = BitrefillProvider();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
+import 'package:komodo_wallet/views/common/hw_wallet_dialog/constants.dart';
 
 /// Default dialog view, covers all unhandled events
 class TrezorDialogMessage extends StatelessWidget {

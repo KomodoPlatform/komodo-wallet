@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:web_dex/3p_api/faucet/faucet_response.dart';
+import 'package:komodo_wallet/3p_api/faucet/faucet_response.dart';
 
 Future<FaucetResponse> callFaucet(String coin, String address) async {
   try {

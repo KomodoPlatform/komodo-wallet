@@ -1,8 +1,8 @@
 import 'dart:js_interop';
 
 import 'package:web/web.dart' as web;
-import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/services/file_loader/file_loader.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 FileLoader createFileLoader() => const FileLoaderWeb();
 

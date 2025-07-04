@@ -1,6 +1,6 @@
 import 'package:rational/rational.dart';
-import 'package:web_dex/model/orderbook/order.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/model/orderbook/order.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class Orderbook {
   Orderbook({

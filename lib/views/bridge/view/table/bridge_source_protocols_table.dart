@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/typedef.dart';
-import 'package:web_dex/views/bridge/bridge_exchange_form.dart';
-import 'package:web_dex/views/bridge/bridge_group.dart';
-import 'package:web_dex/views/bridge/view/table/bridge_nothing_found.dart';
-import 'package:web_dex/views/bridge/view/table/bridge_protocol_table_item.dart';
-import 'package:web_dex/views/bridge/view/table/bridge_table_column_heads.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/typedef.dart';
+import 'package:komodo_wallet/views/bridge/bridge_exchange_form.dart';
+import 'package:komodo_wallet/views/bridge/bridge_group.dart';
+import 'package:komodo_wallet/views/bridge/view/table/bridge_nothing_found.dart';
+import 'package:komodo_wallet/views/bridge/view/table/bridge_protocol_table_item.dart';
+import 'package:komodo_wallet/views/bridge/view/table/bridge_table_column_heads.dart';
 
 class BridgeSourceProtocolsTable extends StatefulWidget {
   const BridgeSourceProtocolsTable({

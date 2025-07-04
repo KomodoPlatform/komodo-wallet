@@ -1,4 +1,4 @@
-import 'package:web_dex/model/nft.dart';
+import 'package:komodo_wallet/model/nft.dart';
 
 class GetNftListResponse {
   const GetNftListResponse({required this.result});

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/system_health/providers/time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/time_provider.dart';
 
 /// A time provider that fetches time from an HTTP API
 class HttpTimeProvider extends TimeProvider {

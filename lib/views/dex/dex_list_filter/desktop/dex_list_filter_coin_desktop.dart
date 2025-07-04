@@ -1,15 +1,15 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/dex_list_type.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/dex_list_type.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/views/dex/dex_helpers.dart';
 
 class DexListFilterCoinDesktop extends StatelessWidget {
   const DexListFilterCoinDesktop({

@@ -3,18 +3,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/typedef.dart';
-import 'package:web_dex/shared/ui/borderless_search_field.dart';
-import 'package:web_dex/shared/ui/ui_flat_button.dart';
-import 'package:web_dex/views/bridge/bridge_ticker_selector.dart';
-import 'package:web_dex/views/bridge/bridge_tickers_list_item.dart';
-import 'package:web_dex/views/dex/simple/form/tables/nothing_found.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_event.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/typedef.dart';
+import 'package:komodo_wallet/shared/ui/borderless_search_field.dart';
+import 'package:komodo_wallet/shared/ui/ui_flat_button.dart';
+import 'package:komodo_wallet/views/bridge/bridge_ticker_selector.dart';
+import 'package:komodo_wallet/views/bridge/bridge_tickers_list_item.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/nothing_found.dart';
 
 class BridgeTickersList extends StatefulWidget {
   const BridgeTickersList({

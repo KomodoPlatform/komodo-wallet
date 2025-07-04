@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/widgets/coin_icon.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_body.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 
 bool doesCoinMatchSearch(String searchQuery, DropdownMenuItem<String> item) {

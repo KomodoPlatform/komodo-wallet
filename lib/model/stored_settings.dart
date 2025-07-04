@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/settings/analytics_settings.dart';
-import 'package:web_dex/model/settings/market_maker_bot_settings.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/model/settings/analytics_settings.dart';
+import 'package:komodo_wallet/model/settings/market_maker_bot_settings.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
 class StoredSettings {
   StoredSettings({

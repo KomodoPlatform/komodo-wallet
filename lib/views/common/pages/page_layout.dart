@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/views/common/pages/page_plate.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/views/common/pages/page_plate.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
 
 class PageLayout extends StatelessWidget {
   const PageLayout(

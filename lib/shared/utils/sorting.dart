@@ -1,4 +1,4 @@
-import 'package:web_dex/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 /// unit tests: [testSorting]

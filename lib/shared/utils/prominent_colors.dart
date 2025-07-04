@@ -4,7 +4,7 @@
 
 import 'dart:ui';
 
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 Color? getCoinColorFromId(String id) {
   final abbr = abbr2Ticker(id);

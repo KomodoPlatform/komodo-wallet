@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:web_dex/model/stored_settings.dart';
-import 'package:web_dex/services/storage/base_storage.dart';
-import 'package:web_dex/services/storage/get_storage.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/model/stored_settings.dart';
+import 'package:komodo_wallet/services/storage/base_storage.dart';
+import 'package:komodo_wallet/services/storage/get_storage.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
 class SettingsRepository {
   SettingsRepository({BaseStorage? storage})

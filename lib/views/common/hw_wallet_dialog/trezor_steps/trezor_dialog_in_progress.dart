@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';
-import 'package:web_dex/shared/ui/ui_light_button.dart';
-import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_progress_status.dart';
+import 'package:komodo_wallet/shared/ui/ui_light_button.dart';
+import 'package:komodo_wallet/views/common/hw_wallet_dialog/constants.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class TrezorDialogInProgress extends StatelessWidget {

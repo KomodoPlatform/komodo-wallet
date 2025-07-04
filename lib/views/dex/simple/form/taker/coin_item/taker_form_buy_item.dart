@@ -1,15 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
-import 'package:web_dex/bloc/taker_form/taker_event.dart';
-import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/dex/common/front_plate.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_form_group_header.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/taker_form_buy_switcher.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_bloc.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_event.dart';
+import 'package:komodo_wallet/bloc/taker_form/taker_state.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/dex/common/front_plate.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_form_group_header.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/taker_form_buy_switcher.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/trade_controller.dart';
 
 class TakerFormBuyItem extends StatelessWidget {
   const TakerFormBuyItem({super.key});

@@ -1,11 +1,11 @@
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/cancel_order/cancel_order_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/my_orders/my_orders_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/order_status/cancellation_reason.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/order_status/order_status_response.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/model/my_orders/taker_order.dart';
-import 'package:web_dex/services/mappers/my_orders_mappers.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/cancel_order/cancel_order_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/my_orders/my_orders_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/order_status/cancellation_reason.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/order_status/order_status_response.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/model/my_orders/taker_order.dart';
+import 'package:komodo_wallet/services/mappers/my_orders_mappers.dart';
 
 class MyOrdersService {
   MyOrdersService(this._mm2Api);

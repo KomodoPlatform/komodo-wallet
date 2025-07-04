@@ -5,12 +5,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/import_swaps/import_swaps_request.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/import_swaps/import_swaps_request.dart';
 
-import 'package:web_dex/shared/ui/ui_light_button.dart';
-import 'package:web_dex/shared/utils/debug_utils.dart';
+import 'package:komodo_wallet/shared/ui/ui_light_button.dart';
+import 'package:komodo_wallet/shared/utils/debug_utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class ImportSwaps extends StatefulWidget {

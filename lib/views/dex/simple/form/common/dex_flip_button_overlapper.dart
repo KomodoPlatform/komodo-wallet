@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_flip_button.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_flip_button.dart';
 
 class DexFlipButtonOverlapper extends StatelessWidget {
   final Future<bool> Function()? onTap;

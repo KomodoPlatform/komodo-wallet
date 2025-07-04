@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
     show MnemonicValidator;
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/wallet.dart';
 
 import '../common/widget_tester_action_extensions.dart';
 import '../common/widget_tester_pump_extension.dart';

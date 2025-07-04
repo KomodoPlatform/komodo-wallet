@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 
 /// Cache for profit/loss data.
 ///
@@ -31,7 +31,7 @@ class ProfitLossCache extends Equatable
   /// HD and non-HD wallets, but the profit/loss data will be different.
   final bool isHdWallet;
 
-  /// The timestamp of the last update in seconds since epoch. 
+  /// The timestamp of the last update in seconds since epoch.
   /// (e.g. [DateTime.now().millisecondsSinceEpoch ~/ 1000])
   final DateTime lastUpdated;
 

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/message_service_config/message_service_config.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/market_maker_bot/message_service_config/message_service_config.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
 /// Settings for the KDF Simple Market Maker Bot.
 class MarketMakerBotSettings extends Equatable {

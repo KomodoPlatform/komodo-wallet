@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/trading_kind/trading_kind.dart';
+import 'package:komodo_wallet/bloc/trading_kind/trading_kind.dart';
 
 class TradingKindState extends Equatable {
   const TradingKindState({required this.kind});

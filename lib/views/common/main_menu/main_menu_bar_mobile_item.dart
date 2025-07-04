@@ -1,9 +1,9 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/app_assets.dart';
-import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/shared/widgets/auto_scroll_text.dart';
 
 class MainMenuBarMobileItem extends StatelessWidget {
   MainMenuBarMobileItem({

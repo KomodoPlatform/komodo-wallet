@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/3p_api/faucet/faucet_response.dart';
+import 'package:komodo_wallet/3p_api/faucet/faucet_response.dart';
 
 abstract class FaucetState extends Equatable {
   const FaucetState();

@@ -3,13 +3,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_state.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/shared/widgets/nft/nft_badge.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/receive_address.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_state.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/shared/widgets/nft/nft_badge.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/receive/qr_code_address.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/receive/receive_address.dart';
 
 enum NftReceiveCardAlignment { top, bottom }
 

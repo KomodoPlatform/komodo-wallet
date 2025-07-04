@@ -1,10 +1,10 @@
-import 'package:web_dex/model/first_uri_segment.dart';
-import 'package:web_dex/model/settings_menu_value.dart';
-import 'package:web_dex/router/state/bridge_section_state.dart';
-import 'package:web_dex/router/state/dex_state.dart';
-import 'package:web_dex/router/state/fiat_state.dart';
-import 'package:web_dex/router/state/market_maker_bot_state.dart';
-import 'package:web_dex/router/state/nfts_state.dart';
+import 'package:komodo_wallet/model/first_uri_segment.dart';
+import 'package:komodo_wallet/model/settings_menu_value.dart';
+import 'package:komodo_wallet/router/state/bridge_section_state.dart';
+import 'package:komodo_wallet/router/state/dex_state.dart';
+import 'package:komodo_wallet/router/state/fiat_state.dart';
+import 'package:komodo_wallet/router/state/market_maker_bot_state.dart';
+import 'package:komodo_wallet/router/state/nfts_state.dart';
 
 abstract class AppRoutePath {
   final String location = '';

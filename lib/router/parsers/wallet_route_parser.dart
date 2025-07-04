@@ -1,7 +1,7 @@
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/router/parsers/base_route_parser.dart';
-import 'package:web_dex/router/routes.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/router/parsers/base_route_parser.dart';
+import 'package:komodo_wallet/router/routes.dart';
 
 class WalletRouteParser implements BaseRouteParser {
   const WalletRouteParser(this._coinsBloc);

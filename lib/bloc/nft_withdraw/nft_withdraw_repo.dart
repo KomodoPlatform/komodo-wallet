@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/errors.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/validateaddress/validateaddress_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_errors.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/errors.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/validateaddress/validateaddress_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/withdraw/withdraw_errors.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/model/text_error.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class NftWithdrawRepo {
   const NftWithdrawRepo({required Mm2Api api}) : _api = api;

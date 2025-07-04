@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/services/platform_info/plaftorm_info.dart';
 
 class NativePlatformInfo extends PlatformInfo with MemoizedPlatformInfoMixin {
   @override

@@ -1,6 +1,6 @@
-import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';
-import 'package:web_dex/model/hw_wallet/trezor_status.dart';
-import 'package:web_dex/model/hw_wallet/trezor_status_error.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_progress_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_status.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_status_error.dart';
 
 class InitTrezorResult {
   InitTrezorResult({required this.taskId});

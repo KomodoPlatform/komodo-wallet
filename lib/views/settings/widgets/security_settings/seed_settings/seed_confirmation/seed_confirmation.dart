@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
-import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
-import 'package:web_dex/analytics/events/security_events.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_word_button.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_bloc.dart';
+import 'package:komodo_wallet/bloc/security_settings/security_settings_event.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_bloc.dart';
+import 'package:komodo_wallet/bloc/analytics/analytics_event.dart';
+import 'package:komodo_wallet/analytics/events/security_events.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/text_error.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/seed_settings/seed_word_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class SeedConfirmation extends StatefulWidget {

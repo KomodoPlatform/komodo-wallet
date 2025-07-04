@@ -1,6 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/settings_menu_value.dart';
+import 'package:komodo_wallet/model/settings_menu_value.dart';
 
 class SettingsMenuItem extends StatelessWidget {
   const SettingsMenuItem({

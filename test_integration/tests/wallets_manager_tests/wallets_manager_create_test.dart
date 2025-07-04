@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/main.dart' as app;
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/views/common/header/actions/account_switcher.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/main.dart' as app;
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/views/common/header/actions/account_switcher.dart';
 
 import '../../common/widget_tester_action_extensions.dart';
 import '../../common/widget_tester_pump_extension.dart';
@@ -15,7 +15,7 @@ import '../../helpers/connect_wallet.dart';
 
 Future<void> testCreateWallet(WidgetTester tester) async {
   print('🔍 CREATE WALLET: Starting wallet creation test');
-  
+
   const String walletName = 'my-wallet-name';
   const String password = 'pppaaasssDDD555444@@@';
   final Finder createWalletButton =
@@ -44,22 +44,22 @@ Future<void> testCreateWallet(WidgetTester tester) async {
   // Wallet creation step
   print('🔍 CREATE WALLET: Starting wallet creation form process');
   expect(find.byKey(const Key('wallet-creation')), findsOneWidget);
-  
+
   print('🔍 CREATE WALLET: Entering wallet details');
   await tester.tapAndPump(nameField);
   await tester.enterText(nameField, walletName);
   await tester.enterText(passwordField, password);
   await tester.enterText(passwordConfirmField, password);
   await tester.pumpNFrames(30);
-  
+
   print('🔍 CREATE WALLET: Accepting terms and conditions');
   await tester.tapAndPump(eulaCheckBox);
   await tester.tapAndPump(tocCheckBox);
-  
+
   print('🔍 CREATE WALLET: Confirming wallet creation');
   await tester.tapAndPump(confirmButton);
   await tester.pumpUntilDisappear(walletsManagerWrapper);
-  
+
   if (!isMobile) {
     print('🔍 CREATE WALLET: Verifying wallet creation on desktop');
     expect(authorizedWalletButton, findsOneWidget);
@@ -76,10 +76,10 @@ void main() {
       tester.testTextInput.register();
       await app.main();
       await tester.pumpAndSettle();
-      
+
       print('🔍 WALLET TESTS: Accepting alpha warning');
       await acceptAlphaWarning(tester);
-      
+
       print('🔍 WALLET TESTS: Running wallet creation test');
       await testCreateWallet(tester);
       await tester.pumpAndSettle();

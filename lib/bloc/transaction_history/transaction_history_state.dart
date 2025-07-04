@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 
 final class TransactionHistoryState extends Equatable {

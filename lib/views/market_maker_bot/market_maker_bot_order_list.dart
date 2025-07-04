@@ -2,17 +2,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/market_maker_order_list_bloc.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/trading_entities_filter.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/shared/ui/ui_light_button.dart';
-import 'package:web_dex/views/market_maker_bot/animated_bot_status_indicator.dart';
-import 'package:web_dex/views/market_maker_bot/market_maker_bot_order_list_header.dart';
-import 'package:web_dex/views/market_maker_bot/trade_pair_list_item.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_order_list/market_maker_order_list_bloc.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/trading_entities_filter.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/shared/ui/ui_light_button.dart';
+import 'package:komodo_wallet/views/market_maker_bot/animated_bot_status_indicator.dart';
+import 'package:komodo_wallet/views/market_maker_bot/market_maker_bot_order_list_header.dart';
+import 'package:komodo_wallet/views/market_maker_bot/trade_pair_list_item.dart';
 
 class MarketMakerBotOrdersList extends StatefulWidget {
   const MarketMakerBotOrdersList({

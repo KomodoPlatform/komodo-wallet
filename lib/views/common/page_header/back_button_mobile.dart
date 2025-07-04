@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/app_assets.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
 
 class BackButtonMobile extends StatelessWidget {
   const BackButtonMobile({required this.onPressed});

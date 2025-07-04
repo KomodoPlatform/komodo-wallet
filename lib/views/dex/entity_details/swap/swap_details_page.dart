@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/views/dex/entity_details/swap/swap_details.dart';
-import 'package:web_dex/views/dex/entity_details/trading_details_header.dart';
-import 'package:web_dex/views/dex/entity_details/trading_progress_status.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/views/dex/entity_details/swap/swap_details.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_details_header.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_progress_status.dart';
 
 class SwapDetailsPage extends StatelessWidget {
   const SwapDetailsPage(this.swapStatus, {Key? key}) : super(key: key);

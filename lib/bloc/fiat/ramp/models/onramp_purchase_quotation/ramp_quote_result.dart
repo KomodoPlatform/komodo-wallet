@@ -1,4 +1,4 @@
-import 'package:web_dex/bloc/fiat/ramp/models/models.dart';
+import 'package:komodo_wallet/bloc/fiat/ramp/models/models.dart';
 
 /// Represents a complete quote result from a ramp service provider.
 ///

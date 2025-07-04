@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/settings_menu_value.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/services/feedback/feedback_service.dart';
-import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/app_version_number.dart';
-import 'package:web_dex/views/settings/widgets/settings_menu/settings_logout_button.dart';
-import 'package:web_dex/views/settings/widgets/settings_menu/settings_menu_item.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/settings_menu_value.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/services/feedback/feedback_service.dart';
+import 'package:komodo_wallet/shared/widgets/hidden_without_wallet.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/app_version_number.dart';
+import 'package:komodo_wallet/views/settings/widgets/settings_menu/settings_logout_button.dart';
+import 'package:komodo_wallet/views/settings/widgets/settings_menu/settings_menu_item.dart';
 
 class SettingsMenu extends StatelessWidget {
   const SettingsMenu({

@@ -10,14 +10,14 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/errors.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/nft/get_nft_list/get_nft_list_req.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/nft/refresh_nft_metadata/refresh_nft_metadata_req.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/nft/update_nft/update_nft_req.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_request.dart';
-import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_request.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/errors.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/nft/get_nft_list/get_nft_list_req.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/nft/refresh_nft_metadata/refresh_nft_metadata_req.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/nft/update_nft/update_nft_req.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/nft/withdraw/withdraw_nft_request.dart';
+import 'package:komodo_wallet/mm2/rpc/nft_transaction/nft_transactions_request.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
 class Mm2ApiNft {
   Mm2ApiNft(this.call, this._sdk);

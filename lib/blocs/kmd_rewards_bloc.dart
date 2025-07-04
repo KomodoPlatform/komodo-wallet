@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/bloc_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/kmd_rewards_info/kmd_reward_item.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/kmd_rewards_info/kmd_rewards_info_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/blocs/bloc_base.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/bloc_response.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/kmd_rewards_info/kmd_reward_item.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/kmd_rewards_info/kmd_rewards_info_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/text_error.dart';
+import 'package:komodo_wallet/model/withdraw_details/withdraw_details.dart';
 
 class KmdRewardsBloc implements BlocBase {
   KmdRewardsBloc(this._coinsBlocRepository, this._mm2Api);

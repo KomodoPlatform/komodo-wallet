@@ -1,6 +1,6 @@
 import 'package:rational/rational.dart';
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 void testRatToFracAndViseVersa() {
   test('fract2rat and rat2fract converts valid map', () {

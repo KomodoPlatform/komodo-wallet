@@ -2,8 +2,8 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:uuid/uuid.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/shared/utils/encryption_tool.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/shared/utils/encryption_tool.dart';
 
 class Wallet {
   Wallet({
@@ -166,7 +166,8 @@ extension KdfUserWalletExtension on KdfUser {
       config: WalletConfig(
         seedPhrase: '',
         pubKey: walletId.pubkeyHash,
-        activatedCoins: metadata.valueOrNull<List<String>>('activated_coins') ?? [],
+        activatedCoins:
+            metadata.valueOrNull<List<String>>('activated_coins') ?? [],
         hasBackup: metadata['has_backup'] as bool? ?? false,
         type: walletType,
       ),

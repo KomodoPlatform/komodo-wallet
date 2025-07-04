@@ -1,4 +1,4 @@
-/// WebDex UI Kit
+/// Komodo Wallet UI
 library komodo_ui_kit;
 
 // UI components

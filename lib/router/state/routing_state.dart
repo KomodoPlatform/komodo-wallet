@@ -1,14 +1,14 @@
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/model/settings_menu_value.dart';
-import 'package:web_dex/router/state/bridge_section_state.dart';
-import 'package:web_dex/router/state/dex_state.dart';
-import 'package:web_dex/router/state/fiat_state.dart';
-import 'package:web_dex/router/state/main_menu_state.dart';
-import 'package:web_dex/router/state/market_maker_bot_state.dart';
-import 'package:web_dex/router/state/nfts_state.dart';
-import 'package:web_dex/router/state/settings_section_state.dart';
-import 'package:web_dex/router/state/wallet_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
+import 'package:komodo_wallet/model/settings_menu_value.dart';
+import 'package:komodo_wallet/router/state/bridge_section_state.dart';
+import 'package:komodo_wallet/router/state/dex_state.dart';
+import 'package:komodo_wallet/router/state/fiat_state.dart';
+import 'package:komodo_wallet/router/state/main_menu_state.dart';
+import 'package:komodo_wallet/router/state/market_maker_bot_state.dart';
+import 'package:komodo_wallet/router/state/nfts_state.dart';
+import 'package:komodo_wallet/router/state/settings_section_state.dart';
+import 'package:komodo_wallet/router/state/wallet_state.dart';
 
 class RoutingState {
   final WalletState walletState = WalletState();

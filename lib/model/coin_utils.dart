@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_response.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/typedef.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_response.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/model/typedef.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 List<Coin> sortFiatBalance(List<Coin> coins, KomodoDefiSdk sdk) {
   final List<Coin> list = List.from(coins);

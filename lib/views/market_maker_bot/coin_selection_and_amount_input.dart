@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_logo.dart';
-import 'package:web_dex/shared/widgets/coin_select_item_widget.dart';
-import 'package:web_dex/views/dex/common/front_plate.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_form_group_header.dart';
-import 'package:web_dex/views/dex/simple/form/tables/table_utils.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/coin_name_and_protocol.dart';
-import 'package:web_dex/views/market_maker_bot/coin_search_dropdown.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_body.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_logo.dart';
+import 'package:komodo_wallet/shared/widgets/coin_select_item_widget.dart';
+import 'package:komodo_wallet/views/dex/common/front_plate.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_form_group_header.dart';
+import 'package:komodo_wallet/views/dex/simple/form/tables/table_utils.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/coin_name_and_protocol.dart';
+import 'package:komodo_wallet/views/market_maker_bot/coin_search_dropdown.dart';
 
 class CoinSelectionAndAmountInput extends StatefulWidget {
   const CoinSelectionAndAmountInput({

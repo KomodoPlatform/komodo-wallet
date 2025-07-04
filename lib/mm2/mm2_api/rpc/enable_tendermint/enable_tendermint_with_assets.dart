@@ -1,5 +1,5 @@
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 class EnableTendermintWithAssetsRequest
     implements

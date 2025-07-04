@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/views/dex/entity_details/swap/swap_details_step_list.dart';
-import 'package:web_dex/views/dex/entity_details/swap/swap_recover_button.dart';
-import 'package:web_dex/views/dex/entity_details/trading_details_coin_pair.dart';
-import 'package:web_dex/views/dex/entity_details/trading_details_total_time.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/views/dex/entity_details/swap/swap_details_step_list.dart';
+import 'package:komodo_wallet/views/dex/entity_details/swap/swap_recover_button.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_details_coin_pair.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_details_total_time.dart';
 
 class SwapDetails extends StatelessWidget {
   const SwapDetails(

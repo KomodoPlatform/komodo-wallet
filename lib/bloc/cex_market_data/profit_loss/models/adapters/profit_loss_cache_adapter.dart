@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
 
 class ProfitLossCacheAdapter extends TypeAdapter<ProfitLossCache> {
   @override

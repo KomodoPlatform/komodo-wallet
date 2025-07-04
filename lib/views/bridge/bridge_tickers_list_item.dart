@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_wallet/shared/widgets/coin_icon.dart';
 
 class BridgeTickersListItem extends StatelessWidget {
   const BridgeTickersListItem({

@@ -2,13 +2,13 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
-import 'package:web_dex/shared/widgets/coin_fiat_change.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/shared/widgets/need_attention_mark.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/widgets/coin_fiat_balance.dart';
+import 'package:komodo_wallet/shared/widgets/coin_fiat_change.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/shared/widgets/need_attention_mark.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
 
 class CoinListItemMobile extends StatelessWidget {
   const CoinListItemMobile({

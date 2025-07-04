@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/validators.dart';
+import 'package:komodo_wallet/shared/utils/validators.dart';
 
 void testcheckPasswordRequirements() {
   group('Password validation tests', () {

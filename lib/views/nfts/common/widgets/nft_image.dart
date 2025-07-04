@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:video_player/video_player.dart';
-import 'package:web_dex/shared/utils/platform_tuner.dart';
+import 'package:komodo_wallet/shared/utils/platform_tuner.dart';
 
 enum NftImageType { image, video, placeholder }
 

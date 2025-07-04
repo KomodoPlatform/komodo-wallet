@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/model/swap.dart';
-import 'package:web_dex/shared/utils/sorting.dart';
-import 'package:web_dex/views/dex/entities_list/history/history_list_header.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/model/swap.dart';
+import 'package:komodo_wallet/shared/utils/sorting.dart';
+import 'package:komodo_wallet/views/dex/entities_list/history/history_list_header.dart';
 
 mixin SwapHistorySortingMixin {
   bool areSwapsSame(List<Swap> newSwaps, List<Swap> oldSwaps) {

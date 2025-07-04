@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_print
 
 import 'package:test/test.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
 
 const ms = LocaleKeys.milliseconds;
 const s = LocaleKeys.seconds;

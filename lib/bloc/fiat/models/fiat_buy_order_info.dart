@@ -1,7 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/fiat/models/fiat_buy_order_error.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/fiat/models/fiat_buy_order_error.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class FiatBuyOrderInfo extends Equatable {
   const FiatBuyOrderInfo({

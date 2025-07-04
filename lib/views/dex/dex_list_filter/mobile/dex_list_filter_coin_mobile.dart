@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/shared/widgets/coin_icon.dart';
 
 class DexListFilterCoinMobile extends StatelessWidget {
   const DexListFilterCoinMobile({

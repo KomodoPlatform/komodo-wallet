@@ -2,9 +2,9 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/trading_kind/trading_kind_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/dex/common/dex_text_button.dart';
+import 'package:komodo_wallet/bloc/trading_kind/trading_kind_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/views/dex/common/dex_text_button.dart';
 
 class SectionSwitcher extends StatelessWidget {
   @override

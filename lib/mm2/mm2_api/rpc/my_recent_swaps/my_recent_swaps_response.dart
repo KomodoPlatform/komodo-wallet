@@ -1,4 +1,4 @@
-import 'package:web_dex/model/swap.dart';
+import 'package:komodo_wallet/model/swap.dart';
 
 class MyRecentSwapsResponse {
   MyRecentSwapsResponse({

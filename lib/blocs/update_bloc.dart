@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/platform/platform.dart';
-import 'package:web_dex/services/app_update_service/app_update_service.dart';
-import 'package:web_dex/shared/widgets/update_popup.dart';
+import 'package:komodo_wallet/blocs/bloc_base.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/dispatchers/popup_dispatcher.dart';
+import 'package:komodo_wallet/platform/platform.dart';
+import 'package:komodo_wallet/services/app_update_service/app_update_service.dart';
+import 'package:komodo_wallet/shared/widgets/update_popup.dart';
 
 final updateBloc = UpdateBloc();
 

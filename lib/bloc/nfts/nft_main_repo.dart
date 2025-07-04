@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api_nft.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/errors.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/nft/get_nft_list/get_nft_list_res.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api_nft.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/errors.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/nft/get_nft_list/get_nft_list_res.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/model/text_error.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class NftsRepo {
   NftsRepo({

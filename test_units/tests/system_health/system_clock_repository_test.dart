@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
-import 'package:web_dex/bloc/system_health/providers/time_provider.dart';
-import 'package:web_dex/bloc/system_health/providers/time_provider_registry.dart';
-import 'package:web_dex/bloc/system_health/system_clock_repository.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/time_provider_registry.dart';
+import 'package:komodo_wallet/bloc/system_health/system_clock_repository.dart';
 
 void testSystemClockRepository() {
   group('SystemClockRepository', () {

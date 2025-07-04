@@ -34,7 +34,7 @@ public class MainActivity extends FlutterActivity {
 
     private void setupSaf(FlutterEngine flutterEngine) {
         BinaryMessenger bm = flutterEngine.getDartExecutor().getBinaryMessenger();
-        new MethodChannel(bm, "komodo-web-dex/AndroidSAF")
+        new MethodChannel(bm, "komodo-wallet/AndroidSAF")
                 .setMethodCallHandler((call, result) -> {
                     if (call.method.equals("saveFile")) {
                         Log.i(TAG_CREATE_SAF_FILE, "Triggered saveFile method");

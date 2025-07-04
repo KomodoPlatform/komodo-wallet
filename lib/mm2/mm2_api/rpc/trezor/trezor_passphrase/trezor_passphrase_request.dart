@@ -1,4 +1,4 @@
-import 'package:web_dex/model/hw_wallet/trezor_task.dart';
+import 'package:komodo_wallet/model/hw_wallet/trezor_task.dart';
 
 class TrezorPassphraseRequest {
   TrezorPassphraseRequest({required this.passphrase, required this.task});

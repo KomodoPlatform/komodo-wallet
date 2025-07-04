@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/rpc_error_type.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/rpc_error_type.dart';
 
 class RpcException implements Exception {
   const RpcException(this.error);

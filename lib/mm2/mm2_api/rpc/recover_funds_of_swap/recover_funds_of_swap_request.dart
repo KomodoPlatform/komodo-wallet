@@ -1,4 +1,4 @@
-import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/base.dart';
 
 class RecoverFundsOfSwapRequest implements BaseRequest {
   RecoverFundsOfSwapRequest({required this.uuid});

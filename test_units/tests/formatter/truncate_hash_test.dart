@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
 
 void testTruncateHash() {
   test('Truncate string in the middle with default params', () {

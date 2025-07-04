@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/services/storage/base_storage.dart';
-import 'package:web_dex/services/storage/get_storage.dart';
+import 'package:komodo_wallet/mm2/mm2_api/mm2_api.dart';
+import 'package:komodo_wallet/services/storage/base_storage.dart';
+import 'package:komodo_wallet/services/storage/get_storage.dart';
 
 mixin LoggerMetadataMixin {
   String? _apiVersion;

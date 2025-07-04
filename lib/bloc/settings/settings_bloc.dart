@@ -1,12 +1,12 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:bloc/bloc.dart';
-import 'package:web_dex/bloc/settings/settings_event.dart';
-import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/bloc/settings/settings_state.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/stored_settings.dart';
-import 'package:web_dex/platform/platform.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_wallet/bloc/settings/settings_event.dart';
+import 'package:komodo_wallet/bloc/settings/settings_repository.dart';
+import 'package:komodo_wallet/bloc/settings/settings_state.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/stored_settings.dart';
+import 'package:komodo_wallet/platform/platform.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc(StoredSettings stored, SettingsRepository repository)
@@ -63,7 +63,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emitter,
   ) async {
     await _settingsRepo.updateSettings(
-      _storedSettings.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed),
+      _storedSettings.copyWith(
+          weakPasswordsAllowed: event.weakPasswordsAllowed),
     );
     emitter(state.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed));
   }

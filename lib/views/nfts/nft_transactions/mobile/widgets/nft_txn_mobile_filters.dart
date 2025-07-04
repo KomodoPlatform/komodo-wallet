@@ -2,12 +2,12 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/nft_transactions/bloc/nft_transactions_filters.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
-import 'package:web_dex/model/nft.dart';
-import 'package:web_dex/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_filter_card.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/nft_transactions/bloc/nft_transactions_filters.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/rpc/nft_transaction/nft_transactions_response.dart';
+import 'package:komodo_wallet/model/nft.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_filter_card.dart';
 
 class NftTxnMobileFilters extends StatefulWidget {
   final NftTransactionsFilter filters;

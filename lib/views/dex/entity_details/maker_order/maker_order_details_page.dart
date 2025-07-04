@@ -2,18 +2,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/order_status/cancellation_reason.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/router/state/dex_state.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/services/orders_service/my_orders_service.dart';
-import 'package:web_dex/shared/ui/ui_light_button.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/dex/entity_details/trading_details_coin_pair.dart';
-import 'package:web_dex/views/dex/entity_details/trading_details_header.dart';
+import 'package:komodo_wallet/blocs/trading_entities_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/order_status/cancellation_reason.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/router/state/dex_state.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/services/orders_service/my_orders_service.dart';
+import 'package:komodo_wallet/shared/ui/ui_light_button.dart';
+import 'package:komodo_wallet/shared/utils/formatters.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_details_coin_pair.dart';
+import 'package:komodo_wallet/views/dex/entity_details/trading_details_header.dart';
 
 class MakerOrderDetailsPage extends StatefulWidget {
   const MakerOrderDetailsPage(this.makerOrderStatus, {Key? key})

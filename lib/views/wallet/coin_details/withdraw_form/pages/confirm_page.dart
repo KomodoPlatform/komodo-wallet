@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_footer.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_form.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_footer.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/withdraw_form/widgets/send_confirm_form/send_confirm_form.dart';
 
 class ConfirmPage extends StatelessWidget {
   const ConfirmPage();

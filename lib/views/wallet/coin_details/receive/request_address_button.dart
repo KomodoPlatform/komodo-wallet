@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/trezor/get_new_address/get_new_address_response.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/shared/ui/ui_simple_border_button.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/trezor_new_address_confirmation.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/dispatchers/popup_dispatcher.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/trezor/get_new_address/get_new_address_response.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/shared/ui/ui_simple_border_button.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/receive/trezor_new_address_confirmation.dart';
 
 class RequestAddressButton extends StatefulWidget {
   const RequestAddressButton(

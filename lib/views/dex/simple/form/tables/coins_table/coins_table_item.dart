@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/widgets/coin_balance.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/views/dex/simple/form/taker/coin_item/item_decoration.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/widgets/coin_balance.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item.dart';
+import 'package:komodo_wallet/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/coin_item/item_decoration.dart';
 
 class CoinsTableItem<T> extends StatelessWidget {
   const CoinsTableItem({

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
+import 'package:komodo_wallet/common/screen.dart';
 
 Color _generateColorFromString(String input) {
   final hash = input.hashCode;

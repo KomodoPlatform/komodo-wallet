@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:test/test.dart';
-import 'package:web_dex/bloc/system_health/providers/ntp_time_provider.dart';
+import 'package:komodo_wallet/bloc/system_health/providers/ntp_time_provider.dart';
 
 void testNtpTimeProvider() {
   group('NtpTimeProvider', () {

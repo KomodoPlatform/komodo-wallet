@@ -1,4 +1,4 @@
-import 'package:web_dex/model/text_error.dart';
+import 'package:komodo_wallet/model/text_error.dart';
 
 class SellResponse {
   SellResponse({this.error, this.result});

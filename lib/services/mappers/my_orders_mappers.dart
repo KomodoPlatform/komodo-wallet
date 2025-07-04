@@ -1,7 +1,7 @@
-import 'package:web_dex/mm2/mm2_api/rpc/my_orders/my_orders_response.dart';
-import 'package:web_dex/model/my_orders/maker_order.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/model/my_orders/taker_order.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/my_orders/my_orders_response.dart';
+import 'package:komodo_wallet/model/my_orders/maker_order.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/model/my_orders/taker_order.dart';
 
 MyOrder mapMyOrderResponseTakerOrderToOrder(TakerOrder order, String uuid) =>
     MyOrder(

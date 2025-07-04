@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/nft_transactions/bloc/nft_transactions_bloc.dart';
-import 'package:web_dex/views/nfts/nft_transactions/common/pages/nft_txn_empty_page.dart';
-import 'package:web_dex/views/nfts/nft_transactions/common/pages/nft_txn_failure_page.dart';
-import 'package:web_dex/views/nfts/nft_transactions/common/pages/nft_txn_loading_page.dart';
-import 'package:web_dex/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_app_bar.dart';
-import 'package:web_dex/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_card.dart';
-import 'package:web_dex/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_filters.dart';
+import 'package:komodo_wallet/bloc/nft_transactions/bloc/nft_transactions_bloc.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/common/pages/nft_txn_empty_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/common/pages/nft_txn_failure_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/common/pages/nft_txn_loading_page.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_app_bar.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_card.dart';
+import 'package:komodo_wallet/views/nfts/nft_transactions/mobile/widgets/nft_txn_mobile_filters.dart';
 
 class NftTxnMobilePage extends StatelessWidget {
   const NftTxnMobilePage({super.key});

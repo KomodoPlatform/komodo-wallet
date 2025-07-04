@@ -1,7 +1,7 @@
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/model/cex_price.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
+import 'package:komodo_wallet/model/cex_price.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
 
 Coin setCoin({
   double? usdPrice,

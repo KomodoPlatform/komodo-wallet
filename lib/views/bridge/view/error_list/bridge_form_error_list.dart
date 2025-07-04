@@ -1,11 +1,11 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
-import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
-import 'package:web_dex/model/dex_form_error.dart';
-import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_simple.dart';
-import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_bloc.dart';
+import 'package:komodo_wallet/bloc/bridge_form/bridge_state.dart';
+import 'package:komodo_wallet/model/dex_form_error.dart';
+import 'package:komodo_wallet/views/dex/simple/form/error_list/dex_form_error_simple.dart';
+import 'package:komodo_wallet/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
 
 class BridgeFormErrorList extends StatefulWidget {
   const BridgeFormErrorList({Key? key}) : super(key: key);

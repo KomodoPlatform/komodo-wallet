@@ -8,14 +8,14 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/cex_market_data/charts.dart';
-import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/demo_profit_loss_repository.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/adapters/adapters.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/charts.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/mockup/performance_mode.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/demo_profit_loss_repository.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/adapters/adapters.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/profit_loss_cache.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/profit_loss_calculator.dart';
+import 'package:komodo_wallet/bloc/transaction_history/transaction_history_repo.dart';
 
 class ProfitLossRepository {
   ProfitLossRepository({

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/truncate_middle_text.dart';
 
 class CopiedText extends StatelessWidget {
   const CopiedText({

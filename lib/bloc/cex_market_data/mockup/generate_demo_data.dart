@@ -4,7 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:uuid/uuid.dart';
-import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/mockup/performance_mode.dart';
 
 // similar to generator implementation to allow for const constructor
 final _ohlcvCache = <CexCoinPair, List<Ohlc>>{};

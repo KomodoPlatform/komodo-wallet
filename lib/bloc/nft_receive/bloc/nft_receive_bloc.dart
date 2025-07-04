@@ -3,9 +3,9 @@ import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
-import 'package:web_dex/model/nft.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_wallet/model/kdf_auth_metadata_extension.dart';
+import 'package:komodo_wallet/model/nft.dart';
 
 part 'nft_receive_event.dart';
 part 'nft_receive_state.dart';

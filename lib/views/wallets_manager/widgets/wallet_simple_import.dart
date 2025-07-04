@@ -6,17 +6,17 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
     show MnemonicFailedReason;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/services/file_loader/file_loader.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
-import 'package:web_dex/shared/widgets/password_visibility_control.dart';
-import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
-import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
-import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/blocs/wallets_repository.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/services/file_loader/file_loader.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
+import 'package:komodo_wallet/shared/widgets/password_visibility_control.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/creation_password_fields.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/custom_seed_checkbox.dart';
+import 'package:komodo_wallet/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletSimpleImport extends StatefulWidget {
   const WalletSimpleImport({

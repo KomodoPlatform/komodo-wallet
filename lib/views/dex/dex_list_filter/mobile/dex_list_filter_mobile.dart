@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/dex_list_type.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
-import 'package:web_dex/model/trading_entities_filter.dart';
-import 'package:web_dex/views/dex/dex_list_filter/common/dex_list_filter_type.dart';
-import 'package:web_dex/views/dex/dex_list_filter/mobile/dex_list_filter_coin_mobile.dart';
-import 'package:web_dex/views/dex/dex_list_filter/mobile/dex_list_filter_coins_list_mobile.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/dex_list_type.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/model/trading_entities_filter.dart';
+import 'package:komodo_wallet/views/dex/dex_list_filter/common/dex_list_filter_type.dart';
+import 'package:komodo_wallet/views/dex/dex_list_filter/mobile/dex_list_filter_coin_mobile.dart';
+import 'package:komodo_wallet/views/dex/dex_list_filter/mobile/dex_list_filter_coins_list_mobile.dart';
 
 class DexListFilterMobile extends StatefulWidget {
   const DexListFilterMobile({

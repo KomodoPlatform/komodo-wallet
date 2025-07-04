@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rational/rational.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/available_balance_state.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_form_group_header.dart';
-import 'package:web_dex/views/dex/simple/form/common/dex_small_button.dart';
-import 'package:web_dex/views/dex/simple/form/taker/available_balance.dart';
+import 'package:komodo_wallet/blocs/maker_form_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/available_balance_state.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_form_group_header.dart';
+import 'package:komodo_wallet/views/dex/simple/form/common/dex_small_button.dart';
+import 'package:komodo_wallet/views/dex/simple/form/taker/available_balance.dart';
 
 class MakerFormSellHeader extends StatelessWidget {
   const MakerFormSellHeader({Key? key}) : super(key: key);

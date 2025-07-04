@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/shared/widgets/asset_item/asset_item_size.dart';
-import 'package:web_dex/shared/widgets/asset_item/asset_item_subtitle.dart';
-import 'package:web_dex/shared/widgets/asset_item/asset_item_title.dart';
+import 'package:komodo_wallet/shared/widgets/asset_item/asset_item_size.dart';
+import 'package:komodo_wallet/shared/widgets/asset_item/asset_item_subtitle.dart';
+import 'package:komodo_wallet/shared/widgets/asset_item/asset_item_title.dart';
 
 /// A widget that displays an asset's title and subtitle information.
 ///

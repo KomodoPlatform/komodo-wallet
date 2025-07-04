@@ -3,10 +3,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/services/logger/get_logger.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/settings/widgets/common/settings_section.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/services/logger/get_logger.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/views/settings/widgets/common/settings_section.dart';
 
 class SettingsDownloadLogs extends StatefulWidget {
   const SettingsDownloadLogs({Key? key}) : super(key: key);

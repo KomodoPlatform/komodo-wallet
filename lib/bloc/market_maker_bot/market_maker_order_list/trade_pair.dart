@@ -1,6 +1,6 @@
 import 'package:rational/rational.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
-import 'package:web_dex/model/my_orders/my_order.dart';
+import 'package:komodo_wallet/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
+import 'package:komodo_wallet/model/my_orders/my_order.dart';
 
 class TradePair {
   TradePair(

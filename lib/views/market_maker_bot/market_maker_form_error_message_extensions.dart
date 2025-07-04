@@ -3,13 +3,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/forms/coin_select_input.dart';
-import 'package:web_dex/model/forms/coin_trade_amount_input.dart';
-import 'package:web_dex/model/forms/trade_margin_input.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/forms/coin_select_input.dart';
+import 'package:komodo_wallet/model/forms/coin_trade_amount_input.dart';
+import 'package:komodo_wallet/model/forms/trade_margin_input.dart';
 
 extension TradeMarginValidationErrorText on TradeMarginValidationError {
   String? text({double minVAlue = 0, double maxValue = 100}) {

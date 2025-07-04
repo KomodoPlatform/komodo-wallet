@@ -1,6 +1,6 @@
-import 'package:web_dex/router/parsers/base_route_parser.dart';
-import 'package:web_dex/router/routes.dart';
-import 'package:web_dex/router/state/bridge_section_state.dart';
+import 'package:komodo_wallet/router/parsers/base_route_parser.dart';
+import 'package:komodo_wallet/router/routes.dart';
+import 'package:komodo_wallet/router/state/bridge_section_state.dart';
 
 class _BridgeRouteParser implements BaseRouteParser {
   const _BridgeRouteParser();

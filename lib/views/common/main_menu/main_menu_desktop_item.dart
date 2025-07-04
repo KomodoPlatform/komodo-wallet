@@ -1,11 +1,11 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/app_assets.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/shared/widgets/need_attention_mark.dart';
+import 'package:komodo_wallet/common/app_assets.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
+import 'package:komodo_wallet/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_wallet/shared/widgets/need_attention_mark.dart';
 
 class DesktopMenuDesktopItem extends StatelessWidget {
   const DesktopMenuDesktopItem({

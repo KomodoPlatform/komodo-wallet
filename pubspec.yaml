@@ -1,4 +1,4 @@
-name: web_dex # Use `lowercase_with_underscores` for package names
+name: komodo_wallet # Use `lowercase_with_underscores` for package names
 description: komodo atomicDEX web wallet
 
 # The following line prevents the package from being accidentally published to

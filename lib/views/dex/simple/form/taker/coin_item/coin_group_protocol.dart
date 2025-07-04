@@ -1,7 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/widgets/segwit_icon.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/widgets/segwit_icon.dart';
 
 class CoinGroupProtocol extends StatelessWidget {
   const CoinGroupProtocol([this.coin]);

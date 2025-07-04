@@ -4,18 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
-import 'package:web_dex/views/bitrefill/bitrefill_button.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/contract_address_button.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/bloc/trading_status/trading_status_bloc.dart';
+import 'package:komodo_wallet/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_wallet/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/shared/ui/ui_primary_button.dart';
+import 'package:komodo_wallet/views/bitrefill/bitrefill_button.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/contract_address_button.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_page_type.dart';
 
 class CoinDetailsCommonButtons extends StatelessWidget {
   const CoinDetailsCommonButtons({

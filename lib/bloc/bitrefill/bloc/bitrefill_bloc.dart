@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/bloc/bitrefill/data/bitrefill_repository.dart';
-import 'package:web_dex/bloc/bitrefill/models/bitrefill_payment_intent_event.dart';
-import 'package:web_dex/model/coin.dart';
+import 'package:komodo_wallet/bloc/bitrefill/data/bitrefill_repository.dart';
+import 'package:komodo_wallet/bloc/bitrefill/models/bitrefill_payment_intent_event.dart';
+import 'package:komodo_wallet/model/coin.dart';
 
 part 'bitrefill_event.dart';
 part 'bitrefill_state.dart';

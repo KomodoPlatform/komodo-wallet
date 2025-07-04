@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
-import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
-import 'package:web_dex/views/wallet/common/address_copy_button.dart';
-import 'package:web_dex/views/wallet/common/address_icon.dart';
-import 'package:web_dex/views/wallet/common/address_text.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/expandable_coin_list_item.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:komodo_wallet/bloc/coins_bloc/coins_bloc.dart';
+import 'package:komodo_wallet/bloc/settings/settings_bloc.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_utils.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart';
+import 'package:komodo_wallet/shared/widgets/coin_fiat_balance.dart';
+import 'package:komodo_wallet/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
+import 'package:komodo_wallet/views/wallet/common/address_copy_button.dart';
+import 'package:komodo_wallet/views/wallet/common/address_icon.dart';
+import 'package:komodo_wallet/views/wallet/common/address_text.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/expandable_coin_list_item.dart';
 
 class ActiveCoinsList extends StatelessWidget {
   const ActiveCoinsList({

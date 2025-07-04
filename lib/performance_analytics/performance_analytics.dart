@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
 
 PerformanceAnalytics get performance => PerformanceAnalytics._instance;
 

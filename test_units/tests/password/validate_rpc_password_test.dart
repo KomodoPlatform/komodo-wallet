@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:web_dex/shared/utils/password.dart';
+import 'package:komodo_wallet/shared/utils/password.dart';
 
 void testValidateRPCPassword() {
   test('validate password', () {

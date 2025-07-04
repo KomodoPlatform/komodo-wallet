@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/model/settings_menu_value.dart';
-import 'package:web_dex/router/state/menu_state_interface.dart';
-import 'package:web_dex/router/state/routing_state.dart';
+import 'package:komodo_wallet/model/main_menu_value.dart';
+import 'package:komodo_wallet/model/settings_menu_value.dart';
+import 'package:komodo_wallet/router/state/menu_state_interface.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
 
 class SettingsSectionState extends ChangeNotifier
     implements IResettableOnLogout {

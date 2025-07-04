@@ -1,5 +1,5 @@
-import 'package:web_dex/model/my_orders/maker_order.dart';
-import 'package:web_dex/model/my_orders/taker_order.dart';
+import 'package:komodo_wallet/model/my_orders/maker_order.dart';
+import 'package:komodo_wallet/model/my_orders/taker_order.dart';
 
 class MyOrdersResponse {
   MyOrdersResponse({

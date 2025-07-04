@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:test/test.dart';
-import 'package:web_dex/bloc/cex_market_data/charts.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/charts.dart';
 
 void testCharts() {
   group('Charts', () {

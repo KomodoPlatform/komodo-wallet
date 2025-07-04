@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/coin_list_item_desktop.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/coin_list_item_mobile.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/coin_list_item_desktop.dart';
+import 'package:komodo_wallet/views/wallet/wallet_page/common/coin_list_item_mobile.dart';
 
 class CoinListItem extends StatelessWidget {
   const CoinListItem({

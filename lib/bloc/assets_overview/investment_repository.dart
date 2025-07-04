@@ -1,7 +1,7 @@
-import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
-import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart' as logger;
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/shared/utils/utils.dart' as logger;
 
 class InvestmentRepository {
   InvestmentRepository({

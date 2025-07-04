@@ -9,21 +9,21 @@ import 'package:flutter/services.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/performance_analytics/performance_analytics.dart';
-import 'package:web_dex/services/logger/get_logger.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:komodo_wallet/app_config/app_config.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/coin.dart';
+import 'package:komodo_wallet/model/coin_type.dart';
+import 'package:komodo_wallet/model/wallet.dart';
+import 'package:komodo_wallet/performance_analytics/performance_analytics.dart';
+import 'package:komodo_wallet/services/logger/get_logger.dart';
+import 'package:komodo_wallet/shared/constants.dart';
 
-export 'package:web_dex/shared/utils/extensions/async_extensions.dart';
-export 'package:web_dex/shared/utils/extensions/collection_extensions.dart';
-export 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
-export 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
-export 'package:web_dex/shared/utils/prominent_colors.dart';
+export 'package:komodo_wallet/shared/utils/extensions/async_extensions.dart';
+export 'package:komodo_wallet/shared/utils/extensions/collection_extensions.dart';
+export 'package:komodo_wallet/shared/utils/extensions/legacy_coin_migration_extensions.dart';
+export 'package:komodo_wallet/shared/utils/extensions/sdk_extensions.dart';
+export 'package:komodo_wallet/shared/utils/prominent_colors.dart';
 
 // TODO: Refactor this (and all its references) to remove the context dependency
 // and/or make it optional, and then use the global `scaffoldKey` instead.
@@ -40,7 +40,8 @@ Future<void> copyToClipBoard(
 
     if (!context.mounted) return;
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context) ??
-        ScaffoldMessenger.of(scaffoldKey.currentContext!);    scaffoldMessenger.showSnackBar(
+        ScaffoldMessenger.of(scaffoldKey.currentContext!);
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         width: isMobile ? null : 400.0,
         content: Row(
@@ -61,7 +62,7 @@ Future<void> copyToClipBoard(
     );
   } catch (e) {
     log('Error copyToClipBoard: $e', isError: true);
-    if (!context.mounted) return;    // Show error feedback using SnackBar
+    if (!context.mounted) return; // Show error feedback using SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Failed to copy to clipboard'),

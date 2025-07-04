@@ -1,6 +1,6 @@
-import 'package:web_dex/bloc/bitrefill/models/bitrefill_event.dart';
-import 'package:web_dex/bloc/bitrefill/models/bitrefill_invoice_created_event.dart';
-import 'package:web_dex/bloc/bitrefill/models/bitrefill_payment_intent_event.dart';
+import 'package:komodo_wallet/bloc/bitrefill/models/bitrefill_event.dart';
+import 'package:komodo_wallet/bloc/bitrefill/models/bitrefill_invoice_created_event.dart';
+import 'package:komodo_wallet/bloc/bitrefill/models/bitrefill_payment_intent_event.dart';
 
 /// A factory class that creates [BitrefillWidgetEvent] objects from JSON maps.
 /// The event type is expected to be a string with the key 'event'.

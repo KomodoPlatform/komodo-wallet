@@ -1,16 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/settings_menu_value.dart';
-import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/views/common/page_header/page_header.dart';
-import 'package:web_dex/views/common/pages/page_layout.dart';
-import 'package:web_dex/views/settings/widgets/common/settings_content_wrapper.dart';
-import 'package:web_dex/views/settings/widgets/general_settings/general_settings.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/security_settings_page.dart';
-import 'package:web_dex/views/settings/widgets/settings_menu/settings_menu.dart';
-import 'package:web_dex/views/settings/widgets/support_page/support_page.dart';
+import 'package:komodo_wallet/common/screen.dart';
+import 'package:komodo_wallet/generated/codegen_loader.g.dart';
+import 'package:komodo_wallet/model/settings_menu_value.dart';
+import 'package:komodo_wallet/router/state/routing_state.dart';
+import 'package:komodo_wallet/views/common/page_header/page_header.dart';
+import 'package:komodo_wallet/views/common/pages/page_layout.dart';
+import 'package:komodo_wallet/views/settings/widgets/common/settings_content_wrapper.dart';
+import 'package:komodo_wallet/views/settings/widgets/general_settings/general_settings.dart';
+import 'package:komodo_wallet/views/settings/widgets/security_settings/security_settings_page.dart';
+import 'package:komodo_wallet/views/settings/widgets/settings_menu/settings_menu.dart';
+import 'package:komodo_wallet/views/settings/widgets/support_page/support_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({

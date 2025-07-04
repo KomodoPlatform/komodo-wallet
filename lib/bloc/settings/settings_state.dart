@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/model/settings/market_maker_bot_settings.dart';
-import 'package:web_dex/model/stored_settings.dart';
+import 'package:komodo_wallet/model/settings/market_maker_bot_settings.dart';
+import 'package:komodo_wallet/model/stored_settings.dart';
 
 class SettingsState extends Equatable {
   const SettingsState({

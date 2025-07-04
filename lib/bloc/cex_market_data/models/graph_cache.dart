@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
-import 'package:web_dex/bloc/cex_market_data/charts.dart';
-import 'package:web_dex/bloc/cex_market_data/models/graph_type.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/charts.dart';
+import 'package:komodo_wallet/bloc/cex_market_data/models/graph_type.dart';
 
 /// Cache for the portfolio growth graph data.
 class GraphCache extends Equatable implements ObjectWithPrimaryKey<String> {
