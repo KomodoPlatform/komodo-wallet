@@ -333,7 +333,7 @@
     "trezorEnterPinHint": "The PIN layout is displayed on your Trezor",
     "trezorInProgressTitle": "Looking for your Trezor...",
     "trezorInProgressHint": "Please do not disable your Trezor",
-    "trezorErrorBusy": "Device is busy.\n' Make sure that Trezor Suite is not running in background.",
+    "trezorErrorBusy": "Device is busy.\nMake sure that Trezor Suite is not running in background.",
     "trezorErrorInvalidPin": "Invalid PIN code",
     "trezorSelectTitle": "Connect a hardware wallet",
     "trezorSelectSubTitle": "Select a hardware wallet you'd like to use with Komodo Wallet",

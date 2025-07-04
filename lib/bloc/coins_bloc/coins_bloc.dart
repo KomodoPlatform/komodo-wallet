@@ -11,7 +11,6 @@ import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
@@ -27,7 +26,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   CoinsBloc(
     this._kdfSdk,
     this._coinsRepo,
-    this._trezorBloc,
     this._mm2Api,
   ) : super(CoinsState.initial()) {
     on<CoinsStarted>(_onCoinsStarted, transformer: droppable());
@@ -54,9 +52,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   final KomodoDefiSdk _kdfSdk;
   final CoinsRepo _coinsRepo;
   final Mm2Api _mm2Api;
-  // TODO: refactor to use repository - pin/password input events need to be
-  // handled, which are currently done through the trezor "bloc"
-  final TrezorCoinsBloc _trezorBloc;
 
   final _log = Logger('CoinsBloc');
 
@@ -125,15 +120,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final currentWallet = await _kdfSdk.currentWallet();
     switch (currentWallet?.config.type) {
       case WalletType.trezor:
-        final walletCoins =
-            await _coinsRepo.updateTrezorBalances(state.walletCoins);
-        emit(
-          state.copyWith(
-            walletCoins: walletCoins,
-            // update balances in all coins list as well
-            coins: {...state.coins, ...walletCoins},
-          ),
-        );
       case WalletType.metamask:
       case WalletType.keplr:
       case WalletType.iguana:
@@ -400,8 +386,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     final enabledAssets = await _kdfSdk.assets.getEnabledCoins();
-    final coinsToActivate =
-        coins.where((coin) => !enabledAssets.contains(coin));
+    final coinsToActivate = coins
+        .where((coin) => !enabledAssets.contains(coin))
+        .where((coin) => _coinsRepo.getKnownCoinsMap().containsKey(coin));
 
     final enableFutures =
         coinsToActivate.map((coin) => _activateCoin(coin)).toList();
@@ -423,11 +410,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   Future<CoinsState> _prePopulateListWithActivatingCoins(
       Iterable<String> coins) async {
     final currentWallet = await _kdfSdk.currentWallet();
+    final knownCoins = _coinsRepo.getKnownCoinsMap();
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
           .map(
             (coin) {
-              final sdkCoin = state.coins[coin] ?? _coinsRepo.getCoin(coin);
+              final sdkCoin = knownCoins[coin];
               return sdkCoin?.copyWith(
                 state: CoinState.activating,
                 enabledType: currentWallet?.config.type,
@@ -440,7 +428,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     );
     return state.copyWith(
       walletCoins: {...state.walletCoins, ...activatingCoins},
-      coins: {...state.coins, ...activatingCoins},
+      coins: {...knownCoins, ...state.coins, ...activatingCoins},
     );
   }
 
@@ -460,9 +448,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       switch (currentWallet.config.type) {
         case WalletType.iguana:
         case WalletType.hdwallet:
-          coin = await _activateIguanaCoin(coin);
         case WalletType.trezor:
-          coin = await _activateTrezorCoin(coin, coinId);
+          coin = await _activateIguanaCoin(coin);
         case WalletType.metamask:
         case WalletType.keplr:
       }
@@ -471,17 +458,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     return coin;
-  }
-
-  Future<Coin> _activateTrezorCoin(Coin coin, String coinId) async {
-    final asset = _kdfSdk.assets.available[coin.id];
-    if (asset == null) {
-      _log.severe('Failed to find asset for coin: ${coin.id}');
-      return coin.copyWith(state: CoinState.suspended);
-    }
-    final accounts = await _trezorBloc.activateCoin(asset);
-    final state = accounts.isNotEmpty ? CoinState.active : CoinState.suspended;
-    return coin.copyWith(state: state, accounts: accounts);
   }
 
   Future<Coin> _activateIguanaCoin(Coin coin) async {

@@ -126,14 +126,6 @@ class Coin {
 
   bool get hasFaucet => coinsWithFaucet.contains(abbr);
 
-  bool get hasTrezorSupport {
-    if (excludedAssetListTrezor.contains(abbr)) return false;
-    if (type == CoinType.utxo) return true;
-    if (type == CoinType.smartChain) return true;
-
-    return false;
-  }
-
   @Deprecated(
       'TODO: Adapt SDK to cater for this use case and remove this method.')
   String? get _defaultTrezorAddress {

@@ -53,3 +53,23 @@ class AuthWalletDownloadRequested extends AuthBlocEvent {
   const AuthWalletDownloadRequested({required this.password});
   final String password;
 }
+
+class AuthTrezorInitAndAuthStarted extends AuthBlocEvent {
+  const AuthTrezorInitAndAuthStarted();
+}
+
+class AuthTrezorPinProvided extends AuthBlocEvent {
+  const AuthTrezorPinProvided(this.pin);
+
+  final String pin;
+}
+
+class AuthTrezorPassphraseProvided extends AuthBlocEvent {
+  const AuthTrezorPassphraseProvided(this.passphrase);
+
+  final String passphrase;
+}
+
+class AuthTrezorCancelled extends AuthBlocEvent {
+  const AuthTrezorCancelled();
+}

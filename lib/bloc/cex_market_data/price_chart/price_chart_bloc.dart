@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 import 'models/price_chart_data.dart';
@@ -27,55 +29,17 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
   ) async {
     emit(state.copyWith(status: PriceChartStatus.loading));
     try {
-      final coinPrices = await _komodoPriceRepository.getKomodoPrices();
-
-      Map<String, CoinPriceInfo> fetchedCexCoins = state.availableCoins;
+      Map<AssetId, CoinPriceInfo> fetchedCexCoins = state.availableCoins;
       if (state.availableCoins.isEmpty) {
-        final coins = (await cexPriceRepository.getCoinList())
-            .where((coin) => coin.currencies.contains('USDT'))
-            // `cexPriceRepository.getCoinList()` returns coins from a CEX
-            // (e.g. Binance), some of which are not in our known/available
-            // assets/coins list. This filter ensures that we only attempt to
-            // fetch and display data for supported coins
-            .where((coin) => sdk.assets.assetsFromTicker(coin.id).isNotEmpty)
-            .map((coin) async {
-          double? dayChangePercent = coinPrices[coin.symbol]?.change24h;
-
-          if (dayChangePercent == null) {
-            try {
-              final coinOhlc = await cexPriceRepository.getCoinOhlc(
-                CexCoinPair.usdtPrice(coin.symbol),
-                GraphInterval.oneMinute,
-                startAt: DateTime.now().subtract(const Duration(days: 1)),
-                endAt: DateTime.now(),
-              );
-
-              dayChangePercent = _calculatePercentageChange(
-                coinOhlc.ohlc.firstOrNull,
-                coinOhlc.ohlc.lastOrNull,
-              );
-            } catch (e) {
-              log("Error fetching OHLC data for ${coin.symbol}: $e");
-            }
-          }
-          return CoinPriceInfo(
-            ticker: coin.symbol,
-            id: coin.id,
-            name: coin.name,
-            selectedPeriodIncreasePercentage: dayChangePercent ?? 0.0,
-          );
-        }).toList();
-
-        fetchedCexCoins = {
-          for (var coin in await Future.wait(coins)) coin.ticker: coin,
-        };
+        fetchedCexCoins = await _fetchCoinsFromCex();
       }
 
-      final List<Future<PriceChartDataSeries?>> futures =
-          event.symbols.map((symbol) async {
+      final List<Future<PriceChartDataSeries?>> futures = event.symbols
+          .map((symbol) => sdk.getSdkAsset(symbol).id)
+          .map((symbol) async {
         try {
           final CoinOhlc ohlcData = await cexPriceRepository.getCoinOhlc(
-            CexCoinPair.usdtPrice(symbol),
+            CexCoinPair.usdtPrice(symbol.symbol.assetConfigId),
             _dividePeriodToInterval(event.period),
             startAt: DateTime.now().subtract(event.period),
             endAt: DateTime.now(),
@@ -88,7 +52,7 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
 
           return PriceChartDataSeries(
             info: CoinPriceInfo(
-              ticker: symbol,
+              ticker: symbol.symbol.assetConfigId,
               id: fetchedCexCoins[symbol]!.id,
               name: fetchedCexCoins[symbol]!.name,
               selectedPeriodIncreasePercentage: rangeChangePercent ?? 0.0,
@@ -127,6 +91,51 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
         ),
       );
     }
+  }
+
+  Future<Map<AssetId, CoinPriceInfo>> _fetchCoinsFromCex() async {
+    final coinPrices = await _komodoPriceRepository.getKomodoPrices();
+    final coins = (await cexPriceRepository.getCoinList())
+        .where((coin) => coin.currencies.contains('USDT'))
+        // `cexPriceRepository.getCoinList()` returns coins from a CEX
+        // (e.g. Binance), some of which are not in our known/available
+        // assets/coins list. This filter ensures that we only attempt to
+        // fetch and display data for supported coins
+        .where((coin) => sdk.assets.assetsFromTicker(coin.id).isNotEmpty)
+        .map((coin) async {
+      double? dayChangePercent = coinPrices[coin.symbol]?.change24h;
+
+      if (dayChangePercent == null) {
+        try {
+          final coinOhlc = await cexPriceRepository.getCoinOhlc(
+            CexCoinPair.usdtPrice(coin.symbol),
+            GraphInterval.oneMinute,
+            startAt: DateTime.now().subtract(const Duration(days: 1)),
+            endAt: DateTime.now(),
+          );
+
+          dayChangePercent = _calculatePercentageChange(
+            coinOhlc.ohlc.firstOrNull,
+            coinOhlc.ohlc.lastOrNull,
+          );
+        } catch (e) {
+          log("Error fetching OHLC data for ${coin.symbol}: $e");
+        }
+      }
+      return CoinPriceInfo(
+        ticker: coin.symbol,
+        id: coin.id,
+        name: coin.name,
+        selectedPeriodIncreasePercentage: dayChangePercent ?? 0.0,
+      );
+    }).toList();
+
+    final fetchedCexCoins = {
+      for (var coin in await Future.wait(coins))
+        sdk.getSdkAsset(coin.ticker).id: coin,
+    };
+
+    return fetchedCexCoins;
   }
 
   double? _calculatePercentageChange(Ohlc? first, Ohlc? last) {

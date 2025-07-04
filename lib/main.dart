@@ -22,12 +22,9 @@ import 'package:web_dex/bloc/cex_market_data/cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
-import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
-import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api_trezor.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/analytics/widgets/analytics_lifecycle_handler.dart';
@@ -64,17 +61,7 @@ Future<void> main() async {
       final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
       await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api);
 
-      // Strange inter-dependencies here that should ideally not be the case.
-      final trezorRepo = TrezorRepo(
-        api: Mm2ApiTrezor(mm2.call),
-        kdfSdk: komodoDefiSdk,
-      );
-      final trezor = TrezorCoinsBloc(trezorRepo: trezorRepo);
-      final coinsRepo = CoinsRepo(
-        kdfSdk: komodoDefiSdk,
-        mm2: mm2,
-        trezorBloc: trezor,
-      );
+      final coinsRepo = CoinsRepo(kdfSdk: komodoDefiSdk, mm2: mm2);
       final walletsRepository = WalletsRepository(
         komodoDefiSdk,
         mm2Api,
@@ -93,8 +80,6 @@ Future<void> main() async {
               RepositoryProvider(create: (_) => komodoDefiSdk),
               RepositoryProvider(create: (_) => mm2Api),
               RepositoryProvider(create: (_) => coinsRepo),
-              RepositoryProvider(create: (_) => trezorRepo),
-              RepositoryProvider(create: (_) => trezor),
               RepositoryProvider(create: (_) => walletsRepository),
             ],
             child: const MyApp(),

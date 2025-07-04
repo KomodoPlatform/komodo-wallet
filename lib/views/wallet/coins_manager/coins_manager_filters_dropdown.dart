@@ -149,8 +149,8 @@ class _Dropdown extends StatelessWidget {
                 .firstWhereOrNull((coin) => coin.type == type) !=
             null;
       case WalletType.trezor:
-        return coinsBloc.state.coins.values.firstWhereOrNull(
-                (coin) => coin.type == type && coin.hasTrezorSupport) !=
+        return coinsBloc.state.coins.values
+                .firstWhereOrNull((coin) => coin.type == type) !=
             null;
       case WalletType.metamask:
       case WalletType.keplr:
