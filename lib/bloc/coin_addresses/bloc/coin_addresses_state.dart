@@ -10,6 +10,7 @@ class CoinAddressesState extends Equatable {
   final List<PubkeyInfo> addresses;
   final bool hideZeroBalance;
   final Set<CantCreateNewAddressReason>? cantCreateNewAddressReasons;
+  final String? confirmAddress;
 
   const CoinAddressesState({
     this.status = FormStatus.initial,
@@ -18,6 +19,7 @@ class CoinAddressesState extends Equatable {
     this.addresses = const [],
     this.hideZeroBalance = false,
     this.cantCreateNewAddressReasons,
+    this.confirmAddress,
   });
 
   CoinAddressesState copyWith({
@@ -27,6 +29,7 @@ class CoinAddressesState extends Equatable {
     List<PubkeyInfo> Function()? addresses,
     bool Function()? hideZeroBalance,
     Set<CantCreateNewAddressReason>? Function()? cantCreateNewAddressReasons,
+    String? Function()? confirmAddress,
   }) {
     return CoinAddressesState(
       status: status == null ? this.status : status(),
@@ -40,6 +43,8 @@ class CoinAddressesState extends Equatable {
       cantCreateNewAddressReasons: cantCreateNewAddressReasons == null
           ? this.cantCreateNewAddressReasons
           : cantCreateNewAddressReasons(),
+      confirmAddress:
+          confirmAddress == null ? this.confirmAddress : confirmAddress(),
     );
   }
 
@@ -50,6 +55,7 @@ class CoinAddressesState extends Equatable {
     List<PubkeyInfo> Function()? addresses,
     bool Function()? hideZeroBalance,
     Set<CantCreateNewAddressReason>? Function()? cantCreateNewAddressReasons,
+    String? Function()? confirmAddress,
   }) {
     return CoinAddressesState(
       status: status == null ? FormStatus.initial : status(),
@@ -62,6 +68,7 @@ class CoinAddressesState extends Equatable {
       cantCreateNewAddressReasons: cantCreateNewAddressReasons == null
           ? null
           : cantCreateNewAddressReasons(),
+      confirmAddress: confirmAddress == null ? null : confirmAddress(),
     );
   }
 
@@ -73,5 +80,6 @@ class CoinAddressesState extends Equatable {
         addresses,
         hideZeroBalance,
         cantCreateNewAddressReasons,
+        confirmAddress,
       ];
 }

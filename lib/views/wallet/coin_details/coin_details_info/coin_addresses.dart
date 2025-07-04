@@ -21,6 +21,8 @@ import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
+import 'package:web_dex/views/wallet/coin_details/receive/trezor_new_address_confirmation.dart';
+import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 
 class CoinAddresses extends StatefulWidget {
   const CoinAddresses({
@@ -650,7 +652,7 @@ class HideZeroBalanceCheckbox extends StatelessWidget {
   }
 }
 
-class CreateButton extends StatelessWidget {
+class CreateButton extends StatefulWidget {
   const CreateButton({
     super.key,
     required this.status,
@@ -663,35 +665,73 @@ class CreateButton extends StatelessWidget {
   final Set<CantCreateNewAddressReason>? cantCreateNewAddressReasons;
 
   @override
+  State<CreateButton> createState() => _CreateButtonState();
+}
+
+class _CreateButtonState extends State<CreateButton> {
+  PopupDispatcher? _confirmAddressDispatcher;
+
+  @override
+  void dispose() {
+    _confirmAddressDispatcher?.close();
+    _confirmAddressDispatcher = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final tooltipMessage = _getTooltipMessage();
 
-    return Tooltip(
-      message: tooltipMessage,
-      child: UiPrimaryButton(
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: isMobile ? theme.custom.dexPageTheme.emptyPlace : null,
-        text: createAddressStatus == FormStatus.submitting
-            ? '${LocaleKeys.creating.tr()}...'
-            : LocaleKeys.createAddress.tr(),
-        prefix: createAddressStatus == FormStatus.submitting
-            ? null
-            : const Icon(Icons.add, size: 16),
-        onPressed: canCreateNewAddress &&
-                status != FormStatus.submitting &&
-                createAddressStatus != FormStatus.submitting
-            ? () {
-                context
-                    .read<CoinAddressesBloc>()
-                    .add(const SubmitCreateAddressEvent());
-              }
-            : null,
+    return BlocListener<CoinAddressesBloc, CoinAddressesState>(
+      listenWhen: (previous, current) =>
+          previous.confirmAddress != current.confirmAddress,
+      listener: (context, state) {
+        final address = state.confirmAddress;
+        if (address != null) {
+          _confirmAddressDispatcher ??= PopupDispatcher(
+            width: 360,
+            barrierDismissible: false,
+            popupContent: TrezorNewAddressConfirmation(address: address),
+          );
+          if (!_confirmAddressDispatcher!.isShown) {
+            _confirmAddressDispatcher!.show();
+          }
+        } else {
+          _confirmAddressDispatcher?.close();
+          _confirmAddressDispatcher = null;
+        }
+      },
+      child: Tooltip(
+        message: tooltipMessage,
+        child: UiPrimaryButton(
+          height: 40,
+          borderRadius: 20,
+          backgroundColor:
+              isMobile ? theme.custom.dexPageTheme.emptyPlace : null,
+          text: widget.createAddressStatus == FormStatus.submitting
+              ? '${LocaleKeys.creating.tr()}...'
+              : LocaleKeys.createAddress.tr(),
+          prefix: widget.createAddressStatus == FormStatus.submitting
+              ? null
+              : const Icon(Icons.add, size: 16),
+          onPressed: canCreateNewAddress &&
+                  widget.status != FormStatus.submitting &&
+                  widget.createAddressStatus != FormStatus.submitting
+              ? () {
+                  context
+                      .read<CoinAddressesBloc>()
+                      .add(const SubmitCreateAddressEvent());
+                }
+              : null,
+        ),
       ),
     );
   }
 
   bool get canCreateNewAddress => cantCreateNewAddressReasons?.isEmpty ?? true;
+
+  Set<CantCreateNewAddressReason>? get cantCreateNewAddressReasons =>
+      widget.cantCreateNewAddressReasons;
 
   String _getTooltipMessage() {
     if (cantCreateNewAddressReasons?.isEmpty ?? true) {
