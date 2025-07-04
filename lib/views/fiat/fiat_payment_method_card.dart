@@ -1,5 +1,5 @@
 import 'package:decimal/decimal.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_payment_method.dart';

@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:web_dex/mm2/rpc/nft_transaction/nft_transactions_response.dart';
 
 class NftTxFormatter {

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

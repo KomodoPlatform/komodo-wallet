@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'

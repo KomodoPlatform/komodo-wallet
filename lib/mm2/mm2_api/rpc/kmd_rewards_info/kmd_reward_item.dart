@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class KmdRewardItem {

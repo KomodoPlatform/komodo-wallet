@@ -1,4 +1,4 @@
-// DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
+// DO NOT EDIT. Localization keys generated from translations.
 
 // ignore_for_file: constant_identifier_names
 

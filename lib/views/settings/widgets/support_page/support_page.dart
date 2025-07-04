@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/common/screen.dart';

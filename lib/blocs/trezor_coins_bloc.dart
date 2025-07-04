@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';

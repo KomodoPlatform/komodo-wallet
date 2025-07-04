@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart' show kIsWasm, kIsWeb;
 import 'package:flutter/material.dart';
@@ -82,23 +82,16 @@ Future<void> main() async {
       );
 
       runApp(
-        EasyLocalization(
-          supportedLocales: localeList,
-          fallbackLocale: localeList.first,
-          useFallbackTranslations: true,
-          useOnlyLangCode: true,
-          path: '$assetsPath/translations',
-          child: MultiRepositoryProvider(
-            providers: [
-              RepositoryProvider(create: (_) => komodoDefiSdk),
-              RepositoryProvider(create: (_) => mm2Api),
-              RepositoryProvider(create: (_) => coinsRepo),
-              RepositoryProvider(create: (_) => trezorRepo),
-              RepositoryProvider(create: (_) => trezor),
-              RepositoryProvider(create: (_) => walletsRepository),
-            ],
-            child: const MyApp(),
-          ),
+        MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider(create: (_) => komodoDefiSdk),
+            RepositoryProvider(create: (_) => mm2Api),
+            RepositoryProvider(create: (_) => coinsRepo),
+            RepositoryProvider(create: (_) => trezorRepo),
+            RepositoryProvider(create: (_) => trezor),
+            RepositoryProvider(create: (_) => walletsRepository),
+          ],
+          child: const MyApp(),
         ),
       );
     },

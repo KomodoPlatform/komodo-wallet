@@ -1,6 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:badges/badges.dart' as badges;
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_dex/app_config/app_config.dart';

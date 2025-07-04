@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
