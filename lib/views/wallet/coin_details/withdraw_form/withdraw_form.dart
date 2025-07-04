@@ -7,17 +7,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/headers/withdraw_form_header.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/shared/ui/gradient_border.dart';
+import 'package:app_theme/app_theme.dart';
+import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/listeners/withdraw_form_listeners.dart';
+
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/sections/withdraw_form_fill_section.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/sections/withdraw_form_confirm_section.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/sections/withdraw_form_success_section.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/sections/withdraw_form_failed_section.dart';
+
 
 class WithdrawForm extends StatefulWidget {
   final Asset asset;
@@ -59,46 +64,10 @@ class _WithdrawFormState extends State<WithdrawForm> {
     return BlocProvider.value(
       value: _formBloc,
       child: MultiBlocListener(
-        listeners: [
-          BlocListener<WithdrawFormBloc, WithdrawFormState>(
-            listenWhen: (prev, curr) =>
-                prev.step != curr.step && curr.step == WithdrawFormStep.success,
-            listener: (context, state) {
-              final authBloc = context.read<AuthBloc>();
-              final walletType =
-                  authBloc.state.currentUser?.wallet.config.type.name ?? '';
-              context.read<AnalyticsBloc>().logEvent(
-                    SendSucceededEventData(
-                      assetSymbol: state.asset.id.id,
-                      network: state.asset.id.subClass.name,
-                      amount: double.tryParse(state.amount) ?? 0.0,
-                      walletType: walletType,
-                    ),
-                  );
-              widget.onSuccess();
-            },
-          ),
-          BlocListener<WithdrawFormBloc, WithdrawFormState>(
-            listenWhen: (prev, curr) =>
-                prev.step != curr.step && curr.step == WithdrawFormStep.failed,
-            listener: (context, state) {
-              final authBloc = context.read<AuthBloc>();
-              final walletType =
-                  authBloc.state.currentUser?.wallet.config.type.name ?? '';
-              final reason = state.transactionError?.message ?? 'unknown';
-              context.read<AnalyticsBloc>().logEvent(
-                    SendFailedEventData(
-                      assetSymbol: state.asset.id.id,
-                      network: state.asset.protocol.subClass.name,
-                      failReason: reason,
-                      walletType: walletType,
-                    ),
-                  );
-            },
-          ),
-        ],
+        listeners: WithdrawFormListeners.getListeners(),
         child: WithdrawFormContent(
           onBackButtonPressed: widget.onBackButtonPressed,
+          onSuccess: widget.onSuccess,
         ),
       ),
     );
@@ -107,9 +76,11 @@ class _WithdrawFormState extends State<WithdrawForm> {
 
 class WithdrawFormContent extends StatelessWidget {
   final VoidCallback? onBackButtonPressed;
+  final VoidCallback onSuccess;
 
   const WithdrawFormContent({
     this.onBackButtonPressed,
+    required this.onSuccess,
     super.key,
   });
 
@@ -125,17 +96,14 @@ class WithdrawFormContent extends StatelessWidget {
               onBackButtonPressed: onBackButtonPressed,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(18),
+              child: switch (state.step) {
+                WithdrawFormStep.fill => _buildScrollableForm(),
+                WithdrawFormStep.confirm => const WithdrawFormConfirmSection(),
+                WithdrawFormStep.success => WithdrawFormSuccessSection(
+                    onSuccess: onSuccess,
                   ),
-                  child: _buildStep(state.step),
-                ),
-              ),
+                WithdrawFormStep.failed => const WithdrawFormFailedSection(),
+              },
             ),
           ],
         );
@@ -143,17 +111,28 @@ class WithdrawFormContent extends StatelessWidget {
     );
   }
 
-  Widget _buildStep(WithdrawFormStep step) {
-    switch (step) {
-      case WithdrawFormStep.fill:
-        return const WithdrawFormFillSection();
-      case WithdrawFormStep.confirm:
-        return const WithdrawFormConfirmSection();
-      case WithdrawFormStep.success:
-        return const WithdrawFormSuccessSection();
-      case WithdrawFormStep.failed:
-        return const WithdrawFormFailedSection();
-    }
+  Widget _buildScrollableForm() {
+    final scrollController = ScrollController();
+
+    return DexScrollbar(
+      isMobile: isMobile,
+      scrollController: scrollController,
+      child: SingleChildScrollView(
+        key: const Key('withdraw-form-scroll'),
+        controller: scrollController,
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            GradientBorder(
+              innerColor: dexPageColors.frontPlate,
+              gradient: dexPageColors.formPlateGradient,
+              child: const WithdrawFormFillSection(),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -203,35 +182,6 @@ class TransactionErrorDisplay extends StatelessWidget {
               onPressed: onDismiss,
             )
           : null,
-    );
-  }
-}
-
-class PreviewWithdrawButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  final bool isSending;
-
-  const PreviewWithdrawButton({
-    required this.onPressed,
-    required this.isSending,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 48,
-      child: FilledButton(
-        onPressed: onPressed,
-        child: isSending
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Text(LocaleKeys.previewWithdrawal.tr()),
-      ),
     );
   }
 }
@@ -306,239 +256,6 @@ class WithdrawResultDetails extends StatelessWidget {
   }
 }
 
-class WithdrawFormFillSection extends StatelessWidget {
-  const WithdrawFormFillSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (state.asset.supportsMultipleAddresses) ...[
-              SourceAddressField(
-                asset: state.asset,
-                pubkeys: state.pubkeys,
-                selectedAddress: state.selectedSourceAddress,
-                isLoading: state.pubkeys?.isEmpty ?? true,
-                onChanged: (address) => address == null
-                    ? null
-                    : context
-                        .read<WithdrawFormBloc>()
-                        .add(WithdrawFormSourceChanged(address)),
-              ),
-              const SizedBox(height: 16),
-            ],
-            RecipientAddressWithNotification(
-              address: state.recipientAddress,
-              isMixedAddress: state.isMixedCaseAddress,
-              onChanged: (value) => context
-                  .read<WithdrawFormBloc>()
-                  .add(WithdrawFormRecipientChanged(value)),
-              onQrScanned: (value) => context
-                  .read<WithdrawFormBloc>()
-                  .add(WithdrawFormRecipientChanged(value)),
-              errorText: state.recipientAddressError == null
-                  ? null
-                  : () => state.recipientAddressError?.message,
-            ),
-            const SizedBox(height: 16),
-            if (state.asset.protocol is TendermintProtocol) ...[
-              const IbcTransferField(),
-              if (state.isIbcTransfer) ...[
-                const SizedBox(height: 16),
-                const IbcChannelField(),
-              ],
-              const SizedBox(height: 16),
-            ],
-            WithdrawAmountField(
-              asset: state.asset,
-              amount: state.amount,
-              isMaxAmount: state.isMaxAmount,
-              onChanged: (value) => context
-                  .read<WithdrawFormBloc>()
-                  .add(WithdrawFormAmountChanged(value)),
-              onMaxToggled: (value) => context
-                  .read<WithdrawFormBloc>()
-                  .add(WithdrawFormMaxAmountEnabled(value)),
-              amountError: state.amountError?.message,
-            ),
-            if (state.isCustomFeeSupported) ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Checkbox(
-                    value: state.isCustomFee,
-                    onChanged: (enabled) => context
-                        .read<WithdrawFormBloc>()
-                        .add(WithdrawFormCustomFeeEnabled(enabled ?? false)),
-                  ),
-                  Text(LocaleKeys.customNetworkFee.tr()),
-                ],
-              ),
-              if (state.isCustomFee && state.customFee != null) ...[
-                const SizedBox(height: 8),
-
-                FeeInfoInput(
-                  asset: state.asset,
-                  selectedFee: state.customFee!,
-                  isCustomFee: true, // indicates user can edit it
-                  onFeeSelected: (newFee) {
-                    context
-                        .read<WithdrawFormBloc>()
-                        .add(WithdrawFormCustomFeeChanged(newFee!));
-                  },
-                ),
-
-                // If the bloc has an error for custom fees:
-                if (state.customFeeError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      state.customFeeError!.message,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ],
-            const SizedBox(height: 16),
-            WithdrawMemoField(
-              memo: state.memo,
-              onChanged: (value) => context
-                  .read<WithdrawFormBloc>()
-                  .add(WithdrawFormMemoChanged(value)),
-            ),
-            const SizedBox(height: 24),
-            // TODO! Refactor to use Formz and replace with the appropriate
-            // error state value.
-            if (state.hasPreviewError)
-              ErrorDisplay(
-                message: LocaleKeys.withdrawPreviewError.tr(),
-                detailedMessage: state.previewError!.message,
-              ),
-            const SizedBox(height: 16),
-            PreviewWithdrawButton(
-              onPressed: state.isSending || state.hasValidationErrors
-                  ? null
-                  : () {
-                      final authBloc = context.read<AuthBloc>();
-                      final walletType =
-                          authBloc.state.currentUser?.wallet.config.type.name ??
-                              '';
-                      context.read<AnalyticsBloc>().logEvent(
-                            SendInitiatedEventData(
-                              assetSymbol: state.asset.id.id,
-                              network: state.asset.protocol.subClass.name,
-                              amount: double.tryParse(state.amount) ?? 0.0,
-                              walletType: walletType,
-                            ),
-                          );
-                      context
-                          .read<WithdrawFormBloc>()
-                          .add(const WithdrawFormPreviewSubmitted());
-                    },
-              isSending: state.isSending,
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class WithdrawFormConfirmSection extends StatelessWidget {
-  const WithdrawFormConfirmSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        if (state.preview == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            WithdrawPreviewDetails(preview: state.preview!),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => context
-                        .read<WithdrawFormBloc>()
-                        .add(const WithdrawFormCancelled()),
-                    child: Text(LocaleKeys.back.tr()),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: state.isSending
-                        ? null
-                        : () {
-                            context
-                                .read<WithdrawFormBloc>()
-                                .add(const WithdrawFormSubmitted());
-                          },
-                    child: state.isSending
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(LocaleKeys.confirm.tr()),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class WithdrawFormSuccessSection extends StatelessWidget {
-  const WithdrawFormSuccessSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Icon(
-              Icons.check_circle_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              LocaleKeys.transactionSuccessful.tr(),
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            WithdrawResultDetails(result: state.result!),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(LocaleKeys.done.tr()),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
 class WithdrawResultCard extends StatelessWidget {
   final WithdrawalResult result;
   final Asset asset;
@@ -551,20 +268,65 @@ class WithdrawResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maybeTxEplorer = asset.protocol.explorerTxUrl(result.txHash);
+    final theme = Theme.of(context);
+    final maybeTxExplorer = asset.protocol.explorerTxUrl(result.txHash);
+
     return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Transaction Successful',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Your transaction has been submitted',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             _buildHashSection(context),
             const Divider(height: 32),
             _buildNetworkSection(context),
-            if (maybeTxEplorer != null) ...[
+            if (maybeTxExplorer != null) ...[
               const SizedBox(height: 16),
               OutlinedButton.icon(
-                onPressed: () => openUrl(maybeTxEplorer),
+                onPressed: () => openUrl(maybeTxExplorer),
                 icon: const Icon(Icons.open_in_new),
                 label: Text(LocaleKeys.viewOnExplorer.tr()),
               ),
@@ -583,12 +345,45 @@ class WithdrawResultCard extends StatelessWidget {
       children: [
         Text(
           LocaleKeys.transactionHash.tr(),
-          style: theme.textTheme.titleMedium,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface.withOpacity(0.7),
+          ),
         ),
         const SizedBox(height: 8),
-        SelectableText(
-          result.txHash,
-          style: theme.textTheme.bodyMedium?.copyWith(fontFamily: 'Mono'),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: theme.colorScheme.outline.withOpacity(0.1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: SelectableText(
+                  result.txHash,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.content_copy,
+                  size: 16,
+                  color: theme.colorScheme.primary,
+                ),
+                onPressed: () {
+                  // Copy to clipboard logic
+                },
+                tooltip: 'Copy transaction hash',
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -602,7 +397,10 @@ class WithdrawResultCard extends StatelessWidget {
       children: [
         Text(
           LocaleKeys.network.tr(),
-          style: theme.textTheme.titleMedium,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface.withOpacity(0.7),
+          ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -616,61 +414,6 @@ class WithdrawResultCard extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class WithdrawFormFailedSection extends StatelessWidget {
-  const WithdrawFormFailedSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        return Column(
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: theme.colorScheme.error,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              LocaleKeys.transactionFailed.tr(),
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            if (state.transactionError != null)
-              WithdrawErrorCard(
-                error: state.transactionError!,
-              ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                OutlinedButton(
-                  onPressed: () => context
-                      .read<WithdrawFormBloc>()
-                      .add(const WithdrawFormStepReverted()),
-                  child: Text(LocaleKeys.back.tr()),
-                ),
-                const SizedBox(width: 16),
-                FilledButton(
-                  onPressed: () => context
-                      .read<WithdrawFormBloc>()
-                      .add(const WithdrawFormReset()),
-                  child: Text(LocaleKeys.tryAgain.tr()),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
     );
   }
 }

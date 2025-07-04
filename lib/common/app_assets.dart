@@ -18,6 +18,7 @@ class Assets {
   static const discord = '$assetsPath/others/discord_icon.svg';
   static const seedBackedUp = '$assetsPath/ui_icons/seed_backed_up.svg';
   static const seedNotBackedUp = '$assetsPath/ui_icons/seed_not_backed_up.svg';
+  static const withdrawSuccessBadge = '$assetsPath/others/withdraw_success_badge.svg';
 }
 
 enum ColorFilterEnum {
