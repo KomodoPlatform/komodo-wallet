@@ -81,7 +81,7 @@ class WalletsRepository {
       log('Failed to delete wallet: $e',
               path: 'wallet_bloc => deleteWallet', isError: true)
           .ignore();
-      return false;
+      rethrow;
     }
   }
 

@@ -147,16 +147,23 @@ class _WalletDeletingState extends State<WalletDeleting> {
     });
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
     try {
-      final success = await walletsRepository.deleteWallet(
+      await walletsRepository.deleteWallet(
         widget.wallet,
         password: _passwordController.text,
       );
-      if (success) {
-        widget.close();
-      }
+      widget.close();
     } catch (e) {
-      if (e is AuthException && e.type == AuthExceptionType.incorrectPassword) {
-        _error = LocaleKeys.incorrectPassword.tr();
+      if (e is AuthException) {
+        switch (e.type) {
+          case AuthExceptionType.incorrectPassword:
+            _error = LocaleKeys.incorrectPassword.tr();
+            break;
+          case AuthExceptionType.walletNotFound:
+            _error = LocaleKeys.walletNotFound.tr();
+            break;
+          default:
+            _error = e.message;
+        }
       } else {
         _error = e.toString();
       }
