@@ -7,7 +7,6 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 
 extension AssetCoinExtension on Asset {
   Coin toCoin() {
-    final CoinType type = protocol.subClass.toCoinType();
     // temporary measure to get metadata, like `wallet_only`, that isn't exposed
     // by the SDK (and might be phased out completely later on)
     // TODO: Remove this once the SDK exposes all the necessary metadata
@@ -16,9 +15,6 @@ extension AssetCoinExtension on Asset {
     final isCustomToken =
         (config.valueOrNull<bool>('is_custom_token') ?? false) ||
             logoImageUrl != null;
-    // TODO: Remove this once the SDK exposes all the necessary metadata
-    // This is the logic from the previous _getCoinMode function
-    final isSegwit = id.id.toLowerCase().contains('-segwit');
 
     final ProtocolData protocolData = ProtocolData(
       platform: id.parentId?.id ?? platform ?? '',
@@ -26,7 +22,7 @@ extension AssetCoinExtension on Asset {
     );
 
     return Coin(
-      type: type,
+      type: protocol.subClass.toCoinType(),
       abbr: id.id,
       id: id,
       name: id.name,
@@ -46,7 +42,7 @@ extension AssetCoinExtension on Asset {
       priority: 0,
       state: CoinState.inactive,
       walletOnly: config.valueOrNull<bool>('wallet_only') ?? false,
-      mode: isSegwit ? CoinMode.segwit : CoinMode.standard,
+      mode: id.isSegwit ? CoinMode.segwit : CoinMode.standard,
       derivationPath: id.derivationPath,
     );
   }
@@ -81,9 +77,9 @@ extension CoinTypeExtension on CoinSubClass {
       case CoinSubClass.hrc20:
         return CoinType.hrc20;
       case CoinSubClass.tendermintToken:
-        return CoinType.iris;
+        return CoinType.tendermintToken;
       case CoinSubClass.tendermint:
-        return CoinType.cosmos;
+        return CoinType.tendermint;
       case CoinSubClass.ubiq:
         return CoinType.ubiq;
       case CoinSubClass.bep20:
@@ -150,9 +146,9 @@ extension CoinSubClassExtension on CoinType {
         return CoinSubClass.hecoChain;
       case CoinType.hrc20:
         return CoinSubClass.hrc20;
-      case CoinType.iris:
+      case CoinType.tendermint:
         return CoinSubClass.tendermintToken;
-      case CoinType.cosmos:
+      case CoinType.tendermintToken:
         return CoinSubClass.tendermint;
       case CoinType.ubiq:
         return CoinSubClass.ubiq;

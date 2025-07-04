@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_ui/komodo_ui.dart' show AssetIcon;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
@@ -83,7 +84,7 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                   ),
                   leadingIcon: _singleCoinOrNull == null
                       ? null
-                      : CoinIcon(
+                      : AssetIcon.ofTicker(
                           _singleCoinOrNull!.abbr,
                           size: 24,
                         ),
@@ -249,7 +250,7 @@ class _PortfolioGrowthChartTooltip extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CoinIcon(coin.abbr, size: 16),
+                      AssetIcon.ofTicker(coin.abbr, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         abbr2Ticker(coin.abbr),

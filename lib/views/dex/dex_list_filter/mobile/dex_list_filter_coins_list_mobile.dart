@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -154,7 +155,7 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
           child: Row(
             children: [
-              CoinIcon(coinAbbr),
+              AssetIcon.ofTicker(coinAbbr),
               Padding(
                 padding: const EdgeInsets.only(left: 5.0),
                 child: Text(

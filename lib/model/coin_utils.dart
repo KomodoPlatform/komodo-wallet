@@ -150,53 +150,10 @@ String getCoinTypeName(CoinType type) {
       return 'Ubiq';
     case CoinType.krc20:
       return 'KRC-20';
-    case CoinType.cosmos:
-      return 'Cosmos';
-    case CoinType.iris:
-      return 'Iris';
-    case CoinType.slp:
-      return 'SLP';
-  }
-}
-
-String getCoinTypeNameLong(CoinType type) {
-  switch (type) {
-    case CoinType.erc20:
-      return 'Ethereum (ERC-20)';
-    case CoinType.bep20:
-      return 'Binance (BEP-20)';
-    case CoinType.qrc20:
-      return 'QTUM (QRC-20)';
-    case CoinType.utxo:
-      return 'Native';
-    case CoinType.smartChain:
-      return 'Smart Chain';
-    case CoinType.ftm20:
-      return 'Fantom';
-    case CoinType.arb20:
-      return 'Arbitrum';
-    case CoinType.etc:
-      return 'Ethereum Classic';
-    case CoinType.avx20:
-      return 'Avalanche';
-    case CoinType.hrc20:
-      return 'Harmony (HRC-20)';
-    case CoinType.mvr20:
-      return 'Moonriver';
-    case CoinType.hco20:
-      return 'HecoChain';
-    case CoinType.plg20:
-      return 'Polygon';
-    case CoinType.sbch:
-      return 'SmartBCH';
-    case CoinType.ubiq:
-      return 'Ubiq';
-    case CoinType.krc20:
-      return 'Kucoin Chain';
-    case CoinType.cosmos:
-      return 'Cosmos';
-    case CoinType.iris:
-      return 'Iris';
+    case CoinType.tendermint:
+      return 'Tendermint';
+    case CoinType.tendermintToken:
+      return 'Tendermint Token';
     case CoinType.slp:
       return 'SLP';
   }

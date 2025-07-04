@@ -98,7 +98,7 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
                   ),
                   leadingIcon: _singleCoinOrNull == null
                       ? null
-                      : AssetIcon(
+                      : AssetLogo.ofId(
                           _singleCoinOrNull!.id,
                           size: 24,
                         ),

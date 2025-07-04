@@ -39,9 +39,6 @@ export 'src/display/statistic_card.dart';
 // Widgets for dividing content or adding scrollbars.
 export 'src/dividers/ui_divider.dart';
 export 'src/dividers/ui_scrollbar.dart';
-// Images
-// Widgets for displaying images and icons.
-export 'src/images/coin_icon.dart' show CoinIcon, checkIfAssetExists;
 // Inputs
 // Widgets related to data input and selection, including text fields and selectors.
 export 'src/inputs/input_validation_mode.dart';
