@@ -676,7 +676,7 @@ abstract class  LocaleKeys {
   static const previewWithdrawal = 'previewWithdrawal';
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
-  static const chart = 'chart';
+  static const trend7d = 'trend7d';
   static const tradingDisabledTooltip = 'tradingDisabledTooltip';
   static const tradingDisabled = 'tradingDisabled';
 
