@@ -318,10 +318,22 @@ class CoinMoreActionsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<CoinMoreActions>(
       icon: const Icon(Icons.more_vert),
-      onSelected: (action) {
+      onSelected: (action) async {
         switch (action) {
           case CoinMoreActions.disable:
-            context.read<CoinsBloc>().add(CoinsDeactivated([coin.abbr]));
+            final coinsBloc = context.read<CoinsBloc>();
+            final childTokens = coinsBloc.state.walletCoins.values
+                .where((c) => c.parentCoin?.abbr == coin.abbr)
+                .map((c) => c.abbr)
+                .toList();
+            final confirmed = await confirmParentCoinDisable(
+              context,
+              parent: coin.abbr,
+              tokens: childTokens,
+            );
+            if (confirmed) {
+              coinsBloc.add(CoinsDeactivated([coin.abbr]));
+            }
             break;
         }
       },
