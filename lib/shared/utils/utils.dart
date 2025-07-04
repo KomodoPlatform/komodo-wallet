@@ -40,7 +40,8 @@ Future<void> copyToClipBoard(
 
     if (!context.mounted) return;
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context) ??
-        ScaffoldMessenger.of(scaffoldKey.currentContext!);    scaffoldMessenger.showSnackBar(
+        ScaffoldMessenger.of(scaffoldKey.currentContext!);
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         width: isMobile ? null : 400.0,
         content: Row(
@@ -61,7 +62,7 @@ Future<void> copyToClipBoard(
     );
   } catch (e) {
     log('Error copyToClipBoard: $e', isError: true);
-    if (!context.mounted) return;    // Show error feedback using SnackBar
+    if (!context.mounted) return; // Show error feedback using SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Failed to copy to clipboard'),
@@ -285,6 +286,9 @@ Future<void> log(
 
   try {
     await logger.write(message, path);
+
+    // TODO: Add a `.dispose()` method to the logger library and call it before
+    // the app is disposed.
 
     performance.logTimeWritingLogs(timer.elapsedMilliseconds);
   } catch (e) {

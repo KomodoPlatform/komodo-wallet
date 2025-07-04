@@ -57,7 +57,7 @@ class WalletManageSection extends StatelessWidget {
                   child: WalletManagerSearchField(onChange: onSearchChange),
                 ),
               ),
-              if (isAuthenticated ) ...[
+              if (isAuthenticated) ...[
                 Spacer(),
                 CoinsWithBalanceCheckbox(
                   withBalance: withBalance,

@@ -27,6 +27,16 @@ final class MM2 {
 
   Future<bool> isSignedIn() => _kdfSdk.auth.isSignedIn();
 
+  /// Dispose the SDK and clean up resources
+  Future<void> dispose() async {
+    try {
+      await _kdfSdk.dispose();
+      log('KomodoDefiSdk disposed successfully');
+    } catch (e) {
+      log('Error disposing KomodoDefiSdk: $e', isError: true);
+    }
+  }
+
   Future<KomodoDefiSdk> initialize() async {
     if (_initCompleter.isCompleted) return _kdfSdk;
     if (_isInitializing) return _initCompleter.future;
