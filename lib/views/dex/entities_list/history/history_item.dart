@@ -36,7 +36,9 @@ class _HistoryItemState extends State<HistoryItem> {
     final Rational sellAmount = widget.swap.sellAmount;
     final String buyCoin = widget.swap.buyCoin;
     final Rational buyAmount = widget.swap.buyAmount;
-    final String date = getFormattedDate(widget.swap.myInfo.startedAt);
+    final String date = widget.swap.myInfo != null
+        ? getFormattedDate(widget.swap.myInfo!.startedAt)
+        : '-';
     final bool isSuccessful = !widget.swap.isFailed;
     final bool isTaker = widget.swap.isTaker;
     final bool isRecoverable = widget.swap.recoverable;

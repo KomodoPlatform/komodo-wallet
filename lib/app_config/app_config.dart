@@ -151,9 +151,9 @@ List<String> get enabledByDefaultCoins => [
     ];
 
 List<String> get enabledByDefaultTrezorCoins => [
-      'BTC',
+      'BTC-segwit',
       'KMD',
-      'LTC',
+      'LTC-segwit',
     ];
 
 List<String> get coinsWithFaucet => ['RICK', 'MORTY', 'DOC', 'MARTY'];

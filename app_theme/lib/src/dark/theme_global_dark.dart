@@ -5,15 +5,6 @@ ThemeData get themeGlobalDark {
   const Color inputBackgroundColor = Color.fromRGBO(51, 57, 72, 1);
   const Color textColor = Color.fromRGBO(255, 255, 255, 1);
 
-  SnackBarThemeData snackBarThemeLight() => const SnackBarThemeData(
-        elevation: 12.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4)),
-        ),
-        actionTextColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-      );
-
   OutlineInputBorder outlineBorderLight(Color lightAccentColor) =>
       OutlineInputBorder(
         borderSide: BorderSide(color: lightAccentColor),
@@ -55,14 +46,31 @@ ThemeData get themeGlobalDark {
       fontWeight: FontWeight.w300,
     ),
     labelLarge: const TextStyle(fontSize: 16.0, color: textColor),
-    bodyLarge:
-        TextStyle(fontSize: 14.0, color: textColor.withAlpha(128)), // 0.5 * 255
+    bodyLarge: TextStyle(
+      fontSize: 14.0,
+      color: textColor.withAlpha(128),
+    ), // 0.5 * 255
     bodySmall: TextStyle(
       fontSize: 12.0,
       color: textColor.withAlpha(204), // 0.8 * 255
       fontWeight: FontWeight.w400,
     ),
   );
+
+  SnackBarThemeData snackBarThemeLight() => SnackBarThemeData(
+        elevation: 12.0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: colorScheme.primaryContainer,
+        contentTextStyle: textTheme.bodyLarge!.copyWith(
+          color: colorScheme.onPrimaryContainer,
+        ),
+        actionTextColor: colorScheme.onPrimaryContainer,
+        showCloseIcon: true,
+        closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
+      );
 
   final customTheme = ThemeCustomDark();
   final theme = ThemeData(
@@ -81,14 +89,13 @@ ThemeData get themeGlobalDark {
     dividerColor: const Color.fromRGBO(56, 67, 108, 1),
     appBarTheme: AppBarTheme(color: colorScheme.surface),
     iconTheme: IconThemeData(color: colorScheme.primary),
-    progressIndicatorTheme:
-        ProgressIndicatorThemeData(color: colorScheme.primary),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: colorScheme.primary,
+    ),
     dialogTheme: const DialogThemeData(
       backgroundColor: Color.fromRGBO(14, 16, 27, 1),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(16),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
     ),
     canvasColor: colorScheme.surface,
@@ -96,8 +103,12 @@ ThemeData get themeGlobalDark {
     snackBarTheme: snackBarThemeLight(),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: const Color.fromRGBO(57, 161, 238, 1),
-      selectionColor:
-          const Color.fromRGBO(57, 161, 238, 1).withAlpha(77), // 0.3 * 255
+      selectionColor: const Color.fromRGBO(
+        57,
+        161,
+        238,
+        1,
+      ).withAlpha(77), // 0.3 * 255
       selectionHandleColor: const Color.fromRGBO(57, 161, 238, 1),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -122,12 +133,12 @@ ThemeData get themeGlobalDark {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.resolveWith<Color?>(
-          (Set<WidgetState> states) {
-            if (states.contains(WidgetState.disabled)) return Colors.grey;
-            return colorScheme.primary;
-          },
-        ),
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) return Colors.grey;
+          return colorScheme.primary;
+        }),
       ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
@@ -138,19 +149,14 @@ ThemeData get themeGlobalDark {
         foregroundColor: textColor.withAlpha(179), // 0.7 * 255
         selectedForegroundColor: textColor,
         side: BorderSide(color: colorScheme.outlineVariant),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       ),
     ),
     tabBarTheme: TabBarThemeData(
       labelColor: textColor,
       indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(
-          width: 2.0,
-          color: colorScheme.primary,
-        ),
+        borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
         // Match the card's border radius
         insets: const EdgeInsets.symmetric(horizontal: 18),
       ),
@@ -184,14 +190,16 @@ ThemeData get themeGlobalDark {
       backgroundColor: colorScheme.surface,
       selectedItemColor: textColor,
       unselectedItemColor: const Color.fromRGBO(173, 175, 198, 1),
-      unselectedLabelStyle:
-          const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      selectedLabelStyle:
-          const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+      unselectedLabelStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+      selectedLabelStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+      ),
     ),
-    extensions: [
-      customTheme,
-    ],
+    extensions: [customTheme],
   );
 
   // Initialize theme-dependent colors after theme creation

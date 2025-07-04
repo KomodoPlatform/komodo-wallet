@@ -68,6 +68,14 @@ jobs:
           FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
           FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
 
+      # Flutter build with `--no-pub` flag fails on Android due to a
+      # known regression with the build system in 3.32.5.
+      # https://github.com/flutter/flutter/issues/169336
+      - name: Temporary workaround for Android build issue
+        if: ${{ matrix.platform == 'Android' }}
+        run: |
+          flutter build apk --config-only
+
       - name: Build for ${{ matrix.platform }}
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}

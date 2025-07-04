@@ -45,6 +45,22 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Determine commit hash
+      shell: bash
+      run: |
+        echo "Determining commit hash..."
+        if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+          # For PRs, use the HEAD of the feature branch
+          PR_SHA=$(jq -r .pull_request.head.sha "$GITHUB_EVENT_PATH")
+          COMMIT_HASH=${PR_SHA:0:7}
+          echo "Detected pull_request event. Using PR HEAD SHA: $COMMIT_HASH"
+        else
+          # Otherwise use the current checked-out HEAD
+          COMMIT_HASH=$(git rev-parse --short HEAD | cut -c1-7)
+          echo "Using git HEAD SHA: $COMMIT_HASH"
+        fi
+        # Export for subsequent steps
+        echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
     - name: Fetch packages and generate assets
       shell: bash
       env:
@@ -66,8 +82,7 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
-        # Get the current commit hash
-        COMMIT_HASH=$(git rev-parse --short HEAD)
+        # Now COMMIT_HASH comes from the previous step, not recalculated here.
 
         # Prepare build command with feedback service credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"

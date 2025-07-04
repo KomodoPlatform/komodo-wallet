@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart'
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/shared/utils/extensions/transaction_extensions.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class TransactionHistoryBloc
@@ -68,6 +69,9 @@ class TransactionHistoryBloc
         throw Exception('Asset ${event.coin.id} not found in known coins list');
       }
 
+      final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
+      final myAddresses = pubkeys.keys.map((p) => p.address).toSet();
+
       // Subscribe to historical transactions
       _historySubscription =
           _sdk.transactions.getTransactionsStreamed(asset).listen(
@@ -83,8 +87,10 @@ class TransactionHistoryBloc
 
           if (uniqueTransactions.isEmpty) return;
 
+          final sanitized =
+              uniqueTransactions.map((tx) => tx.sanitize(myAddresses)).toList();
           final updatedTransactions = List<Transaction>.of(state.transactions)
-            ..addAll(uniqueTransactions)
+            ..addAll(sanitized)
             ..sort(_sortTransactions);
 
           if (event.coin.isErcType) {
@@ -105,7 +111,7 @@ class TransactionHistoryBloc
             add(TransactionHistoryUpdated(transactions: state.transactions));
           }
           // Once historical load is complete, start watching for new transactions
-          _subscribeToNewTransactions(asset, event.coin);
+          _subscribeToNewTransactions(asset, event.coin, myAddresses);
         },
       );
     } catch (e, s) {
@@ -123,7 +129,8 @@ class TransactionHistoryBloc
     }
   }
 
-  void _subscribeToNewTransactions(Asset asset, Coin coin) {
+  void _subscribeToNewTransactions(
+      Asset asset, Coin coin, Set<String> myAddresses) {
     _newTransactionsSubscription =
         _sdk.transactions.watchTransactions(asset).listen(
       (newTransaction) {
@@ -131,8 +138,9 @@ class TransactionHistoryBloc
 
         _processedTxIds.add(newTransaction.internalId);
 
+        final sanitized = newTransaction.sanitize(myAddresses);
         final updatedTransactions = List<Transaction>.of(state.transactions)
-          ..add(newTransaction)
+          ..add(sanitized)
           ..sort(_sortTransactions);
 
         if (coin.isErcType) {

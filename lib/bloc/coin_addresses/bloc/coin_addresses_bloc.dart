@@ -11,9 +11,11 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
   final KomodoDefiSdk sdk;
   final String assetId;
   final AnalyticsBloc analyticsBloc;
-
-  CoinAddressesBloc(this.sdk, this.assetId, this.analyticsBloc)
-      : super(const CoinAddressesState()) {
+  CoinAddressesBloc(
+    this.sdk,
+    this.assetId,
+    this.analyticsBloc,
+  ) : super(const CoinAddressesState()) {
     on<SubmitCreateAddressEvent>(_onSubmitCreateAddress);
     on<LoadAddressesEvent>(_onLoadAddresses);
     on<UpdateHideZeroBalanceEvent>(_onUpdateHideZeroBalance);

@@ -106,7 +106,7 @@ class _ReceiveDetailsContentState extends State<_ReceiveDetailsContent> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Text(
-            LocaleKeys.sendToAddress.tr(args: [widget.asset.id.name]),
+            LocaleKeys.onlySendToThisAddress.tr(args: [widget.asset.id.name]),
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
           Container(

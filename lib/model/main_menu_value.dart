@@ -13,7 +13,7 @@ enum MainMenuValue {
   support,
   none;
 
-  static MainMenuValue defaultMenu() => MainMenuValue.dex;
+  static MainMenuValue defaultMenu() => MainMenuValue.wallet;
 
   bool isEnabledInCurrentMode({required bool tradingEnabled}) {
     return tradingEnabled || !isDisabledWhenWalletOnly;
