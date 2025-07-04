@@ -54,7 +54,7 @@ class WalletsRepository {
         .toList();
   }
 
-  Future<bool> deleteWallet(
+  Future<void> deleteWallet(
     Wallet wallet, {
     required String password,
   }) async {
@@ -67,7 +67,7 @@ class WalletsRepository {
       final wallets = await _getLegacyWallets();
       wallets.removeWhere((w) => w.id == wallet.id);
       await _legacyWalletStorage.write(allWalletsStorageKey, wallets);
-      return true;
+      return;
     }
 
     try {
@@ -76,7 +76,7 @@ class WalletsRepository {
         password: password,
       );
       _cachedWallets?.removeWhere((w) => w.name == wallet.name);
-      return true;
+      return;
     } catch (e) {
       log('Failed to delete wallet: $e',
               path: 'wallet_bloc => deleteWallet', isError: true)
