@@ -21,6 +21,7 @@ import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
 import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
+import 'package:web_dex/views/wallet/coin_details/receive/trezor_new_address_confirmation.dart';
 
 class CoinAddresses extends StatefulWidget {
   const CoinAddresses({
@@ -38,6 +39,7 @@ class CoinAddresses extends StatefulWidget {
 
 class _CoinAddressesState extends State<CoinAddresses> {
   late CoinAddressesBloc _coinAddressesBloc;
+  bool _dialogOpen = false;
 
   @override
   void didChangeDependencies() {
@@ -57,87 +59,106 @@ class _CoinAddressesState extends State<CoinAddresses> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
-        return BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
-          builder: (context, state) {
-            return SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  Card(
-                    margin: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    color: theme.custom.dexPageTheme.frontPlate,
-                    child: Padding(
-                      padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _Header(
-                            status: state.status,
-                            createAddressStatus: state.createAddressStatus,
-                            hideZeroBalance: state.hideZeroBalance,
-                            cantCreateNewAddressReasons:
-                                state.cantCreateNewAddressReasons,
-                          ),
-                          const SizedBox(height: 12),
-                          ...state.addresses.asMap().entries.map(
-                            (entry) {
-                              final index = entry.key;
-                              final address = entry.value;
-                              if (state.hideZeroBalance &&
-                                  address.balance.spendable == Decimal.zero) {
-                                return const SizedBox();
-                              }
+        return BlocListener<CoinAddressesBloc, CoinAddressesState>(
+          listenWhen: (prev, curr) =>
+              prev.createAddressStatus != curr.createAddressStatus ||
+              prev.newAddressState?.status != curr.newAddressState?.status,
+          listener: (context, blocState) async {
+            if (blocState.createAddressStatus == FormStatus.submitting &&
+                !_dialogOpen) {
+              _dialogOpen = true;
+              await showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const _NewAddressDialog(),
+              );
+              _dialogOpen = false;
+            }
+          },
+          child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
+            builder: (context, state) {
+              return SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Card(
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      color: theme.custom.dexPageTheme.frontPlate,
+                      child: Padding(
+                        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _Header(
+                              status: state.status,
+                              createAddressStatus: state.createAddressStatus,
+                              hideZeroBalance: state.hideZeroBalance,
+                              cantCreateNewAddressReasons:
+                                  state.cantCreateNewAddressReasons,
+                            ),
+                            const SizedBox(height: 12),
+                            ...state.addresses.asMap().entries.map(
+                              (entry) {
+                                final index = entry.key;
+                                final address = entry.value;
+                                if (state.hideZeroBalance &&
+                                    address.balance.spendable == Decimal.zero) {
+                                  return const SizedBox();
+                                }
 
-                              return AddressCard(
-                                address: address,
-                                index: index,
-                                coin: widget.coin,
-                                setPageType: widget.setPageType,
-                              );
-                            },
-                          ),
-                          if (state.status == FormStatus.submitting)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20.0),
-                              child: Center(child: CircularProgressIndicator()),
+                                return AddressCard(
+                                  address: address,
+                                  index: index,
+                                  coin: widget.coin,
+                                  setPageType: widget.setPageType,
+                                );
+                              },
                             ),
-                          if (state.status == FormStatus.submitting)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20.0),
-                              child: Center(child: CircularProgressIndicator()),
-                            ),
-                          if (state.status == FormStatus.failure ||
-                              state.createAddressStatus == FormStatus.failure)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 20.0),
-                              child: Center(
-                                child: ErrorDisplay(
-                                  message: LocaleKeys.somethingWrong.tr(),
-                                  detailedMessage: state.errorMessage,
+                            if (state.status == FormStatus.submitting)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 20.0),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              ),
+                            if (state.status == FormStatus.submitting)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 20.0),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              ),
+                            if (state.status == FormStatus.failure ||
+                                state.createAddressStatus == FormStatus.failure)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20.0),
+                                child: Center(
+                                  child: ErrorDisplay(
+                                    message: LocaleKeys.somethingWrong.tr(),
+                                    detailedMessage: state.errorMessage,
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  if (isMobile)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: CreateButton(
-                        status: state.status,
-                        createAddressStatus: state.createAddressStatus,
-                        cantCreateNewAddressReasons:
-                            state.cantCreateNewAddressReasons,
+                    if (isMobile)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: CreateButton(
+                          status: state.status,
+                          createAddressStatus: state.createAddressStatus,
+                          cantCreateNewAddressReasons:
+                              state.cantCreateNewAddressReasons,
+                        ),
                       ),
-                    ),
-                ],
-              ),
-            );
-          },
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -747,6 +768,54 @@ class QrCode extends StatelessWidget {
           child: CoinIcon(coinAbbr, size: 40),
         ),
       ],
+    );
+  }
+}
+
+class _NewAddressDialog extends StatelessWidget {
+  const _NewAddressDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<CoinAddressesBloc, CoinAddressesState>(
+      listenWhen: (prev, curr) =>
+          prev.newAddressState?.status != curr.newAddressState?.status,
+      listener: (context, state) {
+        final status = state.newAddressState?.status;
+        if (status == NewAddressStatus.completed ||
+            status == NewAddressStatus.error ||
+            status == NewAddressStatus.cancelled) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
+        builder: (context, state) {
+          final newState = state.newAddressState;
+          final showAddress =
+              newState?.status == NewAddressStatus.confirmAddress;
+          final message = newState?.message ?? newState?.status.name ?? '';
+
+          return AlertDialog(
+            title: Text(LocaleKeys.creating.tr()),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showAddress)
+                  TrezorNewAddressConfirmation(
+                      address: newState?.expectedAddress ?? '')
+                else
+                  const SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(),
+                  ),
+                const SizedBox(height: 16),
+                Text(message, textAlign: TextAlign.center),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

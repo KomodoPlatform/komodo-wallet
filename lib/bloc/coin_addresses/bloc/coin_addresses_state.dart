@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_types/src/public_key/new_address_state.dart';
 
 enum FormStatus { initial, submitting, success, failure }
 
@@ -10,6 +11,7 @@ class CoinAddressesState extends Equatable {
   final List<PubkeyInfo> addresses;
   final bool hideZeroBalance;
   final Set<CantCreateNewAddressReason>? cantCreateNewAddressReasons;
+  final NewAddressState? newAddressState;
 
   const CoinAddressesState({
     this.status = FormStatus.initial,
@@ -18,6 +20,7 @@ class CoinAddressesState extends Equatable {
     this.addresses = const [],
     this.hideZeroBalance = false,
     this.cantCreateNewAddressReasons,
+    this.newAddressState,
   });
 
   CoinAddressesState copyWith({
@@ -27,6 +30,7 @@ class CoinAddressesState extends Equatable {
     List<PubkeyInfo> Function()? addresses,
     bool Function()? hideZeroBalance,
     Set<CantCreateNewAddressReason>? Function()? cantCreateNewAddressReasons,
+    NewAddressState? Function()? newAddressState,
   }) {
     return CoinAddressesState(
       status: status == null ? this.status : status(),
@@ -40,6 +44,8 @@ class CoinAddressesState extends Equatable {
       cantCreateNewAddressReasons: cantCreateNewAddressReasons == null
           ? this.cantCreateNewAddressReasons
           : cantCreateNewAddressReasons(),
+      newAddressState:
+          newAddressState == null ? this.newAddressState : newAddressState(),
     );
   }
 
@@ -50,6 +56,7 @@ class CoinAddressesState extends Equatable {
     List<PubkeyInfo> Function()? addresses,
     bool Function()? hideZeroBalance,
     Set<CantCreateNewAddressReason>? Function()? cantCreateNewAddressReasons,
+    NewAddressState? Function()? newAddressState,
   }) {
     return CoinAddressesState(
       status: status == null ? FormStatus.initial : status(),
@@ -62,6 +69,7 @@ class CoinAddressesState extends Equatable {
       cantCreateNewAddressReasons: cantCreateNewAddressReasons == null
           ? null
           : cantCreateNewAddressReasons(),
+      newAddressState: newAddressState == null ? null : newAddressState(),
     );
   }
 
@@ -73,5 +81,6 @@ class CoinAddressesState extends Equatable {
         addresses,
         hideZeroBalance,
         cantCreateNewAddressReasons,
+        newAddressState,
       ];
 }
