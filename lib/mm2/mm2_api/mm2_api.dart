@@ -19,6 +19,8 @@ import 'package:web_dex/mm2/mm2_api/rpc/import_swaps/import_swaps_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/import_swaps/import_swaps_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/kmd_rewards_info/kmd_rewards_info_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/market_maker_bot_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/max_maker_vol/max_maker_vol_req.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/max_maker_vol/max_maker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
@@ -440,6 +442,50 @@ class Mm2Api {
       ).ignore();
       return _fallbackToBalanceTaker(request.coin);
     }
+  }
+
+  Future<MaxMakerVolResponse?> getMaxMakerVolume(
+    MaxMakerVolRequest request,
+  ) async {
+    try {
+      final JsonMap json = await _mm2.call(request);
+      if (json['error'] != null) {
+        return await _fallbackToBalanceMaker(request.coin);
+      }
+      return MaxMakerVolResponse.fromJson(json);
+    } catch (e, s) {
+      log(
+        'Error getting max maker volume ${request.coin}: $e',
+        path: 'api => getMaxMakerVolume',
+        trace: s,
+        isError: true,
+      ).ignore();
+      return null;
+    }
+  }
+
+  Future<MaxMakerVolResponse?> _fallbackToBalanceMaker(String coinAbbr) async {
+    final balance = await getBalance(coinAbbr);
+    if (balance == null) {
+      log(
+        'Failed to retrieve balance for fallback construction of MaxMakerVolResponse for $coinAbbr',
+        path: 'api => _fallbackToBalanceMaker',
+        isError: true,
+      ).ignore();
+      return null;
+    }
+    final rational = Rational.parse(balance);
+    final result = MaxMakerVolResponseValue(
+      decimal: rational.toString(),
+      numer: rational.numerator.toString(),
+      denom: rational.denominator.toString(),
+    );
+
+    return MaxMakerVolResponse(
+      coin: coinAbbr,
+      volume: result,
+      balance: result,
+    );
   }
 
   Future<MinTradingVolResponse?> getMinTradingVol(
