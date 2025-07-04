@@ -40,7 +40,10 @@ class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   }
 
   BaseRouteParser _getRoutParser(Uri uri) {
-    final defaultRouteParser = dexRouteParser;
+    final defaultRouteParser =
+        dexRouteParser.handlesDeepLinkParameters(uri.queryParameters.keys)
+            ? dexRouteParser
+            : WalletRouteParser(coinsBloc);
 
     if (uri.pathSegments.isEmpty) return defaultRouteParser;
     return _parsers[uri.pathSegments.first] ?? defaultRouteParser;
