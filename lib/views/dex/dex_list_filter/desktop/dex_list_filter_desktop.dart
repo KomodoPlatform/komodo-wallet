@@ -2,6 +2,8 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
@@ -189,7 +191,9 @@ class _DexListFilterDesktopState extends State<DexListFilterDesktop> {
               child: Theme(
                 data: Theme.of(context).brightness == Brightness.light
                     ? newThemeLight
-                    : newThemeDark,
+                    : context.watch<SettingsBloc>().state.ultraDark
+                        ? newThemeUltraDark
+                        : newThemeDark,
                 child: Builder(
                   builder: (context) {
                     final ext =

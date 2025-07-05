@@ -346,6 +346,9 @@ class _MyAppViewState extends State<_MyAppView> {
 
     unawaited(_hideAppLoader());
 
+    // Attempt to restore previously authenticated session
+    context.read<AuthBloc>().add(const AuthStateRestoreRequested());
+
     if (kDebugMode) {
       final walletsRepo = RepositoryProvider.of<WalletsRepository>(context);
       final authBloc = context.read<AuthBloc>();
@@ -361,7 +364,9 @@ class _MyAppViewState extends State<_MyAppView> {
       onGenerateTitle: (_) => appTitle,
       themeMode: context
           .select((SettingsBloc settingsBloc) => settingsBloc.state.themeMode),
-      darkTheme: theme.global.dark,
+      darkTheme: context.watch<SettingsBloc>().state.ultraDark
+          ? theme.global.ultraDark
+          : theme.global.dark,
       theme: theme.global.light,
       routerDelegate: _routerDelegate,
       locale: context.locale,

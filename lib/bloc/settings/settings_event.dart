@@ -14,6 +14,11 @@ class ThemeModeChanged extends SettingsEvent {
   final ThemeMode mode;
 }
 
+class UltraDarkChanged extends SettingsEvent {
+  const UltraDarkChanged({required this.enabled});
+  final bool enabled;
+}
+
 class TestCoinsEnabledChanged extends SettingsEvent {
   const TestCoinsEnabledChanged({required this.testCoinsEnabled});
   final bool testCoinsEnabled;

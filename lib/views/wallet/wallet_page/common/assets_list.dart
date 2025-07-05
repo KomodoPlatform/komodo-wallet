@@ -11,6 +11,7 @@ class AssetsList extends StatelessWidget {
     super.key,
     required this.assets,
     required this.onAssetItemTap,
+    this.onStatisticsTap,
     this.withBalance = false,
     this.searchPhrase = '',
     this.useGroupedView = false,
@@ -19,6 +20,7 @@ class AssetsList extends StatelessWidget {
 
   final List<AssetId> assets;
   final Function(AssetId) onAssetItemTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
   final bool withBalance;
   final String searchPhrase;
   final bool useGroupedView;
@@ -47,6 +49,7 @@ class AssetsList extends StatelessWidget {
             assetId: asset,
             backgroundColor: backgroundColor,
             onTap: onAssetItemTap,
+            onStatisticsTap: onStatisticsTap,
             priceChangePercentage24h: priceChangePercentages[asset.id],
           );
         },
@@ -71,6 +74,7 @@ class AssetsList extends StatelessWidget {
           assets: group.value,
           backgroundColor: backgroundColor,
           onTap: onAssetItemTap,
+          onStatisticsTap: onStatisticsTap,
         );
       },
       separatorBuilder: (BuildContext context, int index) {

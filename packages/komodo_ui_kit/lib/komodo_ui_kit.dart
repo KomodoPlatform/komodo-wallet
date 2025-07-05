@@ -16,6 +16,7 @@ export 'src/buttons/ui_action_text_button.dart';
 export 'src/buttons/ui_border_button.dart';
 export 'src/buttons/ui_checkbox.dart';
 export 'src/buttons/ui_dropdown.dart';
+export 'src/buttons/ui_gradient_button.dart';
 export 'src/buttons/ui_primary_button.dart';
 export 'src/buttons/ui_secondary_button.dart';
 export 'src/buttons/ui_simple_button.dart';
@@ -34,6 +35,7 @@ export 'src/controls/selected_coin_graph_control.dart'; // New control widget
 export 'src/custom_icons/custom_icons.dart';
 // Display
 // Widgets primarily focused on displaying data and information.
+export 'src/display/auto_scroll_text.dart';
 export 'src/display/statistic_card.dart';
 // Dividers
 // Widgets for dividing content or adding scrollbars.

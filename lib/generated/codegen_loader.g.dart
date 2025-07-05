@@ -276,6 +276,7 @@ abstract class  LocaleKeys {
   static const darkMode = 'darkMode';
   static const light = 'light';
   static const lightMode = 'lightMode';
+  static const ultraDark = 'ultraDark';
   static const defaultText = 'defaultText';
   static const clear = 'clear';
   static const remove = 'remove';

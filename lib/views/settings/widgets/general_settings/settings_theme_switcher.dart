@@ -21,21 +21,28 @@ class SettingsThemeSwitcher extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18.0),
             color: Theme.of(context).colorScheme.onSurface),
-        child: const Row(
+        child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              const Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(right: 6.0),
                   child: _SettingsModeSelector(mode: ThemeMode.light),
                 ),
               ),
-              SizedBox(width: 10),
-              Expanded(
+              const SizedBox(width: 10),
+              const Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(right: 6.0),
                   child: _SettingsModeSelector(mode: ThemeMode.dark),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 6.0),
+                  child: _UltraDarkSelector(),
                 ),
               ),
             ]),
@@ -157,5 +164,76 @@ class _SettingsModeSelector extends StatelessWidget {
       case ThemeMode.system:
         return const Color.fromRGBO(0, 0, 0, 0);
     }
+  }
+}
+
+class _UltraDarkSelector extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final bool isSelected =
+        context.select((SettingsBloc bloc) => bloc.state.ultraDark);
+    const double size = 16.0;
+    const Color backgroundColor = Colors.black;
+    return InkWell(
+      onTap: () =>
+          context.read<SettingsBloc>().add(UltraDarkChanged(enabled: !isSelected)),
+      mouseCursor: SystemMouseCursors.click,
+      child: Container(
+        key: const Key('theme-settings-switcher-ultra'),
+        height: 60,
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(18.0)),
+          color: backgroundColor,
+          image: DecorationImage(
+            filterQuality: FilterQuality.high,
+            image: AssetImage('$assetsPath/logo/dark_theme.png'),
+            alignment: Alignment.centerRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            children: [
+              Container(
+                width: size,
+                height: size,
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: backgroundColor,
+                  ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : theme.custom.noColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 2),
+                  child: Text(
+                    LocaleKeys.ultraDark.tr(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(fontSize: 14, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
