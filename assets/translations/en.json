@@ -296,6 +296,7 @@
     "feedbackFormThanksDescription": "We will send a response to your email address as soon as possible",
     "email": "Email",
     "emailValidatorError": "Please enter a valid email address",
+    "contactRequiredError": "Contact details are required for support requests",
     "feedbackValidatorEmptyError": "Please enter your feedback",
     "feedbackValidatorMaxLengthError": "Please limit your feedback to {} characters or less",
     "yourFeedback": "Your feedback",
