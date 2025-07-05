@@ -123,6 +123,8 @@ abstract class  LocaleKeys {
   static const walletCreationEmptySeedError = 'walletCreationEmptySeedError';
   static const walletCreationExistNameError = 'walletCreationExistNameError';
   static const walletCreationNameLengthError = 'walletCreationNameLengthError';
+  static const walletCreationNameCharactersError =
+      'walletCreationNameCharactersError';
   static const walletCreationFormatPasswordError = 'walletCreationFormatPasswordError';
   static const walletCreationConfirmPasswordError = 'walletCreationConfirmPasswordError';
   static const incorrectPassword = 'incorrectPassword';
