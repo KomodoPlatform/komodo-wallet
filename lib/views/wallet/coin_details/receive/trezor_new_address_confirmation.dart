@@ -1,25 +1,40 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:qr_flutter/qr_flutter.dart'
+    show QrErrorCorrectLevel, QrImageView;
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class TrezorNewAddressConfirmation extends StatelessWidget {
-  const TrezorNewAddressConfirmation({super.key, required this.address});
+  const TrezorNewAddressConfirmation({
+    required this.address,
+    this.maxWidth = 300,
+    super.key,
+  });
+
   final String address;
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final themeData = Theme.of(context);
     return Column(
       children: [
         Text(
           LocaleKeys.confirmOnTrezor.tr(),
-          style: theme.textTheme.titleLarge,
+          style: themeData.textTheme.titleLarge,
         ),
         const SizedBox(height: 24),
-        QRCodeAddress(currentAddress: address, size: 160),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: QrImageView(
+            data: address,
+            backgroundColor: Theme.of(context).textTheme.bodyMedium!.color!,
+            size: 200.0,
+            errorCorrectionLevel: QrErrorCorrectLevel.H,
+          ),
+        ),
         const SizedBox(height: 24),
         UiTextFormField(
           readOnly: true,
@@ -28,7 +43,7 @@ class TrezorNewAddressConfirmation extends StatelessWidget {
           suffixIcon: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 20, maxHeight: 20),
             child: IconButton(
-              padding: const EdgeInsets.all(0.0),
+              padding: EdgeInsets.zero,
               hoverColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onPressed: () => copyToClipBoard(context, address),

@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:komodo_defi_types/src/public_key/new_address_state.dart';
 
 enum FormStatus { initial, submitting, success, failure }
 
