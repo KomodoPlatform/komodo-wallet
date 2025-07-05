@@ -51,13 +51,31 @@ class PortfolioGrowthBloc
     PortfolioGrowthPeriodChanged event,
     Emitter<PortfolioGrowthState> emit,
   ) {
-    if (state is! PortfolioGrowthChartLoadSuccess) {
+    final currentState = state;
+    if (currentState is PortfolioGrowthChartLoadSuccess) {
+      emit(
+        PortfolioGrowthChartLoadSuccess(
+          portfolioGrowth: currentState.portfolioGrowth,
+          percentageIncrease: currentState.percentageIncrease,
+          selectedPeriod: event.selectedPeriod,
+          totalBalance: currentState.totalBalance,
+          totalChange24h: currentState.totalChange24h,
+          percentageChange24h: currentState.percentageChange24h,
+        ),
+      );
+    } else if (currentState is GrowthChartLoadFailure) {
       emit(
         GrowthChartLoadFailure(
-          error: (state as GrowthChartLoadFailure).error,
+          error: currentState.error,
           selectedPeriod: event.selectedPeriod,
         ),
       );
+    } else if (currentState is PortfolioGrowthChartUnsupported) {
+      emit(
+        PortfolioGrowthChartUnsupported(selectedPeriod: event.selectedPeriod),
+      );
+    } else {
+      emit(const PortfolioGrowthInitial());
     }
 
     add(
@@ -85,9 +103,11 @@ class PortfolioGrowthBloc
         );
       }
 
-      await _loadChart(coins, event, useCache: true)
-          .then(emit.call)
-          .catchError((Object error, StackTrace stackTrace) {
+      await _loadChart(
+        coins,
+        event,
+        useCache: true,
+      ).then(emit.call).catchError((Object error, StackTrace stackTrace) {
         const errorMessage = 'Failed to load cached chart';
         _log.warning(errorMessage, error, stackTrace);
         // ignore cached errors, as the periodic refresh attempts should recover
@@ -103,9 +123,11 @@ class PortfolioGrowthBloc
       // cached chart, as the cached chart may contain inactive coins.
       final activeCoins = await _removeInactiveCoins(coins);
       if (activeCoins.isNotEmpty) {
-        await _loadChart(activeCoins, event, useCache: false)
-            .then(emit.call)
-            .catchError((Object error, StackTrace stackTrace) {
+        await _loadChart(
+          activeCoins,
+          event,
+          useCache: false,
+        ).then(emit.call).catchError((Object error, StackTrace stackTrace) {
           _log.shout('Failed to load chart', error, stackTrace);
           // Don't emit an error state here. If cached and uncached attempts
           // both fail, the periodic refresh attempts should recovery
@@ -260,18 +282,16 @@ class PortfolioGrowthBloc
   double _calculateTotalChange24h(List<Coin> coins) {
     // Calculate the 24h change by summing the change percentage of each coin
     // multiplied by its USD balance and divided by 100 (to convert percentage to decimal)
-    return coins.fold(
-      0.0,
-      (sum, coin) {
-        // Use the price change from the CexPrice if available
-        final usdBalance = coin.lastKnownUsdBalance(sdk) ?? 0.0;
-        // Get the coin price from the repository's prices cache
-        final price = portfolioGrowthRepository
-            .getCachedPrice(coin.id.symbol.configSymbol.toUpperCase());
-        final change24h = price?.change24h ?? 0.0;
-        return sum + (change24h * usdBalance / 100);
-      },
-    );
+    return coins.fold(0.0, (sum, coin) {
+      // Use the price change from the CexPrice if available
+      final usdBalance = coin.lastKnownUsdBalance(sdk) ?? 0.0;
+      // Get the coin price from the repository's prices cache
+      final price = portfolioGrowthRepository.getCachedPrice(
+        coin.id.symbol.configSymbol.toUpperCase(),
+      );
+      final change24h = price?.change24h ?? 0.0;
+      return sum + (change24h * usdBalance / 100);
+    });
   }
 
   /// Calculate the percentage change over 24h for the entire portfolio
