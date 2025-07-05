@@ -6,6 +6,8 @@ import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -46,15 +48,11 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
     return BlocBuilder<ProfitLossBloc, ProfitLossState>(
       builder: (BuildContext context, ProfitLossState state) {
         if (state is ProfitLossLoadFailure) {
-          return Center(
-            child: Text(state.error.message),
-          );
+          return Center(child: Text(state.error.message));
         }
 
         final (dateAxisLabelCount, dateAxisLabelFormat) =
-            PriceChartPage.dateAxisLabelCountFormat(
-          state.selectedPeriod,
-        );
+            PriceChartPage.dateAxisLabelCountFormat(state.selectedPeriod);
         final minChartExtent = DateTime.now()
             .subtract(state.selectedPeriod)
             .millisecondsSinceEpoch
@@ -64,8 +62,8 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
         final isSuccess = state is PortfolioProfitLossChartLoadSuccess;
         final List<ChartData> chartData = isSuccess
             ? state.profitLossChart
-                .map((point) => ChartData(x: point.x.toDouble(), y: point.y))
-                .toList()
+                  .map((point) => ChartData(x: point.x.toDouble(), y: point.y))
+                  .toList()
             : List.empty();
 
         if (chartData.isNotEmpty) {
@@ -74,11 +72,9 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
 
         final totalValue = isSuccess ? state.totalValue : 0.0;
         final percentageIncrease = isSuccess ? state.percentageIncrease : 0.0;
+        final fiat = context.read<SettingsBloc>().state.fiatCurrency;
         final formattedValue =
-            '${totalValue >= 0 ? '+' : '-'}${NumberFormat.currency(
-          symbol: '\$',
-          decimalDigits: 2,
-        ).format(totalValue)}';
+            '${totalValue >= 0 ? '+' : '-'}${NumberFormat.currency(symbol: getCurrencySymbol(fiat), decimalDigits: 2).format(totalValue)}';
 
         return Card(
           clipBehavior: Clip.antiAlias,
@@ -98,14 +94,12 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
                   ),
                   leadingIcon: _singleCoinOrNull == null
                       ? null
-                      : AssetIcon(
-                          _singleCoinOrNull!.id,
-                          size: 24,
-                        ),
+                      : AssetIcon(_singleCoinOrNull!.id, size: 24),
                   leadingText: Text(formattedValue),
                   emptySelectAllowed: !_isCoinPage,
-                  availableCoins:
-                      widget.initialCoins.map((coin) => coin.id).toList(),
+                  availableCoins: widget.initialCoins
+                      .map((coin) => coin.id)
+                      .toList(),
                   selectedCoinId: _singleCoinOrNull?.abbr,
                   onCoinSelected: _isCoinPage ? null : _showSpecificCoin,
                   centreAmount: totalValue,
@@ -114,10 +108,10 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
                   onPeriodChanged: (selected) {
                     if (selected != null) {
                       context.read<ProfitLossBloc>().add(
-                            ProfitLossPortfolioPeriodChanged(
-                              selectedPeriod: selected,
-                            ),
-                          );
+                        ProfitLossPortfolioPeriodChanged(
+                          selectedPeriod: selected,
+                        ),
+                      );
                     }
                   },
                 ),
@@ -129,30 +123,27 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
                     elements: [
                       ChartDataSeries(
                         data: chartData,
-                        color: (_isSingleCoinSelected
+                        color:
+                            (_isSingleCoinSelected
                                 ? getCoinColor(_singleCoinOrNull!.abbr)
                                 : null) ??
                             Theme.of(context).colorScheme.primary,
                       ),
-                      ChartGridLines(
-                        isVertical: false,
-                        count: 5,
-                      ),
+                      ChartGridLines(isVertical: false, count: 5),
                       ChartAxisLabels(
                         isVertical: true,
                         count: 5,
                         labelBuilder: (value) =>
-                            NumberFormat.compactSimpleCurrency(locale: 'en_US')
-                                .format(value),
+                            NumberFormat.compactSimpleCurrency(
+                              locale: 'en_US',
+                            ).format(value),
                       ),
                       ChartAxisLabels(
                         isVertical: false,
                         count: dateAxisLabelCount,
                         labelBuilder: (value) {
                           return dateAxisLabelFormat.format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                              value.toInt(),
-                            ),
+                            DateTime.fromMillisecondsSinceEpoch(value.toInt()),
                           );
                         },
                       ),
@@ -199,13 +190,13 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
     final newCoins = coin == null ? widget.initialCoins : [coin];
 
     context.read<ProfitLossBloc>().add(
-          ProfitLossPortfolioChartLoadRequested(
-            coins: newCoins,
-            fiatCoinId: 'USDT',
-            selectedPeriod: context.read<ProfitLossBloc>().state.selectedPeriod,
-            walletId: walletId!,
-          ),
-        );
+      ProfitLossPortfolioChartLoadRequested(
+        coins: newCoins,
+        fiatCoinId: 'USDT',
+        selectedPeriod: context.read<ProfitLossBloc>().state.selectedPeriod,
+        walletId: walletId!,
+      ),
+    );
 
     setState(() => _selectedCoins = newCoins);
   }
@@ -236,13 +227,13 @@ class _PortfolioProfitLossTooltip extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '$adjective${NumberFormat.currency(symbol: '\$', decimalDigits: 2).format(portfolioValue.abs())}',
+            '$adjective${NumberFormat.currency(symbol: getCurrencySymbol(context.read<SettingsBloc>().state.fiatCurrency), decimalDigits: 2).format(portfolioValue.abs())}',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: portfolioValue > 0
-                      ? Colors.green
-                      : Theme.of(context).colorScheme.error,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: portfolioValue > 0
+                  ? Colors.green
+                  : Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

@@ -12,6 +12,7 @@ import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_
 import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_weak_passwords.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_reset_activated_coins.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_theme_switcher.dart';
+import 'package:web_dex/views/settings/widgets/general_settings/settings_currency_switcher.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/show_swap_data.dart';
 
 class GeneralSettings extends StatelessWidget {
@@ -26,6 +27,8 @@ class GeneralSettings extends StatelessWidget {
         if (isMobile) const SizedBox(height: 20),
         const SettingsThemeSwitcher(),
         const SizedBox(height: 25),
+        const SettingsCurrencySwitcher(),
+        const SizedBox(height: 25),
         const SettingsManageAnalytics(),
         const SizedBox(height: 25),
         const SettingsManageTestCoins(),
@@ -33,24 +36,14 @@ class GeneralSettings extends StatelessWidget {
         const SettingsManageWeakPasswords(),
         const SizedBox(height: 25),
         if (context.watch<TradingStatusBloc>().state is TradingEnabled)
-          const HiddenWithoutWallet(
-            child: SettingsManageTradingBot(),
-          ),
+          const HiddenWithoutWallet(child: SettingsManageTradingBot()),
         const SizedBox(height: 25),
         const SettingsDownloadLogs(),
         const SizedBox(height: 25),
-        const HiddenWithWallet(
-          child: SettingsResetActivatedCoins(),
-        ),
+        const HiddenWithWallet(child: SettingsResetActivatedCoins()),
         const SizedBox(height: 25),
-        const HiddenWithoutWallet(
-          isHiddenForHw: true,
-          child: ShowSwapData(),
-        ),
-        const HiddenWithoutWallet(
-          isHiddenForHw: true,
-          child: ImportSwaps(),
-        ),
+        const HiddenWithoutWallet(isHiddenForHw: true, child: ShowSwapData()),
+        const HiddenWithoutWallet(isHiddenForHw: true, child: ImportSwaps()),
       ],
     );
   }

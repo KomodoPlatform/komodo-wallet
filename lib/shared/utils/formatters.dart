@@ -3,11 +3,14 @@ import 'dart:math' as math;
 import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 
 final List<TextInputFormatter> currencyInputFormatters = [
   DecimalTextInputFormatter(decimalRange: decimalRange),
@@ -54,9 +57,9 @@ String durationFormat(
 /// unit test: [testNumberWithoutExponent]
 String getNumberWithoutExponent(String value) {
   try {
-    return Rational.parse(value)
-        .toDecimal(scaleOnInfinitePrecision: 10)
-        .toString();
+    return Rational.parse(
+      value,
+    ).toDecimal(scaleOnInfinitePrecision: 10).toString();
   } catch (_) {
     return value;
   }
@@ -128,10 +131,7 @@ class DecimalTextInputFormatter extends TextInputFormatter {
       );
     }
 
-    return TextEditingValue(
-      text: truncated,
-      selection: newSelection,
-    );
+    return TextEditingValue(text: truncated, selection: newSelection);
   }
 }
 
@@ -145,8 +145,10 @@ String getFormattedDate(int timestamp, [bool isUtc = false]) {
       timestampMilliseconds > _maxTimestampMillisecond) {
     return 'Date is out of the range';
   }
-  final dateTime =
-      DateTime.fromMillisecondsSinceEpoch(timestampMilliseconds, isUtc: isUtc);
+  final dateTime = DateTime.fromMillisecondsSinceEpoch(
+    timestampMilliseconds,
+    isUtc: isUtc,
+  );
   if (dateTime.year < 0) {
     return '${DateFormat('dd MMM yyyy, HH:mm', 'en_US').format(dateTime)} BC';
   }
@@ -308,9 +310,11 @@ void formatAmountInput(TextEditingController controller, Rational? value) {
 
   final newText = value == null
       ? ''
-      : cutTrailingZeros(value
-          .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision)
-          .toStringAsFixed(8));
+      : cutTrailingZeros(
+          value
+              .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision)
+              .toStringAsFixed(8),
+        );
   controller.value = TextEditingValue(
     text: newText,
     selection: TextSelection.collapsed(offset: newText.length),
@@ -367,4 +371,25 @@ String formatTransactionDateTime(Transaction tx) {
 String formatUsdValue(double? value) {
   if (value == null) return '\$0.00';
   return '\$${formatAmt(value)}';
+}
+
+String getCurrencySymbol(String fiatCurrency) {
+  switch (fiatCurrency.toLowerCase()) {
+    case 'eur':
+      return '€';
+    case 'usd':
+    case 'usdt':
+      return '\$';
+    case 'btc':
+      return '₿';
+    default:
+      return fiatCurrency.toUpperCase();
+  }
+}
+
+String formatFiatValue(BuildContext context, double? value) {
+  final fiat = context.select((SettingsBloc bloc) => bloc.state.fiatCurrency);
+  final symbol = getCurrencySymbol(fiat);
+  if (value == null) return NumberFormat.currency(symbol: symbol).format(0);
+  return NumberFormat.currency(symbol: symbol).format(value);
 }
