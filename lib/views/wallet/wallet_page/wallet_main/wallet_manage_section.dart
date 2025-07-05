@@ -91,8 +91,6 @@ class WalletManageSection extends StatelessWidget {
   }
 
   Widget _buildMobileSection(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
@@ -106,7 +104,7 @@ class WalletManageSection extends StatelessWidget {
               ),
             ],
           ),
-          // Collapsible row with "Add assets" button and zero-balance toggle
+          // Collapsible row with zero-balance toggle
           // Only show if authenticated (since HiddenWithoutWallet hides content when not authenticated)
           if (isAuthenticated && collapseProgress < 1.0) ...[
             SizedBox(height: (1.0 - collapseProgress) * 12),
@@ -119,16 +117,6 @@ class WalletManageSection extends StatelessWidget {
                     CoinsWithBalanceCheckbox(
                       withBalance: withBalance,
                       onWithBalanceChange: onWithBalanceChange,
-                    ),
-                    const Spacer(),
-                    UiPrimaryButton(
-                      buttonKey: const Key('add-assets-button'),
-                      onPressed: () => _onAddAssetsPress(context),
-                      text: LocaleKeys.addAssets.tr(),
-                      height: 36,
-                      width: 147,
-                      borderRadius: 10,
-                      textStyle: theme.textTheme.bodySmall,
                     ),
                   ],
                 ),

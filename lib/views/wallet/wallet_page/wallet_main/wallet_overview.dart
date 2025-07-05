@@ -5,7 +5,6 @@ import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
-import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
@@ -14,6 +13,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/views/wallet/wallet_page/wallet_main/balance_summary_widget.dart';
 
 // TODO(@takenagain): Please clean up the widget structure and bloc usage for
 // the wallet overview. It may be better to split this into a separate bloc
@@ -25,6 +25,7 @@ import 'package:web_dex/shared/utils/utils.dart';
 // - 24h Change: Uses PortfolioGrowthBloc.percentageChange24h and totalChange24h
 // - All-time Investment: Uses AssetOverviewBloc.totalInvestment
 // - All-time Profit: Uses AssetOverviewBloc.profitAmount and profitIncreasePercentage
+
 class WalletOverview extends StatefulWidget {
   const WalletOverview({
     super.key,
@@ -80,36 +81,65 @@ class _WalletOverviewState extends State<WalletOverview> {
           _logged = true;
         }
 
-        // Create the statistic cards
+        // Create the statistic cards - replace first card with BalanceSummaryWidget for mobile
         final List<Widget> statisticCards = [
-          StatisticCard(
-            key: const Key('overview-current-value'),
-            caption: Text(LocaleKeys.yourBalance.tr()),
-            value: totalBalance,
-            onPressed: () {
-              final formattedValue =
-                  NumberFormat.currency(symbol: '\$').format(totalBalance);
-              copyToClipBoard(context, formattedValue);
-            },
-            trendWidget: BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
+          // For mobile, use BalanceSummaryWidget; for desktop, use StatisticCard
+          if (isMobile) ...[
+            // Get 24h change data from the PortfolioGrowthBloc
+            BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
               builder: (context, state) {
-                final double totalChange =
-                    state is PortfolioGrowthChartLoadSuccess
-                        ? state.percentageChange24h
-                        : 0.0;
                 final double totalChange24h =
                     state is PortfolioGrowthChartLoadSuccess
                         ? state.totalChange24h
                         : 0.0;
+                final double percentageChange24h =
+                    state is PortfolioGrowthChartLoadSuccess
+                        ? state.percentageChange24h
+                        : 0.0;
 
-                return TrendPercentageText(
-                  percentage: totalChange,
-                  value: totalChange24h,
-                  valueFormatter: NumberFormat.currency(symbol: '\$').format,
+                return BalanceSummaryWidget(
+                  totalBalance: totalBalance,
+                  changeAmount: totalChange24h,
+                  changePercentage: percentageChange24h,
+                  onTap: () {
+                    final formattedValue = NumberFormat.currency(symbol: '\$')
+                        .format(totalBalance);
+                    copyToClipBoard(context, formattedValue);
+                  },
                 );
               },
             ),
-          ),
+          ] else ...[
+            StatisticCard(
+              key: const Key('overview-current-value'),
+              caption: Text(LocaleKeys.yourBalance.tr()),
+              value: totalBalance,
+              onPressed: () {
+                final formattedValue =
+                    NumberFormat.currency(symbol: '\$').format(totalBalance);
+                copyToClipBoard(context, formattedValue);
+              },
+              trendWidget:
+                  BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
+                builder: (context, state) {
+                  final double totalChange =
+                      state is PortfolioGrowthChartLoadSuccess
+                          ? state.percentageChange24h
+                          : 0.0;
+                  final double totalChange24h =
+                      state is PortfolioGrowthChartLoadSuccess
+                          ? state.totalChange24h
+                          : 0.0;
+
+                  return TrendPercentageText(
+                    percentage: totalChange,
+                    value: totalChange24h,
+                    valueFormatter: NumberFormat.currency(symbol: '\$').format,
+                  );
+                },
+              ),
+            ),
+          ],
           StatisticCard(
             key: const Key('overview-all-time-investment'),
             caption: Text(LocaleKeys.allTimeInvestment.tr()),
@@ -232,6 +262,7 @@ class _StatisticsCarouselState extends State<StatisticsCarousel> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
           height: 160,

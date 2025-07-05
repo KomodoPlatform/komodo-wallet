@@ -16,6 +16,7 @@ export 'src/buttons/ui_action_text_button.dart';
 export 'src/buttons/ui_border_button.dart';
 export 'src/buttons/ui_checkbox.dart';
 export 'src/buttons/ui_dropdown.dart';
+export 'src/buttons/ui_gradient_button.dart';
 export 'src/buttons/ui_primary_button.dart';
 export 'src/buttons/ui_secondary_button.dart';
 export 'src/buttons/ui_simple_button.dart';

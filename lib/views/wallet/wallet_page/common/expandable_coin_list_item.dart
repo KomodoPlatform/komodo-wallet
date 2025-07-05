@@ -126,62 +126,71 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
   Widget _buildMobileTitle(BuildContext context, ThemeData theme) {
     return Container(
       alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Top row: Asset info and additional info (like BEP-20)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          AssetIcon.ofTicker(
+            widget.coin.abbr,
+            size: 36,
+          ),
+
+          const SizedBox(width: 8),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: CoinItem(coin: widget.coin, size: CoinItemSize.large),
+              // Coin name - using headlineMedium for bold 16px text
+              Text(
+                widget.coin.name,
+                style: theme.textTheme.headlineMedium,
+              ),
+
+              // Crypto balance - using bodySmall for 12px secondary text
+              Text(
+                '${doubleToString(widget.coin.balance(context.sdk) ?? 0)} ${widget.coin.abbr}',
+                style: theme.textTheme.bodySmall,
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          // Bottom row: Balance and 24h change
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+
+          const Spacer(),
+          // Right side: Price and trend info
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Balance',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    CoinBalance(coin: widget.coin),
-                  ],
-                ),
+              // Current balance in USD - using headlineMedium for bold 16px text
+              Text(
+                '\$${widget.coin.lastKnownUsdBalance(context.sdk) != null ? NumberFormat("#,##0.00").format(widget.coin.lastKnownUsdBalance(context.sdk)!) : "0.00"}',
+                style: theme.textTheme.headlineMedium,
               ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '24h %',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  BlocBuilder<CoinsBloc, CoinsState>(
-                    builder: (context, state) {
-                      final change24hPercent =
-                          state.get24hChangeForAsset(widget.coin.id);
-                      return TrendPercentageText(
-                        percentage: change24hPercent ?? 0.0,
-                        iconSize: 16,
-                        spacing: 4,
-                        textStyle: theme.textTheme.bodyMedium,
-                      );
-                    },
-                  ),
-                ],
+              const SizedBox(height: 2),
+
+              // Trend percentage
+              BlocBuilder<CoinsBloc, CoinsState>(
+                builder: (context, state) {
+                  final usdBalance =
+                      widget.coin.lastKnownUsdBalance(context.sdk) ?? 0.0;
+
+                  final change24hPercent = usdBalance == 0.0
+                      ? 0.0
+                      : state.get24hChangeForAsset(widget.coin.id);
+
+                  // Calculate the 24h USD change value
+                  final change24hValue =
+                      change24hPercent != null && usdBalance > 0
+                          ? (change24hPercent * usdBalance / 100)
+                          : 0.0;
+
+                  return TrendPercentageText(
+                    percentage: change24hPercent ?? 0.0,
+                    value: change24hValue,
+                    valueFormatter: (value) =>
+                        NumberFormat.currency(symbol: '\$').format(value),
+                    iconSize: 12,
+                    spacing: 2,
+                    textStyle: theme.textTheme.bodySmall,
+                  );
+                },
               ),
             ],
           ),
