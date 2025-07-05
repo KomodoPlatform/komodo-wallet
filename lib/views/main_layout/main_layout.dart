@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -131,16 +132,23 @@ class MainLayoutFab extends StatelessWidget {
         : null;
 
     final Widget? addAssetsFab = showAddAssetsFab
-        ? FloatingActionButton(
-            heroTag: 'add-assets-fab',
-            onPressed: () {
-              context.read<CoinsManagerBloc>().add(
-                  const CoinsManagerCoinsListReset(CoinsManagerAction.add));
-              routingState.walletState.action =
-                  coinsManagerRouteAction.addAssets;
-            },
-            tooltip: LocaleKeys.addAssets.tr(),
-            child: const Icon(Icons.add),
+        ? Tooltip(
+            message: LocaleKeys.addAssets.tr(),
+            child: SizedBox.square(
+              dimension: isMobile ? 56.0 : 48.0,
+              child: UiGradientButton(
+                onPressed: () {
+                  context.read<CoinsManagerBloc>().add(
+                      const CoinsManagerCoinsListReset(CoinsManagerAction.add));
+                  routingState.walletState.action =
+                      coinsManagerRouteAction.addAssets;
+                },
+                child: const Icon(
+                  Icons.add,
+                  size: 28,
+                ),
+              ),
+            ),
           )
         : null;
 
@@ -155,6 +163,6 @@ class MainLayoutFab extends StatelessWidget {
       );
     }
 
-    return addAssetsFab ?? feedbackFab;
+    return addAssetsFab ?? feedbackFab ?? const SizedBox.shrink();
   }
 }
