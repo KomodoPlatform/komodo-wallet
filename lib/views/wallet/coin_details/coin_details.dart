@@ -7,6 +7,8 @@ import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart'
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_state.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
@@ -14,6 +16,7 @@ import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_claim_success.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_rewards_info.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 class CoinDetails extends StatefulWidget {
   const CoinDetails({
@@ -32,6 +35,9 @@ class CoinDetails extends StatefulWidget {
 class _CoinDetailsState extends State<CoinDetails> {
   late TransactionHistoryBloc _txHistoryBloc;
   CoinPageType _selectedPageType = CoinPageType.info;
+
+  ColorScheme? _colorScheme;
+  bool _loadingScheme = false;
 
   String _rewardValue = '';
   String _formattedUsdPrice = '';
@@ -55,6 +61,34 @@ class _CoinDetailsState extends State<CoinDetails> {
     super.initState();
   }
 
+  Future<void> _loadSchemeIfNeeded(BuildContext context, bool enabled) async {
+    if (!enabled) {
+      if (_colorScheme != null) setState(() => _colorScheme = null);
+      return;
+    }
+    if (_colorScheme != null || _loadingScheme) return;
+    _loadingScheme = true;
+    final ticker = abbr2Ticker(widget.coin.abbr).toLowerCase();
+    final provider = AssetImage(
+      'packages/komodo_defi_framework/assets/coin_icons/png/$ticker.png',
+    );
+    final brightness = Theme.of(context).brightness;
+    try {
+      final scheme = await ColorScheme.fromImageProvider(
+        provider: provider,
+        brightness: brightness,
+      );
+      if (mounted) {
+        setState(() {
+          _colorScheme = scheme;
+        });
+      }
+    } catch (_) {
+      // ignore errors, fallback to default theme
+    }
+    _loadingScheme = false;
+  }
+
   @override
   void dispose() {
     // _txHistoryBloc.add(TransactionHistoryUnsubscribe(coin: widget.coin));
@@ -63,9 +97,21 @@ class _CoinDetailsState extends State<CoinDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CoinsBloc, CoinsState>(
-      builder: (context, state) {
-        return _buildContent();
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, settings) {
+        _loadSchemeIfNeeded(context, settings.coinThemeFromIcon);
+        return BlocBuilder<CoinsBloc, CoinsState>(
+          builder: (context, state) {
+            Widget content = _buildContent();
+            if (_colorScheme != null) {
+              content = Theme(
+                data: Theme.of(context).copyWith(colorScheme: _colorScheme!),
+                child: content,
+              );
+            }
+            return content;
+          },
+        );
       },
     );
   }
