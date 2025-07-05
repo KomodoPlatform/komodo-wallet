@@ -69,7 +69,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     on<TakerVerifyOrderVolume>(_onVerifyOrderVolume);
     on<TakerSetWalletIsReady>(_onSetWalletReady);
 
-    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
+    _authorizationSubscription = kdfSdk.auth.watchCurrentUser().listen((event) {
       if (event != null && state.step == TakerStep.confirm) {
         add(TakerBackButtonClick());
       }

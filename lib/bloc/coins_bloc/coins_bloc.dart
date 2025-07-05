@@ -110,6 +110,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     emit(state.copyWith(coins: _coinsRepo.getKnownCoinsMap()));
 
+    final existingUser = await _kdfSdk.auth.currentUser;
+    if (existingUser != null) {
+      add(CoinsSessionStarted(existingUser));
+    }
+
     add(CoinsPricesUpdated());
     _updatePricesTimer?.cancel();
     _updatePricesTimer = Timer.periodic(

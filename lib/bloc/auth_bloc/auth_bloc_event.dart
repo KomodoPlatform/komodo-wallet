@@ -53,3 +53,9 @@ class AuthWalletDownloadRequested extends AuthBlocEvent {
   const AuthWalletDownloadRequested({required this.password});
   final String password;
 }
+
+/// Event emitted on app lifecycle changes to check if a user is already signed
+/// in and restore the auth state.
+class AuthLifecycleCheckRequested extends AuthBlocEvent {
+  const AuthLifecycleCheckRequested();
+}
