@@ -76,10 +76,10 @@ extension CoinTypeExtension on CoinSubClass {
         return CoinType.hco20;
       case CoinSubClass.hrc20:
         return CoinType.hrc20;
-      case CoinSubClass.tendermintToken:
-        return CoinType.tendermintToken;
       case CoinSubClass.tendermint:
         return CoinType.tendermint;
+      case CoinSubClass.tendermintToken:
+        return CoinType.tendermintToken;
       case CoinSubClass.ubiq:
         return CoinType.ubiq;
       case CoinSubClass.bep20:
@@ -147,9 +147,9 @@ extension CoinSubClassExtension on CoinType {
       case CoinType.hrc20:
         return CoinSubClass.hrc20;
       case CoinType.tendermint:
-        return CoinSubClass.tendermintToken;
-      case CoinType.tendermintToken:
         return CoinSubClass.tendermint;
+      case CoinType.tendermintToken:
+        return CoinSubClass.tendermintToken;
       case CoinType.ubiq:
         return CoinSubClass.ubiq;
       case CoinType.bep20:
