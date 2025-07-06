@@ -40,7 +40,7 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
       switch (newAddressState.status) {
         case NewAddressStatus.completed:
           final pubkey = newAddressState.address;
-          final derivation = (pubkey as dynamic).derivationPath as String?;
+          final derivation = pubkey?.derivationPath;
           if (derivation != null) {
             final parsed = parseDerivationPath(derivation);
             analyticsBloc.logEvent(
