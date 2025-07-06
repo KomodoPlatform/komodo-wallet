@@ -39,7 +39,6 @@ class CoinAddresses extends StatefulWidget {
 
 class _CoinAddressesState extends State<CoinAddresses> {
   late CoinAddressesBloc _coinAddressesBloc;
-  bool _dialogOpen = false;
 
   @override
   void didChangeDependencies() {
@@ -59,106 +58,103 @@ class _CoinAddressesState extends State<CoinAddresses> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
-        return BlocListener<CoinAddressesBloc, CoinAddressesState>(
+        return BlocConsumer<CoinAddressesBloc, CoinAddressesState>(
           listenWhen: (prev, curr) =>
               prev.createAddressStatus != curr.createAddressStatus ||
               prev.newAddressState?.status != curr.newAddressState?.status,
-          listener: (context, blocState) async {
-            if (blocState.createAddressStatus == FormStatus.submitting &&
-                !_dialogOpen) {
-              _dialogOpen = true;
-              await showDialog<void>(
+          listener: (context, blocState) {
+            if (blocState.newAddressState?.status ==
+                NewAddressStatus.confirmAddress) {
+              final coinAddressesBloc = context.read<CoinAddressesBloc>();
+              showDialog<void>(
                 context: context,
-                barrierDismissible: false,
-                builder: (_) => _NewAddressDialog(parentContext: context),
-              );
-              _dialogOpen = false;
-            }
-          },
-          child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
-            builder: (context, state) {
-              return SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    Card(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      color: theme.custom.dexPageTheme.frontPlate,
-                      child: Padding(
-                        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _Header(
-                              status: state.status,
-                              createAddressStatus: state.createAddressStatus,
-                              hideZeroBalance: state.hideZeroBalance,
-                              cantCreateNewAddressReasons:
-                                  state.cantCreateNewAddressReasons,
-                            ),
-                            const SizedBox(height: 12),
-                            ...state.addresses.asMap().entries.map(
-                              (entry) {
-                                final index = entry.key;
-                                final address = entry.value;
-                                if (state.hideZeroBalance &&
-                                    address.balance.spendable == Decimal.zero) {
-                                  return const SizedBox();
-                                }
-
-                                return AddressCard(
-                                  address: address,
-                                  index: index,
-                                  coin: widget.coin,
-                                  setPageType: widget.setPageType,
-                                );
-                              },
-                            ),
-                            if (state.status == FormStatus.submitting)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20.0),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              ),
-                            if (state.status == FormStatus.submitting)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20.0),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              ),
-                            if (state.status == FormStatus.failure ||
-                                state.createAddressStatus == FormStatus.failure)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 20.0),
-                                child: Center(
-                                  child: ErrorDisplay(
-                                    message: LocaleKeys.somethingWrong.tr(),
-                                    detailedMessage: state.errorMessage,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (isMobile)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: CreateButton(
-                          status: state.status,
-                          createAddressStatus: state.createAddressStatus,
-                          cantCreateNewAddressReasons:
-                              state.cantCreateNewAddressReasons,
-                        ),
-                      ),
-                  ],
+                builder: (context) => BlocProvider.value(
+                  value: coinAddressesBloc,
+                  child: const _NewAddressDialog(),
                 ),
               );
-            },
-          ),
+            }
+          },
+          builder: (context, state) {
+            return SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  Card(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    color: theme.custom.dexPageTheme.frontPlate,
+                    child: Padding(
+                      padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _Header(
+                            status: state.status,
+                            createAddressStatus: state.createAddressStatus,
+                            hideZeroBalance: state.hideZeroBalance,
+                            cantCreateNewAddressReasons:
+                                state.cantCreateNewAddressReasons,
+                          ),
+                          const SizedBox(height: 12),
+                          ...state.addresses.asMap().entries.map(
+                            (entry) {
+                              final index = entry.key;
+                              final address = entry.value;
+                              if (state.hideZeroBalance &&
+                                  address.balance.spendable == Decimal.zero) {
+                                return const SizedBox();
+                              }
+
+                              return AddressCard(
+                                address: address,
+                                index: index,
+                                coin: widget.coin,
+                                setPageType: widget.setPageType,
+                              );
+                            },
+                          ),
+                          if (state.status == FormStatus.submitting)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                          if (state.status == FormStatus.submitting)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                          if (state.status == FormStatus.failure ||
+                              state.createAddressStatus == FormStatus.failure)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              child: Center(
+                                child: ErrorDisplay(
+                                  message: LocaleKeys.somethingWrong.tr(),
+                                  detailedMessage: state.errorMessage,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (isMobile)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: CreateButton(
+                        status: state.status,
+                        createAddressStatus: state.createAddressStatus,
+                        cantCreateNewAddressReasons:
+                            state.cantCreateNewAddressReasons,
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -785,14 +781,11 @@ class QrCode extends StatelessWidget {
 }
 
 class _NewAddressDialog extends StatelessWidget {
-  const _NewAddressDialog({required this.parentContext});
-
-  final BuildContext parentContext;
+  const _NewAddressDialog();
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CoinAddressesBloc, CoinAddressesState>(
-      bloc: BlocProvider.of<CoinAddressesBloc>(parentContext),
+    return BlocConsumer<CoinAddressesBloc, CoinAddressesState>(
       listenWhen: (prev, curr) =>
           prev.newAddressState?.status != curr.newAddressState?.status,
       listener: (context, state) {
@@ -803,37 +796,33 @@ class _NewAddressDialog extends StatelessWidget {
           Navigator.of(context).pop();
         }
       },
-      child: BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
-        bloc: BlocProvider.of<CoinAddressesBloc>(parentContext),
-        builder: (context, state) {
-          final newState = state.newAddressState;
-          final showAddress =
-              newState?.status == NewAddressStatus.confirmAddress;
+      builder: (context, state) {
+        final newState = state.newAddressState;
+        final showAddress = newState?.status == NewAddressStatus.confirmAddress;
 
-          return AlertDialog(
-            title: Text(LocaleKeys.creating.tr()),
-            content: SizedBox(
-              // slightly wider than the default to accommodate longer addresses
-              width: 450,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (showAddress)
-                    TrezorNewAddressConfirmation(
-                      address: newState?.expectedAddress ?? '',
-                    )
-                  else
-                    const SizedBox(
-                      width: 32,
-                      height: 32,
-                      child: CircularProgressIndicator(),
-                    ),
-                ],
-              ),
+        return AlertDialog(
+          title: Text(LocaleKeys.creating.tr()),
+          content: SizedBox(
+            // slightly wider than the default to accommodate longer addresses
+            width: 450,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showAddress)
+                  TrezorNewAddressConfirmation(
+                    address: newState?.expectedAddress ?? '',
+                  )
+                else
+                  const SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(),
+                  ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
