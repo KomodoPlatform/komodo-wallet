@@ -258,7 +258,7 @@ class _AssetIconItem extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AssetIcon.ofTicker(
+                AssetLogo.ofTicker(
                   asset.subClass.iconTicker,
                   size: min(36, size * 0.6),
                 ),

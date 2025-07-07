@@ -39,7 +39,7 @@ class PriceChartPage extends StatelessWidget {
                   title: Text(LocaleKeys.statistics.tr()),
                   leadingIcon: state.data.firstOrNull?.info.ticker == null
                       ? const Icon(Icons.attach_money, size: 22)
-                      : CoinIcon(
+                      : AssetIcon.ofTicker(
                           state.data.firstOrNull?.info.ticker ?? '',
                           size: 22,
                         ),

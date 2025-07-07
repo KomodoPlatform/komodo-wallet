@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/app_config/app_config.dart';
@@ -65,7 +65,6 @@ import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 import 'package:web_dex/shared/utils/debug_utils.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 class AppBlocRoot extends StatelessWidget {
   const AppBlocRoot({
@@ -354,8 +353,8 @@ class _MyAppViewState extends State<_MyAppView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
-    _precacheCoinIcons(coinsRepository).ignore();
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    _precacheCoinIcons(sdk).ignore();
   }
 
   /// Hides the native app launch loader. Currently only implemented for web.
@@ -392,7 +391,7 @@ class _MyAppViewState extends State<_MyAppView> {
 
   Completer<void>? _currentPrecacheOperation;
 
-  Future<void> _precacheCoinIcons(CoinsRepo coinsRepo) async {
+  Future<void> _precacheCoinIcons(KomodoDefiSdk sdk) async {
     if (_currentPrecacheOperation != null &&
         !_currentPrecacheOperation!.isCompleted) {
       // completeError throws an uncaught exception, which causes the UI
@@ -405,10 +404,9 @@ class _MyAppViewState extends State<_MyAppView> {
 
     try {
       final stopwatch = Stopwatch()..start();
-      final coins =
-          coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true).keys;
+      final availableAssetIds = sdk.assets.available.keys;
 
-      await for (final abbr in Stream.fromIterable(coins)) {
+      await for (final assetId in Stream.fromIterable(availableAssetIds)) {
         // TODO: Test if necessary to complete prematurely with error if build
         // context is stale. Alternatively, we can check if the context is
         // not mounted and return early with error.
@@ -419,17 +417,18 @@ class _MyAppViewState extends State<_MyAppView> {
         // }
 
         // ignore: use_build_context_synchronously
-        await CoinIcon.precacheCoinIcon(context, abbr)
-            .onError((_, __) => debugPrint('Error precaching coin icon $abbr'));
+        await AssetIcon.precacheAssetIcon(context, assetId).onError(
+            (_, __) => debugPrint('Error precaching coin icon $assetId'));
       }
 
       _currentPrecacheOperation!.complete();
 
+      if (!mounted) return;
       context.read<AnalyticsBloc>().logEvent(
             CoinsDataUpdatedEventData(
               updateSource: 'remote',
               updateDurationMs: stopwatch.elapsedMilliseconds,
-              coinsCount: coins.length,
+              coinsCount: availableAssetIds.length,
             ),
           );
     } catch (e) {
