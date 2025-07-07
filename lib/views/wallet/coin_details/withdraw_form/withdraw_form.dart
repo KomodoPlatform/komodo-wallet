@@ -607,7 +607,7 @@ class WithdrawResultCard extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            AssetIcon(asset.id),
+            AssetLogo.ofId(asset.id),
             const SizedBox(width: 8),
             Text(
               asset.id.name,
