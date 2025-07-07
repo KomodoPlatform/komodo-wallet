@@ -34,12 +34,12 @@ class _MainLayoutState extends State<MainLayout> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final tradingEnabled =
-          context.read<TradingStatusBloc>().state is TradingEnabled;
-
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
+      if (!mounted) return;
+      final tradingEnabled =
+          context.read<TradingStatusBloc>().state is TradingEnabled;
       if (tradingEnabled &&
           kShowTradingWarning &&
           !await _hasAgreedNoTrading()) {

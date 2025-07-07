@@ -533,10 +533,10 @@ packages:
     dependency: transitive
     description:
       name: freezed_annotation
-      sha256: c87ff004c8aa6af2d531668b46a4ea379f7191dc6dfa066acd53d506da6e044b
+      sha256: "7294967ff0a6d98638e7acb774aac3af2550777accd8149c90af5b014e6d44d8"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "3.1.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -656,7 +656,7 @@ packages:
     description:
       path: "packages/komodo_cex_market_data"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -665,7 +665,7 @@ packages:
     description:
       path: "packages/komodo_coin_updates"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "1.0.0"
@@ -674,7 +674,7 @@ packages:
     description:
       path: "packages/komodo_coins"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -683,7 +683,7 @@ packages:
     description:
       path: "packages/komodo_defi_framework"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0"
@@ -692,7 +692,7 @@ packages:
     description:
       path: "packages/komodo_defi_local_auth"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -701,7 +701,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -710,7 +710,7 @@ packages:
     description:
       path: "packages/komodo_defi_sdk"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -719,7 +719,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -735,7 +735,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -751,7 +751,7 @@ packages:
     description:
       path: "packages/komodo_wallet_build_transformer"
       ref: dev
-      resolved-ref: c5c30d42d173c963d8b1f76b997e0970ef1e7e26
+      resolved-ref: ce68c7a809a333428879400714ebde41b6385cf1
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -807,10 +807,10 @@ packages:
     dependency: transitive
     description:
       name: local_auth_darwin
-      sha256: "630996cd7b7f28f5ab92432c4b35d055dd03a747bc319e5ffbb3c4806a3e50d2"
+      sha256: "25163ce60a5a6c468cf7a0e3dc8a165f824cabc2aa9e39a5e9fc5c2311b7686f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.3"
+    version: "1.5.0"
   local_auth_platform_interface:
     dependency: transitive
     description:
