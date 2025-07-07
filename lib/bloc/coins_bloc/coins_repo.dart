@@ -9,7 +9,7 @@ import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart' show excludedAssetList;
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
@@ -321,8 +321,8 @@ class CoinsRepo {
         // Register outside of the try-catch to ensure icon is available even
         // in a suspended or failing activation status.
         if (coin.logoImageUrl?.isNotEmpty == true) {
-          CoinIcon.registerCustomIcon(
-            coin.id.id,
+          AssetIcon.registerCustomIcon(
+            coin.id,
             NetworkImage(coin.logoImageUrl!),
           );
         }
@@ -367,8 +367,8 @@ class CoinsRepo {
         // Register outside of the try-catch to ensure icon is available even
         // in a suspended or failing activation status.
         if (coin.logoImageUrl?.isNotEmpty == true) {
-          CoinIcon.registerCustomIcon(
-            coin.id.id,
+          AssetIcon.registerCustomIcon(
+            coin.id,
             NetworkImage(coin.logoImageUrl!),
           );
         }

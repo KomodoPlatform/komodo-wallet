@@ -32,6 +32,7 @@ class CoinsTableItem<T> extends StatelessWidget {
             coin: coin,
             size: CoinItemSize.large,
             subtitleText: subtitleText,
+            showNetworkLogo: !isGroupHeader,
           ),
           const SizedBox(width: 8),
           if (coin.isActive) CoinBalance(coin: coin, isVertical: true),

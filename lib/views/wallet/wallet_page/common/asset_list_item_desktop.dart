@@ -62,6 +62,7 @@ class AssetListItemDesktop extends StatelessWidget {
                       percentage: priceChangePercentage24h ?? 0,
                       showIcon: true,
                       iconSize: 16,
+                      valuePrecision: 2,
                     ),
                   ),
                 ),
