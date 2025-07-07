@@ -2,6 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
@@ -67,6 +68,7 @@ class _WalletDeletingState extends State<WalletDeleting> {
               controller: _passwordController,
               errorText: _error,
               onFieldSubmitted: _isDeleting ? null : _deleteWallet,
+              onChanged: _handlePasswordChanged,
               validator: (password) {
                 if (password == null || password.isEmpty) {
                   return LocaleKeys.passwordIsEmpty.tr();
@@ -125,6 +127,7 @@ class _WalletDeletingState extends State<WalletDeleting> {
         const SizedBox(width: 8.0),
         Flexible(
           child: UiPrimaryButton(
+            backgroundColor: Theme.of(context).colorScheme.error,
             text: LocaleKeys.delete.tr(),
             onPressed: _isDeleting ? null : _deleteWallet,
             prefix: _isDeleting ? const UiSpinner() : null,
@@ -134,6 +137,15 @@ class _WalletDeletingState extends State<WalletDeleting> {
         )
       ],
     );
+  }
+
+  void _handlePasswordChanged(String? value) {
+    // Clear the error when user starts typing a new password
+    if (_error != null) {
+      setState(() {
+        _error = null;
+      });
+    }
   }
 
   Future<void> _deleteWallet() async {
@@ -182,12 +194,14 @@ class _PasswordField extends StatefulWidget {
     required this.errorText,
     required this.onFieldSubmitted,
     required this.validator,
+    this.onChanged,
   });
 
   final TextEditingController controller;
   final String? errorText;
   final VoidCallback? onFieldSubmitted;
   final String? Function(String?) validator;
+  final void Function(String?)? onChanged;
 
   @override
   State<_PasswordField> createState() => _PasswordFieldState();
@@ -207,6 +221,7 @@ class _PasswordFieldState extends State<_PasswordField> {
       validator: widget.validator,
       validationMode: InputValidationMode.eager,
       hintText: LocaleKeys.walletCreationPasswordHint.tr(),
+      onChanged: widget.onChanged,
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: (v) => setState(() => _isObscured = v),
       ),

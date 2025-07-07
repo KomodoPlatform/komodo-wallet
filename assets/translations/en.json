@@ -328,7 +328,7 @@
     "bridgeExchange": "Exchange",
     "noTxSupportHidden": "Please use button below to open block explorer",
     "deleteWalletTitle": "Are you sure you want to delete \"{}\" wallet?",
-    "deleteWalletInfo": "The wallet will be deleted from your device's cache. You always can import your seed phrase again.",
+    "deleteWalletInfo": "Warning: This is a permanent action and cannot be undone. You can restore your wallet using the seed phrase, but you will lose your swap history. \n\nEnsure you have a backup of your seed phrase before proceeding.",
     "trezorEnterPinTitle": "Enter PIN for your Trezor",
     "trezorEnterPinHint": "The PIN layout is displayed on your Trezor",
     "trezorInProgressTitle": "Looking for your Trezor...",

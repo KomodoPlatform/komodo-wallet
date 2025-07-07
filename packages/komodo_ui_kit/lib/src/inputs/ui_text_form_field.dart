@@ -137,11 +137,6 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       if (_errorText?.isNotEmpty == true) {
         _hasFocusExitedOnce = true;
         _shouldValidate = true;
-      } else {
-        // Reset validation state when errorText is cleared
-        _hasFocusExitedOnce = false;
-        _shouldValidate =
-            widget.validationMode == InputValidationMode.aggressive;
       }
     }
 
