@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/trading_kind/trading_kind_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/model/swap.dart';
@@ -12,7 +10,6 @@ import 'package:web_dex/views/dex/dex_list_filter/mobile/dex_list_header_mobile.
 import 'package:web_dex/views/dex/entities_list/history/history_list.dart';
 import 'package:web_dex/views/dex/entities_list/in_progress/in_progress_list.dart';
 import 'package:web_dex/views/dex/entities_list/orders/orders_list.dart';
-import 'package:web_dex/views/dex/simple/form/maker/maker_form_layout.dart';
 import 'package:web_dex/views/dex/simple/form/taker/taker_form.dart';
 
 class DexListWrapper extends StatefulWidget {
@@ -33,75 +30,49 @@ class _DexListWrapperState extends State<DexListWrapper> {
   bool _isFilterShown = false;
   DexListType? previouseType;
 
-  final TradingKindBloc tradingKindBloc =
-      TradingKindBloc(TradingKindState.initial());
-
   @override
   void initState() {
-    routingState.dexState.addListener(_onRouteChange);
     super.initState();
   }
 
   @override
   void dispose() {
-    routingState.dexState.removeListener(_onRouteChange);
     super.dispose();
-  }
-
-  void _onRouteChange() {
-    if (mounted) {
-      final type = routingState.dexState.orderType;
-      if (type.isNotEmpty ||
-          (routingState.dexState.fromCurrency.isNotEmpty ||
-              routingState.dexState.toCurrency.isNotEmpty)) {
-        tradingKindBloc
-            .setKind(type == 'taker' ? TradingKind.taker : TradingKind.maker);
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TradingKindBloc>(
-      create: (_) => tradingKindBloc,
-      child: BlocBuilder<TradingKindBloc, TradingKindState>(
-        builder: (context, state) {
-          final filter = filters[widget.listType];
-          final isTaker = state.isTaker;
-          previouseType ??= widget.listType;
-          if (previouseType != widget.listType) {
-            _isFilterShown = false;
-            previouseType = widget.listType;
-          }
-          final child = _DexListWidget(
-            key: Key('dex-list-${widget.listType}'),
-            filter: filter,
-            type: widget.listType,
-            onSwapItemClick: _onSwapItemClick,
-            isTaker: isTaker,
-          );
-          return isMobile
-              ? _MobileWidget(
-                  key: const Key('dex-list-wrapper-mobile'),
-                  type: widget.listType,
-                  filterData: filter,
-                  onApplyFilter: _setFilter,
-                  isFilterShown: _isFilterShown,
-                  onFilterTap: () => setState(() {
-                    _isFilterShown = !_isFilterShown;
-                  }),
-                  child: child,
-                )
-              : _DesktopWidget(
-                  key: const Key('dex-list-wrapper-desktop'),
-                  type: widget.listType,
-                  filterData: filter,
-                  onApplyFilter: _setFilter,
-                  child: child,
-                );
-        },
-      ),
+    final filter = filters[widget.listType];
+    previouseType ??= widget.listType;
+    if (previouseType != widget.listType) {
+      _isFilterShown = false;
+      previouseType = widget.listType;
+    }
+    final child = _DexListWidget(
+      key: Key('dex-list-${widget.listType}'),
+      filter: filter,
+      type: widget.listType,
+      onSwapItemClick: _onSwapItemClick,
     );
+    return isMobile
+        ? _MobileWidget(
+            key: const Key('dex-list-wrapper-mobile'),
+            type: widget.listType,
+            filterData: filter,
+            onApplyFilter: _setFilter,
+            isFilterShown: _isFilterShown,
+            onFilterTap: () => setState(() {
+              _isFilterShown = !_isFilterShown;
+            }),
+            child: child,
+          )
+        : _DesktopWidget(
+            key: const Key('dex-list-wrapper-desktop'),
+            type: widget.listType,
+            filterData: filter,
+            onApplyFilter: _setFilter,
+            child: child,
+          );
   }
 
   void _setFilter(TradingEntitiesFilter? filter) {
@@ -119,12 +90,10 @@ class _DexListWidget extends StatelessWidget {
   final TradingEntitiesFilter? filter;
   final DexListType type;
   final void Function(Swap) onSwapItemClick;
-  final bool isTaker;
   const _DexListWidget({
     this.filter,
     required this.type,
     required this.onSwapItemClick,
-    required this.isTaker,
     super.key,
   });
 
@@ -146,7 +115,7 @@ class _DexListWidget extends StatelessWidget {
           onItemClick: onSwapItemClick,
         );
       case DexListType.swap:
-        return isTaker ? const TakerForm() : const MakerFormLayout();
+        return const TakerForm();
     }
   }
 }

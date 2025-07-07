@@ -53,7 +53,6 @@ import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
 import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_bloc.dart';
 import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
-import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/orderbook_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/blocs/trezor_coins_bloc.dart';
@@ -164,14 +163,6 @@ class AppBlocRoot extends StatelessWidget {
         ),
         RepositoryProvider(create: (_) => tradingEntitiesBloc),
         RepositoryProvider(create: (_) => dexRepository),
-        RepositoryProvider(
-          create: (_) => MakerFormBloc(
-            api: mm2Api,
-            kdfSdk: komodoDefiSdk,
-            coinsRepository: coinsRepository,
-            dexRepository: dexRepository,
-          ),
-        ),
         RepositoryProvider(create: (_) => OrderbookBloc(api: mm2Api)),
         RepositoryProvider(create: (_) => myOrdersService),
         RepositoryProvider(
