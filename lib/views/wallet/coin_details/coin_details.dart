@@ -14,6 +14,8 @@ import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_claim_success.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_rewards_info.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 class CoinDetails extends StatefulWidget {
   const CoinDetails({
@@ -33,8 +35,20 @@ class _CoinDetailsState extends State<CoinDetails> {
   late TransactionHistoryBloc _txHistoryBloc;
   CoinPageType _selectedPageType = CoinPageType.info;
 
+  ColorScheme? _coinColorScheme;
+  bool _loadingScheme = false;
+
   String _rewardValue = '';
   String _formattedUsdPrice = '';
+
+  @override
+  void didUpdateWidget(covariant CoinDetails oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.coin.abbr != widget.coin.abbr) {
+      _coinColorScheme = null;
+      _loadingScheme = false;
+    }
+  }
 
   @override
   void initState() {
@@ -61,11 +75,53 @@ class _CoinDetailsState extends State<CoinDetails> {
     super.dispose();
   }
 
+  Future<void> _loadCoinScheme() async {
+    if (_loadingScheme || _coinColorScheme != null) return;
+    _loadingScheme = true;
+    final imageProvider = widget.coin.logoImageUrl?.isNotEmpty == true
+        ? NetworkImage(widget.coin.logoImageUrl!)
+        : AssetImage(
+            'packages/komodo_defi_framework/assets/coin_icons/png/${abbr2Ticker(widget.coin.abbr).toLowerCase()}.png',
+          );
+    try {
+      final scheme = await ColorScheme.fromImageProvider(
+        provider: imageProvider,
+        brightness: Theme.of(context).brightness,
+      );
+      if (mounted) {
+        setState(() {
+          _coinColorScheme = scheme;
+          _loadingScheme = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingScheme = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final useCoinTheme = context.select(
+      (SettingsBloc bloc) => bloc.state.coinTheme,
+    );
+    if (useCoinTheme && _coinColorScheme == null && !_loadingScheme) {
+      _loadCoinScheme();
+    }
+
     return BlocBuilder<CoinsBloc, CoinsState>(
       builder: (context, state) {
-        return _buildContent();
+        final baseTheme = Theme.of(context);
+        final themeData = useCoinTheme && _coinColorScheme != null
+            ? baseTheme.copyWith(
+                colorScheme: _coinColorScheme!,
+                cardColor: _coinColorScheme!.surface,
+                scaffoldBackgroundColor: _coinColorScheme!.onSurface,
+              )
+            : baseTheme;
+        return Theme(
+          data: themeData,
+          child: _buildContent(),
+        );
       },
     );
   }

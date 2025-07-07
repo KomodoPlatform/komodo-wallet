@@ -21,6 +21,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<MarketMakerBotSettingsChanged>(_onMarketMakerBotSettingsChanged);
     on<TestCoinsEnabledChanged>(_onTestCoinsEnabledChanged);
     on<WeakPasswordsAllowedChanged>(_onWeakPasswordsAllowedChanged);
+    on<CoinThemeChanged>(_onCoinThemeChanged);
   }
 
   late StoredSettings _storedSettings;
@@ -65,9 +66,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emitter,
   ) async {
     await _settingsRepo.updateSettings(
-      _storedSettings.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed),
+      _storedSettings.copyWith(
+          weakPasswordsAllowed: event.weakPasswordsAllowed),
     );
     emitter(state.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed));
+  }
+
+  Future<void> _onCoinThemeChanged(
+    CoinThemeChanged event,
+    Emitter<SettingsState> emitter,
+  ) async {
+    await _settingsRepo.updateSettings(
+      _storedSettings.copyWith(coinTheme: event.enabled),
+    );
+    emitter(state.copyWith(coinTheme: event.enabled));
   }
 
   Future<void> _onUltraDarkChanged(

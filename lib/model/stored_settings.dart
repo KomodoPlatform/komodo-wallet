@@ -11,6 +11,7 @@ class StoredSettings {
     required this.testCoinsEnabled,
     required this.weakPasswordsAllowed,
     required this.ultraDark,
+    required this.coinTheme,
   });
 
   final ThemeMode mode;
@@ -19,6 +20,7 @@ class StoredSettings {
   final bool testCoinsEnabled;
   final bool weakPasswordsAllowed;
   final bool ultraDark;
+  final bool coinTheme;
 
   static StoredSettings initial() {
     return StoredSettings(
@@ -28,6 +30,7 @@ class StoredSettings {
       testCoinsEnabled: true,
       weakPasswordsAllowed: false,
       ultraDark: false,
+      coinTheme: true,
     );
   }
 
@@ -43,6 +46,7 @@ class StoredSettings {
       testCoinsEnabled: json['testCoinsEnabled'] ?? true,
       weakPasswordsAllowed: json['weakPasswordsAllowed'] ?? false,
       ultraDark: json['ultraDark'] ?? false,
+      coinTheme: json['coinTheme'] ?? true,
     );
   }
 
@@ -54,6 +58,7 @@ class StoredSettings {
       'testCoinsEnabled': testCoinsEnabled,
       'weakPasswordsAllowed': weakPasswordsAllowed,
       'ultraDark': ultraDark,
+      'coinTheme': coinTheme,
     };
   }
 
@@ -64,6 +69,7 @@ class StoredSettings {
     bool? testCoinsEnabled,
     bool? weakPasswordsAllowed,
     bool? ultraDark,
+    bool? coinTheme,
   }) {
     return StoredSettings(
       mode: mode ?? this.mode,
@@ -73,6 +79,7 @@ class StoredSettings {
       testCoinsEnabled: testCoinsEnabled ?? this.testCoinsEnabled,
       weakPasswordsAllowed: weakPasswordsAllowed ?? this.weakPasswordsAllowed,
       ultraDark: ultraDark ?? this.ultraDark,
+      coinTheme: coinTheme ?? this.coinTheme,
     );
   }
 }
