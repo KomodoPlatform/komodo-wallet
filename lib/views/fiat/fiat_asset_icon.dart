@@ -27,15 +27,8 @@ class FiatAssetIcon extends StatelessWidget {
       return FiatIcon(symbol: currency.getAbbr());
     }
 
-    // TODO: standardise the icon layout. CoinItem contains the icon and the 
-    // coin name + protocol, but the provided icon Widget could be anything
-    // and on failure it's usually just the Icon
-    if (assetExists ?? false) {
-      final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
-      final asset = sdk.getSdkAsset(currency.getAbbr());
-      return CoinItem(coin: asset.toCoin(), size: CoinItemSize.large);
-    } else {
-      return icon;
-    }
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    final asset = sdk.getSdkAsset(currency.getAbbr());
+    return CoinItem(coin: asset.toCoin(), size: CoinItemSize.large);
   }
 }

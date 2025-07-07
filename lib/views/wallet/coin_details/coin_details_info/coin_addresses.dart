@@ -744,7 +744,7 @@ class QrCode extends StatelessWidget {
           ),
         ),
         Positioned(
-          child: CoinIcon(coinAbbr, size: 40),
+          child: AssetIcon.ofTicker(coinAbbr, size: 40),
         ),
       ],
     );

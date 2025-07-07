@@ -114,7 +114,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     _seed = mnemonic.plaintextMnemonic ?? '';
 
     _privKeys.clear();
-    for (final coin in coinsBloc.state.walletCoins.values) {
+    final parentCoins = coinsBloc.state.walletCoins.values
+        .where((coin) => !coin.id.isChildAsset);
+    for (final coin in parentCoins) {
       final result =
           await mm2Api.showPrivKey(ShowPrivKeyRequest(coin: coin.abbr));
       if (result != null) {
