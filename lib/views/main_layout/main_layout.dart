@@ -35,6 +35,7 @@ class _MainLayoutState extends State<MainLayout> {
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
+      if (!mounted) return;
       final tradingEnabled = tradingStatusBloc.state is TradingEnabled;
       if (tradingEnabled &&
           kShowTradingWarning &&
