@@ -95,7 +95,6 @@ class _WalletOverviewState extends State<WalletOverview> {
                   label: TrendPercentageText(
                     percentage: totalChange,
                     suffix: Text(TimePeriod.oneDay.formatted()),
-                    precision: 2,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
