@@ -27,6 +27,7 @@ import 'package:web_dex/model/typedef.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events/cross_chain_events.dart';
 
@@ -76,9 +77,11 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       bloc: this,
       coinsRepository: coinsRepository,
       dexRepository: dexRepository,
+      sdk: _kdfSdk,
     );
 
-    _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((event) {
+    _authorizationSubscription =
+        _kdfSdk.auth.watchCurrentUser().listen((event) {
       _isLoggedIn = event != null;
       if (!_isLoggedIn) add(const BridgeLogout());
     });
@@ -296,7 +299,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     if (!state.autovalidate) add(const BridgeVerifyOrderVolume());
 
     await _autoActivateCoin(event.order?.coin);
-    if (state.autovalidate) _validator.validateForm();
+    if (state.autovalidate) await _validator.validateForm();
     _subscribeFees();
   }
 
@@ -360,10 +363,10 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     add(BridgeSetSellAmount(amount));
   }
 
-  void _onSetSellAmount(
+  Future<void> _onSetSellAmount(
     BridgeSetSellAmount event,
     Emitter<BridgeState> emit,
-  ) {
+  ) async {
     emit(state.copyWith(
       sellAmount: () => event.amount,
       buyAmount: () => calculateBuyAmount(
@@ -373,7 +376,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     ));
 
     if (state.autovalidate) {
-      _validator.validateForm();
+      await _validator.validateForm();
     } else {
       add(const BridgeVerifyOrderVolume());
     }
@@ -596,18 +599,22 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   }
 
   Future<Rational?> _frequentlyGetMaxTakerVolume() async {
-    int attempts = 5;
-    Rational? maxSellAmount;
-    while (attempts > 0) {
-      maxSellAmount =
-          await _dexRepository.getMaxTakerVolume(state.sellCoin!.abbr);
-      if (maxSellAmount != null) {
-        return maxSellAmount;
-      }
-      attempts -= 1;
-      await Future.delayed(const Duration(seconds: 2));
+    final String? abbr = state.sellCoin?.abbr;
+    if (abbr == null) return null;
+
+    try {
+      return await retry(
+        () => _dexRepository.getMaxTakerVolume(abbr),
+        maxAttempts: 5,
+        backoffStrategy: LinearBackoff(
+          initialDelay: const Duration(seconds: 2),
+          increment: const Duration(seconds: 2),
+          maxDelay: const Duration(seconds: 10),
+        ),
+      );
+    } catch (_) {
+      return null;
     }
-    return null;
   }
 
   Future<void> _autoActivateCoin(String? abbr) async {

@@ -357,6 +357,7 @@
 				"${BUILT_PRODUCTS_DIR}/file_picker/file_picker.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_inappwebview_macos/flutter_inappwebview_macos.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_secure_storage_darwin/flutter_secure_storage_darwin.framework",
+				"${BUILT_PRODUCTS_DIR}/flutter_window_close/flutter_window_close.framework",
 				"${BUILT_PRODUCTS_DIR}/komodo_defi_framework/komodo_defi_framework.framework",
 				"${BUILT_PRODUCTS_DIR}/local_auth_darwin/local_auth_darwin.framework",
 				"${BUILT_PRODUCTS_DIR}/mobile_scanner/mobile_scanner.framework",
@@ -380,6 +381,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/file_picker.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_inappwebview_macos.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_secure_storage_darwin.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_window_close.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/komodo_defi_framework.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/local_auth_darwin.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/mobile_scanner.framework",
@@ -506,7 +508,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				PRODUCT_BUNDLE_IDENTIFIER = com2.komodo.komodowallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.komodo.komodowallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
@@ -646,7 +648,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				PRODUCT_BUNDLE_IDENTIFIER = com2.komodo.komodowallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.komodo.komodowallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -681,7 +683,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				PRODUCT_BUNDLE_IDENTIFIER = com2.komodo.komodowallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.komodo.komodowallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};

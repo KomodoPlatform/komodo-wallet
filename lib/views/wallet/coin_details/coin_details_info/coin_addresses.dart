@@ -18,6 +18,7 @@ import 'package:web_dex/shared/widgets/coin_type_tag.dart';
 import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/faucet/faucet_button.dart';
+import 'package:web_dex/views/wallet/coin_details/receive/trezor_new_address_confirmation.dart';
 import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
@@ -57,7 +58,23 @@ class _CoinAddressesState extends State<CoinAddresses> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
-        return BlocBuilder<CoinAddressesBloc, CoinAddressesState>(
+        return BlocConsumer<CoinAddressesBloc, CoinAddressesState>(
+          listenWhen: (prev, curr) =>
+              prev.createAddressStatus != curr.createAddressStatus ||
+              prev.newAddressState?.status != curr.newAddressState?.status,
+          listener: (context, blocState) {
+            if (blocState.newAddressState?.status ==
+                NewAddressStatus.confirmAddress) {
+              final coinAddressesBloc = context.read<CoinAddressesBloc>();
+              showDialog<void>(
+                context: context,
+                builder: (context) => BlocProvider.value(
+                  value: coinAddressesBloc,
+                  child: const _NewAddressDialog(),
+                ),
+              );
+            }
+          },
           builder: (context, state) {
             return SliverToBoxAdapter(
               child: Column(
@@ -234,7 +251,9 @@ class AddressCard extends StatelessWidget {
                       SwapAddressTag(address: address),
                       const Spacer(),
                       AddressCopyButton(
-                          address: address.address, coinAbbr: coin.abbr),
+                        address: address.address,
+                        coinAbbr: coin.abbr,
+                      ),
                       QrButton(
                         coin: coin,
                         address: address,
@@ -253,7 +272,9 @@ class AddressCard extends StatelessWidget {
                     AddressText(address: address.address),
                     const SizedBox(width: 8),
                     AddressCopyButton(
-                        address: address.address, coinAbbr: coin.abbr),
+                      address: address.address,
+                      coinAbbr: coin.abbr,
+                    ),
                     QrButton(coin: coin, address: address),
                     if (coin.hasFaucet)
                       ConstrainedBox(
@@ -316,7 +337,7 @@ class QrButton extends StatelessWidget {
         icon: const Icon(Icons.qr_code, size: 16),
         color: Theme.of(context).textTheme.bodyMedium!.color,
         onPressed: () {
-          showDialog(
+          showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
               title: Row(
@@ -370,7 +391,9 @@ class QrButton extends StatelessWidget {
                     // Address row with copy and explorer link
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainer,
                         borderRadius: BorderRadius.circular(8),
@@ -395,10 +418,11 @@ class QrButton extends StatelessWidget {
                                   .tr(args: [coin.abbr]),
                               icon: const Icon(Icons.copy_rounded, size: 20),
                               onPressed: () => copyToClipBoard(
-                                  context,
-                                  address.address,
-                                  LocaleKeys.copiedAddressToClipboard
-                                      .tr(args: [coin.abbr])),
+                                context,
+                                address.address,
+                                LocaleKeys.copiedAddressToClipboard
+                                    .tr(args: [coin.abbr]),
+                              ),
                             ),
                           ),
                           // Explorer link button
@@ -411,15 +435,18 @@ class QrButton extends StatelessWidget {
                               icon: const Icon(Icons.open_in_new, size: 20),
                               onPressed: () {
                                 final url = getAddressExplorerUrl(
-                                    coin, address.address);
+                                  coin,
+                                  address.address,
+                                );
                                 if (url.isNotEmpty) {
                                   launchURLString(url, inSeparateTab: true);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content: Text(LocaleKeys
-                                            .explorerUnavailable
-                                            .tr())),
+                                      content: Text(
+                                        LocaleKeys.explorerUnavailable.tr(),
+                                      ),
+                                    ),
                                   );
                                 }
                               },
@@ -534,10 +561,11 @@ class PubkeyReceiveDialog extends StatelessWidget {
                           .tr(args: [coin.abbr]),
                       icon: const Icon(Icons.copy_rounded, size: 20),
                       onPressed: () => copyToClipBoard(
-                          context,
-                          address.address,
-                          LocaleKeys.copiedAddressToClipboard
-                              .tr(args: [coin.abbr])),
+                        context,
+                        address.address,
+                        LocaleKeys.copiedAddressToClipboard
+                            .tr(args: [coin.abbr]),
+                      ),
                     ),
                   ),
                   // Explorer link button
@@ -556,8 +584,9 @@ class PubkeyReceiveDialog extends StatelessWidget {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content:
-                                    Text(LocaleKeys.explorerUnavailable.tr())),
+                              content:
+                                  Text(LocaleKeys.explorerUnavailable.tr()),
+                            ),
                           );
                         }
                       },
@@ -652,10 +681,10 @@ class HideZeroBalanceCheckbox extends StatelessWidget {
 
 class CreateButton extends StatelessWidget {
   const CreateButton({
-    super.key,
     required this.status,
     required this.createAddressStatus,
     required this.cantCreateNewAddressReasons,
+    super.key,
   });
 
   final FormStatus status;
@@ -744,9 +773,56 @@ class QrCode extends StatelessWidget {
           ),
         ),
         Positioned(
-          child: CoinIcon(coinAbbr, size: 40),
+          child: AssetIcon.ofTicker(coinAbbr, size: 40),
         ),
       ],
+    );
+  }
+}
+
+class _NewAddressDialog extends StatelessWidget {
+  const _NewAddressDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<CoinAddressesBloc, CoinAddressesState>(
+      listenWhen: (prev, curr) =>
+          prev.newAddressState?.status != curr.newAddressState?.status,
+      listener: (context, state) {
+        final status = state.newAddressState?.status;
+        if (status == NewAddressStatus.completed ||
+            status == NewAddressStatus.error ||
+            status == NewAddressStatus.cancelled) {
+          Navigator.of(context).pop();
+        }
+      },
+      builder: (context, state) {
+        final newState = state.newAddressState;
+        final showAddress = newState?.status == NewAddressStatus.confirmAddress;
+
+        return AlertDialog(
+          title: Text(LocaleKeys.creating.tr()),
+          content: SizedBox(
+            // slightly wider than the default to accommodate longer addresses
+            width: 450,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showAddress)
+                  TrezorNewAddressConfirmation(
+                    address: newState?.expectedAddress ?? '',
+                  )
+                else
+                  const SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

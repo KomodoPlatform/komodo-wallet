@@ -8,13 +8,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/assets_overview/investment_repository.dart';
@@ -50,14 +49,10 @@ import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_repository.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/bloc/trezor_bloc/trezor_repo.dart';
-import 'package:web_dex/bloc/trezor_connection_bloc/trezor_connection_bloc.dart';
-import 'package:web_dex/bloc/trezor_init_bloc/trezor_init_bloc.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/orderbook_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
-import 'package:web_dex/blocs/trezor_coins_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/main.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
@@ -70,7 +65,6 @@ import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 import 'package:web_dex/shared/utils/debug_utils.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 class AppBlocRoot extends StatelessWidget {
   const AppBlocRoot({
@@ -119,8 +113,6 @@ class AppBlocRoot extends StatelessWidget {
       myOrdersService,
     );
     final dexRepository = DexRepository(mm2Api);
-    final trezorRepo = RepositoryProvider.of<TrezorRepo>(context);
-    final trezorBloc = RepositoryProvider.of<TrezorCoinsBloc>(context);
 
     final transactionsRepo = performanceMode != null
         ? MockTransactionHistoryRepo(
@@ -154,7 +146,7 @@ class AppBlocRoot extends StatelessWidget {
 
     // startup bloc run steps
     tradingEntitiesBloc.runUpdate();
-    routingState.selectedMenu = MainMenuValue.dex;
+    routingState.selectedMenu = MainMenuValue.defaultMenu();
 
     return MultiRepositoryProvider(
       providers: [
@@ -187,7 +179,6 @@ class AppBlocRoot extends StatelessWidget {
             create: (context) => CoinsBloc(
               komodoDefiSdk,
               coinsRepository,
-              trezorBloc,
               mm2Api,
             )..add(CoinsStarted()),
           ),
@@ -259,13 +250,6 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider(
-            create: (_) => TrezorConnectionBloc(
-              trezorRepo: trezorRepo,
-              kdfSdk: komodoDefiSdk,
-            ),
-            lazy: false,
-          ),
-          BlocProvider(
             lazy: false,
             create: (context) => NftMainBloc(
               repo: context.read<NftsRepo>(),
@@ -299,13 +283,6 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider<SystemHealthBloc>(
             create: (_) => SystemHealthBloc(SystemClockRepository(), mm2Api)
               ..add(SystemHealthPeriodicCheckStarted()),
-          ),
-          BlocProvider<TrezorInitBloc>(
-            create: (context) => TrezorInitBloc(
-              kdfSdk: komodoDefiSdk,
-              trezorRepo: trezorRepo,
-              coinsRepository: coinsRepository,
-            ),
           ),
           BlocProvider<CoinsManagerBloc>(
             create: (context) => CoinsManagerBloc(
@@ -381,8 +358,8 @@ class _MyAppViewState extends State<_MyAppView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
-    _precacheCoinIcons(coinsRepository).ignore();
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    _precacheCoinIcons(sdk).ignore();
   }
 
   /// Hides the native app launch loader. Currently only implemented for web.
@@ -419,7 +396,7 @@ class _MyAppViewState extends State<_MyAppView> {
 
   Completer<void>? _currentPrecacheOperation;
 
-  Future<void> _precacheCoinIcons(CoinsRepo coinsRepo) async {
+  Future<void> _precacheCoinIcons(KomodoDefiSdk sdk) async {
     if (_currentPrecacheOperation != null &&
         !_currentPrecacheOperation!.isCompleted) {
       // completeError throws an uncaught exception, which causes the UI
@@ -432,10 +409,9 @@ class _MyAppViewState extends State<_MyAppView> {
 
     try {
       final stopwatch = Stopwatch()..start();
-      final coins =
-          coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true).keys;
+      final availableAssetIds = sdk.assets.available.keys;
 
-      await for (final abbr in Stream.fromIterable(coins)) {
+      await for (final assetId in Stream.fromIterable(availableAssetIds)) {
         // TODO: Test if necessary to complete prematurely with error if build
         // context is stale. Alternatively, we can check if the context is
         // not mounted and return early with error.
@@ -446,17 +422,18 @@ class _MyAppViewState extends State<_MyAppView> {
         // }
 
         // ignore: use_build_context_synchronously
-        await CoinIcon.precacheCoinIcon(context, abbr)
-            .onError((_, __) => debugPrint('Error precaching coin icon $abbr'));
+        await AssetIcon.precacheAssetIcon(context, assetId).onError(
+            (_, __) => debugPrint('Error precaching coin icon $assetId'));
       }
 
       _currentPrecacheOperation!.complete();
 
+      if (!mounted) return;
       context.read<AnalyticsBloc>().logEvent(
             CoinsDataUpdatedEventData(
               updateSource: 'remote',
               updateDurationMs: stopwatch.elapsedMilliseconds,
-              coinsCount: coins.length,
+              coinsCount: availableAssetIds.length,
             ),
           );
     } catch (e) {

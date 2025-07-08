@@ -166,7 +166,8 @@ extension KdfUserWalletExtension on KdfUser {
       config: WalletConfig(
         seedPhrase: '',
         pubKey: walletId.pubkeyHash,
-        activatedCoins: metadata.valueOrNull<List<String>>('activated_coins') ?? [],
+        activatedCoins:
+            metadata.valueOrNull<List<String>>('activated_coins') ?? [],
         hasBackup: metadata['has_backup'] as bool? ?? false,
         type: walletType,
       ),

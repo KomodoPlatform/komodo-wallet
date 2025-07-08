@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
@@ -250,8 +251,8 @@ class _DesktopCoinDetails extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 12, 0),
-                child: CoinIcon(
-                  coin.abbr,
+                child: AssetLogo.ofId(
+                  coin.id,
                   size: 50,
                 ),
               ),
@@ -358,7 +359,7 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          CoinIcon(
+          AssetIcon.ofTicker(
             coin.abbr,
             size: 35,
           ),

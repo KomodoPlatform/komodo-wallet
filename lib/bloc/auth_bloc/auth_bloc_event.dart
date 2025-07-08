@@ -60,3 +60,29 @@ class AuthWalletDownloadRequested extends AuthBlocEvent {
 class AuthStateRestoreRequested extends AuthBlocEvent {
   const AuthStateRestoreRequested();
 }
+
+class AuthTrezorInitAndAuthStarted extends AuthBlocEvent {
+  const AuthTrezorInitAndAuthStarted();
+}
+
+class AuthTrezorPinProvided extends AuthBlocEvent {
+  const AuthTrezorPinProvided(this.pin);
+
+  final String pin;
+}
+
+class AuthTrezorPassphraseProvided extends AuthBlocEvent {
+  const AuthTrezorPassphraseProvided(this.passphrase);
+
+  final String passphrase;
+}
+
+class AuthTrezorCancelled extends AuthBlocEvent {
+  const AuthTrezorCancelled();
+}
+
+/// Event emitted on app lifecycle changes to check if a user is already signed
+/// in and restore the auth state.
+class AuthLifecycleCheckRequested extends AuthBlocEvent {
+  const AuthLifecycleCheckRequested();
+}
