@@ -1,6 +1,7 @@
-#include "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
-#include "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
-#include "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"
+// Only include if the file exists (CI-friendly approach)
+#include? "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
+#include? "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+#include? "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"
 
 // Application-level settings for the Runner target.
 //
