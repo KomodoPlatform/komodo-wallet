@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -29,17 +28,15 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   void initState() {
     // TODO: localize
-    if (kIsWeb) {
-      showMessageBeforeUnload('Are you sure you want to leave?');
-    }
+    showMessageBeforeUnload('Are you sure you want to leave?');
+    final tradingStatusBloc = context.read<TradingStatusBloc>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
       if (!mounted) return;
-      final tradingEnabled =
-          context.read<TradingStatusBloc>().state is TradingEnabled;
+      final tradingEnabled = tradingStatusBloc.state is TradingEnabled;
       if (tradingEnabled &&
           kShowTradingWarning &&
           !await _hasAgreedNoTrading()) {

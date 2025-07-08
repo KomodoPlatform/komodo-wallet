@@ -54,7 +54,8 @@ class DexTabBarBloc extends Bloc<DexTabBarEvent, DexTabBarState> {
     ListenToOrdersRequested event,
     Emitter<DexTabBarState> emit,
   ) {
-    _authorizationSubscription = _kdfSdk.auth.authStateChanges.listen((event) {
+    _authorizationSubscription =
+        _kdfSdk.auth.watchCurrentUser().listen((event) {
       if (event != null) {
         add(const TabChanged(0));
       }
