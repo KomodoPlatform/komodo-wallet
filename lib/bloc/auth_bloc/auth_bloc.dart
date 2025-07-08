@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
+    show PrivateKeyPolicy;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
@@ -14,10 +16,11 @@ import 'package:web_dex/model/wallet.dart';
 
 part 'auth_bloc_event.dart';
 part 'auth_bloc_state.dart';
+part 'trezor_auth_mixin.dart';
 
 /// AuthBloc is responsible for managing the authentication state of the
 /// application. It handles events such as login and logout changes.
-class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
+class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   /// Handles [AuthBlocEvent]s and emits [AuthBlocState]s.
   /// [_kdfSdk] is an instance of [KomodoDefiSdk] used for authentication.
   AuthBloc(this._kdfSdk, this._walletsRepository, this._settingsRepository)
@@ -30,6 +33,8 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     on<AuthRestoreRequested>(_onRestore);
     on<AuthSeedBackupConfirmed>(_onSeedBackupConfirmed);
     on<AuthWalletDownloadRequested>(_onWalletDownloadRequested);
+    on<AuthLifecycleCheckRequested>(_onLifecycleCheckRequested);
+    setupTrezorEventHandlers();
   }
 
   final KomodoDefiSdk _kdfSdk;
@@ -37,6 +42,9 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
   final SettingsRepository _settingsRepository;
   StreamSubscription<KdfUser?>? _authChangesSubscription;
   final _log = Logger('AuthBloc');
+
+  @override
+  KomodoDefiSdk get _sdk => _kdfSdk;
 
   @override
   Future<void> close() async {
@@ -295,9 +303,20 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> {
     }
   }
 
+  Future<void> _onLifecycleCheckRequested(
+    AuthLifecycleCheckRequested event,
+    Emitter<AuthBlocState> emit,
+  ) async {
+    final currentUser = await _kdfSdk.auth.currentUser;
+    if (currentUser != null) {
+      emit(AuthBlocState.loggedIn(currentUser));
+      _listenToAuthStateChanges();
+    }
+  }
+
   void _listenToAuthStateChanges() {
     _authChangesSubscription?.cancel();
-    _authChangesSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
+    _authChangesSubscription = _kdfSdk.auth.watchCurrentUser().listen((user) {
       final AuthorizeMode event =
           user != null ? AuthorizeMode.logIn : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));

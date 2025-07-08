@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/router/routes.dart';
 import 'package:web_dex/router/state/routing_state.dart';

@@ -14,7 +14,6 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/shared/constants.dart';
@@ -289,6 +288,9 @@ Future<void> log(
 
   try {
     await logger.write(message, path);
+
+    // TODO: Add a `.dispose()` method to the logger library and call it before
+    // the app is disposed.
 
     performance.logTimeWritingLogs(timer.elapsedMilliseconds);
   } catch (e) {
@@ -574,9 +576,6 @@ Color getProtocolColor(CoinType type) {
 }
 
 bool hasTxHistorySupport(Coin coin) {
-  if (coin.enabledType == WalletType.trezor) {
-    return true;
-  }
   switch (coin.type) {
     case CoinType.sbch:
     case CoinType.ubiq:

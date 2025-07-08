@@ -5,6 +5,7 @@ import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -26,23 +27,26 @@ class BridgeValidator {
     required BridgeBloc bloc,
     required CoinsRepo coinsRepository,
     required DexRepository dexRepository,
+    required KomodoDefiSdk sdk,
   })  : _bloc = bloc,
         _coinsRepo = coinsRepository,
         _dexRepo = dexRepository,
+        _sdk = sdk,
         _add = bloc.add;
 
   final BridgeBloc _bloc;
   final CoinsRepo _coinsRepo;
   final DexRepository _dexRepo;
+  final KomodoDefiSdk _sdk;
 
   final Function(BridgeEvent) _add;
   BridgeState get _state => _bloc.state;
 
   Future<bool> validate() async {
-    final bool isFormValid = validateForm();
+    final bool isFormValid = await validateForm();
     if (!isFormValid) return false;
 
-    final bool tradingWithSelf = _checkTradeWithSelf();
+    final bool tradingWithSelf = await _checkTradeWithSelf();
     if (tradingWithSelf) return false;
 
     final bool isPreimageValid = await _validatePreimage();
@@ -131,7 +135,7 @@ class BridgeValidator {
     }
   }
 
-  bool validateForm() {
+  Future<bool> validateForm() async {
     _add(const BridgeClearErrors());
 
     if (!_isSellCoinSelected) {
@@ -144,8 +148,8 @@ class BridgeValidator {
       return false;
     }
 
-    if (!_validateCoinAndParent(_state.sellCoin!.abbr)) return false;
-    if (!_validateCoinAndParent(_state.bestOrder!.coin)) return false;
+    if (!await _validateCoinAndParent(_state.sellCoin!.abbr)) return false;
+    if (!await _validateCoinAndParent(_state.bestOrder!.coin)) return false;
 
     if (!_validateAmount()) return false;
 
@@ -227,33 +231,22 @@ class BridgeValidator {
     return true;
   }
 
-  bool _validateCoinAndParent(String abbr) {
-    final Coin? coin = _coinsRepo.getCoin(abbr);
+  Future<bool> _validateCoinAndParent(String abbr) async {
+    final coin = _sdk.getSdkAsset(abbr);
+    final enabledAssets = await _sdk.assets.getActivatedAssets();
+    final isAssetEnabled = enabledAssets.contains(coin);
+    final parentId = coin.id.parentId;
+    final parent = _sdk.assets.available[parentId];
 
-    if (coin == null) {
-      _add(BridgeSetError(_unknownCoinError(abbr)));
+    if (!isAssetEnabled) {
+      _add(BridgeSetError(_coinNotActiveError(coin.id.id)));
       return false;
     }
 
-    if (coin.enabledType == null) {
-      _add(BridgeSetError(_coinNotActiveError(coin.abbr)));
-      return false;
-    }
-
-    if (coin.isSuspended) {
-      _add(BridgeSetError(_coinSuspendedError(coin.abbr)));
-      return false;
-    }
-
-    final Coin? parent = coin.parentCoin;
     if (parent != null) {
-      if (parent.enabledType == null) {
-        _add(BridgeSetError(_coinNotActiveError(parent.abbr)));
-        return false;
-      }
-
-      if (parent.isSuspended) {
-        _add(BridgeSetError(_coinSuspendedError(parent.abbr)));
+      final isParentEnabled = enabledAssets.contains(parent);
+      if (!isParentEnabled) {
+        _add(BridgeSetError(_coinNotActiveError(parent.id.id)));
         return false;
       }
     }
@@ -261,17 +254,21 @@ class BridgeValidator {
     return true;
   }
 
-  bool _checkTradeWithSelf() {
+  Future<bool> _checkTradeWithSelf() async {
     _add(const BridgeClearErrors());
 
     final BestOrder? selectedOrder = _state.bestOrder;
     if (selectedOrder == null) return false;
 
     final selectedOrderAddress = selectedOrder.address;
-    final coin = _coinsRepo.getCoin(selectedOrder.coin);
-    final ownAddress = coin?.address;
+    final asset = _sdk.getSdkAsset(selectedOrder.coin);
+    final ownPubkeys = await _sdk.pubkeys.getPubkeys(asset);
+    final ownAddresses = ownPubkeys.keys
+        .where((pubkeyInfo) => pubkeyInfo.isActiveForSwap)
+        .map((e) => e.address)
+        .toSet();
 
-    if (selectedOrderAddress.addressData == ownAddress) {
+    if (ownAddresses.contains(selectedOrderAddress.addressData)) {
       _add(BridgeSetError(_tradingWithSelfError()));
       return true;
     }
@@ -292,13 +289,6 @@ class BridgeValidator {
       _add(BridgeSetError(_setOrderMaxError(selectedOrder.maxVolume)));
       return;
     }
-  }
-
-  DexFormError _unknownCoinError(String abbr) =>
-      DexFormError(error: 'Unknown coin $abbr.');
-
-  DexFormError _coinSuspendedError(String abbr) {
-    return DexFormError(error: '$abbr suspended.');
   }
 
   DexFormError _coinNotActiveError(String abbr) {
@@ -377,7 +367,6 @@ class BridgeValidator {
 
     final Coin? sellCoin = _state.sellCoin;
     if (sellCoin == null) return false;
-    if (sellCoin.enabledType == null) return false;
     if (sellCoin.isSuspended) return false;
 
     final Rational? sellAmount = _state.sellAmount;
@@ -390,7 +379,6 @@ class BridgeValidator {
 
     final Coin? parentSell = sellCoin.parentCoin;
     if (parentSell != null) {
-      if (parentSell.enabledType == null) return false;
       if (parentSell.isSuspended) return false;
       if (parentSell.balance(sdk) == 0.00) return false;
     }
@@ -399,11 +387,9 @@ class BridgeValidator {
     if (bestOrder == null) return false;
     final Coin? buyCoin = _coinsRepo.getCoin(bestOrder.coin);
     if (buyCoin == null) return false;
-    if (buyCoin.enabledType == null) return false;
 
     final Coin? parentBuy = buyCoin.parentCoin;
     if (parentBuy != null) {
-      if (parentBuy.enabledType == null) return false;
       if (parentBuy.isSuspended) return false;
 
       if (parentBuy.balance(sdk) == 0.00) return false;
