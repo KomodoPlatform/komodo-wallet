@@ -8,7 +8,7 @@
 PRODUCT_NAME = Komodo Wallet
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.komodo.komodowallet
+PRODUCT_BUNDLE_IDENTIFIER = com.komodoplatform.dragon
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2020 com.komodo. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2020 examplecorp.com. All rights reserved.

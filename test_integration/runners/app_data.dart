@@ -3,9 +3,9 @@
 import 'dart:io';
 
 //app data path for mac and linux
-const String macAppData = '/Library/Containers/com.komodo.komodowallet';
-const String linuxAppData = '/.local/share/com.komodo.KomodoWallet';
-const String windowsAppData = r'\AppData\Roaming\com.komodo';
+const String macAppData = '/Library/Containers/com.komodoplatform.dragon';
+const String linuxAppData = '/.local/share/com.komodoplatform.dragon';
+const String windowsAppData = r'\AppData\Roaming\com.komodoplatform';
 
 Future<void> clearNativeAppsData() async {
   if (Platform.isWindows) {

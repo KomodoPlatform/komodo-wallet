@@ -1,4 +1,4 @@
-package com.komodoplatform.atomicdex;
+package com.komodoplatform.dragon;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -16,7 +16,7 @@ inputs:
   bundle-id:
     description: "App bundle identifier"
     required: false
-    default: "com.komodo.wallet"
+    default: "com.komodoplatform.dragon"
   profile-type:
     description: "Provisioning profile type"
     required: false

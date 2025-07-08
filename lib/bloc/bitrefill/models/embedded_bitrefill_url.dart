@@ -2,13 +2,15 @@
 /// This includes query parameters like the [referralCode], [theme],
 /// [paymentMethods], and [refundAddress].
 /// See https://www.bitrefill.com/playground/documentation/url-params for more info.
+import 'package:web_dex/app_config/company_placeholder.dart';
+
 class EmbeddedBitrefillUrl {
   EmbeddedBitrefillUrl({
     required this.baseUrl,
     required this.referralCode,
     this.theme = 'dark',
     this.language = 'en',
-    this.companyName = 'Komodo Platform',
+    this.companyName = kCompanyName,
     this.showPaymentInfo = false,
     this.refundAddress,
     this.paymentMethods,

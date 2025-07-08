@@ -41,7 +41,7 @@ jobs:
         with:
           p12-file-base64: ${{ secrets.IOS_P12_BASE64 }}
           p12-password: ${{ secrets.IOS_P12_PASSWORD }}
-          bundle-id: "com.komodo.wallet"
+          bundle-id: "com.komodoplatform.dragon"
           profile-type: "IOS_APP_STORE"
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_KEY_ID }}

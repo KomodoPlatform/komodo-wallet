@@ -26,7 +26,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace 'com.komodoplatform.atomicdex'
+    namespace 'com.komodoplatform.dragon'
 
     compileSdk 35
     compileOptions {
@@ -41,7 +41,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.komodoplatform.atomicdex"
+        applicationId "com.komodoplatform.dragon"
         minSdkVersion 28
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
