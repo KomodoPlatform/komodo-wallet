@@ -40,7 +40,8 @@ Future<void> copyToClipBoard(
 
     if (!context.mounted) return;
     final scaffoldMessenger = ScaffoldMessenger.maybeOf(context) ??
-        ScaffoldMessenger.of(scaffoldKey.currentContext!);    scaffoldMessenger.showSnackBar(
+        ScaffoldMessenger.of(scaffoldKey.currentContext!);
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         width: isMobile ? null : 400.0,
         content: Row(
@@ -61,7 +62,7 @@ Future<void> copyToClipBoard(
     );
   } catch (e) {
     log('Error copyToClipBoard: $e', isError: true);
-    if (!context.mounted) return;    // Show error feedback using SnackBar
+    if (!context.mounted) return; // Show error feedback using SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Failed to copy to clipboard'),
@@ -719,6 +720,34 @@ Future<bool> confirmParentCoinDisable(
       title: Text(LocaleKeys.disable.tr()),
       content: Text(
         LocaleKeys.parentCoinDisableWarning.tr(args: [parent, tokenList]),
+      ),
+      actions: [
+        TextButton(
+          child: Text(LocaleKeys.cancel.tr()),
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+        TextButton(
+          child: Text(LocaleKeys.disable.tr()),
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
+}
+
+Future<bool> confirmCoinDisableWithOrders(
+  BuildContext context, {
+  required String coin,
+  required int ordersCount,
+}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(LocaleKeys.disable.tr()),
+      content: Text(
+        LocaleKeys.coinDisableOpenOrdersWarning
+            .tr(args: [ordersCount.toString(), coin]),
       ),
       actions: [
         TextButton(
