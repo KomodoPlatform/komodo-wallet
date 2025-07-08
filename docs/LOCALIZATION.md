@@ -14,12 +14,9 @@ In `${FLUTTER_PROJECT}/assets/translations`, add the `en.json` template file. Fo
 
 `{}` is used to place arguments and `{name}` for named arguments.
 
-*Important: After any update of `.json` file you need to run this command for generate `LocaleKeys` file.*
-
-```bash
-flutter pub get --enforce-lockfile
-dart run easy_localization:generate -S ./assets/translations -s en.json -f keys
-```
+After editing the translation JSON files make sure that every key is listed
+in `lib/generated/codegen_loader.g.dart`. The file contains constants used in
+the codebase and should be updated manually when new keys are added.
 
 ### Step 2
 
@@ -32,11 +29,7 @@ To add a new language translation in the app you need to add an `fr.json` file i
 }
 ```
 
-then run this command
-
-```bash
-flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys --no-pub
-```
+no additional code generation is required.
 
 and update constants.dart file to:
 
@@ -74,7 +67,7 @@ and we want to translate `Hello World` text to french when people device localiz
 `home.dart`
 
 ```dart
-import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/localization/app_localizations.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
   ...
@@ -169,8 +162,5 @@ update the value of required key in json file like following
   Text(LocaleKeys.money_args.plural(10.23,args:['John', '10.23'])), 
 ```
 
-please note that after adding or removing any items in the translation json file, you need to run the following command
-
-```bash
-flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys --no-pub
-```
+After modifying the translation JSON files, simply restart the application to
+load the updated strings; no further code generation is required.
