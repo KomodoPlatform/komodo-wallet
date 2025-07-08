@@ -19,6 +19,8 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_import_wrapper.dart
 import 'package:web_dex/views/wallets_manager/widgets/wallet_login.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_list.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager_controls.dart';
+import 'package:web_dex/views/wallets_manager/widgets/wallet_rename_dialog.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 
 class IguanaWalletsManager extends StatefulWidget {
   const IguanaWalletsManager({
@@ -236,6 +238,22 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     setState(() {
       _isLoading = true;
     });
+
+    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+    if (wallet.isLegacyWallet) {
+      final String? error = walletsRepository.validateWalletName(wallet.name);
+      if (error != null) {
+        final newName = await walletRenameDialog(
+          context,
+          initialName: wallet.name,
+        );
+        if (newName == null) {
+          if (mounted) setState(() => _isLoading = false);
+          return;
+        }
+        wallet.name = newName;
+      }
+    }
 
     final AnalyticsBloc analyticsBloc = context.read<AnalyticsBloc>();
     final analyticsEvent = walletsManagerEventsFactory.createEvent(
