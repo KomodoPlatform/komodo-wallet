@@ -33,6 +33,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     on<AuthRestoreRequested>(_onRestore);
     on<AuthSeedBackupConfirmed>(_onSeedBackupConfirmed);
     on<AuthWalletDownloadRequested>(_onWalletDownloadRequested);
+    on<AuthLifecycleCheckRequested>(_onLifecycleCheckRequested);
     setupTrezorEventHandlers();
   }
 
@@ -299,9 +300,20 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     }
   }
 
+  Future<void> _onLifecycleCheckRequested(
+    AuthLifecycleCheckRequested event,
+    Emitter<AuthBlocState> emit,
+  ) async {
+    final currentUser = await _kdfSdk.auth.currentUser;
+    if (currentUser != null) {
+      emit(AuthBlocState.loggedIn(currentUser));
+      _listenToAuthStateChanges();
+    }
+  }
+
   void _listenToAuthStateChanges() {
     _authChangesSubscription?.cancel();
-    _authChangesSubscription = _kdfSdk.auth.authStateChanges.listen((user) {
+    _authChangesSubscription = _kdfSdk.auth.watchCurrentUser().listen((user) {
       final AuthorizeMode event =
           user != null ? AuthorizeMode.logIn : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));

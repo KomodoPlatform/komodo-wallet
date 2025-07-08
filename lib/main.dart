@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:feedback/feedback.dart';
-import 'package:flutter/foundation.dart' show kIsWasm, kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWasm, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -93,7 +93,9 @@ Future<void> main() async {
 
 void catchUnhandledExceptions(Object error, StackTrace? stack) {
   log('Uncaught exception: $error.\n$stack');
-  debugPrintStack(stackTrace: stack, label: error.toString(), maxFrames: 50);
+  if (isTestMode) {
+    debugPrintStack(stackTrace: stack, label: error.toString(), maxFrames: 100);
+  }
 
   // Rethrow the error if it has a stacktrace (valid, traceable error)
   // async errors from the sdk are not traceable so do not rethrow them.
@@ -140,8 +142,12 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (_) =>
-              AuthBloc(komodoDefiSdk, walletsRepository, SettingsRepository()),
+          create: (_) {
+            final bloc = AuthBloc(
+                komodoDefiSdk, walletsRepository, SettingsRepository());
+            bloc.add(const AuthLifecycleCheckRequested());
+            return bloc;
+          },
         ),
       ],
       child: BetterFeedback(

@@ -45,19 +45,34 @@ class DexRoutePath implements AppRoutePath {
     this.toCurrency = '',
     this.toAmount = '',
     this.orderType = '',
-  })  : location = '/${firstUriSegment.dex}',
-        uuid = '';
+  }) : uuid = '';
+
+  @override
+  String get location {
+    if (action == DexAction.tradingDetails) {
+      return '/${firstUriSegment.dex}/trading_details/$uuid';
+    }
+
+    final List<String> queryParams = [];
+
+    if (fromCurrency.isNotEmpty) queryParams.add('from_currency=$fromCurrency');
+    if (fromAmount.isNotEmpty) queryParams.add('from_amount=$fromAmount');
+    if (toCurrency.isNotEmpty) queryParams.add('to_currency=$toCurrency');
+    if (toAmount.isNotEmpty) queryParams.add('to_amount=$toAmount');
+    if (orderType.isNotEmpty) queryParams.add('order_type=$orderType');
+
+    final String queryString =
+        queryParams.isNotEmpty ? '?${queryParams.join('&')}' : '';
+    return '/${firstUriSegment.dex}$queryString';
+  }
 
   DexRoutePath.swapDetails(this.action, this.uuid)
-      : location = '/${firstUriSegment.dex}/trading_details/$uuid',
-        fromCurrency = '',
+      : fromCurrency = '',
         fromAmount = '',
         toCurrency = '',
         toAmount = '',
         orderType = '';
 
-  @override
-  final String location;
   final String uuid;
   DexAction action = DexAction.none;
 

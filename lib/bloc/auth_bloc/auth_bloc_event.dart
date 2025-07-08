@@ -73,3 +73,9 @@ class AuthTrezorPassphraseProvided extends AuthBlocEvent {
 class AuthTrezorCancelled extends AuthBlocEvent {
   const AuthTrezorCancelled();
 }
+
+/// Event emitted on app lifecycle changes to check if a user is already signed
+/// in and restore the auth state.
+class AuthLifecycleCheckRequested extends AuthBlocEvent {
+  const AuthLifecycleCheckRequested();
+}

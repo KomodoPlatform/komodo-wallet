@@ -146,7 +146,7 @@ class AppBlocRoot extends StatelessWidget {
 
     // startup bloc run steps
     tradingEntitiesBloc.runUpdate();
-    routingState.selectedMenu = MainMenuValue.dex;
+    routingState.selectedMenu = MainMenuValue.defaultMenu();
 
     return MultiRepositoryProvider(
       providers: [

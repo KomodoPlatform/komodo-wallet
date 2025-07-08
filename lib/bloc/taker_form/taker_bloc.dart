@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/taker_form/taker_validator.dart';
 import 'package:web_dex/bloc/transformers.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
@@ -38,6 +39,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       bloc: this,
       coinsRepo: _coinsRepo,
       dexRepo: _dexRepo,
+      sdk: kdfSdk,
     );
 
     on<TakerSetDefaults>(_onSetDefaults);
@@ -45,7 +47,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     on<TakerOrderSelectorClick>(_onOrderSelectorClick);
     on<TakerCoinSelectorOpen>(_onCoinSelectorOpen);
     on<TakerOrderSelectorOpen>(_onOrderSelectorOpen);
-    on<TakerSetSellCoin>(_onSetSellCoin);
+    on<TakerSetSellCoin>(_onSetSellCoin, transformer: restartable());
     on<TakerSelectOrder>(_onSelectOrder);
     on<TakerAddError>(_onAddError);
     on<TakerClearErrors>(_onClearErrors);
@@ -69,7 +71,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     on<TakerVerifyOrderVolume>(_onVerifyOrderVolume);
     on<TakerSetWalletIsReady>(_onSetWalletReady);
 
-    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
+    _authorizationSubscription = kdfSdk.auth.watchCurrentUser().listen((event) {
       if (event != null && state.step == TakerStep.confirm) {
         add(TakerBackButtonClick());
       }
@@ -166,10 +168,10 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     add(TakerSetSellAmount(amount));
   }
 
-  void _onSetSellAmount(
+  Future<void> _onSetSellAmount(
     TakerSetSellAmount event,
     Emitter<TakerState> emit,
-  ) {
+  ) async {
     emit(state.copyWith(
       sellAmount: () => event.amount,
       buyAmount: () => calculateBuyAmount(
@@ -179,7 +181,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     ));
 
     if (state.autovalidate) {
-      _validator.validateForm();
+      await _validator.validateForm();
     } else {
       add(TakerVerifyOrderVolume());
     }
@@ -191,6 +193,10 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     Emitter<TakerState> emit,
   ) {
     final List<DexFormError> errorsList = List.from(state.errors);
+    if (errorsList.any((e) => e.error == event.error.error)) {
+      // Avoid adding duplicate errors
+      return;
+    }
     errorsList.add(event.error);
 
     emit(state.copyWith(
@@ -230,7 +236,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     if (!state.autovalidate) add(TakerVerifyOrderVolume());
 
     await _autoActivateCoin(state.selectedOrder?.coin);
-    if (state.autovalidate) _validator.validateForm();
+    if (state.autovalidate) await _validator.validateForm();
     add(TakerUpdateFees());
   }
 
@@ -324,7 +330,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     Emitter<TakerState> emit,
   ) async {
     if (state.sellCoin == null) {
-      _validator.validateForm();
+      await _validator.validateForm();
       return;
     }
 
@@ -421,17 +427,22 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   }
 
   Future<Rational?> _frequentlyGetMaxTakerVolume() async {
-    int attempts = 5;
-    Rational? maxSellAmount;
-    while (attempts > 0) {
-      maxSellAmount = await _dexRepo.getMaxTakerVolume(state.sellCoin!.abbr);
-      if (maxSellAmount != null) {
-        return maxSellAmount;
-      }
-      attempts -= 1;
-      await Future.delayed(const Duration(seconds: 2));
+    final String? abbr = state.sellCoin?.abbr;
+    if (abbr == null) return null;
+
+    try {
+      return await retry(
+        () => _dexRepo.getMaxTakerVolume(abbr),
+        maxAttempts: 5,
+        backoffStrategy: LinearBackoff(
+          initialDelay: const Duration(seconds: 2),
+          increment: const Duration(seconds: 2),
+          maxDelay: const Duration(seconds: 10),
+        ),
+      );
+    } catch (_) {
+      return null;
     }
-    return null;
   }
 
   Future<void> _onGetMinSellAmount(

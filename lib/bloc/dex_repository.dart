@@ -4,6 +4,8 @@ import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders_request.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/max_maker_vol/max_maker_vol_req.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/max_maker_vol/max_maker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/max_taker_vol/max_taker_vol_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/min_trading_vol/min_trading_vol.dart';
@@ -93,6 +95,16 @@ class DexRepository {
     }
 
     return fract2rat(response.result.toJson());
+  }
+
+  Future<Rational?> getMaxMakerVolume(String coinAbbr) async {
+    final MaxMakerVolResponse? response =
+        await _mm2Api.getMaxMakerVolume(MaxMakerVolRequest(coin: coinAbbr));
+    if (response == null) {
+      return null;
+    }
+
+    return fract2rat(response.volume.toFractionalJson());
   }
 
   Future<Rational?> getMinTradingVolume(String coinAbbr) async {
