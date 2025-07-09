@@ -13,14 +13,18 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     on<AuthTrezorCancelled>(_onTrezorCancel);
   }
 
+  /// Abstract method overriden in [AuthBloc] to start listening
+  /// to authentication state changes.
+  void _listenToAuthStateChanges();
+
   Future<void> _onTrezorInitAndAuth(
     AuthTrezorInitAndAuthStarted event,
     Emitter<AuthBlocState> emit,
   ) async {
     try {
-      final authOptions = AuthOptions(
+      const authOptions = AuthOptions(
         derivationMethod: DerivationMethod.hdWallet,
-        privKeyPolicy: const PrivateKeyPolicy.trezor(),
+        privKeyPolicy: PrivateKeyPolicy.trezor(),
       );
 
       final Stream<AuthenticationState> authStream = _sdk.auth.signInStream(
@@ -35,6 +39,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         if (authState.status == AuthenticationStatus.completed ||
             authState.status == AuthenticationStatus.error ||
             authState.status == AuthenticationStatus.cancelled) {
+          _listenToAuthStateChanges();
           break;
         }
       }
@@ -52,7 +57,8 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
   }
 
   Future<AuthBlocState> _handleAuthenticationState(
-      AuthenticationState authState) async {
+    AuthenticationState authState,
+  ) async {
     switch (authState.status) {
       case AuthenticationStatus.initializing:
         return AuthBlocState.trezorInitializing(
@@ -84,17 +90,21 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       case AuthenticationStatus.authenticating:
         return AuthBlocState.loading();
       case AuthenticationStatus.completed:
-        return await _setupTrezorWallet(authState);
+        return _setupTrezorWallet(authState);
       case AuthenticationStatus.error:
-        return AuthBlocState.error(AuthException(
-          authState.error ?? 'Trezor authentication failed',
-          type: AuthExceptionType.generalAuthError,
-        ));
+        return AuthBlocState.error(
+          AuthException(
+            authState.error ?? 'Trezor authentication failed',
+            type: AuthExceptionType.generalAuthError,
+          ),
+        );
       case AuthenticationStatus.cancelled:
-        return AuthBlocState.error(AuthException(
-          'Trezor authentication was cancelled',
-          type: AuthExceptionType.generalAuthError,
-        ));
+        return AuthBlocState.error(
+          AuthException(
+            'Trezor authentication was cancelled',
+            type: AuthExceptionType.generalAuthError,
+          ),
+        );
     }
   }
 
@@ -107,10 +117,12 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     // This should not happen, but if it does then trezor initialization failed
     // and we should not proceed.
     if (authState.user == null) {
-      return AuthBlocState.error(AuthException(
-        'Trezor initialization failed',
-        type: AuthExceptionType.generalAuthError,
-      ));
+      return AuthBlocState.error(
+        AuthException(
+          'Trezor initialization failed',
+          type: AuthExceptionType.generalAuthError,
+        ),
+      );
     }
 
     await _sdk.setWalletType(WalletType.trezor);
@@ -134,16 +146,28 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     try {
       final taskId = state.authenticationState?.taskId;
       if (taskId == null) {
-        emit(AuthBlocState.error(AuthException('No task ID found',
-            type: AuthExceptionType.generalAuthError)));
+        emit(
+          AuthBlocState.error(
+            AuthException(
+              'No task ID found',
+              type: AuthExceptionType.generalAuthError,
+            ),
+          ),
+        );
         return;
       }
 
       await _sdk.auth.setHardwareDevicePin(taskId, event.pin);
     } catch (e) {
       _log.shout('Failed to provide PIN', e);
-      emit(AuthBlocState.error(AuthException('Failed to provide PIN',
-          type: AuthExceptionType.generalAuthError)));
+      emit(
+        AuthBlocState.error(
+          AuthException(
+            'Failed to provide PIN',
+            type: AuthExceptionType.generalAuthError,
+          ),
+        ),
+      );
     }
   }
 
@@ -154,8 +178,14 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     try {
       final taskId = state.authenticationState?.taskId;
       if (taskId == null) {
-        emit(AuthBlocState.error(AuthException('No task ID found',
-            type: AuthExceptionType.generalAuthError)));
+        emit(
+          AuthBlocState.error(
+            AuthException(
+              'No task ID found',
+              type: AuthExceptionType.generalAuthError,
+            ),
+          ),
+        );
         return;
       }
 
@@ -165,10 +195,14 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       );
     } catch (e) {
       _log.shout('Failed to provide passphrase', e);
-      emit(AuthBlocState.error(AuthException(
-        'Failed to provide passphrase',
-        type: AuthExceptionType.generalAuthError,
-      )));
+      emit(
+        AuthBlocState.error(
+          AuthException(
+            'Failed to provide passphrase',
+            type: AuthExceptionType.generalAuthError,
+          ),
+        ),
+      );
     }
   }
 

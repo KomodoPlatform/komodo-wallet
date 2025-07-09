@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
+    show PrivateKeyPolicy;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
-    show PrivateKeyPolicy;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
@@ -327,12 +327,16 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     Emitter<AuthBlocState> emit,
   ) async {
     final currentUser = await _kdfSdk.auth.currentUser;
-    if (currentUser != null) {
+    final isTrezorWallet = currentUser?.walletId.authOptions.privKeyPolicy ==
+        const PrivateKeyPolicy.trezor();
+
+    if (currentUser != null && !isTrezorWallet) {
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     }
   }
 
+  @override
   void _listenToAuthStateChanges() {
     _authChangesSubscription?.cancel();
     _authChangesSubscription = _kdfSdk.auth.watchCurrentUser().listen((user) {
