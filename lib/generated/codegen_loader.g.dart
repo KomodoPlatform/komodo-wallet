@@ -306,6 +306,7 @@ abstract class LocaleKeys {
   static const darkMode = 'darkMode';
   static const light = 'light';
   static const lightMode = 'lightMode';
+  static const ultraDark = 'ultraDark';
   static const defaultText = 'defaultText';
   static const clear = 'clear';
   static const remove = 'remove';
@@ -720,7 +721,7 @@ abstract class LocaleKeys {
   static const previewWithdrawal = 'previewWithdrawal';
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
-  static const chart = 'chart';
+  static const trend7d = 'trend7d';
   static const tradingDisabledTooltip = 'tradingDisabledTooltip';
   static const tradingDisabled = 'tradingDisabled';
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
@@ -175,10 +176,13 @@ class _DropDownButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsBloc>().state;
     return Theme(
       data: Theme.of(context).brightness == Brightness.light
           ? newThemeLight
-          : newThemeDark,
+          : settings.ultraDark
+              ? newThemeUltraDark
+              : newThemeDark,
       child: Builder(
         builder: (context) {
           final ext = Theme.of(context).extension<ColorSchemeExtension>();

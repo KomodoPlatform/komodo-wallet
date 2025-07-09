@@ -8,7 +8,6 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
 
 class SettingsResetActivatedCoins extends StatefulWidget {
   const SettingsResetActivatedCoins({Key? key}) : super(key: key);

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:komodo_ui_kit/src/images/coin_icon.dart';
 
 class SelectedCoinGraphControl extends StatelessWidget {
   const SelectedCoinGraphControl({
@@ -62,7 +61,7 @@ class SelectedCoinGraphControl extends StatelessWidget {
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      CoinIcon(selectedCoinId!, size: 18),
+                      AssetIcon.ofTicker(selectedCoinId!, size: 18),
                       const SizedBox(width: 8),
                       Text(
                         selectedCoinId!,

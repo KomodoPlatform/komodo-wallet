@@ -119,7 +119,11 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                       isSelected: _checkSelectedItem(MainMenuValue.settings),
                     ),
                     Theme(
-                      data: isDarkTheme ? newThemeDark : newThemeLight,
+                      data: isDarkTheme
+                          ? (settingsState.ultraDark
+                              ? newThemeUltraDark
+                              : newThemeDark)
+                          : newThemeLight,
                       child: Builder(builder: (context) {
                         final ColorSchemeExtension colorScheme =
                             Theme.of(context)

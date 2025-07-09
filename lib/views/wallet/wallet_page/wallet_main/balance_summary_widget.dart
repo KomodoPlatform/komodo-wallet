@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+import 'package:komodo_ui/komodo_ui.dart';
+import 'package:web_dex/shared/ui/gradient_border.dart';
+
+/// Balance Summary Widget for mobile view
+class BalanceSummaryWidget extends StatelessWidget {
+  final double totalBalance;
+  final double changeAmount;
+  final double changePercentage;
+  final VoidCallback? onTap;
+
+  const BalanceSummaryWidget({
+    super.key,
+    required this.totalBalance,
+    required this.changeAmount,
+    required this.changePercentage,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Use the same gradient as the DEX form
+    const gradient = LinearGradient(
+      colors: [
+        Color.fromRGBO(134, 213, 255, 1), // Light blue/cyan
+        Color.fromRGBO(178, 107, 255, 1), // Purple
+      ],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+
+    return GestureDetector(
+      onTap: onTap,
+      child: GradientBorder(
+        gradient: gradient,
+        innerColor: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        width: 2.0,
+        child: Container(
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Total balance
+              Text(
+                '\$${NumberFormat("#,##0.00").format(totalBalance)}',
+                style: theme.textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 12),
+
+              // Change indicator using TrendPercentageText
+              TrendPercentageText(
+                percentage: changePercentage,
+                value: changeAmount,
+                valueFormatter: (value) =>
+                    NumberFormat.currency(symbol: '\$').format(value),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,11 +1,13 @@
 import 'dart:math' show min;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item_size.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
@@ -20,6 +22,7 @@ class GroupedAssetTickerItem extends StatefulWidget {
     required this.assets,
     required this.backgroundColor,
     required this.onTap,
+    this.onStatisticsTap,
     this.expanded,
     this.isActivating = false,
   });
@@ -27,6 +30,7 @@ class GroupedAssetTickerItem extends StatefulWidget {
   final List<AssetId> assets;
   final Color backgroundColor;
   final void Function(AssetId)? onTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
   final bool? expanded;
   final bool isActivating;
 
@@ -63,7 +67,16 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);  
+    // TODO: Refactor to reduce unnecessary bloc references and rebuilds.
+    final price =
+        context.watch<CoinsBloc>().state.getPriceForAsset(_primaryAsset);
+    final priceFormatter = NumberFormat.currency(
+      symbol: '\$',
+      decimalDigits: 2,
+    );
+
+    final theme = Theme.of(context);
+
     return Opacity(
       opacity: widget.isActivating ? 0.3 : 1,
       child: Material(
@@ -91,39 +104,50 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                         size: AssetItemSize.large,
                       ),
                     ),
-                    Expanded(
-                      flex: 2,
-                      child: BlocBuilder<CoinsBloc, CoinsState>(
-                        builder: (context, state) {
-                          final price = state.getPriceForAsset(_primaryAsset);
-                          final formattedPrice = price?.price != null
-                              ? NumberFormat.currency(
-                                  symbol: '\$',
-                                  decimalDigits: 2,
-                                ).format(price!.price)
-                              : '';
-                          return Text(
-                            formattedPrice,
-                            style: theme.textTheme.bodyMedium,
-                            overflow: TextOverflow.ellipsis,
-                          );
-                        },
+                    if (!isMobile)
+                      Expanded(
+                        flex: 2,
+                        child: BlocBuilder<CoinsBloc, CoinsState>(
+                          builder: (context, state) {
+                            final formattedPrice = price?.price != null
+                                ? priceFormatter.format(price!.price)
+                                : '';
+                            return Text(
+                              formattedPrice,
+                              style: theme.textTheme.bodyMedium,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
+                        ),
                       ),
-                    ),
                     Expanded(
-                      flex: 2,
+                      flex: isMobile ? 4 : 2,
                       child: BlocBuilder<CoinsBloc, CoinsState>(
                         builder: (context, state) {
-                          return TrendPercentageText(
-                            textStyle: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                            percentage:
-                                state.get24hChangeForAsset(_primaryAsset) ?? 0,
-                            showIcon: true,
-                            iconSize: 16,
-                            precision: 2,
-                          );
+                          final change24hPercent =
+                              state.get24hChangeForAsset(_primaryAsset);
+                          return change24hPercent == null
+                              ? const SizedBox.shrink()
+                              : Tooltip(
+                                message: LocaleKeys.change24h.tr(),
+                                child: InkWell(
+                                    onTap: () => widget.onStatisticsTap?.call(
+                                      _primaryAsset,
+                                      const Duration(days: 1),
+                                    ),
+                                    child: TrendPercentageText(
+                                      percentage: change24hPercent,
+                                      iconSize: 16,
+                                      
+                                      percentagePrecision: 2,
+                                      value: isMobile ? price?.price : null,
+                                      valueFormatter: (price?.price != null)
+                                          ? (value) =>
+                                              priceFormatter.format(value)
+                                          : null,
+                                    ),
+                                  ),
+                              );
                         },
                       ),
                     ),
@@ -134,7 +158,13 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                           maxWidth: 130,
                           maxHeight: 35,
                         ),
-                        child: CoinSparkline(coinId: _primaryAsset.id),
+                        child: InkWell(
+                          onTap: () => widget.onStatisticsTap?.call(
+                            _primaryAsset,
+                            const Duration(days: 7),
+                          ),
+                          child: CoinSparkline(coinId: _primaryAsset.id),
+                        ),
                       ),
                     ),
                     ConstrainedBox(
@@ -258,7 +288,7 @@ class _AssetIconItem extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AssetIcon.ofTicker(
+                AssetLogo.ofTicker(
                   asset.subClass.iconTicker,
                   size: min(36, size * 0.6),
                 ),

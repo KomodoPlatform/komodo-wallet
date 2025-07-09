@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 class BridgeTickersListItem extends StatelessWidget {
   const BridgeTickersListItem({
@@ -35,7 +35,7 @@ class BridgeTickersListItem extends StatelessWidget {
                       decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(15)),
-                      child: CoinIcon(
+                      child: AssetIcon.ofTicker(
                         coin.abbr,
                         size: 26,
                       ),

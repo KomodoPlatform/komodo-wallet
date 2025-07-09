@@ -4,6 +4,22 @@ import 'package:web_dex/router/state/dex_state.dart';
 
 class _DexRouteParser implements BaseRouteParser {
   const _DexRouteParser();
+
+  bool handlesDeepLinkParameters(Iterable<String> keys) {
+    const dexParams = {
+      'from_currency',
+      'from_amount',
+      'to_currency',
+      'to_amount',
+      'order_type',
+    };
+
+    for (final key in keys) {
+      if (dexParams.contains(key)) return true;
+    }
+    return false;
+  }
+
   @override
   AppRoutePath getRoutePath(Uri uri) {
     if (uri.pathSegments.length == 3) {

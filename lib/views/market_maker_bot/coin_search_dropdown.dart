@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 
@@ -57,7 +56,7 @@ DropdownMenuItem<String> _defaultCoinItemBuilder(String coin) {
     value: coin,
     child: Row(
       children: [
-        CoinIcon(coin),
+        AssetIcon.ofTicker(coin),
         const SizedBox(width: 12),
         Text(coin),
       ],

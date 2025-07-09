@@ -7,7 +7,7 @@ import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/fiat/custom_fiat_input_field.dart';
 import 'package:web_dex/views/fiat/fiat_currency_item.dart';
 import 'package:web_dex/views/fiat/fiat_icon.dart';

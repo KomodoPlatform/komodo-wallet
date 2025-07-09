@@ -92,15 +92,6 @@ const Set<String> excludedAssetList = {
   'NFT_MATIC',
 };
 
-const List<String> excludedAssetListTrezor = [
-  // https://github.com/KomodoPlatform/atomicDEX-API/issues/1510
-  'BCH',
-  // https://github.com/KomodoPlatform/coins/pull/619/files
-  // Can't use modified config directly, since it includes features,
-  // not implemented on webdex side yet (e.g. 0.4.2 doesn't have segwit)
-  'VAL',
-];
-
 /// Some coins returned by the Banxa API are returning errors when attempting
 /// to create an order. This is a temporary workaround to filter out those coins
 /// until the issue is resolved.
@@ -148,12 +139,6 @@ List<String> get enabledByDefaultCoins => [
       'FTM',
       if (kDebugMode) 'DOC',
       if (kDebugMode) 'MARTY',
-    ];
-
-List<String> get enabledByDefaultTrezorCoins => [
-      'BTC-segwit',
-      'KMD',
-      'LTC-segwit',
     ];
 
 List<String> get coinsWithFaucet => ['RICK', 'MORTY', 'DOC', 'MARTY'];

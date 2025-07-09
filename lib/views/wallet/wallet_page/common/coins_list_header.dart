@@ -86,8 +86,8 @@ class _CoinsListHeaderDesktop extends StatelessWidget {
             // 24h change header
             Expanded(flex: 2, child: Text(LocaleKeys.change24hRevert.tr())),
 
-            // Chart header
-            Expanded(flex: 2, child: Text(LocaleKeys.chart.tr())),
+            // 7d trend header
+            Expanded(flex: 2, child: Text(LocaleKeys.trend7d.tr())),
 
             // Space for expand button
             Container(constraints: const BoxConstraints(minWidth: 48)),

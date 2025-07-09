@@ -9,7 +9,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/model/trading_entities_filter.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class DexListHeaderMobile extends StatelessWidget {
   const DexListHeaderMobile({

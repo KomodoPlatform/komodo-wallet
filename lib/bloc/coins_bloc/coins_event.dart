@@ -13,12 +13,6 @@ final class CoinsStarted extends CoinsEvent {}
 /// Event emitted when user requests to refresh their coin balances manually
 final class CoinsBalancesRefreshed extends CoinsEvent {}
 
-/// Event emitted when the bloc should start listening to authentication changes
-final class CoinsAuthenticationStarted extends CoinsEvent {}
-
-/// Event emitted when the bloc should stop listening to authentication changes
-final class CoinsAuthenticationStopped extends CoinsEvent {}
-
 /// Event emitted when the bloc should start monitoring balances
 final class CoinsBalanceMonitoringStarted extends CoinsEvent {}
 

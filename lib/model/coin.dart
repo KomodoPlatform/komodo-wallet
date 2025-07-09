@@ -107,7 +107,7 @@ class Coin {
   bool get isErcType => protocolType == 'ERC20' || protocolType == 'ETH';
 
   bool get isTxMemoSupported =>
-      type == CoinType.iris || type == CoinType.cosmos;
+      type == CoinType.tendermint || type == CoinType.tendermintToken;
 
   @Deprecated(
       'TODO: Adapt SDK to cater for this use case and remove this method.')
@@ -121,18 +121,10 @@ class Coin {
   }
 
   bool get isCustomFeeSupported {
-    return type != CoinType.iris && type != CoinType.cosmos;
+    return type != CoinType.tendermintToken && type != CoinType.tendermint;
   }
 
   bool get hasFaucet => coinsWithFaucet.contains(abbr);
-
-  bool get hasTrezorSupport {
-    if (excludedAssetListTrezor.contains(abbr)) return false;
-    if (type == CoinType.utxo) return true;
-    if (type == CoinType.smartChain) return true;
-
-    return false;
-  }
 
   @Deprecated(
       'TODO: Adapt SDK to cater for this use case and remove this method.')
