@@ -33,7 +33,7 @@ class TradingStatusRepository {
       }
 
       final res =
-          await _httpClient.get(uri, headers: headers).timeout(_timeout);
+          await _httpClient.post(uri, headers: headers).timeout(_timeout);
 
       if (apiKey.isNotEmpty && !shouldFail) {
         if (res.statusCode != 200) return false;
