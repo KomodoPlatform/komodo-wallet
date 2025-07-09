@@ -1,18 +1,24 @@
 import 'dart:async';
-import 'package:flutter/gestures.dart';
 
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/events.dart';
+import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
+import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
+import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
@@ -29,15 +35,9 @@ import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events.dart';
-import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_growth_chart.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_profit_loss_chart.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
-import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
-import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/assets_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/active_coins_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_manage_section.dart';
@@ -52,8 +52,7 @@ class WalletMain extends StatefulWidget {
   State<WalletMain> createState() => _WalletMainState();
 }
 
-class _WalletMainState extends State<WalletMain>
-    with SingleTickerProviderStateMixin {
+class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
   bool _showCoinWithBalance = false;
   String _searchKey = '';
   PopupDispatcher? _popupDispatcher;
@@ -68,9 +67,19 @@ class _WalletMainState extends State<WalletMain>
     _tabController = TabController(length: authenticated ? 3 : 2, vsync: this)
       ..addListener(() {
         if (_activeTabIndex != _tabController.index) {
-          setState(() => _activeTabIndex = _tabController.index);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() => _activeTabIndex = _tabController.index);
+          });
         }
       });
+  }
+
+  void _updateTabController(bool authenticated) {
+    final newLength = authenticated ? 3 : 2;
+    if (_tabController.length != newLength) {
+      _tabController.dispose();
+      _initTabController(authenticated);
+    }
   }
 
   @override
@@ -107,14 +116,10 @@ class _WalletMainState extends State<WalletMain>
       listener: (context, state) {
         if (state.currentUser?.wallet != null) {
           _loadWalletData(state.currentUser!.wallet.id).ignore();
-          if (_tabController.length != 3) {
-            _initTabController(true);
-          }
+          _updateTabController(true);
         } else {
           _clearWalletData();
-          if (_tabController.length != 2) {
-            _initTabController(false);
-          }
+          _updateTabController(false);
         }
       },
       builder: (authContext, authState) {
