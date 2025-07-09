@@ -1,6 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -39,7 +40,7 @@ extension AssetCoinExtension on Asset {
       swapContractAddress: config.valueOrNull<String>('swap_contract_address'),
       fallbackSwapContract:
           config.valueOrNull<String>('fallback_swap_contract'),
-      priority: 0,
+      priority: priorityCoinsAbbrMap[id.id] ?? 0,
       state: CoinState.inactive,
       walletOnly: config.valueOrNull<bool>('wallet_only') ?? false,
       mode: id.isSegwit ? CoinMode.segwit : CoinMode.standard,
