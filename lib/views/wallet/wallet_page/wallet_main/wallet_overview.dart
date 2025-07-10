@@ -101,11 +101,7 @@ class _WalletOverviewState extends State<WalletOverview> {
                   totalBalance: totalBalance,
                   changeAmount: totalChange24h,
                   changePercentage: percentageChange24h,
-                  onTap: () {
-                    final formattedValue = NumberFormat.currency(symbol: '\$')
-                        .format(totalBalance);
-                    copyToClipBoard(context, formattedValue);
-                  },
+                  onTap: widget.onAssetsPressed,
                 );
               },
             ),
@@ -114,11 +110,7 @@ class _WalletOverviewState extends State<WalletOverview> {
               key: const Key('overview-current-value'),
               caption: Text(LocaleKeys.yourBalance.tr()),
               value: totalBalance,
-              onPressed: () {
-                final formattedValue =
-                    NumberFormat.currency(symbol: '\$').format(totalBalance);
-                copyToClipBoard(context, formattedValue);
-              },
+              onPressed: widget.onAssetsPressed,
               trendWidget:
                   BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
                 builder: (context, state) {
