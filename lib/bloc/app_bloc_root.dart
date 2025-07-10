@@ -179,7 +179,6 @@ class AppBlocRoot extends StatelessWidget {
             create: (context) => CoinsBloc(
               komodoDefiSdk,
               coinsRepository,
-              mm2Api,
             )..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(

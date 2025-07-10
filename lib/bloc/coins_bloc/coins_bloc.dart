@@ -11,7 +11,6 @@ import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
@@ -26,7 +25,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   CoinsBloc(
     this._kdfSdk,
     this._coinsRepo,
-    this._mm2Api,
   ) : super(CoinsState.initial()) {
     on<CoinsStarted>(_onCoinsStarted, transformer: droppable());
     // TODO: move auth listener to ui layer: bloclistener should fire auth events
@@ -51,7 +49,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
   final KomodoDefiSdk _kdfSdk;
   final CoinsRepo _coinsRepo;
-  final Mm2Api _mm2Api;
 
   final _log = Logger('CoinsBloc');
 
@@ -134,10 +131,18 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
             _coinsRepo.updateIguanaBalances(state.walletCoins);
         await emit.forEach(
           coinUpdateStream,
-          onData: (Coin coin) => state.copyWith(
-            walletCoins: {...state.walletCoins, coin.id.id: coin},
-            coins: {...state.coins, coin.id.id: coin},
-          ),
+          onData: (Coin coin) {
+            if (!state.walletCoins.containsKey(coin.abbr)) {
+              _log.warning(
+                'Coin ${coin.abbr} not found in wallet coins, skipping update',
+              );
+              return state;
+            }
+            return state.copyWith(
+              walletCoins: {...state.walletCoins, coin.id.id: coin},
+              coins: {...state.coins, coin.id.id: coin},
+            );
+          },
         );
 
         final coinUpdates = _syncIguanaCoinsStates(state.walletCoins.keys);
@@ -253,46 +258,55 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     final currentWalletCoins = state.walletCoins;
     final currentCoins = state.coins;
+    final Set<String> coinIdsToDisable = {...event.coinIds};
+
     if (currentWalletCoins.isEmpty) {
       _log.warning('No wallet coins to disable');
       return;
     }
 
-    final Set<String> coinsToDisable = {...event.coinIds};
-
+    // Disable all child coins of the parent coins being deactivated.
     for (final assetId in event.coinIds) {
       final coin = currentWalletCoins[assetId];
       if (coin != null) {
-        coinsToDisable.addAll(currentWalletCoins.values
-            .where((c) => c.parentCoin?.abbr == coin.abbr)
-            .map((c) => c.abbr));
+        coinIdsToDisable.addAll(
+          currentWalletCoins.values
+              .where((c) => c.parentCoin?.abbr == coin.abbr)
+              .map((c) => c.abbr),
+        );
       }
     }
+
+    // Remove coins from the state early to avoid reactivation
+    // via pubkey requests
+    emit(
+      _flushCoinsFromState(currentWalletCoins, coinIdsToDisable, currentCoins),
+    );
 
     // Update SDK metadata and disable on the API first to avoid reactivation
-    for (final assetId in coinsToDisable) {
-      final coin = currentWalletCoins[assetId]!;
-      _log.info('Disabling a ${coin.name} ($assetId)');
+    await _kdfSdk.removeActivatedCoins(coinIdsToDisable.toList());
+    final coinsToDisable = coinIdsToDisable
+        .map((id) => currentWalletCoins[id])
+        .whereType<Coin>()
+        .toList();
+    await _coinsRepo.deactivateCoinsSync(coinsToDisable);
+  }
 
-      try {
-        await _kdfSdk.removeActivatedCoins([coin.id.id]);
-        await _mm2Api.disableCoin(coin.id.id);
-
-        _log.info('${coin.name} has been disabled');
-      } catch (e, s) {
-        _log.severe('Failed to disable coin $assetId', e, s);
-      }
-    }
-
-    // Remove coins from the state after successful deactivation
-    final updatedWalletCoins = Map.fromEntries(currentWalletCoins.entries
-        .where((entry) => !coinsToDisable.contains(entry.key)));
+  CoinsState _flushCoinsFromState(
+    Map<String, Coin> currentWalletCoins,
+    Set<String> coinsToDisable,
+    Map<String, Coin> currentCoins,
+  ) {
+    final updatedWalletCoins = Map.fromEntries(
+      currentWalletCoins.entries
+          .where((entry) => !coinsToDisable.contains(entry.key)),
+    );
     final updatedCoins = Map<String, Coin>.of(currentCoins);
     for (final assetId in coinsToDisable) {
       final coin = currentWalletCoins[assetId]!;
       updatedCoins[coin.id.id] = coin.copyWith(state: CoinState.inactive);
     }
-    emit(state.copyWith(walletCoins: updatedWalletCoins, coins: updatedCoins));
+    return state.copyWith(walletCoins: updatedWalletCoins, coins: updatedCoins);
   }
 
   Future<void> _onPricesUpdated(
@@ -412,7 +426,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   Future<CoinsState> _prePopulateListWithActivatingCoins(
-      Iterable<String> coins) async {
+    Iterable<String> coins,
+  ) async {
     final currentWallet = await _kdfSdk.currentWallet();
     final knownCoins = _coinsRepo.getKnownCoinsMap();
     final activatingCoins = Map<String, Coin>.fromIterable(
@@ -516,6 +531,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     return currentWallet.config.activatedCoins
         .where((coinId) => !state.walletCoins.containsKey(coinId))
+        .where((coinId) => !excludedAssetList.contains(coinId))
         .toList();
   }
 
@@ -523,7 +539,17 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   /// coins are activated
   Stream<Coin> _syncIguanaCoinsStates(Iterable<String> coins) async* {
     final walletCoins = state.walletCoins;
-    final enabledApiAssets = await _kdfSdk.assets.getActivatedAssets();
+    final enabledApiAssets = (await _kdfSdk.assets.getActivatedAssets())
+        .where((asset) => !excludedAssetList.contains(asset.id.id));
+
+    final enabledAssetsNotInWallet = enabledApiAssets
+        .where((asset) => !walletCoins.containsKey(asset.id.id))
+        .toList();
+    for (final asset in enabledAssetsNotInWallet) {
+      await _kdfSdk.addActivatedCoins([asset.id.id]);
+      // enabled on api side, but not on gui side - enable on gui side
+      yield asset.toCoin();
+    }
 
     for (final coinId in coins) {
       final Coin? apiCoin = enabledApiAssets
@@ -536,24 +562,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       }
 
       if (apiCoin != null) {
-        // enabled on gui side, but not on api side - suspend
         if (coin.state != CoinState.active) {
           yield coin.copyWith(state: CoinState.active);
         }
       } else {
-        // enabled on both sides - unsuspend
         yield coin.copyWith(state: CoinState.suspended);
-      }
-
-      for (final asset in enabledApiAssets) {
-        if (!walletCoins.containsKey(asset.id.id)) {
-          await _kdfSdk.addActivatedCoins([asset.id.id]);
-          // enabled on api side, but not on gui side - enable on gui side
-          yield asset.toCoin();
-        }
       }
     }
   }
 }
-
-//

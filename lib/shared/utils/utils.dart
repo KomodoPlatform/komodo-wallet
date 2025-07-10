@@ -6,10 +6,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'
+    show ReadContext, RepositoryProvider;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart'
+    show TradingEntitiesBloc;
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -17,6 +22,7 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/shared/widgets/information_popup.dart';
 
 export 'package:web_dex/shared/utils/extensions/async_extensions.dart';
 export 'package:web_dex/shared/utils/extensions/collection_extensions.dart';
@@ -765,4 +771,80 @@ Future<bool> confirmCoinDisableWithOrders(
     ),
   );
   return result ?? false;
+}
+
+void confirmBeforeDisablingCoin(
+  Coin coin,
+  BuildContext context,
+  void Function()? onConfirm,
+) {
+  final tradingEntitiesBloc =
+      RepositoryProvider.of<TradingEntitiesBloc>(context);
+  final bloc = context.read<CoinsBloc>();
+
+  final childCoins = bloc.state.walletCoins.values
+      .where((c) => c.parentCoin?.abbr == coin.abbr)
+      .toList();
+
+  final hasSwap = tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
+      childCoins.any((c) => tradingEntitiesBloc.hasActiveSwap(c.abbr));
+
+  if (hasSwap) {
+    InformationPopup(
+      context: context,
+    )
+      ..text = LocaleKeys.coinDisableSpan1.tr(args: [coin.abbr])
+      ..show();
+    return;
+  }
+
+  final int openOrders = tradingEntitiesBloc.openOrdersCount(coin.abbr) +
+      childCoins.fold<int>(
+        0,
+        (sum, c) => sum + tradingEntitiesBloc.openOrdersCount(c.abbr),
+      );
+
+  if (openOrders > 0) {
+    confirmCoinDisableWithOrders(
+      context,
+      coin: coin.abbr,
+      ordersCount: openOrders,
+    ).then((confirmed) {
+      if (!confirmed) return;
+      tradingEntitiesBloc.cancelOrdersForCoin(coin.abbr);
+      for (final child in childCoins) {
+        tradingEntitiesBloc.cancelOrdersForCoin(child.abbr);
+      }
+      _confirmDisable(bloc, coin, childCoins, context, onConfirm);
+    });
+    return;
+  }
+
+  _confirmDisable(bloc, coin, childCoins, context, onConfirm);
+  return;
+}
+
+void _confirmDisable(
+  CoinsBloc bloc,
+  Coin coin,
+  List<Coin> childCoins,
+  BuildContext context,
+  void Function()? onConfirm,
+) {
+  if (coin.parentCoin == null) {
+    final childTokens = childCoins.map((c) => c.abbr).toList();
+    confirmParentCoinDisable(
+      context,
+      parent: coin.abbr,
+      tokens: childTokens,
+    ).then((confirmed) {
+      if (confirmed) {
+        bloc.add(CoinsDeactivated([coin.abbr]));
+        onConfirm?.call();
+      }
+    });
+  } else {
+    bloc.add(CoinsDeactivated([coin.abbr]));
+    onConfirm?.call();
+  }
 }

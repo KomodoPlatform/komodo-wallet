@@ -334,11 +334,18 @@ class CoinsRepo {
       return;
     }
 
+    final List<Asset> activatedAssets =
+        await _kdfSdk.assets.getActivatedAssets();
     for (final coin in coins) {
       try {
         final asset = _kdfSdk.assets.available[coin.id];
         if (asset == null) {
           _log.warning('Coin ${coin.id} not found. Skipping activation.');
+          continue;
+        }
+
+        if (activatedAssets.any((a) => a.id == asset.id)) {
+          _log.info('Coin ${coin.id} is already activated. Skipping.');
           continue;
         }
 
@@ -375,7 +382,7 @@ class CoinsRepo {
 
     for (final coin in coins) {
       // Cancel balance watcher for this coin
-      _balanceWatchers[coin.id]?.cancel();
+      await _balanceWatchers[coin.id]?.cancel();
       _balanceWatchers.remove(coin.id);
 
       final List<Coin> children = _kdfSdk.assets.available.values
@@ -383,15 +390,15 @@ class CoinsRepo {
           .map(_assetToCoinWithoutAddress)
           .toList();
 
-      await _disableCoin(coin.id.id);
-      await _broadcastAsset(coin.copyWith(state: CoinState.inactive));
-
       for (final child in children) {
-        _balanceWatchers[child.id]?.cancel();
+        await _balanceWatchers[child.id]?.cancel();
         _balanceWatchers.remove(child.id);
         await _disableCoin(child.id.id);
         await _broadcastAsset(child.copyWith(state: CoinState.inactive));
       }
+
+      await _disableCoin(coin.id.id);
+      await _broadcastAsset(coin.copyWith(state: CoinState.inactive));
     }
   }
 
