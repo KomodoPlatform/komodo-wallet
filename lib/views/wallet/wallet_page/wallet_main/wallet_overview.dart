@@ -102,6 +102,11 @@ class _WalletOverviewState extends State<WalletOverview> {
                   changeAmount: totalChange24h,
                   changePercentage: percentageChange24h,
                   onTap: widget.onAssetsPressed,
+                  onLongPress: () {
+                    final formattedValue = NumberFormat.currency(symbol: '\$')
+                        .format(totalBalance);
+                    copyToClipBoard(context, formattedValue);
+                  },
                 );
               },
             ),
@@ -110,7 +115,12 @@ class _WalletOverviewState extends State<WalletOverview> {
               key: const Key('overview-current-value'),
               caption: Text(LocaleKeys.yourBalance.tr()),
               value: totalBalance,
-              onPressed: widget.onAssetsPressed,
+              onTap: widget.onAssetsPressed,
+              onLongPress: () {
+                final formattedValue =
+                    NumberFormat.currency(symbol: '\$').format(totalBalance);
+                copyToClipBoard(context, formattedValue);
+              },
               trendWidget:
                   BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
                 builder: (context, state) {
@@ -136,7 +146,12 @@ class _WalletOverviewState extends State<WalletOverview> {
             key: const Key('overview-all-time-investment'),
             caption: Text(LocaleKeys.allTimeInvestment.tr()),
             value: stateWithData?.totalInvestment.value ?? 0,
-            onPressed: widget.onPortfolioGrowthPressed,
+            onTap: widget.onPortfolioGrowthPressed,
+            onLongPress: () {
+              final formattedValue = NumberFormat.currency(symbol: '\$')
+                  .format(stateWithData?.totalInvestment.value ?? 0);
+              copyToClipBoard(context, formattedValue);
+            },
             trendWidget: ActionChip(
               avatar: Icon(
                 Icons.pie_chart,
@@ -157,7 +172,12 @@ class _WalletOverviewState extends State<WalletOverview> {
             key: const Key('overview-all-time-profit'),
             caption: Text(LocaleKeys.allTimeProfit.tr()),
             value: stateWithData?.profitAmount.value ?? 0,
-            onPressed: widget.onPortfolioProfitLossPressed,
+            onTap: widget.onPortfolioProfitLossPressed,
+            onLongPress: () {
+              final formattedValue = NumberFormat.currency(symbol: '\$')
+                  .format(stateWithData?.profitAmount.value ?? 0);
+              copyToClipBoard(context, formattedValue);
+            },
             trendWidget: stateWithData != null
                 ? TrendPercentageText(
                     percentage: stateWithData.profitIncreasePercentage,
