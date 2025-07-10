@@ -60,8 +60,9 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
           state.selectedPeriod,
         );
 
-        final isChartLoading = state is! PortfolioGrowthChartLoadSuccess &&
-            state is! PortfolioGrowthChartUnsupported;
+        final isChartLoading = (state is! PortfolioGrowthChartLoadSuccess &&
+                state is! PortfolioGrowthChartUnsupported) ||
+            (state is PortfolioGrowthChartLoadSuccess && state.isUpdating);
 
         return Card(
           clipBehavior: Clip.antiAlias,
