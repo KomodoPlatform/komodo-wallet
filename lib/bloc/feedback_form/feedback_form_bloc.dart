@@ -150,7 +150,9 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     }
 
     if (trimmed.length > contactDetailsMaxLength) {
-      return 'Contact details must be $contactDetailsMaxLength characters or less';
+      return LocaleKeys.contactDetailsMaxLengthError.tr(
+        args: [contactDetailsMaxLength.toString()],
+      );
     }
 
     switch (method) {
@@ -161,17 +163,17 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
         break;
       case ContactMethod.discord:
         if (!_isValidDiscordUsername(trimmed)) {
-          return 'Please enter a valid Discord username (2-32 characters, letters, numbers, dots, underscores)';
+          return LocaleKeys.discordUsernameValidatorError.tr();
         }
         break;
       case ContactMethod.telegram:
         if (!_isValidTelegramUsername(trimmed)) {
-          return 'Please enter a valid Telegram username (5-32 characters, letters, numbers, underscores)';
+          return LocaleKeys.telegramUsernameValidatorError.tr();
         }
         break;
       case ContactMethod.matrix:
         if (!_isValidMatrixId(trimmed)) {
-          return 'Please enter a valid Matrix ID (e.g., @username:server.com)';
+          return LocaleKeys.matrixIdValidatorError.tr();
         }
         break;
       case null:
