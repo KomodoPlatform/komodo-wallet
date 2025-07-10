@@ -17,31 +17,31 @@ class TradingStatusRepository {
       final apiKey = const String.fromEnvironment('FEEDBACK_API_KEY');
       final bool shouldFail = forceFail ?? false;
 
+      if (apiKey.isEmpty && !shouldFail) {
+        debugPrint('FEEDBACK_API_KEY not found. Trading disabled.');
+        return false;
+      }
+
       late final Uri uri;
       final headers = <String, String>{};
 
       if (shouldFail) {
         uri = Uri.parse(tradingBlacklistUrl);
-      } else if (apiKey.isNotEmpty) {
+      } else {
         uri = Uri.parse(geoBlockerApiUrl);
         headers['X-KW-KEY'] = apiKey;
-      } else {
-        debugPrint(
-          'Warning: FEEDBACK_API_KEY not found. Using legacy geo-blocker.',
-        );
-        uri = Uri.parse(legacyGeoBlockerUrl);
       }
 
       final res =
           await _httpClient.post(uri, headers: headers).timeout(_timeout);
 
-      if (apiKey.isNotEmpty && !shouldFail) {
-        if (res.statusCode != 200) return false;
-        final JsonMap data = jsonFromString(res.body);
-        return !(data.valueOrNull<bool>('blocked') ?? true);
-      } else {
+      if (shouldFail) {
         return res.statusCode == 200;
       }
+
+      if (res.statusCode != 200) return false;
+      final JsonMap data = jsonFromString(res.body);
+      return !(data.valueOrNull<bool>('blocked') ?? true);
     } catch (_) {
       debugPrint('Network error: Trading status check failed');
       // Block trading features on network failure

@@ -47,7 +47,5 @@ const String nftAntiSpamUrl = 'https://nft.antispam.dragonhound.info';
 
 const String geoBlockerApiUrl =
     'https://komodo-wallet-bouncer.komodoplatform.com';
-const String legacyGeoBlockerUrl =
-    'https://defi-stats.komodo.earth/api/v3/utils/bouncer';
 const String tradingBlacklistUrl =
     'https://defi-stats.komodo.earth/api/v3/utils/blacklist';
