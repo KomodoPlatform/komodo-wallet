@@ -43,8 +43,10 @@ String get appShortTitle => 'Komodo Wallet';
 Map<String, int> priorityCoinsAbbrMap = {
   'KMD': 30,
   'BTC-segwit': 20,
+  'BTC': 20,
   'ETH': 20,
   'LTC-segwit': 20,
+  'LTC': 20,
   'USDT-ERC20': 20,
   'BNB': 11,
   'ETC': 11,
