@@ -50,7 +50,7 @@ class ActiveCoinsList extends StatelessWidget {
         }
 
         List<Coin> sorted =
-            sortFiatBalance(displayedCoins.toList(), context.sdk);
+            sortByPriorityAndBalance(displayedCoins.toList(), context.sdk);
 
         if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
           sorted = removeTestCoins(sorted);
