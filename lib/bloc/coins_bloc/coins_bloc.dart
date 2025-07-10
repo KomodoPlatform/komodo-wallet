@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -157,7 +156,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final walletCoins = Map<String, Coin>.of(state.walletCoins);
 
     if (coin.isActivating || coin.isActive || coin.isSuspended) {
-      await _kdfSdk.addActivatedCoins([coin.id.id]);
       emit(
         state.copyWith(
           walletCoins: {...walletCoins, coin.id.id: coin},
@@ -168,7 +166,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     if (coin.isInactive) {
       walletCoins.remove(coin.id.id);
-      await _kdfSdk.removeActivatedCoins([coin.id.id]);
       emit(
         state.copyWith(
           walletCoins: walletCoins,
@@ -258,7 +255,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     // Remove coins from the SDK metadata field before deactivating to
     // prevent reactivation on login or via state syncing tasks.
-    await _kdfSdk.removeActivatedCoins(coinIdsToDisable.toList());
     final coinsToDisable = event.coinIds
         .map((id) => currentWalletCoins[id])
         .whereType<Coin>()
@@ -365,16 +361,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       return <Coin>[];
     }
 
-    try {
-      // Start off by emitting the newly activated coins so that they all appear
-      // in the list at once, rather than one at a time as they are activated
-      emit(await _prePopulateListWithActivatingCoins(coins));
-
-      await _kdfSdk.addActivatedCoins(coins);
-    } catch (e, s) {
-      _log.shout('Failed to add activated coins to SDK metadata field', e, s);
-      rethrow;
-    }
+    // Start off by emitting the newly activated coins so that they all appear
+    // in the list at once, rather than one at a time as they are activated
+    emit(await _prePopulateListWithActivatingCoins(coins));
 
     final enabledAssets = await _kdfSdk.assets.getEnabledCoins();
     final coinsToActivate = coins
@@ -421,7 +410,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   Future<Coin> _activateCoin(String coinId) async {
-    Coin? coin = state.coins[coinId] ?? _coinsRepo.getCoin(coinId);
+    final Coin? coin = state.coins[coinId] ?? _coinsRepo.getCoin(coinId);
     if (coin == null) {
       throw ArgumentError.value(coinId, 'coinId', 'Coin not found');
     }
@@ -433,31 +422,15 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         return coin;
       }
 
-      switch (currentWallet.config.type) {
-        case WalletType.iguana:
-        case WalletType.hdwallet:
-        case WalletType.trezor:
-          coin = await _activateIguanaCoin(coin);
-        case WalletType.metamask:
-        case WalletType.keplr:
-      }
-    } catch (e, s) {
-      _log.shout('Error activating coin ${coin!.id}', e, s);
-    }
-
-    return coin;
-  }
-
-  Future<Coin> _activateIguanaCoin(Coin coin) async {
-    try {
       _log.info('Enabling iguana coin: ${coin.id.id}');
       await _coinsRepo.activateCoinsSync([coin]);
       coin.state = CoinState.active;
       _log.info('Iguana coin ${coin.name} has been enabled');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       coin.state = CoinState.suspended;
-      _log.shout('Failed to activate iguana coin', e, s);
+      _log.shout('Error activating coin ${coin.id}', e, s);
     }
+
     return coin;
   }
 
@@ -465,24 +438,32 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   /// coins are activated
   Stream<Coin> _syncIguanaCoinsStates(Iterable<String> coins) async* {
     final walletCoins = state.walletCoins;
-    final enabledApiAssets = (await _kdfSdk.assets.getActivatedAssets())
-        .where((asset) => !excludedAssetList.contains(asset.id.id));
+    final walletAssets = (await _kdfSdk.currentWallet())
+            ?.config
+            .activatedCoins
+            .map((coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId).single)
+            .whereType<Asset>()
+            .toList() ??
+        [];
 
-    final enabledAssetsNotInWallet = enabledApiAssets
+    final enabledAssetsNotInWallet = walletAssets
         .where((asset) => !walletCoins.containsKey(asset.id.id))
         .toList();
     for (final asset in enabledAssetsNotInWallet) {
-      final currentWallet = await _kdfSdk.currentWallet();
-      final existsInStorage =
-          currentWallet?.config.activatedCoins.contains(asset.id.id) ?? false;
-      debugger(when: !existsInStorage);
-      await _kdfSdk.addActivatedCoins([asset.id.id]);
       // enabled on api side, but not on gui side - enable on gui side
-      yield asset.toCoin();
+      final coin = _coinsRepo.getCoinFromId(asset.id);
+      if (coin == null) {
+        _log.warning(
+          'Coin ${asset.id.id} enabled on API but not in wallet, enabling now',
+        );
+        yield asset.toCoin();
+      } else {
+        yield coin;
+      }
     }
 
     for (final coinId in coins) {
-      final Coin? apiCoin = enabledApiAssets
+      final Coin? apiCoin = walletAssets
           .firstWhereOrNull((asset) => asset.id.id == coinId)
           ?.toCoin();
       final coin = walletCoins[coinId];

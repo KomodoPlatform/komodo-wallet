@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -7,7 +6,6 @@ import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/hd_account/hd_account.dart';
-import 'package:web_dex/model/wallet.dart';
 
 class Coin {
   Coin({
