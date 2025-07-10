@@ -62,6 +62,8 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
         final maxChartExtent = DateTime.now().millisecondsSinceEpoch.toDouble();
 
         final isSuccess = state is PortfolioProfitLossChartLoadSuccess;
+        final isUpdating =
+            state is PortfolioProfitLossChartLoadSuccess && state.isUpdating;
         final List<ChartData> chartData = isSuccess
             ? state.profitLossChart
                 .map((point) => ChartData(x: point.x.toDouble(), y: point.y))
@@ -176,7 +178,7 @@ class PortfolioProfitLossChartState extends State<PortfolioProfitLossChart> {
                     ),
                   ),
                 ),
-                if (state is! PortfolioProfitLossChartLoadSuccess)
+                if (!isSuccess || isUpdating)
                   Container(
                     clipBehavior: Clip.none,
                     child: const LinearProgressIndicator(
