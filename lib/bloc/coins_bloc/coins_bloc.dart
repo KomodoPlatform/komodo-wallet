@@ -353,7 +353,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     try {
       _coinsRepo.flushCache();
-      await _activateLoginWalletCoins(emit);
+      final Wallet? currentWallet = await _kdfSdk.currentWallet();
+      await _activateCoins(currentWallet?.config.activatedCoins ?? [], emit);
       emit(state.copyWith(loginActivationFinished: true));
 
       add(CoinsBalancesRefreshed());
@@ -370,11 +371,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     add(CoinsBalanceMonitoringStopped());
 
     final List<Coin> coins = [...state.walletCoins.values];
-    for (final Coin coin in coins) {
-      coin.reset();
-      _log.info('Logout: ${coin.name} has been reset (legacy operation)');
-    }
-
     emit(
       state.copyWith(
         walletCoins: {},
@@ -392,6 +388,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Iterable<String> coins,
     Emitter<CoinsState> emit,
   ) async {
+    if (coins.isEmpty) {
+      _log.warning('No coins to activate');
+      return <Coin>[];
+    }
+
     try {
       // Start off by emitting the newly activated coins so that they all appear
       // in the list at once, rather than one at a time as they are activated
@@ -428,17 +429,13 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   Future<CoinsState> _prePopulateListWithActivatingCoins(
     Iterable<String> coins,
   ) async {
-    final currentWallet = await _kdfSdk.currentWallet();
     final knownCoins = _coinsRepo.getKnownCoinsMap();
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
           .map(
             (coin) {
               final sdkCoin = knownCoins[coin];
-              return sdkCoin?.copyWith(
-                state: CoinState.activating,
-                enabledType: currentWallet?.config.type,
-              );
+              return sdkCoin?.copyWith( state: CoinState.activating);
             },
           )
           .where((coin) => coin != null)
@@ -490,15 +487,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       _log.shout('Failed to activate iguana coin', e, s);
     }
     return coin;
-  }
-
-  Future<List<Coin>> _activateLoginWalletCoins(Emitter<CoinsState> emit) async {
-    final Wallet? currentWallet = await _kdfSdk.currentWallet();
-    if (currentWallet == null) {
-      return List.empty();
-    }
-
-    return _activateCoins(currentWallet.config.activatedCoins, emit);
   }
 
   Stream<List<Coin>> _reActivateSuspended(

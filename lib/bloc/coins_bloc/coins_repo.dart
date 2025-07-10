@@ -23,7 +23,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 import 'package:web_dex/shared/constants.dart';
 
@@ -68,11 +67,6 @@ class CoinsRepo {
   int _enabledAssetListenerCount = 0;
   bool get _enabledAssetsHasListeners => _enabledAssetListenerCount > 0;
   Future<void> _broadcastAsset(Coin coin) async {
-    final currentUser = await _kdfSdk.auth.currentUser;
-    if (currentUser != null) {
-      coin.enabledType = currentUser.wallet.config.type;
-    }
-
     if (_enabledAssetsHasListeners) {
       enabledAssetsChanges.add(coin);
     }
@@ -204,7 +198,6 @@ class CoinsRepo {
     return coin.copyWith(
       address: coinAddress,
       state: CoinState.active,
-      enabledType: currentUser.wallet.config.type,
     );
   }
 
@@ -233,7 +226,6 @@ class CoinsRepo {
       coinsMap[coinId] = coin.copyWith(
         address: coinAddress,
         state: CoinState.active,
-        enabledType: currentUser.wallet.config.type,
       );
 
       // Set up balance watcher for this coin
@@ -627,6 +619,8 @@ class CoinsRepo {
     }
   }
 
+  @Deprecated('Use KomodoDefiSdk withdraw method instead. '
+      'This will be removed in the future.')
   Future<BlocResponse<WithdrawDetails, BaseError>> withdraw(
     WithdrawRequest request,
   ) async {

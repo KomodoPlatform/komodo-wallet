@@ -118,7 +118,7 @@ class _SettingsResetActivatedCoinsState
     if (!mounted) return;
 
     // Show Dialog
-    showDialog(
+    return showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(LocaleKeys.resetCompleteTitle.tr()),
