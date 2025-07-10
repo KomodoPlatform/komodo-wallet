@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -36,10 +37,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     on<CoinsPricesUpdated>(_onPricesUpdated, transformer: droppable());
     on<CoinsSessionStarted>(_onLogin, transformer: droppable());
     on<CoinsSessionEnded>(_onLogout, transformer: droppable());
-    on<CoinsSuspendedReactivated>(
-      _onReactivateSuspended,
-      transformer: droppable(),
-    );
     on<CoinsWalletCoinUpdated>(_onWalletCoinUpdated, transformer: sequential());
     on<CoinsPubkeysRequested>(
       _onCoinsPubkeysRequested,
@@ -55,14 +52,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   StreamSubscription<Coin>? _enabledCoinsSubscription;
   Timer? _updateBalancesTimer;
   Timer? _updatePricesTimer;
-  Timer? _reActivateSuspendedTimer;
 
   @override
   Future<void> close() async {
     await _enabledCoinsSubscription?.cancel();
     _updateBalancesTimer?.cancel();
     _updatePricesTimer?.cancel();
-    _reActivateSuspendedTimer?.cancel();
 
     await super.close();
   }
@@ -188,7 +183,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     _updateBalancesTimer?.cancel();
-    _reActivateSuspendedTimer?.cancel();
     await _enabledCoinsSubscription?.cancel();
   }
 
@@ -204,32 +198,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       },
     );
 
-    _reActivateSuspendedTimer?.cancel();
-    _reActivateSuspendedTimer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) => add(CoinsSuspendedReactivated()),
-    );
-
     // This is used to connect [CoinsBloc] to [CoinsManagerBloc], since coins
     // manager bloc activates and deactivates coins using the repository.
     await _enabledCoinsSubscription?.cancel();
     _enabledCoinsSubscription = _coinsRepo.enabledAssetsChanges.stream.listen(
       (Coin coin) => add(CoinsWalletCoinUpdated(coin)),
-    );
-  }
-
-  Future<void> _onReactivateSuspended(
-    CoinsSuspendedReactivated event,
-    Emitter<CoinsState> emit,
-  ) async {
-    await emit.forEach(
-      _reActivateSuspended(emit),
-      onData: (suspendedCoins) => state.copyWith(
-        walletCoins: {
-          ...state.walletCoins,
-          ...suspendedCoins.toMap(),
-        },
-      ),
     );
   }
 
@@ -283,13 +256,14 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       _flushCoinsFromState(currentWalletCoins, coinIdsToDisable, currentCoins),
     );
 
-    // Update SDK metadata and disable on the API first to avoid reactivation
+    // Remove coins from the SDK metadata field before deactivating to
+    // prevent reactivation on login or via state syncing tasks.
     await _kdfSdk.removeActivatedCoins(coinIdsToDisable.toList());
-    final coinsToDisable = coinIdsToDisable
+    final coinsToDisable = event.coinIds
         .map((id) => currentWalletCoins[id])
         .whereType<Coin>()
         .toList();
-    await _coinsRepo.deactivateCoinsSync(coinsToDisable);
+    await _coinsRepo.deactivateCoinsSync(coinsToDisable, notify: false);
   }
 
   CoinsState _flushCoinsFromState(
@@ -355,7 +329,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       _coinsRepo.flushCache();
       final Wallet? currentWallet = await _kdfSdk.currentWallet();
       await _activateCoins(currentWallet?.config.activatedCoins ?? [], emit);
-      emit(state.copyWith(loginActivationFinished: true));
 
       add(CoinsBalancesRefreshed());
       add(CoinsBalanceMonitoringStarted());
@@ -374,7 +347,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     emit(
       state.copyWith(
         walletCoins: {},
-        loginActivationFinished: false,
         coins: {
           ...state.coins,
           ...coins.toMap(),
@@ -435,7 +407,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
           .map(
             (coin) {
               final sdkCoin = knownCoins[coin];
-              return sdkCoin?.copyWith( state: CoinState.activating);
+              return sdkCoin?.copyWith(state: CoinState.activating);
             },
           )
           .where((coin) => coin != null)
@@ -489,40 +461,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     return coin;
   }
 
-  Stream<List<Coin>> _reActivateSuspended(
-    Emitter<CoinsState> emit, {
-    int attempts = 1,
-  }) async* {
-    final List<String> coinsToBeActivated = [];
-
-    for (int i = 0; i < attempts; i++) {
-      final List<String> suspended = state.walletCoins.values
-          .where((coin) => coin.isSuspended)
-          .map((coin) => coin.id.id)
-          .toList();
-
-      coinsToBeActivated
-        ..addAll(suspended)
-        ..addAll(await _getUnactivatedWalletCoins());
-
-      if (coinsToBeActivated.isEmpty) return;
-      yield await _activateCoins(coinsToBeActivated, emit);
-    }
-  }
-
-  Future<List<String>> _getUnactivatedWalletCoins() async {
-    final Wallet? currentWallet = await _kdfSdk.currentWallet();
-    if (currentWallet == null) {
-      _log.warning('No current wallet found. Cannot get unactivated coins.');
-      return List.empty();
-    }
-
-    return currentWallet.config.activatedCoins
-        .where((coinId) => !state.walletCoins.containsKey(coinId))
-        .where((coinId) => !excludedAssetList.contains(coinId))
-        .toList();
-  }
-
   /// yields one coin at a time to provide visual feedback to the user as
   /// coins are activated
   Stream<Coin> _syncIguanaCoinsStates(Iterable<String> coins) async* {
@@ -534,6 +472,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         .where((asset) => !walletCoins.containsKey(asset.id.id))
         .toList();
     for (final asset in enabledAssetsNotInWallet) {
+      final currentWallet = await _kdfSdk.currentWallet();
+      final existsInStorage =
+          currentWallet?.config.activatedCoins.contains(asset.id.id) ?? false;
+      debugger(when: !existsInStorage);
       await _kdfSdk.addActivatedCoins([asset.id.id]);
       // enabled on api side, but not on gui side - enable on gui side
       yield asset.toCoin();

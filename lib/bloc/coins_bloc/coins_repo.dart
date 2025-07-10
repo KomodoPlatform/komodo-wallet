@@ -66,7 +66,7 @@ class CoinsRepo {
   // why could they not implement this in streamcontroller or a wrapper :(
   int _enabledAssetListenerCount = 0;
   bool get _enabledAssetsHasListeners => _enabledAssetListenerCount > 0;
-  Future<void> _broadcastAsset(Coin coin) async {
+  void _broadcastAsset(Coin coin) {
     if (_enabledAssetsHasListeners) {
       enabledAssetsChanges.add(coin);
     }
@@ -286,7 +286,7 @@ class CoinsRepo {
     for (final asset in assets) {
       final coin = asset.toCoin();
       try {
-        await _broadcastAsset(coin.copyWith(state: CoinState.activating));
+        _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
         // ignore: deprecated_member_use
         final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
@@ -294,13 +294,13 @@ class CoinsRepo {
           throw StateError('Failed to activate coin ${asset.id.id}');
         }
 
-        await _broadcastAsset(coin.copyWith(state: CoinState.active));
+        _broadcastAsset(coin.copyWith(state: CoinState.active));
 
         // Set up balance watcher for the newly activated asset
         _subscribeToBalanceUpdates(asset, coin);
       } catch (e, s) {
         _log.shout('Error activating asset: ${asset.id.id}', e, s);
-        await _broadcastAsset(
+        _broadcastAsset(
           asset.toCoin().copyWith(state: CoinState.suspended),
         );
       } finally {
@@ -341,7 +341,7 @@ class CoinsRepo {
           continue;
         }
 
-        await _broadcastAsset(coin.copyWith(state: CoinState.activating));
+        _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
         // ignore: deprecated_member_use
         final progress = await _kdfSdk.assets.activateAsset(asset).last;
@@ -349,17 +349,17 @@ class CoinsRepo {
           throw StateError('Failed to activate coin ${coin.id.id}');
         }
 
-        await _broadcastAsset(coin.copyWith(state: CoinState.active));
+        _broadcastAsset(coin.copyWith(state: CoinState.active));
 
         // Set up balance watcher for the newly activated coin
         _subscribeToBalanceUpdates(asset, coin);
       } catch (e, s) {
         _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
-        await _broadcastAsset(coin.copyWith(state: CoinState.suspended));
+        _broadcastAsset(coin.copyWith(state: CoinState.suspended));
       } finally {
         // Register outside of the try-catch to ensure icon is available even
         // in a suspended or failing activation status.
-        if (coin.logoImageUrl?.isNotEmpty == true) {
+        if (coin.logoImageUrl?.isNotEmpty ?? false) {
           AssetIcon.registerCustomIcon(
             coin.id,
             NetworkImage(coin.logoImageUrl!),
@@ -369,28 +369,36 @@ class CoinsRepo {
     }
   }
 
-  Future<void> deactivateCoinsSync(List<Coin> coins) async {
-    if (!await _kdfSdk.auth.isSignedIn()) return;
-
+  /// Deactivates the given coins and cancels their balance watchers.
+  /// If [notify] is true, it will broadcast the deactivation to listeners.
+  /// This method is used to deactivate coins that are no longer needed or
+  /// supported by the user.
+  Future<void> deactivateCoinsSync(
+    List<Coin> coins, {
+    bool notify = true,
+  }) async {
     for (final coin in coins) {
-      // Cancel balance watcher for this coin
-      await _balanceWatchers[coin.id]?.cancel();
+      unawaited(_balanceWatchers[coin.id]?.cancel());
       _balanceWatchers.remove(coin.id);
 
-      final List<Coin> children = _kdfSdk.assets.available.values
-          .where((asset) => asset.id.parentId?.id == coin.id.id)
+      final List<Coin> children = (await _kdfSdk.assets.getActivatedAssets())
+          .where((asset) => asset.id.parentId == coin.id)
           .map(_assetToCoinWithoutAddress)
           .toList();
 
-      for (final child in children) {
-        await _balanceWatchers[child.id]?.cancel();
-        _balanceWatchers.remove(child.id);
-        await _disableCoin(child.id.id);
-        await _broadcastAsset(child.copyWith(state: CoinState.inactive));
-      }
+      await Future.wait(
+        children.map((child) async {
+          await _disableCoin(child.id.id);
+          if (notify) {
+            _broadcastAsset(child.copyWith(state: CoinState.inactive));
+          }
+          unawaited(_balanceWatchers[child.id]?.cancel());
+          _balanceWatchers.remove(child.id);
+        }),
+      );
 
       await _disableCoin(coin.id.id);
-      await _broadcastAsset(coin.copyWith(state: CoinState.inactive));
+      if (notify) _broadcastAsset(coin.copyWith(state: CoinState.inactive));
     }
   }
 
