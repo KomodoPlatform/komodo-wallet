@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart' show NewAddressStatus;
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
@@ -11,6 +12,7 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
   final KomodoDefiSdk sdk;
   final String assetId;
   final AnalyticsBloc analyticsBloc;
+  StreamSubscription<NewAddressState>? _createAddressSubscription;
   CoinAddressesBloc(
     this.sdk,
     this.assetId,
@@ -25,6 +27,9 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
     SubmitCreateAddressEvent event,
     Emitter<CoinAddressesState> emit,
   ) async {
+    // Cancel any existing address creation subscription to prevent conflicts
+    await _createAddressSubscription?.cancel();
+
     emit(
       state.copyWith(
         createAddressStatus: () => FormStatus.submitting,
@@ -34,55 +39,70 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
 
     final stream = sdk.pubkeys.createNewPubkeyStream(getSdkAsset(sdk, assetId));
 
-    await for (final newAddressState in stream) {
-      emit(state.copyWith(newAddressState: () => newAddressState));
+    _createAddressSubscription = stream.listen(
+      (newAddressState) {
+        emit(state.copyWith(newAddressState: () => newAddressState));
 
-      switch (newAddressState.status) {
-        case NewAddressStatus.completed:
-          final pubkey = newAddressState.address;
-          final derivation = pubkey?.derivationPath;
-          if (derivation != null) {
-            final parsed = parseDerivationPath(derivation);
-            analyticsBloc.logEvent(
-              HdAddressGeneratedEventData(
-                accountIndex: parsed.accountIndex,
-                addressIndex: parsed.addressIndex,
-                assetSymbol: assetId,
+        switch (newAddressState.status) {
+          case NewAddressStatus.completed:
+            final pubkey = newAddressState.address;
+            final derivation = pubkey?.derivationPath;
+            if (derivation != null) {
+              final parsed = parseDerivationPath(derivation);
+              analyticsBloc.logEvent(
+                HdAddressGeneratedEventData(
+                  accountIndex: parsed.accountIndex,
+                  addressIndex: parsed.addressIndex,
+                  assetSymbol: assetId,
+                ),
+              );
+            }
+
+            add(const LoadAddressesEvent());
+
+            emit(
+              state.copyWith(
+                createAddressStatus: () => FormStatus.success,
+                newAddressState: () => null,
               ),
             );
-          }
-
-          add(const LoadAddressesEvent());
-
-          emit(
-            state.copyWith(
-              createAddressStatus: () => FormStatus.success,
-              newAddressState: () => null,
-            ),
-          );
-          return;
-        case NewAddressStatus.error:
-          emit(
-            state.copyWith(
-              createAddressStatus: () => FormStatus.failure,
-              errorMessage: () => newAddressState.error,
-              newAddressState: () => null,
-            ),
-          );
-          return;
-        case NewAddressStatus.cancelled:
-          emit(
-            state.copyWith(
-              createAddressStatus: () => FormStatus.initial,
-              newAddressState: () => null,
-            ),
-          );
-          return;
-        default:
-          // continue listening for next events
-          break;
-      }
-    }
+            _createAddressSubscription?.cancel();
+            break;
+          case NewAddressStatus.error:
+            emit(
+              state.copyWith(
+                createAddressStatus: () => FormStatus.failure,
+                errorMessage: () => newAddressState.error,
+                newAddressState: () => null,
+              ),
+            );
+            _createAddressSubscription?.cancel();
+            break;
+          case NewAddressStatus.cancelled:
+            emit(
+              state.copyWith(
+                createAddressStatus: () => FormStatus.initial,
+                newAddressState: () => null,
+              ),
+            );
+            _createAddressSubscription?.cancel();
+            break;
+          default:
+            // continue listening for next events
+            break;
+        }
+      },
+      onError: (error) {
+        emit(
+          state.copyWith(
+            createAddressStatus: () => FormStatus.failure,
+            errorMessage: () => error.toString(),
+            newAddressState: () => null,
+          ),
+        );
+        _createAddressSubscription?.cancel();
+      },
+    );
   }
 
   Future<void> _onLoadAddresses(
@@ -119,5 +139,11 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
     Emitter<CoinAddressesState> emit,
   ) {
     emit(state.copyWith(hideZeroBalance: () => event.hideZeroBalance));
+  }
+
+  @override
+  Future<void> close() async {
+    await _createAddressSubscription?.cancel();
+    return super.close();
   }
 }

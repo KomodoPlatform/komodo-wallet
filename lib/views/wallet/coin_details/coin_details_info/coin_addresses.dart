@@ -23,7 +23,7 @@ import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 import 'package:web_dex/views/wallet/common/address_text.dart';
 
-class CoinAddresses extends StatefulWidget {
+class CoinAddresses extends StatelessWidget {
   const CoinAddresses({
     super.key,
     required this.coin,
@@ -32,27 +32,6 @@ class CoinAddresses extends StatefulWidget {
 
   final Coin coin;
   final void Function(CoinPageType) setPageType;
-
-  @override
-  State<CoinAddresses> createState() => _CoinAddressesState();
-}
-
-class _CoinAddressesState extends State<CoinAddresses> {
-  late CoinAddressesBloc _coinAddressesBloc;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Safely store a reference to the bloc
-    _coinAddressesBloc = context.read<CoinAddressesBloc>();
-  }
-
-  @override
-  void dispose() {
-    // Use the stored reference instead of looking it up through context
-    _coinAddressesBloc.close();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +89,8 @@ class _CoinAddressesState extends State<CoinAddresses> {
                               return AddressCard(
                                 address: address,
                                 index: index,
-                                coin: widget.coin,
-                                setPageType: widget.setPageType,
+                                coin: coin,
+                                setPageType: setPageType,
                               );
                             },
                           ),

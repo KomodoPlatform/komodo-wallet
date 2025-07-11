@@ -1,5 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -9,7 +10,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/settings/widgets/common/settings_section.dart';
 
 class SettingsThemeSwitcher extends StatelessWidget {
-  const SettingsThemeSwitcher({Key? key}) : super(key: key);
+  const SettingsThemeSwitcher({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +39,16 @@ class SettingsThemeSwitcher extends StatelessWidget {
                   child: _SettingsModeSelector(mode: ThemeMode.dark),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 6.0),
-                  child: _UltraDarkSelector(),
+              // Temporarily removed from release version until further testing
+              if (kDebugMode) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 6.0),
+                    child: _UltraDarkSelector(),
+                  ),
                 ),
-              ),
+              ]
             ]),
       ),
     );
@@ -175,8 +179,9 @@ class _UltraDarkSelector extends StatelessWidget {
     const double size = 16.0;
     const Color backgroundColor = Colors.black;
     return InkWell(
-      onTap: () =>
-          context.read<SettingsBloc>().add(UltraDarkChanged(enabled: !isSelected)),
+      onTap: () => context
+          .read<SettingsBloc>()
+          .add(UltraDarkChanged(enabled: !isSelected)),
       mouseCursor: SystemMouseCursors.click,
       child: Container(
         key: const Key('theme-settings-switcher-ultra'),

@@ -1,15 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/update_bloc.dart';
-import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
 import 'package:web_dex/router/state/routing_state.dart';
@@ -18,7 +17,6 @@ import 'package:web_dex/services/feedback/feedback_service.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/shared/utils/window/window.dart';
 import 'package:web_dex/views/common/header/app_header.dart';
 import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
 
@@ -32,10 +30,6 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   @override
   void initState() {
-    // TODO: localize
-    if (kIsWeb) {
-      showMessageBeforeUnload('Are you sure you want to leave?');
-    }
     final tradingStatusBloc = context.read<TradingStatusBloc>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -62,18 +56,23 @@ class _MainLayoutState extends State<MainLayout> {
           routingState.resetOnLogOut();
         }
       },
-      child: Scaffold(
-        key: scaffoldKey,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        appBar: isMobile
-            ? null
-            : const PreferredSize(
-                preferredSize: Size.fromHeight(appBarHeight),
-                child: AppHeader(),
-              ),
-        body: SafeArea(child: MainLayoutRouter()),
-        bottomNavigationBar: !isDesktop ? MainMenuBarMobile() : null,
-        floatingActionButton: const MainLayoutFab(),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+
+          return Scaffold(
+            key: scaffoldKey,
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            appBar: isMobile
+                ? null
+                : const PreferredSize(
+                    preferredSize: Size.fromHeight(appBarHeight),
+                    child: AppHeader(),
+                  ),
+            body: SafeArea(child: MainLayoutRouter()),
+            bottomNavigationBar: isMobile ? MainMenuBarMobile() : null,
+            floatingActionButton: MainLayoutFab(isMobile: isMobile),
+          );
+        },
       ),
     );
   }
@@ -115,7 +114,9 @@ class _MainLayoutState extends State<MainLayout> {
 }
 
 class MainLayoutFab extends StatelessWidget {
-  const MainLayoutFab({super.key});
+  const MainLayoutFab({super.key, required this.isMobile});
+
+  final bool isMobile;
 
   @override
   Widget build(BuildContext context) {
