@@ -18,6 +18,7 @@ class AuthBlocState extends Equatable {
   factory AuthBlocState.error(AuthException authError) => AuthBlocState(
         mode: AuthorizeMode.noLogin,
         authenticationState: AuthenticationState.error(authError.toString()),
+        authError: authError,
       );
   factory AuthBlocState.loggedIn(KdfUser user) => AuthBlocState(
         mode: AuthorizeMode.logIn,
