@@ -13,7 +13,9 @@ class StatisticCard extends StatelessWidget {
   // The formatter used to format the value for the title
   final NumberFormat _valueFormatter;
 
-  final VoidCallback? onPressed;
+  /// Callback when the card is tapped.
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   // Widget shown in the top right corner (typically TrendPercentageText)
   final Widget? trendWidget;
@@ -28,7 +30,8 @@ class StatisticCard extends StatelessWidget {
     this.trendWidget,
     this.actionWidget,
     NumberFormat? valueFormatter,
-    this.onPressed,
+    this.onTap,
+    this.onLongPress,
   }) : _valueFormatter = valueFormatter ?? NumberFormat.currency(symbol: '\$');
 
   @override
@@ -40,7 +43,8 @@ class StatisticCard extends StatelessWidget {
       color: isDarkMode ? Colors.black : Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: onPressed,
+        onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(16.0),

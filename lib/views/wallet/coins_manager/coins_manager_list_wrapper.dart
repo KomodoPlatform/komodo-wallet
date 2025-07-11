@@ -111,7 +111,7 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       case CoinsManagerSortType.balance:
         return sortByUsdBalance(coins, _sortData.sortDirection, context.sdk);
       case CoinsManagerSortType.none:
-        return coins;
+        return sortByPriorityAndBalance(coins, context.sdk);
     }
   }
 

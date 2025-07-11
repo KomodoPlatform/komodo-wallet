@@ -8,6 +8,7 @@ class BalanceSummaryWidget extends StatelessWidget {
   final double changeAmount;
   final double changePercentage;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const BalanceSummaryWidget({
     super.key,
@@ -15,6 +16,7 @@ class BalanceSummaryWidget extends StatelessWidget {
     required this.changeAmount,
     required this.changePercentage,
     this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -33,6 +35,7 @@ class BalanceSummaryWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: GradientBorder(
         gradient: gradient,
         innerColor: theme.colorScheme.surface,

@@ -6,6 +6,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -35,12 +36,18 @@ List<Widget>? getHeaderActions(BuildContext context) {
       ),
     Padding(
       padding: headerActionsPadding,
-      child: BlocBuilder<CoinsBloc, CoinsState>(
-        builder: (context, state) {
+      child: BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
+        builder: (context, pgState) {
+          final coins = context.select<CoinsBloc, Iterable<Coin>>(
+            (bloc) => bloc.state.walletCoins.values,
+          );
+          final totalBalance = pgState is PortfolioGrowthChartLoadSuccess
+              ? pgState.totalBalance
+              : _getTotalBalance(coins, context);
+
           return ActionTextButton(
             text: LocaleKeys.balance.tr(),
-            secondaryText:
-                '\$${formatAmt(_getTotalBalance(state.walletCoins.values, context))}',
+            secondaryText: '\$${formatAmt(totalBalance)}',
             onTap: null,
           );
         },
