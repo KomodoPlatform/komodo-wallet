@@ -142,7 +142,7 @@ class _ExchangeButton extends StatelessWidget {
                       prefix: inProgress ? const _Spinner() : null,
                       text: tradingEnabled
                           ? LocaleKeys.exchange.tr()
-                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                          : LocaleKeys.tradingDisabled.tr(),
                       onPressed: isDisabled || !tradingEnabled
                           ? null
                           : () => _onPressed(context),
