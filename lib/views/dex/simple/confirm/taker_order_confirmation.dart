@@ -157,7 +157,7 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
                   : () => _startSwap(context),
               text: tradingEnabled
                   ? LocaleKeys.confirm.tr()
-                  : LocaleKeys.tradingDisabledTooltip.tr()),
+                  : LocaleKeys.tradingDisabled.tr()),
         );
       },
     );

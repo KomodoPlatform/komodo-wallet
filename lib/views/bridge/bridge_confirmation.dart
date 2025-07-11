@@ -411,7 +411,7 @@ class _ConfirmButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final tradingStatusState = context.watch<TradingStatusBloc>().state;
     final tradingEnabled = tradingStatusState.isEnabled;
-    
+
     return Flexible(
         child: BlocSelector<BridgeBloc, BridgeState, bool>(
             selector: (state) => state.inProgress,
@@ -424,7 +424,7 @@ class _ConfirmButton extends StatelessWidget {
                   prefix: inProgress ? const _ProgressIndicator() : null,
                   text: tradingEnabled
                       ? LocaleKeys.confirm.tr()
-                      : LocaleKeys.tradingDisabledTooltip.tr(),
+                      : LocaleKeys.tradingDisabled.tr(),
                   onPressed: inProgress || !tradingEnabled ? null : onPressed,
                 ),
               );

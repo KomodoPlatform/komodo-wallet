@@ -141,7 +141,7 @@ class TradeButton extends StatelessWidget {
                 key: const Key('take-order-button'),
                 text: isTradingEnabled
                     ? LocaleKeys.swapNow.tr()
-                    : LocaleKeys.tradingDisabledTooltip.tr(),
+                    : LocaleKeys.tradingDisabled.tr(),
                 prefix: inProgress ? const TradeButtonSpinner() : null,
                 onPressed: disabled || !isTradingEnabled
                     ? null
