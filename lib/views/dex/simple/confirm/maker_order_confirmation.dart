@@ -148,7 +148,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
           onPressed: _inProgress || !tradingEnabled ? null : _startSwap,
           text: tradingEnabled
               ? LocaleKeys.confirm.tr()
-              : LocaleKeys.tradingDisabledTooltip.tr()),
+              : LocaleKeys.tradingDisabled.tr()),
     );
   }
 

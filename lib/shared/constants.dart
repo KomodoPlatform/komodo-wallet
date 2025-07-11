@@ -44,3 +44,8 @@ const bool isTestMode =
     bool.fromEnvironment('testing_mode', defaultValue: false);
 const String moralisProxyUrl = 'https://moralis-proxy.komodo.earth';
 const String nftAntiSpamUrl = 'https://nft.antispam.dragonhound.info';
+
+const String geoBlockerApiUrl =
+    'https://komodo-wallet-bouncer.komodoplatform.com';
+const String tradingBlacklistUrl =
+    'https://defi-stats.komodo.earth/api/v3/utils/blacklist';
