@@ -231,6 +231,8 @@
     "clickAssetToAddHint": "No assets selected",
     "clickAssetToRemoveHint": "Select assets to remove",
     "defaultCoinDisableWarning": "You can't disable {}, it is a default coin",
+    "parentCoinDisableWarning": "Disabling {} will also disable its tokens: {}. Continue?",
+    "coinDisableOpenOrdersWarning": "There are {} open orders for {}. Cancel these orders and disable the coin?",
     "supportFrequentlyQuestionSpan": "Frequently asked questions",
     "support": "Support",
     "supportInfoTitle1": "Do you store my private keys?",
@@ -687,5 +689,5 @@
     "searchAddresses": "Search addresses",
     "trend7d": "7d trend",
     "tradingDisabledTooltip": "Trading features are currently disabled",
-    "tradingDisabled": "Trading is currently unavailable"
+    "tradingDisabled": "Trading unavailable in your location"
 }

@@ -61,6 +61,7 @@ class PortfolioGrowthBloc
           totalBalance: currentState.totalBalance,
           totalChange24h: currentState.totalChange24h,
           percentageChange24h: currentState.percentageChange24h,
+          isUpdating: true,
         ),
       );
     } else if (currentState is GrowthChartLoadFailure) {
@@ -205,6 +206,7 @@ class PortfolioGrowthBloc
       totalBalance: totalBalance,
       totalChange24h: totalChange24h,
       percentageChange24h: percentageChange24h,
+      isUpdating: false,
     );
   }
 
@@ -260,6 +262,7 @@ class PortfolioGrowthBloc
       totalBalance: totalBalance,
       totalChange24h: totalChange24h,
       percentageChange24h: percentageChange24h,
+      isUpdating: false,
     );
   }
 

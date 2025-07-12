@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -22,7 +23,6 @@ import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
-import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class MakerFormBloc implements BlocBase {
   MakerFormBloc({
@@ -296,11 +296,7 @@ class MakerFormBloc implements BlocBase {
       return await retry(
         () => dexRepository.getMaxMakerVolume(coinTicker),
         maxAttempts: maxAttempts,
-        backoffStrategy: LinearBackoff(
-          initialDelay: const Duration(seconds: 2),
-          increment: const Duration(seconds: 2),
-          maxDelay: const Duration(seconds: 10),
-        ),
+        backoffStrategy: const LinearBackoff(),
       );
     } catch (_) {
       return null;
@@ -639,6 +635,9 @@ class MakerFormBloc implements BlocBase {
   bool _fetchingPreimageData = false;
   Future<DataFromService<TradePreimage, BaseError>?> _getPreimageData() async {
     await pauseWhile(() => _fetchingPreimageData);
+
+    await activateCoinIfNeeded(sellCoin?.abbr, coinsRepository);
+    await activateCoinIfNeeded(buyCoin?.abbr, coinsRepository);
 
     final String? base = sellCoin?.abbr;
     final String? rel = buyCoin?.abbr;

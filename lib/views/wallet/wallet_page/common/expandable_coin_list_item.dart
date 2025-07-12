@@ -1,21 +1,20 @@
 // lib/src/defi/asset/coin_list_item.dart
 
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_ui/komodo_ui.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
 
 /// Widget for showing an authenticated user's balance and anddresses for a
 /// given coin
@@ -339,11 +338,10 @@ class CoinMoreActionsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<CoinMoreActions>(
       icon: const Icon(Icons.more_vert),
-      onSelected: (action) {
+      onSelected: (action) async {
         switch (action) {
           case CoinMoreActions.disable:
-            context.read<CoinsBloc>().add(CoinsDeactivated([coin.abbr]));
-            break;
+            confirmBeforeDisablingCoin(coin, context, null);
         }
       },
       itemBuilder: (context) {

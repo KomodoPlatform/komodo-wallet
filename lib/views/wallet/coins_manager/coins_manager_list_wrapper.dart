@@ -12,6 +12,7 @@ import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/shared/utils/extensions/sdk_extensions.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/information_popup.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_controls.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
@@ -110,7 +111,7 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       case CoinsManagerSortType.balance:
         return sortByUsdBalance(coins, _sortData.sortDirection, context.sdk);
       case CoinsManagerSortType.none:
-        return coins;
+        return sortByPriorityAndBalance(coins, context.sdk);
     }
   }
 
@@ -118,14 +119,68 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
     final tradingEntitiesBloc =
         RepositoryProvider.of<TradingEntitiesBloc>(context);
     final bloc = context.read<CoinsManagerBloc>();
-    if (bloc.state.action == CoinsManagerAction.remove &&
-        tradingEntitiesBloc.isCoinBusy(coin.abbr)) {
-      _informationPopup.text =
-          LocaleKeys.coinDisableSpan1.tr(args: [coin.abbr]);
-      _informationPopup.show();
+
+    if (bloc.state.action == CoinsManagerAction.remove) {
+      final childCoins = bloc.state.coins
+          .where((c) => c.parentCoin?.abbr == coin.abbr)
+          .toList();
+
+      final hasSwap = tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
+          childCoins.any((c) => tradingEntitiesBloc.hasActiveSwap(c.abbr));
+
+      if (hasSwap) {
+        _informationPopup.text =
+            LocaleKeys.coinDisableSpan1.tr(args: [coin.abbr]);
+        _informationPopup.show();
+        return;
+      }
+
+      final int openOrders = tradingEntitiesBloc.openOrdersCount(coin.abbr) +
+          childCoins.fold<int>(
+              0, (sum, c) => sum + tradingEntitiesBloc.openOrdersCount(c.abbr));
+
+      if (openOrders > 0) {
+        confirmCoinDisableWithOrders(
+          context,
+          coin: coin.abbr,
+          ordersCount: openOrders,
+        ).then((confirmed) {
+          if (!confirmed) return;
+          tradingEntitiesBloc.cancelOrdersForCoin(coin.abbr);
+          for (final child in childCoins) {
+            tradingEntitiesBloc.cancelOrdersForCoin(child.abbr);
+          }
+          _confirmDisable(bloc, coin, childCoins);
+        });
+        return;
+      }
+
+      _confirmDisable(bloc, coin, childCoins);
       return;
     }
+
     bloc.add(CoinsManagerCoinSelect(coin: coin));
+  }
+
+  void _confirmDisable(
+    CoinsManagerBloc bloc,
+    Coin coin,
+    List<Coin> childCoins,
+  ) {
+    if (coin.parentCoin == null) {
+      final childTokens = childCoins.map((c) => c.abbr).toList();
+      confirmParentCoinDisable(
+        context,
+        parent: coin.abbr,
+        tokens: childTokens,
+      ).then((confirmed) {
+        if (confirmed) {
+          bloc.add(CoinsManagerCoinSelect(coin: coin));
+        }
+      });
+    } else {
+      bloc.add(CoinsManagerCoinSelect(coin: coin));
+    }
   }
 }
 

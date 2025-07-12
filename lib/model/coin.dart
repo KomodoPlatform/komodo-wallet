@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -7,7 +6,6 @@ import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/hd_account/hd_account.dart';
-import 'package:web_dex/model/wallet.dart';
 
 class Coin {
   Coin({
@@ -74,10 +72,6 @@ class Coin {
   final String? _swapContractAddress;
   String? fallbackSwapContract;
 
-  @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s WalletManager to determine wallet type.')
-  WalletType? enabledType;
-
   final bool _walletOnly;
   final int priority;
   Coin? parentCoin;
@@ -109,66 +103,11 @@ class Coin {
   bool get isTxMemoSupported =>
       type == CoinType.tendermint || type == CoinType.tendermintToken;
 
-  @Deprecated(
-      'TODO: Adapt SDK to cater for this use case and remove this method.')
-  String? get defaultAddress {
-    switch (enabledType) {
-      case WalletType.trezor:
-        return _defaultTrezorAddress;
-      default:
-        return address;
-    }
-  }
-
   bool get isCustomFeeSupported {
     return type != CoinType.tendermintToken && type != CoinType.tendermint;
   }
 
   bool get hasFaucet => coinsWithFaucet.contains(abbr);
-
-  @Deprecated(
-      'TODO: Adapt SDK to cater for this use case and remove this method.')
-  String? get _defaultTrezorAddress {
-    if (enabledType != WalletType.trezor) return null;
-    if (accounts == null) return null;
-    if (accounts!.isEmpty) return null;
-    if (accounts!.first.addresses.isEmpty) return null;
-
-    return accounts!.first.addresses.first.address;
-  }
-
-  @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This value is not updated after initial load and may be inaccurate.')
-  List<HdAddress> nonEmptyHdAddresses() {
-    final List<HdAddress>? allAddresses = accounts?.first.addresses;
-    if (allAddresses == null) return [];
-
-    final List<HdAddress> nonEmpty = List.from(allAddresses);
-    nonEmpty.removeWhere((hdAddress) => hdAddress.balance.spendable <= 0);
-    return nonEmpty;
-  }
-
-  @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset derivation methods instead. This method does not work for multiple addresses per coin.')
-  String? getDerivationPath(String address) {
-    final HdAddress? hdAddress = getHdAddress(address);
-    return hdAddress?.derivationPath;
-  }
-
-  @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset address management instead. This method does not work for multiple addresses per coin.')
-  HdAddress? getHdAddress(String? address) {
-    if (address == null) return null;
-    if (enabledType == WalletType.iguana) return null;
-    if (accounts == null || accounts!.isEmpty) return null;
-
-    final List<HdAddress> addresses = accounts!.first.addresses;
-    if (address.isEmpty) return null;
-
-    return addresses.firstWhereOrNull(
-      (HdAddress hdAddress) => hdAddress.address == address,
-    );
-  }
 
   static bool checkSegwitByAbbr(String abbr) => abbr.contains('-segwit');
   static String normalizeAbbr(String abbr) => abbr.replaceAll('-segwit', '');
@@ -176,14 +115,6 @@ class Coin {
   @override
   String toString() {
     return 'Coin($abbr);';
-  }
-
-  @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset state management instead.')
-  void reset() {
-    enabledType = null;
-    accounts = null;
-    state = CoinState.inactive;
   }
 
   Coin dummyCopyWithoutProtocolData() {
@@ -246,7 +177,6 @@ class Coin {
     bool? walletOnly,
     CoinMode? mode,
     String? address,
-    WalletType? enabledType,
     double? sendableBalance,
     bool? isCustomCoin,
   }) {
@@ -279,7 +209,6 @@ class Coin {
       isCustomCoin: isCustomCoin ?? this.isCustomCoin,
     )
       ..address = address ?? this.address
-      ..enabledType = enabledType ?? this.enabledType
       ..sendableBalance = sendableBalance ?? this.sendableBalance;
   }
 }

@@ -6,19 +6,19 @@ import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
+import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -146,10 +146,10 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
     if (_haveTransaction) return const SizedBox();
 
     return DisableCoinButton(
-      onClick: () async {
-        final coinsBloc = context.read<CoinsBloc>();
-        coinsBloc.add(CoinsDeactivated([widget.coin.abbr]));
-        widget.onBackButtonPressed();
+      onClick: () {
+        confirmBeforeDisablingCoin(widget.coin, context, () {
+          widget.onBackButtonPressed();
+        });
       },
     );
   }

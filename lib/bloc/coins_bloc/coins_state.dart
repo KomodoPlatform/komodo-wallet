@@ -35,7 +35,6 @@ class CoinsState extends Equatable {
   CoinsState copyWith({
     Map<String, Coin>? coins,
     Map<String, Coin>? walletCoins,
-    bool? loginActivationFinished,
     Map<String, AssetPubkeys>? pubkeys,
     Map<String, CexPrice>? prices,
   }) {

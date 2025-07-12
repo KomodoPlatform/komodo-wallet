@@ -26,6 +26,7 @@ final class PortfolioProfitLossChartLoadSuccess extends ProfitLossState {
     required this.fiatCurrency,
     required this.walletId,
     required super.selectedPeriod,
+    this.isUpdating = false,
   });
 
   final List<Point<double>> profitLossChart;
@@ -34,6 +35,7 @@ final class PortfolioProfitLossChartLoadSuccess extends ProfitLossState {
   final List<Coin> coins;
   final String fiatCurrency;
   final String walletId;
+  final bool isUpdating;
 
   @override
   List<Object> get props => [
@@ -44,6 +46,7 @@ final class PortfolioProfitLossChartLoadSuccess extends ProfitLossState {
         fiatCurrency,
         selectedPeriod,
         walletId,
+        isUpdating,
       ];
 }
 

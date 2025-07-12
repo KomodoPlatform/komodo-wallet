@@ -6,6 +6,35 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/typedef.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
+/// Sorts coins according to priority rules:
+/// 1. First by balance (non-zero balances come first, sorted by USD value descending)
+/// 2. If no balance, sort by priority (higher priority first)
+/// 3. If same priority, sort alphabetically
+List<Coin> sortByPriorityAndBalance(List<Coin> coins, KomodoDefiSdk sdk) {
+  final List<Coin> list = List.from(coins);
+  list.sort((a, b) {
+    final double usdBalanceA = a.lastKnownUsdBalance(sdk) ?? 0.00;
+    final double usdBalanceB = b.lastKnownUsdBalance(sdk) ?? 0.00;
+
+    // Both have balance - sort by USD balance descending
+    if (usdBalanceA > 0 && usdBalanceB > 0) {
+      return usdBalanceB.compareTo(usdBalanceA);
+    }
+
+    // Only one has balance - that one comes first
+    if (usdBalanceA > 0 && usdBalanceB == 0) return -1;
+    if (usdBalanceB > 0 && usdBalanceA == 0) return 1;
+
+    // Both have no balance - sort by priority then alphabetically
+    final int priorityA = a.priority;
+    final int priorityB = b.priority;
+    if (priorityA != priorityB) return priorityB - priorityA;
+
+    return a.abbr.compareTo(b.abbr);
+  });
+  return list;
+}
+
 List<Coin> sortFiatBalance(List<Coin> coins, KomodoDefiSdk sdk) {
   final List<Coin> list = List.from(coins);
   list.sort((a, b) {

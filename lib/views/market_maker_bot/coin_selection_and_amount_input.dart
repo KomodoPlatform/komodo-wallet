@@ -121,8 +121,8 @@ class _CoinSelectionAndAmountInputState
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     return CoinDropdown(
       items: _items,
-      onItemSelected: (item) async => widget.onItemSelected
-          ?.call(await coinsRepository.getEnabledCoin(item)),
+      onItemSelected: (item) =>
+          widget.onItemSelected?.call(coinsRepository.getCoin(item)),
       child: content,
     );
   }

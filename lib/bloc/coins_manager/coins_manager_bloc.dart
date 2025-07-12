@@ -264,9 +264,10 @@ Future<List<Coin>> _getDeactivatedCoins(
   KomodoDefiSdk sdk,
   WalletType walletType,
 ) async {
-  final Iterable<String> enabledCoins = await sdk.assets.getEnabledCoins();
+  final Iterable<String> walletCoins =
+      (await sdk.currentWallet())?.config.activatedCoins ?? [];
   final Map<String, Coin> disabledCoins = coinsRepo.getKnownCoinsMap()
-    ..removeWhere((coinId, coin) => enabledCoins.contains(coinId))
+    ..removeWhere((coinId, coin) => walletCoins.contains(coinId))
     ..removeWhere((coinId, coin) => excludedAssetList.contains(coinId));
 
   switch (walletType) {

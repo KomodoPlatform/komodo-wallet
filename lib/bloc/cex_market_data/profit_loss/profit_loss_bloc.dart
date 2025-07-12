@@ -125,6 +125,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         fiatCurrency: event.fiatCoinId,
         selectedPeriod: event.selectedPeriod,
         walletId: event.walletId,
+        isUpdating: false,
       );
     } catch (error, stackTrace) {
       _log.shout('Failed periodic profit/loss chart update', error, stackTrace);
@@ -161,6 +162,20 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         ),
       );
     }
+
+    emit(
+      PortfolioProfitLossChartLoadSuccess(
+        profitLossChart: eventState.profitLossChart,
+        totalValue: eventState.totalValue,
+        percentageIncrease: eventState.percentageIncrease,
+        coins: eventState.coins,
+        fiatCurrency: eventState.fiatCurrency,
+        walletId: eventState.walletId,
+        selectedPeriod: event.selectedPeriod,
+        isUpdating: true,
+      ),
+    );
+
     add(
       ProfitLossPortfolioChartLoadRequested(
         coins: eventState.coins,
