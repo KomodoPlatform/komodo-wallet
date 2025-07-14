@@ -144,6 +144,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
           coinUpdates,
           onData: (coin) => state
               .copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
+          onError: (error, stackTrace) {
+            _log.severe('Error syncing iguana coins states', error, stackTrace);
+            return state;
+          },
         );
     }
   }
@@ -366,9 +370,13 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     emit(await _prePopulateListWithActivatingCoins(coins));
 
     final enabledAssets = await _kdfSdk.assets.getEnabledCoins();
+
+    // Filter out assets that are already active and assets that are not
+    // available in the SDK. This is to avoid activation loops or error
+    // messages for unsupported assets.
     final coinsToActivate = coins
         .where((coin) => !enabledAssets.contains(coin))
-        .where((coin) => _coinsRepo.getKnownCoinsMap().containsKey(coin));
+        .where((coin) => _kdfSdk.assets.findAssetsByConfigId(coin).isNotEmpty);
 
     final enableFutures =
         coinsToActivate.map((coin) => _activateCoin(coin)).toList();
@@ -438,13 +446,23 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   /// coins are activated
   Stream<Coin> _syncIguanaCoinsStates(Iterable<String> coins) async* {
     final walletCoins = state.walletCoins;
-    final walletAssets = (await _kdfSdk.currentWallet())
-            ?.config
-            .activatedCoins
-            .map((coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId).single)
-            .whereType<Asset>()
-            .toList() ??
-        [];
+    final previouslyActivatedCoinIds =
+        (await _kdfSdk.currentWallet())?.config.activatedCoins ?? [];
+
+    final walletAssets = <Asset>[];
+    for (final coinId in previouslyActivatedCoinIds) {
+      final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
+      if (assets.isEmpty) {
+        _log.warning('No assets found for activated coin ID: $coinId');
+        continue;
+      }
+      if (assets.length > 1) {
+        final assetIds = assets.map((a) => a.id.id).join(', ');
+        _log.warning('Multiple assets found for activated coin ID: $coinId. '
+            'Expected single asset, found ${assets.length}: $assetIds');
+      }
+      walletAssets.add(assets.first);
+    }
 
     final enabledAssetsNotInWallet = walletAssets
         .where((asset) => !walletCoins.containsKey(asset.id.id))

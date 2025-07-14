@@ -172,7 +172,9 @@ class CoinsRepo {
     }
 
     return currentUser.wallet.config.activatedCoins
-        .map((coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId))
+        .map(
+          (coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId).firstOrNull,
+        )
         .whereType<Asset>()
         .map(_assetToCoinWithoutAddress)
         .toList();
