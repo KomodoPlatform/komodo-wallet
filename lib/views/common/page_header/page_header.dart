@@ -26,7 +26,7 @@ class PageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isMobile) {
+    if (isMobile || isTablet) {
       return _MobileHeader(
         onBackButtonPressed: onBackButtonPressed,
         title: title,

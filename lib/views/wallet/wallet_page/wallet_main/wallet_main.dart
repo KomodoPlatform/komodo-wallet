@@ -134,7 +134,7 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
 
             return PageLayout(
               noBackground: true,
-              header: (isMobile && !isLoggedIn)
+              header: ((isMobile || isTablet) && !isLoggedIn)
                   ? PageHeader(title: LocaleKeys.wallet.tr())
                   : null,
               padding: EdgeInsets.zero,
