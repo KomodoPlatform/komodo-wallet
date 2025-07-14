@@ -67,6 +67,14 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   AssetId get _primaryAsset => widget.assets.first;
 
+  /// Returns the UTXO asset in [widget.assets] if present, otherwise the first
+  /// asset in the list. Used when handling statistic taps so that the charts
+  /// open for the UTXO variant of the asset when available.
+  AssetId get _statisticsAsset => widget.assets.firstWhere(
+        (asset) => asset.subClass == CoinSubClass.utxo,
+        orElse: () => widget.assets.first,
+      );
+
   @override
   Widget build(BuildContext context) {
     // TODO: Refactor to reduce unnecessary bloc references and rebuilds.
@@ -141,7 +149,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                                   message: LocaleKeys.change24h.tr(),
                                   child: InkWell(
                                     onTap: () => widget.onStatisticsTap?.call(
-                                      _primaryAsset,
+                                      _statisticsAsset,
                                       const Duration(days: 1),
                                     ),
                                     child: TrendPercentageText(
@@ -184,7 +192,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                         ),
                         child: InkWell(
                           onTap: () => widget.onStatisticsTap?.call(
-                            _primaryAsset,
+                            _statisticsAsset,
                             const Duration(days: 7),
                           ),
                           child: CoinSparkline(coinId: _primaryAsset.id),
