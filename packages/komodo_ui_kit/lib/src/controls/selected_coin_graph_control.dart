@@ -37,88 +37,97 @@ class SelectedCoinGraphControl extends StatelessWidget {
     assert(
       onCoinSelected == null || availableCoins != null,
     );
-    return SizedBox(
-      height: 40,
-      child: DividedButton(
-        onPressed: onCoinSelected == null
-            ? null
-            : () async {
-                final selectedCoin = await showCoinSearch(
-                  context,
-                  coins: availableCoins!,
-                  customCoinItemBuilder: customCoinItemBuilder,
-                );
-                if (selectedCoin != null) {
-                  onCoinSelected?.call(selectedCoin.id);
-                }
-              },
-        children: [
-          Container(
-            // Min width of 48
-            constraints: const BoxConstraints(minWidth: 48),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWideScreen = constraints.maxWidth > 600;
 
-            child: selectedCoinId != null
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AssetIcon.ofTicker(selectedCoinId!, size: 18),
-                      const SizedBox(width: 8),
-                      Text(
-                        selectedCoinId!,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      if (emptySelectAllowed && selectedCoinId != null) ...[
-                        const SizedBox(width: 4),
-                        SizedBox(
-                          width: 16,
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.clear),
-                            iconSize: 16,
-                            splashRadius: 20,
-                            onPressed: () => onCoinSelected?.call(null),
-                          ),
-                        ),
-                      ],
-                    ],
-                  )
-                : Text('All', style: Theme.of(context).textTheme.bodyLarge),
-          ),
-          Text(
-            (NumberFormat.currency(symbol: "\$")
-                  ..minimumSignificantDigits = 3
-                  ..minimumFractionDigits = 2)
-                .format(centreAmount),
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  // TODO: Incorporate into theme and remove duplication accross charts
-                  fontWeight: FontWeight.w600,
+        final themeCustom = Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).extension<ThemeCustomDark>()!
+            : Theme.of(context).extension<ThemeCustomLight>()!;
+
+        return ClipRect(
+          child: Container(
+            alignment: Alignment.center,
+            height: 40,
+            child: DividedButton(
+              onPressed: onCoinSelected == null
+                  ? null
+                  : () async {
+                      final selectedCoin = await showCoinSearch(
+                        context,
+                        coins: availableCoins!,
+                        customCoinItemBuilder: customCoinItemBuilder,
+                      );
+                      if (selectedCoin != null) {
+                        onCoinSelected?.call(selectedCoin.id);
+                      }
+                    },
+              children: [
+                Container(
+                  // Min width of 48
+                  constraints: const BoxConstraints(minWidth: 48),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+
+                  child: selectedCoinId != null
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            AssetIcon.ofTicker(selectedCoinId!, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              selectedCoinId!,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                            if (emptySelectAllowed &&
+                                selectedCoinId != null) ...[
+                              const SizedBox(width: 4),
+                              SizedBox(
+                                width: 16,
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  icon: const Icon(Icons.clear),
+                                  iconSize: 16,
+                                  splashRadius: 20,
+                                  onPressed: () => onCoinSelected?.call(null),
+                                ),
+                              ),
+                            ],
+                          ],
+                        )
+                      : Text('All',
+                          style: Theme.of(context).textTheme.bodyLarge),
                 ),
-          ),
-          Row(
-            children: [
-              Builder(
-                builder: (context) {
-                  final themeCustom =
-                      Theme.of(context).brightness == Brightness.dark
-                          ? Theme.of(context).extension<ThemeCustomDark>()!
-                          : Theme.of(context).extension<ThemeCustomLight>()!;
-                  return TrendPercentageText(
-                    percentage: percentageIncrease,
-                    upColor: themeCustom.increaseColor,
-                    downColor: themeCustom.decreaseColor,
-                  );
-                },
-              ),
-              if (onCoinSelected != null) ...[
-                const SizedBox(width: 2),
-                const Icon(Icons.expand_more),
+                if (isWideScreen)
+                  Text(
+                    (NumberFormat.currency(symbol: "\$")
+                          ..minimumSignificantDigits = 3
+                          ..minimumFractionDigits = 2)
+                        .format(centreAmount),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          // TODO: Incorporate into theme and remove duplication accross charts
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TrendPercentageText(
+                      percentage: percentageIncrease,
+                      upColor: themeCustom.increaseColor,
+                      downColor: themeCustom.decreaseColor,
+                    ),
+                    if (onCoinSelected != null) ...[
+                      const SizedBox(width: 2),
+                      const Icon(Icons.expand_more),
+                    ],
+                  ],
+                ),
               ],
-            ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

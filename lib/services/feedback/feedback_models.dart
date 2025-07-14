@@ -13,17 +13,12 @@ class CustomFeedback {
 
   @override
   String toString() {
-    return {
-      'feedback_type': feedbackType.toString(),
-      'feedback_text': feedbackText,
-      'contact_method': contactMethod?.name,
-      'contact_details': contactDetails,
-    }.toString();
+    return toMap().toString();
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'feedback_type': feedbackType.toString(),
+      'feedback_type': feedbackType?.name,
       'feedback_text': feedbackText,
       'contact_method': contactMethod?.name,
       'contact_details': contactDetails,

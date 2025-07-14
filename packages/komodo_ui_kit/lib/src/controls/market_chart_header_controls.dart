@@ -48,6 +48,7 @@ class MarketChartHeaderControls extends StatelessWidget {
     final defaultTextStyle = Theme.of(context).textTheme.labelLarge;
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,17 +72,18 @@ class MarketChartHeaderControls extends StatelessWidget {
             ),
           ],
         ),
-        const Spacer(),
-        SelectedCoinGraphControl(
-          emptySelectAllowed: emptySelectAllowed,
-          centreAmount: centreAmount,
-          percentageIncrease: percentageIncrease,
-          selectedCoinId: selectedCoinId,
-          availableCoins: availableCoins,
-          onCoinSelected: onCoinSelected,
-          customCoinItemBuilder: customCoinItemBuilder,
+        Flexible(
+          flex: 2,
+          child: SelectedCoinGraphControl(
+            emptySelectAllowed: emptySelectAllowed,
+            centreAmount: centreAmount,
+            percentageIncrease: percentageIncrease,
+            selectedCoinId: selectedCoinId,
+            availableCoins: availableCoins,
+            onCoinSelected: onCoinSelected,
+            customCoinItemBuilder: customCoinItemBuilder,
+          ),
         ),
-        const Spacer(),
         Flexible(
           child: TimePeriodSelector(
             selectedPeriod: selectedPeriod,
