@@ -197,6 +197,24 @@ ThemeData get themeGlobalDark {
         fontWeight: FontWeight.w700,
       ),
     ),
+    switchTheme: SwitchThemeData(
+      trackColor: WidgetStateProperty.resolveWith<Color?>(
+        (Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return colorScheme.primary.withOpacity(0.5);
+          }
+          return const Color(0xFF444444);
+        },
+      ),
+      thumbColor: WidgetStateProperty.resolveWith<Color?>(
+        (Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return colorScheme.primary;
+          }
+          return Colors.white;
+        },
+      ),
+    ),
     extensions: [customTheme],
   );
 

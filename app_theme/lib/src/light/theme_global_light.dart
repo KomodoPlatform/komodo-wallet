@@ -162,6 +162,24 @@ ThemeData get themeGlobalLight {
         fontWeight: FontWeight.w700,
       ),
     ),
+    switchTheme: SwitchThemeData(
+      trackColor: WidgetStateProperty.resolveWith<Color?>(
+        (Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return colorScheme.primary.withOpacity(0.5);
+          }
+          return const Color(0xFFD1D1D1);
+        },
+      ),
+      thumbColor: WidgetStateProperty.resolveWith<Color?>(
+        (Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return colorScheme.primary;
+          }
+          return Colors.white;
+        },
+      ),
+    ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: SegmentedButton.styleFrom(
         backgroundColor: const Color.fromRGBO(243, 245, 246, 1),
