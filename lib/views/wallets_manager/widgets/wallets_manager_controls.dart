@@ -30,7 +30,6 @@ class WalletsManagerControls extends StatelessWidget {
     return UiPrimaryButton(
       key: const Key('create-wallet-button'),
       height: 50,
-      backgroundColor: Theme.of(context).colorScheme.onSurface,
       child: Row(
         children: [
           Icon(
@@ -57,7 +56,7 @@ class WalletsManagerControls extends StatelessWidget {
   Widget _buildImportButton(BuildContext context) => UiPrimaryButton(
         key: const Key('import-wallet-button'),
         height: 50,
-        backgroundColor: Theme.of(context).colorScheme.onSurface,
+        backgroundColor: Theme.of(context).cardColor,
         onPressed: () => onTap(WalletsManagerAction.import),
         child: Row(
           children: [

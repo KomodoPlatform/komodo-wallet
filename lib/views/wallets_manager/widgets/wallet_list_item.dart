@@ -12,6 +12,7 @@ class WalletListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return UiPrimaryButton(
+      backgroundColor: Theme.of(context).cardColor,
       text: wallet.name,
       prefix: DecoratedBox(
         decoration: const BoxDecoration(shape: BoxShape.circle),
@@ -24,7 +25,7 @@ class WalletListItem extends StatelessWidget {
       height: 40,
       // backgroundColor: Theme.of(context).colorScheme.onSurface,
       onPressed: () => onClick(wallet, WalletsManagerExistWalletAction.logIn),
-      
+
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
