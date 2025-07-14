@@ -186,6 +186,7 @@ class _FiatFormState extends State<FiatForm> {
     }
 
     setState(() => _isLoggedIn = isLoggedIn);
+    if (!mounted) return;
     if (isLoggedIn) {
       // Refresh the payment methods and asset addresses (pubkeys)
       // when the user logs in.

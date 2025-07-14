@@ -32,8 +32,12 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   FiatFormBloc({
     required FiatRepository repository,
     required KomodoDefiSdk sdk,
+    int pubkeysMaxRetryAttempts = 20,
+    Duration pubkeysRetryDelay = const Duration(milliseconds: 500),
   })  : _fiatRepository = repository,
         _sdk = sdk,
+        _pubkeysMaxRetryAttempts = pubkeysMaxRetryAttempts,
+        _pubkeysRetryDelay = pubkeysRetryDelay,
         super(FiatFormState.initial()) {
     on<FiatFormFiatSelected>(_onFiatSelected);
     // Use restartable here since this is called for auth changes, which
@@ -70,6 +74,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
 
   final FiatRepository _fiatRepository;
   final KomodoDefiSdk _sdk;
+  final int _pubkeysMaxRetryAttempts;
+  final Duration _pubkeysRetryDelay;
   final _log = Logger('FiatFormBloc');
 
   Future<void> _onFiatSelected(
@@ -116,9 +122,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       // TODO: increase the max delay in the SDK or make it adjustable
       final assetPubkeys = await retry(
         () async => _sdk.pubkeys.getPubkeys(asset),
-        maxAttempts: 15,
-        backoffStrategy:
-            const ConstantBackoff(delay: Duration(milliseconds: 500)),
+        maxAttempts: _pubkeysMaxRetryAttempts,
+        backoffStrategy: ConstantBackoff(delay: _pubkeysRetryDelay),
       );
       final address = assetPubkeys.keys.firstOrNull;
 
