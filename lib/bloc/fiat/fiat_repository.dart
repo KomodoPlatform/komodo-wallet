@@ -128,9 +128,8 @@ class FiatRepository {
 
   Decimal? _calculateCoinAmount(
     String fiatAmount,
-    Decimal spotPriceIncludingFee, {
-    int decimalPoints = 8,
-  }) {
+    Decimal spotPriceIncludingFee,
+    ) {
     if (fiatAmount.isEmpty || spotPriceIncludingFee == Decimal.zero) {
       _log.info('Fiat amount or spot price is zero, returning null');
       return null;
@@ -160,18 +159,10 @@ class FiatRepository {
     );
   }
 
-  int? _getDecimalPoints(String amount) {
-    final decimalPointIndex = amount.indexOf('.');
-    if (decimalPointIndex == -1) {
-      return null;
-    }
-    return amount.substring(decimalPointIndex + 1).length;
-  }
-
   List<FiatPaymentMethod>? _getPaymentListEstimate(
     List<FiatPaymentMethod> paymentMethodsList,
     String sourceAmount,
-    ICurrency target,
+    CryptoCurrency target,
     String source,
   ) {
     if (target != _paymentMethodsCoin || source != _paymentMethodFiat) {
@@ -183,14 +174,12 @@ class FiatRepository {
 
     try {
       return paymentMethodsList.map((method) {
-        Decimal spotPriceIncludingFee = _calculateSpotPriceIncludingFee(method);
-        final int decimalAmount =
-            _getDecimalPoints(method.priceInfo.coinAmount.toString()) ?? 8;
+        final Decimal spotPriceIncludingFee =
+            _calculateSpotPriceIncludingFee(method);
 
         final coinAmount = _calculateCoinAmount(
           sourceAmount,
           spotPriceIncludingFee,
-          decimalPoints: decimalAmount,
         );
 
         return method.copyWith(
@@ -208,7 +197,7 @@ class FiatRepository {
 
   Stream<List<FiatPaymentMethod>> getPaymentMethodsList(
     String source,
-    ICurrency target,
+    CryptoCurrency target,
     String sourceAmount,
   ) async* {
     if (_paymentMethodsList != null) {

@@ -120,8 +120,10 @@ class RampFiatProvider extends BaseFiatProvider {
   Future<List<CryptoCurrency>> getCoinList() async {
     try {
       final raw = await _getCoins();
-      final response = RampApiUtils.validateResponse<Map<String, dynamic>>(raw,
-          context: '_getCoins');
+      final response = RampApiUtils.validateResponse<Map<String, dynamic>>(
+        raw,
+        context: '_getCoins',
+      );
 
       final config = HostAssetsConfig.fromJson(response);
 
