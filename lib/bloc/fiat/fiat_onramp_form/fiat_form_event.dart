@@ -8,14 +8,9 @@ sealed class FiatFormEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Event emitted when the Fiat Form is initially started.
-final class FiatFormStarted extends FiatFormEvent {
-  const FiatFormStarted();
-}
-
 /// Event emitted when a payment status message is received from the on-ramp provider.
-final class FiatFormOnRampPaymentStatusMessageReceived extends FiatFormEvent {
-  const FiatFormOnRampPaymentStatusMessageReceived(this.message);
+final class FiatFormPaymentStatusMessageReceived extends FiatFormEvent {
+  const FiatFormPaymentStatusMessageReceived(this.message);
 
   final String message;
 
@@ -93,21 +88,13 @@ final class FiatFormAccountCleared extends FiatFormEvent {
 }
 
 /// Event emitted to refresh the form data.
-final class FiatFormRefreshed extends FiatFormEvent {
-  const FiatFormRefreshed({
-    this.forceRefresh = false,
-  });
-
-  /// Whether to force a refresh of data even if cache exists.
-  final bool forceRefresh;
-
-  @override
-  List<Object> get props => [forceRefresh];
+final class FiatFormPaymentMethodsRefreshRequested extends FiatFormEvent {
+  const FiatFormPaymentMethodsRefreshRequested();
 }
 
 /// Event emitted to fetch available fiat and crypto currencies.
-final class FiatFormCurrenciesFetched extends FiatFormEvent {
-  const FiatFormCurrenciesFetched();
+final class FiatFormCurrenciesRefreshRequested extends FiatFormEvent {
+  const FiatFormCurrenciesRefreshRequested();
 }
 
 /// Event emitted to start watching the status of a fiat order.
