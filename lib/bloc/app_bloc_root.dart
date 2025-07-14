@@ -406,7 +406,9 @@ class _MyAppViewState extends State<_MyAppView> {
 
     try {
       final stopwatch = Stopwatch()..start();
-      final availableAssetIds = sdk.assets.available.keys;
+      final availableAssetIds = sdk.assets.available.keys.where(
+        (assetId) => !excludedAssetList.contains(assetId.symbol.configSymbol),
+      );
 
       await for (final assetId in Stream.fromIterable(availableAssetIds)) {
         // TODO: Test if necessary to complete prematurely with error if build

@@ -165,6 +165,8 @@ class CoinsRepo {
     }
   }
 
+  @Deprecated('Use KomodoDefiSdk assets or the '
+      'Wallet [KdfUser].wallet extension instead.')
   Future<List<Coin>> getWalletCoins() async {
     final currentUser = await _kdfSdk.auth.currentUser;
     if (currentUser == null) {
@@ -173,7 +175,21 @@ class CoinsRepo {
 
     return currentUser.wallet.config.activatedCoins
         .map(
-          (coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId).firstOrNull,
+          (coinId) {
+            final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
+            if (assets.isEmpty) {
+              _log.warning('No assets found for coinId: $coinId');
+              return null;
+            }
+            if (assets.length > 1) {
+              _log.shout(
+                'Multiple assets found for coinId: $coinId (${assets.length} assets). '
+                'Selecting the first asset: ${assets.first.id.id}',
+              );
+            }
+            // Exclude invalid or unsupported assets.
+            return null;
+          },
         )
         .whereType<Asset>()
         .map(_assetToCoinWithoutAddress)

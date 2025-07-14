@@ -9,8 +9,8 @@ import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/bloc/fiat/ramp/models/host_assets_config.dart';
-import 'package:web_dex/bloc/fiat/ramp/ramp_api_utils.dart';
 import 'package:web_dex/bloc/fiat/ramp/models/onramp_purchase_quotation/onramp_purchase_quotation.dart';
+import 'package:web_dex/bloc/fiat/ramp/ramp_api_utils.dart';
 
 const komodoLogoUrl = 'https://app.komodoplatform.com/icons/logo_icon.png';
 

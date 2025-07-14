@@ -442,8 +442,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     return coin;
   }
 
-  /// yields one coin at a time to provide visual feedback to the user as
-  /// coins are activated
+  /// Yields one coin at a time to provide visual feedback to the user as
+  /// coins are activated.
+  ///
+  /// When multiple coins are found for the provided IDs,
   Stream<Coin> _syncIguanaCoinsStates(Iterable<String> coins) async* {
     final walletCoins = state.walletCoins;
     final previouslyActivatedCoinIds =
@@ -453,15 +455,21 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     for (final coinId in previouslyActivatedCoinIds) {
       final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
       if (assets.isEmpty) {
-        _log.warning('No assets found for activated coin ID: $coinId');
+        _log.warning(
+          'No assets found for activated coin ID: $coinId. '
+          'This coin will be skipped during synchronization.',
+        );
         continue;
       }
       if (assets.length > 1) {
         final assetIds = assets.map((a) => a.id.id).join(', ');
-        _log.warning('Multiple assets found for activated coin ID: $coinId. '
-            'Expected single asset, found ${assets.length}: $assetIds');
+        _log.shout('Multiple assets found for activated coin ID: $coinId. '
+            'Expected single asset, found ${assets.length}: $assetIds. ');
       }
-      walletAssets.add(assets.first);
+
+      // This is expected to throw if there are multiple assets, to stick
+      // to the strategy of using `.single` elsewhere in the codebase.
+      walletAssets.add(assets.single);
     }
 
     final enabledAssetsNotInWallet = walletAssets
