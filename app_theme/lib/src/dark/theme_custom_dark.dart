@@ -95,7 +95,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   final Color defaultCheckboxColor = const Color.fromRGBO(81, 121, 233, 1);
   @override
   final Gradient defaultSwitchColor = const LinearGradient(
-    stops: [0, 93],
+    stops: [0, 0.93],
     colors: [Color(0xFF00C3AA), Color(0xFF00D4FF)],
   );
   @override

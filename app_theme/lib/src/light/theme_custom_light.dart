@@ -96,7 +96,7 @@ class ThemeCustomLight extends ThemeExtension<ThemeCustomLight>
   final Color defaultCheckboxColor = const Color(0xFF00D4FF);
   @override
   final Gradient defaultSwitchColor = const LinearGradient(
-    stops: [0, 93],
+    stops: [0, 0.93],
     colors: [Color(0xFF00C3AA), Color(0xFF00D4FF)],
   );
   @override
