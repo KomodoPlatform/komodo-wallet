@@ -310,6 +310,8 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       _inProgress = true;
     });
 
+    final Stopwatch stopwatch = Stopwatch()..start();
+
     final authBloc = context.read<AuthBloc>();
     final walletType =
         authBloc.state.currentUser?.wallet.config.type.name ?? '';
@@ -328,6 +330,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
         );
 
     final TextError? error = await makerFormBloc.makeOrder();
+    stopwatch.stop();
 
     final tradingEntitiesBloc =
         // ignore: use_build_context_synchronously
@@ -346,6 +349,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
               toAsset: buyCoin,
               failStage: 'order_submission',
               walletType: walletType,
+              durationMs: stopwatch.elapsedMilliseconds,
             ),
           );
       setState(() => _errorMessage = error.error);
@@ -359,6 +363,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
             amount: makerFormBloc.sellAmount!.toDouble(),
             fee: 0, // Fee data not available
             walletType: walletType,
+            durationMs: stopwatch.elapsedMilliseconds,
           ),
         );
     makerFormBloc.clear();

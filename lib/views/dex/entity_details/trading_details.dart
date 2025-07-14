@@ -146,6 +146,10 @@ class _TradingDetailsState extends State<TradingDetails> {
             break;
           }
         }
+        final durationMs = swapStatus.events.isNotEmpty
+            ? swapStatus.events.last.timestamp -
+                swapStatus.events.first.timestamp
+            : 0;
         context.read<AnalyticsBloc>().logEvent(
               SwapSucceededEventData(
                 fromAsset: fromAsset,
@@ -153,6 +157,7 @@ class _TradingDetailsState extends State<TradingDetails> {
                 amount: swapStatus.sellAmount.toDouble(),
                 fee: fee,
                 walletType: walletType ?? 'unknown',
+                durationMs: durationMs,
               ),
             );
 
@@ -167,17 +172,23 @@ class _TradingDetailsState extends State<TradingDetails> {
                   toChain: toChain,
                   asset: fromAsset,
                   amount: swapStatus.sellAmount.toDouble(),
+                  durationMs: durationMs,
                 ),
               );
         }
       } else if (swapStatus.isFailed && !_loggedFailure) {
         _loggedFailure = true;
+        final durationMs = swapStatus.events.isNotEmpty
+            ? swapStatus.events.last.timestamp -
+                swapStatus.events.first.timestamp
+            : 0;
         context.read<AnalyticsBloc>().logEvent(
               SwapFailedEventData(
                 fromAsset: fromAsset,
                 toAsset: toAsset,
                 failStage: swapStatus.status.name,
                 walletType: walletType ?? 'unknown',
+                durationMs: durationMs,
               ),
             );
 
@@ -191,6 +202,7 @@ class _TradingDetailsState extends State<TradingDetails> {
                   fromChain: fromChain,
                   toChain: toChain,
                   failError: swapStatus.status.name,
+                  durationMs: durationMs,
                 ),
               );
         }

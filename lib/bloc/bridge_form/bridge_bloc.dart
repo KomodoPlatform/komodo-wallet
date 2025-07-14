@@ -521,6 +521,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     BridgeStartSwap event,
     Emitter<BridgeState> emit,
   ) async {
+    final Stopwatch stopwatch = Stopwatch()..start();
     final sellCoin = state.sellCoin;
     final bestOrder = state.bestOrder;
     if (sellCoin != null && bestOrder != null) {
@@ -546,6 +547,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       price: state.bestOrder!.price,
       orderType: SellBuyOrderType.fillOrKill,
     ));
+    stopwatch.stop();
 
     final String? uuid = response.result?.uuid;
 
@@ -560,6 +562,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
           asset: state.sellCoin!.abbr,
           amount: state.sellAmount?.toDouble() ?? 0.0,
           walletType: walletType,
+          durationMs: stopwatch.elapsedMilliseconds,
         ),
       );
     } else {
@@ -573,6 +576,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
           toChain: buyCoin?.protocolType ?? '',
           failError: error,
           walletType: walletType,
+          durationMs: stopwatch.elapsedMilliseconds,
         ),
       );
       add(BridgeSetError(DexFormError(error: error)));

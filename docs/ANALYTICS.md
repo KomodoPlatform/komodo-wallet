@@ -344,6 +344,7 @@ analyticsRepo.logEvent(
     amount: 0.1,
     fee: 0.001,
     walletType: 'hd_wallet',
+    durationMs: 1234,
   ),
 );
 
@@ -354,6 +355,7 @@ analyticsRepo.logEvent(
     toAsset: 'KMD',
     failStage: 'order_matching',
     walletType: 'hd_wallet',
+    durationMs: 500,
   ),
 );
 ```

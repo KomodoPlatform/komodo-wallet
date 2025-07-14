@@ -55,6 +55,7 @@ class BridgeSucceededEventData implements AnalyticsEventData {
     required this.asset,
     required this.amount,
     required this.walletType,
+    required this.durationMs,
   });
 
   final String fromChain;
@@ -62,6 +63,7 @@ class BridgeSucceededEventData implements AnalyticsEventData {
   final String asset;
   final double amount;
   final String walletType;
+  final int durationMs;
 
   @override
   String get name => 'bridge_success';
@@ -73,6 +75,7 @@ class BridgeSucceededEventData implements AnalyticsEventData {
         'asset': asset,
         'amount': amount,
         'wallet_type': walletType,
+        'duration_ms': durationMs,
       };
 }
 
@@ -84,6 +87,7 @@ class AnalyticsBridgeSucceededEvent extends AnalyticsSendDataEvent {
     required String asset,
     required double amount,
     required String walletType,
+    required int durationMs,
   }) : super(
           BridgeSucceededEventData(
             fromChain: fromChain,
@@ -91,6 +95,7 @@ class AnalyticsBridgeSucceededEvent extends AnalyticsSendDataEvent {
             asset: asset,
             amount: amount,
             walletType: walletType,
+            durationMs: durationMs,
           ),
         );
 }
@@ -103,12 +108,14 @@ class BridgeFailedEventData implements AnalyticsEventData {
     required this.toChain,
     required this.failError,
     required this.walletType,
+    required this.durationMs,
   });
 
   final String fromChain;
   final String toChain;
   final String failError;
   final String walletType;
+  final int durationMs;
 
   @override
   String get name => 'bridge_failure';
@@ -119,6 +126,7 @@ class BridgeFailedEventData implements AnalyticsEventData {
         'to_chain': toChain,
         'fail_error': failError,
         'wallet_type': walletType,
+        'duration_ms': durationMs,
       };
 }
 
@@ -129,12 +137,14 @@ class AnalyticsBridgeFailedEvent extends AnalyticsSendDataEvent {
     required String toChain,
     required String failError,
     required String walletType,
+    required int durationMs,
   }) : super(
           BridgeFailedEventData(
             fromChain: fromChain,
             toChain: toChain,
             failError: failError,
             walletType: walletType,
+            durationMs: durationMs,
           ),
         );
 }
