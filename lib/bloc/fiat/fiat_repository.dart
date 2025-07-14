@@ -43,7 +43,19 @@ class FiatRepository {
     Future<List<ICurrency>> Function(BaseFiatProvider) getList,
     bool isCoin,
   ) async {
-    final futures = fiatProviders.map(getList);
+    final futures = fiatProviders.map((provider) async {
+      try {
+        return await getList(provider);
+      } catch (e, s) {
+        _log.severe(
+          'Failed to get currency list from ${provider.getProviderId()}',
+          e,
+          s,
+        );
+        return <ICurrency>[];
+      }
+    });
+
     final results = await Future.wait(futures);
     final currencyMap = <String, ICurrency>{};
     final knownCoins = _coinsRepo.getKnownCoinsMap();
@@ -217,16 +229,28 @@ class FiatRepository {
     }
 
     final futures = fiatProviders.map((provider) async {
-      final paymentMethods =
-          await provider.getPaymentMethodsList(source, target, sourceAmount);
-      return paymentMethods
-          .map(
-            (method) => method.copyWith(
-              providerId: provider.getProviderId(),
-              providerIconAssetPath: provider.providerIconPath,
-            ),
-          )
-          .toList();
+      try {
+        final paymentMethods = await provider.getPaymentMethodsList(
+          source,
+          target,
+          sourceAmount,
+        );
+        return paymentMethods
+            .map(
+              (method) => method.copyWith(
+                providerId: provider.getProviderId(),
+                providerIconAssetPath: provider.providerIconPath,
+              ),
+            )
+            .toList();
+      } catch (e, s) {
+        _log.severe(
+          'Failed to fetch payment methods from ${provider.getProviderId()}',
+          e,
+          s,
+        );
+        return <FiatPaymentMethod>[];
+      }
     });
 
     final results = await Future.wait(futures);
