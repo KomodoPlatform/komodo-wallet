@@ -99,10 +99,10 @@ class RampFiatProvider extends BaseFiatProvider {
   @override
   Future<List<FiatCurrency>> getFiatList() async {
     final raw = await _getFiats();
-    final response =
-        RampApiUtils.validateResponse<List>(raw, context: '_getFiats');
-
-    final data = response.cast<Map<String, dynamic>>();
+    final data = RampApiUtils.validateResponse<List<Map<String, dynamic>>>(
+      raw,
+      context: '_getFiats',
+    );
 
     return data
         .where((item) => item['onrampAvailable'] as bool? ?? false)

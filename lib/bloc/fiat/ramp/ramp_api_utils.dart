@@ -22,7 +22,8 @@ class RampApiUtils {
     if (response is! T) {
       _log.warning(
           'Unexpected response${context != null ? ' for $context' : ''}: $response');
-      throw FormatException('Unexpected response type from Ramp');
+      final contextInfo = context != null ? ' for $context' : '';
+      throw FormatException('Unexpected response type$contextInfo from Ramp');
     }
     return response;
   }
