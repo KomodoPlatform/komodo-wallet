@@ -20,6 +20,7 @@ import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/bloc/fiat/payment_status_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
 import 'package:web_dex/model/forms/fiat/fiat_amount_input.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/shared/utils/extensions/string_extensions.dart';
 import 'package:web_dex/views/fiat/webview_dialog.dart' show WebViewDialogMode;
 
@@ -96,6 +97,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         return emit(state.copyWith(selectedAssetAddress: () => null));
       }
 
+      await _sdk.addActivatedCoins([event.selectedCoin.configSymbol]);
       final asset = event.selectedCoin.toAsset(_sdk);
       final assetPubkeys = await _sdk.pubkeys.getPubkeys(asset);
       final address = assetPubkeys.keys.firstOrNull;

@@ -1,10 +1,10 @@
 import 'package:decimal/decimal.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
-import 'package:logging/logging.dart';
 
 class FiatRepository {
   FiatRepository(this.fiatProviders, this._coinsRepo);

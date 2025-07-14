@@ -41,7 +41,8 @@ class _FiatFormState extends State<FiatForm> {
 
     context
         .read<FiatFormBloc>()
-        .add(const FiatFormRefreshed(forceRefresh: true));
+        ..add(const FiatFormStarted())
+        ..add(const FiatFormRefreshed(forceRefresh: true));
   }
 
   @override
