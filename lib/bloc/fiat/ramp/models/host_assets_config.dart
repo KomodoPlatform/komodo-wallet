@@ -46,6 +46,11 @@ class HostAssetsConfig {
   ///
   /// Throws [FormatException] if required fields are missing or have invalid format
   factory HostAssetsConfig.fromJson(Map<String, dynamic> json) {
+    if (json['name'] == 'ValidationException' || json['status'] == 400) {
+      final message = json['response'] ?? json['message'];
+      throw FormatException('Ramp validation error: $message');
+    }
+
     // Validate required fields
     _validateRequiredField(json, 'assets');
     _validateRequiredField(json, 'currencyCode');
