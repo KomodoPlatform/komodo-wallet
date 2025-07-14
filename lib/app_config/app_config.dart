@@ -167,7 +167,7 @@ List<String> get enabledByDefaultCoins => [
       'DOGE', // Dogecoin (Rank 9, ~$27.1B market cap)
       'LTC-segwit', // Litecoin (popular, has segwit support)
       'USDT-ERC20', // Tether on Ethereum (most common stablecoin)
-      'XRP', // XRP (Rank 4, ~$145B market cap)
+      'XRP-ERC20', // XRP (Rank 4, ~$145B market cap)
       if (kDebugMode) 'DOC',
       if (kDebugMode) 'MARTY',
     ];
