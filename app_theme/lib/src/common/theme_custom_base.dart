@@ -182,8 +182,8 @@ class CoinsManagerTheme {
         const Color.fromRGBO(242, 242, 242, 1),
     this.filtersPopupShadow = const BoxShadow(
       offset: Offset(0, 0),
-      blurRadius: 13,
-      color: Color.fromRGBO(0, 0, 0, 0.06),
+      blurRadius: 8,
+      color: Color.fromRGBO(0, 0, 0, 0.04),
     ),
     this.filterPopupItemBorderColor = const Color.fromRGBO(136, 146, 235, 1),
     this.listHeaderBorderColor = const Color.fromRGBO(234, 234, 234, 1),

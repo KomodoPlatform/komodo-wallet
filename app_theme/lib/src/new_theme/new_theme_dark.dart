@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../../app_theme.dart';
 
 const ColorSchemeExtension _colorSchemeExtension = ColorSchemeExtension(
-  primary: Color.fromRGBO(61, 119, 233, 1),
-  p50: Color.fromRGBO(31, 60, 117, 1),
-  p40: Color.fromRGBO(24, 48, 93, 1),
-  p10: Color.fromRGBO(6, 12, 23, 1),
+  primary: Color(0xFF00D4AA),
+  p50: Color(0xFF006B55),
+  p40: Color(0xFF005544),
+  p10: Color(0xFF001511),
   secondary: Color.fromRGBO(173, 175, 196, 1),
   s70: Color.fromRGBO(121, 123, 137, 1),
   s50: Color.fromRGBO(87, 88, 98, 1),

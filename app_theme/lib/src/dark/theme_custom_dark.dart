@@ -47,21 +47,21 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color fiatAmountColor = const Color.fromRGBO(168, 177, 185, 1);
   @override
-  final Color headerFloatBoxColor = const Color.fromRGBO(98, 121, 233, 1);
+  final Color headerFloatBoxColor = const Color(0xFF00D4AA);
   @override
-  final Color headerIconColor = const Color.fromRGBO(255, 255, 255, 1);
+  final Color headerIconColor = const Color(0xFF00D4AA);
   @override
   final Color buttonColorDefault = const Color.fromRGBO(23, 29, 48, 1);
 
   @override
-  final Color buttonColorDefaultHover = const Color.fromRGBO(76, 128, 233, 1);
+  final Color buttonColorDefaultHover = const Color(0xFF00D4AA);
   @override
   final Color buttonTextColorDefaultHover =
       const Color.fromRGBO(245, 249, 255, 1);
   @override
   final Color noColor = Colors.transparent;
   @override
-  final Color increaseColor = const Color.fromRGBO(0, 195, 170, 1);
+  final Color increaseColor = const Color(0xFF00D4AA);
   @override
   final Color decreaseColor = const Color.fromRGBO(229, 33, 103, 1);
   @override
@@ -92,7 +92,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color defaultGradientButtonTextColor = Colors.white;
   @override
-  final Color defaultCheckboxColor = const Color.fromRGBO(81, 121, 233, 1);
+  final Color defaultCheckboxColor = const Color(0xFF00D4AA);
   @override
   final Gradient defaultSwitchColor = const LinearGradient(
     stops: [0, 93],
@@ -110,8 +110,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color rewardBoxShadowColor = const Color.fromRGBO(0, 0, 0, 0.1);
   @override
-  final Color defaultBorderButtonBorder =
-      const Color.fromRGBO(136, 146, 235, 1);
+  final Color defaultBorderButtonBorder = const Color(0xFF00D4AA);
   @override
   final Color defaultBorderButtonBackground =
       const Color.fromRGBO(22, 25, 39, 1);
@@ -187,7 +186,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color progressBarColor = const Color.fromRGBO(69, 96, 120, 0.33);
   @override
-  final Color progressBarPassedColor = const Color.fromRGBO(137, 147, 236, 1);
+  final Color progressBarPassedColor = const Color(0xFF00D4AA);
   @override
   final Color progressBarNotPassedColor =
       const Color.fromRGBO(194, 203, 210, 1);
@@ -202,7 +201,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   final Color smartchainLabelBorderColor = const Color.fromRGBO(32, 22, 49, 1);
   @override
   final Color mainMenuSelectedItemBackgroundColor =
-      const Color.fromRGBO(146, 187, 255, 0.12);
+      const Color.fromRGBO(0, 212, 170, 0.12);
   @override
   final Color searchFieldMobile = const Color.fromRGBO(42, 47, 62, 1);
   @override

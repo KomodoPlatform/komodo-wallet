@@ -12,8 +12,8 @@ ThemeData get themeGlobalLight {
       );
 
   final ColorScheme colorScheme = const ColorScheme.light().copyWith(
-    primary: const Color.fromRGBO(90, 104, 230, 1),
-    secondary: const Color.fromRGBO(73, 134, 234, 1),
+    primary: const Color(0xFF00D4AA),
+    secondary: const Color(0xFF00C3AA),
     tertiary: const Color.fromARGB(255, 192, 225, 255),
     surface: const Color.fromRGBO(255, 255, 255, 1),
     onSurface: const Color.fromRGBO(251, 251, 251, 1),
@@ -78,7 +78,7 @@ ThemeData get themeGlobalLight {
     cardTheme: CardThemeData(
       color: colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(18)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     ),
     colorScheme: colorScheme,

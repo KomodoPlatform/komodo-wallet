@@ -14,9 +14,9 @@ ThemeData get themeGlobalDark {
   //TODO! Implement all light-theme equivalent properties
   final ColorScheme colorScheme = ColorScheme.fromSeed(
     brightness: Brightness.dark,
-    seedColor: const Color.fromRGBO(61, 119, 233, 1),
-    primary: const Color.fromRGBO(61, 119, 233, 1),
-    secondary: const Color.fromRGBO(90, 104, 230, 1),
+    seedColor: const Color(0xFF00D4AA),
+    primary: const Color(0xFF00D4AA),
+    secondary: const Color(0xFF00C3AA),
     tertiary: const Color.fromRGBO(28, 32, 59, 1), // - @ColorScheme: Updated
     surface: const Color.fromRGBO(22, 25, 39, 1),
     onSurface: const Color.fromRGBO(18, 20, 32, 1),
@@ -81,7 +81,7 @@ ThemeData get themeGlobalDark {
     cardTheme: CardThemeData(
       color: colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(18)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     ),
     colorScheme: colorScheme,
