@@ -418,6 +418,7 @@ class CoinListView extends StatelessWidget {
           searchPhrase: searchPhrase,
           withBalance: withBalance,
           onCoinItemTap: onActiveCoinItemTap,
+          onStatisticsTap: onAssetStatisticsTap,
         );
       case AuthorizeMode.hiddenLogin:
       case AuthorizeMode.noLogin:
