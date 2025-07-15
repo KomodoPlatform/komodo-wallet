@@ -5,7 +5,7 @@ class PagePlate extends StatelessWidget {
   const PagePlate({
     required this.child,
     this.noBackground = true,
-    this.padding = defaultPadding,
+    this.padding = standardPadding,
     super.key,
   });
 
@@ -13,7 +13,7 @@ class PagePlate extends StatelessWidget {
   final bool noBackground;
   final EdgeInsetsGeometry padding;
 
-  static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(15, 32, 15, 0);
+  static const EdgeInsets standardPadding = EdgeInsets.fromLTRB(15, 32, 15, 0);
 
   @override
   Widget build(BuildContext context) {

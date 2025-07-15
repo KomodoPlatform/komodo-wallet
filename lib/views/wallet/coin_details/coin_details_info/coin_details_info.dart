@@ -199,7 +199,8 @@ class _DesktopContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 20.0),
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18.0),
@@ -247,6 +248,7 @@ class _DesktopCoinDetails extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8.0),
       child: Column(
         children: [
+          SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

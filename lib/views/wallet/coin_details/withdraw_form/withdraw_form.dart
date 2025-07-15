@@ -2,6 +2,7 @@ import 'dart:async' show Timer;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -222,7 +223,7 @@ class PreviewWithdrawButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 48,
-      child: FilledButton(
+      child: UiPrimaryButton(
         onPressed: onPressed,
         child: isSending
             ? const SizedBox(

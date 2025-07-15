@@ -23,14 +23,14 @@ class PageLayout extends StatelessWidget {
         header: header,
         content: content,
         noBackground: noBackground,
-        padding: padding ?? PagePlate.defaultPadding,
+        padding: padding ?? EdgeInsets.zero,
       );
     }
     return _DesktopLayout(
       header: header,
       content: content,
       noBackground: noBackground,
-      padding: padding,
+      padding: padding ?? PagePlate.standardPadding,
     );
   }
 }
@@ -40,7 +40,7 @@ class _MobileLayout extends StatelessWidget {
     required this.content,
     this.header,
     this.noBackground = false,
-    this.padding = PagePlate.defaultPadding,
+    this.padding = PagePlate.standardPadding,
   });
 
   final Widget? header;
@@ -93,7 +93,7 @@ class _DesktopLayout extends StatelessWidget {
         Flexible(
           child: PagePlate(
             noBackground: noBackground,
-            padding: padding ?? PagePlate.defaultPadding,
+            padding: padding ?? EdgeInsets.zero,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
