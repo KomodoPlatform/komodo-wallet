@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item.dart';
@@ -30,6 +31,8 @@ class AssetListItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasMarketHistory =
+        context.watch<CoinsBloc>().state.getPriceForAsset(assetId) != null;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -62,10 +65,12 @@ class AssetListItemDesktop extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
                     child: InkWell(
-                      onTap: () => onStatisticsTap?.call(
-                        assetId,
-                        const Duration(days: 1),
-                      ),
+                      onTap: hasMarketHistory
+                          ? () => onStatisticsTap?.call(
+                                assetId,
+                                const Duration(days: 1),
+                              )
+                          : null,
                       child: TrendPercentageText(
                         percentage: 23,
                         upColor: Theme.of(context).brightness == Brightness.dark
@@ -93,11 +98,15 @@ class AssetListItemDesktop extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: InkWell(
-                    onTap: () => onStatisticsTap?.call(
-                      assetId,
-                      const Duration(days: 7),
+                    onTap: hasMarketHistory
+                        ? () => onStatisticsTap?.call(
+                              assetId,
+                              const Duration(days: 7),
+                            )
+                        : null,
+                    child: CoinSparkline(
+                      coinId: assetId.symbol.configSymbol,
                     ),
-                    child: CoinSparkline(coinId: assetId.id),
                   ),
                 ),
               ],

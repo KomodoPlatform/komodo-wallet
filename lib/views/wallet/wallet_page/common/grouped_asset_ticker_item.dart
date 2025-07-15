@@ -80,6 +80,9 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
     // TODO: Refactor to reduce unnecessary bloc references and rebuilds.
     final price =
         context.watch<CoinsBloc>().state.getPriceForAsset(_primaryAsset);
+    final hasMarketHistory =
+        context.watch<CoinsBloc>().state.getPriceForAsset(_statisticsAsset) !=
+            null;
     final priceFormatter = NumberFormat.currency(
       symbol: '\$',
       decimalDigits: 2,
@@ -148,10 +151,12 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                               : Tooltip(
                                   message: LocaleKeys.change24h.tr(),
                                   child: InkWell(
-                                    onTap: () => widget.onStatisticsTap?.call(
-                                      _statisticsAsset,
-                                      const Duration(days: 1),
-                                    ),
+                                    onTap: hasMarketHistory
+                                        ? () => widget.onStatisticsTap?.call(
+                                              _statisticsAsset,
+                                              const Duration(days: 1),
+                                            )
+                                        : null,
                                     child: TrendPercentageText(
                                       percentage: change24hPercent,
                                       upColor: Theme.of(context).brightness ==
@@ -191,11 +196,15 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                           maxHeight: 35,
                         ),
                         child: InkWell(
-                          onTap: () => widget.onStatisticsTap?.call(
-                            _statisticsAsset,
-                            const Duration(days: 7),
+                          onTap: hasMarketHistory
+                              ? () => widget.onStatisticsTap?.call(
+                                    _statisticsAsset,
+                                    const Duration(days: 7),
+                                  )
+                              : null,
+                          child: CoinSparkline(
+                            coinId: _statisticsAsset.symbol.configSymbol,
                           ),
-                          child: CoinSparkline(coinId: _primaryAsset.id),
                         ),
                       ),
                     ),
