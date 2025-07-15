@@ -83,8 +83,8 @@ final class FiatFormPaymentStatusCleared extends FiatFormEvent {
 }
 
 /// Event emitted to clear the current account data.
-final class FiatFormAccountCleared extends FiatFormEvent {
-  const FiatFormAccountCleared();
+final class FiatFormResetRequested extends FiatFormEvent {
+  const FiatFormResetRequested();
 }
 
 /// Event emitted to refresh the form data.
