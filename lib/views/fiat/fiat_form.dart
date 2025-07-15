@@ -186,21 +186,25 @@ class _FiatFormState extends State<FiatForm> {
     }
 
     setState(() => _isLoggedIn = isLoggedIn);
-    if (!mounted) return;
-    if (isLoggedIn) {
-      // Refresh the payment methods and asset addresses (pubkeys)
-      // when the user logs in.
-      final fiatFormBloc = context.read<FiatFormBloc>();
-      fiatFormBloc
-        ..add(
-          FiatFormCoinSelected(
-            fiatFormBloc.state.selectedAsset.value ?? CryptoCurrency.bitcoin(),
-          ),
-        )
-        ..add(const FiatFormPaymentMethodsRefreshRequested());
-    } else {
-      context.read<FiatFormBloc>().add(const FiatFormAccountCleared());
+
+    if (!mounted) {
+      return;
     }
+
+    if (!isLoggedIn) {
+      return context.read<FiatFormBloc>().add(const FiatFormResetRequested());
+    }
+
+    // Refresh the payment methods and asset addresses (pubkeys)
+    // when the user logs in.
+    final fiatFormBloc = context.read<FiatFormBloc>();
+    fiatFormBloc
+      ..add(
+        FiatFormCoinSelected(
+          fiatFormBloc.state.selectedAsset.value ?? CryptoCurrency.bitcoin(),
+        ),
+      )
+      ..add(const FiatFormPaymentMethodsRefreshRequested());
   }
 
   void _onConsoleMessage(String message) {

@@ -47,7 +47,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     on<FiatFormSubmitted>(_onFormSubmitted);
     on<FiatFormPaymentStatusMessageReceived>(_onPaymentStatusMessage);
     on<FiatFormModeUpdated>(_onModeUpdated);
-    on<FiatFormAccountCleared>(_onAccountCleared);
+    on<FiatFormResetRequested>(_onAccountCleared);
     on<FiatFormCoinAddressSelected>(_onCoinAddressSelected);
     on<FiatFormWebViewClosed>(_onWebViewClosed);
     on<FiatFormAssetAddressUpdated>(_onAssetAddressUpdated);
@@ -263,10 +263,14 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   void _onAccountCleared(
-    FiatFormAccountCleared event,
+    FiatFormResetRequested event,
     Emitter<FiatFormState> emit,
   ) {
-    emit(FiatFormState.initial());
+    final initialStateWithLists = FiatFormState.initial().copyWith(
+      fiatList: state.fiatList,
+      coinList: state.coinList,
+    );
+    emit(_defaultPaymentMethods(initialStateWithLists));
   }
 
   void _onPaymentStatusMessage(
@@ -481,7 +485,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
 
     if (!_hasValidFiatAmount()) {
-      yield _defaultPaymentMethods();
+      yield _defaultPaymentMethods(state);
     }
 
     try {
@@ -551,8 +555,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     }
   }
 
-  FiatFormState _defaultPaymentMethods() {
-    return state.copyWith(
+  FiatFormState _defaultPaymentMethods(FiatFormState currentState) {
+    return currentState.copyWith(
       paymentMethods: defaultFiatPaymentMethods,
       selectedPaymentMethod: defaultFiatPaymentMethods.first,
       status: FiatFormStatus.initial,
