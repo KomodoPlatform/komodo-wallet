@@ -105,6 +105,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
               .add(CoinsPubkeysRequested(widget.coin.abbr));
         },
         child: PageLayout(
+          padding: const EdgeInsets.fromLTRB(15, 32, 15, 20),
           header: PageHeader(
             title: widget.coin.name,
             widgetTitle: widget.coin.mode == CoinMode.segwit
