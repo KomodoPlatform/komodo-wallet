@@ -93,25 +93,23 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                       });
                     },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    child: WalletsManagerControls(
-                      onTap: (newAction) {
-                        setState(() {
-                          _action = newAction;
-                        });
+                  Divider(height: 32, thickness: 2),
+                  WalletsManagerControls(
+                    onTap: (newAction) {
+                      setState(() {
+                        _action = newAction;
+                      });
 
-                        final method = newAction == WalletsManagerAction.create
-                            ? 'create'
-                            : 'import';
-                        context.read<AnalyticsBloc>().logEvent(
-                              OnboardingStartedEventData(
-                                method: method,
-                                referralSource: widget.eventType.name,
-                              ),
-                            );
-                      },
-                    ),
+                      final method = newAction == WalletsManagerAction.create
+                          ? 'create'
+                          : 'import';
+                      context.read<AnalyticsBloc>().logEvent(
+                            OnboardingStartedEventData(
+                              method: method,
+                              referralSource: widget.eventType.name,
+                            ),
+                          );
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
