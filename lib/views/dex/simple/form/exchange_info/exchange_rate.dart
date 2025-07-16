@@ -103,15 +103,11 @@ class _Rates extends StatelessWidget {
   }
 
   String baseFiat(BuildContext context) {
-    return getFormattedFiatAmount(context, rel ?? '', rate ?? Rational.zero);
+    return getFormattedFiatAmount(context, base ?? '', Rational.one);
   }
 
   String relFiat(BuildContext context) {
-    if (rate == Rational.zero) {
-      return getFormattedFiatAmount(context, base ?? '', Rational.zero);
-    }
-    return getFormattedFiatAmount(
-        context, base ?? '', rate?.inverse ?? Rational.zero);
+    return getFormattedFiatAmount(context, rel ?? '', Rational.one);
   }
 
   String get price {
