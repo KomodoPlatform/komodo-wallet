@@ -51,8 +51,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       coinMap[coin.abbr] = coin;
     }
 
-    final list = coinMap.values.toList()
-      ..sort((a, b) => a.abbr.compareTo(b.abbr));
+    final list = sortByPriorityAndBalance(coinMap.values.toList(), _sdk);
 
     return list;
   }
@@ -87,12 +86,14 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     Emitter<CoinsManagerState> emit,
   ) async {
     emit(CoinsManagerState.initial(coins: [], action: event.action));
-    final List<Coin> coins = await _getOriginalCoinList(
-      _coinsRepo,
-      event.action,
+    final List<Coin> coins = sortByPriorityAndBalance(
+      await _getOriginalCoinList(
+        _coinsRepo,
+        event.action,
+        _sdk,
+      ),
       _sdk,
-    )
-      ..sort((a, b) => a.abbr.compareTo(b.abbr));
+    );
     emit(state.copyWith(coins: coins, action: event.action));
   }
 
@@ -222,9 +223,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
             )
             .toList();
 
-    filtered
-        .sort((a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()));
-    return filtered;
+    return sortByPriorityAndBalance(filtered, _sdk);
   }
 
   List<Coin> _filterByType(List<Coin> coins) {
@@ -251,7 +250,9 @@ Future<List<Coin>> _getOriginalCoinList(
 
   switch (action) {
     case CoinsManagerAction.add:
-      return _getDeactivatedCoins(coinsRepo, sdk, walletType);
+      final active = await coinsRepo.getWalletCoins();
+      final disabled = await _getDeactivatedCoins(coinsRepo, sdk, walletType);
+      return [...active, ...disabled];
     case CoinsManagerAction.remove:
       return coinsRepo.getWalletCoins();
     case CoinsManagerAction.none:
