@@ -41,7 +41,7 @@ class _WalletCreationState extends State<WalletCreation> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
-  bool _isHdMode = false;
+  bool _isHdMode = true;
 
   @override
   Widget build(BuildContext context) {
