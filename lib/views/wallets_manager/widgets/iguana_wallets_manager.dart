@@ -25,7 +25,7 @@ class IguanaWalletsManager extends StatefulWidget {
     required this.close,
     required this.onSuccess,
     this.initialWallet,
-    this.initialHdMode = true,
+    this.initialHdMode = false,
     super.key,
   });
 
@@ -45,13 +45,15 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   Wallet? _selectedWallet;
   WalletsManagerExistWalletAction _existWalletAction =
       WalletsManagerExistWalletAction.none;
-  bool _initialHdMode = true;
+  bool _initialHdMode = false;
 
   @override
   void initState() {
     super.initState();
     _selectedWallet = widget.initialWallet;
-    _initialHdMode = widget.initialHdMode;
+    _initialHdMode = widget.initialWallet?.config.type == WalletType.hdwallet
+        ? true
+        : widget.initialHdMode;
     if (_selectedWallet != null) {
       _existWalletAction = WalletsManagerExistWalletAction.logIn;
     }

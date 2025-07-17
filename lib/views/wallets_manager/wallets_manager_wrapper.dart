@@ -11,7 +11,7 @@ class WalletsManagerWrapper extends StatefulWidget {
     required this.eventType,
     this.onSuccess,
     this.selectedWallet,
-    this.initialHdMode = true,
+    this.initialHdMode = false,
     super.key = const Key('wallets-manager-wrapper'),
   });
 
@@ -59,7 +59,9 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
       close: _closeWalletManager,
       onSuccess: widget.onSuccess ?? (_) {},
       selectedWallet: widget.selectedWallet,
-      initialHdMode: widget.initialHdMode,
+      initialHdMode: widget.selectedWallet?.config.type == WalletType.hdwallet
+          ? true
+          : widget.initialHdMode,
     );
   }
 

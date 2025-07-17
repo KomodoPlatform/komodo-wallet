@@ -26,8 +26,7 @@ class WalletCreation extends StatefulWidget {
     required String name,
     required String password,
     WalletType? walletType,
-  })
-  onCreate;
+  }) onCreate;
   final void Function() onCancel;
 
   @override
@@ -42,7 +41,7 @@ class _WalletCreationState extends State<WalletCreation> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
-  bool _isHdMode = true;
+  bool _isHdMode = false;
 
   @override
   Widget build(BuildContext context) {

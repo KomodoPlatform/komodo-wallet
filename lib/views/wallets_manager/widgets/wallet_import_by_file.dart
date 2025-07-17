@@ -46,7 +46,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       TextEditingController(text: '');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscured = true;
-  bool _isHdMode = true;
+  bool _isHdMode = false;
   bool _eulaAndTosChecked = false;
   bool _allowCustomSeed = false;
 

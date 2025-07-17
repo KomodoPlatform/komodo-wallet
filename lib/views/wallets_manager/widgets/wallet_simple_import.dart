@@ -31,13 +31,12 @@ class WalletSimpleImport extends StatefulWidget {
     required String name,
     required String password,
     required WalletConfig walletConfig,
-  })
-  onImport;
+  }) onImport;
 
   final void Function() onCancel;
 
   final void Function({required String fileName, required String fileData})
-  onUploadFiles;
+      onUploadFiles;
 
   @override
   State<WalletSimpleImport> createState() => _WalletImportWrapperState();
@@ -57,7 +56,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
   bool _allowCustomSeed = false;
-  bool _isHdMode = true;
+  bool _isHdMode = false;
 
   bool get _isButtonEnabled {
     final isFormValid = _refreshFormValidationState();
@@ -338,16 +337,14 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       return null;
     }
 
-    final maybeFailedReason = context
-        .read<KomodoDefiSdk>()
-        .mnemonicValidator
-        .validateMnemonic(
-          seed ?? '',
-          minWordCount: 12,
-          maxWordCount: 24,
-          isHd: _isHdMode,
-          allowCustomSeed: _allowCustomSeed,
-        );
+    final maybeFailedReason =
+        context.read<KomodoDefiSdk>().mnemonicValidator.validateMnemonic(
+              seed ?? '',
+              minWordCount: 12,
+              maxWordCount: 24,
+              isHd: _isHdMode,
+              allowCustomSeed: _allowCustomSeed,
+            );
 
     if (maybeFailedReason == null) {
       return null;
@@ -356,10 +353,9 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     return switch (maybeFailedReason) {
       MnemonicFailedReason.empty =>
         LocaleKeys.walletCreationEmptySeedError.tr(),
-      MnemonicFailedReason.customNotSupportedForHd =>
-        _isHdMode
-            ? LocaleKeys.walletCreationHdBip39SeedError.tr()
-            : LocaleKeys.walletCreationBip39SeedError.tr(),
+      MnemonicFailedReason.customNotSupportedForHd => _isHdMode
+          ? LocaleKeys.walletCreationHdBip39SeedError.tr()
+          : LocaleKeys.walletCreationBip39SeedError.tr(),
       MnemonicFailedReason.customNotAllowed =>
         LocaleKeys.customSeedWarningText.tr(),
       MnemonicFailedReason.invalidLength =>
