@@ -93,7 +93,21 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       _sdk,
     )
       ..sort((a, b) => a.abbr.compareTo(b.abbr));
-    emit(state.copyWith(coins: coins, action: event.action));
+    if (event.action == CoinsManagerAction.add) {
+      final activatedIds =
+          (await _sdk.currentWallet())?.config.activatedCoins ?? [];
+      final selectedCoins =
+          coins.where((c) => activatedIds.contains(c.id.id)).toList();
+      emit(
+        state.copyWith(
+          coins: coins,
+          action: event.action,
+          selectedCoins: selectedCoins,
+        ),
+      );
+    } else {
+      emit(state.copyWith(coins: coins, action: event.action));
+    }
   }
 
   void _onCoinTypeSelect(
@@ -251,7 +265,10 @@ Future<List<Coin>> _getOriginalCoinList(
 
   switch (action) {
     case CoinsManagerAction.add:
-      return _getDeactivatedCoins(coinsRepo, sdk, walletType);
+      final activatedCoins = await coinsRepo.getWalletCoins();
+      final deactivatedCoins =
+          await _getDeactivatedCoins(coinsRepo, sdk, walletType);
+      return [...activatedCoins, ...deactivatedCoins];
     case CoinsManagerAction.remove:
       return coinsRepo.getWalletCoins();
     case CoinsManagerAction.none:
