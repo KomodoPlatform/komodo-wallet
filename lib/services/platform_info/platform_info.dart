@@ -31,7 +31,6 @@ abstract class PlatformInfo {
   String? get screenSize;
   Future<PlatformType> get platformType;
 
-
   /// Legacy method for backward compatibility
   static PlatformInfo getInstance() => PlatformInfo.create();
 }
@@ -40,13 +39,13 @@ mixin MemoizedPlatformInfoMixin {
   String? _osLanguage;
   String? _platform;
   String? _screenSize;
-  PlatformType? _platformType;
+  Future<PlatformType>? _platformType;
 
   String get osLanguage => _osLanguage ??= computeOsLanguage();
   String get platform => _platform ??= computePlatform();
   String? get screenSize => _screenSize ??= computeScreenSize();
-  Future<PlatformType> get platformType async =>
-      _platformType ??= await computePlatformType();
+  Future<PlatformType> get platformType =>
+      _platformType ??= computePlatformType();
 
   String computeOsLanguage();
   String computePlatform();
