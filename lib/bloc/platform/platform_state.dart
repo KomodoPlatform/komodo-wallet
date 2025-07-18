@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
+import 'package:web_dex/services/platform_info/platform_info.dart';
 
 enum PlatformBlocStatus {
   initial,
@@ -19,9 +19,6 @@ class PlatformState extends Equatable {
   final PlatformType platformType;
   final String? errorMessage;
 
-  /// Checks if the current platform is Chrome browser
-  bool get isChrome => platformType == PlatformType.chrome;
-
   /// Checks if the current platform is supported for Trezor
   ///
   /// Trezor is supported on:
@@ -30,8 +27,9 @@ class PlatformState extends Equatable {
   /// - Mobile platforms (Android, iOS)
   ///
   /// Trezor is NOT supported on:
-  /// - Brave browser (explicitly disabled due to security restrictions)
-  /// - Other web browsers (Firefox, Safari, Edge, Opera, etc.)
+  /// - Brave browser (explicitly disabled due to security restrictions
+  /// and known issues)
+  /// - Other web browsers (Firefox, Safari, Opera, etc.)
   bool get isTrezorSupported {
     switch (platformType) {
       // Supported platforms

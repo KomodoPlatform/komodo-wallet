@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart';
-import 'package:web_dex/services/platform_info/native_platform_info.dart';
-import 'package:web_dex/services/platform_info/web_platform_info.dart';
+// ignore: always_use_package_imports
+import 'stub.dart'
+    if (dart.library.html) 'web_platform_info.dart'
+    if (dart.library.io) 'native_platform_info.dart';
 
 enum PlatformType {
   chrome,
@@ -18,18 +19,21 @@ enum PlatformType {
 }
 
 abstract class PlatformInfo {
+  /// Base constructor is required for the factory constructor to work.
+  /// This constructor is not meant to be instantiated directly.
+  const PlatformInfo();
+
+  /// Creates a platform-specific instance of [PlatformInfo]
+  factory PlatformInfo.create() => createPlatformInfo();
+
   String get osLanguage;
   String get platform;
   String? get screenSize;
   Future<PlatformType> get platformType;
 
-  static PlatformInfo getInstance() {
-    if (kIsWeb) {
-      return WebPlatformInfo();
-    } else {
-      return NativePlatformInfo();
-    }
-  }
+
+  /// Legacy method for backward compatibility
+  static PlatformInfo getInstance() => PlatformInfo.create();
 }
 
 mixin MemoizedPlatformInfoMixin {

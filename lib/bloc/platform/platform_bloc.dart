@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/platform/platform_event.dart';
 import 'package:web_dex/bloc/platform/platform_state.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
+import 'package:web_dex/services/platform_info/platform_info.dart';
 
 class PlatformBloc extends Bloc<PlatformEvent, PlatformState> {
   PlatformBloc({

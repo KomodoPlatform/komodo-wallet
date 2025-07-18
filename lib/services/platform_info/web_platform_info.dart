@@ -1,6 +1,8 @@
-import 'package:universal_html/html.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
+import 'package:web/web.dart' show window;
+import 'package:web_dex/services/platform_info/platform_info.dart';
 import 'package:web_dex/shared/utils/browser_helpers.dart';
+
+PlatformInfo createPlatformInfo() => WebPlatformInfo();
 
 class WebPlatformInfo extends PlatformInfo with MemoizedPlatformInfoMixin {
   BrowserInfo? _browserInfo;
