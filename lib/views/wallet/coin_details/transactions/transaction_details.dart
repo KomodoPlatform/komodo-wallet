@@ -146,6 +146,7 @@ class TransactionDetails extends StatelessWidget {
             child: CopiedText(
               copiedValue: address,
               isTruncated: false,
+              maxLines: 2,
               padding: const EdgeInsets.symmetric(
                 vertical: 8,
                 horizontal: 16,

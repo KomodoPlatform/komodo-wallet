@@ -298,9 +298,12 @@ class _TransactionAddress extends StatelessWidget {
         const SizedBox(width: 8),
         AddressIcon(address: myAddress),
         const SizedBox(width: 8),
-        AddressText(
-          address: myAddress,
-          isTruncated: false,
+        Expanded(
+          child: AddressText(
+            address: myAddress,
+            isTruncated: false,
+            maxLines: 2,
+          ),
         ),
         AddressCopyButton(address: myAddress),
       ],
