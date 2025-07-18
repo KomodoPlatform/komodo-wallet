@@ -298,7 +298,10 @@ class _TransactionAddress extends StatelessWidget {
         const SizedBox(width: 8),
         AddressIcon(address: myAddress),
         const SizedBox(width: 8),
-        AddressText(address: myAddress),
+        AddressText(
+          address: myAddress,
+          isTruncated: false,
+        ),
         AddressCopyButton(address: myAddress),
       ],
     );
