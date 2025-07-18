@@ -2,11 +2,10 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/shared/utils/browser_helpers.dart';
 
 class WalletTypeListItem extends StatelessWidget {
   const WalletTypeListItem({
@@ -22,8 +21,6 @@ class WalletTypeListItem extends StatelessWidget {
     final bool needAttractAttention =
         type == WalletType.iguana || type == WalletType.hdwallet;
     final bool isSupported = _checkWalletSupport(type);
-    final bool showBrowserWarning =
-        type == WalletType.trezor && !isChromeBrowser();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -57,17 +54,6 @@ class WalletTypeListItem extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (!isSupported)
-                      Text(
-                        showBrowserWarning
-                            ? LocaleKeys.trezorBrowserUnsupported.tr()
-                            : LocaleKeys.comingSoon.tr(),
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
                   ],
                 ),
               )
@@ -113,11 +99,9 @@ class WalletTypeListItem extends StatelessWidget {
   bool _checkWalletSupport(WalletType type) {
     switch (type) {
       case WalletType.iguana:
+      case WalletType.trezor:
       case WalletType.hdwallet:
         return true;
-      // Trezor is only supported on Chrome at this time.
-      case WalletType.trezor:
-        return isChromeBrowser();
       case WalletType.keplr:
       case WalletType.metamask:
         return false;

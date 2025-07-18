@@ -21,4 +21,23 @@ class NativePlatformInfo extends PlatformInfo with MemoizedPlatformInfoMixin {
         currentContext == null ? null : MediaQuery.of(currentContext).size;
     return size == null ? '' : '${size.width}:${size.height}';
   }
+
+  @override
+  Future<PlatformType> computePlatformType() async {
+    final os = Platform.operatingSystem.toLowerCase();
+    switch (os) {
+      case 'android':
+        return PlatformType.android;
+      case 'ios':
+        return PlatformType.ios;
+      case 'windows':
+        return PlatformType.windows;
+      case 'macos':
+        return PlatformType.mac;
+      case 'linux':
+        return PlatformType.linux;
+      default:
+        return PlatformType.unknown;
+    }
+  }
 }

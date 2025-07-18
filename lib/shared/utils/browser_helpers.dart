@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:web/web.dart';
 
 class BrowserInfo {
@@ -20,11 +22,11 @@ class BrowserInfoParser {
   static BrowserInfo get() {
     final cached = _cached;
     if (cached == null) {
-      final String ua = window.navigator.userAgent.toLowerCase();
+      final userAgent = window.navigator.userAgent.toLowerCase();
       final info = BrowserInfo(
-        browserName: _getBrowserName(ua),
-        browserVersion: _getBrowserVersion(ua),
-        os: _getOs(ua),
+        browserName: _getBrowserName(userAgent),
+        browserVersion: _getBrowserVersion(userAgent),
+        os: _getOs(userAgent),
         screenSize: _getScreenSize(),
       );
       _cached = info;
@@ -101,9 +103,19 @@ class BrowserInfoParser {
   }
 }
 
-/// Checks if the current browser is Chrome.
-/// Returns `true` if the browser is Chrome, otherwise `false`.
-bool isChromeBrowser() {
-  final browserInfo = BrowserInfoParser.get();
-  return browserInfo.browserName == 'chrome';
+@JS('navigator.brave.isBrave')
+external JSPromise<JSBoolean>? _jsIsBrave();
+
+Future<bool> isBraveApiAvailable() async {
+  try {
+    final jsPromise = _jsIsBrave();
+    if (jsPromise == null) return false;
+    final jsBool = await jsPromise.toDart;
+    return jsBool.toDart;
+  } on Exception catch (_) {
+    // If the API is not available, we assume it's not Brave
+    // Catch general Exception here because the specific
+    // error, [TypeError] should not be caught explicitly.
+    return false;
+  }
 }

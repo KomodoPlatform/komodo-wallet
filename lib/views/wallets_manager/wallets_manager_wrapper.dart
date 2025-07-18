@@ -5,7 +5,6 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_type_list.dart';
-import 'package:web_dex/shared/utils/browser_helpers.dart';
 
 class WalletsManagerWrapper extends StatefulWidget {
   const WalletsManagerWrapper({
@@ -37,7 +36,6 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
   Widget build(BuildContext context) {
     final WalletType? selectedWalletType = _selectedWalletType;
     if (selectedWalletType == null) {
-      final bool isChrome = isChromeBrowser();
       return Column(
         children: [
           Text(
@@ -51,18 +49,6 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
               onWalletTypeClick: _onWalletTypeClick,
             ),
           ),
-          if (!isChrome)
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0),
-              child: Text(
-                LocaleKeys.trezorBrowserUnsupported.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Theme.of(context).colorScheme.error),
-                textAlign: TextAlign.center,
-              ),
-            ),
         ],
       );
     }
