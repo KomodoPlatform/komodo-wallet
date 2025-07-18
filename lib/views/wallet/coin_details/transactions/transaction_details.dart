@@ -146,7 +146,7 @@ class TransactionDetails extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 200),
             child: CopiedText(
               copiedValue: address,
-              isTruncated: true,
+              isTruncated: false,
               padding: const EdgeInsets.symmetric(
                 vertical: 8,
                 horizontal: 16,
