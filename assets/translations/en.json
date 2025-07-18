@@ -353,7 +353,7 @@
   "trezorErrorInvalidPin": "Invalid PIN code",
   "trezorSelectTitle": "Connect a hardware wallet",
   "trezorSelectSubTitle": "Select a hardware wallet you'd like to use with Komodo Wallet",
-  "trezorBrowserUnsupported": "Trezor is not supported on this platform.\nPlease use Chrome, a desktop app, or mobile app.",
+  "trezorBrowserUnsupported": "Trezor is not supported on this browser.\nPlease use Chrome for Trezor functionality.",
   "mixedCaseError": "If you are using non mixed case address, please try to convert to mixed case one.",
   "addressConvertedToMixedCase": "Address automatically converted to mixed-case for checksum validation.",
   "invalidAddressChecksum": "Invalid address checksum",
