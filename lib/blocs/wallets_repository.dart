@@ -36,7 +36,9 @@ class WalletsRepository {
     final legacyWallets = await _getLegacyWallets();
     _cachedWallets = (await _kdfSdk.wallets)
         .where(
-          (wallet) => wallet.config.type != WalletType.trezor,
+          (wallet) =>
+              wallet.config.type != WalletType.trezor &&
+              !wallet.name.toLowerCase().startsWith('my trezor'),
         )
         .toList();
     return [..._cachedWallets!, ...legacyWallets];
