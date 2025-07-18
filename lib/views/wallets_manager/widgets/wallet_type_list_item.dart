@@ -114,6 +114,8 @@ class WalletTypeListItem extends StatelessWidget {
     switch (type) {
       case WalletType.iguana:
       case WalletType.hdwallet:
+        return true;
+      // Trezor is only supported on Chrome at this time.
       case WalletType.trezor:
         return isChromeBrowser();
       case WalletType.keplr:

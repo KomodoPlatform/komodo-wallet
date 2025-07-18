@@ -1,5 +1,4 @@
 import 'package:web/web.dart';
-import 'dart:ui_web' as ui_web;
 
 class BrowserInfo {
   final String browserName;
@@ -41,7 +40,9 @@ class BrowserInfoParser {
     }
   }
 
-  static String _getOs(ua) {
+  static bool get isChrome => get().browserName == 'chrome';
+
+  static String _getOs(String ua) {
     if (ua.contains('windows')) {
       return 'windows';
     } else if (ua.contains('android')) {
@@ -92,7 +93,7 @@ class BrowserInfoParser {
   }
 
   static String _getScreenSize() {
-    final HTMLBodyElement? body = document.body as HTMLBodyElement?;
+    final HTMLElement? body = document.body;
     final width = document.documentElement?.clientWidth ?? body?.clientWidth;
     final height = document.documentElement?.clientHeight ?? body?.clientHeight;
 
@@ -100,15 +101,9 @@ class BrowserInfoParser {
   }
 }
 
+/// Checks if the current browser is Chrome.
+/// Returns `true` if the browser is Chrome, otherwise `false`.
 bool isChromeBrowser() {
-  final vendor = window.navigator.vendor;
-  final userAgent = window.navigator.userAgent.toLowerCase();
-  final engine =
-      ui_web.browser.detectBrowserEngineByVendorAgent(vendor, userAgent);
-  final bool isBlink = engine == ui_web.BrowserEngine.blink;
-  final bool isEdge = userAgent.contains('edg/');
-  return isBlink &&
-      !isEdge &&
-      vendor == 'Google Inc.' &&
-      userAgent.contains('chrome');
+  final browserInfo = BrowserInfoParser.get();
+  return browserInfo.browserName == 'chrome';
 }
