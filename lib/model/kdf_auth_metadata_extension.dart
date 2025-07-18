@@ -57,4 +57,17 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
   Future<void> setWalletType(WalletType type) async {
     await auth.setOrRemoveActiveUserKeyValue('type', type.name);
   }
+
+  Future<bool> getHideZeroBalanceAssets() async {
+    final user = await auth.currentUser;
+    return user?.metadata.valueOrNull<bool>('hide_zero_balance_assets') ??
+        false;
+  }
+
+  Future<void> setHideZeroBalanceAssets(bool value) async {
+    await auth.setOrRemoveActiveUserKeyValue(
+      'hide_zero_balance_assets',
+      value,
+    );
+  }
 }
