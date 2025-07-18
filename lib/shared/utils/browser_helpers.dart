@@ -1,4 +1,5 @@
-import 'package:universal_html/html.dart';
+import 'package:web/web.dart';
+import 'dart:ui_web' as ui_web;
 
 class BrowserInfo {
   final String browserName;
@@ -91,10 +92,23 @@ class BrowserInfoParser {
   }
 
   static String _getScreenSize() {
-    final BodyElement? body = document.body;
+    final HTMLBodyElement? body = document.body as HTMLBodyElement?;
     final width = document.documentElement?.clientWidth ?? body?.clientWidth;
     final height = document.documentElement?.clientHeight ?? body?.clientHeight;
 
     return '${width ?? ''}:${height ?? ''}';
   }
+}
+
+bool isChromeBrowser() {
+  final vendor = window.navigator.vendor;
+  final userAgent = window.navigator.userAgent.toLowerCase();
+  final engine =
+      ui_web.browser.detectBrowserEngineByVendorAgent(vendor, userAgent);
+  final bool isBlink = engine == ui_web.BrowserEngine.blink;
+  final bool isEdge = userAgent.contains('edg/');
+  return isBlink &&
+      !isEdge &&
+      vendor == 'Google Inc.' &&
+      userAgent.contains('chrome');
 }

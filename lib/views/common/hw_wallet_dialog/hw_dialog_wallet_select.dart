@@ -9,6 +9,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/hw_wallet/hw_wallet.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/shared/utils/browser_helpers.dart';
 
 class HwDialogWalletSelect extends StatefulWidget {
   const HwDialogWalletSelect({
@@ -24,6 +25,13 @@ class HwDialogWalletSelect extends StatefulWidget {
 
 class _HwDialogWalletSelectState extends State<HwDialogWalletSelect> {
   WalletBrand? _selectedBrand;
+  late final bool _isChrome;
+
+  @override
+  void initState() {
+    super.initState();
+    _isChrome = isChromeBrowser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +51,7 @@ class _HwDialogWalletSelectState extends State<HwDialogWalletSelect> {
         ),
         const SizedBox(height: 24),
         _HwWalletTile(
+            disabled: !_isChrome,
             selected: _selectedBrand == WalletBrand.trezor,
             onSelect: () {
               setState(() => _selectedBrand = WalletBrand.trezor);
@@ -52,6 +61,15 @@ class _HwDialogWalletSelectState extends State<HwDialogWalletSelect> {
                   ? '$assetsPath/others/trezor_logo_light.svg'
                   : '$assetsPath/others/trezor_logo.svg'),
             )),
+        if (!_isChrome)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              LocaleKeys.trezorBrowserUnsupported.tr(),
+              style: theme.currentGlobal.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ),
         const SizedBox(height: 12),
         _HwWalletTile(
             disabled: true,
