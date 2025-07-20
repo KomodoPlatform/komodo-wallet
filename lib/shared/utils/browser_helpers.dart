@@ -1,5 +1,6 @@
 import 'dart:js_interop';
 
+import 'package:flutter/foundation.dart';
 import 'package:web/web.dart';
 
 class BrowserInfo {
@@ -112,10 +113,12 @@ Future<bool> isBraveApiAvailable() async {
     if (jsPromise == null) return false;
     final jsBool = await jsPromise.toDart;
     return jsBool.toDart;
-  } on Exception catch (_) {
-    // If the API is not available, we assume it's not Brave
-    // Catch general Exception here because the specific
-    // error, [TypeError] should not be caught explicitly.
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint('Error checking if Brave API is available: $e');
+    }
+    // Catch all exceptions, including JavaScript errors that might not
+    // be properly wrapped as Dart exceptions
     return false;
   }
 }
