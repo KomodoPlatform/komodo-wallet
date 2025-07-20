@@ -655,8 +655,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_cex_market_data"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -664,8 +664,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coin_updates"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "1.0.0"
@@ -673,8 +673,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coins"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -682,8 +682,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_framework"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0"
@@ -691,8 +691,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_local_auth"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -700,8 +700,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -709,8 +709,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_sdk"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -718,8 +718,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -734,8 +734,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -750,8 +750,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_wallet_build_transformer"
-      ref: dev
-      resolved-ref: a521a80f6f77e888512d13aa961511d6f83e2c14
+      ref: "temp/wss-config-test"
+      resolved-ref: "20828e2533df4a04c7361f1fa320344fe8bc67aa"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -799,10 +799,10 @@ packages:
     dependency: transitive
     description:
       name: local_auth_android
-      sha256: "63ad7ca6396290626dc0cb34725a939e4cfe965d80d36112f08d49cf13a8136e"
+      sha256: "82b2bdeee2199a510d3b7716121e96a6609da86693bb0863edd8566355406b79"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.49"
+    version: "1.0.50"
   local_auth_darwin:
     dependency: transitive
     description:

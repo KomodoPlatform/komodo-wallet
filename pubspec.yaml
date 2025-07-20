@@ -49,7 +49,7 @@ dependencies:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_cex_market_data
-      ref: dev
+      ref: temp/wss-config-test
 
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
@@ -145,21 +145,22 @@ dependencies:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_sdk
-      ref: dev
+      ref: temp/wss-config-test
 
   komodo_defi_types:
     # path: sdk/packages/komodo_defi_types # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_types
-      ref: dev
+      ref: temp/wss-config-test
 
   komodo_ui:
     # path: sdk/packages/komodo_ui # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_ui
-      ref: dev
+      ref: temp/wss-config-test
+
   feedback: ^3.1.0
   ntp: ^2.0.0
   flutter_window_close: ^1.2.0
