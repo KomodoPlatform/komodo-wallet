@@ -44,6 +44,19 @@ class _WalletCreationState extends State<WalletCreation> {
   bool _inProgress = false;
   bool _isHdMode = true;
 
+  late final WalletsRepository _walletsRepository;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _walletsRepository = context.read<WalletsRepository>();
+
+    _nameController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthBlocState>(
@@ -152,7 +165,7 @@ class _WalletCreationState extends State<WalletCreation> {
   }
 
   Widget _buildNameField() {
-    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+    final walletsRepository = _walletsRepository;
     return UiTextFormField(
       key: const Key('name-wallet-field'),
       controller: _nameController,
@@ -181,5 +194,9 @@ class _WalletCreationState extends State<WalletCreation> {
     });
   }
 
-  bool get _isCreateButtonEnabled => _eulaAndTosChecked && !_inProgress;
+  bool get _isCreateButtonEnabled {
+    final nameError = _walletsRepository.validateWalletName(_nameController.text);
+    final isNameValid = nameError == null;
+    return _eulaAndTosChecked && !_inProgress && isNameValid;
+  }
 }
