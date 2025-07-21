@@ -12,7 +12,7 @@ class WalletsManager extends StatelessWidget {
     required this.close,
     required this.onSuccess,
     this.selectedWallet,
-    this.initialHdMode = true,
+    this.initialHdMode = false,
   }) : super(key: key);
   final WalletsManagerEventType eventType;
   final WalletType walletType;

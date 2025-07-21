@@ -26,8 +26,7 @@ class WalletCreation extends StatefulWidget {
     required String name,
     required String password,
     WalletType? walletType,
-  })
-  onCreate;
+  }) onCreate;
   final void Function() onCancel;
 
   @override

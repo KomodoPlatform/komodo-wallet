@@ -34,9 +34,13 @@ class WalletsRepository {
 
   Future<List<Wallet>> getWallets() async {
     final legacyWallets = await _getLegacyWallets();
+
+    // TODO: move wallet filtering logic to the SDK
     _cachedWallets = (await _kdfSdk.wallets)
         .where(
-          (wallet) => wallet.config.type != WalletType.trezor,
+          (wallet) =>
+              wallet.config.type != WalletType.trezor &&
+              !wallet.name.toLowerCase().startsWith(trezorWalletNamePrefix),
         )
         .toList();
     return [..._cachedWallets!, ...legacyWallets];

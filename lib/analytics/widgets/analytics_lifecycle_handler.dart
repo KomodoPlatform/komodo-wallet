@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 import 'package:web_dex/analytics/events/user_engagement_events.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
+import 'package:web_dex/services/platform_info/platform_info.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 

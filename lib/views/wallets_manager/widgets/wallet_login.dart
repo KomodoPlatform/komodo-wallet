@@ -19,7 +19,7 @@ class WalletLogIn extends StatefulWidget {
     required this.wallet,
     required this.onLogin,
     required this.onCancel,
-    this.initialHdMode = true,
+    this.initialHdMode = false,
     super.key,
   });
 
@@ -54,6 +54,7 @@ class _WalletLogInState extends State<WalletLogIn> {
     if (user != null) {
       setState(() {
         _user = user;
+        _isHdMode = user.wallet.config.type == WalletType.hdwallet;
       });
     }
   }
