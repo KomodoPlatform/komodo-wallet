@@ -74,10 +74,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     HideZeroBalanceAssetsChanged event,
     Emitter<SettingsState> emitter,
   ) async {
-    final updated = _storedSettings.copyWith(
-        hideZeroBalanceAssets: event.hideZeroBalanceAssets);
-    await _settingsRepo.updateSettings(updated);
-    _storedSettings = updated;
+    await _settingsRepo.updateSettings(
+      _storedSettings.copyWith(
+        hideZeroBalanceAssets: event.hideZeroBalanceAssets,
+      ),
+    );
     emitter(state.copyWith(hideZeroBalanceAssets: event.hideZeroBalanceAssets));
   }
 }
