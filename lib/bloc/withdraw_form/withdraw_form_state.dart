@@ -55,6 +55,10 @@ class WithdrawFormState extends Equatable {
   // field validators
   /// Checks if the form has valid data to submit, not just absence of errors
   bool _hasValidFormData() {
+    // A source address must be selected
+    if (selectedSourceAddress == null) {
+      return false;
+    }
     // Recipient address is required and must not be empty
     if (recipientAddress.trim().isEmpty) {
       return false;
