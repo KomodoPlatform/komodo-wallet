@@ -100,6 +100,8 @@ class WalletsRepository {
       return LocaleKeys.walletCreationExistNameError.tr();
     } else if (name.isEmpty || name.length > 40) {
       return LocaleKeys.walletCreationNameLengthError.tr();
+    } else if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(name)) {
+      return LocaleKeys.walletCreationNameCharactersError.tr();
     }
 
     return null;

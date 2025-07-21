@@ -14,6 +14,7 @@ import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/views/wallets_manager/widgets/wallet_rename_dialog.dart';
 
 class WalletFileData {
   const WalletFileData({required this.content, required this.name});
@@ -219,7 +220,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       }
 
       walletConfig.seedPhrase = decryptedSeed;
-      final String name = widget.fileData.name.split('.').first;
+      String name = widget.fileData.name.split('.').first;
       // ignore: use_build_context_synchronously
       final walletsBloc = RepositoryProvider.of<WalletsRepository>(context);
       final bool isNameExisted =
@@ -229,6 +230,18 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
           _commonError = LocaleKeys.walletCreationExistNameError.tr();
         });
         return;
+      }
+      String? validationError = walletsBloc.validateWalletName(name);
+      if (validationError != null) {
+        // ignore: use_build_context_synchronously
+        final newName = await walletRenameDialog(
+          context,
+          initialName: name,
+        );
+        if (newName == null) {
+          return;
+        }
+        name = newName;
       }
       widget.onImport(
         name: name,
