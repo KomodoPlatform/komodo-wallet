@@ -98,6 +98,7 @@ class _TrezorHiddenWalletState extends State<_TrezorHiddenWallet> {
       key: _formKey,
       child: UiTextFormField(
         controller: _passphraseController,
+        autofocus: true,
         hintText: LocaleKeys.passphrase.tr(),
         keyboardType: TextInputType.emailAddress,
         obscureText: true,

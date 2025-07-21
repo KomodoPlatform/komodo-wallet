@@ -22,6 +22,7 @@ class ToAddressField extends StatelessWidget {
       builder: (context, state) {
         return UiTextFormField(
           key: const Key('withdraw-recipient-address-input'),
+          autofocus: true,
           autocorrect: false,
           textInputAction: TextInputAction.next,
           enableInteractiveSelection: true,

@@ -178,6 +178,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
       children: [
         UiTextFormField(
           key: const Key('create-password-field'),
+          autofocus: true,
           textInputAction: TextInputAction.next,
           autocorrect: false,
           controller: widget.controller,
