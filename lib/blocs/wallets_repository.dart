@@ -86,6 +86,10 @@ class WalletsRepository {
   }
 
   String? validateWalletName(String name) {
+    // Disallow special characters except letters, digits, space, underscore and hyphen
+    if (RegExp(r'[^\w\- ]').hasMatch(name)) {
+      return LocaleKeys.invalidWalletNameError.tr();
+    }
     // This shouldn't happen, but just in case.
     if (_cachedWallets == null) {
       getWallets().ignore();
