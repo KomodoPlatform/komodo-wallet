@@ -431,7 +431,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       }
 
       _log.info('Enabling iguana coin: ${coin.id.id}');
-      await _coinsRepo.activateCoinsSync([coin]);
+      await _coinsRepo.activateCoinsSync([coin], notify: false);
       coin.state = CoinState.active;
       _log.info('Iguana coin ${coin.name} has been enabled');
     } on Exception catch (e, s) {

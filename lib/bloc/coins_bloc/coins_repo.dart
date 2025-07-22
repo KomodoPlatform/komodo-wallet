@@ -268,7 +268,10 @@ class CoinsRepo {
     }
   }
 
-  Future<void> activateAssetsSync(List<Asset> assets) async {
+  Future<void> activateAssetsSync(
+    List<Asset> assets, {
+    bool notify = true,
+  }) async {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       final coinIdList = assets.map((e) => e.id.id).join(', ');
@@ -284,7 +287,7 @@ class CoinsRepo {
     for (final asset in assets) {
       final coin = asset.toCoin();
       try {
-        _broadcastAsset(coin.copyWith(state: CoinState.activating));
+        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
         activatedAssetIds.add(asset.id.id);
 
         final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
@@ -292,7 +295,7 @@ class CoinsRepo {
           throw StateError('Failed to activate coin ${asset.id.id}');
         }
 
-        _broadcastAsset(coin.copyWith(state: CoinState.active));
+        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
         _subscribeToBalanceUpdates(asset, coin);
 
         if (asset.id.parentId != null) {
@@ -300,9 +303,11 @@ class CoinsRepo {
         }
       } catch (e, s) {
         _log.shout('Error activating asset: ${asset.id.id}', e, s);
-        _broadcastAsset(
-          asset.toCoin().copyWith(state: CoinState.suspended),
-        );
+        if (notify) {
+          _broadcastAsset(
+            asset.toCoin().copyWith(state: CoinState.suspended),
+          );
+        }
       } finally {
         // Register outside of the try-catch to ensure icon is available even
         // in a suspended or failing activation status.
@@ -322,7 +327,10 @@ class CoinsRepo {
     }
   }
 
-  Future<void> activateCoinsSync(List<Coin> coins) async {
+  Future<void> activateCoinsSync(
+    List<Coin> coins, {
+    bool notify = true,
+  }) async {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       final coinIdList = coins.map((e) => e.id.id).join(', ');
@@ -351,7 +359,7 @@ class CoinsRepo {
         if (activatedAssets.any((a) => a.id == asset.id)) {
           _log.info(
               'Coin ${coin.id} is already activated. Skipping activation.');
-          _broadcastAsset(coin.copyWith(state: CoinState.active));
+          if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
           _subscribeToBalanceUpdates(asset, coin);
 
           if (asset.id.parentId != null) {
@@ -360,14 +368,14 @@ class CoinsRepo {
           continue;
         }
 
-        _broadcastAsset(coin.copyWith(state: CoinState.activating));
+        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
         final progress = await _kdfSdk.assets.activateAsset(asset).last;
         if (!progress.isSuccess) {
           throw StateError('Failed to activate coin ${coin.id.id}');
         }
 
-        _broadcastAsset(coin.copyWith(state: CoinState.active));
+        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
         _subscribeToBalanceUpdates(asset, coin);
 
         if (asset.id.parentId != null) {
@@ -375,7 +383,7 @@ class CoinsRepo {
         }
       } catch (e, s) {
         _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
-        _broadcastAsset(coin.copyWith(state: CoinState.suspended));
+        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.suspended));
       } finally {
         // Register outside of the try-catch to ensure icon is available even
         // in a suspended or failing activation status.
