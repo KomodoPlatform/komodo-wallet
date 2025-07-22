@@ -186,7 +186,7 @@ class _WalletCreationState extends State<WalletCreation> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.onCreate(
-        name: _nameController.text,
+        name: _nameController.text.trim(),
         password: _passwordController.text,
         walletType: _isHdMode ? WalletType.hdwallet : WalletType.iguana,
       );

@@ -97,7 +97,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
             _step == WalletSimpleImportSteps.nameAndSeed
                 ? LocaleKeys.walletImportTitle.tr()
                 : LocaleKeys.walletImportCreatePasswordTitle.tr(
-                    args: [_nameController.text],
+                    args: [_nameController.text.trim()],
                   ),
             style: Theme.of(
               context,
@@ -325,7 +325,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onImport(
-        name: _nameController.text,
+        name: _nameController.text.trim(),
         password: _passwordController.text,
         walletConfig: config,
       );
