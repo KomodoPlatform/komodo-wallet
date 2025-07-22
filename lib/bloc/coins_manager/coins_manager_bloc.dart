@@ -6,12 +6,15 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
+import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
 
 part 'coins_manager_event.dart';
 part 'coins_manager_state.dart';
@@ -33,6 +36,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     on<CoinsManagerSelectAllTap>(_onSelectAll);
     on<CoinsManagerSelectedTypesReset>(_onSelectedTypesReset);
     on<CoinsManagerSearchUpdate>(_onSearchUpdate);
+    on<CoinsManagerSortChanged>(_onSortChanged);
   }
 
   final CoinsRepo _coinsRepo;
@@ -54,15 +58,35 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     return list;
   }
 
-  List<Coin> _sortCoins(List<Coin> coins, CoinsManagerAction action) {
-    coins.sort((a, b) {
-      if (action == CoinsManagerAction.add) {
+  List<Coin> _sortCoins(
+    List<Coin> coins,
+    CoinsManagerAction action,
+    CoinsManagerSortData sortData,
+  ) {
+    List<Coin> sorted = List.from(coins);
+    switch (sortData.sortType) {
+      case CoinsManagerSortType.name:
+        sorted = sortByName(sorted, sortData.sortDirection);
+        break;
+      case CoinsManagerSortType.protocol:
+        sorted = sortByProtocol(sorted, sortData.sortDirection);
+        break;
+      case CoinsManagerSortType.balance:
+        sorted = sortByUsdBalance(sorted, sortData.sortDirection, _sdk);
+        break;
+      case CoinsManagerSortType.none:
+        sorted = sortByPriorityAndBalance(sorted, _sdk);
+        break;
+    }
+
+    if (action == CoinsManagerAction.add) {
+      sorted.sort((a, b) {
         if (a.isActive && !b.isActive) return 1;
         if (!a.isActive && b.isActive) return -1;
-      }
-      return a.abbr.compareTo(b.abbr);
-    });
-    return coins;
+        return 0;
+      });
+    }
+    return sorted;
   }
 
   Future<void> _onCoinsUpdate(
@@ -87,7 +111,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       list = filter(list);
     }
 
-    list = _sortCoins(list, event.action);
+    list = _sortCoins(list, event.action, state.sortData);
 
     emit(state.copyWith(coins: list, action: event.action));
   }
@@ -96,13 +120,22 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     CoinsManagerCoinsListReset event,
     Emitter<CoinsManagerState> emit,
   ) async {
-    emit(CoinsManagerState.initial(coins: [], action: event.action));
+    emit(
+      state.copyWith(
+        action: event.action,
+        coins: [],
+        selectedCoins: const [],
+        searchPhrase: '',
+        selectedCoinTypes: const [],
+        isSwitching: false,
+      ),
+    );
     final List<Coin> coins = await _getOriginalCoinList(
       _coinsRepo,
       event.action,
       _sdk,
     );
-    final sortedCoins = _sortCoins(coins, event.action);
+    final sortedCoins = _sortCoins(coins, event.action, state.sortData);
     final selectedCoins = event.action == CoinsManagerAction.add
         ? sortedCoins.where((c) => c.isActive).toList()
         : <Coin>[];
@@ -224,6 +257,15 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   ) {
     emit(state.copyWith(searchPhrase: event.text));
     add(CoinsManagerCoinsUpdate(state.action));
+  }
+
+  FutureOr<void> _onSortChanged(
+    CoinsManagerSortChanged event,
+    Emitter<CoinsManagerState> emit,
+  ) {
+    final List<Coin> sorted =
+        _sortCoins([...state.coins], state.action, event.sortData);
+    emit(state.copyWith(coins: sorted, sortData: event.sortData));
   }
 
   List<Coin> _filterByPhrase(List<Coin> coins) {
