@@ -40,3 +40,9 @@ class CoinsManagerSearchUpdate extends CoinsManagerEvent {
   const CoinsManagerSearchUpdate({required this.text});
   final String text;
 }
+
+class CoinsManagerSortChanged extends CoinsManagerEvent {
+  const CoinsManagerSortChanged(this.sortData);
+
+  final CoinsManagerSortData sortData;
+}
