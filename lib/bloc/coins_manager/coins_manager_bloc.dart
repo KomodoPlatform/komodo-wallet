@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show Bloc, Emitter;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/portfolio_events.dart';
-import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
+import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -24,9 +25,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     required CoinsRepo coinsRepo,
     required KomodoDefiSdk sdk,
     required AnalyticsBloc analyticsBloc,
+    required SettingsRepository settingsRepository,
   })  : _coinsRepo = coinsRepo,
         _sdk = sdk,
         _analyticsBloc = analyticsBloc,
+        _settingsRepository = settingsRepository,
         super(CoinsManagerState.initial(coins: [])) {
     on<CoinsManagerCoinsUpdate>(_onCoinsUpdate);
     on<CoinsManagerCoinsListReset>(_onCoinsListReset);
@@ -42,6 +45,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _sdk;
   final AnalyticsBloc _analyticsBloc;
+  final SettingsRepository _settingsRepository;
 
   List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
     final Map<String, Coin> coinMap = {};
@@ -67,16 +71,12 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     switch (sortData.sortType) {
       case CoinsManagerSortType.name:
         sorted = sortByName(sorted, sortData.sortDirection);
-        break;
       case CoinsManagerSortType.protocol:
         sorted = sortByProtocol(sorted, sortData.sortDirection);
-        break;
       case CoinsManagerSortType.balance:
         sorted = sortByUsdBalance(sorted, sortData.sortDirection, _sdk);
-        break;
       case CoinsManagerSortType.none:
         sorted = sortByPriorityAndBalance(sorted, _sdk);
-        break;
     }
 
     if (action == CoinsManagerAction.add) {
@@ -99,6 +99,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       await _getOriginalCoinList(_coinsRepo, event.action, _sdk),
       state.coins,
     );
+    list = await _filterTestCoinsIfNeeded(list);
 
     if (state.searchPhrase.isNotEmpty) {
       filters.add(_filterByPhrase);
@@ -130,11 +131,12 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
         isSwitching: false,
       ),
     );
-    final List<Coin> coins = await _getOriginalCoinList(
+    List<Coin> coins = await _getOriginalCoinList(
       _coinsRepo,
       event.action,
       _sdk,
     );
+    coins = await _filterTestCoinsIfNeeded(coins);
     final sortedCoins = _sortCoins(coins, event.action, state.sortData);
     final selectedCoins = event.action == CoinsManagerAction.add
         ? sortedCoins.where((c) => c.isActive).toList()
@@ -186,7 +188,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       selectedCoins.remove(coin);
 
       if (state.action == CoinsManagerAction.add) {
-        _coinsRepo.deactivateCoinsSync([event.coin]);
+        unawaited(_coinsRepo.deactivateCoinsSync([event.coin]));
         _analyticsBloc.logEvent(
           AssetDisabledEventData(
             assetSymbol: coin.abbr,
@@ -196,7 +198,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
           ),
         );
       } else {
-        _coinsRepo.activateCoinsSync([event.coin]);
+        unawaited(_coinsRepo.activateCoinsSync([event.coin]));
         _analyticsBloc.logEvent(
           AssetEnabledEventData(
             assetSymbol: coin.abbr,
@@ -210,7 +212,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       selectedCoins.add(coin);
 
       if (state.action == CoinsManagerAction.add) {
-        _coinsRepo.activateCoinsSync([event.coin]);
+        unawaited(_coinsRepo.activateCoinsSync([event.coin]));
         _analyticsBloc.logEvent(
           AssetEnabledEventData(
             assetSymbol: coin.abbr,
@@ -220,7 +222,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
           ),
         );
       } else {
-        _coinsRepo.deactivateCoinsSync([event.coin]);
+        unawaited(_coinsRepo.deactivateCoinsSync([event.coin]));
         _analyticsBloc.logEvent(
           AssetDisabledEventData(
             assetSymbol: coin.abbr,
@@ -266,6 +268,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     final List<Coin> sorted =
         _sortCoins([...state.coins], state.action, event.sortData);
     emit(state.copyWith(coins: sorted, sortData: event.sortData));
+  }
+
+  Future<List<Coin>> _filterTestCoinsIfNeeded(List<Coin> coins) async {
+    final settings = await _settingsRepository.loadSettings();
+    return settings.testCoinsEnabled ? coins : removeTestCoins(coins);
   }
 
   List<Coin> _filterByPhrase(List<Coin> coins) {

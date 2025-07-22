@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
-import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -47,12 +45,7 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       },
       child: BlocBuilder<CoinsManagerBloc, CoinsManagerState>(
         builder: (BuildContext context, CoinsManagerState state) {
-          List<Coin> sortedCoins = [...state.coins];
-
-          if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
-            sortedCoins = removeTestCoins(sortedCoins);
-          }
-
+          final List<Coin> coins = state.coins;
           final bool isAddAssets = state.action == CoinsManagerAction.add;
 
           return Column(
@@ -76,7 +69,7 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
                   children: [
                     Flexible(
                       child: CoinsManagerList(
-                        coinList: sortedCoins,
+                        coinList: coins,
                         isAddAssets: isAddAssets,
                         onCoinSelect: _onCoinSelect,
                       ),
