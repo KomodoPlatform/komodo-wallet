@@ -501,7 +501,7 @@
   "enterPassphraseHiddenWalletDescription": "Passphrase is required for hidden wallet",
   "skip": "Skip",
   "activateToSeeFunds": "Activate to see your funds",
-  "allowCustomFee": "Allow custom seed",
+  "allowCustomSeed": "Allow custom seed",
   "cancelOrder": "Cancel Order",
   "version": "version",
   "copyAddressToClipboard": "Copy {} address to clipboard",
