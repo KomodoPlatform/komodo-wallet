@@ -536,7 +536,7 @@ abstract class LocaleKeys {
       'enterPassphraseHiddenWalletDescription';
   static const skip = 'skip';
   static const activateToSeeFunds = 'activateToSeeFunds';
-  static const allowCustomSeed = 'allowCustomSeed';
+  static const useCustomSeedOrWif = 'useCustomSeedOrWif';
   static const cancelOrder = 'cancelOrder';
   static const version = 'version';
   static const copyAddressToClipboard = 'copyAddressToClipboard';
