@@ -265,12 +265,11 @@ Future<List<Coin>> _getOriginalCoinList(
   CoinsManagerAction action,
   KomodoDefiSdk sdk,
 ) async {
-  final WalletType? walletType = (await sdk.currentWallet())?.config.type;
-  if (walletType == null) return [];
+  if (await sdk.currentWallet() == null) return [];
 
   switch (action) {
     case CoinsManagerAction.add:
-      return _getAllCoins(coinsRepo, sdk, walletType);
+      return _getAllCoins(coinsRepo);
     case CoinsManagerAction.remove:
       return coinsRepo.getWalletCoins();
     case CoinsManagerAction.none:
@@ -280,24 +279,14 @@ Future<List<Coin>> _getOriginalCoinList(
 
 Future<List<Coin>> _getAllCoins(
   CoinsRepo coinsRepo,
-  KomodoDefiSdk sdk,
-  WalletType walletType,
 ) async {
-  switch (walletType) {
-    case WalletType.metamask:
-    case WalletType.keplr:
-      return [];
-    case WalletType.iguana:
-    case WalletType.trezor:
-    case WalletType.hdwallet:
-      final Map<String, Coin> coins =
-          coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true);
-      final List<Coin> enabledCoins = await coinsRepo.getEnabledCoins();
-      for (final coin in enabledCoins) {
-        coins[coin.abbr] = coin;
-      }
-      return coins.values.toList();
+  final Map<String, Coin> coins =
+      coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true);
+  final List<Coin> enabledCoins = await coinsRepo.getWalletCoins();
+  for (final coin in enabledCoins) {
+    coins[coin.abbr] = coin;
   }
+  return coins.values.toList();
 }
 
 typedef FilterFunction = List<Coin> Function(List<Coin>);
