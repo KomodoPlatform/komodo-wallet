@@ -113,43 +113,33 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsBalancesRefreshed event,
     Emitter<CoinsState> emit,
   ) async {
-    final currentWallet = await _kdfSdk.currentWallet();
-    switch (currentWallet?.config.type) {
-      case WalletType.trezor:
-      case WalletType.metamask:
-      case WalletType.keplr:
-      case WalletType.iguana:
-      case WalletType.hdwallet:
-      case null:
-        final coinUpdateStream =
-            _coinsRepo.updateIguanaBalances(state.walletCoins);
-        await emit.forEach(
-          coinUpdateStream,
-          onData: (Coin coin) {
-            if (!state.walletCoins.containsKey(coin.abbr)) {
-              _log.warning(
-                'Coin ${coin.abbr} not found in wallet coins, skipping update',
-              );
-              return state;
-            }
-            return state.copyWith(
-              walletCoins: {...state.walletCoins, coin.id.id: coin},
-              coins: {...state.coins, coin.id.id: coin},
-            );
-          },
+    final coinUpdateStream = _coinsRepo.updateIguanaBalances(state.walletCoins);
+    await emit.forEach(
+      coinUpdateStream,
+      onData: (Coin coin) {
+        if (!state.walletCoins.containsKey(coin.abbr)) {
+          _log.warning(
+            'Coin ${coin.abbr} not found in wallet coins, skipping update',
+          );
+          return state;
+        }
+        return state.copyWith(
+          walletCoins: {...state.walletCoins, coin.id.id: coin},
+          coins: {...state.coins, coin.id.id: coin},
         );
+      },
+    );
 
-        final coinUpdates = _syncIguanaCoinsStates(state.walletCoins.keys);
-        await emit.forEach(
-          coinUpdates,
-          onData: (coin) => state
-              .copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
-          onError: (error, stackTrace) {
-            _log.severe('Error syncing iguana coins states', error, stackTrace);
-            return state;
-          },
-        );
-    }
+    final coinUpdates = _syncIguanaCoinsStates(state.walletCoins.keys);
+    await emit.forEach(
+      coinUpdates,
+      onData: (coin) =>
+          state.copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
+      onError: (error, stackTrace) {
+        _log.severe('Error syncing iguana coins states', error, stackTrace);
+        return state;
+      },
+    );
   }
 
   Future<void> _onWalletCoinUpdated(

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show Bloc, Emitter;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -14,7 +13,6 @@ import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
@@ -41,7 +39,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     // occur, which could lead to inconsistent state.
     // This is important for actions like selecting/deselecting coins, which
     // the user might perform rapidly.
-    on<CoinsManagerCoinSelect>(_onCoinSelect, transformer: sequential());
+    on<CoinsManagerCoinSelect>(_onCoinSelect);
     on<CoinsManagerSelectAllTap>(_onSelectAll);
     on<CoinsManagerSelectedTypesReset>(_onSelectedTypesReset);
     on<CoinsManagerSearchUpdate>(_onSearchUpdate);
@@ -54,48 +52,6 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   final SettingsRepository _settingsRepository;
   final _log = Logger('CoinsManagerBloc');
 
-  List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
-    final Map<String, Coin> coinMap = {};
-
-    for (final Coin coin in originalList) {
-      coinMap[coin.abbr] = coin;
-    }
-
-    for (final Coin coin in newList) {
-      coinMap[coin.abbr] = coin;
-    }
-
-    final list = coinMap.values.toList();
-    return list;
-  }
-
-  List<Coin> _sortCoins(
-    List<Coin> coins,
-    CoinsManagerAction action,
-    CoinsManagerSortData sortData,
-  ) {
-    List<Coin> sorted = List.from(coins);
-    switch (sortData.sortType) {
-      case CoinsManagerSortType.name:
-        sorted = sortByName(sorted, sortData.sortDirection);
-      case CoinsManagerSortType.protocol:
-        sorted = sortByProtocol(sorted, sortData.sortDirection);
-      case CoinsManagerSortType.balance:
-        sorted = sortByUsdBalance(sorted, sortData.sortDirection, _sdk);
-      case CoinsManagerSortType.none:
-        sorted = sortByPriorityAndBalance(sorted, _sdk);
-    }
-
-    if (action == CoinsManagerAction.add) {
-      sorted.sort((a, b) {
-        if (a.isActive && !b.isActive) return 1;
-        if (!a.isActive && b.isActive) return -1;
-        return 0;
-      });
-    }
-    return sorted;
-  }
-
   Future<void> _onCoinsUpdate(
     CoinsManagerCoinsUpdate event,
     Emitter<CoinsManagerState> emit,
@@ -103,10 +59,22 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     final List<FilterFunction> filters = [];
 
     List<Coin> list = mergeCoinLists(
-      await _getOriginalCoinList(_coinsRepo, event.action, _sdk),
+      await _getOriginalCoinList(_coinsRepo, event.action),
       state.coins,
     );
-    list = await _filterTestCoinsIfNeeded(list);
+
+    // Add wallet coins to selected coins if in add mode so that they
+    // are displayed in the list with the checkbox selected. This is
+    // necessary, since the UI does not consider the state of the coins
+    // in the list, but only the selected coins.
+    final selectedCoins = await _mergeWalletCoinsIfNeeded(
+      state.selectedCoins,
+      event.action,
+    );
+
+    final uniqueCombinedList = <Coin>{...list, ...selectedCoins}.toList();
+
+    list = await _filterTestCoinsIfNeeded(uniqueCombinedList);
 
     if (state.searchPhrase.isNotEmpty) {
       filters.add(_filterByPhrase);
@@ -121,7 +89,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     list = _sortCoins(list, event.action, state.sortData);
 
-    emit(state.copyWith(coins: list, action: event.action));
+    emit(state.copyWith(
+      coins: list,
+      action: event.action,
+      selectedCoins: selectedCoins,
+    ));
   }
 
   Future<void> _onCoinsListReset(
@@ -138,16 +110,26 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
         isSwitching: false,
       ),
     );
-    List<Coin> coins = await _getOriginalCoinList(
+    final List<Coin> coins = await _getOriginalCoinList(
       _coinsRepo,
       event.action,
-      _sdk,
     );
-    coins = await _filterTestCoinsIfNeeded(coins);
-    final sortedCoins = _sortCoins(coins, event.action, state.sortData);
-    final selectedCoins = event.action == CoinsManagerAction.add
-        ? sortedCoins.where((c) => c.isActive).toList()
-        : <Coin>[];
+
+    // Add wallet coins to selected coins if in add mode so that they
+    // are displayed in the list with the checkbox selected. This is
+    // necessary, since the UI does not consider the state of the coins
+    // in the list, but only the selected coins.
+    final selectedCoins = await _mergeWalletCoinsIfNeeded(
+      event.action == CoinsManagerAction.add
+          ? coins.where((c) => c.isActive).toList()
+          : <Coin>[],
+      event.action,
+    );
+
+    final filteredCoins =
+        await _filterTestCoinsIfNeeded({...coins, ...selectedCoins}.toList());
+    final sortedCoins = _sortCoins(filteredCoins, event.action, state.sortData);
+
     emit(
       state.copyWith(
         coins: sortedCoins,
@@ -203,6 +185,8 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     // before performing the actual activation/deactivation in background
     // [CoinsManagerAction.add] is the only action allowed in the UI at this
     // point, so we can potentially simplify this logic in the future.
+    emit(state.copyWith(selectedCoins: selectedCoins.toList()));
+
     final bool shouldActivate =
         (state.action == CoinsManagerAction.add && !wasSelected) ||
             (state.action == CoinsManagerAction.remove && wasSelected);
@@ -290,61 +274,90 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     final String filter = state.searchPhrase.toLowerCase();
     final List<Coin> filtered = filter.isEmpty
         ? coins
-        : coins
-            .where(
-              (Coin coin) =>
-                  compareCoinByPhrase(coin, filter) ||
-                  state.selectedCoins.indexWhere(
-                        (selectedCoin) => selectedCoin.abbr == coin.abbr,
-                      ) !=
-                      -1,
-            )
-            .toList()
+        : coins.where((Coin coin) => compareCoinByPhrase(coin, filter)).toList()
       ..sort((a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()));
     return filtered;
   }
 
   List<Coin> _filterByType(List<Coin> coins) {
     return coins
-        .where(
-          (coin) =>
-              state.selectedCoinTypes.contains(coin.type) ||
-              state.selectedCoins.indexWhere(
-                    (selectedCoin) => selectedCoin.abbr == coin.abbr,
-                  ) !=
-                  -1,
-        )
+        .where((coin) => state.selectedCoinTypes.contains(coin.type))
         .toList();
+  }
+
+  /// Merges wallet coins into selected coins list when in add mode
+  Future<List<Coin>> _mergeWalletCoinsIfNeeded(
+    List<Coin> selectedCoins,
+    CoinsManagerAction action,
+  ) async {
+    if (action != CoinsManagerAction.add) {
+      return selectedCoins;
+    }
+
+    final walletCoins = await _coinsRepo.getWalletCoins();
+    final result = List<Coin>.from(selectedCoins);
+    final selectedCoinIds = result.map((c) => c.id.id).toSet();
+
+    for (final walletCoin in walletCoins) {
+      if (!selectedCoinIds.contains(walletCoin.id.id)) {
+        result.add(walletCoin);
+      }
+    }
+
+    return result;
+  }
+
+  List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
+    final Map<String, Coin> coinMap = {};
+
+    for (final Coin coin in originalList) {
+      coinMap[coin.abbr] = coin;
+    }
+
+    for (final Coin coin in newList) {
+      coinMap[coin.abbr] = coin;
+    }
+
+    final list = coinMap.values.toList();
+    return list;
+  }
+
+  List<Coin> _sortCoins(
+    List<Coin> coins,
+    CoinsManagerAction action,
+    CoinsManagerSortData sortData,
+  ) {
+    List<Coin> sorted = List.from(coins);
+    switch (sortData.sortType) {
+      case CoinsManagerSortType.name:
+        sorted = sortByName(sorted, sortData.sortDirection);
+      case CoinsManagerSortType.protocol:
+        sorted = sortByProtocol(sorted, sortData.sortDirection);
+      case CoinsManagerSortType.balance:
+        sorted = sortByUsdBalance(sorted, sortData.sortDirection, _sdk);
+      case CoinsManagerSortType.none:
+        sorted = sortByPriorityAndBalance(sorted, _sdk);
+    }
+
+    return sorted;
   }
 }
 
 Future<List<Coin>> _getOriginalCoinList(
   CoinsRepo coinsRepo,
   CoinsManagerAction action,
-  KomodoDefiSdk sdk,
 ) async {
-  if (await sdk.currentWallet() == null) return [];
-
   switch (action) {
     case CoinsManagerAction.add:
-      return _getAllCoins(coinsRepo);
+      return coinsRepo
+          .getKnownCoinsMap(excludeExcludedAssets: true)
+          .values
+          .toList();
     case CoinsManagerAction.remove:
       return coinsRepo.getWalletCoins();
     case CoinsManagerAction.none:
       return [];
   }
-}
-
-Future<List<Coin>> _getAllCoins(
-  CoinsRepo coinsRepo,
-) async {
-  final Map<String, Coin> coins =
-      coinsRepo.getKnownCoinsMap(excludeExcludedAssets: true);
-  final List<Coin> enabledCoins = await coinsRepo.getWalletCoins();
-  for (final coin in enabledCoins) {
-    coins[coin.abbr] = coin;
-  }
-  return coins.values.toList();
 }
 
 typedef FilterFunction = List<Coin> Function(List<Coin>);

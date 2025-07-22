@@ -45,7 +45,6 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       },
       child: BlocBuilder<CoinsManagerBloc, CoinsManagerState>(
         builder: (BuildContext context, CoinsManagerState state) {
-          final List<Coin> coins = state.coins;
           final bool isAddAssets = state.action == CoinsManagerAction.add;
 
           return Column(
@@ -69,7 +68,7 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
                   children: [
                     Flexible(
                       child: CoinsManagerList(
-                        coinList: coins,
+                        coinList: state.coins,
                         isAddAssets: isAddAssets,
                         onCoinSelect: _onCoinSelect,
                       ),
