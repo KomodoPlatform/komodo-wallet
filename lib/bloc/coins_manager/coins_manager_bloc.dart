@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show Bloc, Emitter;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -35,7 +37,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     on<CoinsManagerCoinsListReset>(_onCoinsListReset);
     on<CoinsManagerCoinTypeSelect>(_onCoinTypeSelect);
     on<CoinsManagerCoinsSwitch>(_onCoinsSwitch);
-    on<CoinsManagerCoinSelect>(_onCoinSelect);
+    // Sequential transformer is used to ensure that no concurrent updates
+    // occur, which could lead to inconsistent state.
+    // This is important for actions like selecting/deselecting coins, which
+    // the user might perform rapidly.
+    on<CoinsManagerCoinSelect>(_onCoinSelect, transformer: sequential());
     on<CoinsManagerSelectAllTap>(_onSelectAll);
     on<CoinsManagerSelectedTypesReset>(_onSelectedTypesReset);
     on<CoinsManagerSearchUpdate>(_onSearchUpdate);
@@ -46,6 +52,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   final KomodoDefiSdk _sdk;
   final AnalyticsBloc _analyticsBloc;
   final SettingsRepository _settingsRepository;
+  final _log = Logger('CoinsManagerBloc');
 
   List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
     final Map<String, Coin> coinMap = {};
@@ -108,7 +115,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       filters.add(_filterByType);
     }
 
-    for (var filter in filters) {
+    for (final filter in filters) {
       list = filter(list);
     }
 
@@ -188,7 +195,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       selectedCoins.remove(coin);
 
       if (state.action == CoinsManagerAction.add) {
-        unawaited(_coinsRepo.deactivateCoinsSync([event.coin]));
+        try {
+          await _coinsRepo.deactivateCoinsSync([event.coin]);
+        } catch (e, s) {
+          _log.warning('Failed to deactivate coin ${coin.abbr}', e, s);
+        }
         _analyticsBloc.logEvent(
           AssetDisabledEventData(
             assetSymbol: coin.abbr,
@@ -198,7 +209,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
           ),
         );
       } else {
-        unawaited(_coinsRepo.activateCoinsSync([event.coin]));
+        try {
+          await _coinsRepo.activateCoinsSync([event.coin]);
+        } catch (e, s) {
+          _log.warning('Failed to activate coin ${coin.abbr}', e, s);
+        }
         _analyticsBloc.logEvent(
           AssetEnabledEventData(
             assetSymbol: coin.abbr,
@@ -212,7 +227,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       selectedCoins.add(coin);
 
       if (state.action == CoinsManagerAction.add) {
-        unawaited(_coinsRepo.activateCoinsSync([event.coin]));
+        try {
+          await _coinsRepo.activateCoinsSync([event.coin]);
+        } catch (e, s) {
+          _log.warning('Failed to activate coin ${coin.abbr}', e, s);
+        }
         _analyticsBloc.logEvent(
           AssetEnabledEventData(
             assetSymbol: coin.abbr,
@@ -222,7 +241,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
           ),
         );
       } else {
-        unawaited(_coinsRepo.deactivateCoinsSync([event.coin]));
+        try {
+          await _coinsRepo.deactivateCoinsSync([event.coin]);
+        } catch (e, s) {
+          _log.warning('Failed to deactivate coin ${coin.abbr}', e, s);
+        }
         _analyticsBloc.logEvent(
           AssetDisabledEventData(
             assetSymbol: coin.abbr,
@@ -288,10 +311,8 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
                       ) !=
                       -1,
             )
-            .toList();
-
-    filtered
-        .sort((a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()));
+            .toList()
+      ..sort((a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()));
     return filtered;
   }
 

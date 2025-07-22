@@ -28,7 +28,7 @@ class CoinsManagerState extends Equatable {
       selectedCoinTypes: const [],
       coins: coins,
       selectedCoins: const [],
-      sortData: CoinsManagerSortData(
+      sortData: const CoinsManagerSortData(
         sortDirection: SortDirection.none,
         sortType: CoinsManagerSortType.none,
       ),
