@@ -86,7 +86,7 @@ class WalletTypeListItem extends StatelessWidget {
     switch (type) {
       case WalletType.iguana:
       case WalletType.hdwallet:
-        return LocaleKeys.komodoWalletSeed.tr();
+        return LocaleKeys.komodoWallet.tr();
       case WalletType.metamask:
         return LocaleKeys.metamask.tr();
       case WalletType.keplr:

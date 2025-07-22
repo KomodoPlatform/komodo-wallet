@@ -349,7 +349,6 @@ abstract class LocaleKeys {
   static const exchange = 'exchange';
   static const connectSomething = 'connectSomething';
   static const hardwareWallet = 'hardwareWallet';
-  static const komodoWalletSeed = 'komodoWalletSeed';
   static const metamask = 'metamask';
   static const comingSoon = 'comingSoon';
   static const walletsTypeListTitle = 'walletsTypeListTitle';
