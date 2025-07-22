@@ -49,11 +49,15 @@ class _WalletCreationState extends State<WalletCreation> {
   void initState() {
     super.initState();
 
-    _walletsRepository = context.read<WalletsRepository>();
-
     _nameController.addListener(() {
       if (mounted) setState(() {});
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _walletsRepository = context.read<WalletsRepository>();
   }
 
   @override
