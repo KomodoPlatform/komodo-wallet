@@ -120,11 +120,6 @@ class _CoinAddressesState extends State<CoinAddresses> {
                               padding: EdgeInsets.symmetric(vertical: 20.0),
                               child: Center(child: CircularProgressIndicator()),
                             ),
-                          if (state.status == FormStatus.submitting)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20.0),
-                              child: Center(child: CircularProgressIndicator()),
-                            ),
                           if (state.status == FormStatus.failure ||
                               state.createAddressStatus == FormStatus.failure)
                             Padding(
