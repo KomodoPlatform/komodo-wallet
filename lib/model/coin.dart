@@ -28,7 +28,6 @@ class Coin extends Equatable {
     this.decimals = 8,
     this.parentCoin,
     this.derivationPath,
-    this.accounts,
     this.usdPrice, // Will be deprecated in favor of SDK price manager
     this.coinpaprikaId,
     this.activeByDefault = false,
@@ -65,10 +64,6 @@ class Coin extends Equatable {
   @Deprecated(
       '$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.')
   String? address;
-
-  @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset account management instead.')
-  List<HdAccount>? accounts;
 
   final String? _swapContractAddress;
   String? fallbackSwapContract;
@@ -141,7 +136,6 @@ class Coin extends Equatable {
       usdPrice: usdPrice,
       parentCoin: parentCoin,
       derivationPath: derivationPath,
-      accounts: accounts,
       coinpaprikaId: coinpaprikaId,
       activeByDefault: activeByDefault,
       protocolData: null,
@@ -200,7 +194,6 @@ class Coin extends Equatable {
       decimals: decimals ?? this.decimals,
       parentCoin: parentCoin ?? this.parentCoin,
       derivationPath: derivationPath ?? this.derivationPath,
-      accounts: accounts ?? this.accounts,
       usdPrice: usdPrice ?? this.usdPrice,
       coinpaprikaId: coinpaprikaId ?? this.coinpaprikaId,
       activeByDefault: activeByDefault ?? this.activeByDefault,
