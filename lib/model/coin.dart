@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart' show Equatable;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -7,7 +8,7 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/hd_account/hd_account.dart';
 
-class Coin {
+class Coin extends Equatable {
   Coin({
     required this.type,
     required this.abbr,
@@ -211,6 +212,11 @@ class Coin {
       ..address = address ?? this.address
       ..sendableBalance = sendableBalance ?? this.sendableBalance;
   }
+
+  // Only use AssetId for equality checks, not any of the
+  // legacy fields here.
+  @override
+  List<Object?> get props => [id];
 }
 
 extension LegacyCoinToSdkAsset on Coin {

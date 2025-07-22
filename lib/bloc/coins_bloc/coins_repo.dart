@@ -187,8 +187,7 @@ class CoinsRepo {
                 'Selecting the first asset: ${assets.first.id.id}',
               );
             }
-            // Exclude invalid or unsupported assets.
-            return null;
+            return assets.single;
           },
         )
         .whereType<Asset>()
