@@ -732,7 +732,6 @@ abstract class LocaleKeys {
   static const withdrawErrorCardTileTitle = 'withdrawErrorCardTileTitle';
   static const transactionSuccessful = 'transactionSuccessful';
   static const customNetworkFee = 'customNetworkFee';
-  static const previewWithdrawal = 'previewWithdrawal';
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
   static const trend7d = 'trend7d';
