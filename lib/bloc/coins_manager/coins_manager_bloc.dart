@@ -190,73 +190,61 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     Emitter<CoinsManagerState> emit,
   ) async {
     final coin = event.coin;
-    final List<Coin> selectedCoins = List.from(state.selectedCoins);
+    final Set<Coin> selectedCoins = Set.from(state.selectedCoins);
+    final bool wasSelected = selectedCoins.contains(coin);
+
     if (selectedCoins.contains(coin)) {
       selectedCoins.remove(coin);
-
-      if (state.action == CoinsManagerAction.add) {
-        try {
-          await _coinsRepo.deactivateCoinsSync([event.coin]);
-        } catch (e, s) {
-          _log.warning('Failed to deactivate coin ${coin.abbr}', e, s);
-        }
-        _analyticsBloc.logEvent(
-          AssetDisabledEventData(
-            assetSymbol: coin.abbr,
-            assetNetwork: coin.protocolType,
-            walletType:
-                (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
-          ),
-        );
-      } else {
-        try {
-          await _coinsRepo.activateCoinsSync([event.coin]);
-        } catch (e, s) {
-          _log.warning('Failed to activate coin ${coin.abbr}', e, s);
-        }
-        _analyticsBloc.logEvent(
-          AssetEnabledEventData(
-            assetSymbol: coin.abbr,
-            assetNetwork: coin.protocolType,
-            walletType:
-                (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
-          ),
-        );
-      }
     } else {
       selectedCoins.add(coin);
-
-      if (state.action == CoinsManagerAction.add) {
-        try {
-          await _coinsRepo.activateCoinsSync([event.coin]);
-        } catch (e, s) {
-          _log.warning('Failed to activate coin ${coin.abbr}', e, s);
-        }
-        _analyticsBloc.logEvent(
-          AssetEnabledEventData(
-            assetSymbol: coin.abbr,
-            assetNetwork: coin.protocolType,
-            walletType:
-                (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
-          ),
-        );
-      } else {
-        try {
-          await _coinsRepo.deactivateCoinsSync([event.coin]);
-        } catch (e, s) {
-          _log.warning('Failed to deactivate coin ${coin.abbr}', e, s);
-        }
-        _analyticsBloc.logEvent(
-          AssetDisabledEventData(
-            assetSymbol: coin.abbr,
-            assetNetwork: coin.protocolType,
-            walletType:
-                (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
-          ),
-        );
-      }
     }
-    emit(state.copyWith(selectedCoins: selectedCoins));
+
+    // Emit state immediately for responsive UI
+    // before performing the actual activation/deactivation in background
+    // [CoinsManagerAction.add] is the only action allowed in the UI at this
+    // point, so we can potentially simplify this logic in the future.
+    final bool shouldActivate =
+        (state.action == CoinsManagerAction.add && !wasSelected) ||
+            (state.action == CoinsManagerAction.remove && wasSelected);
+
+    if (shouldActivate) {
+      await _tryActivateCoin(event, coin);
+    } else {
+      await _tryDeactivateCoin(event, coin);
+    }
+  }
+
+  Future<void> _tryDeactivateCoin(
+      CoinsManagerCoinSelect event, Coin coin) async {
+    try {
+      await _coinsRepo.deactivateCoinsSync([event.coin]);
+    } catch (e, s) {
+      _log.warning('Failed to deactivate coin ${coin.abbr}', e, s);
+    }
+    _analyticsBloc.logEvent(
+      AssetDisabledEventData(
+        assetSymbol: coin.abbr,
+        assetNetwork: coin.protocolType,
+        walletType:
+            (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
+      ),
+    );
+  }
+
+  Future<void> _tryActivateCoin(CoinsManagerCoinSelect event, Coin coin) async {
+    try {
+      await _coinsRepo.activateCoinsSync([event.coin]);
+    } catch (e, s) {
+      _log.warning('Failed to activate coin ${coin.abbr}', e, s);
+    }
+    _analyticsBloc.logEvent(
+      AssetEnabledEventData(
+        assetSymbol: coin.abbr,
+        assetNetwork: coin.protocolType,
+        walletType:
+            (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
+      ),
+    );
   }
 
   FutureOr<void> _onSelectAll(
