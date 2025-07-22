@@ -235,7 +235,7 @@ class AddressCard extends StatelessWidget {
                     children: [
                       AddressIcon(address: address.address),
                       const SizedBox(width: 8),
-                      AddressText(address: address.address),
+                      Flexible(child: AddressText(address: address.address)),
                       const SizedBox(width: 8),
                       if (coin.hasFaucet)
                         ConstrainedBox(
@@ -249,7 +249,7 @@ class AddressCard extends StatelessWidget {
                           ),
                         ),
                       SwapAddressTag(address: address),
-                      const Spacer(),
+                      const SizedBox(width: 8),
                       AddressCopyButton(
                         address: address.address,
                         coinAbbr: coin.abbr,
@@ -269,7 +269,7 @@ class AddressCard extends StatelessWidget {
                 width: double.infinity,
                 child: Row(
                   children: [
-                    AddressText(address: address.address),
+                    Flexible(child: AddressText(address: address.address)),
                     const SizedBox(width: 8),
                     AddressCopyButton(
                       address: address.address,

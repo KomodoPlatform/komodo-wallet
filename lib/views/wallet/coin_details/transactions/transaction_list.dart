@@ -51,35 +51,28 @@ class _List extends StatelessWidget {
       child: Column(
         children: [
           if (transactions.isNotEmpty && !isMobile) const HistoryTitle(),
-          Card(
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            color: theme.custom.dexPageTheme.frontPlate,
-            child: Padding(
-              padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-              child: isMobile
-                  ? HistoryListContent(
+          Padding(
+            padding: EdgeInsets.all(isMobile ? 16.0 : 0),
+            child: isMobile
+                ? HistoryListContent(
+                    transactions: transactions,
+                    coinAbbr: coinAbbr,
+                    setTransaction: setTransaction,
+                    isInProgress: isInProgress,
+                  )
+                : Card(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    color: Theme.of(context).colorScheme.onSurface,
+                    child: HistoryListContent(
                       transactions: transactions,
                       coinAbbr: coinAbbr,
                       setTransaction: setTransaction,
                       isInProgress: isInProgress,
-                    )
-                  : Card(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      color: Theme.of(context).colorScheme.onSurface,
-                      child: HistoryListContent(
-                        transactions: transactions,
-                        coinAbbr: coinAbbr,
-                        setTransaction: setTransaction,
-                        isInProgress: isInProgress,
-                      ),
                     ),
-            ),
+                  ),
           ),
         ],
       ),
@@ -144,7 +137,7 @@ class HistoryTitle extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          LocaleKeys.lastTransactions.tr(),
+          LocaleKeys.transactions.tr(),
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: isMobile ? 16 : 24,

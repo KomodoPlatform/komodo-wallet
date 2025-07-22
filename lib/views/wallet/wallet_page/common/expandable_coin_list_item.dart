@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -279,9 +280,11 @@ class _AddressRow extends StatelessWidget {
         ),
         title: Row(
           children: [
-            Text(
-              pubkey.addressShort,
-              style: theme.textTheme.bodyMedium,
+            Flexible(
+              child: AutoScrollText(
+                text: pubkey.address,
+                style: theme.textTheme.bodyMedium,
+              ),
             ),
             const SizedBox(width: 8),
             Material(
@@ -296,12 +299,10 @@ class _AddressRow extends StatelessWidget {
             if (isSwapAddress &&
                 context.watch<TradingStatusBloc>().state is TradingEnabled) ...[
               const SizedBox(width: 8),
-              const Chip(
+              Chip(
                 label: Text(
-                  'Swap',
-                  // style: theme.textTheme.labelSmall,
+                  LocaleKeys.tradingAddress.tr(),
                 ),
-                // backgroundColor: theme.colorScheme.primaryContainer,
               ),
             ],
           ],
