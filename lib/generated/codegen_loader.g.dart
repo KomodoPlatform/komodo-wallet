@@ -118,8 +118,6 @@ abstract class LocaleKeys {
   static const invalidWalletNameError = 'invalidWalletNameError';
   static const invalidWalletFileNameError = 'invalidWalletFileNameError';
   static const walletImportCreatePasswordTitle = 'walletImportCreatePasswordTitle';
-  static const walletImportCreatePasswordTitle =
-      'walletImportCreatePasswordTitle';
   static const walletImportByFileDescription = 'walletImportByFileDescription';
   static const walletLogInTitle = 'walletLogInTitle';
   static const walletCreationNameHint = 'walletCreationNameHint';
