@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
+import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -26,10 +27,12 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     required KomodoDefiSdk sdk,
     required AnalyticsBloc analyticsBloc,
     required SettingsRepository settingsRepository,
+    required TradingEntitiesBloc tradingEntitiesBloc,
   })  : _coinsRepo = coinsRepo,
         _sdk = sdk,
         _analyticsBloc = analyticsBloc,
         _settingsRepository = settingsRepository,
+        _tradingEntitiesBloc = tradingEntitiesBloc,
         super(CoinsManagerState.initial(coins: [])) {
     on<CoinsManagerCoinsUpdate>(_onCoinsUpdate);
     on<CoinsManagerCoinsListReset>(_onCoinsListReset);
@@ -44,12 +47,16 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     on<CoinsManagerSelectedTypesReset>(_onSelectedTypesReset);
     on<CoinsManagerSearchUpdate>(_onSearchUpdate);
     on<CoinsManagerSortChanged>(_onSortChanged);
+    on<CoinsManagerCoinRemoveRequested>(_onCoinRemoveRequested);
+    on<CoinsManagerCoinRemoveConfirmed>(_onCoinRemoveConfirmed);
+    on<CoinsManagerCoinRemovalCancelled>(_onCoinRemovalCancelled);
   }
 
   final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _sdk;
   final AnalyticsBloc _analyticsBloc;
   final SettingsRepository _settingsRepository;
+  final TradingEntitiesBloc _tradingEntitiesBloc;
   final _log = Logger('CoinsManagerBloc');
 
   Future<void> _onCoinsUpdate(
@@ -175,6 +182,17 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     final Set<Coin> selectedCoins = Set.from(state.selectedCoins);
     final bool wasSelected = selectedCoins.contains(coin);
 
+    // Check if this is a deselection (removal) that needs trading checks
+    final bool isDeselection = wasSelected;
+    final bool needsTradingChecks =
+        isDeselection && state.action == CoinsManagerAction.add;
+
+    if (needsTradingChecks) {
+      // Trigger the same removal flow as the remove action
+      add(CoinsManagerCoinRemoveRequested(coin: coin));
+      return;
+    }
+
     if (selectedCoins.contains(coin)) {
       selectedCoins.remove(coin);
     } else {
@@ -183,8 +201,6 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     // Emit state immediately for responsive UI
     // before performing the actual activation/deactivation in background
-    // [CoinsManagerAction.add] is the only action allowed in the UI at this
-    // point, so we can potentially simplify this logic in the future.
     emit(state.copyWith(selectedCoins: selectedCoins.toList()));
 
     final bool shouldActivate =
@@ -340,6 +356,109 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     }
 
     return sorted;
+  }
+
+  Future<void> _onCoinRemoveRequested(
+    CoinsManagerCoinRemoveRequested event,
+    Emitter<CoinsManagerState> emit,
+  ) async {
+    final coin = event.coin;
+
+    // Find child coins (tokens)
+    final walletCoins = await _coinsRepo.getWalletCoins();
+    final childCoins =
+        walletCoins.where((c) => c.parentCoin?.abbr == coin.abbr).toList();
+
+    // Check for active swaps
+    final hasSwap = _tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
+        childCoins.any((c) => _tradingEntitiesBloc.hasActiveSwap(c.abbr));
+
+    if (hasSwap) {
+      emit(state.copyWith(
+        removalState: CoinRemovalState(
+          coin: coin,
+          childCoins: childCoins,
+          blockReason: CoinRemovalBlockReason.activeSwap,
+          openOrdersCount: 0,
+        ),
+      ));
+      return;
+    }
+
+    // Check for open orders
+    final int openOrders = _tradingEntitiesBloc.openOrdersCount(coin.abbr) +
+        childCoins.fold<int>(
+            0, (sum, c) => sum + _tradingEntitiesBloc.openOrdersCount(c.abbr));
+
+    if (openOrders > 0) {
+      emit(state.copyWith(
+        removalState: CoinRemovalState(
+          coin: coin,
+          childCoins: childCoins,
+          blockReason: CoinRemovalBlockReason.openOrders,
+          openOrdersCount: openOrders,
+        ),
+      ));
+      return;
+    }
+
+    // No blocking conditions, proceed with confirmation flow
+    emit(state.copyWith(
+      removalState: CoinRemovalState(
+        coin: coin,
+        childCoins: childCoins,
+        blockReason: CoinRemovalBlockReason.none,
+        openOrdersCount: 0,
+      ),
+    ));
+  }
+
+  Future<void> _onCoinRemoveConfirmed(
+    CoinsManagerCoinRemoveConfirmed event,
+    Emitter<CoinsManagerState> emit,
+  ) async {
+    final removalState = state.removalState;
+    if (removalState == null) return;
+
+    final coin = removalState.coin;
+    final childCoins = removalState.childCoins;
+
+    // Cancel orders if there were any
+    if (removalState.hasOpenOrders) {
+      await _tradingEntitiesBloc.cancelOrdersForCoin(coin.abbr);
+      for (final child in childCoins) {
+        await _tradingEntitiesBloc.cancelOrdersForCoin(child.abbr);
+      }
+    }
+
+    // Remove coin from selected coins if in add mode (deselection)
+    // or proceed with actual removal if in remove mode
+    if (state.action == CoinsManagerAction.add) {
+      // Deselect the coin and deactivate it
+      final selectedCoins = Set<Coin>.from(state.selectedCoins);
+      selectedCoins.remove(coin);
+
+      emit(state.copyWith(
+        selectedCoins: selectedCoins.toList(),
+        removalState: null,
+      ));
+
+      // Deactivate the coin
+      await _tryDeactivateCoin(CoinsManagerCoinSelect(coin: coin), coin);
+    } else {
+      // Clear removal state and proceed with removal via existing logic
+      emit(state.copyWith(removalState: null));
+
+      // Proceed with actual coin removal for remove mode
+      add(CoinsManagerCoinSelect(coin: coin));
+    }
+  }
+
+  void _onCoinRemovalCancelled(
+    CoinsManagerCoinRemovalCancelled event,
+    Emitter<CoinsManagerState> emit,
+  ) {
+    emit(state.copyWith(removalState: null));
   }
 }
 

@@ -9,6 +9,7 @@ class CoinsManagerState extends Equatable {
     required this.selectedCoins,
     required this.sortData,
     required this.isSwitching,
+    this.removalState,
   });
   final CoinsManagerAction action;
   final String searchPhrase;
@@ -17,6 +18,7 @@ class CoinsManagerState extends Equatable {
   final List<Coin> selectedCoins;
   final CoinsManagerSortData sortData;
   final bool isSwitching;
+  final CoinRemovalState? removalState;
 
   static CoinsManagerState initial({
     required List<Coin> coins,
@@ -33,6 +35,7 @@ class CoinsManagerState extends Equatable {
         sortType: CoinsManagerSortType.none,
       ),
       isSwitching: false,
+      removalState: null,
     );
   }
 
@@ -44,6 +47,7 @@ class CoinsManagerState extends Equatable {
     List<Coin>? selectedCoins,
     CoinsManagerSortData? sortData,
     bool? isSwitching,
+    CoinRemovalState? removalState,
   }) =>
       CoinsManagerState(
         action: action ?? this.action,
@@ -53,6 +57,7 @@ class CoinsManagerState extends Equatable {
         selectedCoins: selectedCoins ?? this.selectedCoins,
         sortData: sortData ?? this.sortData,
         isSwitching: isSwitching ?? this.isSwitching,
+        removalState: removalState,
       );
 
   bool get isSelectedAllCoinsEnabled {
@@ -70,5 +75,33 @@ class CoinsManagerState extends Equatable {
         selectedCoins,
         sortData,
         isSwitching,
+        removalState,
       ];
+}
+
+enum CoinRemovalBlockReason {
+  none,
+  activeSwap,
+  openOrders,
+}
+
+class CoinRemovalState extends Equatable {
+  const CoinRemovalState({
+    required this.coin,
+    required this.childCoins,
+    required this.blockReason,
+    required this.openOrdersCount,
+  });
+
+  final Coin coin;
+  final List<Coin> childCoins;
+  final CoinRemovalBlockReason blockReason;
+  final int openOrdersCount;
+
+  bool get isBlocked => blockReason != CoinRemovalBlockReason.none;
+  bool get hasActiveSwap => blockReason == CoinRemovalBlockReason.activeSwap;
+  bool get hasOpenOrders => blockReason == CoinRemovalBlockReason.openOrders;
+
+  @override
+  List<Object?> get props => [coin, childCoins, blockReason, openOrdersCount];
 }

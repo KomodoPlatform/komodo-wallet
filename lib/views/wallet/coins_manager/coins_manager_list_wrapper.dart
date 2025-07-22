@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
-import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/information_popup.dart';
@@ -35,52 +33,46 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CoinsManagerBloc, CoinsManagerState>(
+    return BlocConsumer<CoinsManagerBloc, CoinsManagerState>(
       listenWhen: (previous, current) =>
-          previous.isSwitching && !current.isSwitching,
-      listener: (context, state) {
-        if (!state.isSwitching) {
-          routingState.walletState.action = coinsManagerRouteAction.none;
-        }
-      },
-      child: BlocBuilder<CoinsManagerBloc, CoinsManagerState>(
-        builder: (BuildContext context, CoinsManagerState state) {
-          final bool isAddAssets = state.action == CoinsManagerAction.add;
+          previous.removalState != current.removalState,
+      listener: _onRemovalStateChanged,
+      builder: (BuildContext context, CoinsManagerState state) {
+        final bool isAddAssets = state.action == CoinsManagerAction.add;
 
-          return Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              CoinsManagerFilters(isMobile: isMobile),
-              if (!isMobile)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: CoinsManagerListHeader(
-                    sortData: state.sortData,
-                    isAddAssets: isAddAssets,
-                    onSortChange: _onSortChange,
-                  ),
-                ),
-              SizedBox(height: isMobile ? 4.0 : 14.0),
-              const CoinsManagerSelectedTypesList(),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: CoinsManagerList(
-                        coinList: state.coins,
-                        isAddAssets: isAddAssets,
-                        onCoinSelect: _onCoinSelect,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
+        return Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            CoinsManagerFilters(isMobile: isMobile),
+            if (!isMobile)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: CoinsManagerListHeader(
+                  sortData: state.sortData,
+                  isAddAssets: isAddAssets,
+                  onSortChange: _onSortChange,
                 ),
               ),
-            ],
-          );
-        },
-      ),
+            SizedBox(height: isMobile ? 4.0 : 14.0),
+            const CoinsManagerSelectedTypesList(),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: CoinsManagerList(
+                      coinList: state.coins,
+                      isAddAssets: isAddAssets,
+                      onCoinSelect: _onCoinSelect,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -88,59 +80,43 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
     context.read<CoinsManagerBloc>().add(CoinsManagerSortChanged(sortData));
   }
 
-  void _onCoinSelect(Coin coin) {
-    final tradingEntitiesBloc =
-        RepositoryProvider.of<TradingEntitiesBloc>(context);
+  void _onRemovalStateChanged(
+    BuildContext context,
+    CoinsManagerState state,
+  ) {
+    final removalState = state.removalState;
+    if (removalState == null) return;
+
     final bloc = context.read<CoinsManagerBloc>();
 
-    if (bloc.state.action == CoinsManagerAction.remove) {
-      final childCoins = bloc.state.coins
-          .where((c) => c.parentCoin?.abbr == coin.abbr)
-          .toList();
-
-      final hasSwap = tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
-          childCoins.any((c) => tradingEntitiesBloc.hasActiveSwap(c.abbr));
-
-      if (hasSwap) {
-        _informationPopup.text =
-            LocaleKeys.coinDisableSpan1.tr(args: [coin.abbr]);
-        _informationPopup.show();
-        return;
-      }
-
-      final int openOrders = tradingEntitiesBloc.openOrdersCount(coin.abbr) +
-          childCoins.fold<int>(
-              0, (sum, c) => sum + tradingEntitiesBloc.openOrdersCount(c.abbr));
-
-      if (openOrders > 0) {
-        confirmCoinDisableWithOrders(
-          context,
-          coin: coin.abbr,
-          ordersCount: openOrders,
-        ).then((confirmed) {
-          if (!confirmed) return;
-          tradingEntitiesBloc.cancelOrdersForCoin(coin.abbr);
-          for (final child in childCoins) {
-            tradingEntitiesBloc.cancelOrdersForCoin(child.abbr);
-          }
-          _confirmDisable(bloc, coin, childCoins);
-        });
-        return;
-      }
-
-      _confirmDisable(bloc, coin, childCoins);
+    if (removalState.hasActiveSwap) {
+      _informationPopup.text =
+          LocaleKeys.coinDisableSpan1.tr(args: [removalState.coin.abbr]);
+      _informationPopup.show();
+      bloc.add(const CoinsManagerCoinRemovalCancelled());
       return;
     }
 
-    bloc.add(CoinsManagerCoinSelect(coin: coin));
-  }
+    if (removalState.hasOpenOrders) {
+      confirmCoinDisableWithOrders(
+        context,
+        coin: removalState.coin.abbr,
+        ordersCount: removalState.openOrdersCount,
+      ).then((confirmed) {
+        if (confirmed) {
+          bloc.add(const CoinsManagerCoinRemoveConfirmed());
+        } else {
+          bloc.add(const CoinsManagerCoinRemovalCancelled());
+        }
+      });
+      return;
+    }
 
-  void _confirmDisable(
-    CoinsManagerBloc bloc,
-    Coin coin,
-    List<Coin> childCoins,
-  ) {
-    if (coin.parentCoin == null) {
+    // No blocking conditions, check if parent coin needs confirmation
+    final coin = removalState.coin;
+    final childCoins = removalState.childCoins;
+
+    if (coin.parentCoin == null && childCoins.isNotEmpty) {
       final childTokens = childCoins.map((c) => c.abbr).toList();
       confirmParentCoinDisable(
         context,
@@ -148,11 +124,28 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
         tokens: childTokens,
       ).then((confirmed) {
         if (confirmed) {
-          bloc.add(CoinsManagerCoinSelect(coin: coin));
+          bloc.add(const CoinsManagerCoinRemoveConfirmed());
+        } else {
+          bloc.add(const CoinsManagerCoinRemovalCancelled());
         }
       });
     } else {
-      bloc.add(CoinsManagerCoinSelect(coin: coin));
+      // Direct removal without additional confirmation
+      bloc.add(const CoinsManagerCoinRemoveConfirmed());
     }
+  }
+
+  void _onCoinSelect(Coin coin) {
+    final bloc = context.read<CoinsManagerBloc>();
+
+    if (bloc.state.action == CoinsManagerAction.remove) {
+      // Send request to bloc to check trading status
+      bloc.add(CoinsManagerCoinRemoveRequested(coin: coin));
+      return;
+    }
+
+    // For add mode, send the regular coin select event
+    // The bloc will handle trading checks for deselection
+    bloc.add(CoinsManagerCoinSelect(coin: coin));
   }
 }

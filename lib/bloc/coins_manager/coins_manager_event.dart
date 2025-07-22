@@ -48,3 +48,16 @@ class CoinsManagerSortChanged extends CoinsManagerEvent {
 
   final CoinsManagerSortData sortData;
 }
+
+class CoinsManagerCoinRemoveRequested extends CoinsManagerEvent {
+  const CoinsManagerCoinRemoveRequested({required this.coin});
+  final Coin coin;
+}
+
+class CoinsManagerCoinRemoveConfirmed extends CoinsManagerEvent {
+  const CoinsManagerCoinRemoveConfirmed();
+}
+
+class CoinsManagerCoinRemovalCancelled extends CoinsManagerEvent {
+  const CoinsManagerCoinRemovalCancelled();
+}

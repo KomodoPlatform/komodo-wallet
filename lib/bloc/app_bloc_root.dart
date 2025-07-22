@@ -291,6 +291,7 @@ class AppBlocRoot extends StatelessWidget {
               sdk: komodoDefiSdk,
               analyticsBloc: context.read<AnalyticsBloc>(),
               settingsRepository: SettingsRepository(),
+              tradingEntitiesBloc: context.read<TradingEntitiesBloc>(),
             ),
           ),
           BlocProvider<FaucetBloc>(
