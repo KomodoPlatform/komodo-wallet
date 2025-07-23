@@ -83,6 +83,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
               UiTextFormField(
                 key: const Key('file-password-field'),
                 controller: _filePasswordController,
+                autofocus: true,
                 textInputAction: TextInputAction.next,
                 autocorrect: false,
                 enableInteractiveSelection: true,

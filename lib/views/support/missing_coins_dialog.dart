@@ -1,19 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
-import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
-import 'package:app_theme/app_theme.dart';
 
 Future<void> showMissingCoinsDialog(BuildContext context) {
   return showDialog(
