@@ -10,6 +10,7 @@ class CoinsManagerState extends Equatable {
     required this.sortData,
     required this.isSwitching,
     this.removalState,
+    this.errorMessage,
   });
   final CoinsManagerAction action;
   final String searchPhrase;
@@ -19,6 +20,7 @@ class CoinsManagerState extends Equatable {
   final CoinsManagerSortData sortData;
   final bool isSwitching;
   final CoinRemovalState? removalState;
+  final String? errorMessage;
 
   static CoinsManagerState initial({
     required List<Coin> coins,
@@ -36,6 +38,7 @@ class CoinsManagerState extends Equatable {
       ),
       isSwitching: false,
       removalState: null,
+      errorMessage: null,
     );
   }
 
@@ -48,6 +51,7 @@ class CoinsManagerState extends Equatable {
     CoinsManagerSortData? sortData,
     bool? isSwitching,
     CoinRemovalState? removalState,
+    String? errorMessage,
   }) =>
       CoinsManagerState(
         action: action ?? this.action,
@@ -58,6 +62,7 @@ class CoinsManagerState extends Equatable {
         sortData: sortData ?? this.sortData,
         isSwitching: isSwitching ?? this.isSwitching,
         removalState: removalState,
+        errorMessage: errorMessage,
       );
 
   bool get isSelectedAllCoinsEnabled {
@@ -76,6 +81,7 @@ class CoinsManagerState extends Equatable {
         sortData,
         isSwitching,
         removalState,
+        errorMessage,
       ];
 }
 

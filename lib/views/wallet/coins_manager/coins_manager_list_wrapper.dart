@@ -33,46 +33,61 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CoinsManagerBloc, CoinsManagerState>(
-      listenWhen: (previous, current) =>
-          previous.removalState != current.removalState,
-      listener: _onRemovalStateChanged,
-      builder: (BuildContext context, CoinsManagerState state) {
-        final bool isAddAssets = state.action == CoinsManagerAction.add;
+    // The switching between add and remove assets was removed,
+    // so we can simplify the listener logic to only handle disable
+    // requests and confirmations.
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CoinsManagerBloc, CoinsManagerState>(
+          listenWhen: (previous, current) =>
+              previous.removalState != current.removalState,
+          listener: _onRemovalStateChanged,
+        ),
+        BlocListener<CoinsManagerBloc, CoinsManagerState>(
+          listenWhen: (previous, current) =>
+              previous.errorMessage != current.errorMessage &&
+              current.errorMessage != null,
+          listener: _onErrorMessageChanged,
+        ),
+      ],
+      child: BlocBuilder<CoinsManagerBloc, CoinsManagerState>(
+        builder: (BuildContext context, CoinsManagerState state) {
+          final bool isAddAssets = state.action == CoinsManagerAction.add;
 
-        return Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            CoinsManagerFilters(isMobile: isMobile),
-            if (!isMobile)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: CoinsManagerListHeader(
-                  sortData: state.sortData,
-                  isAddAssets: isAddAssets,
-                  onSortChange: _onSortChange,
+          return Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              CoinsManagerFilters(isMobile: isMobile),
+              if (!isMobile)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: CoinsManagerListHeader(
+                    sortData: state.sortData,
+                    isAddAssets: isAddAssets,
+                    onSortChange: _onSortChange,
+                  ),
+                ),
+              SizedBox(height: isMobile ? 4.0 : 14.0),
+              const CoinsManagerSelectedTypesList(),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: CoinsManagerList(
+                        coinList: state.coins,
+                        isAddAssets: isAddAssets,
+                        onCoinSelect: _onCoinSelect,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                 ),
               ),
-            SizedBox(height: isMobile ? 4.0 : 14.0),
-            const CoinsManagerSelectedTypesList(),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: CoinsManagerList(
-                      coinList: state.coins,
-                      isAddAssets: isAddAssets,
-                      onCoinSelect: _onCoinSelect,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -132,6 +147,20 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
     } else {
       // Direct removal without additional confirmation
       bloc.add(const CoinsManagerCoinRemoveConfirmed());
+    }
+  }
+
+  void _onErrorMessageChanged(
+    BuildContext context,
+    CoinsManagerState state,
+  ) {
+    final errorMessage = state.errorMessage;
+    if (errorMessage != null) {
+      _informationPopup.text = errorMessage;
+      _informationPopup.show();
+
+      // Clear the error message after showing it
+      context.read<CoinsManagerBloc>().add(const CoinsManagerErrorCleared());
     }
   }
 

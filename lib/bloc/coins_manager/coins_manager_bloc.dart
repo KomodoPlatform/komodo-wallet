@@ -50,6 +50,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     on<CoinsManagerCoinRemoveRequested>(_onCoinRemoveRequested);
     on<CoinsManagerCoinRemoveConfirmed>(_onCoinRemoveConfirmed);
     on<CoinsManagerCoinRemovalCancelled>(_onCoinRemovalCancelled);
+    on<CoinsManagerErrorCleared>(_onErrorCleared);
   }
 
   final CoinsRepo _coinsRepo;
@@ -327,11 +328,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     final Map<String, Coin> coinMap = {};
 
     for (final Coin coin in originalList) {
-      coinMap[coin.abbr] = coin;
+      coinMap[coin.id.id] = coin;
     }
 
     for (final Coin coin in newList) {
-      coinMap[coin.abbr] = coin;
+      coinMap[coin.id.id] = coin;
     }
 
     final list = coinMap.values.toList();
@@ -425,9 +426,38 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     // Cancel orders if there were any
     if (removalState.hasOpenOrders) {
-      await _tradingEntitiesBloc.cancelOrdersForCoin(coin.abbr);
-      for (final child in childCoins) {
-        await _tradingEntitiesBloc.cancelOrdersForCoin(child.abbr);
+      try {
+        await _tradingEntitiesBloc.cancelOrdersForCoin(coin.abbr);
+        for (final child in childCoins) {
+          await _tradingEntitiesBloc.cancelOrdersForCoin(child.abbr);
+        }
+
+        // Verify that orders were actually canceled by re-checking order count
+        final remainingOrders = _tradingEntitiesBloc
+                .openOrdersCount(coin.abbr) +
+            childCoins.fold<int>(0,
+                (sum, c) => sum + _tradingEntitiesBloc.openOrdersCount(c.abbr));
+
+        if (remainingOrders > 0) {
+          _log.warning(
+              'Some orders for coin ${coin.abbr} could not be canceled. Remaining: $remainingOrders');
+          emit(state.copyWith(
+            removalState: null,
+            errorMessage:
+                'Some orders for ${coin.abbr} could not be canceled. Please try again or cancel them manually.',
+          ));
+          return;
+        }
+      } catch (e, s) {
+        _log.warning('Failed to cancel orders for coin ${coin.abbr}', e, s);
+
+        // Clear removal state and emit error message
+        emit(state.copyWith(
+          removalState: null,
+          errorMessage:
+              'Failed to cancel open orders for ${coin.abbr}. Please try again.',
+        ));
+        return;
       }
     }
 
@@ -444,7 +474,16 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       ));
 
       // Deactivate the coin
-      await _tryDeactivateCoin(CoinsManagerCoinSelect(coin: coin), coin);
+      try {
+        await _tryDeactivateCoin(CoinsManagerCoinSelect(coin: coin), coin);
+      } catch (e, s) {
+        _log.warning(
+            'Failed to deactivate coin ${coin.abbr} after removal confirmation',
+            e,
+            s);
+        // Note: The coin is already removed from selectedCoins, so the UI state is consistent
+        // even if deactivation fails
+      }
     } else {
       // Clear removal state and proceed with removal via existing logic
       emit(state.copyWith(removalState: null));
@@ -459,6 +498,13 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     Emitter<CoinsManagerState> emit,
   ) {
     emit(state.copyWith(removalState: null));
+  }
+
+  void _onErrorCleared(
+    CoinsManagerErrorCleared event,
+    Emitter<CoinsManagerState> emit,
+  ) {
+    emit(state.copyWith(errorMessage: null));
   }
 }
 

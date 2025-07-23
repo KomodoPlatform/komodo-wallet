@@ -61,3 +61,7 @@ class CoinsManagerCoinRemoveConfirmed extends CoinsManagerEvent {
 class CoinsManagerCoinRemovalCancelled extends CoinsManagerEvent {
   const CoinsManagerCoinRemovalCancelled();
 }
+
+class CoinsManagerErrorCleared extends CoinsManagerEvent {
+  const CoinsManagerErrorCleared();
+}
