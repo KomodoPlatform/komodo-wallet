@@ -246,9 +246,11 @@ class CoinsRepo {
       return;
     }
 
-    final activatedAssetIds = <String>{};
-    final parentIds = <String>{};
+    // Add assets and their parents to wallet metadata before activating.
+    // This ensures that the wallet metadata is updated even if activation fails.
+    await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
 
+    final activatedAssetIds = <String>{};
     for (final asset in assets) {
       final coin = asset.toCoin();
       try {
@@ -262,10 +264,6 @@ class CoinsRepo {
 
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
         _subscribeToBalanceUpdates(asset, coin);
-
-        if (asset.id.parentId != null) {
-          parentIds.add(asset.id.parentId!.id);
-        }
       } catch (e, s) {
         _log.shout('Error activating asset: ${asset.id.id}', e, s);
         if (notify) {
@@ -284,10 +282,18 @@ class CoinsRepo {
         }
       }
     }
+  }
 
-    // Add successfully activated assets and their parents to wallet metadata
-    if (activatedAssetIds.isNotEmpty || parentIds.isNotEmpty) {
-      final allIdsToAdd = <String>{...activatedAssetIds, ...parentIds};
+  Future<void> _addAssetsToWalletMetdata(Iterable<AssetId> assets) async {
+    final parentIds = <String>{};
+    for (final assetId in assets) {
+      if (assetId.parentId != null) {
+        parentIds.add(assetId.parentId!.id);
+      }
+    }
+
+    if (assets.isNotEmpty || parentIds.isNotEmpty) {
+      final allIdsToAdd = <String>{...assets.map((e) => e.id), ...parentIds};
       await _kdfSdk.addActivatedCoins(allIdsToAdd);
     }
   }
@@ -305,10 +311,13 @@ class CoinsRepo {
       return;
     }
 
+    // Add assets and their parents to wallet metadata before activating.
+    // This ensures that the wallet metadata is updated even if activation fails.
+    await _addAssetsToWalletMetdata(coins.map((coin) => coin.id));
+
     final List<Asset> activatedAssets =
         await _kdfSdk.assets.getActivatedAssets();
     final activatedCoinIds = <String>{};
-    final parentIds = <String>{};
 
     for (final coin in coins) {
       try {
@@ -327,9 +336,6 @@ class CoinsRepo {
           if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
           _subscribeToBalanceUpdates(asset, coin);
 
-          if (asset.id.parentId != null) {
-            parentIds.add(asset.id.parentId!.id);
-          }
           continue;
         }
 
@@ -342,10 +348,6 @@ class CoinsRepo {
 
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
         _subscribeToBalanceUpdates(asset, coin);
-
-        if (asset.id.parentId != null) {
-          parentIds.add(asset.id.parentId!.id);
-        }
       } catch (e, s) {
         _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.suspended));
@@ -359,12 +361,6 @@ class CoinsRepo {
           );
         }
       }
-    }
-
-    // Add successfully activated coins and their parents to wallet metadata
-    if (activatedCoinIds.isNotEmpty || parentIds.isNotEmpty) {
-      final allIdsToAdd = <String>{...activatedCoinIds, ...parentIds};
-      await _kdfSdk.addActivatedCoins(allIdsToAdd);
     }
   }
 
