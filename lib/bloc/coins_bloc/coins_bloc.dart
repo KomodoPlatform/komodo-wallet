@@ -437,7 +437,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ///
   /// When multiple coins are found for the provided IDs,
   Stream<Coin> _syncIguanaCoinsStates(Iterable<String> coins) async* {
-    final walletCoins = state.walletCoins;
+    final coinsBlocWalletCoinsState = state.walletCoins;
     final previouslyActivatedCoinIds =
         (await _kdfSdk.currentWallet())?.config.activatedCoins ?? [];
 
@@ -463,7 +463,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     final enabledAssetsNotInWallet = walletAssets
-        .where((asset) => !walletCoins.containsKey(asset.id.id))
+        .where((asset) => !coinsBlocWalletCoinsState.containsKey(asset.id.id))
         .toList();
     for (final asset in enabledAssetsNotInWallet) {
       // enabled on api side, but not on gui side - enable on gui side
@@ -479,21 +479,25 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
 
     for (final coinId in coins) {
-      final Coin? apiCoin = walletAssets
+      final Coin? walletCoin = walletAssets
           .firstWhereOrNull((asset) => asset.id.id == coinId)
           ?.toCoin();
-      final coin = walletCoins[coinId];
-      if (coin == null) {
+      final coinFromState = coinsBlocWalletCoinsState[coinId];
+      if (coinFromState == null) {
         _log.warning('Coin $coinId removed from wallet, skipping sync');
         continue;
       }
 
-      if (apiCoin != null) {
-        if (coin.state != CoinState.active) {
-          yield coin.copyWith(state: CoinState.active);
-        }
-      } else {
-        yield coin.copyWith(state: CoinState.suspended);
+      // If the coin is part of the user's wallet, but not in the current state,
+      // then add it to the state as suspended.
+      // This should never happen, but leaving it here for now as part of the
+      // legacy checks that were in place.
+      if (walletCoin == null) {
+        _log.warning(
+          'Coin $coinId not found in wallet assets, '
+          'adding to state as suspended',
+        );
+        yield coinFromState.copyWith(state: CoinState.suspended);
       }
     }
   }

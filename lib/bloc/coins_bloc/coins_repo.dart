@@ -195,40 +195,6 @@ class CoinsRepo {
         .toList();
   }
 
-  Future<List<Coin>> getEnabledCoins() async {
-    final enabledCoinsMap = await _getEnabledCoinsMap();
-    return enabledCoinsMap.values.toList();
-  }
-
-  Future<Map<String, Coin>> _getEnabledCoinsMap() async {
-    final currentUser = await _kdfSdk.auth.currentUser;
-    if (currentUser == null) {
-      return {};
-    }
-
-    final enabledCoins = await _kdfSdk.assets.getActivatedAssets();
-    final entries = await Future.wait(
-      enabledCoins.map(
-        (asset) async =>
-            MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),
-      ),
-    );
-    final coinsMap = Map.fromEntries(entries);
-    for (final coinId in coinsMap.keys) {
-      final coin = coinsMap[coinId]!;
-      final coinAddress = await getFirstPubkey(coin.id.id);
-      coinsMap[coinId] = coin.copyWith(
-        address: coinAddress,
-        state: CoinState.active,
-      );
-
-      // Set up balance watcher for this coin
-      final asset = enabledCoins.firstWhere((asset) => asset.id.id == coinId);
-      _subscribeToBalanceUpdates(asset, coinsMap[coinId]!);
-    }
-    return coinsMap;
-  }
-
   Coin _assetToCoinWithoutAddress(Asset asset) {
     final coin = asset.toCoin();
     final balanceInfo = _balancesCache[coin.id.id];
@@ -583,8 +549,8 @@ class CoinsRepo {
   }
 
   Future<Map<String, CexPrice>?> _updateFromFallback() async {
-    final List<String> ids = (await getEnabledCoins())
-        .map((c) => c.coingeckoId ?? '')
+    final List<String> ids = (await _kdfSdk.assets.getActivatedAssets())
+        .map((c) => c.id.symbol.coinGeckoId ?? '')
         .toList()
       ..removeWhere((id) => id.isEmpty);
     final Uri fallbackUri = Uri.parse(
