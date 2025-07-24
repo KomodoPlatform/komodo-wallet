@@ -464,9 +464,14 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     // Remove coin from selected coins if in add mode (deselection)
     // or proceed with actual removal if in remove mode
     if (state.action == CoinsManagerAction.add) {
-      // Deselect the coin and deactivate it
+      // Deselect the coin and all its child coins
       final selectedCoins = Set<Coin>.from(state.selectedCoins);
       selectedCoins.remove(coin);
+
+      // Also remove all child coins from selected coins
+      for (final childCoin in childCoins) {
+        selectedCoins.remove(childCoin);
+      }
 
       emit(state.copyWith(
         selectedCoins: selectedCoins.toList(),
