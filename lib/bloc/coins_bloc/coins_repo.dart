@@ -72,6 +72,11 @@ class CoinsRepo {
   void _broadcastAsset(Coin coin) {
     if (_enabledAssetsHasListeners) {
       enabledAssetsChanges.add(coin);
+    } else {
+      _log.warning(
+        'No listeners for enabledAssetsChanges stream. '
+        'Skipping broadcast for ${coin.id.id}',
+      );
     }
   }
 
@@ -316,8 +321,24 @@ class CoinsRepo {
           ),
         );
 
-        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
+        _log.info('Asset activated: ${asset.id.id}');
+        if (notify) {
+          _broadcastAsset(coin.copyWith(state: CoinState.active));
+          if (coin.id.parentId != null) {
+            final parentCoin = _assetToCoinWithoutAddress(
+                _kdfSdk.assets.available[coin.id.parentId]!);
+            _broadcastAsset(parentCoin.copyWith(state: CoinState.active));
+          }
+        }
         _subscribeToBalanceUpdates(asset, coin);
+        if (coin.id.parentId != null) {
+          final parentAsset = _kdfSdk.assets.available[coin.id.parentId];
+          if (parentAsset == null) {
+            _log.warning('Parent asset not found: ${coin.id.parentId}');
+          } else {
+            _subscribeToBalanceUpdates(parentAsset, coin);
+          }
+        }
       } catch (e, s) {
         lastActivationException = e is Exception ? e : Exception(e.toString());
         _log.shout(

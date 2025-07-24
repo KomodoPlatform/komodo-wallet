@@ -103,6 +103,11 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
     if (removalState == null) return;
 
     final bloc = context.read<CoinsManagerBloc>();
+    final coin = removalState.coin;
+    final childCoinTickers =
+        removalState.childCoins.map((c) => c.abbr).toList();
+    final requiresParentConfirmation =
+        coin.parentCoin == null && childCoinTickers.isNotEmpty;
 
     if (removalState.hasActiveSwap) {
       _informationPopup.text =
@@ -119,7 +124,17 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
         ordersCount: removalState.openOrdersCount,
       ).then((confirmed) {
         if (confirmed) {
-          bloc.add(const CoinsManagerCoinRemoveConfirmed());
+          confirmParentCoinDisable(
+            context,
+            parent: coin.abbr,
+            tokens: childCoinTickers,
+          ).then((confirmed) {
+            if (confirmed) {
+              bloc.add(const CoinsManagerCoinRemoveConfirmed());
+            } else {
+              bloc.add(const CoinsManagerCoinRemovalCancelled());
+            }
+          });
         } else {
           bloc.add(const CoinsManagerCoinRemovalCancelled());
         }
@@ -127,16 +142,11 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
       return;
     }
 
-    // No blocking conditions, check if parent coin needs confirmation
-    final coin = removalState.coin;
-    final childCoins = removalState.childCoins;
-
-    if (coin.parentCoin == null && childCoins.isNotEmpty) {
-      final childTokens = childCoins.map((c) => c.abbr).toList();
+    if (requiresParentConfirmation) {
       confirmParentCoinDisable(
         context,
         parent: coin.abbr,
-        tokens: childTokens,
+        tokens: childCoinTickers,
       ).then((confirmed) {
         if (confirmed) {
           bloc.add(const CoinsManagerCoinRemoveConfirmed());

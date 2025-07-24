@@ -343,7 +343,7 @@ class CoinMoreActionsButton extends StatelessWidget {
       onSelected: (action) async {
         switch (action) {
           case CoinMoreActions.disable:
-            confirmBeforeDisablingCoin(coin, context, null);
+            confirmBeforeDisablingCoin(coin, context);
         }
       },
       itemBuilder: (context) {

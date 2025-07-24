@@ -431,23 +431,6 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
         for (final child in childCoins) {
           await _tradingEntitiesBloc.cancelOrdersForCoin(child.abbr);
         }
-
-        // Verify that orders were actually canceled by re-checking order count
-        final remainingOrders = _tradingEntitiesBloc
-                .openOrdersCount(coin.abbr) +
-            childCoins.fold<int>(0,
-                (sum, c) => sum + _tradingEntitiesBloc.openOrdersCount(c.abbr));
-
-        if (remainingOrders > 0) {
-          _log.warning(
-              'Some orders for coin ${coin.abbr} could not be canceled. Remaining: $remainingOrders');
-          emit(state.copyWith(
-            removalState: null,
-            errorMessage:
-                'Some orders for ${coin.abbr} could not be canceled. Please try again or cancel them manually.',
-          ));
-          return;
-        }
       } catch (e, s) {
         _log.warning('Failed to cancel orders for coin ${coin.abbr}', e, s);
 
