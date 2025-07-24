@@ -6,7 +6,6 @@ import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/model/hd_account/hd_account.dart';
 
 class Coin extends Equatable {
   Coin({
@@ -72,7 +71,7 @@ class Coin extends Equatable {
   final int priority;
   Coin? parentCoin;
   final CoinMode mode;
-  CoinState state;
+  final CoinState state;
 
   bool get walletOnly => _walletOnly || appWalletOnlyAssetList.contains(abbr);
 
@@ -164,7 +163,6 @@ class Coin extends Equatable {
     int? decimals,
     Coin? parentCoin,
     String? derivationPath,
-    List<HdAccount>? accounts,
     CexPrice? usdPrice,
     String? coinpaprikaId,
     bool? activeByDefault,
@@ -209,7 +207,12 @@ class Coin extends Equatable {
   // Only use AssetId for equality checks, not any of the
   // legacy fields here.
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [
+        id,
+        // Legacy fields still updated and used in the app, so we keep them
+        // in the props list for now to maintain the desired state updates.
+        state, type, abbr, usdPrice, isTestCoin, parentCoin, address,
+      ];
 }
 
 extension LegacyCoinToSdkAsset on Coin {

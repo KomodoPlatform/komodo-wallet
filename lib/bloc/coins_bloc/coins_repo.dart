@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
+    show ExponentialBackoff, retry;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:logging/logging.dart';
@@ -233,9 +235,38 @@ class CoinsRepo {
     }
   }
 
+  /// Activates multiple assets synchronously with retry logic and exponential backoff.
+  ///
+  /// This method attempts to activate the provided [assets] with robust error handling
+  /// and automatic retry functionality. If activation fails, it will retry with
+  /// exponential backoff for up to the specified duration.
+  ///
+  /// **Retry Configuration:**
+  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (30 attempts ≈ 3 minutes)
+  /// - Configurable via [maxRetryAttempts], [initialRetryDelay], and [maxRetryDelay]
+  ///
+  /// **Parameters:**
+  /// - [assets]: List of assets to activate
+  /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
+  /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
+  /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
+  ///
+  /// **State Changes:**
+  /// - `CoinState.activating`: Broadcast when activation begins
+  /// - `CoinState.active`: Broadcast on successful activation
+  /// - `CoinState.suspended`: Broadcast on final failure after all retries
+  ///
+  /// **Throws:**
+  /// - `Exception`: If activation fails after all retry attempts
+  ///
+  /// **Note:** Assets are added to wallet metadata even if activation fails.
   Future<void> activateAssetsSync(
     List<Asset> assets, {
     bool notify = true,
+    int maxRetryAttempts = 30,
+    Duration initialRetryDelay = const Duration(milliseconds: 500),
+    Duration maxRetryDelay = const Duration(seconds: 10),
   }) async {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
@@ -251,21 +282,46 @@ class CoinsRepo {
     await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
 
     final activatedAssetIds = <String>{};
+    Exception? lastActivationException;
+
     for (final asset in assets) {
       final coin = asset.toCoin();
       try {
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
         activatedAssetIds.add(asset.id.id);
 
-        final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
-        if (!progress.isSuccess) {
-          throw StateError('Failed to activate coin ${asset.id.id}');
-        }
+        // Use retry with exponential backoff for activation
+        await retry<void>(
+          () async {
+            // exception is thrown if the asset is already activated, so manual
+            // check is needed for now until specific exception type can be caught
+            final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+            if (activatedAssets.any((a) => a.id == asset.id)) {
+              _log.info(
+                'Coin ${coin.id} is already activated. Skipping activation.',
+              );
+              return;
+            }
+
+            final progress = await _kdfSdk.assets.activateAsset(asset).last;
+            if (!progress.isSuccess) {
+              throw Exception(progress.errorMessage ??
+                  'Activation failed for ${asset.id.id}');
+            }
+          },
+          maxAttempts: maxRetryAttempts,
+          backoffStrategy: ExponentialBackoff(
+            initialDelay: initialRetryDelay,
+            maxDelay: maxRetryDelay,
+          ),
+        );
 
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
         _subscribeToBalanceUpdates(asset, coin);
       } catch (e, s) {
-        _log.shout('Error activating asset: ${asset.id.id}', e, s);
+        lastActivationException = e is Exception ? e : Exception(e.toString());
+        _log.shout(
+            'Error activating asset after retries: ${asset.id.id}', e, s);
         if (notify) {
           _broadcastAsset(
             asset.toCoin().copyWith(state: CoinState.suspended),
@@ -281,6 +337,11 @@ class CoinsRepo {
           );
         }
       }
+    }
+
+    // Rethrow the last activation exception if there was one
+    if (lastActivationException != null) {
+      throw lastActivationException;
     }
   }
 
@@ -298,70 +359,54 @@ class CoinsRepo {
     }
   }
 
+  /// Activates multiple coins synchronously with retry logic and exponential backoff.
+  ///
+  /// This method attempts to activate the provided [coins] with robust error handling
+  /// and automatic retry functionality. It includes smart logic to skip already
+  /// activated coins and retry failed activations with exponential backoff.
+  ///
+  /// **Retry Configuration:**
+  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (30 attempts ≈ 3 minutes)
+  /// - Configurable via [maxRetryAttempts], [initialRetryDelay], and [maxRetryDelay]
+  ///
+  /// **Parameters:**
+  /// - [coins]: List of coins to activate
+  /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
+  /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
+  /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
+  ///
+  /// **State Changes:**
+  /// - `CoinState.activating`: Broadcast when activation begins
+  /// - `CoinState.active`: Broadcast on successful activation or if already active
+  /// - `CoinState.suspended`: Broadcast on final failure after all retries
+  ///
+  /// **Behavior:**
+  /// - Skips coins that are already activated
+  /// - Adds coins to wallet metadata regardless of activation status
+  /// - Subscribes to balance updates for successfully activated coins
+  ///
+  /// **Throws:**
+  /// - `Exception`: If activation fails after all retry attempts
   Future<void> activateCoinsSync(
     List<Coin> coins, {
     bool notify = true,
+    int maxRetryAttempts = 30,
+    Duration initialRetryDelay = const Duration(milliseconds: 500),
+    Duration maxRetryDelay = const Duration(seconds: 10),
   }) async {
-    final isSignedIn = await _kdfSdk.auth.isSignedIn();
-    if (!isSignedIn) {
-      final coinIdList = coins.map((e) => e.id.id).join(', ');
-      _log.warning(
-        'No wallet signed in. Skipping activation of [$coinIdList]',
-      );
-      return;
-    }
+    final assets = coins
+        .map((coin) => _kdfSdk.assets.available[coin.id])
+        .whereType<Asset>()
+        .toList();
 
-    // Add assets and their parents to wallet metadata before activating.
-    // This ensures that the wallet metadata is updated even if activation fails.
-    await _addAssetsToWalletMetdata(coins.map((coin) => coin.id));
-
-    final List<Asset> activatedAssets =
-        await _kdfSdk.assets.getActivatedAssets();
-    final activatedCoinIds = <String>{};
-
-    for (final coin in coins) {
-      try {
-        final asset = _kdfSdk.assets.available[coin.id];
-        if (asset == null) {
-          _log.warning('Coin ${coin.id} not found. Skipping activation.');
-          continue;
-        }
-
-        // Add coin to wallet metdata regardless of activation status
-        activatedCoinIds.add(coin.id.id);
-
-        if (activatedAssets.any((a) => a.id == asset.id)) {
-          _log.info(
-              'Coin ${coin.id} is already activated. Skipping activation.');
-          if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
-          _subscribeToBalanceUpdates(asset, coin);
-
-          continue;
-        }
-
-        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
-
-        final progress = await _kdfSdk.assets.activateAsset(asset).last;
-        if (!progress.isSuccess) {
-          throw StateError('Failed to activate coin ${coin.id.id}');
-        }
-
-        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.active));
-        _subscribeToBalanceUpdates(asset, coin);
-      } catch (e, s) {
-        _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
-        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.suspended));
-      } finally {
-        // Register outside of the try-catch to ensure icon is available even
-        // in a suspended or failing activation status.
-        if (coin.logoImageUrl?.isNotEmpty ?? false) {
-          AssetIcon.registerCustomIcon(
-            coin.id,
-            NetworkImage(coin.logoImageUrl!),
-          );
-        }
-      }
-    }
+    return activateAssetsSync(
+      assets,
+      notify: notify,
+      maxRetryAttempts: maxRetryAttempts,
+      initialRetryDelay: initialRetryDelay,
+      maxRetryDelay: maxRetryDelay,
+    );
   }
 
   /// Deactivates the given coins and cancels their balance watchers.
