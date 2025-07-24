@@ -32,8 +32,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     on<CoinsActivated>(_onCoinsActivated, transformer: concurrent());
     on<CoinsDeactivated>(_onCoinsDeactivated, transformer: concurrent());
     on<CoinsPricesUpdated>(_onPricesUpdated, transformer: droppable());
-    on<CoinsSessionStarted>(_onLogin, transformer: droppable());
-    on<CoinsSessionEnded>(_onLogout, transformer: droppable());
+    on<CoinsSessionStarted>(_onLogin, transformer: restartable());
+    on<CoinsSessionEnded>(_onLogout, transformer: restartable());
     on<CoinsWalletCoinUpdated>(_onWalletCoinUpdated, transformer: sequential());
     on<CoinsPubkeysRequested>(
       _onCoinsPubkeysRequested,
@@ -317,12 +317,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     try {
       _coinsRepo.flushCache();
-      final Wallet? currentWallet = await _kdfSdk.currentWallet();
+      final Wallet currentWallet = event.signedInUser.wallet;
 
       // Start off by emitting the newly activated coins so that they all appear
       // in the list at once, rather than one at a time as they are activated
-      final coinsToActivate =
-          currentWallet?.config.activatedCoins ?? enabledByDefaultCoins;
+      final coinsToActivate = currentWallet.config.activatedCoins;
       emit(_prePopulateListWithActivatingCoins(coinsToActivate));
       await _activateCoins(coinsToActivate, emit);
 
