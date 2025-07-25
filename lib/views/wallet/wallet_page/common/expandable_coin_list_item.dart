@@ -88,7 +88,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
               ),
             )
             .toList()
-        : List.generate(3, (_) => const SkeletonListTile());
+        : [SkeletonListTile()];
 
     // Match GroupedAssetTickerItem: 16 horizontal, 16 vertical for both (mobile)
     // For desktop, set vertical padding to achieve 78px height
