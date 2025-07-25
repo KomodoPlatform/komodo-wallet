@@ -76,6 +76,19 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
         ? (List.of(widget.pubkeys!.keys)
           ..sort((a, b) => b.balance.spendable.compareTo(a.balance.spendable)))
         : null;
+    final children = sortedAddresses != null
+        ? sortedAddresses
+            .map(
+              (pubkey) => _AddressRow(
+                pubkey: pubkey,
+                coin: widget.coin,
+                isSwapAddress: pubkey == sortedAddresses.first,
+                onTap: widget.onTap,
+                onCopy: () => copyToClipBoard(context, pubkey.address),
+              ),
+            )
+            .toList()
+        : [SkeletonListTile()];
 
     // Match GroupedAssetTickerItem: 16 horizontal, 16 vertical for both (mobile)
     // For desktop, set vertical padding to achieve 78px height
@@ -104,17 +117,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
       maintainState: true,
       childrenDivider: const Divider(height: 1, indent: 16, endIndent: 16),
       trailing: CoinMoreActionsButton(coin: widget.coin),
-      children: sortedAddresses
-          ?.map(
-            (pubkey) => _AddressRow(
-              pubkey: pubkey,
-              coin: widget.coin,
-              isSwapAddress: pubkey == sortedAddresses.first,
-              onTap: widget.onTap,
-              onCopy: () => copyToClipBoard(context, pubkey.address),
-            ),
-          )
-          .toList(),
+      children: children,
     );
   }
 
