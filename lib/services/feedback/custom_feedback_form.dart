@@ -1,316 +1,219 @@
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/feedback_form/feedback_form_bloc.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/services/feedback/feedback_models.dart';
+import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/views/support/missing_coins_dialog.dart';
 
-/// A data type holding user feedback consisting of a feedback type and free-form text
-class CustomFeedback {
-  CustomFeedback({
-    this.feedbackType,
-    this.feedbackText,
-    this.contactMethod,
-    this.contactDetails,
-  });
-
-  FeedbackType? feedbackType;
-  String? feedbackText;
-  ContactMethod? contactMethod;
-  String? contactDetails;
-
-  @override
-  String toString() {
-    return {
-      'feedback_type': feedbackType.toString(),
-      'feedback_text': feedbackText,
-      'contact_method': contactMethod?.name,
-      'contact_details': contactDetails,
-    }.toString();
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'feedback_type': feedbackType.toString(),
-      'feedback_text': feedbackText,
-      'contact_method': contactMethod?.name,
-      'contact_details': contactDetails,
-    };
-  }
-}
-
-/// What type of feedback the user wants to provide.
-enum FeedbackType {
-  bugReport,
-  featureRequest,
-  support,
-  other;
-
-  // TODO: Localisation
-  String get description {
-    switch (this) {
-      case bugReport:
-        return 'Bug Report';
-      case featureRequest:
-        return 'Feature Request';
-      case support:
-        return 'Support Request';
-      case other:
-        return 'Other';
-    }
-  }
-}
-
-/// A form that prompts the user for the type of feedback they want to give and free form text feedback.
-/// The submit button is disabled until the user provides the feedback type. All other fields are optional.
-class CustomFeedbackForm extends StatefulWidget {
+/// A form that prompts the user for feedback using BLoC for state management.
+class CustomFeedbackForm extends StatelessWidget {
   const CustomFeedbackForm({
     super.key,
-    required this.onSubmit,
     required this.scrollController,
   });
 
-  final OnSubmit onSubmit;
   final ScrollController? scrollController;
 
   static FeedbackBuilder get feedbackBuilder =>
-      (context, onSubmit, scrollController) => CustomFeedbackForm(
-            onSubmit: onSubmit,
-            scrollController: scrollController,
+      (context, onSubmit, scrollController) => BlocProvider(
+            create: (_) => FeedbackFormBloc(onSubmit),
+            child: CustomFeedbackForm(scrollController: scrollController),
           );
 
   @override
-  State<CustomFeedbackForm> createState() => _CustomFeedbackFormState();
-}
-
-// TODO: Refactor into a bloc and show validation errors.
-class _CustomFeedbackFormState extends State<CustomFeedbackForm> {
-  final CustomFeedback _customFeedback = CustomFeedback();
-  bool _isLoading = false;
-
-  /// Determines if the feedback form is valid and can be submitted
-  bool isFormValid() {
-    // Basic check: feedback type must be provided and form must not be loading
-    bool isValid = _customFeedback.feedbackType != null && !_isLoading;
-
-    // Contact details validation: if either contact method or details is provided,
-    // then both must be provided
-    bool hasContactMethod = _customFeedback.contactMethod != null;
-    bool hasContactDetails = _customFeedback.contactDetails != null &&
-        _customFeedback.contactDetails!.isNotEmpty;
-
-    // If one is provided but not the other, the form is invalid
-    if ((hasContactMethod && !hasContactDetails) ||
-        (!hasContactMethod && hasContactDetails)) {
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      children: [
-        Expanded(
-          child: Stack(
+    return BlocBuilder<FeedbackFormBloc, FeedbackFormState>(
+      builder: (context, state) {
+        final theme = Theme.of(context);
+        final isLoading = state.status == FeedbackFormStatus.submitting;
+        final formValid = state.isValid && !isLoading;
+        return Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
             children: [
-              if (widget.scrollController != null)
-                const FeedbackSheetDragHandle(),
-              ListView(
-                controller: widget.scrollController,
-                padding: EdgeInsets.fromLTRB(
-                    16, widget.scrollController != null ? 20 : 16, 16, 0),
-                children: [
-                  Text(
-                    'What kind of feedback do you want to give?',
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButton<FeedbackType>(
-                    isExpanded: true,
-                    value: _customFeedback.feedbackType,
-                    items: FeedbackType.values
-                        .map(
-                          (type) => DropdownMenuItem<FeedbackType>(
-                            value: type,
-                            // TODO: l10n
-
-                            child: Text(type.description),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: _isLoading
-                        ? null
-                        : (feedbackType) => setState(
-                            () => _customFeedback.feedbackType = feedbackType),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Please describe your feedback:',
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    maxLines: 3,
-                    enabled: !_isLoading,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: Stack(
+                  children: [
+                    if (scrollController != null)
+                      const FeedbackSheetDragHandle(),
+                    ListView(
+                      controller: scrollController,
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        scrollController != null ? 20 : 16,
+                        16,
+                        0,
                       ),
-                      hintText: 'Enter your feedback here...',
-                    ),
-                    onChanged: (newFeedback) =>
-                        _customFeedback.feedbackText = newFeedback,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'How can we contact you? (Optional)',
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 130,
-                        child: DropdownButtonFormField<ContactMethod>(
+                      children: [
+                        Text(
+                          'What kind of feedback do you want to give?',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<FeedbackType>(
                           isExpanded: true,
-                          value: _customFeedback.contactMethod,
-                          hint: const Text('Select'),
+                          value: state.feedbackType,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          items: ContactMethod.values
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select a feedback type';
+                            }
+                            return null;
+                          },
+                          items: FeedbackType.values
                               .map(
-                                (method) => DropdownMenuItem<ContactMethod>(
-                                  value: method,
-                                  child: Text(method.label),
+                                (type) => DropdownMenuItem<FeedbackType>(
+                                  value: type,
+                                  child: Text(type.description),
                                 ),
                               )
                               .toList(),
-                          onChanged: _isLoading
+                          onChanged: isLoading
                               ? null
-                              : (contactMethod) => setState(() =>
-                                  _customFeedback.contactMethod =
-                                      contactMethod),
+                              : (feedbackType) {
+                                  if (feedbackType ==
+                                      FeedbackType.missingCoins) {
+                                    showMissingCoinsDialog(context);
+                                  }
+                                  context.read<FeedbackFormBloc>().add(
+                                      FeedbackFormTypeChanged(feedbackType));
+                                },
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          enabled: !_isLoading,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Please describe your feedback:',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        UiTextFormField(
+                          maxLength: feedbackMaxLength,
+                          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                          enabled: !isLoading,
+                          autofocus: true,
+                          hintText: 'Enter your feedback here...',
+                          errorText: state.feedbackTextError,
+                          validationMode: InputValidationMode.eager,
+                          onChanged: (value) => context
+                              .read<FeedbackFormBloc>()
+                              .add(FeedbackFormMessageChanged(value ?? '')),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          state.feedbackType == FeedbackType.support ||
+                                  state.feedbackType ==
+                                      FeedbackType.missingCoins
+                              ? 'How can we contact you?'
+                              : 'How can we contact you? (Optional)',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 130,
+                              child: DropdownButtonFormField<ContactMethod>(
+                                isExpanded: true,
+                                value: state.contactMethod,
+                                hint: const Text('Select'),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                items: ContactMethod.values
+                                    .map(
+                                      (method) =>
+                                          DropdownMenuItem<ContactMethod>(
+                                        value: method,
+                                        child: Text(method.label),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: isLoading
+                                    ? null
+                                    : (method) => context
+                                        .read<FeedbackFormBloc>()
+                                        .add(FeedbackFormContactMethodChanged(
+                                            method)),
+                              ),
                             ),
-                            hintText:
-                                _getContactHint(_customFeedback.contactMethod),
-                          ),
-                          onChanged: (newContactDetails) {
-                            setState(() {
-                              _customFeedback.contactDetails =
-                                  newContactDetails;
-                            });
-                          },
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: UiTextFormField(
+                                enabled: !isLoading,
+                                maxLength: contactDetailsMaxLength,
+                                maxLengthEnforcement:
+                                    MaxLengthEnforcement.enforced,
+                                hintText: _getContactHint(state.contactMethod),
+                                errorText: state.contactDetailsError,
+                                validationMode: InputValidationMode.eager,
+                                onChanged: (value) => context
+                                    .read<FeedbackFormBloc>()
+                                    .add(FeedbackFormContactDetailsChanged(
+                                        value ?? '')),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 16.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2.0),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (_isLoading)
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        theme.colorScheme.primary,
-                      ),
+                    TextButton(
+                      onPressed: formValid
+                          ? () => context
+                              .read<FeedbackFormBloc>()
+                              .add(const FeedbackFormSubmitted())
+                          : null,
+                      child: const Text('SUBMIT'),
                     ),
-                  ),
+                  ],
                 ),
-              TextButton(
-                onPressed: isFormValid() ? () => _submitFeedback() : null,
-                child: const Text('SUBMIT'),
               ),
             ],
           ),
-        ),
-      ],
+        );
+      },
     );
-  }
-
-  void _submitFeedback() {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Call the onSubmit callback provided by BetterFeedback
-    widget
-        .onSubmit(
-      _customFeedback.feedbackText ?? '',
-      extras: _customFeedback.toMap(),
-    )
-        .then((_) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }).catchError((error) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
-  }
-
-  String _getContactHint(ContactMethod? method) {
-    switch (method) {
-      case ContactMethod.discord:
-        return 'Your Discord username';
-      case ContactMethod.matrix:
-        return 'Your Matrix ID';
-      case ContactMethod.telegram:
-        return 'Your Telegram username';
-      case ContactMethod.email:
-        return 'Your email address';
-      default:
-        return 'Enter your contact details';
-    }
   }
 }
 
-/// Contact methods available for feedback follow-up
-enum ContactMethod {
-  discord,
-  matrix,
-  telegram,
-  email;
-
-  String get label {
-    switch (this) {
-      case discord:
-        return 'Discord';
-      case matrix:
-        return 'Matrix';
-      case telegram:
-        return 'Telegram';
-      case email:
-        return 'Email';
-    }
+String _getContactHint(ContactMethod? method) {
+  switch (method) {
+    case ContactMethod.discord:
+      return 'Discord username (e.g., username123)';
+    case ContactMethod.matrix:
+      return 'Matrix ID (e.g., @user:matrix.org)';
+    case ContactMethod.telegram:
+      return 'Telegram username (e.g., @username)';
+    case ContactMethod.email:
+      return 'Your email address';
+    default:
+      return 'Enter your contact details';
   }
 }

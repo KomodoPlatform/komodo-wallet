@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -11,7 +12,7 @@ import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_button.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/contract_address_button.dart';
@@ -353,6 +354,10 @@ class CoinDetailsSendButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    final lastKnownBalance =
+        sdk.balances.lastKnown(coin.id)?.total ?? Decimal.zero;
+
     final ThemeData themeData = Theme.of(context);
     return UiPrimaryButton(
       key: const Key('coin-details-send-button'),
@@ -366,8 +371,7 @@ class CoinDetailsSendButton extends StatelessWidget {
       textStyle: themeData.textTheme.labelLarge
           ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
       backgroundColor: themeData.colorScheme.tertiary,
-      onPressed: coin.isSuspended
-          //TODO!.sdk || coin.balance == 0
+      onPressed: !coin.isActive || lastKnownBalance == Decimal.zero
           ? null
           : () {
               selectWidget(CoinPageType.send);
@@ -413,14 +417,14 @@ class CoinDetailsSwapButton extends StatelessWidget {
           '$assetsPath/others/swap.svg',
         ),
       ),
-      onPressed: coin.isSuspended ? null : onClickSwapButton,
+      onPressed: !coin.isActive ? null : onClickSwapButton,
     );
   }
 }
 
 /// Gets the appropriate tooltip message for the Bitrefill button
 String? _getBitrefillTooltip(Coin coin) {
-  if (coin.isSuspended) {
+  if (!coin.isActive) {
     return '${coin.abbr} is currently suspended';
   }
 

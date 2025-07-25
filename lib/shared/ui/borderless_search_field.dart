@@ -18,6 +18,7 @@ class BorderLessSearchField extends StatelessWidget {
       child: TextField(
         key: const Key('search-field'),
         onChanged: onChanged,
+        autofocus: true,
         decoration: InputDecoration(
             hintText: LocaleKeys.search.tr(),
             border: OutlineInputBorder(

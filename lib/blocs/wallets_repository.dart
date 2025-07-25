@@ -34,9 +34,13 @@ class WalletsRepository {
 
   Future<List<Wallet>> getWallets() async {
     final legacyWallets = await _getLegacyWallets();
+
+    // TODO: move wallet filtering logic to the SDK
     _cachedWallets = (await _kdfSdk.wallets)
         .where(
-          (wallet) => wallet.config.type != WalletType.trezor,
+          (wallet) =>
+              wallet.config.type != WalletType.trezor &&
+              !wallet.name.toLowerCase().startsWith(trezorWalletNamePrefix),
         )
         .toList();
     return [..._cachedWallets!, ...legacyWallets];
@@ -54,7 +58,10 @@ class WalletsRepository {
         .toList();
   }
 
-  Future<bool> deleteWallet(Wallet wallet) async {
+  Future<void> deleteWallet(
+    Wallet wallet, {
+    required String password,
+  }) async {
     log(
       'Deleting a wallet ${wallet.id}',
       path: 'wallet_bloc => deleteWallet',
@@ -64,24 +71,51 @@ class WalletsRepository {
       final wallets = await _getLegacyWallets();
       wallets.removeWhere((w) => w.id == wallet.id);
       await _legacyWalletStorage.write(allWalletsStorageKey, wallets);
-      return true;
+      return;
     }
 
-    // TODO!: implement
-    throw UnimplementedError('Not yet supported');
+    try {
+      await _kdfSdk.auth.deleteWallet(
+        walletName: wallet.name,
+        password: password,
+      );
+      _cachedWallets?.removeWhere((w) => w.name == wallet.name);
+      return;
+    } catch (e) {
+      log('Failed to delete wallet: $e',
+              path: 'wallet_bloc => deleteWallet', isError: true)
+          .ignore();
+      rethrow;
+    }
   }
 
   String? validateWalletName(String name) {
+    // Disallow special characters except letters, digits, space, underscore and hyphen
+    if (RegExp(r'[^\w\- ]').hasMatch(name)) {
+      return LocaleKeys.invalidWalletNameError.tr();
+    }
     // This shouldn't happen, but just in case.
     if (_cachedWallets == null) {
       getWallets().ignore();
       return null;
     }
+    
+    final trimmedName = name.trim();
+    
+    // Check if the trimmed name is empty (prevents space-only names)
+    if (trimmedName.isEmpty) {
+      return LocaleKeys.walletCreationNameLengthError.tr();
+    }
+    
+    // Check if trimmed name exceeds length limit
+    if (trimmedName.length > 40) {
+      return LocaleKeys.walletCreationNameLengthError.tr();
+    }
 
+    // Check for duplicates using the exact input name (not trimmed)
+    // This preserves backward compatibility with existing wallets that might have spaces
     if (_cachedWallets!.firstWhereOrNull((w) => w.name == name) != null) {
       return LocaleKeys.walletCreationExistNameError.tr();
-    } else if (name.isEmpty || name.length > 40) {
-      return LocaleKeys.walletCreationNameLengthError.tr();
     }
 
     return null;

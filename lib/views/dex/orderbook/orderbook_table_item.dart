@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/orderbook/order.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class OrderbookTableItem extends StatefulWidget {
   const OrderbookTableItem(

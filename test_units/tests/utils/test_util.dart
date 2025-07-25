@@ -24,7 +24,6 @@ Coin setCoin({
       chainId: AssetChainId(chainId: 0),
       subClass: CoinSubClass.smartChain,
     ),
-    accounts: null,
     activeByDefault: true,
     logoImageUrl: null,
     coingeckoId: "komodo",

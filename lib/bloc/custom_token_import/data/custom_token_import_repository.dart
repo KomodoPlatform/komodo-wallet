@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 abstract class ICustomTokenImportRepository {
   Future<Asset> fetchCustomToken(CoinSubClass network, String address);
@@ -107,8 +107,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       }).copyWith(isCustomToken: true),
     );
 
-    CoinIcon.registerCustomIcon(
-      newCoin.id.id,
+    AssetIcon.registerCustomIcon(
+      newCoin.id,
       NetworkImage(
         tokenApi?['image']?['large'] ??
             'assets/coin_icons/png/${ticker.toLowerCase()}.png',
@@ -143,7 +143,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       final data = jsonDecode(response.body);
       return data;
     } catch (e) {
-      log('Error fetching token image URL: $e');
+      log('Error fetching token data from $url: $e');
       return null;
     }
   }
@@ -155,27 +155,27 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   String? getNetworkApiName(CoinSubClass coinType) {
     switch (coinType) {
       case CoinSubClass.erc20:
-        return 'ethereum';
+        return 'ethereum';        // https://api.coingecko.com/api/v3/coins/ethereum/contract/0x56072C95FAA701256059aa122697B133aDEd9279
       case CoinSubClass.bep20:
-        return 'binance-smart-chain';
-      case CoinSubClass.qrc20:
-        return 'qtum';
-      case CoinSubClass.ftm20:
-        return 'fantom';
+        return 'bsc';             // https://api.coingecko.com/api/v3/coins/bsc/contract/0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0
       case CoinSubClass.arbitrum:
-        return 'arbitrum-one';
+        return 'arbitrum-one';    // https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/0xCBeb19549054CC0a6257A77736FC78C367216cE7
       case CoinSubClass.avx20:
-        return 'avalanche';
+        return 'avalanche';       // https://api.coingecko.com/api/v3/coins/avalanche/contract/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E
       case CoinSubClass.moonriver:
-        return 'moonriver';
-      case CoinSubClass.hecoChain:
-        return 'huobi-token';
+        return 'moonriver';       // https://api.coingecko.com/api/v3/coins/moonriver/contract/0x0caE51e1032e8461f4806e26332c030E34De3aDb
       case CoinSubClass.matic:
-        return 'polygon-pos';
-      case CoinSubClass.hrc20:
-        return 'harmony-shard-0';
+        return 'polygon-pos';     // https://api.coingecko.com/api/v3/coins/polygon-pos/contract/0xdF7837DE1F2Fa4631D716CF2502f8b230F1dcc32
       case CoinSubClass.krc20:
-        return 'kcc';
+        return 'kcc';             // https://api.coingecko.com/api/v3/coins/kcc/contract/0x0039f574ee5cc39bdd162e9a88e3eb1f111baf48
+      case CoinSubClass.qrc20:
+        return null;              // Unable to find working url
+      case CoinSubClass.ftm20:
+        return null;              // Unable to find working url
+      case CoinSubClass.hecoChain:
+        return null;              // Unable to find working url
+      case CoinSubClass.hrc20:
+        return null;              // Unable to find working url
       default:
         return null;
     }

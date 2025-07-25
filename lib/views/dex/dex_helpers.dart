@@ -64,11 +64,11 @@ List<Swap> applyFiltersForSwap(
 
     if (sellCoin != null && swap.sellCoin != sellCoin) return false;
     if (buyCoin != null && swap.buyCoin != buyCoin) return false;
-    if (startDate != null && swap.myInfo.startedAt < startDate / 1000) {
+    if (startDate != null && (swap.myInfo?.startedAt ?? 0) < startDate / 1000) {
       return false;
     }
     if (endDate != null &&
-        swap.myInfo.startedAt > (endDate + millisecondsIn24H) / 1000) {
+        (swap.myInfo?.startedAt ?? 0) > (endDate + millisecondsIn24H) / 1000) {
       return false;
     }
     if (statuses != null && statuses.isNotEmpty) {
@@ -218,24 +218,13 @@ Future<List<DexFormError>> activateCoinIfNeeded(
   final Coin? coin = coinsRepository.getCoin(abbr);
   if (coin == null) return errors;
 
-  if (!coin.isActive) {
-    try {
-      await coinsRepository.activateCoinsSync([coin]);
-    } catch (e) {
-      errors.add(DexFormError(
-          error: '${LocaleKeys.unableToActiveCoin.tr(args: [coin.abbr])}: $e'));
-    }
-  } else {
-    final Coin? parentCoin = coin.parentCoin;
-    if (parentCoin != null && !parentCoin.isActive) {
-      try {
-        await coinsRepository.activateCoinsSync([parentCoin]);
-      } catch (e) {
-        errors.add(DexFormError(
-            error:
-                '${LocaleKeys.unableToActiveCoin.tr(args: [coin.abbr])}: $e'));
-      }
-    }
+  try {
+    // sdk handles parent activation logic, so simply call
+    // activation here
+    await coinsRepository.activateCoinsSync([coin]);
+  } catch (e) {
+    errors.add(DexFormError(
+        error: '${LocaleKeys.unableToActiveCoin.tr(args: [coin.abbr])}: $e'));
   }
 
   return errors;

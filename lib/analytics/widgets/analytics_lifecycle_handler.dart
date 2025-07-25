@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 import 'package:web_dex/analytics/events/user_engagement_events.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
+import 'package:web_dex/services/platform_info/platform_info.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 
 /// A widget that handles analytics lifecycle events like app opened/resumed.
 ///
@@ -53,6 +55,7 @@ class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
     // Schedule the initial app opened event to be logged after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _logAppOpenedEvent();
+      _checkAuthStatus();
     });
   }
 
@@ -69,6 +72,7 @@ class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
     // Log app opened event when app is resumed (but not on initial open)
     if (state == AppLifecycleState.resumed && _hasLoggedInitialOpen) {
       _logAppOpenedEvent();
+      _checkAuthStatus();
     }
   }
 
@@ -97,6 +101,14 @@ class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
 
       // If this is the initial attempt and failed, we'll try again on next resume
       // Flutter's lifecycle management will handle subsequent attempts naturally
+    }
+  }
+
+  void _checkAuthStatus() {
+    try {
+      context.read<AuthBloc>().add(const AuthLifecycleCheckRequested());
+    } catch (e) {
+      log('AnalyticsLifecycleHandler: Failed to check auth status - $e');
     }
   }
 

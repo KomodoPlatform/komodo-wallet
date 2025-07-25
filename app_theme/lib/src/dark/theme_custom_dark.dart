@@ -61,15 +61,15 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color noColor = Colors.transparent;
   @override
-  final Color increaseColor = const Color.fromRGBO(0, 195, 170, 1);
+  final Color increaseColor = const Color(0xFF00C3AA);
   @override
   final Color decreaseColor = const Color.fromRGBO(229, 33, 103, 1);
   @override
-  final Color zebraDarkColor = const Color.fromRGBO(18, 20, 32, 1);
+  final Color zebraDarkColor = const Color(0xFF0F0F0F);
   @override
-  final Color zebraLightColor = Colors.transparent;
+  final Color zebraLightColor = const Color(0xFF141414);
   @override
-  final Color zebraHoverColor = const Color.fromRGBO(37, 40, 58, 1);
+  final Color zebraHoverColor = const Color(0xFF1A1A1A);
   @override
   final Color passwordButtonSuccessColor =
       const Color.fromRGBO(90, 230, 205, 1);
@@ -96,11 +96,10 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Gradient defaultSwitchColor = const LinearGradient(
     stops: [0, 93],
-    colors: [Color.fromRGBO(29, 128, 176, 1), Color.fromRGBO(91, 105, 230, 1)],
+    colors: [Color(0xFF00C3AA), Color(0xFF00D4FF)],
   );
   @override
-  final Color settingsMenuItemBackgroundColor =
-      const Color.fromRGBO(46, 52, 112, 1);
+  final Color settingsMenuItemBackgroundColor = const Color(0xFF141414);
   @override
   final Gradient userRewardBoxColor = const LinearGradient(
       begin: Alignment.topLeft,
@@ -110,8 +109,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color rewardBoxShadowColor = const Color.fromRGBO(0, 0, 0, 0.1);
   @override
-  final Color defaultBorderButtonBorder =
-      const Color.fromRGBO(136, 146, 235, 1);
+  final Color defaultBorderButtonBorder = const Color(0xFF00D4FF);
   @override
   final Color defaultBorderButtonBackground =
       const Color.fromRGBO(22, 25, 39, 1);
@@ -127,7 +125,14 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   final Color protocolTypeColor = const Color(0xfffcbb80);
   @override
   final CoinsManagerTheme coinsManagerTheme = const CoinsManagerTheme(
-      searchFieldMobileBackgroundColor: Color.fromRGBO(51, 57, 72, 1));
+    searchFieldMobileBackgroundColor: Color(0xFF1A1A1A),
+    filtersPopupShadow: BoxShadow(
+      offset: Offset(0, 0),
+      blurRadius: 8,
+      color: Color.fromRGBO(0, 0, 0, 0.3),
+    ),
+    filterPopupItemBorderColor: Color(0xFF00D4FF),
+  );
   @override
   final DexPageTheme dexPageTheme = const DexPageTheme(
     activeOrderFormTabColor: Color.fromRGBO(255, 255, 255, 1),
@@ -170,16 +175,15 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color specificButtonBorderColor = const Color.fromRGBO(38, 40, 52, 1);
   @override
-  final Color specificButtonBackgroundColor =
-      const Color.fromRGBO(14, 16, 27, 1);
+  final Color specificButtonBackgroundColor = const Color(0xFF141414);
   @override
   final Color balanceColor = const Color.fromRGBO(106, 139, 235, 1);
   @override
   final Color subBalanceColor = const Color.fromRGBO(124, 136, 171, 1);
   @override
-  final Color subCardBackgroundColor = const Color.fromRGBO(18, 20, 32, 1);
+  final Color subCardBackgroundColor = const Color(0xFF0F0F0F);
   @override
-  final Color lightButtonColor = const Color.fromRGBO(137, 182, 255, 0.12);
+  final Color lightButtonColor = const Color.fromRGBO(0, 212, 170, 0.12);
   @override
   final Color filterItemBorderColor = const Color.fromRGBO(52, 56, 77, 1);
   @override
@@ -202,7 +206,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   final Color smartchainLabelBorderColor = const Color.fromRGBO(32, 22, 49, 1);
   @override
   final Color mainMenuSelectedItemBackgroundColor =
-      const Color.fromRGBO(146, 187, 255, 0.12);
+      const Color.fromRGBO(0, 212, 170, 0.12);
   @override
   final Color searchFieldMobile = const Color.fromRGBO(42, 47, 62, 1);
   @override
@@ -214,7 +218,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   final bridgeFormHeader = const TextStyle(
       fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 3.5);
   @override
-  final Color keyPadColor = const Color.fromRGBO(18, 20, 32, 1);
+  final Color keyPadColor = const Color(0xFF000000);
   @override
   final Color keyPadTextColor = const Color.fromRGBO(129, 151, 182, 1);
   @override

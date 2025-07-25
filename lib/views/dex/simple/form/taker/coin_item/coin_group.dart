@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_logo.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/views/dex/simple/form/taker/coin_item/coin_name_and_protocol.dart';
 import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
 
@@ -18,7 +18,11 @@ class CoinGroup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CoinLogo(coin: controller.coin),
+            controller.coin == null
+                // Use the legacy blank placeholder rather than the
+                // default monetised icon placeholder
+                ? AssetLogo.placeholder(isBlank: true)
+                : AssetLogo.ofId(controller.coin!.id),
             const SizedBox(width: 9),
             CoinNameAndProtocol(controller.coin, controller.isOpened),
             const SizedBox(width: 9),

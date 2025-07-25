@@ -148,7 +148,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
           onPressed: _inProgress || !tradingEnabled ? null : _startSwap,
           text: tradingEnabled
               ? LocaleKeys.confirm.tr()
-              : LocaleKeys.tradingDisabledTooltip.tr()),
+              : LocaleKeys.tradingDisabled.tr()),
     );
   }
 
@@ -327,7 +327,9 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
           ),
         );
 
+    final int callStart = DateTime.now().millisecondsSinceEpoch;
     final TextError? error = await makerFormBloc.makeOrder();
+    final int durationMs = DateTime.now().millisecondsSinceEpoch - callStart;
 
     final tradingEntitiesBloc =
         // ignore: use_build_context_synchronously
@@ -346,6 +348,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
               toAsset: buyCoin,
               failStage: 'order_submission',
               walletType: walletType,
+              durationMs: durationMs,
             ),
           );
       setState(() => _errorMessage = error.error);
@@ -359,6 +362,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
             amount: makerFormBloc.sellAmount!.toDouble(),
             fee: 0, // Fee data not available
             walletType: walletType,
+            durationMs: durationMs,
           ),
         );
     makerFormBloc.clear();

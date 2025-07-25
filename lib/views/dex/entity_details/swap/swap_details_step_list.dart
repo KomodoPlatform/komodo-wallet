@@ -82,7 +82,8 @@ class SwapDetailsStepList extends StatelessWidget {
     final int currentEventIndex = swapStatus.events
         .indexWhere((e) => e.event.type == currentEvent.event.type);
     if (currentEventIndex == 0) {
-      return currentEvent.timestamp - swapStatus.myInfo.startedAt * 1000;
+      return currentEvent.timestamp -
+          (swapStatus.myInfo?.startedAt ?? 0) * 1000;
     }
     final SwapEventItem previousEvent =
         swapStatus.events[currentEventIndex - 1];

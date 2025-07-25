@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -34,58 +35,102 @@ class WalletCreation extends StatefulWidget {
 
 class _WalletCreationState extends State<WalletCreation> {
   final TextEditingController _nameController = TextEditingController(text: '');
-  final TextEditingController _passwordController =
-      TextEditingController(text: '');
+  final TextEditingController _passwordController = TextEditingController(
+    text: '',
+  );
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
   bool _isHdMode = true;
 
+  late final WalletsRepository _walletsRepository;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _walletsRepository = context.read<WalletsRepository>();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            widget.action == WalletsManagerAction.create
-                ? LocaleKeys.walletCreationTitle.tr()
-                : LocaleKeys.walletImportTitle.tr(),
-            style:
-                Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18),
-          ),
-          const SizedBox(height: 24),
-          _buildFields(),
-          const SizedBox(height: 22),
-          EulaTosCheckboxes(
-            key: const Key('create-wallet-eula-checks'),
-            isChecked: _eulaAndTosChecked,
-            onCheck: (isChecked) {
-              setState(() {
-                _eulaAndTosChecked = isChecked;
-              });
-            },
-          ),
-          const SizedBox(height: 32),
-          UiPrimaryButton(
-            key: const Key('confirm-password-button'),
-            height: 50,
-            text: _inProgress
-                ? '${LocaleKeys.pleaseWait.tr()}...'
-                : LocaleKeys.create.tr(),
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
+    return BlocListener<AuthBloc, AuthBlocState>(
+      listener: (context, state) {
+        if (!state.isLoading) {
+          setState(() => _inProgress = false);
+        }
+
+        if (state.isError) {
+          final theme = Theme.of(context);
+          final message =
+              state.authError?.message ?? LocaleKeys.somethingWrong.tr();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+              backgroundColor: theme.colorScheme.errorContainer,
             ),
-            onPressed: _isCreateButtonEnabled ? _onCreate : null,
-          ),
-          const SizedBox(height: 20),
-          UiUnderlineTextButton(
-            onPressed: widget.onCancel,
-            text: LocaleKeys.cancel.tr(),
-          ),
-        ],
+          );
+        }
+      },
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.action == WalletsManagerAction.create
+                  ? LocaleKeys.walletCreationTitle.tr()
+                  : LocaleKeys.walletImportTitle.tr(),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontSize: 18),
+            ),
+            const SizedBox(height: 24),
+            _buildFields(),
+            const SizedBox(height: 22),
+            EulaTosCheckboxes(
+              key: const Key('create-wallet-eula-checks'),
+              isChecked: _eulaAndTosChecked,
+              onCheck: (isChecked) {
+                setState(() {
+                  _eulaAndTosChecked = isChecked;
+                });
+              },
+            ),
+            const SizedBox(height: 32),
+            UiPrimaryButton(
+              key: const Key('confirm-password-button'),
+              height: 50,
+              text: _inProgress
+                  ? '${LocaleKeys.pleaseWait.tr()}...'
+                  : LocaleKeys.create.tr(),
+              textStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+              onPressed: _isCreateButtonEnabled ? _onCreate : null,
+            ),
+            const SizedBox(height: 20),
+            UiUnderlineTextButton(
+              onPressed: widget.onCancel,
+              text: LocaleKeys.cancel.tr(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -123,7 +168,7 @@ class _WalletCreationState extends State<WalletCreation> {
   }
 
   Widget _buildNameField() {
-    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+    final walletsRepository = _walletsRepository;
     return UiTextFormField(
       key: const Key('name-wallet-field'),
       controller: _nameController,
@@ -145,12 +190,16 @@ class _WalletCreationState extends State<WalletCreation> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.onCreate(
-        name: _nameController.text,
+        name: _nameController.text.trim(),
         password: _passwordController.text,
         walletType: _isHdMode ? WalletType.hdwallet : WalletType.iguana,
       );
     });
   }
 
-  bool get _isCreateButtonEnabled => _eulaAndTosChecked && !_inProgress;
+  bool get _isCreateButtonEnabled {
+    final nameError = _walletsRepository.validateWalletName(_nameController.text);
+    final isNameValid = nameError == null;
+    return _eulaAndTosChecked && !_inProgress && isNameValid;
+  }
 }

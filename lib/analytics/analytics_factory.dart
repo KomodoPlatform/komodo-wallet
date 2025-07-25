@@ -231,12 +231,14 @@ class AnalyticsEvents {
     required String toChain,
     required String asset,
     required double amount,
+    int? durationMs,
   }) {
     return BridgeSuccessEvent(
       fromChain: fromChain,
       toChain: toChain,
       asset: asset,
       amount: amount,
+      durationMs: durationMs,
     );
   }
 
@@ -245,11 +247,13 @@ class AnalyticsEvents {
     required String fromChain,
     required String toChain,
     required String failError,
+    int? durationMs,
   }) {
     return BridgeFailureEvent(
       fromChain: fromChain,
       toChain: toChain,
       failError: failError,
+      durationMs: durationMs,
     );
   }
 
@@ -482,6 +486,7 @@ class BridgeSuccessEvent extends AnalyticsEventData {
     required this.toChain,
     required this.asset,
     required this.amount,
+    this.durationMs,
   });
 
   @override
@@ -491,6 +496,7 @@ class BridgeSuccessEvent extends AnalyticsEventData {
   final String toChain;
   final String asset;
   final double amount;
+  final int? durationMs;
 
   @override
   JsonMap get parameters => {
@@ -498,6 +504,7 @@ class BridgeSuccessEvent extends AnalyticsEventData {
         'to_chain': toChain,
         'asset': asset,
         'amount': amount,
+        if (durationMs != null) 'duration_ms': durationMs,
       };
 }
 
@@ -506,6 +513,7 @@ class BridgeFailureEvent extends AnalyticsEventData {
     required this.fromChain,
     required this.toChain,
     required this.failError,
+    this.durationMs,
   });
 
   @override
@@ -514,12 +522,14 @@ class BridgeFailureEvent extends AnalyticsEventData {
   final String fromChain;
   final String toChain;
   final String failError;
+  final int? durationMs;
 
   @override
   JsonMap get parameters => {
         'from_chain': fromChain,
         'to_chain': toChain,
         'fail_error': failError,
+        if (durationMs != null) 'duration_ms': durationMs,
       };
 }
 

@@ -31,7 +31,12 @@ class MarketMakerBotSettingsChanged extends SettingsEvent {
 class WeakPasswordsAllowedChanged extends SettingsEvent {
   const WeakPasswordsAllowedChanged({required this.weakPasswordsAllowed});
   final bool weakPasswordsAllowed;
-  
+
   @override
   List<Object> get props => [weakPasswordsAllowed];
+}
+
+class HideZeroBalanceAssetsChanged extends SettingsEvent {
+  const HideZeroBalanceAssetsChanged({required this.hideZeroBalanceAssets});
+  final bool hideZeroBalanceAssets;
 }

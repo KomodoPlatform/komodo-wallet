@@ -4,19 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_event.dart';
+import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -24,7 +26,6 @@ import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/segwit_icon.dart';
 import 'package:web_dex/views/common/page_header/disable_coin_button.dart';
@@ -94,21 +95,32 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _coinAddressesBloc,
-      child: PageLayout(
-        header: PageHeader(
-          title: widget.coin.name,
-          widgetTitle: widget.coin.mode == CoinMode.segwit
-              ? const Padding(
-                  padding: EdgeInsets.only(left: 6.0),
-                  child: SegwitIcon(height: 22),
-                )
-              : null,
-          backText: _backText,
-          onBackButtonPressed: _onBackButtonPressed,
-          actions: [_buildDisableButton()],
-        ),
-        content: Expanded(
-          child: _buildContent(context),
+      child: BlocListener<CoinAddressesBloc, CoinAddressesState>(
+        listenWhen: (previous, current) =>
+            previous.createAddressStatus != current.createAddressStatus &&
+            current.createAddressStatus == FormStatus.success,
+        listener: (context, state) {
+          context
+              .read<CoinsBloc>()
+              .add(CoinsPubkeysRequested(widget.coin.abbr));
+        },
+        child: PageLayout(
+          padding: const EdgeInsets.fromLTRB(15, 32, 15, 20),
+          header: PageHeader(
+            title: widget.coin.name,
+            widgetTitle: widget.coin.mode == CoinMode.segwit
+                ? const Padding(
+                    padding: EdgeInsets.only(left: 6.0),
+                    child: SegwitIcon(height: 22),
+                  )
+                : null,
+            backText: _backText,
+            onBackButtonPressed: _onBackButtonPressed,
+            actions: [_buildDisableButton()],
+          ),
+          content: Expanded(
+            child: _buildContent(context),
+          ),
         ),
       ),
     );
@@ -135,10 +147,10 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
     if (_haveTransaction) return const SizedBox();
 
     return DisableCoinButton(
-      onClick: () async {
-        final coinsBloc = context.read<CoinsBloc>();
-        coinsBloc.add(CoinsDeactivated([widget.coin.abbr]));
-        widget.onBackButtonPressed();
+      onClick: () {
+        confirmBeforeDisablingCoin(widget.coin, context, onConfirm: () {
+          widget.onBackButtonPressed();
+        });
       },
     );
   }
@@ -187,7 +199,8 @@ class _DesktopContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 20.0),
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18.0),
@@ -235,13 +248,14 @@ class _DesktopCoinDetails extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8.0),
       child: Column(
         children: [
+          SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 12, 0),
-                child: CoinIcon(
-                  coin.abbr,
+                child: AssetLogo.ofId(
+                  coin.id,
                   size: 50,
                 ),
               ),
@@ -348,7 +362,7 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          CoinIcon(
+          AssetIcon.ofTicker(
             coin.abbr,
             size: 35,
           ),

@@ -74,6 +74,7 @@ class CoinsManagerFilters extends StatelessWidget {
           ? theme.custom.coinsManagerTheme.searchFieldMobileBackgroundColor
           : null,
       autocorrect: false,
+      autofocus: true,
       textInputAction: TextInputAction.none,
       enableInteractiveSelection: true,
       prefixIcon: const Icon(Icons.search, size: 18),

@@ -113,6 +113,14 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
 
   /// Initialize with retry mechanism
   Future<void> _initializeWithRetry(AnalyticsSettings settings) async {
+    // Firebase is not supported on Linux
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
+      _isInitialized = false;
+      _isEnabled = false;
+      _initCompleter.completeError(UnsupportedError);
+      return;
+    }
+
     try {
       if (kDebugMode) {
         log(
@@ -131,9 +139,19 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       await loadPersistedQueue();
 
       // Initialize Firebase
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      } on UnsupportedError {
+        _isInitialized = false;
+        _isEnabled = false;
+        if (kDebugMode) {
+          log('Firebase Analytics initializeApp failed with UnsupportedError');
+        }
+        _initCompleter.completeError(UnsupportedError);
+        return;
+      }
       _instance = FirebaseAnalytics.instance;
 
       _isInitialized = true;

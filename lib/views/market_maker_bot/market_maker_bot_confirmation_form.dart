@@ -164,7 +164,7 @@ class SwapActionButtons extends StatelessWidget {
             onPressed: !tradingEnabled ? null : onCreateOrder,
             text: tradingEnabled
                 ? LocaleKeys.confirm.tr()
-                : LocaleKeys.tradingDisabledTooltip.tr(),
+                : LocaleKeys.tradingDisabled.tr(),
           ),
         ),
       ],

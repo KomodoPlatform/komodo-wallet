@@ -37,7 +37,9 @@ class GeneralSettings extends StatelessWidget {
             child: SettingsManageTradingBot(),
           ),
         const SizedBox(height: 25),
-        const SettingsDownloadLogs(),
+        const HiddenWithoutWallet(
+          child: SettingsDownloadLogs(),
+        ),
         const SizedBox(height: 25),
         const HiddenWithWallet(
           child: SettingsResetActivatedCoins(),

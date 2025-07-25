@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:web_dex/bloc/fiat/ramp/models/ramp_asset_info.dart';
+import 'package:web_dex/bloc/fiat/ramp/ramp_api_utils.dart';
 
 /// Configuration for on/off ramp provider assets and fees
 ///
@@ -33,19 +34,24 @@ class HostAssetsConfig {
   /// Creates a new [HostAssetsConfig] instance
   HostAssetsConfig({
     required this.assets,
-    this.enabledFeatures,
     required this.currencyCode,
     required this.minPurchaseAmount,
     required this.maxPurchaseAmount,
     required this.minFeeAmount,
     required this.minFeePercent,
     required this.maxFeePercent,
+    this.enabledFeatures,
   });
 
   /// Creates a [HostAssetsConfig] from a JSON map
   ///
   /// Throws [FormatException] if required fields are missing or have invalid format
   factory HostAssetsConfig.fromJson(Map<String, dynamic> json) {
+    RampApiUtils.validateResponse<Map<String, dynamic>>(
+      json,
+      context: 'HostAssetsConfig.fromJson',
+    );
+
     // Validate required fields
     _validateRequiredField(json, 'assets');
     _validateRequiredField(json, 'currencyCode');
@@ -57,13 +63,13 @@ class HostAssetsConfig {
 
     // Validate assets is a list
     if (json['assets'] is! List) {
-      throw FormatException('Field "assets" must be a list');
+      throw const FormatException('Field "assets" must be a list');
     }
 
     return HostAssetsConfig(
       assets: (json['assets'] as List<dynamic>).map((assetJson) {
         if (assetJson is! Map<String, dynamic>) {
-          throw FormatException('Each asset must be a valid JSON object');
+          throw const FormatException('Each asset must be a valid JSON object');
         }
         return RampAssetInfo.fromJson(assetJson);
       }).toList(),
@@ -81,7 +87,9 @@ class HostAssetsConfig {
 
   /// Helper method to validate required fields in JSON
   static void _validateRequiredField(
-      Map<String, dynamic> json, String fieldName) {
+    Map<String, dynamic> json,
+    String fieldName,
+  ) {
     if (!json.containsKey(fieldName) || json[fieldName] == null) {
       throw FormatException('Required field "$fieldName" is missing or null');
     }
@@ -98,7 +106,8 @@ class HostAssetsConfig {
       return Decimal.parse(value.toString());
     } catch (e) {
       throw FormatException(
-          'Field "$fieldName" has invalid decimal format: $value');
+        'Field "$fieldName" has invalid decimal format: $value',
+      );
     }
   }
 }

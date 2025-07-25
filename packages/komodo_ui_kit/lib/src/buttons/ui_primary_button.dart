@@ -66,17 +66,23 @@ class _UiPrimaryButtonState extends State<UiPrimaryButton> {
           foregroundColor: _foregroundColor,
           padding: widget.padding,
         ),
-        child: widget.child ??
-            _ButtonContent(
-              text: widget.text,
-              textStyle: widget.textStyle,
-              prefix: widget.prefix,
-            ),
+        child: DefaultTextStyle(
+          style: _defaultTextStyle(context) ??
+              widget.textStyle ??
+              const TextStyle(),
+          child: widget.child ??
+              _ButtonContent(
+                text: widget.text,
+                textStyle: widget.textStyle,
+                prefix: widget.prefix,
+              ),
+        ),
       ),
     );
   }
 
   Color get _backgroundColor {
+    // Always use the theme's primary color for both background and text
     return widget.backgroundColor ?? Theme.of(context).colorScheme.primary;
   }
 
@@ -96,6 +102,14 @@ class _UiPrimaryButtonState extends State<UiPrimaryButton> {
   OutlinedBorder get _shape => RoundedRectangleBorder(
         borderRadius:
             BorderRadius.all(Radius.circular(widget.borderRadius ?? 18)),
+      );
+}
+
+TextStyle? _defaultTextStyle(BuildContext context) {
+  return Theme.of(context).textTheme.labelLarge?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: theme.custom.defaultGradientButtonTextColor,
       );
 }
 
@@ -119,13 +133,5 @@ class _ButtonContent extends StatelessWidget {
         Text(text, style: textStyle ?? _defaultTextStyle(context)),
       ],
     );
-  }
-
-  TextStyle? _defaultTextStyle(BuildContext context) {
-    return Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          color: theme.custom.defaultGradientButtonTextColor,
-        );
   }
 }

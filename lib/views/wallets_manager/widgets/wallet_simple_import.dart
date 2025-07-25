@@ -7,6 +7,7 @@ import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
     show MnemonicFailedReason;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -41,23 +42,21 @@ class WalletSimpleImport extends StatefulWidget {
   State<WalletSimpleImport> createState() => _WalletImportWrapperState();
 }
 
-enum WalletSimpleImportSteps {
-  nameAndSeed,
-  password,
-}
+enum WalletSimpleImportSteps { nameAndSeed, password }
 
 class _WalletImportWrapperState extends State<WalletSimpleImport> {
   WalletSimpleImportSteps _step = WalletSimpleImportSteps.nameAndSeed;
   final TextEditingController _nameController = TextEditingController(text: '');
   final TextEditingController _seedController = TextEditingController(text: '');
-  final TextEditingController _passwordController =
-      TextEditingController(text: '');
+  final TextEditingController _passwordController = TextEditingController(
+    text: '',
+  );
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isSeedHidden = true;
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
   bool _allowCustomSeed = false;
-  bool _isHdMode = true;
+  bool _isHdMode = false;
 
   bool get _isButtonEnabled {
     final isFormValid = _refreshFormValidationState();
@@ -67,50 +66,76 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SelectableText(
-          _step == WalletSimpleImportSteps.nameAndSeed
-              ? LocaleKeys.walletImportTitle.tr()
-              : LocaleKeys.walletImportCreatePasswordTitle
-                  .tr(args: [_nameController.text]),
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 20,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 20),
-        Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _buildFields(),
-              const SizedBox(height: 20),
-              UiPrimaryButton(
-                key: const Key('confirm-seed-button'),
-                text: _inProgress
-                    ? '${LocaleKeys.pleaseWait.tr()}...'
-                    : LocaleKeys.import.tr(),
-                height: 50,
-                textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+    return BlocListener<AuthBloc, AuthBlocState>(
+      listener: (context, state) {
+        if (!state.isLoading) {
+          setState(() => _inProgress = false);
+        }
+
+        if (state.isError) {
+          final theme = Theme.of(context);
+          final message =
+              state.authError?.message ?? LocaleKeys.somethingWrong.tr();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
                 ),
-                onPressed: _isButtonEnabled ? _onImport : null,
               ),
-              const SizedBox(height: 20),
-              UiUnderlineTextButton(
-                onPressed: _onCancel,
-                text: _step == WalletSimpleImportSteps.nameAndSeed
-                    ? LocaleKeys.cancel.tr()
-                    : LocaleKeys.back.tr(),
-              ),
-            ],
+              backgroundColor: theme.colorScheme.errorContainer,
+            ),
+          );
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SelectableText(
+            _step == WalletSimpleImportSteps.nameAndSeed
+                ? LocaleKeys.walletImportTitle.tr()
+                : LocaleKeys.walletImportCreatePasswordTitle.tr(
+                    args: [_nameController.text.trim()],
+                  ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontSize: 20),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+          const SizedBox(height: 20),
+          Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                _buildFields(),
+                const SizedBox(height: 20),
+                UiPrimaryButton(
+                  key: const Key('confirm-seed-button'),
+                  text: _inProgress
+                      ? '${LocaleKeys.pleaseWait.tr()}...'
+                      : LocaleKeys.import.tr(),
+                  height: 50,
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  onPressed: _isButtonEnabled ? _onImport : null,
+                ),
+                const SizedBox(height: 20),
+                UiUnderlineTextButton(
+                  onPressed: _onCancel,
+                  text: _step == WalletSimpleImportSteps.nameAndSeed
+                      ? LocaleKeys.cancel.tr()
+                      : LocaleKeys.back.tr(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -300,7 +325,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onImport(
-        name: _nameController.text,
+        name: _nameController.text.trim(),
         password: _passwordController.text,
         walletConfig: config,
       );

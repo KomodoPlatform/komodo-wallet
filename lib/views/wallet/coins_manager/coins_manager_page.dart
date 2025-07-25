@@ -40,15 +40,9 @@ class CoinsManagerPage extends StatelessWidget {
       content: Flexible(
         child: Padding(
           padding: const EdgeInsets.only(top: 20.0),
-          child: BlocConsumer<CoinsBloc, CoinsState>(
-            listenWhen: (previous, current) =>
-                previous.walletCoins != current.walletCoins,
-            listener: (context, state) => context
-                .read<CoinsManagerBloc>()
-                .add(CoinsManagerCoinsUpdate(action)),
+          child: BlocBuilder<AuthBloc, AuthBlocState>(
             builder: (context, state) {
-              final authBlocState = context.read<AuthBloc>().state;
-              if (!authBlocState.isSignedIn) {
+              if (!state.isSignedIn) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(0, 100, 0, 100),

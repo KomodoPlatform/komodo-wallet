@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
@@ -11,7 +10,6 @@ import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_state.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_select_item_widget.dart';
 
@@ -41,7 +39,7 @@ class PriceChartPage extends StatelessWidget {
                   title: Text(LocaleKeys.statistics.tr()),
                   leadingIcon: state.data.firstOrNull?.info.ticker == null
                       ? const Icon(Icons.attach_money, size: 22)
-                      : CoinIcon(
+                      : AssetIcon.ofTicker(
                           state.data.firstOrNull?.info.ticker ?? '',
                           size: 22,
                         ),
@@ -51,11 +49,7 @@ class PriceChartPage extends StatelessWidget {
                       state.data.firstOrNull?.data.lastOrNull?.usdValue ?? 0,
                     ),
                   ),
-                  availableCoins: state.availableCoins.keys
-                      .map(
-                        (e) => getSdkAsset(context.read<KomodoDefiSdk>(), e).id,
-                      )
-                      .toList(),
+                  availableCoins: state.availableCoins.keys.toList(),
                   selectedCoinId: state.data.firstOrNull?.info.ticker,
                   onCoinSelected: (coinId) {
                     context.read<PriceChartBloc>().add(

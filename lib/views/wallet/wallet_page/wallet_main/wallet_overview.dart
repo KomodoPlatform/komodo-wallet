@@ -1,3 +1,5 @@
+import 'package:app_theme/src/dark/theme_custom_dark.dart';
+import 'package:app_theme/src/light/theme_custom_light.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +7,6 @@ import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
-import 'package:web_dex/bloc/cex_market_data/price_chart/models/time_period.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
@@ -14,11 +15,19 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/views/wallet/wallet_page/wallet_main/balance_summary_widget.dart';
 
 // TODO(@takenagain): Please clean up the widget structure and bloc usage for
 // the wallet overview. It may be better to split this into a separate bloc
 // instead of the changes we've made to the existing PortfolioGrowthBloc since
 // that bloc is primarily focused on chart data.
+//
+// IMPLEMENTATION NOTES:
+// - Current Balance: Uses PortfolioGrowthBloc.totalBalance with fallback to calculated balance
+// - 24h Change: Uses PortfolioGrowthBloc.percentageChange24h and totalChange24h
+// - All-time Investment: Uses AssetOverviewBloc.totalInvestment
+// - All-time Profit: Uses AssetOverviewBloc.profitAmount and profitIncreasePercentage
+
 class WalletOverview extends StatefulWidget {
   const WalletOverview({
     super.key,
@@ -50,17 +59,20 @@ class _WalletOverviewState extends State<WalletOverview> {
         final portfolioGrowthBloc = context.watch<PortfolioGrowthBloc>();
         final portfolioGrowthState = portfolioGrowthBloc.state;
 
-        // Get total balance from the PortfolioGrowthBloc if available, otherwise calculate
-        final double totalBalance =
-            portfolioGrowthState is PortfolioGrowthChartLoadSuccess
-                ? portfolioGrowthState.totalBalance
-                : _getTotalBalance(state.walletCoins.values, context);
-
+        // Get asset overview state data
         final stateWithData = portfolioAssetsOverviewBloc.state
                 is PortfolioAssetsOverviewLoadSuccess
             ? portfolioAssetsOverviewBloc.state
                 as PortfolioAssetsOverviewLoadSuccess
             : null;
+
+        // Get total balance from the PortfolioGrowthBloc if available, otherwise calculate
+        final double totalBalance =
+            portfolioGrowthState is PortfolioGrowthChartLoadSuccess
+                ? portfolioGrowthState.totalBalance
+                : stateWithData?.totalValue.value ??
+                    _getTotalBalance(state.walletCoins.values, context);
+
         if (!_logged && stateWithData != null) {
           context.read<AnalyticsBloc>().logEvent(
                 PortfolioViewedEventData(
@@ -71,57 +83,104 @@ class _WalletOverviewState extends State<WalletOverview> {
           _logged = true;
         }
 
-        // Create the statistic cards
+        // Create the statistic cards - replace first card with BalanceSummaryWidget for mobile
         final List<Widget> statisticCards = [
-          StatisticCard(
-            key: const Key('overview-current-value'),
-            caption: Text(LocaleKeys.yourBalance.tr()),
-            value: totalBalance,
-            actionIcon: const Icon(Icons.copy),
-            onPressed: () {
-              final formattedValue =
-                  NumberFormat.currency(symbol: '\$').format(totalBalance);
-              copyToClipBoard(context, formattedValue);
-            },
-            footer: BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
+          // For mobile, use BalanceSummaryWidget; for desktop, use StatisticCard
+          if (isMobile) ...[
+            // Get 24h change data from the PortfolioGrowthBloc
+            BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
               builder: (context, state) {
-                final double totalChange =
+                final double totalChange24h =
+                    state is PortfolioGrowthChartLoadSuccess
+                        ? state.totalChange24h
+                        : 0.0;
+                final double percentageChange24h =
                     state is PortfolioGrowthChartLoadSuccess
                         ? state.percentageChange24h
                         : 0.0;
 
-                return Chip(
-                  visualDensity: const VisualDensity(vertical: -4),
-                  label: TrendPercentageText(
-                    percentage: totalChange,
-                    suffix: Text(TimePeriod.oneDay.formatted()),
-                    precision: 2,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                return BalanceSummaryWidget(
+                  totalBalance: totalBalance,
+                  changeAmount: totalChange24h,
+                  changePercentage: percentageChange24h,
+                  onTap: widget.onAssetsPressed,
+                  onLongPress: () {
+                    final formattedValue = NumberFormat.currency(symbol: '\$')
+                        .format(totalBalance);
+                    copyToClipBoard(context, formattedValue);
+                  },
                 );
               },
             ),
-          ),
+          ] else ...[
+            StatisticCard(
+              key: const Key('overview-current-value'),
+              caption: Text(LocaleKeys.yourBalance.tr()),
+              value: totalBalance,
+              onTap: widget.onAssetsPressed,
+              onLongPress: () {
+                final formattedValue =
+                    NumberFormat.currency(symbol: '\$').format(totalBalance);
+                copyToClipBoard(context, formattedValue);
+              },
+              trendWidget:
+                  BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
+                builder: (context, state) {
+                  final double totalChange =
+                      state is PortfolioGrowthChartLoadSuccess
+                          ? state.percentageChange24h
+                          : 0.0;
+                  final double totalChange24h =
+                      state is PortfolioGrowthChartLoadSuccess
+                          ? state.totalChange24h
+                          : 0.0;
+
+                  return TrendPercentageText(
+                    percentage: totalChange,
+                    upColor: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context)
+                            .extension<ThemeCustomDark>()!
+                            .increaseColor
+                        : Theme.of(context)
+                            .extension<ThemeCustomLight>()!
+                            .increaseColor,
+                    downColor: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context)
+                            .extension<ThemeCustomDark>()!
+                            .decreaseColor
+                        : Theme.of(context)
+                            .extension<ThemeCustomLight>()!
+                            .decreaseColor,
+                    value: totalChange24h,
+                    valueFormatter: NumberFormat.currency(symbol: '\$').format,
+                  );
+                },
+              ),
+            ),
+          ],
           StatisticCard(
             key: const Key('overview-all-time-investment'),
             caption: Text(LocaleKeys.allTimeInvestment.tr()),
             value: stateWithData?.totalInvestment.value ?? 0,
-            actionIcon: const Icon(CustomIcons.fiatIconCircle),
-            onPressed: widget.onPortfolioGrowthPressed,
-            footer: ActionChip(
+            onTap: widget.onPortfolioGrowthPressed,
+            onLongPress: () {
+              final formattedValue = NumberFormat.currency(symbol: '\$')
+                  .format(stateWithData?.totalInvestment.value ?? 0);
+              copyToClipBoard(context, formattedValue);
+            },
+            trendWidget: ActionChip(
               avatar: Icon(
                 Icons.pie_chart,
+                size: 16,
               ),
               onPressed: widget.onAssetsPressed,
               visualDensity: const VisualDensity(vertical: -4),
               label: Text(
                 LocaleKeys.assetNumber.plural(assetCount),
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
@@ -129,31 +188,44 @@ class _WalletOverviewState extends State<WalletOverview> {
             key: const Key('overview-all-time-profit'),
             caption: Text(LocaleKeys.allTimeProfit.tr()),
             value: stateWithData?.profitAmount.value ?? 0,
-            footer: Chip(
-              visualDensity: const VisualDensity(vertical: -4),
-              label: TrendPercentageText(
-                percentage: stateWithData?.profitIncreasePercentage ?? 0,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            actionIcon: const Icon(Icons.trending_up),
-            onPressed: widget.onPortfolioProfitLossPressed,
+            onTap: widget.onPortfolioProfitLossPressed,
+            onLongPress: () {
+              final formattedValue = NumberFormat.currency(symbol: '\$')
+                  .format(stateWithData?.profitAmount.value ?? 0);
+              copyToClipBoard(context, formattedValue);
+            },
+            trendWidget: stateWithData != null
+                ? TrendPercentageText(
+                    percentage: stateWithData.profitIncreasePercentage,
+                    upColor: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context)
+                            .extension<ThemeCustomDark>()!
+                            .increaseColor
+                        : Theme.of(context)
+                            .extension<ThemeCustomLight>()!
+                            .increaseColor,
+                    downColor: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context)
+                            .extension<ThemeCustomDark>()!
+                            .decreaseColor
+                        : Theme.of(context)
+                            .extension<ThemeCustomLight>()!
+                            .decreaseColor,
+                    // Show the total profit amount as the value
+                    value: stateWithData.profitAmount.value,
+                    valueFormatter: NumberFormat.currency(symbol: '\$').format,
+                  )
+                : const SizedBox.shrink(),
           ),
         ];
 
-        // Use carousel for mobile and wrap for desktop
-        // TODO: `Wrap` is currently redundant. Enforce a minimum width for
-        // the cards instead.
         if (isMobile) {
           return StatisticsCarousel(cards: statisticCards);
         } else {
-          return Wrap(
-            runSpacing: 16,
+          return Row(
+            spacing: 24,
             children: statisticCards.map((card) {
-              return FractionallySizedBox(
-                widthFactor: 1 / 3,
+              return Expanded(
                 child: card,
               );
             }).toList(),
@@ -228,6 +300,7 @@ class _StatisticsCarouselState extends State<StatisticsCarousel> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
           height: 160,

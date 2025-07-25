@@ -15,14 +15,14 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.9.1+1
+version: 0.9.2+0
 
 environment:
   # TODO: Upgrade mininum Dart version to 3.7.0 only after the release is concluded because
   # the new formatting style may cause conflicts. This allows to run 3.7.0, but it will not
   # enforce the new formatting style until the mininum Dart version is updated.
   sdk: ">=3.6.0 <4.0.0"
-  flutter: ^3.29.2
+  flutter: ^3.32.5
 
 dependencies:
   ## ---- Flutter SDK
@@ -162,6 +162,7 @@ dependencies:
       ref: dev
   feedback: ^3.1.0
   ntp: ^2.0.0
+  flutter_window_close: ^1.2.0
 
 dev_dependencies:
   integration_test: # SDK

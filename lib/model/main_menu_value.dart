@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 enum MainMenuValue {
@@ -13,7 +12,7 @@ enum MainMenuValue {
   support,
   none;
 
-  static MainMenuValue defaultMenu() => MainMenuValue.dex;
+  static MainMenuValue defaultMenu() => MainMenuValue.wallet;
 
   bool isEnabledInCurrentMode({required bool tradingEnabled}) {
     return tradingEnabled || !isDisabledWhenWalletOnly;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
 
@@ -68,15 +69,15 @@ class CopiedText extends StatelessWidget {
                             ),
                           ),
                         )
-                      : Text(
-                          copiedValue,
-                          maxLines: maxLines,
-                          softWrap: softWrap,
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontWeight: fontWeight,
-                            color: fontColor,
-                            height: height,
+                      : Flexible(
+                          child: AutoScrollText(
+                            text: copiedValue,
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              fontWeight: fontWeight,
+                              color: fontColor,
+                              height: height,
+                            ),
                           ),
                         ),
                 ),
@@ -162,10 +163,8 @@ class CopiedTextV2 extends StatelessWidget {
                               color: textColor ?? const Color(0xFFADAFC4)),
                         ),
                       )
-                    : Text(
-                        copiedValue,
-                        maxLines: maxLines,
-                        softWrap: softWrap,
+                    : AutoScrollText(
+                        text: copiedValue,
                         style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: FontWeight.w700,

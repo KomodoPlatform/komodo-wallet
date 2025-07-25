@@ -30,7 +30,7 @@ class AddMarketMakerBotTradeButton extends StatelessWidget {
             key: const Key('make-order-button'),
             text: tradingEnabled
                 ? LocaleKeys.makeOrder.tr()
-                : LocaleKeys.tradingDisabledTooltip.tr(),
+                : LocaleKeys.tradingDisabled.tr(),
             onPressed: !enabled || !tradingEnabled ? null : () => onPressed(),
             height: 40,
           ),

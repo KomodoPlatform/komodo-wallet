@@ -62,6 +62,7 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
                 UiTextFormField(
                   key: const Key('confirmation-showing-seed-phrase'),
                   controller: _passwordController,
+                  autofocus: true,
                   autocorrect: false,
                   obscureText: _isObscured,
                   inputFormatters: [LengthLimitingTextInputFormatter(40)],

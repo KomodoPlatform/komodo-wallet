@@ -172,8 +172,8 @@ class _InProgressListState extends State<InProgressList> {
 
   List<Swap> _sortByDate(List<Swap> swaps) {
     swaps.sort((first, second) => sortByDouble(
-          first.myInfo.startedAt.toDouble(),
-          second.myInfo.startedAt.toDouble(),
+          first.myInfo?.startedAt.toDouble() ?? 0,
+          second.myInfo?.startedAt.toDouble() ?? 0,
           _sortData.sortDirection,
         ));
     return swaps;

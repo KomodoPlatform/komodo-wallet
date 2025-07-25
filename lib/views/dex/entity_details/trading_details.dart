@@ -130,6 +130,11 @@ class _TradingDetailsState extends State<TradingDetails> {
       final walletType = authBloc.state.currentUser?.wallet.config.type.name;
       final fromAsset = swapStatus.sellCoin;
       final toAsset = swapStatus.buyCoin;
+      final int? durationMs =
+          swapStatus.events.isNotEmpty && swapStatus.myInfo != null
+              ? swapStatus.events.last.timestamp -
+                  swapStatus.myInfo!.startedAt * 1000
+              : null;
       if (swapStatus.isSuccessful && !_loggedSuccess) {
         _loggedSuccess = true;
         // Find trade fee from events
@@ -153,6 +158,7 @@ class _TradingDetailsState extends State<TradingDetails> {
                 amount: swapStatus.sellAmount.toDouble(),
                 fee: fee,
                 walletType: walletType ?? 'unknown',
+                durationMs: durationMs,
               ),
             );
 
@@ -162,11 +168,12 @@ class _TradingDetailsState extends State<TradingDetails> {
               coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
           final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
           context.read<AnalyticsBloc>().logEvent(
-                BridgeSuccessEvent(
+                AnalyticsEvents.bridgeSuccess(
                   fromChain: fromChain,
                   toChain: toChain,
                   asset: fromAsset,
                   amount: swapStatus.sellAmount.toDouble(),
+                  durationMs: durationMs,
                 ),
               );
         }
@@ -178,6 +185,7 @@ class _TradingDetailsState extends State<TradingDetails> {
                 toAsset: toAsset,
                 failStage: swapStatus.status.name,
                 walletType: walletType ?? 'unknown',
+                durationMs: durationMs,
               ),
             );
 
@@ -187,10 +195,11 @@ class _TradingDetailsState extends State<TradingDetails> {
               coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
           final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
           context.read<AnalyticsBloc>().logEvent(
-                BridgeFailureEvent(
+                AnalyticsEvents.bridgeFailure(
                   fromChain: fromChain,
                   toChain: toChain,
                   failError: swapStatus.status.name,
+                  durationMs: durationMs,
                 ),
               );
         }

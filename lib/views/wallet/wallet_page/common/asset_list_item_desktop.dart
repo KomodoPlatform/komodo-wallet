@@ -4,6 +4,8 @@ import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item_size.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
+import 'package:app_theme/src/dark/theme_custom_dark.dart';
+import 'package:app_theme/src/light/theme_custom_light.dart';
 
 /// A widget that displays an asset in a list item format optimized for desktop devices.
 ///
@@ -14,12 +16,14 @@ class AssetListItemDesktop extends StatelessWidget {
     required this.assetId,
     required this.backgroundColor,
     required this.onTap,
+    this.onStatisticsTap,
     this.priceChangePercentage24h,
   });
 
   final AssetId assetId;
   final Color backgroundColor;
   final void Function(AssetId) onTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
 
   /// The 24-hour price change percentage for the asset
   final double? priceChangePercentage24h;
@@ -54,21 +58,47 @@ class AssetListItemDesktop extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Spacer(),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: TrendPercentageText(
-                      percentage: priceChangePercentage24h ?? 0,
-                      showIcon: true,
-                      iconSize: 16,
-                      precision: 2,
+                    child: InkWell(
+                      onTap: () => onStatisticsTap?.call(
+                        assetId,
+                        const Duration(days: 1),
+                      ),
+                      child: TrendPercentageText(
+                        percentage: 23,
+                        upColor: Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(context)
+                                .extension<ThemeCustomDark>()!
+                                .increaseColor
+                            : Theme.of(context)
+                                .extension<ThemeCustomLight>()!
+                                .increaseColor,
+                        downColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? Theme.of(context)
+                                    .extension<ThemeCustomDark>()!
+                                    .decreaseColor
+                                : Theme.of(context)
+                                    .extension<ThemeCustomLight>()!
+                                    .decreaseColor,
+                        value: 50,
+                        valueFormatter: (value) =>
+                            NumberFormat.currency(symbol: '\$').format(value),
+                      ),
                     ),
                   ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: CoinSparkline(coinId: assetId.id),
+                  child: InkWell(
+                    onTap: () => onStatisticsTap?.call(
+                      assetId,
+                      const Duration(days: 7),
+                    ),
+                    child: CoinSparkline(coinId: assetId.id),
+                  ),
                 ),
               ],
             ),

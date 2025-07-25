@@ -19,12 +19,14 @@ class WalletLogIn extends StatefulWidget {
     required this.wallet,
     required this.onLogin,
     required this.onCancel,
+    this.initialHdMode = false,
     super.key,
   });
 
   final Wallet wallet;
   final void Function(String, Wallet) onLogin;
   final void Function() onCancel;
+  final bool initialHdMode;
 
   @override
   State<WalletLogIn> createState() => _WalletLogInState();
@@ -33,12 +35,13 @@ class WalletLogIn extends StatefulWidget {
 class _WalletLogInState extends State<WalletLogIn> {
   final _backKeyButton = GlobalKey();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isHdMode = true;
+  late bool _isHdMode;
   KdfUser? _user;
 
   @override
   void initState() {
     super.initState();
+    _isHdMode = widget.initialHdMode;
     unawaited(_fetchKdfUser());
   }
 
@@ -51,6 +54,7 @@ class _WalletLogInState extends State<WalletLogIn> {
     if (user != null) {
       setState(() {
         _user = user;
+        _isHdMode = user.wallet.config.type == WalletType.hdwallet;
       });
     }
   }
@@ -175,6 +179,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
       children: [
         UiTextFormField(
           key: const Key('create-password-field'),
+          autofocus: true,
           textInputAction: TextInputAction.next,
           autocorrect: false,
           controller: widget.controller,

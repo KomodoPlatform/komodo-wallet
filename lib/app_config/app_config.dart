@@ -11,6 +11,7 @@ const double appBarHeight = 70;
 const int scaleOnInfinitePrecision = 20; // ETH has 18 decimals, so use more
 const String allWalletsStorageKey = 'all-wallets';
 const String defaultDexCoin = 'KMD';
+const String trezorWalletNamePrefix = 'my trezor';
 const List<Locale> localeList = [Locale('en')];
 const String assetsPath = 'assets';
 const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
@@ -41,21 +42,52 @@ String get appTitle => 'Komodo Wallet | Non-Custodial Multi-Coin Wallet & DEX';
 String get appShortTitle => 'Komodo Wallet';
 
 Map<String, int> priorityCoinsAbbrMap = {
-  'KMD': 30,
-  'BTC-segwit': 20,
-  'ETH': 20,
-  'LTC-segwit': 20,
-  'USDT-ERC20': 20,
-  'BNB': 11,
-  'ETC': 11,
-  'DOGE': 11,
-  'DASH': 11,
-  'MATIC': 10,
-  'FTM': 10,
-  'ARB': 10,
-  'AVAX': 10,
-  'HT': 10,
-  'MOVR': 10,
+  // KMD always has highest priority (special case for Komodo ecosystem)
+  'KMD': 1000,
+
+  // Top 10 cryptocurrencies by market cap (as of current data)
+  // Rank 1: Bitcoin (~$2.21 trillion)
+  'BTC': 100,
+  'BTC-segwit': 100,
+
+  // Rank 2: Ethereum (~$335 billion)
+  'ETH': 90,
+
+  // Rank 3: Tether (~$159 billion)
+  'USDT': 80,
+  'USDT-ERC20': 80,
+  'USDT-PLG20': 80,
+  'USDT-BEP20': 80,
+
+  // Rank 4: XRP (~$145 billion)
+  'XRP': 70,
+
+  // Rank 5: BNB (~$93 billion)
+  'BNB': 60,
+
+  // Rank 6: Solana (~$84 billion)
+  'SOL': 50,
+
+  // Rank 7: USD Coin (~$63 billion)
+  'USDC': 40,
+  'USDC-ERC20': 40,
+  'USDC-PLG20': 40,
+  'USDC-BEP20': 40,
+
+  // Rank 8: TRON (~$27.5 billion)
+  'TRX': 30,
+
+  // Rank 9: Dogecoin (~$27.1 billion)
+  'DOGE': 20,
+
+  // Rank 10: Cardano (~$22.3 billion)
+  'ADA': 10,
+
+  // Additional coins with higher than default priority
+  'LTC-segwit': 5, // Litecoin (popular)
+  'LTC': 5,
+
+  // All other coins get default priority (0)
 };
 
 /// List of coins that are excluded from the list of coins displayed on the
@@ -91,15 +123,6 @@ const Set<String> excludedAssetList = {
   'NFT_FTM',
   'NFT_MATIC',
 };
-
-const List<String> excludedAssetListTrezor = [
-  // https://github.com/KomodoPlatform/atomicDEX-API/issues/1510
-  'BCH',
-  // https://github.com/KomodoPlatform/coins/pull/619/files
-  // Can't use modified config directly, since it includes features,
-  // not implemented on webdex side yet (e.g. 0.4.2 doesn't have segwit)
-  'VAL',
-];
 
 /// Some coins returned by the Banxa API are returning errors when attempting
 /// to create an order. This is a temporary workaround to filter out those coins
@@ -138,22 +161,16 @@ const List<String> appWalletOnlyAssetList = [
 /// Coins that are enabled by default on restore from seed or registration.
 /// This will not affect existing wallets.
 List<String> get enabledByDefaultCoins => [
-      'BTC-segwit',
-      'KMD',
-      'LTC-segwit',
-      'ETH',
-      'MATIC',
-      'BNB',
-      'AVAX',
-      'FTM',
+      'KMD', // Always included (Komodo ecosystem)
+      'BTC-segwit', // Bitcoin (Rank 1, ~$2.21T market cap)
+      'ETH', // Ethereum (Rank 2, ~$335B market cap)
+      'BNB', // Binance Coin (Rank 5, ~$93B market cap)
+      'DOGE', // Dogecoin (Rank 9, ~$27.1B market cap)
+      'LTC-segwit', // Litecoin (popular, has segwit support)
+      'USDT-ERC20', // Tether on Ethereum (most common stablecoin)
+      'XRP-ERC20', // XRP (Rank 4, ~$145B market cap)
       if (kDebugMode) 'DOC',
       if (kDebugMode) 'MARTY',
-    ];
-
-List<String> get enabledByDefaultTrezorCoins => [
-      'BTC',
-      'KMD',
-      'LTC',
     ];
 
 List<String> get coinsWithFaucet => ['RICK', 'MORTY', 'DOC', 'MARTY'];

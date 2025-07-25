@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallets_manager_models.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class WalletsManagerControls extends StatelessWidget {
   const WalletsManagerControls({
@@ -30,7 +30,6 @@ class WalletsManagerControls extends StatelessWidget {
     return UiPrimaryButton(
       key: const Key('create-wallet-button'),
       height: 50,
-      backgroundColor: Theme.of(context).colorScheme.onSurface,
       child: Row(
         children: [
           Icon(
@@ -57,7 +56,7 @@ class WalletsManagerControls extends StatelessWidget {
   Widget _buildImportButton(BuildContext context) => UiPrimaryButton(
         key: const Key('import-wallet-button'),
         height: 50,
-        backgroundColor: Theme.of(context).colorScheme.onSurface,
+        backgroundColor: Theme.of(context).cardColor,
         onPressed: () => onTap(WalletsManagerAction.import),
         child: Row(
           children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 class CustomFiatInputField extends StatelessWidget {
   const CustomFiatInputField({
@@ -66,7 +67,10 @@ class CustomFiatInputField extends StatelessWidget {
           decoration: inputDecoration,
           readOnly: readOnly,
           onChanged: onTextChanged,
-          inputFormatters: [FilteringTextInputFormatter.allow(numberRegExp)],
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(numberRegExp),
+            DecimalTextInputFormatter(decimalRange: 2),
+          ],
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
         ),
         Positioned(

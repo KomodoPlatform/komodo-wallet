@@ -14,38 +14,34 @@ class ActionTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(4),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(8.5),
-            child: Row(
-              children: <Widget>[
-                Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).textTheme.labelLarge?.color,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Text(
-                    secondaryText,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Theme.of(context).textTheme.labelLarge?.color,
-                    ),
-                  ),
-                ),
-              ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(8.5),
+        child: Row(
+          children: <Widget>[
+            Text(
+              text,
+              style:
+                  // fontSize: 14,
+                  // color:
+                  Theme.of(context).textTheme.bodyLarge!,
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text(
+                secondaryText,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: Theme.of(context).textTheme.labelLarge?.color,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

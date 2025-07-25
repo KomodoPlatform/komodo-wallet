@@ -7,11 +7,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/model/wallet.dart';
 
 class CoinsManagerFiltersDropdown extends StatefulWidget {
@@ -149,8 +149,8 @@ class _Dropdown extends StatelessWidget {
                 .firstWhereOrNull((coin) => coin.type == type) !=
             null;
       case WalletType.trezor:
-        return coinsBloc.state.coins.values.firstWhereOrNull(
-                (coin) => coin.type == type && coin.hasTrezorSupport) !=
+        return coinsBloc.state.coins.values
+                .firstWhereOrNull((coin) => coin.type == type) !=
             null;
       case WalletType.metamask:
       case WalletType.keplr:
@@ -208,7 +208,7 @@ class _DropdownItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                getCoinTypeNameLong(type),
+                type.toCoinSubClass().formatted,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

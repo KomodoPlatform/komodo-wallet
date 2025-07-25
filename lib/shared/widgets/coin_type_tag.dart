@@ -70,10 +70,10 @@ class CoinTypeTag extends StatelessWidget {
         return 'UBIQ';
       case CoinType.krc20:
         return 'KRC20';
-      case CoinType.cosmos:
-        return 'Cosmos';
-      case CoinType.iris:
-        return 'Iris';
+      case CoinType.tendermintToken:
+        return 'TENDERMINTTOKEN';
+      case CoinType.tendermint:
+        return 'TENDERMINT';
       case CoinType.slp:
         return 'SLP';
     }

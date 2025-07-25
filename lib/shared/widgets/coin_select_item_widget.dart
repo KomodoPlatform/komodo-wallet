@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:app_theme/src/dark/theme_custom_dark.dart';
+import 'package:app_theme/src/light/theme_custom_light.dart';
 
 /// A widget that displays a coin item with the same parameters as
 /// CoinSelectItem. This will be removed in the future. Migrate to the Asset
@@ -51,7 +53,19 @@ class CoinSelectItemWidget extends StatelessWidget {
         name: id.name,
         coinId: id.id,
         trailing: trendPercentage != null
-            ? TrendPercentageText(percentage: trendPercentage)
+            ? Builder(
+                builder: (context) {
+                  final themeCustom =
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Theme.of(context).extension<ThemeCustomDark>()!
+                          : Theme.of(context).extension<ThemeCustomLight>()!;
+                  return TrendPercentageText(
+                    percentage: trendPercentage,
+                    upColor: themeCustom.increaseColor,
+                    downColor: themeCustom.decreaseColor,
+                  );
+                },
+              )
             : null,
       ),
     );
@@ -73,7 +87,7 @@ class CoinSelectItemWidget extends StatelessWidget {
           else
             Padding(
               padding: const EdgeInsets.only(right: 12),
-              child: AssetIcon.ofTicker(coinId),
+              child: AssetLogo.ofTicker(coinId, size: 20),
             ),
           Expanded(
             child: DefaultTextStyle(
