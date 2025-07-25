@@ -179,7 +179,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     _updateBalancesTimer?.cancel();
-    await _enabledCoinsSubscription?.cancel();
   }
 
   Future<void> _onCoinsBalanceMonitoringStarted(
@@ -338,14 +337,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     add(CoinsBalanceMonitoringStopped());
 
-    final List<Coin> coins = [...state.walletCoins.values];
     emit(
       state.copyWith(
         walletCoins: {},
-        coins: {
-          ...state.coins,
-          ...coins.toMap(),
-        },
       ),
     );
     _coinsRepo.flushCache();

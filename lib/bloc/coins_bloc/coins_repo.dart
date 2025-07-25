@@ -286,14 +286,12 @@ class CoinsRepo {
     // This ensures that the wallet metadata is updated even if activation fails.
     await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
 
-    final activatedAssetIds = <String>{};
     Exception? lastActivationException;
 
     for (final asset in assets) {
       final coin = asset.toCoin();
       try {
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
-        activatedAssetIds.add(asset.id.id);
 
         // Use retry with exponential backoff for activation
         await retry<void>(
