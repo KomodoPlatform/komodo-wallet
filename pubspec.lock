@@ -655,8 +655,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_cex_market_data"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -664,8 +664,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coin_updates"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "1.0.0"
@@ -673,8 +673,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coins"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -682,8 +682,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_framework"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0"
@@ -691,8 +691,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_local_auth"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -700,8 +700,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -709,8 +709,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_sdk"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -718,8 +718,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -734,8 +734,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -750,8 +750,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_wallet_build_transformer"
-      ref: dev
-      resolved-ref: "7eefbd875b181b19edb1ea20bc0962ebc2c3e9bc"
+      ref: "add/hd-privkey-export"
+      resolved-ref: ec555463c774390fae1caf1bd282b3126acbad5c
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
