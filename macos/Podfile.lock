@@ -1,4 +1,6 @@
 PODS:
+  - device_info_plus (0.0.1):
+    - FlutterMacOS
   - file_picker (0.0.1):
     - FlutterMacOS
   - Firebase/Analytics (11.10.0):
@@ -8,11 +10,11 @@ PODS:
     - FirebaseAnalytics (~> 11.10.0)
   - Firebase/CoreOnly (11.10.0):
     - FirebaseCore (~> 11.10.0)
-  - firebase_analytics (11.4.5):
+  - firebase_analytics (11.4.6):
     - Firebase/Analytics (= 11.10.0)
     - firebase_core
     - FlutterMacOS
-  - firebase_core (3.13.0):
+  - firebase_core (3.13.1):
     - Firebase/CoreOnly (~> 11.10.0)
     - FlutterMacOS
   - FirebaseAnalytics (11.10.0):
@@ -134,6 +136,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - file_picker (from `Flutter/ephemeral/.symlinks/plugins/file_picker/macos`)
   - firebase_analytics (from `Flutter/ephemeral/.symlinks/plugins/firebase_analytics/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
@@ -166,6 +169,8 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
+  device_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   file_picker:
     :path: Flutter/ephemeral/.symlinks/plugins/file_picker/macos
   firebase_analytics:
@@ -202,10 +207,11 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
+  device_info_plus: 4fb280989f669696856f8b129e4a5e3cd6c48f76
   file_picker: 7584aae6fa07a041af2b36a2655122d42f578c1a
   Firebase: 1fe1c0a7d9aaea32efe01fbea5f0ebd8d70e53a2
-  firebase_analytics: 5f4b20b5f700bcae2f800c69a63e79d937d0daa9
-  firebase_core: efd50ad8177dc489af1b9163a560359cf1b30597
+  firebase_analytics: 9c385b27f78527a625e2b03152449538f4f5ebb2
+  firebase_core: 25e649fdb52de4f20314f9e54b914e7298875acc
   FirebaseAnalytics: 4e42333f02cf78ed93703a5c36f36dd518aebdef
   FirebaseCore: 8344daef5e2661eb004b177488d6f9f0f24251b7
   FirebaseCoreInternal: ef4505d2afb1d0ebbc33162cb3795382904b5679
