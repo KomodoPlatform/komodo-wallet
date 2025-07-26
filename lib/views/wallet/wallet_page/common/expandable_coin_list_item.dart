@@ -28,6 +28,7 @@ class ExpandableCoinListItem extends StatefulWidget {
   final bool isSelected;
   final Color? backgroundColor;
   final VoidCallback? onTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
 
   const ExpandableCoinListItem({
     super.key,
@@ -36,6 +37,7 @@ class ExpandableCoinListItem extends StatefulWidget {
     required this.isSelected,
     this.onTap,
     this.backgroundColor,
+    this.onStatisticsTap,
   });
 
   @override
@@ -180,7 +182,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
                       Theme.of(context).brightness == Brightness.dark
                           ? Theme.of(context).extension<ThemeCustomDark>()!
                           : Theme.of(context).extension<ThemeCustomLight>()!;
-                  return TrendPercentageText(
+                  final trendWidget = TrendPercentageText(
                     percentage: change24hPercent ?? 0.0,
                     upColor: themeCustom.increaseColor,
                     downColor: themeCustom.decreaseColor,
@@ -190,6 +192,16 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
                     iconSize: 12,
                     spacing: 2,
                     textStyle: theme.textTheme.bodySmall,
+                  );
+
+                  return InkWell(
+                    onTap: widget.onStatisticsTap == null
+                        ? null
+                        : () => widget.onStatisticsTap!(
+                              widget.coin.id,
+                              const Duration(days: 1),
+                            ),
+                    child: trendWidget,
                   );
                 },
               ),
@@ -231,13 +243,23 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
                   Theme.of(context).brightness == Brightness.dark
                       ? Theme.of(context).extension<ThemeCustomDark>()!
                       : Theme.of(context).extension<ThemeCustomLight>()!;
-              return TrendPercentageText(
+              final trendWidget = TrendPercentageText(
                 percentage: change24hPercent,
                 upColor: themeCustom.increaseColor,
                 downColor: themeCustom.decreaseColor,
                 value: change24hValue,
                 valueFormatter: (value) =>
                     NumberFormat.currency(symbol: '\$').format(value),
+              );
+
+              return InkWell(
+                onTap: widget.onStatisticsTap == null
+                    ? null
+                    : () => widget.onStatisticsTap!(
+                          widget.coin.id,
+                          const Duration(days: 1),
+                        ),
+                child: trendWidget,
               );
             },
           ),

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -67,11 +68,24 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 
   AssetId get _primaryAsset => widget.assets.first;
 
+  /// Returns the UTXO asset in [widget.assets] if present, otherwise the first
+  /// asset in the list. Used when handling statistic taps so that the charts
+  /// open for the UTXO variant of the asset when available.
+  AssetId get _statisticsAsset => widget.assets.firstWhere(
+        (asset) => asset.subClass == CoinSubClass.utxo,
+        orElse: () => widget.assets.first,
+      );
+
   @override
   Widget build(BuildContext context) {
     // TODO: Refactor to reduce unnecessary bloc references and rebuilds.
     final price =
         context.watch<CoinsBloc>().state.getPriceForAsset(_primaryAsset);
+    final historySupported = context.select<PriceChartBloc, bool>((bloc) {
+      final ticker = _statisticsAsset.symbol.configSymbol;
+      return bloc.state.availableCoins.keys
+          .any((asset) => asset.symbol.configSymbol == ticker);
+    });
     final priceFormatter = NumberFormat.currency(
       symbol: '\$',
       decimalDigits: 2,
@@ -140,10 +154,12 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                               : Tooltip(
                                   message: LocaleKeys.change24h.tr(),
                                   child: InkWell(
-                                    onTap: () => widget.onStatisticsTap?.call(
-                                      _primaryAsset,
-                                      const Duration(days: 1),
-                                    ),
+                                    onTap: historySupported
+                                        ? () => widget.onStatisticsTap?.call(
+                                              _statisticsAsset,
+                                              const Duration(days: 1),
+                                            )
+                                        : null,
                                     child: TrendPercentageText(
                                       percentage: change24hPercent,
                                       upColor: Theme.of(context).brightness ==
@@ -183,10 +199,12 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                           maxHeight: 35,
                         ),
                         child: InkWell(
-                          onTap: () => widget.onStatisticsTap?.call(
-                            _primaryAsset,
-                            const Duration(days: 7),
-                          ),
+                          onTap: historySupported
+                              ? () => widget.onStatisticsTap?.call(
+                                    _statisticsAsset,
+                                    const Duration(days: 7),
+                                  )
+                              : null,
                           child: CoinSparkline(coinId: _primaryAsset.id),
                         ),
                       ),
