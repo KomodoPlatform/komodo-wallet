@@ -414,12 +414,14 @@ class WithdrawFormFillSection extends StatelessWidget {
               ],
             ],
             const SizedBox(height: 16),
+            if (state.asset.protocol is TendermintProtocol || state.asset.protocol is ZhtlcProtocol) ...[
             WithdrawMemoField(
               memo: state.memo,
               onChanged: (value) => context
-                  .read<WithdrawFormBloc>()
-                  .add(WithdrawFormMemoChanged(value)),
-            ),
+                    .read<WithdrawFormBloc>()
+                    .add(WithdrawFormMemoChanged(value)),
+              ),
+            ],
             const SizedBox(height: 24),
             // TODO! Refactor to use Formz and replace with the appropriate
             // error state value.

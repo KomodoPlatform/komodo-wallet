@@ -289,6 +289,8 @@ class UtxoFeeFields extends StatelessWidget {
 }
 
 /// Field for entering transaction memo
+/// TODO: This component appears to have been replaced by WithdrawMemoField
+/// TODO: Remove this component once confirmed unused
 class MemoField extends StatelessWidget {
   const MemoField({super.key});
 
