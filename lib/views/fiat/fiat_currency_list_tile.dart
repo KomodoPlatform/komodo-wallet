@@ -21,7 +21,9 @@ class FiatCurrencyListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final coinType = currency.isCrypto
-        ? getCoinTypeName((currency as CryptoCurrency).chainType)
+        ? getCoinTypeName(
+            (currency as CryptoCurrency).chainType,
+            (currency as CryptoCurrency).symbol)
         : '';
 
     return ListTile(

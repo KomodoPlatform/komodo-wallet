@@ -34,36 +34,36 @@ class FiatSelectButton extends StatelessWidget {
       label: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (isFiat)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                (isFiat ? currency?.getAbbr() : currency?.name) ??
+                    (isFiat
+                        ? LocaleKeys.selectFiat.tr()
+                        : LocaleKeys.selectCoin.tr()),
+                style: DefaultTextStyle.of(context).style.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: enabled
+                          ? foregroundColor
+                          : foregroundColor.withValues(alpha: 0.5),
+                    ),
+              ),
+              if (!isFiat && currency != null)
                 Text(
-                  (isFiat ? currency?.getAbbr() : currency?.name) ??
-                      (isFiat
-                          ? LocaleKeys.selectFiat.tr()
-                          : LocaleKeys.selectCoin.tr()),
+                  (currency! as CryptoCurrency).isCrypto
+                      ? getCoinTypeName(
+                          (currency! as CryptoCurrency).chainType,
+                          (currency! as CryptoCurrency).symbol)
+                      : '',
                   style: DefaultTextStyle.of(context).style.copyWith(
-                        fontWeight: FontWeight.w500,
                         color: enabled
-                            ? foregroundColor
-                            : foregroundColor.withValues(alpha: 0.5),
+                            ? foregroundColor.withValues(alpha: 0.5)
+                            : foregroundColor.withValues(alpha: 0.25),
                       ),
                 ),
-                if (!isFiat && currency != null)
-                  Text(
-                    (currency! as CryptoCurrency).isCrypto
-                        ? getCoinTypeName(
-                            (currency! as CryptoCurrency).chainType)
-                        : '',
-                    style: DefaultTextStyle.of(context).style.copyWith(
-                          color: enabled
-                              ? foregroundColor.withValues(alpha: 0.5)
-                              : foregroundColor.withValues(alpha: 0.25),
-                        ),
-                  ),
-              ],
-            ),
+            ],
+          ),
           const SizedBox(width: 4),
           Icon(
             Icons.keyboard_arrow_down,

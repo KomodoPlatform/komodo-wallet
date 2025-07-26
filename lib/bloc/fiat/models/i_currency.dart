@@ -143,12 +143,12 @@ class CryptoCurrency extends ICurrency {
       return symbol;
     }
 
-    return '$symbol-${getCoinTypeName(chainType).replaceAll('-', '')}';
+    return '$symbol-${getCoinTypeName(chainType, symbol).replaceAll('-', '')}';
   }
 
   @override
   String formatNameShort() {
-    final coinType = ' (${getCoinTypeName(chainType)})';
+    final coinType = ' (${getCoinTypeName(chainType, symbol)})';
     return '$name$coinType';
   }
 

@@ -73,6 +73,10 @@ class Coin extends Equatable {
   final CoinMode mode;
   final CoinState state;
 
+  // Cache for expensive computed properties
+  String? _cachedTypeName;
+  bool? _cachedisParent;
+
   bool get walletOnly => _walletOnly || appWalletOnlyAssetList.contains(abbr);
 
   String? get swapContractAddress =>
@@ -86,7 +90,14 @@ class Coin extends Equatable {
       '$_urgentDeprecationNotice Use the SDK\'s Asset.sendableBalance instead. This value is not updated after initial load and may be inaccurate.')
   double sendableBalance = 0;
 
-  String get typeName => getCoinTypeName(type);
+  String get typeName {
+    return _cachedTypeName ??= getCoinTypeName(type, abbr);
+  }
+  
+  bool get isParent {
+    return _cachedisParent ??= isParentCoin(type, abbr);
+  }
+  
   String get typeNameWithTestnet => typeName + (isTestCoin ? ' (TESTNET)' : '');
 
   bool get isIrisToken => protocolType == 'TENDERMINTTOKEN';
