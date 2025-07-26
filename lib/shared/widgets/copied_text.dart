@@ -36,7 +36,7 @@ class CopiedText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final softWrap = (maxLines ?? 0) > 1;
-    final String? showingText = text;
+    final String showingText = text ?? copiedValue;
     final Color? background =
         backgroundColor ?? Theme.of(context).inputDecorationTheme.fillColor;
 
@@ -54,48 +54,40 @@ class CopiedText extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (isCopiedValueShown) ...[
-                Container(
-                  key: const Key('coin-details-address-field'),
-                  child: isTruncated
-                      ? Flexible(
-                          child: TruncatedMiddleText(
-                            copiedValue,
-                            style: TextStyle(
-                              fontSize: fontSize,
-                              fontWeight: fontWeight,
-                              color: fontColor,
-                              height: height,
-                            ),
-                          ),
-                        )
-                      : Flexible(
-                          child: AutoScrollText(
-                            text: copiedValue,
-                            style: TextStyle(
-                              fontSize: fontSize,
-                              fontWeight: fontWeight,
-                              color: fontColor,
-                              height: height,
-                            ),
-                          ),
+              Container(
+                key: const Key('coin-details-address-field'),
+                child: isTruncated
+                  ? Flexible(
+                      child: TruncatedMiddleText(
+                        showingText,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: fontWeight,
+                          color: fontColor,
+                          height: height,
                         ),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-              ],
+                      ),
+                    )
+                  : Flexible(
+                      child: AutoScrollText(
+                        text: showingText,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: fontWeight,
+                          color: fontColor,
+                          height: height,
+                        ),
+                      ),
+                    ),
+              ),
+              const SizedBox(
+                width: 16,
+              ),
               Icon(
                 Icons.copy_rounded,
                 color: Theme.of(context).textTheme.labelLarge?.color,
                 size: iconSize,
               ),
-              if (showingText != null) ...[
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(showingText),
-              ]
             ],
           ),
         ),
