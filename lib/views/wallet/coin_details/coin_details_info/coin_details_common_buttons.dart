@@ -410,7 +410,7 @@ class CoinDetailsSwapButton extends StatelessWidget {
       textStyle: themeData.textTheme.labelLarge
           ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
       backgroundColor: themeData.colorScheme.tertiary,
-      text: LocaleKeys.swapCoin.tr(),
+      text: LocaleKeys.swap.tr(),
       prefix: Padding(
         padding: const EdgeInsets.only(right: 10),
         child: SvgPicture.asset(

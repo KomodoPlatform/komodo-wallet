@@ -7,6 +7,7 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -213,12 +214,24 @@ class AddressBalanceCard extends StatelessWidget {
                           AddressCopyButton(
                               address: pubkey.address, coinAbbr: coin.abbr),
                           if (pubkey.isActiveForSwap)
-                            Chip(
-                              label: Text(LocaleKeys.tradingAddress.tr()),
-                              backgroundColor: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.1),
-                            ),
+                            // TODO: Refactor to use "DexPill" component from the SDK UI library (not yet created)
+                            Padding(
+                              padding: EdgeInsets.only(left: isMobile ? 4 : 8),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: isMobile ? 6 : 8,
+                                  horizontal: isMobile ? 8 : 12.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  borderRadius: BorderRadius.circular(16.0),
+                                ),
+                                child: Text(
+                                  LocaleKeys.dexAddress.tr(),
+                                  style: TextStyle(fontSize: isMobile ? 9 : 12),
+                                ),
+                              ),
+                            )
                         ],
                       ),
                       if (pubkey.derivationPath != null)
