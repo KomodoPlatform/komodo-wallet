@@ -125,6 +125,16 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
     );
   }
 
+  void _updateSwitcherOffset() {
+    final RenderBox? renderObject =
+        _switcherKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderObject != null) {
+      _switcherSize = renderObject.size;
+      _switcherOffset = renderObject.localToGlobal(Offset.zero);
+    }
+    _tooltipWrapper = _buildTooltipWrapper();
+  }
+
   void _switch() {
     if (_tooltipWrapper.mounted) {
       _close();
@@ -134,6 +144,7 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
   }
 
   void _open() {
+    _updateSwitcherOffset();
     Overlay.of(context).insert(_tooltipWrapper);
     final onSwitch = widget.onSwitch;
     if (onSwitch != null) onSwitch(true);
