@@ -14,12 +14,16 @@ class AssetItem extends StatelessWidget {
     this.amount,
     this.size = AssetItemSize.medium,
     this.subtitleText,
+    this.heroTag,
   });
 
   final AssetId assetId;
   final double? amount;
   final AssetItemSize size;
   final String? subtitleText;
+
+  /// Optional tag used to animate the asset logo between routes.
+  final Object? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +34,7 @@ class AssetItem extends StatelessWidget {
         AssetLogo.ofId(
           assetId,
           size: size.assetLogo,
+          heroTag: heroTag,
         ),
         SizedBox(width: 8),
         Flexible(

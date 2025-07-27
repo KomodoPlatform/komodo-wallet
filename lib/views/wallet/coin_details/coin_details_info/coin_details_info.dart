@@ -257,6 +257,7 @@ class _DesktopCoinDetails extends StatelessWidget {
                 child: AssetLogo.ofId(
                   coin.id,
                   size: 50,
+                  heroTag: coin.id.id,
                 ),
               ),
               _Balance(coin: coin),
@@ -365,6 +366,7 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
           AssetIcon.ofTicker(
             coin.abbr,
             size: 35,
+            heroTag: coin.id.id,
           ),
           const SizedBox(height: 8),
           _Balance(coin: coin),

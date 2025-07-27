@@ -98,7 +98,11 @@ class _CoinsManagerListItemDesktop extends StatelessWidget {
             ),
             Expanded(
               flex: 2,
-              child: CoinItem(coin: coin, size: CoinItemSize.large),
+              child: CoinItem(
+                coin: coin,
+                size: CoinItemSize.large,
+                heroTag: coin.id.id,
+              ),
             ),
             Expanded(
               flex: isAddAssets ? 2 : 1,
@@ -253,7 +257,13 @@ class _CoinsManagerListItemMobile extends StatelessWidget {
               onChanged: (_) => onSelect(),
             ),
             const SizedBox(width: 8),
-            Expanded(child: CoinItem(coin: coin, size: CoinItemSize.large)),
+            Expanded(
+              child: CoinItem(
+                coin: coin,
+                size: CoinItemSize.large,
+                heroTag: coin.id.id,
+              ),
+            ),
             if (!isAddAssets)
               Column(
                 mainAxisSize: MainAxisSize.min,

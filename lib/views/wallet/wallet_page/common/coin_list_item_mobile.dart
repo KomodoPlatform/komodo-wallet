@@ -47,7 +47,11 @@ class CoinListItemMobile extends StatelessWidget {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      CoinItem(coin: coin, size: CoinItemSize.large),
+                      CoinItem(
+                        coin: coin,
+                        size: CoinItemSize.large,
+                        heroTag: coin.id.id,
+                      ),
                       if (coin.isActivating)
                         const Positioned(
                           top: 4,

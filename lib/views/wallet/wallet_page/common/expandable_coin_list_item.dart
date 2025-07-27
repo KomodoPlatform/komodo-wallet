@@ -138,7 +138,11 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Use CoinItem with large size for mobile, matching GroupedAssetTickerItem
-          AssetIcon(widget.coin.id, size: CoinItemSize.large.coinLogo),
+          AssetIcon(
+            widget.coin.id,
+            size: CoinItemSize.large.coinLogo,
+            heroTag: widget.coin.id.id,
+          ),
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,7 +216,11 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
           Container(
             width: double.infinity,
             constraints: const BoxConstraints(maxWidth: 180),
-            child: CoinItem(coin: widget.coin, size: CoinItemSize.large),
+            child: CoinItem(
+              coin: widget.coin,
+              size: CoinItemSize.large,
+              heroTag: widget.coin.id.id,
+            ),
           ),
           const Spacer(),
           CoinBalance(coin: widget.coin),
