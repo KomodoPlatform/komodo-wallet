@@ -31,6 +31,7 @@ import 'package:web_dex/shared/widgets/segwit_icon.dart';
 import 'package:web_dex/views/common/page_header/disable_coin_button.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
+import 'package:web_dex/shared/utils/hero_tags.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_growth_chart.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_profit_loss_chart.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
@@ -254,9 +255,12 @@ class _DesktopCoinDetails extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 12, 0),
-                child: AssetLogo.ofId(
-                  coin.id,
-                  size: 50,
+                child: Hero(
+                  tag: coinIconHeroTag(coin.abbr),
+                  child: AssetLogo.ofId(
+                    coin.id,
+                    size: 50,
+                  ),
                 ),
               ),
               _Balance(coin: coin),

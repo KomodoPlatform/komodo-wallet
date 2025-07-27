@@ -12,12 +12,16 @@ class CoinItem extends StatelessWidget {
     this.size = CoinItemSize.medium,
     this.subtitleText,
     this.showNetworkLogo = true,
+    this.heroTag,
   });
 
   final Coin coin;
   final double? amount;
   final CoinItemSize size;
   final String? subtitleText;
+
+  /// Optional tag for hero animations wrapping the coin icon.
+  final String? heroTag;
 
   /// Controls which icon widget to use for displaying the coin.
   ///
@@ -30,17 +34,25 @@ class CoinItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget iconWidget;
+    if (showNetworkLogo) {
+      iconWidget = AssetLogo.ofId(
+        coin.id,
+        size: size.coinLogo,
+      );
+    } else {
+      iconWidget = AssetIcon.ofTicker(coin.id.id, size: size.coinLogo);
+    }
+
+    if (heroTag != null) {
+      iconWidget = Hero(tag: heroTag!, child: iconWidget);
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (showNetworkLogo)
-          AssetLogo.ofId(
-            coin.id,
-            size: size.coinLogo,
-          ),
-        if (!showNetworkLogo)
-          AssetIcon.ofTicker(coin.id.id, size: size.coinLogo),
+        iconWidget,
         SizedBox(width: size.spacer),
         Flexible(
           child: CoinItemBody(

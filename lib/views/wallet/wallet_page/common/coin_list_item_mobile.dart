@@ -7,6 +7,7 @@ import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_change.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:web_dex/shared/utils/hero_tags.dart';
 import 'package:web_dex/shared/widgets/need_attention_mark.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
 
@@ -47,7 +48,11 @@ class CoinListItemMobile extends StatelessWidget {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      CoinItem(coin: coin, size: CoinItemSize.large),
+                      CoinItem(
+                        coin: coin,
+                        size: CoinItemSize.large,
+                        heroTag: coinIconHeroTag(coin.abbr),
+                      ),
                       if (coin.isActivating)
                         const Positioned(
                           top: 4,

@@ -16,6 +16,7 @@ import 'package:web_dex/shared/widgets/coin_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
+import 'package:web_dex/shared/utils/hero_tags.dart';
 import 'package:app_theme/src/dark/theme_custom_dark.dart';
 import 'package:app_theme/src/light/theme_custom_light.dart';
 
@@ -138,7 +139,10 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Use CoinItem with large size for mobile, matching GroupedAssetTickerItem
-          AssetIcon(widget.coin.id, size: CoinItemSize.large.coinLogo),
+          Hero(
+            tag: coinIconHeroTag(widget.coin.abbr),
+            child: AssetIcon(widget.coin.id, size: CoinItemSize.large.coinLogo),
+          ),
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,7 +216,11 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
           Container(
             width: double.infinity,
             constraints: const BoxConstraints(maxWidth: 180),
-            child: CoinItem(coin: widget.coin, size: CoinItemSize.large),
+            child: CoinItem(
+              coin: widget.coin,
+              size: CoinItemSize.large,
+              heroTag: coinIconHeroTag(widget.coin.abbr),
+            ),
           ),
           const Spacer(),
           CoinBalance(coin: widget.coin),
