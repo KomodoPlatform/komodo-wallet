@@ -95,7 +95,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: "add/hd-privkey-export"
-      resolved-ref: cda3780c0ce6f721fffb2fd01c24212fee9937ab
+      resolved-ref: "2ab32ae880aa7c779b9e409ea5eab92f6b5ea9a4"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -104,7 +104,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: "add/hd-privkey-export"
-      resolved-ref: cda3780c0ce6f721fffb2fd01c24212fee9937ab
+      resolved-ref: "2ab32ae880aa7c779b9e409ea5eab92f6b5ea9a4"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
@@ -113,7 +113,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: "add/hd-privkey-export"
-      resolved-ref: cda3780c0ce6f721fffb2fd01c24212fee9937ab
+      resolved-ref: "2ab32ae880aa7c779b9e409ea5eab92f6b5ea9a4"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.2.0+0"
