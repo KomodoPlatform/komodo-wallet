@@ -43,3 +43,48 @@ Future<String?> walletPasswordDialog(
 
   return password;
 }
+
+/// Shows password dialog with loading state for private key operations.
+///
+/// This dialog stays open during the private key fetching process and shows
+/// a loading indicator. The [onPasswordValidated] callback is called with
+/// the validated password and should return a Future that completes when
+/// the private key operation is finished.
+Future<bool> walletPasswordDialogWithLoading(
+  BuildContext context, {
+  required Future<bool> Function(String password) onPasswordValidated,
+  Wallet? wallet,
+}) async {
+  final currentWallet = context.read<AuthBloc>().state.currentUser?.wallet;
+  wallet ??= currentWallet;
+  late PopupDispatcher popupManager;
+  bool isOpen = false;
+  bool operationSuccessful = false;
+
+  void close() {
+    popupManager.close();
+    isOpen = false;
+  }
+
+  popupManager = PopupDispatcher(
+    context: context,
+    popupContent: PasswordDialogContentWithLoading(
+      wallet: wallet,
+      onPasswordValidated: onPasswordValidated,
+      onComplete: (bool success) {
+        operationSuccessful = success;
+        close();
+      },
+      onCancel: close,
+    ),
+  );
+
+  isOpen = true;
+  popupManager.show();
+
+  while (isOpen) {
+    await Future<dynamic>.delayed(const Duration(milliseconds: 100));
+  }
+
+  return operationSuccessful;
+}

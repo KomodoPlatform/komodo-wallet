@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,9 @@ import 'package:web_dex/analytics/events/security_events.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
-import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
+import 'package:web_dex/views/wallet/wallet_page/common/expandable_private_key_list.dart';
 
 /// Widget for displaying private keys in a secure manner.
 ///
@@ -39,9 +39,7 @@ class PrivateKeyShow extends StatelessWidget {
   /// [privateKeys] Map of asset IDs to their corresponding private keys.
   /// **Security Note**: This data should be handled with extreme care and
   /// cleared from memory as soon as possible.
-  const PrivateKeyShow({
-    required this.privateKeys,
-  });
+  const PrivateKeyShow({required this.privateKeys});
 
   /// Private keys organized by asset ID.
   ///
@@ -51,281 +49,52 @@ class PrivateKeyShow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scrollController = ScrollController();
-    return DexScrollbar(
-      scrollController: scrollController,
-      child: SingleChildScrollView(
-        controller: scrollController,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            if (!isMobile)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: SeedBackButton(() {
-                  context.read<AnalyticsBloc>().add(
-                        AnalyticsBackupSkippedEvent(
-                          stageSkipped: 'private_key_show',
-                          walletType: context
-                                  .read<AuthBloc>()
-                                  .state
-                                  .currentUser
-                                  ?.wallet
-                                  .config
-                                  .type
-                                  .name ??
-                              '',
-                        ),
-                      );
-                  context.read<SecuritySettingsBloc>().add(const ResetEvent());
-                }),
-              ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 680),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _TitleRow(),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const _ShowingSwitcher(),
-                      _CopyAllPrivateKeysButton(privateKeys: privateKeys),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _PrivateKeysList(privateKeys: privateKeys),
-                  const SizedBox(height: 20),
-                  const _PrivateKeysConfirmButton(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Widget for displaying the list of private keys by asset.
-class _PrivateKeysList extends StatelessWidget {
-  const _PrivateKeysList({
-    required this.privateKeys,
-  });
-
-  final Map<AssetId, List<PrivateKey>> privateKeys;
-
-  @override
-  Widget build(BuildContext context) {
-    if (privateKeys.isEmpty) {
-      return Container();
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          LocaleKeys.privateKeys.tr(),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        ListView.builder(
-          primary: false,
-          shrinkWrap: true,
-          itemCount: privateKeys.length,
-          itemBuilder: (context, index) {
-            final assetId = privateKeys.keys.elementAt(index);
-            final keys = privateKeys[assetId]!;
-
-            return Card(
-              color: Theme.of(context).colorScheme.onSurface,
-              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Asset header
-                    Row(
-                      children: [
-                        Text(
-                          assetId.id,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${keys.length} key${keys.length > 1 ? 's' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    // Private keys for this asset
-                    ...keys.map((privateKey) => _PrivateKeyRow(
-                          assetId: assetId,
-                          privateKey: privateKey,
-                        )),
-                  ],
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        if (!isMobile)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: SeedBackButton(() {
+              context.read<AnalyticsBloc>().add(
+                AnalyticsBackupSkippedEvent(
+                  stageSkipped: 'private_key_show',
+                  walletType:
+                      context
+                          .read<AuthBloc>()
+                          .state
+                          .currentUser
+                          ?.wallet
+                          .config
+                          .type
+                          .name ??
+                      '',
                 ),
-              ),
-            );
-          },
+              );
+              context.read<SecuritySettingsBloc>().add(const ResetEvent());
+            }),
+          ),
+
+        // Remove Expanded and replace with direct content
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _TitleRow(),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _ShowingSwitcher(),
+                _CopyAllPrivateKeysButton(privateKeys: privateKeys),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ExpandablePrivateKeyList(privateKeys: privateKeys),
+            
+          ],
         ),
       ],
-    );
-  }
-}
-
-/// Widget for displaying a single private key with controls.
-class _PrivateKeyRow extends StatelessWidget {
-  const _PrivateKeyRow({
-    required this.assetId,
-    required this.privateKey,
-  });
-
-  final AssetId assetId;
-  final PrivateKey privateKey;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<SecuritySettingsBloc, SecuritySettingsState, bool>(
-      selector: (state) => state.showPrivateKeys,
-      builder: (context, showPrivateKeys) {
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 2),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (privateKey.hdInfo?.derivationPath != null) ...[
-                Text(
-                  'Path: ${privateKey.hdInfo!.derivationPath}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.color
-                            ?.withValues(alpha: 0.7),
-                      ),
-                ),
-                const SizedBox(height: 4),
-              ],
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      showPrivateKeys
-                          ? truncateMiddleSymbols(privateKey.privateKey, 8, 8)
-                          : '••••••••••••••••••••••••••••••••',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontFamily: 'monospace',
-                          ),
-                    ),
-                  ),
-                  IconButton(
-                    iconSize: 20,
-                    icon: const Icon(Icons.copy),
-                    onPressed: showPrivateKeys
-                        ? () {
-                            copyToClipBoard(context, privateKey.privateKey);
-                            context
-                                .read<SecuritySettingsBloc>()
-                                .add(const ShowPrivateKeysCopiedEvent());
-                          }
-                        : null,
-                  ),
-                  IconButton(
-                    iconSize: 20,
-                    icon: const Icon(Icons.qr_code),
-                    onPressed: showPrivateKeys
-                        ? () {
-                            _showQrDialog(context, assetId, privateKey);
-                          }
-                        : null,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Shows a QR code dialog for the private key.
-  ///
-  /// **Security Note**: Only shown when private keys are visible and
-  /// user explicitly requests it.
-  void _showQrDialog(
-      BuildContext context, AssetId assetId, PrivateKey privateKey) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: SizedBox(
-            width: 300,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        assetId.id,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  ),
-                  if (privateKey.hdInfo?.derivationPath != null) ...[
-                    Text(
-                      'Path: ${privateKey.hdInfo!.derivationPath}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                  const SizedBox(height: 16),
-                  QRCodeAddress(currentAddress: privateKey.privateKey),
-                  const SizedBox(height: 16),
-                  SelectableText(
-                    privateKey.privateKey,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontFamily: 'monospace',
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
@@ -364,10 +133,13 @@ class _TitleRow extends StatelessWidget {
                 child: Text(
                   LocaleKeys.copyWarning.tr(),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: theme.custom.warningColor,
-                      ),
+                    color: theme.custom.warningColor,
+                  ),
                 ),
               ),
+              const SizedBox(width: 16),
+              const _PrivateKeysConfirmButton(),
+              
             ],
           ),
         ),
@@ -391,43 +163,63 @@ class _CopyAllPrivateKeysButton extends StatelessWidget {
           child: InkWell(
             onTap: showPrivateKeys
                 ? () {
-                    final allKeys = <String>[];
-                    privateKeys.forEach((assetId, keys) {
-                      for (final key in keys) {
-                        final pathInfo = key.hdInfo?.derivationPath != null
-                            ? ' (${key.hdInfo!.derivationPath})'
-                            : '';
-                        allKeys
-                            .add('${assetId.id}$pathInfo: ${key.privateKey}');
-                      }
-                    });
-                    copyToClipBoard(context, allKeys.join('\n'));
-                    context
-                        .read<SecuritySettingsBloc>()
-                        .add(const ShowPrivateKeysCopiedEvent());
+                    final jsonData =
+                    {
+                      for (final assetId in privateKeys.keys)
+                        assetId.id: privateKeys[assetId]!.map((key) => key.toJson()).toList(),
+                    };  
+                    
+                    final jsonString = const JsonEncoder.withIndent('  ').convert(jsonData);
+                    copyToClipBoard(context, jsonString);
+                    context.read<SecuritySettingsBloc>().add(
+                      const ShowPrivateKeysCopiedEvent(),
+                    );
                   }
                 : null,
-            borderRadius: BorderRadius.circular(18),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: showPrivateKeys
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: showPrivateKeys
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.3)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.copy,
                     size: 16,
                     color: showPrivateKeys
-                        ? theme.currentGlobal.textTheme.bodySmall?.color
-                        : theme.currentGlobal.textTheme.bodySmall?.color
-                            ?.withValues(alpha: 0.5),
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Text(
                     LocaleKeys.copyAllKeys.tr(),
-                    style: theme.currentGlobal.textTheme.bodySmall?.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: showPrivateKeys
-                          ? null
-                          : theme.currentGlobal.textTheme.bodySmall?.color
-                              ?.withValues(alpha: 0.5),
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -446,27 +238,39 @@ class _ShowingSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<SecuritySettingsBloc>();
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        UiSwitcher(
-          value: bloc.state.showPrivateKeys,
-          onChanged: (isChecked) =>
-              bloc.add(ShowPrivateKeysWordsEvent(isChecked)),
-          width: 38,
-          height: 21,
-        ),
-        const SizedBox(width: 6),
-        SelectableText(
-          LocaleKeys.showPrivateKeys.tr(),
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
+    return BlocSelector<SecuritySettingsBloc, SecuritySettingsState, bool>(
+      selector: (state) => state.showPrivateKeys,
+      builder: (context, showPrivateKeys) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              UiSwitcher(
+                value: showPrivateKeys,
+                onChanged: (isChecked) =>
+                    context.read<SecuritySettingsBloc>().add(ShowPrivateKeysWordsEvent(isChecked)),
+                width: 38,
+                height: 21,
               ),
-        ),
-      ],
+              const SizedBox(width: 8),
+              Text(
+                LocaleKeys.showPrivateKeys.tr(),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -19,9 +19,14 @@ class SecuritySettingsMainPage extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PlateSeedBackup(onViewSeedPressed: onViewSeedPressed),
+        SizedBox(
+            width: double.infinity,
+            child: PlateSeedBackup(onViewSeedPressed: onViewSeedPressed)),
         const SizedBox(height: 12),
-        PlatePrivateKeyBackup(onViewPrivateKeysPressed: onViewPrivateKeysPressed),
+        SizedBox(
+            width: double.infinity,
+            child: PlatePrivateKeyBackup(
+                onViewPrivateKeysPressed: onViewPrivateKeysPressed)),
         const SizedBox(height: 12),
         const ChangePasswordSection(),
       ],

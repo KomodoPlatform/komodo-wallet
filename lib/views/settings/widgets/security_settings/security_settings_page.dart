@@ -96,31 +96,11 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       ),
       child: MultiBlocListener(
         listeners: [
-          // Listen for private key authentication success
-          BlocListener<SecuritySettingsBloc, SecuritySettingsState>(
-            listenWhen: (previous, current) =>
-                current.privateKeyAuthenticationSuccess &&
-                !previous.privateKeyAuthenticationSuccess,
-            listener: (context, state) {
-              _handlePrivateKeyAuthenticationSuccess(context);
-            },
-          ),
           // Listen for step changes to manage sensitive data cleanup
           BlocListener<SecuritySettingsBloc, SecuritySettingsState>(
             listenWhen: (previous, current) => previous.step != current.step,
             listener: (context, state) {
               _handleStepChange(state.step);
-            },
-          ),
-          // Listen for authentication errors
-          BlocListener<SecuritySettingsBloc, SecuritySettingsState>(
-            listenWhen: (previous, current) =>
-                current.authError != null &&
-                previous.authError != current.authError,
-            listener: (context, state) {
-              if (state.authError != null) {
-                _showAuthenticationError(context, state.authError!);
-              }
             },
           ),
         ],
@@ -228,8 +208,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   /// This maintains backward compatibility with the existing seed phrase
   /// backup flow while the private key flow uses the new hybrid approach.
   Future<void> onViewSeedPressed(BuildContext context) async {
-    final SecuritySettingsBloc securitySettingsBloc =
-        context.read<SecuritySettingsBloc>();
+    final SecuritySettingsBloc securitySettingsBloc = context
+        .read<SecuritySettingsBloc>();
 
     final String? pass = await walletPasswordDialog(context);
     if (pass == null) return;
@@ -245,11 +225,13 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     _seed = mnemonic.plaintextMnemonic ?? '';
 
     _privKeys.clear();
-    final parentCoins = coinsBloc.state.walletCoins.values
-        .where((coin) => !coin.id.isChildAsset);
+    final parentCoins = coinsBloc.state.walletCoins.values.where(
+      (coin) => !coin.id.isChildAsset,
+    );
     for (final coin in parentCoins) {
-      final result =
-          await mm2Api.showPrivKey(ShowPrivKeyRequest(coin: coin.abbr));
+      final result = await mm2Api.showPrivKey(
+        ShowPrivKeyRequest(coin: coin.abbr),
+      );
       if (result != null) {
         _privKeys[coin] = result.privKey;
       }
@@ -263,73 +245,60 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   /// Initiates private key export flow using hybrid security approach.
   ///
   /// **Security Flow**:
-  /// 1. Shows password dialog for user authentication
-  /// 2. Triggers authentication event in BLoC (non-sensitive)
-  /// 3. BLoC validates authentication without handling private keys
-  /// 4. On success, [_handlePrivateKeyAuthenticationSuccess] fetches private keys
+  /// 1. Shows password dialog with loading state
+  /// 2. Dialog validates authentication and shows loading indicator
+  /// 3. Fetches private keys while dialog remains open
+  /// 4. Dialog closes only after private keys are ready or error occurs
   /// 5. Private keys are stored locally in UI layer only
   ///
-  /// This separates authentication logic (in BLoC) from sensitive data handling (in UI).
+  /// This approach provides better UX by showing loading state during the entire operation.
   Future<void> onViewPrivateKeysPressed(BuildContext context) async {
-    final String? password = await walletPasswordDialog(context);
-    if (password == null) return;
+    final bool success = await walletPasswordDialogWithLoading(
+      context,
+      onPasswordValidated: (String password) async {
+        try {
+          final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
 
-    // Clear any existing authentication errors
-    // ignore: use_build_context_synchronously
-    context
-        .read<SecuritySettingsBloc>()
-        .add(const ClearAuthenticationErrorEvent());
+          // Create SecurityManager for private key retrieval
+          final securityManager = SecurityManager(
+            kdfSdk.client,
+            kdfSdk.auth,
+            kdfSdk.assets,
+          );
 
-    // Trigger authentication in BLoC (no sensitive data passed)
-    // ignore: use_build_context_synchronously
-    context
-        .read<SecuritySettingsBloc>()
-        .add(const AuthenticateForPrivateKeysEvent());
-  }
+          // Fetch private keys directly into local UI state
+          // This keeps sensitive data in minimal scope
+          _sdkPrivateKeys = await securityManager.getPrivateKeys();
 
-  /// Handles successful authentication by fetching private keys securely.
-  ///
-  /// **Security Note**: This method is called only after BLoC confirms authentication.
-  /// Private keys are fetched and stored directly in the UI layer to minimize
-  /// their memory lifetime and scope. They never pass through BLoC state.
-  Future<void> _handlePrivateKeyAuthenticationSuccess(
-      BuildContext context) async {
-    try {
-      final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+          return true; // Success
+        } catch (e) {
+          // Clear sensitive data on any error
+          _clearPrivateKeyData();
 
-      // Create SecurityManager for private key retrieval
-      final securityManager = SecurityManager(
-        kdfSdk.client,
-        kdfSdk.auth,
-        kdfSdk.assets,
-      );
+          // Log error for debugging
+          debugPrint('Failed to retrieve private keys: ${e.toString()}');
 
-      // Fetch private keys directly into local UI state
-      // This keeps sensitive data in minimal scope
-      _sdkPrivateKeys = await securityManager.getPrivateKeys();
-
-      // Proceed to show private keys screen
-      // ignore: use_build_context_synchronously
-      context.read<SecuritySettingsBloc>().add(const ShowPrivateKeysEvent());
-    } catch (e) {
-      // Clear sensitive data on any error
-      _clearPrivateKeyData();
-
-      // Show error to user
-      // ignore: use_build_context_synchronously
-      _showPrivateKeyError(
-          context, 'Failed to retrieve private keys: ${e.toString()}');
-    }
-  }
-
-  /// Shows authentication error to the user.
-  void _showAuthenticationError(BuildContext context, String error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Authentication failed: $error'),
-        backgroundColor: Colors.red,
-      ),
+          return false; // Failure
+        }
+      },
     );
+
+    if (success) {
+      // Private keys are ready, show the private keys screen
+      if (mounted) {
+        // ignore: use_build_context_synchronously
+        context.read<SecuritySettingsBloc>().add(const ShowPrivateKeysEvent());
+      }
+    } else {
+      // Show error to user
+      if (mounted) {
+        // ignore: use_build_context_synchronously
+        _showPrivateKeyError(
+          context,
+          'Failed to retrieve private keys. Please try again.',
+        );
+      }
+    }
   }
 
   /// Shows private key retrieval error to the user.
