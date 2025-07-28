@@ -283,21 +283,19 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       },
     );
 
+    if (!mounted) return;
+
     if (success) {
       // Private keys are ready, show the private keys screen
-      if (mounted) {
-        // ignore: use_build_context_synchronously
-        context.read<SecuritySettingsBloc>().add(const ShowPrivateKeysEvent());
-      }
+      // ignore: use_build_context_synchronously
+      context.read<SecuritySettingsBloc>().add(const ShowPrivateKeysEvent());
     } else {
       // Show error to user
-      if (mounted) {
-        // ignore: use_build_context_synchronously
-        _showPrivateKeyError(
-          context,
-          'Failed to retrieve private keys. Please try again.',
-        );
-      }
+      // ignore: use_build_context_synchronously
+      _showPrivateKeyError(
+        context,
+        'Failed to retrieve private keys. Please try again.',
+      );
     }
   }
 
