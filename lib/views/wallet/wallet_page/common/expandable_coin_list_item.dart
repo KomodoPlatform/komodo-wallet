@@ -141,7 +141,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
           AssetIcon(
             widget.coin.id,
             size: CoinItemSize.large.coinLogo,
-            heroTag: widget.coin.id.id,
+            heroTag: widget.coin.id,
           ),
           const SizedBox(width: 8),
           Column(
@@ -219,7 +219,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
             child: CoinItem(
               coin: widget.coin,
               size: CoinItemSize.large,
-              heroTag: widget.coin.id.id,
+              heroTag: widget.coin.id,
             ),
           ),
           const Spacer(),

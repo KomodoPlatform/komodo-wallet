@@ -34,7 +34,7 @@ class AssetListItemMobile extends StatelessWidget {
               child: AssetItem(
                 assetId: assetId,
                 size: AssetItemSize.medium,
-                heroTag: assetId.id,
+                heroTag: assetId,
               ),
             ),
             const Icon(Icons.chevron_right),

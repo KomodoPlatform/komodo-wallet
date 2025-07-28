@@ -101,7 +101,7 @@ class _CoinsManagerListItemDesktop extends StatelessWidget {
               child: CoinItem(
                 coin: coin,
                 size: CoinItemSize.large,
-                heroTag: coin.id.id,
+                heroTag: coin.id,
               ),
             ),
             Expanded(
@@ -261,7 +261,7 @@ class _CoinsManagerListItemMobile extends StatelessWidget {
               child: CoinItem(
                 coin: coin,
                 size: CoinItemSize.large,
-                heroTag: coin.id.id,
+                heroTag: coin.id,
               ),
             ),
             if (!isAddAssets)

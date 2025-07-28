@@ -50,7 +50,7 @@ class CoinListItemMobile extends StatelessWidget {
                       CoinItem(
                         coin: coin,
                         size: CoinItemSize.large,
-                        heroTag: coin.id.id,
+                        heroTag: coin.id,
                       ),
                       if (coin.isActivating)
                         const Positioned(
