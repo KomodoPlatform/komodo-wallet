@@ -55,7 +55,7 @@ class AssetListItemDesktop extends StatelessWidget {
                     child: AssetItem(
                       assetId: assetId,
                       size: AssetItemSize.large,
-                      heroTag: assetId.id,
+                      heroTag: assetId,
                     ),
                   ),
                 ),

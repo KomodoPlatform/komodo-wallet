@@ -111,7 +111,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                       child: AssetItem(
                         assetId: _primaryAsset,
                         size: AssetItemSize.large,
-                        heroTag: _primaryAsset.id,
+                        heroTag: _primaryAsset,
                       ),
                     ),
                     if (!isMobile)
