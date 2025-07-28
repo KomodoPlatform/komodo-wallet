@@ -100,12 +100,13 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
         Text(LocaleKeys.walletImportByFileDescription.tr(),
             style: Theme.of(context).textTheme.bodyLarge),
         const SizedBox(height: 20),
-        Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+        AutofillGroup(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
               UiTextFormField(
                 key: const Key('file-password-field'),
                 controller: _filePasswordController,
@@ -114,6 +115,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                 autocorrect: false,
                 enableInteractiveSelection: true,
                 obscureText: _isObscured,
+                autofillHints: const [AutofillHints.password],
                 validator: (_) {
                   return _filePasswordError;
                 },
@@ -193,6 +195,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
               ),
             ],
           ),
+        ),
         ),
       ],
     );
