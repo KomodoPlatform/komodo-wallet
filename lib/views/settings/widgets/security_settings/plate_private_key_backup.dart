@@ -2,7 +2,6 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/common/app_assets.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
@@ -57,20 +56,30 @@ class _MobileBody extends StatelessWidget {
         color: Theme.of(context).colorScheme.tertiary,
         borderRadius: BorderRadius.circular(18.0),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 24),
-          const _PrivateKeyIcon(),
-          const SizedBox(height: 28),
-          const _PrivateKeyTitle(),
-          const SizedBox(height: 12),
-          const _PrivateKeyBody(),
-          const SizedBox(height: 8),
-          _PrivateKeyButtons(
-              onViewPrivateKeysPressed: onViewPrivateKeysPressed),
-          const SizedBox(height: 6),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const _PrivateKeyIcon(),
+            const SizedBox(width: 22.5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const _PrivateKeyTitle(),
+                  const SizedBox(height: 8),
+                  const _PrivateKeyBody(),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            _PrivateKeyButtons(
+              onViewPrivateKeysPressed: onViewPrivateKeysPressed,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -95,10 +104,10 @@ class _DesktopBody extends StatelessWidget {
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(width: 12),
               const _PrivateKeyIcon(),
-              const SizedBox(width: 22.5),
+              const SizedBox(width: 26),
               const Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,9 +121,10 @@ class _DesktopBody extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              Spacer(),
               _PrivateKeyButtons(
                   onViewPrivateKeysPressed: onViewPrivateKeysPressed),
+              const SizedBox(width: 16),
             ],
           ),
         ],
@@ -132,10 +142,8 @@ class _PrivateKeyIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DexSvgImage(
-      path: Assets.seedNotBackedUp, // Using the same icon for now
-      size: 50,
-    );
+    return Icon(Icons.key,
+        size: 50, color: theme.custom.defaultGradientButtonTextColor);
   }
 }
 
@@ -208,26 +216,19 @@ class _PrivateKeyButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = LocaleKeys.exportPrivateKeys.tr();
-    final width = isMobile ? double.infinity : 187.0;
-    final height = isMobile ? 52.0 : 40.0;
+    final width = isMobile ? 140.0 : 187.0;
+    final height = isMobile ? 48.0 : 40.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const SizedBox(height: 12),
-        UiPrimaryButton(
-          onPressed: () => onViewPrivateKeysPressed(context),
-          width: width,
-          height: height,
-          text: text,
-          textStyle: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
-            color: theme.custom.defaultGradientButtonTextColor,
-          ),
-        ),
-      ],
+    return UiPrimaryButton(
+      onPressed: () => onViewPrivateKeysPressed(context),
+      width: width,
+      height: height,
+      text: text,
+      textStyle: TextStyle(
+        fontWeight: FontWeight.w700,
+        fontSize: 14,
+        color: theme.custom.defaultGradientButtonTextColor,
+      ),
     );
   }
 }
