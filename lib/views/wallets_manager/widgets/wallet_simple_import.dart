@@ -257,6 +257,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       autofocus: true,
       autocorrect: false,
       textInputAction: TextInputAction.next,
+      autofillHints: const [AutofillHints.username],
       validator: (String? name) =>
           _inProgress ? null : walletsRepository.validateWalletName(name ?? ''),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -114,6 +115,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                 autocorrect: false,
                 enableInteractiveSelection: true,
                 obscureText: _isObscured,
+                autofillHints: const [AutofillHints.password],
                 validator: (_) {
                   return _filePasswordError;
                 },
