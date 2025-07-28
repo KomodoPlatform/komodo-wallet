@@ -86,50 +86,52 @@ class _WalletCreationState extends State<WalletCreation> {
           );
         }
       },
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.action == WalletsManagerAction.create
-                  ? LocaleKeys.walletCreationTitle.tr()
-                  : LocaleKeys.walletImportTitle.tr(),
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontSize: 18),
-            ),
-            const SizedBox(height: 24),
-            _buildFields(),
-            const SizedBox(height: 22),
-            EulaTosCheckboxes(
-              key: const Key('create-wallet-eula-checks'),
-              isChecked: _eulaAndTosChecked,
-              onCheck: (isChecked) {
-                setState(() {
-                  _eulaAndTosChecked = isChecked;
-                });
-              },
-            ),
-            const SizedBox(height: 32),
-            UiPrimaryButton(
-              key: const Key('confirm-password-button'),
-              height: 50,
-              text: _inProgress
-                  ? '${LocaleKeys.pleaseWait.tr()}...'
-                  : LocaleKeys.create.tr(),
-              textStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+      child: AutofillGroup(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.action == WalletsManagerAction.create
+                    ? LocaleKeys.walletCreationTitle.tr()
+                    : LocaleKeys.walletImportTitle.tr(),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 18),
               ),
-              onPressed: _isCreateButtonEnabled ? _onCreate : null,
-            ),
-            const SizedBox(height: 20),
-            UiUnderlineTextButton(
-              onPressed: widget.onCancel,
-              text: LocaleKeys.cancel.tr(),
-            ),
-          ],
+              const SizedBox(height: 24),
+              _buildFields(),
+              const SizedBox(height: 22),
+              EulaTosCheckboxes(
+                key: const Key('create-wallet-eula-checks'),
+                isChecked: _eulaAndTosChecked,
+                onCheck: (isChecked) {
+                  setState(() {
+                    _eulaAndTosChecked = isChecked;
+                  });
+                },
+              ),
+              const SizedBox(height: 32),
+              UiPrimaryButton(
+                key: const Key('confirm-password-button'),
+                height: 50,
+                text: _inProgress
+                    ? '${LocaleKeys.pleaseWait.tr()}...'
+                    : LocaleKeys.create.tr(),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+                onPressed: _isCreateButtonEnabled ? _onCreate : null,
+              ),
+              const SizedBox(height: 20),
+              UiUnderlineTextButton(
+                onPressed: widget.onCancel,
+                text: LocaleKeys.cancel.tr(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -176,6 +178,7 @@ class _WalletCreationState extends State<WalletCreation> {
       autocorrect: false,
       textInputAction: TextInputAction.next,
       enableInteractiveSelection: true,
+      autofillHints: const [AutofillHints.username],
       validator: (String? name) =>
           _inProgress ? null : walletsRepository.validateWalletName(name ?? ''),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
@@ -198,7 +201,8 @@ class _WalletCreationState extends State<WalletCreation> {
   }
 
   bool get _isCreateButtonEnabled {
-    final nameError = _walletsRepository.validateWalletName(_nameController.text);
+    final nameError =
+        _walletsRepository.validateWalletName(_nameController.text);
     final isNameValid = nameError == null;
     return _eulaAndTosChecked && !_inProgress && isNameValid;
   }
