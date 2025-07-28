@@ -86,7 +86,7 @@ class NftsRepo {
     }
 
     try {
-      await _coinsRepo.activateCoinsSync(parentCoins);
+      await _coinsRepo.activateCoinsSync(parentCoins, maxRetryAttempts: 10);
     } catch (e, s) {
       _log.shout('Failed to activate parent coins', e, s);
     }

@@ -146,11 +146,16 @@ class Mm2ApiNft {
   }
 
   Future<void> enableNft(Asset asset) async {
-    final configSymbol = asset.id.symbol.configSymbol;
+    final configSymbol = asset.id.symbol.assetConfigId;
     final activationParams =
         NftActivationParams(provider: NftProvider.moralis());
-    await _sdk.client.rpc.nft
-        .enableNft(ticker: configSymbol, activationParams: activationParams);
+    await retry<void>(
+      () async => await _sdk.client.rpc.nft
+          .enableNft(ticker: configSymbol, activationParams: activationParams),
+      maxAttempts: 3,
+      backoffStrategy:
+          ExponentialBackoff(initialDelay: const Duration(seconds: 1)),
+    );
   }
 
   Future<void> enableNftChains(
