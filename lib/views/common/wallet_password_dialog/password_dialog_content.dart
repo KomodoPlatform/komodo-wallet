@@ -315,6 +315,7 @@ class _PasswordDialogContentWithLoadingState
           _fetchingPrivateKeys = false;
           _error = 'Failed to fetch private keys: ${e.toString()}';
         });
+        widget.onComplete(false);
       }
     });
   }

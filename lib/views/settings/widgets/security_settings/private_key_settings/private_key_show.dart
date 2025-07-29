@@ -76,7 +76,6 @@ class PrivateKeyShow extends StatelessWidget {
             }),
           ),
 
-        // Remove Expanded and replace with direct content
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -91,7 +90,7 @@ class PrivateKeyShow extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ExpandablePrivateKeyList(privateKeys: privateKeys),
-            
+
           ],
         ),
       ],
@@ -137,9 +136,6 @@ class _TitleRow extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              const _PrivateKeysConfirmButton(),
-              
             ],
           ),
         ),
