@@ -48,66 +48,70 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
         children: [
           Text(
             LocaleKeys.confirmationForShowingSeedPhraseTitle.tr(),
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.only(top: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                UiTextFormField(
-                  key: const Key('confirmation-showing-seed-phrase'),
-                  controller: _passwordController,
-                  autofocus: true,
-                  autocorrect: false,
-                  obscureText: _isObscured,
-                  inputFormatters: [LengthLimitingTextInputFormatter(40)],
-                  errorMaxLines: 6,
-                  errorText: _error,
-                  hintText: LocaleKeys.enterThePassword.tr(),
-                  suffixIcon: PasswordVisibilityControl(
-                    onVisibilityChange: (bool isPasswordObscured) {
-                      setState(() {
-                        _isObscured = isPasswordObscured;
-                      });
-                    },
+            child: AutofillGroup(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  UiTextFormField(
+                    key: const Key('confirmation-showing-seed-phrase'),
+                    controller: _passwordController,
+                    autofocus: true,
+                    autocorrect: false,
+                    obscureText: _isObscured,
+                    inputFormatters: [LengthLimitingTextInputFormatter(40)],
+                    errorMaxLines: 6,
+                    errorText: _error,
+                    hintText: LocaleKeys.enterThePassword.tr(),
+                    autofillHints: const [AutofillHints.password],
+                    suffixIcon: PasswordVisibilityControl(
+                      onVisibilityChange: (bool isPasswordObscured) {
+                        setState(() {
+                          _isObscured = isPasswordObscured;
+                        });
+                      },
+                    ),
+                    onFieldSubmitted: (text) => _onContinue(),
                   ),
-                  onFieldSubmitted: (text) => _onContinue(),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: UiPrimaryButton(
-                    onPressed: _inProgress ? null : _onContinue,
-                    text: _inProgress 
-                        ? LocaleKeys.faucetLoadingTitle.tr() 
-                        : LocaleKeys.continueText.tr(),
-                    prefix: _inProgress 
-                        ? const Padding(
-                            padding: EdgeInsets.only(right: 8),
-                            child: SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: UiPrimaryButton(
+                      onPressed: _inProgress ? null : _onContinue,
+                      text: _inProgress
+                          ? LocaleKeys.faucetLoadingTitle.tr()
+                          : LocaleKeys.continueText.tr(),
+                      prefix: _inProgress
+                          ? const Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
-                          )
-                        : null,
+                            )
+                          : null,
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: UiUnderlineTextButton(
-                    text: LocaleKeys.cancel.tr(),
-                    onPressed: widget.onCancel,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: UiUnderlineTextButton(
+                      text: LocaleKeys.cancel.tr(),
+                      onPressed: widget.onCancel,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -135,22 +139,25 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
         return;
       }
 
-      widget.onSuccess(password);
-
-      if (mounted) setState(() => _inProgress = false);
+      if (mounted) {
+        widget.onSuccess(password);
+        setState(() => _inProgress = false);
+      }
     });
   }
 
   void _setInvalidPasswordState() {
-    setState(() {
-      _error = LocaleKeys.incorrectPassword.tr();
-      _inProgress = false;
-    });
+    if (mounted) {
+      setState(() {
+        _error = LocaleKeys.incorrectPassword.tr();
+        _inProgress = false;
+      });
+    }
   }
 }
 
-/// Enhanced password dialog that supports loading state for private key operations.
-/// 
+/// Enhanced password dialog that supports loading state for various operations.
+///
 /// This dialog validates the password and then calls [onPasswordValidated] with the
 /// password. It shows a loading indicator during the operation and only closes when
 /// the operation is complete or fails.
@@ -161,23 +168,42 @@ class PasswordDialogContentWithLoading extends StatefulWidget {
     required this.onCancel,
     super.key,
     this.wallet,
+    this.loadingTitle,
+    this.loadingMessage,
+    this.operationFailedMessage,
+    this.passwordFieldKey = 'confirmation-showing-operation',
   });
 
   /// Called after password validation succeeds. Should return true if operation succeeds.
   final Future<bool> Function(String password) onPasswordValidated;
-  
-  /// Called when the entire operation (password + private key fetching) completes.
+
+  /// Called when the entire operation (password + custom operation) completes.
   final void Function(bool success) onComplete;
 
   final VoidCallback onCancel;
   final Wallet? wallet;
 
+  /// Title shown during the loading/operation phase.
+  /// Defaults to fetching private keys title for backward compatibility.
+  final String? loadingTitle;
+
+  /// Message shown during the loading/operation phase.
+  /// Defaults to fetching private keys message for backward compatibility.
+  final String? loadingMessage;
+
+  /// Error message shown if the operation fails.
+  /// Defaults to private key retrieval failed for backward compatibility.
+  final String? operationFailedMessage;
+
+  /// Key used for the password text field for testing purposes.
+  final String passwordFieldKey;
+
   @override
-  State<PasswordDialogContentWithLoading> createState() => 
+  State<PasswordDialogContentWithLoading> createState() =>
       _PasswordDialogContentWithLoadingState();
 }
 
-class _PasswordDialogContentWithLoadingState 
+class _PasswordDialogContentWithLoadingState
     extends State<PasswordDialogContentWithLoading> {
   bool _isObscured = true;
   final TextEditingController _passwordController = TextEditingController();
@@ -197,13 +223,13 @@ class _PasswordDialogContentWithLoadingState
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            _fetchingPrivateKeys 
-                ? 'Fetching Private Keys...'
+            _fetchingPrivateKeys
+                ? (widget.loadingTitle ??
+                      LocaleKeys.fetchingPrivateKeysTitle.tr())
                 : LocaleKeys.confirmationForShowingSeedPhraseTitle.tr(),
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           if (_fetchingPrivateKeys) ...[
@@ -211,7 +237,8 @@ class _PasswordDialogContentWithLoadingState
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
             Text(
-              'Please wait while we securely fetch your private keys...',
+              widget.loadingMessage ??
+                  LocaleKeys.fetchingPrivateKeysMessage.tr(),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -219,58 +246,65 @@ class _PasswordDialogContentWithLoadingState
           ] else ...[
             Container(
               padding: const EdgeInsets.only(top: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  UiTextFormField(
-                    key: const Key('confirmation-showing-private-keys'),
-                    controller: _passwordController,
-                    autofocus: true,
-                    autocorrect: false,
-                    obscureText: _isObscured,
-                    inputFormatters: [LengthLimitingTextInputFormatter(40)],
-                    errorMaxLines: 6,
-                    errorText: _error,
-                    hintText: LocaleKeys.enterThePassword.tr(),
-                    suffixIcon: PasswordVisibilityControl(
-                      onVisibilityChange: (bool isPasswordObscured) {
-                        setState(() {
-                          _isObscured = isPasswordObscured;
-                        });
-                      },
+              child: AutofillGroup(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    UiTextFormField(
+                      key: Key(widget.passwordFieldKey),
+                      controller: _passwordController,
+                      autofocus: true,
+                      autocorrect: false,
+                      obscureText: _isObscured,
+                      inputFormatters: [LengthLimitingTextInputFormatter(40)],
+                      errorMaxLines: 6,
+                      errorText: _error,
+                      hintText: LocaleKeys.enterThePassword.tr(),
+                      autofillHints: const [AutofillHints.password],
+                      suffixIcon: PasswordVisibilityControl(
+                        onVisibilityChange: (bool isPasswordObscured) {
+                          setState(() {
+                            _isObscured = isPasswordObscured;
+                          });
+                        },
+                      ),
+                      onFieldSubmitted: (text) => _onContinue(),
                     ),
-                    onFieldSubmitted: (text) => _onContinue(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: UiPrimaryButton(
-                      onPressed: _inProgress ? null : _onContinue,
-                      text: _inProgress 
-                          ? LocaleKeys.faucetLoadingTitle.tr() 
-                          : LocaleKeys.continueText.tr(),
-                      prefix: _inProgress 
-                          ? const Padding(
-                              padding: EdgeInsets.only(right: 8),
-                              child: SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: UiPrimaryButton(
+                        onPressed: _inProgress ? null : _onContinue,
+                        text: _inProgress
+                            ? LocaleKeys.faucetLoadingTitle.tr()
+                            : LocaleKeys.continueText.tr(),
+                        prefix: _inProgress
+                            ? const Padding(
+                                padding: EdgeInsets.only(right: 8),
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            )
-                          : null,
+                              )
+                            : null,
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: UiUnderlineTextButton(
-                      text: LocaleKeys.cancel.tr(),
-                      onPressed: _fetchingPrivateKeys ? null : widget.onCancel,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: UiUnderlineTextButton(
+                        text: LocaleKeys.cancel.tr(),
+                        onPressed: _fetchingPrivateKeys
+                            ? null
+                            : widget.onCancel,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -301,29 +335,39 @@ class _PasswordDialogContentWithLoadingState
       }
 
       // Password is valid, now fetch private keys
-      setState(() {
-        _inProgress = false;
-        _fetchingPrivateKeys = true;
-        _error = null;
-      });
+      if (mounted) {
+        setState(() {
+          _inProgress = false;
+          _fetchingPrivateKeys = true;
+          _error = null;
+        });
+      }
 
       try {
         final success = await widget.onPasswordValidated(password);
-        widget.onComplete(success);
+        if (mounted) {
+          widget.onComplete(success);
+        }
       } catch (e) {
-        setState(() {
-          _fetchingPrivateKeys = false;
-          _error = 'Failed to fetch private keys: ${e.toString()}';
-        });
-        widget.onComplete(false);
+        if (mounted) {
+          setState(() {
+            _fetchingPrivateKeys = false;
+            _error =
+                widget.operationFailedMessage ??
+                LocaleKeys.privateKeyRetrievalFailed.tr();
+          });
+          widget.onComplete(false);
+        }
       }
     });
   }
 
   void _setInvalidPasswordState() {
-    setState(() {
-      _error = LocaleKeys.incorrectPassword.tr();
-      _inProgress = false;
-    });
+    if (mounted) {
+      setState(() {
+        _error = LocaleKeys.incorrectPassword.tr();
+        _inProgress = false;
+      });
+    }
   }
 }
