@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_event.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/settings/widgets/common/settings_section.dart';
 
@@ -55,8 +57,12 @@ class _SettingsModeSelector extends StatelessWidget {
         mode == context.select((SettingsBloc bloc) => bloc.state.themeMode);
     const double size = 16.0;
     return InkWell(
-      onTap: () =>
-          context.read<SettingsBloc>().add(ThemeModeChanged(mode: mode)),
+      onTap: () {
+        context.read<SettingsBloc>().add(ThemeModeChanged(mode: mode));
+        context.read<AnalyticsBloc>().logEvent(
+              ThemeSelectedEventData(themeName: _analyticsName),
+            );
+      },
       mouseCursor: SystemMouseCursors.click,
       child: Container(
         key: Key('theme-settings-switcher-$_themeName'),
@@ -123,6 +129,17 @@ class _SettingsModeSelector extends StatelessWidget {
         return LocaleKeys.light.tr();
       case ThemeMode.system:
         return LocaleKeys.defaultText.tr();
+    }
+  }
+
+  String get _analyticsName {
+    switch (mode) {
+      case ThemeMode.dark:
+        return 'dark';
+      case ThemeMode.light:
+        return 'light';
+      case ThemeMode.system:
+        return 'auto';
     }
   }
 
