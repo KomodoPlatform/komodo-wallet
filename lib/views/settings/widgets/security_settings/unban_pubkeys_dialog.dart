@@ -25,7 +25,7 @@ class UnbanPubkeysResultDialog extends StatelessWidget {
           children: [
             _buildResultSection(
               context,
-              title: LocaleKeys.unbannedPubkeys.tr(),
+              title: LocaleKeys.unbannedPubkeys.plural(result.unbanned.length),
               count: result.unbanned.length,
               items: result.unbanned.entries.toList(),
               color: Colors.green,

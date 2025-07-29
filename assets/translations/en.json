@@ -716,7 +716,14 @@
   "tradingDisabledTooltip": "Trading features are currently disabled",
   "tradingDisabled": "Trading unavailable in your location",
   "unbanPubkeysResults": "Unban Pubkeys Results",
-  "unbannedPubkeys": "Unbanned Pubkeys",
+  "unbannedPubkeys": {
+    "zero": "{} Unbanned Pubkeys",
+    "one": "{} Unbanned Pubkey",
+    "two": "{} Unbanned Pubkeys",
+    "many": "{} Unbanned Pubkeys",
+    "few": "{} Unbanned Pubkeys",
+    "other": "{} Unbanned Pubkeys"
+  },
   "stillBannedPubkeys": "Still Banned Pubkeys",
   "wereNotBannedPubkeys": "Were Not Banned Pubkeys",
   "reason": "Reason",

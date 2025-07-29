@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 
@@ -20,7 +21,7 @@ class SecuritySettingsBloc
   ///
   /// [initialState] The initial state for the bloc.
   /// [kdfSdk] The Komodo DeFi SDK instance for authentication operations.
-  SecuritySettingsBloc(super.initialState, {KomodoDefiSdk? kdfSdk})
+  SecuritySettingsBloc(super.initialState, {required KomodoDefiSdk? kdfSdk})
     : _kdfSdk = kdfSdk {
     // Seed phrase events
     on<ResetEvent>(_onReset);
@@ -38,20 +39,21 @@ class SecuritySettingsBloc
     on<ShowPrivateKeysCopiedEvent>(_onPrivateKeysCopied);
     on<PrivateKeysDownloadRequestedEvent>(_onPrivateKeysDownloadRequested);
     on<ClearAuthenticationErrorEvent>(_onClearAuthenticationError);
+
+    // Unban pubkeys events
+    on<UnbanPubkeysEvent>(_onUnbanPubkeys);
+    on<UnbanPubkeysCompletedEvent>(_onUnbanPubkeysCompleted);
+    on<UnbanPubkeysFailedEvent>(_onUnbanPubkeysFailed);
   }
 
   /// The Komodo DeFi SDK instance for authentication operations.
   /// This is optional to support testing scenarios.
   final KomodoDefiSdk? _kdfSdk;
 
-  // MARK: - Reset and Navigation Events
-
   /// Handles resetting the security settings to initial state.
   void _onReset(ResetEvent event, Emitter<SecuritySettingsState> emit) {
     emit(SecuritySettingsState.initialState());
   }
-
-  // MARK: - Seed Phrase Events
 
   /// Handles showing the seed phrase backup screen.
   void _onShowSeed(ShowSeedEvent event, Emitter<SecuritySettingsState> emit) {
@@ -118,8 +120,6 @@ class SecuritySettingsBloc
     );
     emit(newState);
   }
-
-  // MARK: - Private Key Events (Hybrid Security Approach)
 
   /// Handles authentication for private key access.
   ///
@@ -225,5 +225,64 @@ class SecuritySettingsBloc
     Emitter<SecuritySettingsState> emit,
   ) {
     emit(state.copyWith(clearAuthError: true));
+  }
+
+  /// Handles unbanning all banned public keys.
+  ///
+  /// This method directly calls the SDK to unban pubkeys without requiring
+  /// password authentication, as it's considered a non-destructive operation
+  /// that improves wallet functionality.
+  Future<void> _onUnbanPubkeys(
+    UnbanPubkeysEvent event,
+    Emitter<SecuritySettingsState> emit,
+  ) async {
+    if (_kdfSdk == null) {
+      add(const UnbanPubkeysFailedEvent('SDK not available'));
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        isUnbanningPubkeys: true,
+        unbanError: null,
+        clearUnbanError: true,
+      ),
+    );
+
+    try {
+      final result = await _kdfSdk.pubkeys.unbanPubkeys(UnbanBy.all());
+      add(UnbanPubkeysCompletedEvent(result));
+    } catch (e) {
+      add(UnbanPubkeysFailedEvent(e.toString()));
+    }
+  }
+
+  /// Handles successful completion of pubkey unbanning.
+  void _onUnbanPubkeysCompleted(
+    UnbanPubkeysCompletedEvent event,
+    Emitter<SecuritySettingsState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        isUnbanningPubkeys: false,
+        unbanResult: event.result,
+        unbanError: null,
+        clearUnbanError: true,
+      ),
+    );
+  }
+
+  /// Handles failed pubkey unbanning.
+  void _onUnbanPubkeysFailed(
+    UnbanPubkeysFailedEvent event,
+    Emitter<SecuritySettingsState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        isUnbanningPubkeys: false,
+        unbanError: event.error,
+        unbanResult: null,
+      ),
+    );
   }
 }

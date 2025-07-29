@@ -43,11 +43,9 @@ class SecuritySettingsPage extends StatefulWidget {
 }
 
 class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
-  // MARK: - Seed Phrase Data (Legacy approach for backward compatibility)
   String _seed = '';
   final Map<Coin, String> _privKeys = {};
 
-  // MARK: - Private Key Data (Secure handling in UI layer)
   /// Private keys fetched from SDK - stored locally for minimal memory exposure.
   ///
   /// **Security Note**: These are intentionally stored in the UI layer rather than
@@ -188,8 +186,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     }
   }
 
-  // MARK: - Seed Phrase Handling (Legacy approach)
-
   /// Handles seed phrase export - uses existing legacy approach.
   ///
   /// This maintains backward compatibility with the existing seed phrase
@@ -226,8 +222,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
     securitySettingsBloc.add(const ShowSeedEvent());
   }
-
-  // MARK: - Private Key Handling (Hybrid Security Approach)
 
   /// Initiates private key export flow using hybrid security approach.
   ///

@@ -1,7 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
+import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
+import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/security_action_plate.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/unban_pubkeys_dialog.dart';
 
@@ -9,7 +13,8 @@ import 'package:web_dex/views/settings/widgets/security_settings/unban_pubkeys_d
 ///
 /// This widget provides a consistent layout similar to other security actions
 /// and allows users to unban all banned public keys without requiring
-/// password authentication.
+/// password authentication. It integrates with the SecuritySettingsBloc
+/// for state management and provides loading states and error handling.
 class UnbanPubkeysPlate extends StatefulWidget {
   const UnbanPubkeysPlate({super.key, this.onUnbanComplete});
 
@@ -23,102 +28,97 @@ class UnbanPubkeysPlate extends StatefulWidget {
 class _UnbanPubkeysPlateState extends State<UnbanPubkeysPlate> {
   @override
   Widget build(BuildContext context) {
-    return SecurityActionPlate(
-      icon: Icon(Icons.block),
-      title: 'Unban Pubkeys',
-      description:
-          'Unban public keys that were previously banned due to failed transactions or security concerns.',
-      actionText: 'Unban Pubkeys',
-      onActionPressed: () => _handleUnbanPressed(context),
+    return BlocListener<SecuritySettingsBloc, SecuritySettingsState>(
+      listener: _handleStateChanges,
+      child: BlocBuilder<SecuritySettingsBloc, SecuritySettingsState>(
+        builder: (context, state) {
+          return SecurityActionPlate(
+            icon: Icon(Icons.block),
+            title: LocaleKeys.unbanPubkeys.tr(),
+            description: LocaleKeys.unbanPubkeysDescription.tr(),
+            actionText: state.isUnbanningPubkeys
+                ? '${LocaleKeys.unbanPubkeys.tr()}...'
+                : LocaleKeys.unbanPubkeys.tr(),
+            onActionPressed: state.isUnbanningPubkeys
+                ? null
+                : () => _handleUnbanPressed(context),
+          );
+        },
+      ),
     );
   }
 
-  /// Handles the unban operation without password confirmation.
-  ///
-  /// This method:
-  /// 1. Calls the SDK to unban all pubkeys directly
-  /// 2. Shows the results in a dialog
-  /// 3. Optionally calls the completion callback
-  /// 4. Shows appropriate snackbars for feedback
-  Future<void> _handleUnbanPressed(BuildContext context) async {
+  /// Handles state changes from the SecuritySettingsBloc.
+  void _handleStateChanges(BuildContext context, SecuritySettingsState state) {
+    // Handle successful unban completion
+    if (state.unbanResult != null && !state.isUnbanningPubkeys) {
+      _showResultDialog(context, state.unbanResult!);
+      _showSnackbar(context, state.unbanResult!);
+      widget.onUnbanComplete?.call();
+    }
+
+    // Handle unban errors
+    if (state.unbanError != null && !state.isUnbanningPubkeys) {
+      _showErrorSnackbar(context, state.unbanError!);
+    }
+  }
+
+  /// Handles the unban button press by triggering the bloc event.
+  void _handleUnbanPressed(BuildContext context) {
+    context.read<SecuritySettingsBloc>().add(const UnbanPubkeysEvent());
+  }
+
+  /// Shows the results dialog with unban operation details.
+  Future<void> _showResultDialog(
+    BuildContext context,
+    UnbanPubkeysResult result,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => UnbanPubkeysResultDialog(result: result),
+    );
+  }
+
+  /// Shows appropriate snackbar based on unban results.
+  void _showSnackbar(BuildContext context, UnbanPubkeysResult result) {
     if (!mounted) return;
 
-    try {
-      // Show loading indicator
-      showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          content: Row(
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(width: 16),
-              Text('Unbanning pubkeys...'),
-            ],
+    if (result.unbanned.isNotEmpty) {
+      // Show success snackbar if any pubkeys were unbanned
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            LocaleKeys.unbannedPubkeys.plural(result.unbanned.length),
           ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
         ),
       );
-
-      // Get the SDK instance from the repository provider
-      final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
-
-      // Unban all pubkeys using the PubkeyManager
-      final result = await sdk.pubkeys.unbanPubkeys(UnbanBy.all());
-
-      // Close loading dialog
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-
-      // Show results dialog
-      if (mounted) {
-        await showDialog<void>(
-          context: context,
-          builder: (context) => UnbanPubkeysResultDialog(result: result),
-        );
-      }
-
-      // Call completion callback if provided
-      widget.onUnbanComplete?.call();
-
-      // Show success snackbar if any pubkeys were unbanned
-      if (result.unbanned.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${result.unbanned.length} unbanned pubkeys'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      } else if (mounted) {
-        // Show info snackbar if no pubkeys were banned
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('No banned pubkeys found'),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e) {
-      // Close loading dialog
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-
-      // Show error snackbar
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to unban pubkeys'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
-
-      // Log error for debugging
-      debugPrint('Failed to unban pubkeys: ${e.toString()}');
+    } else {
+      // Show info snackbar if no pubkeys were banned
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(LocaleKeys.noBannedPubkeys.tr()),
+          backgroundColor: Colors.blue,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
+  }
+
+  /// Shows error snackbar when unban operation fails.
+  void _showErrorSnackbar(BuildContext context, String error) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(LocaleKeys.unbanPubkeysFailed.tr()),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+
+    // Log error for debugging
+    debugPrint('Failed to unban pubkeys: $error');
   }
 }

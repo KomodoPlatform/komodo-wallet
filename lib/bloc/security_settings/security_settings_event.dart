@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart';
 
 /// Base class for all security settings events.
 abstract class SecuritySettingsEvent extends Equatable {
@@ -43,8 +44,6 @@ class ShowSeedCopiedEvent extends SecuritySettingsEvent {
 class PasswordUpdateEvent extends SecuritySettingsEvent {
   const PasswordUpdateEvent();
 }
-
-// MARK: - Private Key Events (Hybrid Security Approach)
 
 /// Event to authenticate user for private key access.
 ///
@@ -91,4 +90,32 @@ class PrivateKeysDownloadRequestedEvent extends SecuritySettingsEvent {
 /// Event to clear any authentication errors.
 class ClearAuthenticationErrorEvent extends SecuritySettingsEvent {
   const ClearAuthenticationErrorEvent();
+}
+
+/// Event to trigger unbanning of all banned public keys.
+///
+/// This operation does not require password authentication as it's considered
+/// a non-destructive action that improves wallet functionality.
+class UnbanPubkeysEvent extends SecuritySettingsEvent {
+  const UnbanPubkeysEvent();
+}
+
+/// Event when pubkey unbanning completes successfully.
+class UnbanPubkeysCompletedEvent extends SecuritySettingsEvent {
+  const UnbanPubkeysCompletedEvent(this.result);
+
+  final UnbanPubkeysResult result;
+
+  @override
+  List<Object> get props => [result];
+}
+
+/// Event when pubkey unbanning fails.
+class UnbanPubkeysFailedEvent extends SecuritySettingsEvent {
+  const UnbanPubkeysFailedEvent(this.error);
+
+  final String error;
+
+  @override
+  List<Object> get props => [error];
 }

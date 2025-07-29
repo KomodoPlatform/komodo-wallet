@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart';
 
 /// Represents the different steps in the security settings flow.
 /// Each step corresponds to a different screen or phase of the user journey.
@@ -39,9 +40,11 @@ class SecuritySettingsState extends Equatable {
     required this.isAuthenticating,
     required this.privateKeyAuthenticationSuccess,
     required this.authError,
+    required this.isUnbanningPubkeys,
+    this.unbanResult,
+    this.unbanError,
   });
 
-  /// Creates the initial state for security settings.
   factory SecuritySettingsState.initialState() {
     return const SecuritySettingsState(
       step: SecuritySettingsStep.securityMain,
@@ -52,6 +55,9 @@ class SecuritySettingsState extends Equatable {
       isAuthenticating: false,
       privateKeyAuthenticationSuccess: false,
       authError: null,
+      isUnbanningPubkeys: false,
+      unbanResult: null,
+      unbanError: null,
     );
   }
 
@@ -81,6 +87,15 @@ class SecuritySettingsState extends Equatable {
   /// Any authentication error that occurred during private key access.
   final String? authError;
 
+  /// Whether pubkey unbanning is currently in progress.
+  final bool isUnbanningPubkeys;
+
+  /// Result of the last unban operation, if any.
+  final UnbanPubkeysResult? unbanResult;
+
+  /// Error message if the last unban operation failed.
+  final String? unbanError;
+
   @override
   List<Object?> get props => [
     step,
@@ -91,6 +106,9 @@ class SecuritySettingsState extends Equatable {
     isAuthenticating,
     privateKeyAuthenticationSuccess,
     authError,
+    isUnbanningPubkeys,
+    unbanResult,
+    unbanError,
   ];
 
   /// Creates a copy of this state with the given fields replaced with new values.
@@ -104,6 +122,10 @@ class SecuritySettingsState extends Equatable {
     bool? privateKeyAuthenticationSuccess,
     String? authError,
     bool clearAuthError = false,
+    bool? isUnbanningPubkeys,
+    UnbanPubkeysResult? unbanResult,
+    String? unbanError,
+    bool clearUnbanError = false,
   }) {
     return SecuritySettingsState(
       step: step ?? this.step,
@@ -116,6 +138,9 @@ class SecuritySettingsState extends Equatable {
           privateKeyAuthenticationSuccess ??
           this.privateKeyAuthenticationSuccess,
       authError: clearAuthError ? null : (authError ?? this.authError),
+      isUnbanningPubkeys: isUnbanningPubkeys ?? this.isUnbanningPubkeys,
+      unbanResult: unbanResult ?? this.unbanResult,
+      unbanError: clearUnbanError ? null : (unbanError ?? this.unbanError),
     );
   }
 }

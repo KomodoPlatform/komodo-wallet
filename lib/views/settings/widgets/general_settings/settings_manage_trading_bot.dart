@@ -1,14 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_bot/market_maker_bot_bloc.dart';
+import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
+import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_event.dart';
 import 'package:web_dex/bloc/settings/settings_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/settings/widgets/common/settings_section.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/unban_pubkeys_button.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/unban_pubkeys_plate.dart';
 
 class SettingsManageTradingBot extends StatelessWidget {
   const SettingsManageTradingBot({super.key});
@@ -24,7 +27,13 @@ class SettingsManageTradingBot extends StatelessWidget {
         const SizedBox(height: 25),
         SettingsSection(
           title: LocaleKeys.settingsMenuSecurity.tr(),
-          child: const UnbanPubkeysButton(),
+          child: BlocProvider<SecuritySettingsBloc>(
+            create: (context) => SecuritySettingsBloc(
+              SecuritySettingsState.initialState(),
+              kdfSdk: RepositoryProvider.of<KomodoDefiSdk>(context),
+            ),
+            child: const UnbanPubkeysPlate(),
+          ),
         ),
       ],
     );
