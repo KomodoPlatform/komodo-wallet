@@ -101,8 +101,13 @@ class _UnbanPubkeysPlateState extends State<UnbanPubkeysPlate> {
       // Show success snackbar if any pubkeys were unbanned
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            LocaleKeys.unbannedPubkeys.plural(result.unbanned.length),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: Text(
+              LocaleKeys.unbannedPubkeys.plural(result.unbanned.length),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
           ),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 3),
@@ -112,7 +117,14 @@ class _UnbanPubkeysPlateState extends State<UnbanPubkeysPlate> {
       // Show info snackbar if no pubkeys were banned
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(LocaleKeys.noBannedPubkeys.tr()),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: Text(
+              LocaleKeys.noBannedPubkeys.tr(),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
           backgroundColor: Colors.blue,
           duration: const Duration(seconds: 3),
         ),
@@ -126,7 +138,14 @@ class _UnbanPubkeysPlateState extends State<UnbanPubkeysPlate> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(LocaleKeys.unbanPubkeysFailed.tr()),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: Text(
+            LocaleKeys.unbanPubkeysFailed.tr(),
+            softWrap: true,
+            overflow: TextOverflow.visible,
+          ),
+        ),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 5),
       ),
