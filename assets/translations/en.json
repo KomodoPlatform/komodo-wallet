@@ -675,5 +675,6 @@
     "searchAddresses": "Search addresses",
     "chart": "Chart",
     "tradingDisabledTooltip": "Trading features are currently disabled",
-    "tradingDisabled": "Trading is currently unavailable"
+    "tradingDisabled": "Trading is currently unavailable",
+    "priceHistorySparklineTooltip": "Price history for the last 7 days"
 }
