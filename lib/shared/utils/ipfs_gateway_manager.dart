@@ -66,8 +66,10 @@ class IpfsGatewayManager {
 
   /// Extracts the IPFS content ID from various URL formats
   static String? _extractContentId(String url) {
-    // Handle ipfs:// protocol
-    if (url.startsWith(IpfsConstants.ipfsProtocol)) {
+    // Handle ipfs:// protocol (case-insensitive)
+    if (url
+        .toLowerCase()
+        .startsWith(IpfsConstants.ipfsProtocol.toLowerCase())) {
       return url.substring(IpfsConstants.ipfsProtocol.length);
     }
 
@@ -87,8 +89,8 @@ class IpfsGatewayManager {
       return remainingPath.isEmpty ? cid : '$cid$remainingPath';
     }
 
-    // Check if URL contains /ipfs/ somewhere
-    final ipfsIndex = url.indexOf('/ipfs/');
+    // Check if URL contains /ipfs/ somewhere (case-insensitive)
+    final ipfsIndex = url.toLowerCase().indexOf('/ipfs/');
     if (ipfsIndex != -1) {
       return url.substring(ipfsIndex + 6); // +6 for '/ipfs/'.length
     }
@@ -105,10 +107,12 @@ class IpfsGatewayManager {
   static bool isIpfsUrl(String? url) {
     if (url == null || url.isEmpty) return false;
 
-    return url.startsWith(IpfsConstants.ipfsProtocol) ||
+    return url
+            .toLowerCase()
+            .startsWith(IpfsConstants.ipfsProtocol.toLowerCase()) ||
         _subdomainPattern.hasMatch(url) ||
         _gatewayPattern.hasMatch(url) ||
-        url.contains('/ipfs/');
+        url.toLowerCase().contains('/ipfs/');
   }
 
   /// Gets the next gateway URL after a failed attempt
