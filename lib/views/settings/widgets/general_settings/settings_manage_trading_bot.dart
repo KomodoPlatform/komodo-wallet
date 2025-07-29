@@ -8,21 +8,31 @@ import 'package:web_dex/bloc/settings/settings_event.dart';
 import 'package:web_dex/bloc/settings/settings_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/settings/widgets/common/settings_section.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/unban_pubkeys_button.dart';
 
 class SettingsManageTradingBot extends StatelessWidget {
-  const SettingsManageTradingBot({Key? key}) : super(key: key);
+  const SettingsManageTradingBot({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SettingsSection(
-      title: LocaleKeys.expertMode.tr(),
-      child: const EnableTradingBotSwitcher(),
+    return Column(
+      children: [
+        SettingsSection(
+          title: LocaleKeys.expertMode.tr(),
+          child: const EnableTradingBotSwitcher(),
+        ),
+        const SizedBox(height: 25),
+        SettingsSection(
+          title: LocaleKeys.settingsMenuSecurity.tr(),
+          child: const UnbanPubkeysButton(),
+        ),
+      ],
     );
   }
 }
 
 class EnableTradingBotSwitcher extends StatelessWidget {
-  const EnableTradingBotSwitcher({Key? key}) : super(key: key);
+  const EnableTradingBotSwitcher({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +55,14 @@ class EnableTradingBotSwitcher extends StatelessWidget {
 
   void _onSwitcherChanged(BuildContext context, bool value) {
     final settings = context.read<SettingsBloc>().state.mmBotSettings.copyWith(
-          isMMBotEnabled: value,
-        );
+      isMMBotEnabled: value,
+    );
     context.read<SettingsBloc>().add(MarketMakerBotSettingsChanged(settings));
 
     if (!value) {
-      context
-          .read<MarketMakerBotBloc>()
-          .add(const MarketMakerBotStopRequested());
+      context.read<MarketMakerBotBloc>().add(
+        const MarketMakerBotStopRequested(),
+      );
     }
   }
 }

@@ -20,6 +20,8 @@ import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/s
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_confirmation/seed_confirmation.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_show.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_show.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 /// Security settings page that manages both seed phrase and private key backup flows.
 ///
@@ -277,10 +279,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     } else {
       // Show error to user
       // ignore: use_build_context_synchronously
-      _showPrivateKeyError(
-        context,
-        'Failed to retrieve private keys. Please try again.',
-      );
+      _showPrivateKeyError(context, LocaleKeys.privateKeyRetrievalFailed.tr());
     }
   }
 
@@ -310,10 +309,10 @@ class _SecuritySettingsPageMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     return PageLayout(
       header: PageHeader(
-        title: 'Security Settings',
+        title: LocaleKeys.securitySettings.tr(),
         onBackButtonPressed: onBackButtonPressed,
       ),
-      content: SettingsContentWrapper(child: content),
+      content: Flexible(child: SettingsContentWrapper(child: content)),
     );
   }
 }

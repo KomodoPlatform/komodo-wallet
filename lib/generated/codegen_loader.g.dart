@@ -712,5 +712,17 @@ abstract class  LocaleKeys {
   static const trend7d = 'trend7d';
   static const tradingDisabledTooltip = 'tradingDisabledTooltip';
   static const tradingDisabled = 'tradingDisabled';
+  static const unbanPubkeysResults = 'unbanPubkeysResults';
+  static const unbannedPubkeys = 'unbannedPubkeys';
+  static const stillBannedPubkeys = 'stillBannedPubkeys';
+  static const wereNotBannedPubkeys = 'wereNotBannedPubkeys';
+  static const reason = 'reason';
+  static const unbanPubkeys = 'unbanPubkeys';
+  static const unbanPubkeysDescription = 'unbanPubkeysDescription';
+  static const noBannedPubkeys = 'noBannedPubkeys';
+  static const unbanPubkeysFailed = 'unbanPubkeysFailed';
+  static const privateKeyRetrievalFailed = 'privateKeyRetrievalFailed';
+  static const pubkeyType = 'pubkeyType';
+  static const securitySettings = 'securitySettings';
 
 }

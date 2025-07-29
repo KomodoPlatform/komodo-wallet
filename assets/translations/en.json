@@ -714,5 +714,17 @@
   "searchAddresses": "Search addresses",
   "trend7d": "7d trend",
   "tradingDisabledTooltip": "Trading features are currently disabled",
-  "tradingDisabled": "Trading unavailable in your location"
+  "tradingDisabled": "Trading unavailable in your location",
+  "unbanPubkeysResults": "Unban Pubkeys Results",
+  "unbannedPubkeys": "Unbanned Pubkeys",
+  "stillBannedPubkeys": "Still Banned Pubkeys",
+  "wereNotBannedPubkeys": "Were Not Banned Pubkeys",
+  "reason": "Reason",
+  "unbanPubkeys": "Unban Pubkeys",
+  "unbanPubkeysDescription": "Unban public keys that were previously banned due to failed transactions or security concerns.",
+  "noBannedPubkeys": "No banned pubkeys found",
+  "unbanPubkeysFailed": "Failed to unban pubkeys",
+  "privateKeyRetrievalFailed": "Failed to retrieve private keys. Please try again.",
+  "pubkeyType": "Type",
+  "securitySettings": "Security Settings"
 }
