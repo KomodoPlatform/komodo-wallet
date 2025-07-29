@@ -184,13 +184,22 @@ class CustomFeedbackForm extends StatelessWidget {
                           child: CircularProgressIndicator(strokeWidth: 2.0),
                         ),
                       ),
-                    TextButton(
+                    UiUnderlineTextButton(
+                      text: LocaleKeys.cancel.tr(),
+                      onPressed: isLoading
+                          ? null
+                          : () => BetterFeedback.of(context).hide(),
+                    ),
+                    const SizedBox(width: 16),
+                    UiPrimaryButton(
+                      width: 130,
+                      height: 40,
                       onPressed: formValid
                           ? () => context
                               .read<FeedbackFormBloc>()
                               .add(const FeedbackFormSubmitted())
                           : null,
-                      child: const Text('SUBMIT'),
+                      text: 'SUBMIT',
                     ),
                   ],
                 ),
