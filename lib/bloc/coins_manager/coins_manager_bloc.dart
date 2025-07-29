@@ -7,6 +7,7 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -204,6 +205,14 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     Emitter<CoinsManagerState> emit,
   ) {
     emit(state.copyWith(searchPhrase: event.text));
+    final query = event.text.trim();
+    final matchedCoin = _coinsRepo.getCoin(query.toUpperCase());
+    _analyticsBloc.logEvent(
+      SearchbarInputEventData(
+        queryLength: query.length,
+        assetSymbol: matchedCoin?.abbr,
+      ),
+    );
     add(CoinsManagerCoinsUpdate(state.action));
   }
 
