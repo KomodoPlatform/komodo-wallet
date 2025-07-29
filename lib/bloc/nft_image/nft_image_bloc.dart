@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:equatable/equatable.dart' show Equatable;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/shared/utils/ipfs_gateway_manager.dart';
-import 'package:http/http.dart' as http;
 
 part 'nft_image_event.dart';
 part 'nft_image_state.dart';
@@ -24,43 +23,21 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
 
   static const int maxRetryAttempts = 3;
   static const Duration baseRetryDelay = Duration(seconds: 1);
-  static const Duration urlTestTimeout = Duration(seconds: 5);
 
   Timer? _retryTimer;
 
-  /// Test if a URL is accessible
-  Future<bool> _testUrl(String url) async {
-    try {
-      final response = await http.head(Uri.parse(url)).timeout(urlTestTimeout);
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
-  }
-
   /// Find the first working URL from the list
   Future<String?> _findWorkingUrl(List<String> urls, int startIndex) async {
-    for (int i = startIndex; i < urls.length; i++) {
-      final url = urls[i];
-
-      // Skip URLs that are recently failed according to circuit breaker
-      if (_ipfsGatewayManager.shouldSkipUrl(url)) {
-        continue;
-      }
-
-      final isWorking = await _testUrl(url);
-      if (isWorking) {
-        return url;
-      } else {
-        // Log the failed attempt
-        _ipfsGatewayManager.logGatewayAttempt(
-          url,
-          false,
-          errorMessage: 'URL accessibility test failed',
-        );
-      }
-    }
-    return null;
+    return _ipfsGatewayManager.findWorkingUrl(
+      urls,
+      startIndex: startIndex,
+      onUrlTested: (url, success, errorMessage) {
+        if (!success) {
+          // Log failed attempts are handled by the gateway manager
+          // Additional logging can be done here if needed
+        }
+      },
+    );
   }
 
   /// Detect media type from URL
@@ -77,7 +54,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
   }
 
   /// Generates all possible URLs for the image including normalized URL and fallbacks
-  List<String> _generateAllUrls(String imageUrl) {
+  Future<List<String>> _generateAllUrls(String imageUrl) async {
     final List<String> urls = [];
 
     // First, try to normalize the URL if it's an IPFS URL
@@ -93,7 +70,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
 
     // Generate IPFS gateway alternatives if it's an IPFS URL
     if (IpfsGatewayManager.isIpfsUrl(imageUrl)) {
-      final ipfsUrls = _ipfsGatewayManager.getReliableGatewayUrls(imageUrl);
+      final ipfsUrls = await _ipfsGatewayManager.getReliableGatewayUrls(imageUrl);
       // Add URLs that aren't already in the list
       for (final url in ipfsUrls) {
         if (!urls.contains(url)) {
@@ -112,7 +89,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
   ) async {
     _retryTimer?.cancel();
 
-    final allUrls = _generateAllUrls(event.imageUrl);
+    final allUrls = await _generateAllUrls(event.imageUrl);
     final mediaType = _detectMediaType(event.imageUrl);
 
     if (allUrls.isEmpty) {
@@ -248,6 +225,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
   @override
   Future<void> close() {
     _retryTimer?.cancel();
+    _ipfsGatewayManager.dispose();
     return super.close();
   }
 }

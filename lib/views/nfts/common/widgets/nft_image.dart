@@ -185,13 +185,13 @@ class _NftVideoWithFallback extends StatefulWidget {
 }
 
 class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   String? currentVideoUrl;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(''));
+    // Don't initialize controller with empty URI - wait for valid URL
 
     // Request the bloc to start loading and finding a working URL
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -215,16 +215,16 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
           return const _NftPlaceholder();
         }
 
-        if (currentVideoUrl == null || state.isLoading) {
+        if (currentVideoUrl == null || state.isLoading || _controller == null) {
           return const Center(
             child: CircularProgressIndicator(strokeWidth: 2),
           );
         }
 
-        return _controller.value.isInitialized
+        return _controller!.value.isInitialized
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: VideoPlayer(_controller),
+                child: VideoPlayer(_controller!),
               )
             : const Center(
                 child: CircularProgressIndicator(strokeWidth: 2),
@@ -234,16 +234,16 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
   }
 
   void _initializeVideoController(String videoUrl) {
-    _controller.dispose();
+    _controller?.dispose();
     currentVideoUrl = videoUrl;
 
     _controller = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
 
-    _controller.initialize().then((_) {
+    _controller!.initialize().then((_) {
       if (mounted) {
         setState(() {});
-        _controller.setLooping(true);
-        _controller.play();
+        _controller!.setLooping(true);
+        _controller!.play();
 
         // Notify bloc of successful load
         context
@@ -264,7 +264,7 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 }

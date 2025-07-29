@@ -48,15 +48,15 @@ void testIpfsGatewayManager() {
         }
       });
 
-      test('should use custom failure cooldown when provided', () {
+      test('should use custom failure cooldown when provided', () async {
         const customCooldown = Duration(minutes: 10);
         final manager = IpfsGatewayManager(failureCooldown: customCooldown);
 
         // Test cooldown by marking a URL as failed and checking timing
         const testUrl = 'https://test.gateway.com/ipfs/QmTest';
-        manager.logGatewayAttempt(testUrl, false);
+        await manager.logGatewayAttempt(testUrl, false);
 
-        expect(manager.shouldSkipUrl(testUrl), isTrue);
+        expect(await manager.shouldSkipUrl(testUrl), isTrue);
       });
     });
 
@@ -250,52 +250,24 @@ void testIpfsGatewayManager() {
       });
     });
 
-    group('Gateway Fallback', () {
-      test('should provide next gateway URL for fallback', () {
-        const originalUrl = 'ipfs://QmTest';
-        final allUrls = manager.getGatewayUrls(originalUrl);
-
-        if (allUrls.length > 1) {
-          final nextUrl = manager.getNextGatewayUrl(allUrls.first, originalUrl);
-          expect(nextUrl, equals(allUrls[1]));
-        }
-      });
-
-      test('should return null when no more fallbacks available', () {
-        const originalUrl = 'ipfs://QmTest';
-        final allUrls = manager.getGatewayUrls(originalUrl);
-
-        final nextUrl = manager.getNextGatewayUrl(allUrls.last, originalUrl);
-        expect(nextUrl, isNull);
-      });
-
-      test('should return null for unknown failed URL', () {
-        const originalUrl = 'ipfs://QmTest';
-        const unknownUrl = 'https://unknown.gateway.com/ipfs/QmTest';
-
-        final nextUrl = manager.getNextGatewayUrl(unknownUrl, originalUrl);
-        expect(nextUrl, isNull);
-      });
-    });
-
     group('Failure Tracking and Circuit Breaker', () {
-      test('should track failed URLs', () {
+      test('should track failed URLs', () async {
         const testUrl = 'https://test.gateway.com/ipfs/QmTest';
 
-        expect(manager.shouldSkipUrl(testUrl), isFalse);
+        expect(await manager.shouldSkipUrl(testUrl), isFalse);
 
-        manager.logGatewayAttempt(testUrl, false);
-        expect(manager.shouldSkipUrl(testUrl), isTrue);
+        await manager.logGatewayAttempt(testUrl, false);
+        expect(await manager.shouldSkipUrl(testUrl), isTrue);
       });
 
-      test('should remove URLs from failed set on success', () {
+      test('should remove URLs from failed set on success', () async {
         const testUrl = 'https://test.gateway.com/ipfs/QmTest';
 
-        manager.logGatewayAttempt(testUrl, false);
-        expect(manager.shouldSkipUrl(testUrl), isTrue);
+        await manager.logGatewayAttempt(testUrl, false);
+        expect(await manager.shouldSkipUrl(testUrl), isTrue);
 
-        manager.logGatewayAttempt(testUrl, true);
-        expect(manager.shouldSkipUrl(testUrl), isFalse);
+        await manager.logGatewayAttempt(testUrl, true);
+        expect(await manager.shouldSkipUrl(testUrl), isFalse);
       });
 
       test('should respect failure cooldown period', () async {
@@ -304,44 +276,28 @@ void testIpfsGatewayManager() {
           failureCooldown: const Duration(milliseconds: 100),
         );
 
-        shortCooldownManager.logGatewayAttempt(testUrl, false);
-        expect(shortCooldownManager.shouldSkipUrl(testUrl), isTrue);
+        await shortCooldownManager.logGatewayAttempt(testUrl, false);
+        expect(await shortCooldownManager.shouldSkipUrl(testUrl), isTrue);
 
         // Wait for cooldown to expire
         await Future.delayed(const Duration(milliseconds: 150));
-        expect(shortCooldownManager.shouldSkipUrl(testUrl), isFalse);
+        expect(await shortCooldownManager.shouldSkipUrl(testUrl), isFalse);
       });
 
-      test('should filter out failed URLs from reliable gateway URLs', () {
+      test('should filter out failed URLs from reliable gateway URLs',
+          () async {
         const originalUrl = 'ipfs://QmTest';
         final allUrls = manager.getGatewayUrls(originalUrl);
 
         if (allUrls.isNotEmpty) {
           // Mark first gateway as failed
-          manager.logGatewayAttempt(allUrls.first, false);
+          await manager.logGatewayAttempt(allUrls.first, false);
 
-          final reliableUrls = manager.getReliableGatewayUrls(originalUrl);
+          final reliableUrls =
+              await manager.getReliableGatewayUrls(originalUrl);
           expect(reliableUrls.length, equals(allUrls.length - 1));
           expect(reliableUrls.contains(allUrls.first), isFalse);
         }
-      });
-    });
-
-    group('Gateway Support Validation', () {
-      test('should validate gateway support for current platform', () {
-        expect(IpfsGatewayManager.isGatewaySupported('https://dweb.link/ipfs/'),
-            isTrue);
-        expect(
-            IpfsGatewayManager.isGatewaySupported(
-                'https://gateway.pinata.cloud/ipfs/'),
-            isTrue);
-      });
-
-      test('should handle special cases for web platform', () {
-        // This test is primarily for documentation of the current behavior
-        // The actual implementation may need adjustment based on real-world testing
-        expect(IpfsGatewayManager.isGatewaySupported('https://ipfs.io/ipfs/'),
-            isTrue);
       });
     });
 
@@ -475,33 +431,33 @@ void testIpfsGatewayManager() {
     });
 
     group('Performance and Logging', () {
-      test('should log gateway attempts with success', () {
+      test('should log gateway attempts with success', () async {
         const testUrl = 'https://test.gateway.com/ipfs/QmTest';
         const loadTime = Duration(milliseconds: 250);
 
         // Should not throw
-        expect(
-          () => manager.logGatewayAttempt(
+        await expectLater(
+          manager.logGatewayAttempt(
             testUrl,
             true,
             loadTime: loadTime,
           ),
-          returnsNormally,
+          completes,
         );
       });
 
-      test('should log gateway attempts with failure', () {
+      test('should log gateway attempts with failure', () async {
         const testUrl = 'https://test.gateway.com/ipfs/QmTest';
         const errorMessage = 'Connection timeout';
 
         // Should not throw
-        expect(
-          () => manager.logGatewayAttempt(
+        await expectLater(
+          manager.logGatewayAttempt(
             testUrl,
             false,
             errorMessage: errorMessage,
           ),
-          returnsNormally,
+          completes,
         );
       });
     });

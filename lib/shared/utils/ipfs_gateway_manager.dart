@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:mutex/mutex.dart';
 import 'package:web_dex/shared/constants/ipfs_constants.dart';
 
 /// Manages IPFS gateway selection and fallback mechanisms for reliable content loading
@@ -8,24 +10,33 @@ class IpfsGatewayManager {
   /// [webOptimizedGateways] - List of gateways optimized for web platforms
   /// [standardGateways] - List of gateways for non-web platforms
   /// [failureCooldown] - Duration to wait before retrying a failed gateway
+  /// [httpClient] - HTTP client for testing URL accessibility (optional, defaults to http.Client())
+  /// [urlTestTimeout] - Timeout duration for URL accessibility tests
   IpfsGatewayManager({
     List<String>? webOptimizedGateways,
     List<String>? standardGateways,
     Duration? failureCooldown,
+    http.Client? httpClient,
+    Duration? urlTestTimeout,
   })  : _webOptimizedGateways =
             webOptimizedGateways ?? IpfsConstants.defaultWebOptimizedGateways,
         _standardGateways =
             standardGateways ?? IpfsConstants.defaultStandardGateways,
-        _failureCooldown = failureCooldown ?? IpfsConstants.failureCooldown;
+        _failureCooldown = failureCooldown ?? IpfsConstants.failureCooldown,
+        _httpClient = httpClient ?? http.Client(),
+        _urlTestTimeout = urlTestTimeout ?? const Duration(seconds: 5);
 
   // Configuration
   final List<String> _webOptimizedGateways;
   final List<String> _standardGateways;
   final Duration _failureCooldown;
+  final http.Client _httpClient;
+  final Duration _urlTestTimeout;
 
-  // Failed URL tracking for circuit breaker pattern
+  // Failed URL tracking for circuit breaker pattern - protected by mutex for thread safety
   final Set<String> _failedUrls = <String>{};
   final Map<String, DateTime> _failureTimestamps = <String, DateTime>{};
+  final ReadWriteMutex _collectionsMutex = ReadWriteMutex();
 
   // Gateway patterns to normalize to our preferred gateways
   static final RegExp _gatewayPattern = RegExp(
@@ -115,52 +126,24 @@ class IpfsGatewayManager {
         url.toLowerCase().contains('/ipfs/');
   }
 
-  /// Gets the next gateway URL after a failed attempt
-  String? getNextGatewayUrl(String failedUrl, String originalUrl) {
-    final allUrls = getGatewayUrls(originalUrl);
-    final currentIndex = allUrls.indexOf(failedUrl);
-
-    if (currentIndex == -1 || currentIndex >= allUrls.length - 1) {
-      return null; // No more fallbacks available
-    }
-
-    return allUrls[currentIndex + 1];
-  }
-
-  /// Validates if a gateway is likely to work on the current platform
-  static bool isGatewaySupported(String gatewayUrl) {
-    // For web, avoid gateways known to have issues
-    if (kIsWeb) {
-      // Check for browser-specific issues
-      final userAgent =
-          kIsWeb ? (identical(0, 0.0) ? 'unknown' : 'web') : 'native';
-
-      // Brave browser sometimes has issues with ipfs.io
-      if (gatewayUrl.contains('ipfs.io') &&
-          userAgent.toLowerCase().contains('brave')) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   /// Logs gateway performance for debugging
-  void logGatewayAttempt(
+  Future<void> logGatewayAttempt(
     String gatewayUrl,
     bool success, {
     String? errorMessage,
     Duration? loadTime,
-  }) {
-    if (success) {
-      // Remove from failed set on success
-      _failedUrls.remove(gatewayUrl);
-      _failureTimestamps.remove(gatewayUrl);
-    } else {
-      // Mark as failed
-      _failedUrls.add(gatewayUrl);
-      _failureTimestamps[gatewayUrl] = DateTime.now();
-    }
+  }) async {
+    await _collectionsMutex.protectWrite(() async {
+      if (success) {
+        // Remove from failed set on success
+        _failedUrls.remove(gatewayUrl);
+        _failureTimestamps.remove(gatewayUrl);
+      } else {
+        // Mark as failed
+        _failedUrls.add(gatewayUrl);
+        _failureTimestamps[gatewayUrl] = DateTime.now();
+      }
+    });
 
     if (kDebugMode) {
       final status = success ? 'SUCCESS' : 'FAILED';
@@ -172,26 +155,95 @@ class IpfsGatewayManager {
   }
 
   /// Checks if a URL should be skipped due to recent failures
-  bool shouldSkipUrl(String url) {
-    if (!_failedUrls.contains(url)) return false;
+  Future<bool> shouldSkipUrl(String url) async {
+    return await _collectionsMutex.protectWrite(() async {
+      if (!_failedUrls.contains(url)) return false;
 
-    final failureTime = _failureTimestamps[url];
-    if (failureTime == null) return false;
+      final failureTime = _failureTimestamps[url];
+      if (failureTime == null) return false;
 
-    final now = DateTime.now();
-    if (now.difference(failureTime) > _failureCooldown) {
-      // Cooldown expired, remove from failed set
-      _failedUrls.remove(url);
-      _failureTimestamps.remove(url);
-      return false;
-    }
+      final now = DateTime.now();
+      if (now.difference(failureTime) > _failureCooldown) {
+        // Cooldown expired, remove from failed set
+        _failedUrls.remove(url);
+        _failureTimestamps.remove(url);
+        return false;
+      }
 
-    return true;
+      return true;
+    });
   }
 
   /// Gets gateway URLs excluding recently failed ones
-  List<String> getReliableGatewayUrls(String? url) {
+  Future<List<String>> getReliableGatewayUrls(String? url) async {
     final allUrls = getGatewayUrls(url);
-    return allUrls.where((url) => !shouldSkipUrl(url)).toList();
+    final reliableUrls = <String>[];
+
+    for (final urlToCheck in allUrls) {
+      final shouldSkip = await shouldSkipUrl(urlToCheck);
+      if (!shouldSkip) {
+        reliableUrls.add(urlToCheck);
+      }
+    }
+
+    return reliableUrls;
+  }
+
+  /// Test if a URL is accessible by making a HEAD request
+  Future<bool> testUrlAccessibility(String url) async {
+    try {
+      final response =
+          await _httpClient.head(Uri.parse(url)).timeout(_urlTestTimeout);
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Find the first working URL from a list of URLs
+  ///
+  /// [urls] - List of URLs to test
+  /// [startIndex] - Index to start testing from (defaults to 0)
+  /// [onUrlTested] - Optional callback called for each URL test result
+  Future<String?> findWorkingUrl(
+    List<String> urls, {
+    int startIndex = 0,
+    void Function(String url, bool success, String? errorMessage)? onUrlTested,
+  }) async {
+    for (int i = startIndex; i < urls.length; i++) {
+      final url = urls[i];
+
+      // Skip URLs that are recently failed according to circuit breaker
+      final shouldSkip = await shouldSkipUrl(url);
+      if (shouldSkip) {
+        continue;
+      }
+
+      final isWorking = await testUrlAccessibility(url);
+
+      // Call the callback if provided
+      onUrlTested?.call(
+        url,
+        isWorking,
+        isWorking ? null : 'URL accessibility test failed',
+      );
+
+      if (isWorking) {
+        return url;
+      } else {
+        // Log the failed attempt
+        await logGatewayAttempt(
+          url,
+          false,
+          errorMessage: 'URL accessibility test failed',
+        );
+      }
+    }
+    return null;
+  }
+
+  /// Dispose of resources
+  void dispose() {
+    _httpClient.close();
   }
 }
