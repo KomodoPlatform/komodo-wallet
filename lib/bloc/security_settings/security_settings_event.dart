@@ -66,16 +66,6 @@ class ShowPrivateKeysEvent extends SecuritySettingsEvent {
   const ShowPrivateKeysEvent();
 }
 
-/// Event to proceed to private key confirmation.
-class PrivateKeyConfirmEvent extends SecuritySettingsEvent {
-  const PrivateKeyConfirmEvent();
-}
-
-/// Event when the user has confirmed they saved their private keys.
-class PrivateKeyConfirmedEvent extends SecuritySettingsEvent {
-  const PrivateKeyConfirmedEvent();
-}
-
 /// Event to toggle visibility of private keys in the UI.
 ///
 /// **Security Note**: This only controls UI visibility state.
@@ -91,6 +81,11 @@ class ShowPrivateKeysWordsEvent extends SecuritySettingsEvent {
 /// Event when private keys have been copied to clipboard.
 class ShowPrivateKeysCopiedEvent extends SecuritySettingsEvent {
   const ShowPrivateKeysCopiedEvent();
+}
+
+/// Event to download private keys to a file.
+class PrivateKeysDownloadRequestedEvent extends SecuritySettingsEvent {
+  const PrivateKeysDownloadRequestedEvent();
 }
 
 /// Event to clear any authentication errors.

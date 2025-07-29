@@ -523,6 +523,8 @@
   "privateKeyExportDescription": "Your private keys provide full control over your funds. Handle with extreme caution.",
   "showPrivateKeys": "Show Private Keys",
   "copyAllKeys": "Copy All Keys",
+  "downloadAllKeys": "Download All Keys",
+  "shareAllKeys": "Share All Keys",
   "confirmPrivateKeyBackup": "Confirm Private Key Backup",
   "confirmPrivateKeyBackupDescription": "Please confirm you have securely saved your private keys before proceeding.",
   "importantSecurityNotice": "Important Security Notice",

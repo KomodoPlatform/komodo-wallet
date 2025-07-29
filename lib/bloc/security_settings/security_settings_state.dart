@@ -19,12 +19,6 @@ enum SecuritySettingsStep {
   /// Note: Actual private key data is NOT stored in state for security reasons.
   privateKeyShow,
 
-  /// The screen confirming that the private keys have been written down.
-  privateKeyConfirm,
-
-  /// The screen showing that the private keys have been successfully confirmed.
-  privateKeySuccess,
-
   /// The screen for updating the wallet password.
   passwordUpdate,
 }
@@ -89,15 +83,15 @@ class SecuritySettingsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        step,
-        showSeedWords,
-        isSeedSaved,
-        showPrivateKeys,
-        arePrivateKeysSaved,
-        isAuthenticating,
-        privateKeyAuthenticationSuccess,
-        authError,
-      ];
+    step,
+    showSeedWords,
+    isSeedSaved,
+    showPrivateKeys,
+    arePrivateKeysSaved,
+    isAuthenticating,
+    privateKeyAuthenticationSuccess,
+    authError,
+  ];
 
   /// Creates a copy of this state with the given fields replaced with new values.
   SecuritySettingsState copyWith({
@@ -118,7 +112,8 @@ class SecuritySettingsState extends Equatable {
       showPrivateKeys: showPrivateKeys ?? this.showPrivateKeys,
       arePrivateKeysSaved: arePrivateKeysSaved ?? this.arePrivateKeysSaved,
       isAuthenticating: isAuthenticating ?? this.isAuthenticating,
-      privateKeyAuthenticationSuccess: privateKeyAuthenticationSuccess ??
+      privateKeyAuthenticationSuccess:
+          privateKeyAuthenticationSuccess ??
           this.privateKeyAuthenticationSuccess,
       authError: clearAuthError ? null : (authError ?? this.authError),
     );

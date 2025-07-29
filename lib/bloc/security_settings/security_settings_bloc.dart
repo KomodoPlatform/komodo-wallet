@@ -20,10 +20,8 @@ class SecuritySettingsBloc
   ///
   /// [initialState] The initial state for the bloc.
   /// [kdfSdk] The Komodo DeFi SDK instance for authentication operations.
-  SecuritySettingsBloc(
-    super.initialState, {
-    KomodoDefiSdk? kdfSdk,
-  }) : _kdfSdk = kdfSdk {
+  SecuritySettingsBloc(super.initialState, {KomodoDefiSdk? kdfSdk})
+    : _kdfSdk = kdfSdk {
     // Seed phrase events
     on<ResetEvent>(_onReset);
     on<ShowSeedEvent>(_onShowSeed);
@@ -36,10 +34,9 @@ class SecuritySettingsBloc
     // Private key events - hybrid security approach
     on<AuthenticateForPrivateKeysEvent>(_onAuthenticateForPrivateKeys);
     on<ShowPrivateKeysEvent>(_onShowPrivateKeys);
-    on<PrivateKeyConfirmEvent>(_onPrivateKeyConfirm);
-    on<PrivateKeyConfirmedEvent>(_onPrivateKeyConfirmed);
     on<ShowPrivateKeysWordsEvent>(_onShowPrivateKeysWords);
     on<ShowPrivateKeysCopiedEvent>(_onPrivateKeysCopied);
+    on<PrivateKeysDownloadRequestedEvent>(_onPrivateKeysDownloadRequested);
     on<ClearAuthenticationErrorEvent>(_onClearAuthenticationError);
   }
 
@@ -50,20 +47,14 @@ class SecuritySettingsBloc
   // MARK: - Reset and Navigation Events
 
   /// Handles resetting the security settings to initial state.
-  void _onReset(
-    ResetEvent event,
-    Emitter<SecuritySettingsState> emit,
-  ) {
+  void _onReset(ResetEvent event, Emitter<SecuritySettingsState> emit) {
     emit(SecuritySettingsState.initialState());
   }
 
   // MARK: - Seed Phrase Events
 
   /// Handles showing the seed phrase backup screen.
-  void _onShowSeed(
-    ShowSeedEvent event,
-    Emitter<SecuritySettingsState> emit,
-  ) {
+  void _onShowSeed(ShowSeedEvent event, Emitter<SecuritySettingsState> emit) {
     final newState = state.copyWith(
       step: SecuritySettingsStep.seedShow,
       showSeedWords: false,
@@ -143,10 +134,7 @@ class SecuritySettingsBloc
     AuthenticateForPrivateKeysEvent event,
     Emitter<SecuritySettingsState> emit,
   ) async {
-    emit(state.copyWith(
-      isAuthenticating: true,
-      clearAuthError: true,
-    ));
+    emit(state.copyWith(isAuthenticating: true, clearAuthError: true));
 
     try {
       // Verify user is authenticated without handling sensitive data
@@ -156,23 +144,29 @@ class SecuritySettingsBloc
 
       final currentUser = await _kdfSdk.auth.currentUser;
       if (currentUser == null) {
-        emit(state.copyWith(
-          isAuthenticating: false,
-          authError: 'User not authenticated',
-        ));
+        emit(
+          state.copyWith(
+            isAuthenticating: false,
+            authError: 'User not authenticated',
+          ),
+        );
         return;
       }
 
       // Authentication successful - signal UI to fetch private keys
-      emit(state.copyWith(
-        isAuthenticating: false,
-        privateKeyAuthenticationSuccess: true,
-      ));
+      emit(
+        state.copyWith(
+          isAuthenticating: false,
+          privateKeyAuthenticationSuccess: true,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        isAuthenticating: false,
-        authError: 'Authentication failed: ${e.toString()}',
-      ));
+      emit(
+        state.copyWith(
+          isAuthenticating: false,
+          authError: 'Authentication failed: ${e.toString()}',
+        ),
+      );
     }
   }
 
@@ -209,33 +203,17 @@ class SecuritySettingsBloc
     emit(newState);
   }
 
-  /// Handles proceeding to private key confirmation.
-  void _onPrivateKeyConfirm(
-    PrivateKeyConfirmEvent event,
-    Emitter<SecuritySettingsState> emit,
-  ) {
-    final newState = state.copyWith(
-      step: SecuritySettingsStep.privateKeyConfirm,
-      showPrivateKeys: false,
-    );
-    emit(newState);
-  }
-
-  /// Handles successful private key confirmation.
-  Future<void> _onPrivateKeyConfirmed(
-    PrivateKeyConfirmedEvent event,
-    Emitter<SecuritySettingsState> emit,
-  ) async {
-    final newState = state.copyWith(
-      step: SecuritySettingsStep.privateKeySuccess,
-      showPrivateKeys: false,
-    );
-    emit(newState);
-  }
-
   /// Handles private keys being copied to clipboard.
   Future<void> _onPrivateKeysCopied(
     ShowPrivateKeysCopiedEvent event,
+    Emitter<SecuritySettingsState> emit,
+  ) async {
+    emit(state.copyWith(arePrivateKeysSaved: true));
+  }
+
+  /// Handles private keys being downloaded to a file.
+  Future<void> _onPrivateKeysDownloadRequested(
+    PrivateKeysDownloadRequestedEvent event,
     Emitter<SecuritySettingsState> emit,
   ) async {
     emit(state.copyWith(arePrivateKeysSaved: true));

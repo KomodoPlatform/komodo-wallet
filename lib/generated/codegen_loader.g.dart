@@ -520,6 +520,8 @@ abstract class  LocaleKeys {
   static const privateKeyExportDescription = 'privateKeyExportDescription';
   static const showPrivateKeys = 'showPrivateKeys';
   static const copyAllKeys = 'copyAllKeys';
+  static const downloadAllKeys = 'downloadAllKeys';
+  static const shareAllKeys = 'shareAllKeys';
   static const confirmPrivateKeyBackup = 'confirmPrivateKeyBackup';
   static const confirmPrivateKeyBackupDescription = 'confirmPrivateKeyBackupDescription';
   static const importantSecurityNotice = 'importantSecurityNotice';

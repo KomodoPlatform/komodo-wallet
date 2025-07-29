@@ -14,9 +14,9 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 /// - Does NOT store or handle any sensitive data itself
 /// - Triggers the secure private key export process through callbacks
 ///
-/// **Design Pattern**: Similar to [PlateSeedBackup] but specifically designed
-/// for private key export functionality with appropriate security messaging
-/// and visual indicators.
+/// **Design Pattern**: Responsive single widget that adapts layout based on
+/// screen size and available width, similar to [PlateSeedBackup] but specifically
+/// designed for private key export functionality.
 class PlatePrivateKeyBackup extends StatelessWidget {
   /// Creates a new PlatePrivateKeyBackup widget.
   ///
@@ -36,99 +36,97 @@ class PlatePrivateKeyBackup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isMobile
-        ? _MobileBody(onViewPrivateKeysPressed: onViewPrivateKeysPressed)
-        : _DesktopBody(onViewPrivateKeysPressed: onViewPrivateKeysPressed);
+    return _ResponsiveBody(onViewPrivateKeysPressed: onViewPrivateKeysPressed);
   }
 }
 
-/// Mobile layout for the private key backup section.
-class _MobileBody extends StatelessWidget {
-  const _MobileBody({required this.onViewPrivateKeysPressed});
+/// Single responsive widget that handles all layout cases.
+/// Adapts between mobile/desktop and column/row layouts based on screen size.
+class _ResponsiveBody extends StatelessWidget {
+  const _ResponsiveBody({required this.onViewPrivateKeysPressed});
 
   final Function(BuildContext context) onViewPrivateKeysPressed;
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = !isMobile;
+
+    // Determine layout type based on screen size and platform
+    final useColumnLayout = isMobile || screenWidth < 600.0;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: _getPadding(isDesktop),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiary,
         borderRadius: BorderRadius.circular(18.0),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Row(
+      child: useColumnLayout
+          ? _buildColumnLayout(isDesktop)
+          : _buildRowLayout(),
+    );
+  }
+
+  /// Returns appropriate padding based on platform
+  EdgeInsets _getPadding(bool isDesktop) {
+    return isDesktop
+        ? const EdgeInsets.all(24)
+        : const EdgeInsets.symmetric(horizontal: 12);
+  }
+
+  /// Builds column layout for mobile or constrained desktop widths
+  Widget _buildColumnLayout(bool isDesktop) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: isDesktop ? 16 : 24),
+        const _PrivateKeyIcon(),
+        SizedBox(height: isDesktop ? 16 : 28),
+        const _PrivateKeyTitle(),
+        const SizedBox(height: 12),
+        const _PrivateKeyBody(),
+        SizedBox(height: isDesktop ? 16 : 8),
+        _PrivateKeyButtons(onViewPrivateKeysPressed: onViewPrivateKeysPressed),
+        SizedBox(height: isDesktop ? 16 : 6),
+      ],
+    );
+  }
+
+  /// Builds row layout for wide desktop screens
+  Widget _buildRowLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Row(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            const SizedBox(width: 12),
             const _PrivateKeyIcon(),
-            const SizedBox(width: 22.5),
-            Expanded(
+            const SizedBox(width: 26),
+            Align(
+              alignment: Alignment.centerLeft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 12),
                   const _PrivateKeyTitle(),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   const _PrivateKeyBody(),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            Spacer(),
             _PrivateKeyButtons(
               onViewPrivateKeysPressed: onViewPrivateKeysPressed,
             ),
+            const SizedBox(width: 16),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Desktop layout for the private key backup section.
-class _DesktopBody extends StatelessWidget {
-  const _DesktopBody({required this.onViewPrivateKeysPressed});
-
-  final Function(BuildContext context) onViewPrivateKeysPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary,
-        borderRadius: BorderRadius.circular(18.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(width: 12),
-              const _PrivateKeyIcon(),
-              const SizedBox(width: 26),
-              const Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 12),
-                    _PrivateKeyTitle(),
-                    SizedBox(height: 12),
-                    _PrivateKeyBody(),
-                    SizedBox(height: 12),
-                  ],
-                ),
-              ),
-              Spacer(),
-              _PrivateKeyButtons(
-                  onViewPrivateKeysPressed: onViewPrivateKeysPressed),
-              const SizedBox(width: 16),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -142,8 +140,11 @@ class _PrivateKeyIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.key,
-        size: 50, color: theme.custom.defaultGradientButtonTextColor);
+    return Icon(
+      Icons.key,
+      size: 50,
+      color: theme.custom.defaultGradientButtonTextColor,
+    );
   }
 }
 
@@ -170,11 +171,13 @@ class _PrivateKeyTitle extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 7),
-        Text(
-          LocaleKeys.exportPrivateKeys.tr(),
-          style: TextStyle(
-            fontSize: isMobile ? 15 : 16,
-            fontWeight: FontWeight.w700,
+        Flexible(
+          child: Text(
+            LocaleKeys.exportPrivateKeys.tr(),
+            style: TextStyle(
+              fontSize: isMobile ? 15 : 16,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],
@@ -216,8 +219,8 @@ class _PrivateKeyButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = LocaleKeys.exportPrivateKeys.tr();
-    final width = isMobile ? 140.0 : 187.0;
-    final height = isMobile ? 48.0 : 40.0;
+    final width = isMobile ? double.infinity : 187.0;
+    final height = isMobile ? 52.0 : 40.0;
 
     return UiPrimaryButton(
       onPressed: () => onViewPrivateKeysPressed(context),

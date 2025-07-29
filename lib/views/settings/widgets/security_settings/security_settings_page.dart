@@ -20,8 +20,6 @@ import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/s
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_confirmation/seed_confirmation.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_show.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_show.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_confirmation.dart';
-import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_confirm_success.dart';
 
 /// Security settings page that manages both seed phrase and private key backup flows.
 ///
@@ -130,13 +128,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       case SecuritySettingsStep.seedConfirm:
         context.read<SecuritySettingsBloc>().add(const ShowSeedEvent());
         break;
-      case SecuritySettingsStep.privateKeyConfirm:
-        context.read<SecuritySettingsBloc>().add(const ShowPrivateKeysEvent());
-        break;
       case SecuritySettingsStep.seedShow:
       case SecuritySettingsStep.seedSuccess:
       case SecuritySettingsStep.privateKeyShow:
-      case SecuritySettingsStep.privateKeySuccess:
       case SecuritySettingsStep.passwordUpdate:
         context.read<SecuritySettingsBloc>().add(const ResetEvent());
         break;
@@ -158,8 +152,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         _clearPrivateKeyData();
         break;
       case SecuritySettingsStep.privateKeyShow:
-      case SecuritySettingsStep.privateKeyConfirm:
-      case SecuritySettingsStep.privateKeySuccess:
         // Private key data should persist during private key flow
         break;
     }
@@ -187,13 +179,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
       case SecuritySettingsStep.privateKeyShow:
         return PrivateKeyShow(privateKeys: _sdkPrivateKeys ?? {});
-
-      case SecuritySettingsStep.privateKeyConfirm:
-        return const PrivateKeyConfirmation();
-
-      case SecuritySettingsStep.privateKeySuccess:
-        _clearAllSensitiveData(); // Clear data after successful backup
-        return const PrivateKeyConfirmSuccess();
 
       case SecuritySettingsStep.passwordUpdate:
         _clearAllSensitiveData(); // Clear data when changing password
