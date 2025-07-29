@@ -32,6 +32,9 @@ import 'package:web_dex/sdk/widgets/window_close_handler.dart';
 import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
+import 'package:web_dex/services/performance/performance_optimizer.dart';
+import 'package:web_dex/services/lazy_loading/lazy_loading_service.dart';
+import 'package:web_dex/services/asset_optimization/asset_optimizer.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -39,6 +42,31 @@ import 'package:web_dex/shared/utils/utils.dart';
 part 'services/initializer/app_bootstrapper.dart';
 
 PerformanceMode? _appDemoPerformanceMode;
+
+/// Initialize performance optimizations
+Future<void> _initializePerformanceOptimizations() async {
+  try {
+    // Initialize asset optimizer
+    await AssetOptimizer.instance.preloadCriticalAssets();
+    
+    // Initialize lazy loading service
+    await LazyLoadingService.instance.preloadModules([
+      LazyLoadingService.walletModule,
+      LazyLoadingService.settingsModule,
+    ]);
+    
+    // Optimize font loading
+    await AssetOptimizer.instance.optimizeFontLoading();
+    
+    if (kDebugMode) {
+      print('Performance optimizations initialized');
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error initializing performance optimizations: $e');
+    }
+  }
+}
 
 PerformanceMode? get appDemoPerformanceMode =>
     _appDemoPerformanceMode ?? _getPerformanceModeFromUrl();
@@ -50,6 +78,9 @@ Future<void> main() async {
       WidgetsFlutterBinding.ensureInitialized();
       Bloc.observer = AppBlocObserver();
       PerformanceAnalytics.init();
+      
+      // Initialize performance optimizations
+      await _initializePerformanceOptimizations();
 
       FlutterError.onError = (FlutterErrorDetails details) {
         catchUnhandledExceptions(details.exception, details.stack);

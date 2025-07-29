@@ -13,6 +13,7 @@ import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/services/performance/performance_optimizer.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 part 'coins_event.dart';
@@ -49,6 +50,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   StreamSubscription<Coin>? _enabledCoinsSubscription;
   Timer? _updateBalancesTimer;
   Timer? _updatePricesTimer;
+  final _performanceOptimizer = PerformanceOptimizer.instance;
 
   @override
   Future<void> close() async {
@@ -101,9 +103,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     add(CoinsPricesUpdated());
     _updatePricesTimer?.cancel();
-    _updatePricesTimer = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => add(CoinsPricesUpdated()),
+    _updatePricesTimer = _performanceOptimizer.createThrottledTimer(
+      'coins_prices_update',
+      () => add(CoinsPricesUpdated()),
+      throttleTime: const Duration(minutes: 1),
     );
 
     // This is used to connect [CoinsBloc] to [CoinsManagerBloc] via [CoinsRepo],
@@ -186,9 +189,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     _updateBalancesTimer?.cancel();
-    _updateBalancesTimer = Timer.periodic(
-      const Duration(minutes: 1),
-      (timer) => add(CoinsBalancesRefreshed()),
+    _updateBalancesTimer = _performanceOptimizer.createThrottledTimer(
+      'coins_balances_update',
+      () => add(CoinsBalancesRefreshed()),
+      throttleTime: const Duration(minutes: 1),
     );
   }
 
