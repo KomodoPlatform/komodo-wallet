@@ -71,18 +71,20 @@ class IpfsGatewayManager {
       return url.substring(IpfsConstants.ipfsProtocol.length);
     }
 
+    // Handle gateway format (e.g., https://gateway.com/ipfs/QmXYZ)
+    // handle gateway first, since subdomain format will also match
+    // this pattern
+    final gatewayMatch = _gatewayPattern.firstMatch(url);
+    if (gatewayMatch != null) {
+      return url.substring(gatewayMatch.end);
+    }
+
     // Handle subdomain format (e.g., https://QmXYZ.ipfs.dweb.link/path)
     final subdomainMatch = _subdomainPattern.firstMatch(url);
     if (subdomainMatch != null) {
       final cid = subdomainMatch.group(1)!;
       final remainingPath = url.substring(subdomainMatch.end);
       return remainingPath.isEmpty ? cid : '$cid$remainingPath';
-    }
-
-    // Handle gateway format (e.g., https://gateway.com/ipfs/QmXYZ)
-    final gatewayMatch = _gatewayPattern.firstMatch(url);
-    if (gatewayMatch != null) {
-      return url.substring(gatewayMatch.end);
     }
 
     // Check if URL contains /ipfs/ somewhere
