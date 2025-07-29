@@ -52,8 +52,22 @@ class _UnbanPubkeysPlateState extends State<UnbanPubkeysPlate> {
   void _handleStateChanges(BuildContext context, SecuritySettingsState state) {
     // Handle successful unban completion
     if (state.unbanResult != null && !state.isUnbanningPubkeys) {
-      _showResultDialog(context, state.unbanResult!);
-      _showSnackbar(context, state.unbanResult!);
+      final result = state.unbanResult!;
+
+      // Check if there are meaningful results to show in dialog
+      final hasResults =
+          result.unbanned.isNotEmpty ||
+          result.stillBanned.isNotEmpty ||
+          result.wereNotBanned.isNotEmpty;
+
+      if (hasResults) {
+        // Show dialog with detailed results
+        _showResultDialog(context, result);
+      } else {
+        // Show snackbar for empty results
+        _showSnackbar(context, result);
+      }
+
       widget.onUnbanComplete?.call();
     }
 
