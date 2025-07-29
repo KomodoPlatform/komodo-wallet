@@ -12,6 +12,7 @@ import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fee_priority_field.dart';
 
 class ToAddressField extends StatelessWidget {
   const ToAddressField({super.key});
@@ -127,6 +128,9 @@ class FeeSection extends StatelessWidget {
               //   const Divider(),
               //   _buildFeeSummary(context, state.customFee!, state.asset),
               // ],
+            ] else ...[
+              const SizedBox(height: 8),
+              const FeePriorityField(),
             ],
           ],
         );

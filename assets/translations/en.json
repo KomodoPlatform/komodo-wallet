@@ -334,7 +334,7 @@
   "viewSeedPhrase": "View seed phrase",
   "backupSeedPhrase": "Backup seed phrase",
   "seedOr": "OR",
-  "seedDownload": "Download seed phrase file",
+  "seedDownload": "Download seed phrase",
   "seedSaveAndRemember": "Save and remember",
   "seedIntroWarning": "This phrase is the main access to your\nassets, save and never share this phrase",
   "seedSettings": "Seed phrase",

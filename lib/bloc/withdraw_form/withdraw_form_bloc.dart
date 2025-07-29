@@ -44,8 +44,11 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     on<WithdrawFormReset>(_onReset);
     on<WithdrawFormSourcesLoadRequested>(_onSourcesLoadRequested);
     on<WithdrawFormConvertAddressRequested>(_onConvertAddress);
+    on<WithdrawFormFeeOptionsRequested>(_onFeeOptionsRequested);
+    on<WithdrawFormFeePriorityChanged>(_onFeePriorityChanged);
 
     add(const WithdrawFormSourcesLoadRequested());
+    add(const WithdrawFormFeeOptionsRequested());
   }
 
   Future<void> _onSourcesLoadRequested(
@@ -373,7 +376,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       emit(
         state.copyWith(
           ibcChannel: () => event.channel,
-          ibcChannelError: () => TextError(error: LocaleKeys.enterIbcChannel.tr()),
+          ibcChannelError: () =>
+              TextError(error: LocaleKeys.enterIbcChannel.tr()),
         ),
       );
       return;
@@ -385,6 +389,36 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         ibcChannelError: () => null,
       ),
     );
+  }
+
+  Future<void> _onFeeOptionsRequested(
+    WithdrawFormFeeOptionsRequested event,
+    Emitter<WithdrawFormState> emit,
+  ) async {
+    try {
+      final options = await _sdk.withdrawals.getFeeOptions(state.asset.id.id);
+      if (options != null) {
+        emit(
+          state.copyWith(
+            feeOptions: () => options,
+            networkError: () => null,
+          ),
+        );
+      }
+    } catch (e) {
+      emit(
+        state.copyWith(
+          networkError: () => TextError(error: 'Failed to load fees: $e'),
+        ),
+      );
+    }
+  }
+
+  void _onFeePriorityChanged(
+    WithdrawFormFeePriorityChanged event,
+    Emitter<WithdrawFormState> emit,
+  ) {
+    emit(state.copyWith(feePriority: event.priority));
   }
 
   Future<void> _onPreviewSubmitted(
@@ -487,8 +521,14 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         amount: '0',
         pubkeys: state.pubkeys,
         selectedSourceAddress: state.pubkeys?.keys.first,
+        feeOptions: state.feeOptions,
       ),
     );
+
+    // Re-request fee options if they're not available
+    if (state.feeOptions == null) {
+      add(const WithdrawFormFeeOptionsRequested());
+    }
   }
 
   bool _hasEthAddressMixedCase(String address) {

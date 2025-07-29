@@ -21,6 +21,9 @@ class WithdrawFormState extends Equatable {
   final bool isIbcTransfer;
   final String? ibcChannel;
 
+  final WithdrawalFeeLevel feePriority;
+  final WithdrawalFeeOptions? feeOptions;
+
   // Transaction state
   final WithdrawalPreview? preview;
   final bool isSending;
@@ -102,6 +105,8 @@ class WithdrawFormState extends Equatable {
     this.memo,
     this.isIbcTransfer = false,
     this.ibcChannel,
+    this.feePriority = WithdrawalFeeLevel.medium,
+    this.feeOptions,
     this.preview,
     this.isSending = false,
     this.result,
@@ -129,6 +134,8 @@ class WithdrawFormState extends Equatable {
     ValueGetter<String?>? memo,
     bool? isIbcTransfer,
     ValueGetter<String?>? ibcChannel,
+    WithdrawalFeeLevel? feePriority,
+    ValueGetter<WithdrawalFeeOptions?>? feeOptions,
     ValueGetter<WithdrawalPreview?>? preview,
     bool? isSending,
     ValueGetter<WithdrawalResult?>? result,
@@ -157,6 +164,8 @@ class WithdrawFormState extends Equatable {
       memo: memo != null ? memo() : this.memo,
       isIbcTransfer: isIbcTransfer ?? this.isIbcTransfer,
       ibcChannel: ibcChannel != null ? ibcChannel() : this.ibcChannel,
+      feePriority: feePriority ?? this.feePriority,
+      feeOptions: feeOptions != null ? feeOptions() : this.feeOptions,
       preview: preview != null ? preview() : this.preview,
       isSending: isSending ?? this.isSending,
       result: result != null ? result() : this.result,
@@ -189,9 +198,11 @@ class WithdrawFormState extends Equatable {
           : null,
       memo: memo,
       ibcTransfer: isIbcTransfer ? true : null,
-      ibcSourceChannel:
-          ibcChannel?.isNotEmpty == true ? int.tryParse(ibcChannel!.trim()) : null,
+      ibcSourceChannel: ibcChannel?.isNotEmpty == true
+          ? int.tryParse(ibcChannel!.trim())
+          : null,
       isMax: isMaxAmount,
+      feePriority: isCustomFee ? null : feePriority,
     );
   }
 
@@ -218,6 +229,8 @@ class WithdrawFormState extends Equatable {
         memo,
         isIbcTransfer,
         ibcChannel,
+        feePriority,
+        feeOptions,
         preview,
         isSending,
         result,

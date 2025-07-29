@@ -76,3 +76,12 @@ class WithdrawFormStepReverted extends WithdrawFormEvent {
 class WithdrawFormConvertAddressRequested extends WithdrawFormEvent {
   const WithdrawFormConvertAddressRequested();
 }
+
+class WithdrawFormFeeOptionsRequested extends WithdrawFormEvent {
+  const WithdrawFormFeeOptionsRequested();
+}
+
+class WithdrawFormFeePriorityChanged extends WithdrawFormEvent {
+  final WithdrawalFeeLevel priority;
+  const WithdrawFormFeePriorityChanged(this.priority);
+}

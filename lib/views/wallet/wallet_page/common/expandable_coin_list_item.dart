@@ -18,6 +18,7 @@ import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:app_theme/src/dark/theme_custom_dark.dart';
 import 'package:app_theme/src/light/theme_custom_light.dart';
+import 'package:web_dex/views/wallet/common/address_icon.dart';
 
 /// Widget for showing an authenticated user's balance and anddresses for a
 /// given coin
@@ -276,11 +277,7 @@ class _AddressRow extends StatelessWidget {
         onTap: onTap,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        leading: CircleAvatar(
-          radius: 16,
-          backgroundColor: theme.colorScheme.surfaceContainerHigh,
-          child: const Icon(Icons.person_outline),
-        ),
+        leading: AddressIcon(address: pubkey.address),
         title: Row(
           children: [
             Flexible(
