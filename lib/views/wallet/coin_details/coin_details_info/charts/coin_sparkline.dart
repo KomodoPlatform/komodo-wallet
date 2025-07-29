@@ -28,7 +28,7 @@ class CoinSparkline extends StatelessWidget {
           return UiTooltip(
             message: LocaleKeys.priceHistorySparklineTooltip.tr(),
             child: LimitedBox(
-              maxWidth: 130,
+              maxWidth: 90,
               child: SizedBox(
                 height: 35,
                 child: SparklineChart(
