@@ -289,7 +289,7 @@ class CoinsRepo {
     Exception? lastActivationException;
 
     for (final asset in assets) {
-      final coin = asset.toCoin();
+      final coin = _assetToCoinWithoutAddress(asset);
       try {
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
@@ -416,7 +416,10 @@ class CoinsRepo {
   }) async {
     final assets = coins
         .map((coin) => _kdfSdk.assets.available[coin.id])
-        .whereType<Asset>()
+        // use cast instead of `whereType` to ensure an exception is thrown
+        // if the provided asset is not found in the SDK. An explicit
+        // argument error might be more apt here.
+        .cast<Asset>()
         .toList();
 
     return activateAssetsSync(
