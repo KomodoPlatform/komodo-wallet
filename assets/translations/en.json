@@ -732,6 +732,8 @@
   "noBannedPubkeys": "No banned pubkeys found",
   "unbanPubkeysFailed": "Failed to unban pubkeys",
   "privateKeyRetrievalFailed": "Failed to retrieve private keys. Please try again.",
+  "fetchingPrivateKeysTitle": "Fetching Private Keys...",
+  "fetchingPrivateKeysMessage": "Please wait while we securely fetch your private keys...",
   "pubkeyType": "Type",
   "securitySettings": "Security Settings"
 }

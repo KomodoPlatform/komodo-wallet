@@ -722,6 +722,8 @@ abstract class  LocaleKeys {
   static const noBannedPubkeys = 'noBannedPubkeys';
   static const unbanPubkeysFailed = 'unbanPubkeysFailed';
   static const privateKeyRetrievalFailed = 'privateKeyRetrievalFailed';
+  static const fetchingPrivateKeysTitle = 'fetchingPrivateKeysTitle';
+  static const fetchingPrivateKeysMessage = 'fetchingPrivateKeysMessage';
   static const pubkeyType = 'pubkeyType';
   static const securitySettings = 'securitySettings';
 

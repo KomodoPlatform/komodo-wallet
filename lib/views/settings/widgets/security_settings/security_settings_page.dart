@@ -262,6 +262,10 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           return false; // Failure
         }
       },
+      loadingTitle: LocaleKeys.fetchingPrivateKeysTitle.tr(),
+      loadingMessage: LocaleKeys.fetchingPrivateKeysMessage.tr(),
+      operationFailedMessage: LocaleKeys.privateKeyRetrievalFailed.tr(),
+      passwordFieldKey: 'confirmation-showing-private-keys',
     );
 
     if (!mounted) return;
