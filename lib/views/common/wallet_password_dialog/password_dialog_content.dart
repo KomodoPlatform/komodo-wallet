@@ -59,6 +59,18 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Hidden username field for password manager context
+                  Visibility(
+                    visible: false,
+                    maintainSize: false,
+                    maintainAnimation: false,
+                    maintainState: false,
+                    child: UiTextFormField(
+                      initialValue: widget.wallet?.name ?? '',
+                      autofillHints: const [AutofillHints.username],
+                      readOnly: true,
+                    ),
+                  ),
                   UiTextFormField(
                     key: const Key('confirmation-showing-seed-phrase'),
                     controller: _passwordController,
@@ -250,6 +262,18 @@ class _PasswordDialogContentWithLoadingState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Hidden username field for password manager context
+                    Visibility(
+                      visible: false,
+                      maintainSize: false,
+                      maintainAnimation: false,
+                      maintainState: false,
+                      child: UiTextFormField(
+                        initialValue: widget.wallet?.name ?? '',
+                        autofillHints: const [AutofillHints.username],
+                        readOnly: true,
+                      ),
+                    ),
                     UiTextFormField(
                       key: Key(widget.passwordFieldKey),
                       controller: _passwordController,
