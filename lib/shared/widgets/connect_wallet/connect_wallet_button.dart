@@ -108,6 +108,8 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
       popupContent: WalletsManagerWrapper(
         eventType: widget.eventType,
         onSuccess: (_) async {
+          if (!mounted) return;
+
           takerBloc.add(TakerReInit());
           bridgeBloc.add(const BridgeReInit());
           await reInitTradingForms(context);

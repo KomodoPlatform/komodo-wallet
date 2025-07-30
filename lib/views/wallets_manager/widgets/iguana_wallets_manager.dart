@@ -296,6 +296,8 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   }
 
   void _onLogIn() {
+    if (!mounted) return;
+    
     final currentUser = context.read<AuthBloc>().state.currentUser;
     final currentWallet = currentUser?.wallet;
     final action = _action;

@@ -79,6 +79,8 @@ class _HardwareWalletsManagerViewState
   }
 
   void _successfulTrezorLogin(BuildContext context, KdfUser kdfUser) {
+    if (!mounted) return;
+    
     context.read<CoinsBloc>().add(CoinsSessionStarted(kdfUser));
     context.read<AnalyticsBloc>().logEvent(
           walletsManagerEventsFactory.createEvent(

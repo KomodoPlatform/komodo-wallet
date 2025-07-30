@@ -95,6 +95,8 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
   }
 
   String? _validatePasswordField(String? passwordFieldInput) {
+    if (!mounted) return null;
+    
     final settingsBlocState = context.read<SettingsBloc>().state;
     final allowWeakPassword = settingsBlocState.weakPasswordsAllowed;
     final password = passwordFieldInput ?? '';

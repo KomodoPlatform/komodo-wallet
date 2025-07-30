@@ -68,6 +68,8 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthBlocState>(
       listener: (context, state) {
+        if (!mounted) return;
+        
         if (!state.isLoading) {
           setState(() => _inProgress = false);
         }
