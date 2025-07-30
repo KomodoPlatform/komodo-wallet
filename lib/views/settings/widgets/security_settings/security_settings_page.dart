@@ -10,6 +10,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/show_priv_key/show_priv_key_request.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/common/wallet_password_dialog/wallet_password_dialog.dart';
@@ -238,18 +239,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       context,
       onPasswordValidated: (String password) async {
         try {
-          final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
-
-          // Create SecurityManager for private key retrieval
-          final securityManager = SecurityManager(
-            kdfSdk.client,
-            kdfSdk.auth,
-            kdfSdk.assets,
-          );
-
           // Fetch private keys directly into local UI state
           // This keeps sensitive data in minimal scope
-          _sdkPrivateKeys = await securityManager.getPrivateKeys();
+          _sdkPrivateKeys = await context.sdk.security.getPrivateKeys();
 
           return true; // Success
         } catch (e) {

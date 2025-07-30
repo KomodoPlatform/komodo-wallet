@@ -253,6 +253,10 @@ class PrivateKeyListItem extends StatelessWidget {
       builder: (context, showPrivateKeys) {
         final theme = Theme.of(context);
 
+        final subtitleStyle = theme.textTheme.bodySmall?.copyWith(
+          color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+        );
+
         return ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: ListTile(
@@ -279,14 +283,15 @@ class PrivateKeyListItem extends StatelessWidget {
                 if (privateKey.hdInfo?.derivationPath != null) ...[
                   Text(
                     'Path: ${privateKey.hdInfo!.derivationPath}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.textTheme.bodySmall?.color?.withValues(
-                        alpha: 0.7,
-                      ),
-                    ),
+                    style: subtitleStyle,
                   ),
                   const SizedBox(height: 4),
                 ],
+                AutoScrollText(
+                  text: privateKey.publicKeyAddress,
+                  style: subtitleStyle,
+                ),
+
                 Row(
                   children: [
                     Expanded(
