@@ -302,8 +302,10 @@ class _FadingEdgeScrollViewState extends State<FadingEdgeScrollView>
           1,
         ],
         colors: _getColors(
-            widget.gradientFractionOnStart > 0 && !(_isScrolledToStart ?? true),
-            widget.gradientFractionOnEnd > 0 && !(_isScrolledToEnd ?? false)),
+          context,
+          widget.gradientFractionOnStart > 0 && !(_isScrolledToStart ?? true),
+          widget.gradientFractionOnEnd > 0 && !(_isScrolledToEnd ?? false),
+        ),
       ).createShader(
         bounds.shift(Offset(-bounds.left, -bounds.top)),
         textDirection: Directionality.of(context),
@@ -335,12 +337,16 @@ class _FadingEdgeScrollViewState extends State<FadingEdgeScrollView>
       ? AlignmentDirectional.centerStart
       : AlignmentDirectional.centerEnd;
 
-  List<Color> _getColors(bool isStartEnabled, bool isEndEnabled) => [
-        (isStartEnabled ? Colors.transparent : Colors.white),
-        Colors.white,
-        Colors.white,
-        (isEndEnabled ? Colors.transparent : Colors.white)
-      ];
+  List<Color> _getColors(
+      BuildContext context, bool isStartEnabled, bool isEndEnabled) {
+    final fadeColor = Theme.of(context).scaffoldBackgroundColor;
+    return [
+      if (isStartEnabled) Colors.transparent else fadeColor,
+      fadeColor,
+      fadeColor,
+      if (isEndEnabled) Colors.transparent else fadeColor,
+    ];
+  }
 }
 
 extension _Let<T> on T {

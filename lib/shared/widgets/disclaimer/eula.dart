@@ -23,6 +23,75 @@ class _EulaState extends State<Eula> with TickerProviderStateMixin {
       TextSpan(
           text: disclaimerEulaParagraph1,
           style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph2,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph3,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph4,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph5,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph6,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaTitle2,
+          style: Theme.of(context).textTheme.titleSmall),
+      TextSpan(
+          text: disclaimerEulaParagraph7,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph8,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaTitle3,
+          style: Theme.of(context).textTheme.titleSmall),
+      TextSpan(
+          text: disclaimerEulaParagraph9,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph10,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph11,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph12,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph13,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaTitle4,
+          style: Theme.of(context).textTheme.titleSmall),
+      TextSpan(
+          text: disclaimerEulaParagraph14,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph15,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaTitle5,
+          style: Theme.of(context).textTheme.titleSmall),
+      TextSpan(
+          text: disclaimerEulaParagraph16,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph17,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaTitle6,
+          style: Theme.of(context).textTheme.titleSmall),
+      TextSpan(
+          text: disclaimerEulaParagraph18,
+          style: Theme.of(context).textTheme.bodyMedium),
+      TextSpan(
+          text: disclaimerEulaParagraph19,
+          style: Theme.of(context).textTheme.bodyMedium),
     ];
 
     return Column(
