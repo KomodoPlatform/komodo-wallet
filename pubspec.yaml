@@ -18,10 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.9.2+0
 
 environment:
-  # TODO: Upgrade mininum Dart version to 3.7.0 only after the release is concluded because
-  # the new formatting style may cause conflicts. This allows to run 3.7.0, but it will not
-  # enforce the new formatting style until the mininum Dart version is updated.
-  sdk: ">=3.6.0 <4.0.0"
+  sdk: ^3.8.1
   flutter: ^3.32.5
 
 dependencies:
