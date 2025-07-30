@@ -696,6 +696,7 @@ abstract class  LocaleKeys {
   static const amountFieldCheckboxListTile = 'amountFieldCheckboxListTile';
   static const customFeeToggleTitle = 'customFeeToggleTitle';
   static const priceChartCenterText = 'priceChartCenterText';
+  static const priceHistorySparklineTooltip = 'priceHistorySparklineTooltip';
   static const statistics = 'statistics';
   static const ibcTransferFieldTitle = 'ibcTransferFieldTitle';
   static const ibcTransferFieldSubtitle = 'ibcTransferFieldSubtitle';

@@ -699,6 +699,7 @@
   "amountFieldCheckboxListTile": "Send maximum amount",
   "customFeeToggleTitle": "Custom fee",
   "priceChartCenterText": "Select an interval to load data",
+  "priceHistorySparklineTooltip": "24-hour price trend chart",
   "statistics": "Statistics",
   "ibcTransferFieldTitle": "IBC Transfer",
   "ibcTransferFieldSubtitle": "Send to another Cosmos chain",
