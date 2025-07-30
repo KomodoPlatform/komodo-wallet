@@ -1,0 +1,165 @@
+# Deploy a preview build with SDK integration for testing KDF API changes
+name: Deploy SDK Integration Preview
+run-name: ${{ github.actor }} is deploying SDK integration preview with API branch '${{ inputs.api_branch }}' 🚀
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_branch:
+        description: "API branch name to update KDF configuration"
+        required: true
+        default: "dev"
+        type: string
+      sdk_branch:
+        description: "SDK branch to clone (optional, defaults to dev)"
+        required: false
+        default: "dev"
+        type: string
+
+jobs:
+  build_and_preview:
+    runs-on: ubuntu-latest
+    outputs:
+      preview_url: ${{ steps.firebase_deploy.outputs.details_url }}
+      channel_id: ${{ steps.get_preview_channel_id.outputs.preview_channel_id }}
+
+    steps:
+      - name: Shortify commit sha
+        shell: bash
+        run: echo "sha_short=$(echo ${GITHUB_SHA::7})" >> $GITHUB_OUTPUT
+        id: shortify_commit
+
+      - name: Get branch
+        shell: bash
+        run: echo "ref_short=$(echo ${GITHUB_REF##*/})" >> $GITHUB_OUTPUT
+        id: get_branch
+
+      - name: Get Preview Channel ID
+        shell: bash
+        run: echo "preview_channel_id=sdk-integration-${{ inputs.api_branch }}-$(echo ${GITHUB_SHA::7})" >> $GITHUB_OUTPUT
+        id: get_preview_channel_id
+
+      - name: Setup GH Actions
+        uses: actions/checkout@v4
+
+      - name: Clone SDK repository
+        shell: bash
+        run: |
+          echo "Cloning komodo-defi-sdk-flutter repository..."
+          git clone --depth 1 --branch ${{ inputs.sdk_branch }} https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git sdk
+          echo "SDK cloned to ./sdk directory"
+          ls -la sdk/
+
+      - name: Update KDF API configuration
+        shell: bash
+        run: |
+          echo "Updating KDF API configuration for branch: ${{ inputs.api_branch }}"
+          cd sdk
+
+          # Check if the update script exists
+          if [ -f "packages/komodo_wallet_cli/bin/update_api_config.dart" ]; then
+            echo "Running update_api_config.dart script..."
+            # Install dart dependencies first
+            cd packages/komodo_wallet_cli
+            dart pub get
+            cd ../..
+            
+            # Run the update script with the API branch
+            dart run packages/komodo_wallet_cli/bin/update_api_config.dart ${{ inputs.api_branch }}
+            echo "KDF API configuration updated successfully"
+          else
+            echo "Warning: update_api_config.dart script not found at packages/komodo_wallet_cli/bin/update_api_config.dart"
+            echo "Available files in packages/komodo_wallet_cli/bin/:"
+            ls -la packages/komodo_wallet_cli/bin/ || echo "Directory not found"
+          fi
+
+      - name: Update pubspec.yaml to use local SDK paths
+        shell: bash
+        run: |
+          echo "Updating pubspec.yaml files to use local SDK paths..."
+
+          # Update main pubspec.yaml
+          echo "Updating main pubspec.yaml..."
+          sed -i 's|komodo_cex_market_data:.*|komodo_cex_market_data:|' pubspec.yaml
+          sed -i '/komodo_cex_market_data:/,/ref: dev/c\
+            komodo_cex_market_data:\
+              path: sdk/packages/komodo_cex_market_data' pubspec.yaml
+
+          sed -i 's|komodo_defi_sdk:.*|komodo_defi_sdk:|' pubspec.yaml
+          sed -i '/komodo_defi_sdk:/,/ref: dev/c\
+            komodo_defi_sdk:\
+              path: sdk/packages/komodo_defi_sdk' pubspec.yaml
+
+          sed -i 's|komodo_defi_types:.*|komodo_defi_types:|' pubspec.yaml
+          sed -i '/komodo_defi_types:/,/ref: dev/c\
+            komodo_defi_types:\
+              path: sdk/packages/komodo_defi_types' pubspec.yaml
+
+          sed -i 's|komodo_ui:.*|komodo_ui:|' pubspec.yaml
+          sed -i '/komodo_ui:/,/ref: dev/c\
+            komodo_ui:\
+              path: sdk/packages/komodo_ui' pubspec.yaml
+
+          # Update komodo_ui_kit pubspec.yaml
+          echo "Updating packages/komodo_ui_kit/pubspec.yaml..."
+          sed -i 's|komodo_defi_types:.*|komodo_defi_types:|' packages/komodo_ui_kit/pubspec.yaml
+          sed -i '/komodo_defi_types:/,/ref: dev/c\
+            komodo_defi_types:\
+              path: ../../sdk/packages/komodo_defi_types' packages/komodo_ui_kit/pubspec.yaml
+
+          sed -i 's|komodo_ui:.*|komodo_ui:|' packages/komodo_ui_kit/pubspec.yaml
+          sed -i '/komodo_ui:/,/ref: dev/c\
+            komodo_ui:\
+              path: ../../sdk/packages/komodo_ui' packages/komodo_ui_kit/pubspec.yaml
+
+          echo "Pubspec.yaml files updated successfully"
+
+          # Show the changes made
+          echo "=== Main pubspec.yaml SDK dependencies ==="
+          grep -A2 -B1 "komodo_.*:" pubspec.yaml | grep -A2 -B1 "path: sdk"
+
+          echo "=== UI Kit pubspec.yaml SDK dependencies ==="
+          grep -A2 -B1 "komodo_.*:" packages/komodo_ui_kit/pubspec.yaml | grep -A2 -B1 "path: ../../sdk"
+
+      - name: Install Flutter and dependencies
+        uses: ./.github/actions/flutter-deps
+
+      - name: Fetch packages and generate assets
+        uses: ./.github/actions/generate-assets
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optionally provide feedback service configuration if available
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
+          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+
+      - name: Validate build
+        uses: ./.github/actions/validate-build
+
+      - name: Deploy SDK Integration Preview (Expires in 7 days)
+        id: firebase_deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0.7.1
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KOMODO_WALLET_OFFICIAL }}"
+          channelId: "${{ steps.get_preview_channel_id.outputs.preview_channel_id }}"
+          target: walletrc
+          expires: 7d
+          projectId: komodo-wallet-official
+
+      - name: Display deployment information
+        shell: bash
+        run: |
+          echo "🚀 SDK Integration Preview deployed successfully!"
+          echo "📦 SDK Branch: ${{ inputs.sdk_branch }}"
+          echo "🔧 API Branch: ${{ inputs.api_branch }}"
+          echo "� Channel ID: ${{ steps.get_preview_channel_id.outputs.preview_channel_id }}"
+          echo "🌐 Preview URL: ${{ steps.firebase_deploy.outputs.details_url }}"
+          echo "⏰ Preview expires in 7 days"
+          echo ""
+          echo "You can access your preview at:"
+          echo "${{ steps.firebase_deploy.outputs.details_url }}"

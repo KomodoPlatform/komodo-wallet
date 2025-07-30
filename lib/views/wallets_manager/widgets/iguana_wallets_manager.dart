@@ -18,6 +18,7 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_import_wrapper.dart
 import 'package:web_dex/views/wallets_manager/widgets/wallet_login.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_list.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager_controls.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 
 class IguanaWalletsManager extends StatefulWidget {
   const IguanaWalletsManager({
@@ -110,7 +111,9 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                       });
                     },
                   ),
-                  Divider(height: 32, thickness: 2),
+                  if (context.read<WalletsRepository>().wallets?.isNotEmpty ??
+                      false)
+                    const Divider(height: 32, thickness: 2),
                   WalletsManagerControls(
                     onTap: (newAction) {
                       setState(() {

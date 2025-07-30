@@ -327,10 +327,12 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     Emitter<AuthBlocState> emit,
   ) async {
     final currentUser = await _kdfSdk.auth.currentUser;
-    final isTrezorWallet = currentUser?.walletId.authOptions.privKeyPolicy ==
-        const PrivateKeyPolicy.trezor();
 
-    if (currentUser != null && !isTrezorWallet) {
+    // Do not emit any state if the user is currently attempting to log in.
+    // TODO(takenagain)!: This is a temporary workaround to avoid emitting
+    // AuthBlocState.loggedIn while the user is still logging in.
+    // This should be replaced with a more robust solution.
+    if (currentUser != null && !state.isLoading) {
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     }

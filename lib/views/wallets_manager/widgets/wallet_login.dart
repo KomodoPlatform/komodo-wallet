@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -93,61 +94,65 @@ class _WalletLogInState extends State<WalletLogIn> {
                 ? LocaleKeys.incorrectPassword.tr()
                 : state.authError?.message;
 
-        return Column(
-          mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
-          children: [
-            Text(
-              LocaleKeys.walletLogInTitle.tr(),
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontSize: 18),
-            ),
-            const SizedBox(height: 40),
-            UiTextFormField(
-              key: const Key('wallet-field'),
-              initialValue: widget.wallet.name,
-              readOnly: true,
-              autocorrect: false,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            PasswordTextField(
-              onFieldSubmitted: state.isLoading ? null : _submitLogin,
-              controller: _passwordController,
-              errorText: errorMessage,
-            ),
-            const SizedBox(height: 20),
-            if (_user != null && _user!.isBip39Seed == true)
-              HDWalletModeSwitch(
-                value: _isHdMode,
-                onChanged: (value) {
-                  setState(() => _isHdMode = value);
-                },
+        return AutofillGroup(
+          child: Column(
+            mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
+            children: [
+              Text(
+                LocaleKeys.walletLogInTitle.tr(),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontSize: 18),
               ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2.0),
-              child: UiPrimaryButton(
-                height: 50,
-                text: state.isLoading
-                    ? '${LocaleKeys.pleaseWait.tr()}...'
-                    : LocaleKeys.logIn.tr(),
-                textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(height: 40),
+              UiTextFormField(
+                key: const Key('wallet-field'),
+                initialValue: widget.wallet.name,
+                readOnly: true,
+                autocorrect: false,
+                autofillHints: const [AutofillHints.username],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              PasswordTextField(
+                onFieldSubmitted: state.isLoading ? null : _submitLogin,
+                controller: _passwordController,
+                errorText: errorMessage,
+                autofillHints: const [AutofillHints.password],
+              ),
+              const SizedBox(height: 20),
+              if (_user != null && _user!.isBip39Seed == true)
+                HDWalletModeSwitch(
+                  value: _isHdMode,
+                  onChanged: (value) {
+                    setState(() => _isHdMode = value);
+                  },
                 ),
-                onPressed: state.isLoading ? null : _submitLogin,
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                child: UiPrimaryButton(
+                  height: 50,
+                  text: state.isLoading
+                      ? '${LocaleKeys.pleaseWait.tr()}...'
+                      : LocaleKeys.logIn.tr(),
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  onPressed: state.isLoading ? null : _submitLogin,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            UiUnderlineTextButton(
-              key: _backKeyButton,
-              onPressed: widget.onCancel,
-              text: LocaleKeys.cancel.tr(),
-            ),
-          ],
+              const SizedBox(height: 20),
+              UiUnderlineTextButton(
+                key: _backKeyButton,
+                onPressed: widget.onCancel,
+                text: LocaleKeys.cancel.tr(),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -160,11 +165,13 @@ class PasswordTextField extends StatefulWidget {
     required this.controller,
     super.key,
     this.errorText,
+    this.autofillHints,
   });
 
   final String? errorText;
   final TextEditingController controller;
   final void Function()? onFieldSubmitted;
+  final Iterable<String>? autofillHints;
 
   @override
   State<PasswordTextField> createState() => _PasswordTextFieldState();
@@ -185,6 +192,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           controller: widget.controller,
           obscureText: _isPasswordObscured,
           errorText: widget.errorText,
+          autofillHints: widget.autofillHints ?? const [AutofillHints.password],
           hintText: LocaleKeys.walletCreationPasswordHint.tr(),
           suffixIcon: PasswordVisibilityControl(
             onVisibilityChange: onVisibilityChange,

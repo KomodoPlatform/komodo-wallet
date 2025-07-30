@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart' show Equatable;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -5,9 +6,8 @@ import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/model/hd_account/hd_account.dart';
 
-class Coin {
+class Coin extends Equatable {
   Coin({
     required this.type,
     required this.abbr,
@@ -27,7 +27,6 @@ class Coin {
     this.decimals = 8,
     this.parentCoin,
     this.derivationPath,
-    this.accounts,
     this.usdPrice, // Will be deprecated in favor of SDK price manager
     this.coinpaprikaId,
     this.activeByDefault = false,
@@ -65,10 +64,6 @@ class Coin {
       '$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.')
   String? address;
 
-  @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset account management instead.')
-  List<HdAccount>? accounts;
-
   final String? _swapContractAddress;
   String? fallbackSwapContract;
 
@@ -76,7 +71,7 @@ class Coin {
   final int priority;
   Coin? parentCoin;
   final CoinMode mode;
-  CoinState state;
+  final CoinState state;
 
   bool get walletOnly => _walletOnly || appWalletOnlyAssetList.contains(abbr);
 
@@ -140,7 +135,6 @@ class Coin {
       usdPrice: usdPrice,
       parentCoin: parentCoin,
       derivationPath: derivationPath,
-      accounts: accounts,
       coinpaprikaId: coinpaprikaId,
       activeByDefault: activeByDefault,
       protocolData: null,
@@ -169,7 +163,6 @@ class Coin {
     int? decimals,
     Coin? parentCoin,
     String? derivationPath,
-    List<HdAccount>? accounts,
     CexPrice? usdPrice,
     String? coinpaprikaId,
     bool? activeByDefault,
@@ -199,7 +192,6 @@ class Coin {
       decimals: decimals ?? this.decimals,
       parentCoin: parentCoin ?? this.parentCoin,
       derivationPath: derivationPath ?? this.derivationPath,
-      accounts: accounts ?? this.accounts,
       usdPrice: usdPrice ?? this.usdPrice,
       coinpaprikaId: coinpaprikaId ?? this.coinpaprikaId,
       activeByDefault: activeByDefault ?? this.activeByDefault,
@@ -211,6 +203,16 @@ class Coin {
       ..address = address ?? this.address
       ..sendableBalance = sendableBalance ?? this.sendableBalance;
   }
+
+  // Only use AssetId for equality checks, not any of the
+  // legacy fields here.
+  @override
+  List<Object?> get props => [
+        id,
+        // Legacy fields still updated and used in the app, so we keep them
+        // in the props list for now to maintain the desired state updates.
+        state, type, abbr, usdPrice, isTestCoin, parentCoin, address,
+      ];
 }
 
 extension LegacyCoinToSdkAsset on Coin {

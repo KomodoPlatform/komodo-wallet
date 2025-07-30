@@ -22,6 +22,8 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     Emitter<AuthBlocState> emit,
   ) async {
     try {
+      emit(AuthBlocState.loading());
+
       const authOptions = AuthOptions(
         derivationMethod: DerivationMethod.hdWallet,
         privKeyPolicy: PrivateKeyPolicy.trezor(),

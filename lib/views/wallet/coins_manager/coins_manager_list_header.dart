@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/views/wallet/coins_manager/coins_manager_list_wrapper.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class CoinsManagerListHeader extends StatelessWidget {
   const CoinsManagerListHeader({

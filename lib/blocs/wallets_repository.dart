@@ -90,16 +90,32 @@ class WalletsRepository {
   }
 
   String? validateWalletName(String name) {
+    // Disallow special characters except letters, digits, space, underscore and hyphen
+    if (RegExp(r'[^\w\- ]').hasMatch(name)) {
+      return LocaleKeys.invalidWalletNameError.tr();
+    }
     // This shouldn't happen, but just in case.
     if (_cachedWallets == null) {
       getWallets().ignore();
       return null;
     }
+    
+    final trimmedName = name.trim();
+    
+    // Check if the trimmed name is empty (prevents space-only names)
+    if (trimmedName.isEmpty) {
+      return LocaleKeys.walletCreationNameLengthError.tr();
+    }
+    
+    // Check if trimmed name exceeds length limit
+    if (trimmedName.length > 40) {
+      return LocaleKeys.walletCreationNameLengthError.tr();
+    }
 
+    // Check for duplicates using the exact input name (not trimmed)
+    // This preserves backward compatibility with existing wallets that might have spaces
     if (_cachedWallets!.firstWhereOrNull((w) => w.name == name) != null) {
       return LocaleKeys.walletCreationExistNameError.tr();
-    } else if (name.isEmpty || name.length > 40) {
-      return LocaleKeys.walletCreationNameLengthError.tr();
     }
 
     return null;

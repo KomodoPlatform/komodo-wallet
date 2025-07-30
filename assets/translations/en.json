@@ -115,6 +115,8 @@
   "walletCreationTitle": "Create wallet",
   "walletImportTitle": "Import wallet",
   "walletImportByFileTitle": "Importing seed phrase file",
+  "invalidWalletNameError": "Invalid wallet name, please remove special chars",
+  "invalidWalletFileNameError": "Invalid filename, please rename it to remove special chars",
   "walletImportCreatePasswordTitle": "Create a password for \"{}\" wallet",
   "walletImportByFileDescription": "Create a password of your seed phrase file to decrypt it. This password will be used to log in to your wallet",
   "walletLogInTitle": "Log in",

@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
+    show ExponentialBackoff, retry;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:logging/logging.dart';
@@ -70,6 +72,11 @@ class CoinsRepo {
   void _broadcastAsset(Coin coin) {
     if (_enabledAssetsHasListeners) {
       enabledAssetsChanges.add(coin);
+    } else {
+      _log.warning(
+        'No listeners for enabledAssetsChanges stream. '
+        'Skipping broadcast for ${coin.id.id}',
+      );
     }
   }
 
@@ -187,47 +194,12 @@ class CoinsRepo {
                 'Selecting the first asset: ${assets.first.id.id}',
               );
             }
-            // Exclude invalid or unsupported assets.
-            return null;
+            return assets.single;
           },
         )
         .whereType<Asset>()
         .map(_assetToCoinWithoutAddress)
         .toList();
-  }
-
-  Future<List<Coin>> getEnabledCoins() async {
-    final enabledCoinsMap = await _getEnabledCoinsMap();
-    return enabledCoinsMap.values.toList();
-  }
-
-  Future<Map<String, Coin>> _getEnabledCoinsMap() async {
-    final currentUser = await _kdfSdk.auth.currentUser;
-    if (currentUser == null) {
-      return {};
-    }
-
-    final enabledCoins = await _kdfSdk.assets.getActivatedAssets();
-    final entries = await Future.wait(
-      enabledCoins.map(
-        (asset) async =>
-            MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),
-      ),
-    );
-    final coinsMap = Map.fromEntries(entries);
-    for (final coinId in coinsMap.keys) {
-      final coin = coinsMap[coinId]!;
-      final coinAddress = await getFirstPubkey(coin.id.id);
-      coinsMap[coinId] = coin.copyWith(
-        address: coinAddress,
-        state: CoinState.active,
-      );
-
-      // Set up balance watcher for this coin
-      final asset = enabledCoins.firstWhere((asset) => asset.id.id == coinId);
-      _subscribeToBalanceUpdates(asset, coinsMap[coinId]!);
-    }
-    return coinsMap;
   }
 
   Coin _assetToCoinWithoutAddress(Asset asset) {
@@ -268,7 +240,39 @@ class CoinsRepo {
     }
   }
 
-  Future<void> activateAssetsSync(List<Asset> assets) async {
+  /// Activates multiple assets synchronously with retry logic and exponential backoff.
+  ///
+  /// This method attempts to activate the provided [assets] with robust error handling
+  /// and automatic retry functionality. If activation fails, it will retry with
+  /// exponential backoff for up to the specified duration.
+  ///
+  /// **Retry Configuration:**
+  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (30 attempts ≈ 3 minutes)
+  /// - Configurable via [maxRetryAttempts], [initialRetryDelay], and [maxRetryDelay]
+  ///
+  /// **Parameters:**
+  /// - [assets]: List of assets to activate
+  /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
+  /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
+  /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
+  ///
+  /// **State Changes:**
+  /// - `CoinState.activating`: Broadcast when activation begins
+  /// - `CoinState.active`: Broadcast on successful activation
+  /// - `CoinState.suspended`: Broadcast on final failure after all retries
+  ///
+  /// **Throws:**
+  /// - `Exception`: If activation fails after all retry attempts
+  ///
+  /// **Note:** Assets are added to wallet metadata even if activation fails.
+  Future<void> activateAssetsSync(
+    List<Asset> assets, {
+    bool notify = true,
+    int maxRetryAttempts = 30,
+    Duration initialRetryDelay = const Duration(milliseconds: 500),
+    Duration maxRetryDelay = const Duration(seconds: 10),
+  }) async {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       final coinIdList = assets.map((e) => e.id.id).join(', ');
@@ -278,31 +282,70 @@ class CoinsRepo {
       return;
     }
 
-    final activatedAssetIds = <String>{};
-    final parentIds = <String>{};
+    // Add assets and their parents to wallet metadata before activating.
+    // This ensures that the wallet metadata is updated even if activation fails.
+    await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
+
+    Exception? lastActivationException;
 
     for (final asset in assets) {
       final coin = asset.toCoin();
       try {
-        _broadcastAsset(coin.copyWith(state: CoinState.activating));
-        activatedAssetIds.add(asset.id.id);
+        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
-        final progress = await _kdfSdk.assets.activateAsset(assets.single).last;
-        if (!progress.isSuccess) {
-          throw StateError('Failed to activate coin ${asset.id.id}');
+        // Use retry with exponential backoff for activation
+        await retry<void>(
+          () async {
+            // exception is thrown if the asset is already activated, so manual
+            // check is needed for now until specific exception type can be caught
+            final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+            if (activatedAssets.any((a) => a.id == asset.id)) {
+              _log.info(
+                'Coin ${coin.id} is already activated. Skipping activation.',
+              );
+              return;
+            }
+
+            final progress = await _kdfSdk.assets.activateAsset(asset).last;
+            if (!progress.isSuccess) {
+              throw Exception(progress.errorMessage ??
+                  'Activation failed for ${asset.id.id}');
+            }
+          },
+          maxAttempts: maxRetryAttempts,
+          backoffStrategy: ExponentialBackoff(
+            initialDelay: initialRetryDelay,
+            maxDelay: maxRetryDelay,
+          ),
+        );
+
+        _log.info('Asset activated: ${asset.id.id}');
+        if (notify) {
+          _broadcastAsset(coin.copyWith(state: CoinState.active));
+          if (coin.id.parentId != null) {
+            final parentCoin = _assetToCoinWithoutAddress(
+                _kdfSdk.assets.available[coin.id.parentId]!);
+            _broadcastAsset(parentCoin.copyWith(state: CoinState.active));
+          }
         }
-
-        _broadcastAsset(coin.copyWith(state: CoinState.active));
         _subscribeToBalanceUpdates(asset, coin);
-
-        if (asset.id.parentId != null) {
-          parentIds.add(asset.id.parentId!.id);
+        if (coin.id.parentId != null) {
+          final parentAsset = _kdfSdk.assets.available[coin.id.parentId];
+          if (parentAsset == null) {
+            _log.warning('Parent asset not found: ${coin.id.parentId}');
+          } else {
+            _subscribeToBalanceUpdates(parentAsset, coin);
+          }
         }
       } catch (e, s) {
-        _log.shout('Error activating asset: ${asset.id.id}', e, s);
-        _broadcastAsset(
-          asset.toCoin().copyWith(state: CoinState.suspended),
-        );
+        lastActivationException = e is Exception ? e : Exception(e.toString());
+        _log.shout(
+            'Error activating asset after retries: ${asset.id.id}', e, s);
+        if (notify) {
+          _broadcastAsset(
+            asset.toCoin().copyWith(state: CoinState.suspended),
+          );
+        }
       } finally {
         // Register outside of the try-catch to ensure icon is available even
         // in a suspended or failing activation status.
@@ -315,84 +358,74 @@ class CoinsRepo {
       }
     }
 
-    // Add successfully activated assets and their parents to wallet metadata
-    if (activatedAssetIds.isNotEmpty || parentIds.isNotEmpty) {
-      final allIdsToAdd = <String>{...activatedAssetIds, ...parentIds};
+    // Rethrow the last activation exception if there was one
+    if (lastActivationException != null) {
+      throw lastActivationException;
+    }
+  }
+
+  Future<void> _addAssetsToWalletMetdata(Iterable<AssetId> assets) async {
+    final parentIds = <String>{};
+    for (final assetId in assets) {
+      if (assetId.parentId != null) {
+        parentIds.add(assetId.parentId!.id);
+      }
+    }
+
+    if (assets.isNotEmpty || parentIds.isNotEmpty) {
+      final allIdsToAdd = <String>{...assets.map((e) => e.id), ...parentIds};
       await _kdfSdk.addActivatedCoins(allIdsToAdd);
     }
   }
 
-  Future<void> activateCoinsSync(List<Coin> coins) async {
-    final isSignedIn = await _kdfSdk.auth.isSignedIn();
-    if (!isSignedIn) {
-      final coinIdList = coins.map((e) => e.id.id).join(', ');
-      _log.warning(
-        'No wallet signed in. Skipping activation of [$coinIdList]',
-      );
-      return;
-    }
+  /// Activates multiple coins synchronously with retry logic and exponential backoff.
+  ///
+  /// This method attempts to activate the provided [coins] with robust error handling
+  /// and automatic retry functionality. It includes smart logic to skip already
+  /// activated coins and retry failed activations with exponential backoff.
+  ///
+  /// **Retry Configuration:**
+  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (30 attempts ≈ 3 minutes)
+  /// - Configurable via [maxRetryAttempts], [initialRetryDelay], and [maxRetryDelay]
+  ///
+  /// **Parameters:**
+  /// - [coins]: List of coins to activate
+  /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
+  /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
+  /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
+  ///
+  /// **State Changes:**
+  /// - `CoinState.activating`: Broadcast when activation begins
+  /// - `CoinState.active`: Broadcast on successful activation or if already active
+  /// - `CoinState.suspended`: Broadcast on final failure after all retries
+  ///
+  /// **Behavior:**
+  /// - Skips coins that are already activated
+  /// - Adds coins to wallet metadata regardless of activation status
+  /// - Subscribes to balance updates for successfully activated coins
+  ///
+  /// **Throws:**
+  /// - `Exception`: If activation fails after all retry attempts
+  Future<void> activateCoinsSync(
+    List<Coin> coins, {
+    bool notify = true,
+    int maxRetryAttempts = 30,
+    Duration initialRetryDelay = const Duration(milliseconds: 500),
+    Duration maxRetryDelay = const Duration(seconds: 10),
+  }) async {
+    final assets = coins
+        .map((coin) => _kdfSdk.assets.available[coin.id])
+        .whereType<Asset>()
+        .toList();
 
-    final List<Asset> activatedAssets =
-        await _kdfSdk.assets.getActivatedAssets();
-    final activatedCoinIds = <String>{};
-    final parentIds = <String>{};
-
-    for (final coin in coins) {
-      try {
-        final asset = _kdfSdk.assets.available[coin.id];
-        if (asset == null) {
-          _log.warning('Coin ${coin.id} not found. Skipping activation.');
-          continue;
-        }
-
-        // Add coin to wallet metdata regardless of activation status
-        activatedCoinIds.add(coin.id.id);
-
-        if (activatedAssets.any((a) => a.id == asset.id)) {
-          _log.info(
-              'Coin ${coin.id} is already activated. Skipping activation.');
-          _broadcastAsset(coin.copyWith(state: CoinState.active));
-          _subscribeToBalanceUpdates(asset, coin);
-
-          if (asset.id.parentId != null) {
-            parentIds.add(asset.id.parentId!.id);
-          }
-          continue;
-        }
-
-        _broadcastAsset(coin.copyWith(state: CoinState.activating));
-
-        final progress = await _kdfSdk.assets.activateAsset(asset).last;
-        if (!progress.isSuccess) {
-          throw StateError('Failed to activate coin ${coin.id.id}');
-        }
-
-        _broadcastAsset(coin.copyWith(state: CoinState.active));
-        _subscribeToBalanceUpdates(asset, coin);
-
-        if (asset.id.parentId != null) {
-          parentIds.add(asset.id.parentId!.id);
-        }
-      } catch (e, s) {
-        _log.shout('Error activating coin: ${coin.id.id} \n$e', e, s);
-        _broadcastAsset(coin.copyWith(state: CoinState.suspended));
-      } finally {
-        // Register outside of the try-catch to ensure icon is available even
-        // in a suspended or failing activation status.
-        if (coin.logoImageUrl?.isNotEmpty ?? false) {
-          AssetIcon.registerCustomIcon(
-            coin.id,
-            NetworkImage(coin.logoImageUrl!),
-          );
-        }
-      }
-    }
-
-    // Add successfully activated coins and their parents to wallet metadata
-    if (activatedCoinIds.isNotEmpty || parentIds.isNotEmpty) {
-      final allIdsToAdd = <String>{...activatedCoinIds, ...parentIds};
-      await _kdfSdk.addActivatedCoins(allIdsToAdd);
-    }
+    return activateAssetsSync(
+      assets,
+      notify: notify,
+      maxRetryAttempts: maxRetryAttempts,
+      initialRetryDelay: initialRetryDelay,
+      maxRetryDelay: maxRetryDelay,
+    );
   }
 
   /// Deactivates the given coins and cancels their balance watchers.
@@ -576,8 +609,8 @@ class CoinsRepo {
   }
 
   Future<Map<String, CexPrice>?> _updateFromFallback() async {
-    final List<String> ids = (await getEnabledCoins())
-        .map((c) => c.coingeckoId ?? '')
+    final List<String> ids = (await _kdfSdk.assets.getActivatedAssets())
+        .map((c) => c.id.symbol.coinGeckoId ?? '')
         .toList()
       ..removeWhere((id) => id.isEmpty);
     final Uri fallbackUri = Uri.parse(

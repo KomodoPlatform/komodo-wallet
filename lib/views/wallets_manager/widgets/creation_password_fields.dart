@@ -66,6 +66,7 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       validator: _validateConfirmPasswordField,
       onFieldSubmitted: widget.onFieldSubmitted,
       errorMaxLines: 6,
+      autofillHints: const [AutofillHints.newPassword],
       hintText: LocaleKeys.walletCreationConfirmPasswordHint.tr(),
     );
   }
@@ -81,6 +82,7 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
       validator: _validatePasswordField,
       errorMaxLines: 6,
+      autofillHints: const [AutofillHints.newPassword],
       hintText: LocaleKeys.walletCreationPasswordHint.tr(),
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: (bool isPasswordObscured) {

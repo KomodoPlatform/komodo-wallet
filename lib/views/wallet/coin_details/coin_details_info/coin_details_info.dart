@@ -148,7 +148,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
 
     return DisableCoinButton(
       onClick: () {
-        confirmBeforeDisablingCoin(widget.coin, context, () {
+        confirmBeforeDisablingCoin(widget.coin, context, onConfirm: () {
           widget.onBackButtonPressed();
         });
       },

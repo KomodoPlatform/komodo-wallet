@@ -48,7 +48,10 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final fiatRepository = FiatRepository(
-      [BanxaFiatProvider(), RampFiatProvider()],
+      // Ramp API keys unavailable for the time being
+      // TODO(takenagain): re-enable when API keys are available
+      // [BanxaFiatProvider(), RampFiatProvider()],
+      [BanxaFiatProvider()],
       coinsRepository,
     );
     final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
