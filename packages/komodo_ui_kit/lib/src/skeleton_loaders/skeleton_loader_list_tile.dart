@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class SkeletonListTile extends StatefulWidget {
-  const SkeletonListTile({super.key});
+  const SkeletonListTile({
+    super.key,
+    this.height = 122,
+  });
+
+  final double height;
 
   @override
   State<SkeletonListTile> createState() => _SkeletonListTileState();
@@ -50,6 +55,7 @@ class _SkeletonListTileState extends State<SkeletonListTile>
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: widget.height,
       padding: const EdgeInsets.all(16),
       child: Row(
         children: <Widget>[
