@@ -10,19 +10,23 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/views/settings/widgets/common/settings_section.dart';
 
 class SettingsManageTradingBot extends StatelessWidget {
-  const SettingsManageTradingBot({Key? key}) : super(key: key);
+  const SettingsManageTradingBot({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SettingsSection(
-      title: LocaleKeys.expertMode.tr(),
-      child: const EnableTradingBotSwitcher(),
+    return Column(
+      children: [
+        SettingsSection(
+          title: LocaleKeys.expertMode.tr(),
+          child: const EnableTradingBotSwitcher(),
+        ),
+      ],
     );
   }
 }
 
 class EnableTradingBotSwitcher extends StatelessWidget {
-  const EnableTradingBotSwitcher({Key? key}) : super(key: key);
+  const EnableTradingBotSwitcher({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +49,14 @@ class EnableTradingBotSwitcher extends StatelessWidget {
 
   void _onSwitcherChanged(BuildContext context, bool value) {
     final settings = context.read<SettingsBloc>().state.mmBotSettings.copyWith(
-          isMMBotEnabled: value,
-        );
+      isMMBotEnabled: value,
+    );
     context.read<SettingsBloc>().add(MarketMakerBotSettingsChanged(settings));
 
     if (!value) {
-      context
-          .read<MarketMakerBotBloc>()
-          .add(const MarketMakerBotStopRequested());
+      context.read<MarketMakerBotBloc>().add(
+        const MarketMakerBotStopRequested(),
+      );
     }
   }
 }

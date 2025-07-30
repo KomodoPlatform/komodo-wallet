@@ -36,18 +36,21 @@ class SettingsMenuItem extends StatelessWidget {
         customBorder: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
-        mouseCursor:
-            enabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
+        mouseCursor: enabled
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.forbidden,
         onTap: enabled ? () => onTap(menu) : null,
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(24, 19, 0, 19),
           child: Text(
             text,
+
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Theme.of(context).primaryColor : null,
+            ),
           ),
         ),
       ),
@@ -61,16 +64,22 @@ class SettingsMenuItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(text),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 18,
-                color: Theme.of(context).textTheme.bodySmall?.color,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: isSelected ? Theme.of(context).primaryColor : null,
               ),
-            ]),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 18,
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+          ],
+        ),
       ),
     );
   }
