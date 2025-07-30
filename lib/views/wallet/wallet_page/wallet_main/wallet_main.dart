@@ -39,6 +39,7 @@ import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_growth_chart.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/portfolio_profit_loss_chart.dart';
+import 'package:web_dex/views/wallet/coin_details/coin_details.dart';
 import 'package:web_dex/views/wallet/wallet_page/charts/coin_prices_chart.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/assets_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/active_coins_list.dart';
@@ -265,8 +266,14 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
   }
 
   void _onActiveCoinItemTap(Coin coin) {
-    routingState.walletState.selectedCoin = coin.abbr;
-    routingState.walletState.action = coinsManagerRouteAction.none;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CoinDetails(
+          coin: coin,
+          onBackButtonPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
   }
 
   void _onAssetItemTap(Coin coin) {
