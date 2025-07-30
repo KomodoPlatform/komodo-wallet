@@ -311,8 +311,9 @@ class RenderGap extends RenderBox {
     if (direction == axis) {
       return _mainAxisExtent;
     } else {
-      if (_crossAxisExtent!.isFinite) {
-        return _crossAxisExtent;
+      final crossAxisExtent = _crossAxisExtent;
+      if (crossAxisExtent != null && crossAxisExtent.isFinite) {
+        return crossAxisExtent;
       } else {
         return compute();
       }
@@ -324,10 +325,11 @@ class RenderGap extends RenderBox {
     final Axis? direction = _direction;
 
     if (direction != null) {
+      final crossAxisExtent = _crossAxisExtent ?? 0.0;
       if (direction == Axis.horizontal) {
-        return constraints.constrain(Size(mainAxisExtent, crossAxisExtent!));
+        return constraints.constrain(Size(mainAxisExtent, crossAxisExtent));
       } else {
-        return constraints.constrain(Size(crossAxisExtent!, mainAxisExtent));
+        return constraints.constrain(Size(crossAxisExtent, mainAxisExtent));
       }
     } else {
       throw FlutterError(
