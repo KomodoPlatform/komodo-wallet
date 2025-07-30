@@ -655,8 +655,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_cex_market_data"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.0.1"
@@ -664,8 +664,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coin_updates"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "1.0.0"
@@ -673,56 +673,56 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_coins"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.3.0+0"
   komodo_defi_framework:
     dependency: transitive
     description:
       path: "packages/komodo_defi_framework"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0"
+    version: "0.3.0+0"
   komodo_defi_local_auth:
     dependency: transitive
     description:
       path: "packages/komodo_defi_local_auth"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.3.0+0"
   komodo_defi_rpc_methods:
     dependency: transitive
     description:
       path: "packages/komodo_defi_rpc_methods"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.3.0+0"
   komodo_defi_sdk:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_sdk"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.3.0+0"
   komodo_defi_types:
     dependency: "direct main"
     description:
       path: "packages/komodo_defi_types"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.3.0+0"
   komodo_persistence_layer:
     dependency: "direct main"
     description:
@@ -734,11 +734,11 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/komodo_ui"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.3.0+0"
   komodo_ui_kit:
     dependency: "direct main"
     description:
@@ -750,11 +750,11 @@ packages:
     dependency: transitive
     description:
       path: "packages/komodo_wallet_build_transformer"
-      ref: "add/hd-privkey-export"
-      resolved-ref: d03fbe606b1b284128c8cfa29890aa3b2040a918
+      ref: dev
+      resolved-ref: "60e5f2e770b2a2908887a1848f7c6013dc81648f"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
-    version: "0.2.0+0"
+    version: "0.3.0+0"
   leak_tracker:
     dependency: transitive
     description:
