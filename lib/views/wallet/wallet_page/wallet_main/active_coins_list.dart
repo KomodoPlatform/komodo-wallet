@@ -24,11 +24,13 @@ class ActiveCoinsList extends StatelessWidget {
     required this.searchPhrase,
     required this.withBalance,
     required this.onCoinItemTap,
+    this.onStatisticsTap,
   });
 
   final String searchPhrase;
   final bool withBalance;
   final Function(Coin) onCoinItemTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +78,7 @@ class ActiveCoinsList extends StatelessWidget {
                 pubkeys: state.pubkeys[coin.abbr],
                 isSelected: false,
                 onTap: () => onCoinItemTap(coin),
+                onStatisticsTap: onStatisticsTap,
               ),
             );
           },

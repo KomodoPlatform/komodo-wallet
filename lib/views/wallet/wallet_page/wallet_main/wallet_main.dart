@@ -277,7 +277,7 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
   void _onAssetStatisticsTap(AssetId assetId, Duration period) {
     context.read<PriceChartBloc>().add(
           PriceChartStarted(
-            symbols: [assetId.symbol.configSymbol],
+            symbols: [assetId.symbol.assetConfigId],
             period: period,
           ),
         );
@@ -421,6 +421,7 @@ class CoinListView extends StatelessWidget {
           searchPhrase: searchPhrase,
           withBalance: withBalance,
           onCoinItemTap: onActiveCoinItemTap,
+          onStatisticsTap: onAssetStatisticsTap,
         );
       case AuthorizeMode.hiddenLogin:
       case AuthorizeMode.noLogin:
