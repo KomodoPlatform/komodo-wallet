@@ -2,7 +2,6 @@ import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
