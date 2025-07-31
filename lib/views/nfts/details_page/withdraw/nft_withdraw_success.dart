@@ -72,7 +72,7 @@ class _NftWithdrawSuccessState extends State<NftWithdrawSuccess> {
                         maxWidth: 40,
                         maxHeight: 40,
                       ),
-                      child: NftImage(imagePath: nft.imageUrl),
+                      child: NftImage(imageUrl: nft.imageUrl),
                     ),
                     const SizedBox(width: 8),
                     Column(

@@ -33,7 +33,7 @@ class NftDetailsPageDesktop extends StatelessWidget {
               child: ConstrainedBox(
                 constraints:
                     const BoxConstraints(maxWidth: 389, maxHeight: 440),
-                child: NftImage(imagePath: nft.imageUrl),
+                child: NftImage(imageUrl: nft.imageUrl),
               ),
             ),
             const SizedBox(width: 32),

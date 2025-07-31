@@ -99,7 +99,7 @@ class _Details extends StatelessWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 343),
           child: NftImage(
-            imagePath: nft.imageUrl,
+            imageUrl: nft.imageUrl,
           ),
         ),
         const SizedBox(height: 28),
@@ -153,7 +153,7 @@ class _Send extends StatelessWidget {
                           maxWidth: 40,
                           maxHeight: 40,
                         ),
-                        child: NftImage(imagePath: nft.imageUrl),
+                        child: NftImage(imageUrl: nft.imageUrl),
                       ),
                       const SizedBox(width: 8),
                       Flexible(

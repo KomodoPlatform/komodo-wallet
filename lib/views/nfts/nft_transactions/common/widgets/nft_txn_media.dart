@@ -28,7 +28,7 @@ class NftTxnMedia extends StatelessWidget {
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 40, maxHeight: 40),
-          child: NftImage(imagePath: imagePath),
+          child: NftImage(imageUrl: imagePath),
         ),
         const SizedBox(width: 8),
         Expanded(

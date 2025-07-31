@@ -72,7 +72,7 @@ class _NftListItemState extends State<NftListItem> {
                           child: AnimatedScale(
                             duration: const Duration(milliseconds: 200),
                             scale: isHover ? 1.05 : 1,
-                            child: NftImage(imagePath: widget.nft.imageUrl),
+                            child: NftImage(imageUrl: widget.nft.imageUrl),
                           ),
                         ),
 
