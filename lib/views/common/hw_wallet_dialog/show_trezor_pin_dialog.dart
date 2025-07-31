@@ -28,7 +28,10 @@ Future<void> showTrezorPinDialog(TrezorTask task) async {
         authBloc.add(AuthTrezorPinProvided(pin));
         close();
       },
-      onClose: close,
+      onClose: () {
+        context.read<AuthBloc>().add(AuthTrezorCancelled());
+        close();
+      },
     ),
   );
 
