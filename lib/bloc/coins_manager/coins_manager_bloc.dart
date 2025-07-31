@@ -62,10 +62,10 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   ) async {
     final List<FilterFunction> filters = [];
 
-    List<Coin> list = mergeCoinLists(
+    final mergedCoinsList = mergeCoinLists(
       await _getOriginalCoinList(_coinsRepo, event.action),
       state.coins,
-    );
+    ).toList();
 
     // Add wallet coins to selected coins if in add mode so that they
     // are displayed in the list with the checkbox selected. This is
@@ -76,9 +76,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       event.action,
     );
 
-    final uniqueCombinedList = <Coin>{...list, ...selectedCoins}.toList();
+    final uniqueCombinedList = <Coin>{...mergedCoinsList, ...selectedCoins};
 
-    list = await _filterTestCoinsIfNeeded(uniqueCombinedList);
+    final testFilteredCoins = await _filterTestCoinsIfNeeded(
+      uniqueCombinedList.toList(),
+    );
 
     if (state.searchPhrase.isNotEmpty) {
       filters.add(_filterByPhrase);
@@ -87,15 +89,16 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       filters.add(_filterByType);
     }
 
+    List<Coin> filteredCoins = testFilteredCoins;
     for (final filter in filters) {
-      list = filter(list);
+      filteredCoins = filter(filteredCoins);
     }
 
-    list = _sortCoins(list, event.action, state.sortData);
+    final sortedCoins = _sortCoins(filteredCoins, event.action, state.sortData);
 
     emit(
       state.copyWith(
-        coins: list,
+        coins: sortedCoins.unique((coin) => coin.id),
         action: event.action,
         selectedCoins: selectedCoins,
       ),
@@ -139,7 +142,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     emit(
       state.copyWith(
-        coins: sortedCoins,
+        coins: sortedCoins.unique((coin) => coin.id),
         action: event.action,
         selectedCoins: selectedCoins,
       ),
@@ -291,16 +294,12 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
   List<Coin> _filterByPhrase(List<Coin> coins) {
     final String filter = state.searchPhrase.toLowerCase();
-    final List<Coin> filtered =
-        filter.isEmpty
-              ? coins
-              : coins
-                    .where((Coin coin) => compareCoinByPhrase(coin, filter))
-                    .toList()
-          ..sort(
-            (a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()),
-          );
-    return filtered;
+    return filter.isEmpty
+          ? coins.toList()
+          : coins
+                .where((Coin coin) => compareCoinByPhrase(coin, filter))
+                .toList()
+      ..sort((a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()));
   }
 
   List<Coin> _filterByType(List<Coin> coins) {
@@ -331,7 +330,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     return result;
   }
 
-  List<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
+  Set<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
     final Map<String, Coin> coinMap = {};
 
     for (final Coin coin in originalList) {
@@ -342,8 +341,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       coinMap[coin.id.id] = coin;
     }
 
-    final list = coinMap.values.toList();
-    return list;
+    return coinMap.values.toSet();
   }
 
   List<Coin> _sortCoins(
@@ -463,9 +461,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       }
     }
 
-    final selectedCoins = Set<Coin>.from(state.selectedCoins)
+    final selectedCoins = state.selectedCoins
       ..remove(coin)
-      ..removeAll(childCoins);
+      ..removeWhere((coin) => childCoins.any((child) => child.id == coin.id));
 
     //  Emit state immediately for responsive UI
     // before performing the actual activation/deactivation in background
