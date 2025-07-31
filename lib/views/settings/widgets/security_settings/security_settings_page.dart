@@ -242,8 +242,11 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         try {
           // Fetch private keys directly into local UI state
           // This keeps sensitive data in minimal scope
-          _sdkPrivateKeys = (await context.sdk.security.getPrivateKeys())
-            ..removeWhere((asset, _) => excludedAssetList.contains(asset.id));
+          final privateKeys = await context.sdk.security.getPrivateKeys();
+          final filteredPrivateKeyEntries = privateKeys.entries.where(
+            (entry) => !excludedAssetList.contains(entry.key.id),
+          );
+          _sdkPrivateKeys = Map.fromEntries(filteredPrivateKeyEntries);
 
           return true; // Success
         } catch (e) {
