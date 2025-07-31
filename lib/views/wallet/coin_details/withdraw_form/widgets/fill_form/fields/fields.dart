@@ -338,7 +338,11 @@ class PreviewButton extends StatelessWidget {
                   )
                 : const Icon(Icons.send),
             label: Text(
-              state.isSending ? 'Loading...' : 'Preview Withdrawal',
+              state.isSending 
+                ? (state.isAwaitingTrezorConfirmation && state.trezorProgressMessage != null
+                    ? state.trezorProgressMessage!
+                    : 'Loading...')
+                : 'Preview Withdrawal',
             ),
           ),
         );

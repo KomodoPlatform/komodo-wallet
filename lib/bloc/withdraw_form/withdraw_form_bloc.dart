@@ -6,6 +6,7 @@ import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:collection/collection.dart';
 
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_event.dart';
@@ -16,11 +17,14 @@ import 'package:decimal/decimal.dart';
 
 class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   final KomodoDefiSdk _sdk;
+  final WalletType? _walletType;
 
   WithdrawFormBloc({
     required Asset asset,
     required KomodoDefiSdk sdk,
+    WalletType? walletType,
   })  : _sdk = sdk,
+        _walletType = walletType,
         super(
           WithdrawFormState(
             asset: asset,
@@ -398,8 +402,20 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           isSending: true,
           previewError: () => null,
+          trezorProgressMessage: () => null,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
+
+      // For Trezor wallets, the preview generation might require user interaction
+      if (_walletType == WalletType.trezor) {
+        emit(
+          state.copyWith(
+            trezorProgressMessage: () => 'Please follow instructions on your Trezor device',
+            isAwaitingTrezorConfirmation: true,
+          ),
+        );
+      }
 
       final preview = await _sdk.withdrawals.previewWithdrawal(
         state.toWithdrawParameters(),
@@ -410,6 +426,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           preview: () => preview,
           step: WithdrawFormStep.confirm,
           isSending: false,
+          trezorProgressMessage: () => null,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
     } catch (e) {
@@ -418,6 +436,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           previewError: () =>
               TextError(error: 'Failed to generate preview: $e'),
           isSending: false,
+          trezorProgressMessage: () => null,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
     }
@@ -434,8 +454,20 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           isSending: true,
           transactionError: () => null,
+          trezorProgressMessage: () => null,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
+
+      // Show Trezor progress message for hardware wallets
+      if (_walletType == WalletType.trezor) {
+        emit(
+          state.copyWith(
+            trezorProgressMessage: () => 'Please confirm transaction on your Trezor device',
+            isAwaitingTrezorConfirmation: true,
+          ),
+        );
+      }
 
       await for (final progress in _sdk.withdrawals.withdraw(
         state.toWithdrawParameters(),
@@ -446,6 +478,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
               step: WithdrawFormStep.success,
               result: () => progress.withdrawalResult,
               isSending: false,
+              trezorProgressMessage: () => null,
+              isAwaitingTrezorConfirmation: false,
             ),
           );
           return;
@@ -454,6 +488,16 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         if (progress.status == WithdrawalStatus.error) {
           throw Exception(progress.errorMessage);
         }
+
+        // Handle intermediate progress states that might require user interaction
+        // Update progress message if available
+        if (progress.message != null) {
+          emit(
+            state.copyWith(
+              trezorProgressMessage: () => progress.message,
+            ),
+          );
+        }
       }
     } catch (e) {
       emit(
@@ -461,6 +505,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           transactionError: () => TextError(error: 'Transaction failed: $e'),
           step: WithdrawFormStep.failed,
           isSending: false,
+          trezorProgressMessage: () => null,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
     }

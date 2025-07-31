@@ -18,10 +18,11 @@ class FillFormFooter extends StatelessWidget {
         return ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: withdrawWidth),
           child: state.isSending
-              ?
-              //TODO(@takenagain): Trezor SDK support
-              // FillFormPreloader(state.trezorProgressStatus)
-              const FillFormPreloader('Sending')
+              ? FillFormPreloader(
+                  state.isAwaitingTrezorConfirmation && state.trezorProgressMessage != null
+                      ? state.trezorProgressMessage!
+                      : 'Sending'
+                )
               : UiBorderButton(
                   key: const Key('send-enter-button'),
                   backgroundColor: Theme.of(context).colorScheme.surface,

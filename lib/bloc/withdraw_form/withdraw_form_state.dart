@@ -26,6 +26,11 @@ class WithdrawFormState extends Equatable {
   final bool isSending;
   final WithdrawalResult? result;
 
+  // Hardware wallet progress state
+  final String? trezorProgressMessage;
+  final int? trezorTaskId;
+  final bool isAwaitingTrezorConfirmation;
+
   // Validation errors
   final TextError? recipientAddressError; // Basic address validation
   final bool isMixedCaseAddress; // EVM mixed case specific error
@@ -105,6 +110,10 @@ class WithdrawFormState extends Equatable {
     this.preview,
     this.isSending = false,
     this.result,
+    // Hardware wallet state
+    this.trezorProgressMessage,
+    this.trezorTaskId,
+    this.isAwaitingTrezorConfirmation = false,
     // Error states
     this.recipientAddressError,
     this.isMixedCaseAddress = false,
@@ -132,6 +141,10 @@ class WithdrawFormState extends Equatable {
     ValueGetter<WithdrawalPreview?>? preview,
     bool? isSending,
     ValueGetter<WithdrawalResult?>? result,
+    // Hardware wallet state
+    ValueGetter<String?>? trezorProgressMessage,
+    ValueGetter<int?>? trezorTaskId,
+    bool? isAwaitingTrezorConfirmation,
     // Error states
     ValueGetter<TextError?>? recipientAddressError,
     bool? isMixedCaseAddress,
@@ -160,6 +173,11 @@ class WithdrawFormState extends Equatable {
       preview: preview != null ? preview() : this.preview,
       isSending: isSending ?? this.isSending,
       result: result != null ? result() : this.result,
+      // Hardware wallet state
+      trezorProgressMessage: trezorProgressMessage != null ? trezorProgressMessage() : this.trezorProgressMessage,
+      trezorTaskId: trezorTaskId != null ? trezorTaskId() : this.trezorTaskId,
+      isAwaitingTrezorConfirmation: isAwaitingTrezorConfirmation ?? this.isAwaitingTrezorConfirmation,
+      // Error states
       recipientAddressError: recipientAddressError != null
           ? recipientAddressError()
           : this.recipientAddressError,
@@ -221,6 +239,9 @@ class WithdrawFormState extends Equatable {
         preview,
         isSending,
         result,
+        trezorProgressMessage,
+        trezorTaskId,
+        isAwaitingTrezorConfirmation,
         recipientAddressError,
         isMixedCaseAddress,
         amountError,
