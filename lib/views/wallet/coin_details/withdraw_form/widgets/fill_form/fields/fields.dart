@@ -312,45 +312,6 @@ class MemoField extends StatelessWidget {
   }
 }
 
-/// Preview button to initiate withdrawal confirmation
-class PreviewButton extends StatelessWidget {
-  const PreviewButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        return SizedBox(
-          // Wrap with SizedBox
-          width: double.infinity, // Take full width
-          height: 48.0, // Fixed height
-          child: FilledButton.icon(
-            onPressed: state.isSending
-                ? null
-                : () => context.read<WithdrawFormBloc>().add(
-                      const WithdrawFormPreviewSubmitted(),
-                    ),
-            icon: state.isSending
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.send),
-            label: Text(
-              state.isSending
-                  ? (state.isAwaitingTrezorConfirmation
-                        ? 'Please confirm on your Trezor device'
-                        : 'Loading...')
-                  : 'Preview Withdrawal',
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
 /// Page for confirming withdrawal details
 class ConfirmationPage extends StatelessWidget {
   const ConfirmationPage({super.key});
