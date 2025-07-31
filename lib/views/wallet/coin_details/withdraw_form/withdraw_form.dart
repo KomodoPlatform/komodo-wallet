@@ -103,14 +103,15 @@ class _WithdrawFormState extends State<WithdrawForm> {
           ),
           BlocListener<WithdrawFormBloc, WithdrawFormState>(
             listenWhen: (prev, curr) =>
-                prev.isAwaitingTrezorConfirmation != curr.isAwaitingTrezorConfirmation,
+                prev.isAwaitingTrezorConfirmation !=
+                curr.isAwaitingTrezorConfirmation,
             listener: (context, state) {
-              if (state.isAwaitingTrezorConfirmation && state.trezorProgressMessage != null) {
+              if (state.isAwaitingTrezorConfirmation) {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder: (context) => TrezorWithdrawProgressDialog(
-                    message: state.trezorProgressMessage!,
+                    message: 'Please confirm transaction on your Trezor device',
                     onCancel: () {
                       Navigator.of(context).pop();
                       context.read<WithdrawFormBloc>().add(const WithdrawFormCancelled());

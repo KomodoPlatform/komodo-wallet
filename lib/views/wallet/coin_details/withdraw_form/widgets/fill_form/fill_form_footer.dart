@@ -19,8 +19,8 @@ class FillFormFooter extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: withdrawWidth),
           child: state.isSending
               ? FillFormPreloader(
-                  state.isAwaitingTrezorConfirmation && state.trezorProgressMessage != null
-                      ? state.trezorProgressMessage!
+                  state.isAwaitingTrezorConfirmation
+                      ? 'Please confirm on your Trezor device'
                       : 'Sending'
                 )
               : UiBorderButton(

@@ -27,8 +27,6 @@ class WithdrawFormState extends Equatable {
   final WithdrawalResult? result;
 
   // Hardware wallet progress state
-  final String? trezorProgressMessage;
-  final int? trezorTaskId;
   final bool isAwaitingTrezorConfirmation;
 
   // Validation errors
@@ -111,8 +109,6 @@ class WithdrawFormState extends Equatable {
     this.isSending = false,
     this.result,
     // Hardware wallet state
-    this.trezorProgressMessage,
-    this.trezorTaskId,
     this.isAwaitingTrezorConfirmation = false,
     // Error states
     this.recipientAddressError,
@@ -142,8 +138,6 @@ class WithdrawFormState extends Equatable {
     bool? isSending,
     ValueGetter<WithdrawalResult?>? result,
     // Hardware wallet state
-    ValueGetter<String?>? trezorProgressMessage,
-    ValueGetter<int?>? trezorTaskId,
     bool? isAwaitingTrezorConfirmation,
     // Error states
     ValueGetter<TextError?>? recipientAddressError,
@@ -174,22 +168,24 @@ class WithdrawFormState extends Equatable {
       isSending: isSending ?? this.isSending,
       result: result != null ? result() : this.result,
       // Hardware wallet state
-      trezorProgressMessage: trezorProgressMessage != null ? trezorProgressMessage() : this.trezorProgressMessage,
-      trezorTaskId: trezorTaskId != null ? trezorTaskId() : this.trezorTaskId,
-      isAwaitingTrezorConfirmation: isAwaitingTrezorConfirmation ?? this.isAwaitingTrezorConfirmation,
+      isAwaitingTrezorConfirmation:
+          isAwaitingTrezorConfirmation ?? this.isAwaitingTrezorConfirmation,
       // Error states
       recipientAddressError: recipientAddressError != null
           ? recipientAddressError()
           : this.recipientAddressError,
       isMixedCaseAddress: isMixedCaseAddress ?? this.isMixedCaseAddress,
       amountError: amountError != null ? amountError() : this.amountError,
-      customFeeError:
-          customFeeError != null ? customFeeError() : this.customFeeError,
-      ibcChannelError:
-          ibcChannelError != null ? ibcChannelError() : this.ibcChannelError,
+      customFeeError: customFeeError != null
+          ? customFeeError()
+          : this.customFeeError,
+      ibcChannelError: ibcChannelError != null
+          ? ibcChannelError()
+          : this.ibcChannelError,
       previewError: previewError != null ? previewError() : this.previewError,
-      transactionError:
-          transactionError != null ? transactionError() : this.transactionError,
+      transactionError: transactionError != null
+          ? transactionError()
+          : this.transactionError,
       networkError: networkError != null ? networkError() : this.networkError,
     );
   }
@@ -207,8 +203,9 @@ class WithdrawFormState extends Equatable {
           : null,
       memo: memo,
       ibcTransfer: isIbcTransfer ? true : null,
-      ibcSourceChannel:
-          ibcChannel?.isNotEmpty == true ? int.tryParse(ibcChannel!.trim()) : null,
+      ibcSourceChannel: ibcChannel?.isNotEmpty == true
+          ? int.tryParse(ibcChannel!.trim())
+          : null,
       isMax: isMaxAmount,
     );
   }
@@ -224,31 +221,29 @@ class WithdrawFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        asset,
-        pubkeys,
-        step,
-        recipientAddress,
-        amount,
-        selectedSourceAddress,
-        isMaxAmount,
-        isCustomFee,
-        customFee,
-        memo,
-        isIbcTransfer,
-        ibcChannel,
-        preview,
-        isSending,
-        result,
-        trezorProgressMessage,
-        trezorTaskId,
-        isAwaitingTrezorConfirmation,
-        recipientAddressError,
-        isMixedCaseAddress,
-        amountError,
-        customFeeError,
-        ibcChannelError,
-        previewError,
-        transactionError,
-        networkError,
-      ];
+    asset,
+    pubkeys,
+    step,
+    recipientAddress,
+    amount,
+    selectedSourceAddress,
+    isMaxAmount,
+    isCustomFee,
+    customFee,
+    memo,
+    isIbcTransfer,
+    ibcChannel,
+    preview,
+    isSending,
+    result,
+    isAwaitingTrezorConfirmation,
+    recipientAddressError,
+    isMixedCaseAddress,
+    amountError,
+    customFeeError,
+    ibcChannelError,
+    previewError,
+    transactionError,
+    networkError,
+  ];
 }

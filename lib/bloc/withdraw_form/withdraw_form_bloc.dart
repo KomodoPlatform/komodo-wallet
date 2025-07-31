@@ -23,16 +23,16 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     required Asset asset,
     required KomodoDefiSdk sdk,
     WalletType? walletType,
-  })  : _sdk = sdk,
-        _walletType = walletType,
-        super(
-          WithdrawFormState(
-            asset: asset,
-            step: WithdrawFormStep.fill,
-            recipientAddress: '',
-            amount: '0',
-          ),
-        ) {
+  }) : _sdk = sdk,
+       _walletType = walletType,
+       super(
+         WithdrawFormState(
+           asset: asset,
+           step: WithdrawFormStep.fill,
+           recipientAddress: '',
+           amount: '0',
+         ),
+       ) {
     on<WithdrawFormRecipientChanged>(_onRecipientChanged);
     on<WithdrawFormAmountChanged>(_onAmountChanged);
     on<WithdrawFormSourceChanged>(_onSourceChanged);
@@ -62,9 +62,9 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         final current = state.selectedSourceAddress;
         final newSelection = current != null
             ? pubkeys.keys.firstWhereOrNull(
-                  (key) => key.address == current.address,
-                ) ??
-                pubkeys.keys.first
+                    (key) => key.address == current.address,
+                  ) ??
+                  pubkeys.keys.first
             : (pubkeys.keys.length == 1 ? pubkeys.keys.first : null);
 
         emit(
@@ -256,8 +256,9 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     Emitter<WithdrawFormState> emit,
   ) {
     final balance = event.address.balance;
-    final updatedAmount =
-        state.isMaxAmount ? balance.spendable.toString() : state.amount;
+    final updatedAmount = state.isMaxAmount
+        ? balance.spendable.toString()
+        : state.amount;
 
     emit(
       state.copyWith(
@@ -281,8 +282,9 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   ) {
     final balance =
         state.selectedSourceAddress?.balance ?? state.pubkeys?.balance;
-    final maxAmount =
-        event.isEnabled ? (balance?.spendable.toString() ?? '0') : '0';
+    final maxAmount = event.isEnabled
+        ? (balance?.spendable.toString() ?? '0')
+        : '0';
 
     emit(
       state.copyWith(
@@ -320,16 +322,11 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         _validateUtxoFee(event.fee as FeeInfoUtxoFixed);
       }
       emit(
-        state.copyWith(
-          customFee: () => event.fee,
-          customFeeError: () => null,
-        ),
+        state.copyWith(customFee: () => event.fee, customFeeError: () => null),
       );
     } catch (e) {
       emit(
-        state.copyWith(
-          customFeeError: () => TextError(error: e.toString()),
-        ),
+        state.copyWith(customFeeError: () => TextError(error: e.toString())),
       );
     }
   }
@@ -377,7 +374,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       emit(
         state.copyWith(
           ibcChannel: () => event.channel,
-          ibcChannelError: () => TextError(error: LocaleKeys.enterIbcChannel.tr()),
+          ibcChannelError: () =>
+              TextError(error: LocaleKeys.enterIbcChannel.tr()),
         ),
       );
       return;
@@ -402,19 +400,13 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           isSending: true,
           previewError: () => null,
-          trezorProgressMessage: () => null,
           isAwaitingTrezorConfirmation: false,
         ),
       );
 
       // For Trezor wallets, the preview generation might require user interaction
       if (_walletType == WalletType.trezor) {
-        emit(
-          state.copyWith(
-            trezorProgressMessage: () => 'Please follow instructions on your Trezor device',
-            isAwaitingTrezorConfirmation: true,
-          ),
-        );
+        emit(state.copyWith(isAwaitingTrezorConfirmation: true));
       }
 
       final preview = await _sdk.withdrawals.previewWithdrawal(
@@ -426,7 +418,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           preview: () => preview,
           step: WithdrawFormStep.confirm,
           isSending: false,
-          trezorProgressMessage: () => null,
           isAwaitingTrezorConfirmation: false,
         ),
       );
@@ -436,7 +427,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           previewError: () =>
               TextError(error: 'Failed to generate preview: $e'),
           isSending: false,
-          trezorProgressMessage: () => null,
           isAwaitingTrezorConfirmation: false,
         ),
       );
@@ -454,19 +444,13 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           isSending: true,
           transactionError: () => null,
-          trezorProgressMessage: () => null,
           isAwaitingTrezorConfirmation: false,
         ),
       );
 
       // Show Trezor progress message for hardware wallets
       if (_walletType == WalletType.trezor) {
-        emit(
-          state.copyWith(
-            trezorProgressMessage: () => 'Please confirm transaction on your Trezor device',
-            isAwaitingTrezorConfirmation: true,
-          ),
-        );
+        emit(state.copyWith(isAwaitingTrezorConfirmation: true));
       }
 
       await for (final progress in _sdk.withdrawals.withdraw(
@@ -478,7 +462,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
               step: WithdrawFormStep.success,
               result: () => progress.withdrawalResult,
               isSending: false,
-              trezorProgressMessage: () => null,
               isAwaitingTrezorConfirmation: false,
             ),
           );
@@ -488,16 +471,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         if (progress.status == WithdrawalStatus.error) {
           throw Exception(progress.errorMessage);
         }
-
-        // Handle intermediate progress states that might require user interaction
-        // Update progress message if available
-        if (progress.message != null) {
-          emit(
-            state.copyWith(
-              trezorProgressMessage: () => progress.message,
-            ),
-          );
-        }
       }
     } catch (e) {
       emit(
@@ -505,7 +478,6 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           transactionError: () => TextError(error: 'Transaction failed: $e'),
           step: WithdrawFormStep.failed,
           isSending: false,
-          trezorProgressMessage: () => null,
           isAwaitingTrezorConfirmation: false,
         ),
       );
@@ -521,10 +493,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     add(const WithdrawFormReset());
   }
 
-  void _onReset(
-    WithdrawFormReset event,
-    Emitter<WithdrawFormState> emit,
-  ) {
+  void _onReset(WithdrawFormReset event, Emitter<WithdrawFormState> emit) {
     emit(
       WithdrawFormState(
         asset: state.asset,
