@@ -28,20 +28,16 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     required AnalyticsBloc analyticsBloc,
     required SettingsRepository settingsRepository,
     required TradingEntitiesBloc tradingEntitiesBloc,
-  })  : _coinsRepo = coinsRepo,
-        _sdk = sdk,
-        _analyticsBloc = analyticsBloc,
-        _settingsRepository = settingsRepository,
-        _tradingEntitiesBloc = tradingEntitiesBloc,
-        super(CoinsManagerState.initial(coins: [])) {
+  }) : _coinsRepo = coinsRepo,
+       _sdk = sdk,
+       _analyticsBloc = analyticsBloc,
+       _settingsRepository = settingsRepository,
+       _tradingEntitiesBloc = tradingEntitiesBloc,
+       super(CoinsManagerState.initial(coins: [])) {
     on<CoinsManagerCoinsUpdate>(_onCoinsUpdate);
     on<CoinsManagerCoinsListReset>(_onCoinsListReset);
     on<CoinsManagerCoinTypeSelect>(_onCoinTypeSelect);
     on<CoinsManagerCoinsSwitch>(_onCoinsSwitch);
-    // Sequential transformer is used to ensure that no concurrent updates
-    // occur, which could lead to inconsistent state.
-    // This is important for actions like selecting/deselecting coins, which
-    // the user might perform rapidly.
     on<CoinsManagerCoinSelect>(_onCoinSelect);
     on<CoinsManagerSelectAllTap>(_onSelectAll);
     on<CoinsManagerSelectedTypesReset>(_onSelectedTypesReset);
@@ -97,11 +93,13 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     list = _sortCoins(list, event.action, state.sortData);
 
-    emit(state.copyWith(
-      coins: list,
-      action: event.action,
-      selectedCoins: selectedCoins,
-    ));
+    emit(
+      state.copyWith(
+        coins: list,
+        action: event.action,
+        selectedCoins: selectedCoins,
+      ),
+    );
   }
 
   Future<void> _onCoinsListReset(
@@ -134,8 +132,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       event.action,
     );
 
-    final filteredCoins =
-        await _filterTestCoinsIfNeeded({...coins, ...selectedCoins}.toList());
+    final filteredCoins = await _filterTestCoinsIfNeeded(
+      {...coins, ...selectedCoins}.toList(),
+    );
     final sortedCoins = _sortCoins(filteredCoins, event.action, state.sortData);
 
     emit(
@@ -194,7 +193,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       return;
     }
 
-    if (selectedCoins.contains(coin)) {
+    if (wasSelected) {
       selectedCoins.remove(coin);
     } else {
       selectedCoins.add(coin);
@@ -206,19 +205,18 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     final bool shouldActivate =
         (state.action == CoinsManagerAction.add && !wasSelected) ||
-            (state.action == CoinsManagerAction.remove && wasSelected);
+        (state.action == CoinsManagerAction.remove && wasSelected);
 
     if (shouldActivate) {
-      await _tryActivateCoin(event, coin);
+      await _tryActivateCoin(coin);
     } else {
-      await _tryDeactivateCoin(event, coin);
+      await _tryDeactivateCoin(coin);
     }
   }
 
-  Future<void> _tryDeactivateCoin(
-      CoinsManagerCoinSelect event, Coin coin) async {
+  Future<void> _tryDeactivateCoin(Coin coin) async {
     try {
-      await _coinsRepo.deactivateCoinsSync([event.coin]);
+      await _coinsRepo.deactivateCoinsSync([coin]);
     } catch (e, s) {
       _log.warning('Failed to deactivate coin ${coin.abbr}', e, s);
     }
@@ -232,9 +230,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     );
   }
 
-  Future<void> _tryActivateCoin(CoinsManagerCoinSelect event, Coin coin) async {
+  Future<void> _tryActivateCoin(Coin coin) async {
     try {
-      await _coinsRepo.activateCoinsSync([event.coin]);
+      await _coinsRepo.activateCoinsSync([coin]);
     } catch (e, s) {
       _log.warning('Failed to activate coin ${coin.abbr}', e, s);
     }
@@ -252,8 +250,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     CoinsManagerSelectAllTap event,
     Emitter<CoinsManagerState> emit,
   ) {
-    final selectedCoins =
-        state.isSelectedAllCoinsEnabled ? <Coin>[] : state.coins;
+    final selectedCoins = state.isSelectedAllCoinsEnabled
+        ? <Coin>[]
+        : state.coins;
     emit(state.copyWith(selectedCoins: selectedCoins));
   }
 
@@ -277,8 +276,11 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     CoinsManagerSortChanged event,
     Emitter<CoinsManagerState> emit,
   ) {
-    final List<Coin> sorted =
-        _sortCoins([...state.coins], state.action, event.sortData);
+    final List<Coin> sorted = _sortCoins(
+      [...state.coins],
+      state.action,
+      event.sortData,
+    );
     emit(state.copyWith(coins: sorted, sortData: event.sortData));
   }
 
@@ -289,10 +291,15 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
   List<Coin> _filterByPhrase(List<Coin> coins) {
     final String filter = state.searchPhrase.toLowerCase();
-    final List<Coin> filtered = filter.isEmpty
-        ? coins
-        : coins.where((Coin coin) => compareCoinByPhrase(coin, filter)).toList()
-      ..sort((a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()));
+    final List<Coin> filtered =
+        filter.isEmpty
+              ? coins
+              : coins
+                    .where((Coin coin) => compareCoinByPhrase(coin, filter))
+                    .toList()
+          ..sort(
+            (a, b) => a.abbr.toLowerCase().compareTo(b.abbr.toLowerCase()),
+          );
     return filtered;
   }
 
@@ -367,51 +374,62 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
 
     // Find child coins (tokens)
     final walletCoins = await _coinsRepo.getWalletCoins();
-    final childCoins =
-        walletCoins.where((c) => c.parentCoin?.abbr == coin.abbr).toList();
+    final childCoins = walletCoins
+        .where((c) => c.parentCoin?.abbr == coin.abbr)
+        .toList();
 
     // Check for active swaps
-    final hasSwap = _tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
+    final hasSwap =
+        _tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
         childCoins.any((c) => _tradingEntitiesBloc.hasActiveSwap(c.abbr));
 
     if (hasSwap) {
-      emit(state.copyWith(
-        removalState: CoinRemovalState(
-          coin: coin,
-          childCoins: childCoins,
-          blockReason: CoinRemovalBlockReason.activeSwap,
-          openOrdersCount: 0,
+      emit(
+        state.copyWith(
+          removalState: CoinRemovalState(
+            coin: coin,
+            childCoins: childCoins,
+            blockReason: CoinRemovalBlockReason.activeSwap,
+            openOrdersCount: 0,
+          ),
         ),
-      ));
+      );
       return;
     }
 
     // Check for open orders
-    final int openOrders = _tradingEntitiesBloc.openOrdersCount(coin.abbr) +
+    final int openOrders =
+        _tradingEntitiesBloc.openOrdersCount(coin.abbr) +
         childCoins.fold<int>(
-            0, (sum, c) => sum + _tradingEntitiesBloc.openOrdersCount(c.abbr));
+          0,
+          (sum, c) => sum + _tradingEntitiesBloc.openOrdersCount(c.abbr),
+        );
 
     if (openOrders > 0) {
-      emit(state.copyWith(
-        removalState: CoinRemovalState(
-          coin: coin,
-          childCoins: childCoins,
-          blockReason: CoinRemovalBlockReason.openOrders,
-          openOrdersCount: openOrders,
+      emit(
+        state.copyWith(
+          removalState: CoinRemovalState(
+            coin: coin,
+            childCoins: childCoins,
+            blockReason: CoinRemovalBlockReason.openOrders,
+            openOrdersCount: openOrders,
+          ),
         ),
-      ));
+      );
       return;
     }
 
     // No blocking conditions, proceed with confirmation flow
-    emit(state.copyWith(
-      removalState: CoinRemovalState(
-        coin: coin,
-        childCoins: childCoins,
-        blockReason: CoinRemovalBlockReason.none,
-        openOrdersCount: 0,
+    emit(
+      state.copyWith(
+        removalState: CoinRemovalState(
+          coin: coin,
+          childCoins: childCoins,
+          blockReason: CoinRemovalBlockReason.none,
+          openOrdersCount: 0,
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> _onCoinRemoveConfirmed(
@@ -434,51 +452,28 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       } catch (e, s) {
         _log.warning('Failed to cancel orders for coin ${coin.abbr}', e, s);
 
-        // Clear removal state and emit error message
-        emit(state.copyWith(
-          removalState: null,
-          errorMessage:
-              'Failed to cancel open orders for ${coin.abbr}. Please try again.',
-        ));
+        emit(
+          state.copyWith(
+            removalState: null,
+            errorMessage:
+                'Failed to cancel open orders for ${coin.abbr}. Please try again.',
+          ),
+        );
         return;
       }
     }
 
-    // Remove coin from selected coins if in add mode (deselection)
-    // or proceed with actual removal if in remove mode
-    if (state.action == CoinsManagerAction.add) {
-      // Deselect the coin and all its child coins
-      final selectedCoins = Set<Coin>.from(state.selectedCoins);
-      selectedCoins.remove(coin);
+    final selectedCoins = Set<Coin>.from(state.selectedCoins)
+      ..remove(coin)
+      ..removeAll(childCoins);
 
-      // Also remove all child coins from selected coins
-      for (final childCoin in childCoins) {
-        selectedCoins.remove(childCoin);
-      }
+    //  Emit state immediately for responsive UI
+    // before performing the actual activation/deactivation in background
+    emit(
+      state.copyWith(removalState: null, selectedCoins: selectedCoins.toList()),
+    );
 
-      emit(state.copyWith(
-        selectedCoins: selectedCoins.toList(),
-        removalState: null,
-      ));
-
-      // Deactivate the coin
-      try {
-        await _tryDeactivateCoin(CoinsManagerCoinSelect(coin: coin), coin);
-      } catch (e, s) {
-        _log.warning(
-            'Failed to deactivate coin ${coin.abbr} after removal confirmation',
-            e,
-            s);
-        // Note: The coin is already removed from selectedCoins, so the UI state is consistent
-        // even if deactivation fails
-      }
-    } else {
-      // Clear removal state and proceed with removal via existing logic
-      emit(state.copyWith(removalState: null));
-
-      // Proceed with actual coin removal for remove mode
-      add(CoinsManagerCoinSelect(coin: coin));
-    }
+    await _tryDeactivateCoin(coin);
   }
 
   void _onCoinRemovalCancelled(
