@@ -111,7 +111,7 @@ class _WithdrawFormState extends State<WithdrawForm> {
                   context: context,
                   barrierDismissible: false,
                   builder: (context) => TrezorWithdrawProgressDialog(
-                    message: 'Please confirm transaction on your Trezor device',
+                    message: LocaleKeys.trezorTransactionInProgressMessage.tr(),
                     onCancel: () {
                       Navigator.of(context).pop();
                       context.read<WithdrawFormBloc>().add(const WithdrawFormCancelled());

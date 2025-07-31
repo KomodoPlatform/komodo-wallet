@@ -352,6 +352,7 @@ abstract class  LocaleKeys {
   static const trezorSelectTitle = 'trezorSelectTitle';
   static const trezorSelectSubTitle = 'trezorSelectSubTitle';
   static const trezorBrowserUnsupported = 'trezorBrowserUnsupported';
+  static const trezorTransactionInProgressMessage = 'trezorTransactionInProgressMessage';
   static const mixedCaseError = 'mixedCaseError';
   static const addressConvertedToMixedCase = 'addressConvertedToMixedCase';
   static const invalidAddressChecksum = 'invalidAddressChecksum';
