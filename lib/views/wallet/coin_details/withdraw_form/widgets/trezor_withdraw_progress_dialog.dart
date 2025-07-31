@@ -58,4 +58,4 @@ class TrezorWithdrawProgressDialog extends StatelessWidget {
       ),
     );
   }
-} 
+}
