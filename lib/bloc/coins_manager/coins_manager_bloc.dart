@@ -461,7 +461,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       }
     }
 
-    final selectedCoins = state.selectedCoins
+    final selectedCoins = List<Coin>.from(state.selectedCoins)
       ..remove(coin)
       ..removeWhere((coin) => childCoins.any((child) => child.id == coin.id));
 
