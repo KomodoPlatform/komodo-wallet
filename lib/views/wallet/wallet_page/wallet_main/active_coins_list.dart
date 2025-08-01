@@ -7,6 +7,7 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_utils.dart';
@@ -220,7 +221,7 @@ class AddressBalanceCard extends StatelessWidget {
                           ),
                           if (pubkey.isActiveForSwap)
                             Chip(
-                              label: Text(LocaleKeys.tradingAddress.tr()),
+                              label: Text(LocaleKeys.dexAddress.tr()),
                               backgroundColor: Theme.of(
                                 context,
                               ).primaryColor.withOpacity(0.1),

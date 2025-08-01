@@ -592,6 +592,7 @@ class SwapAddressTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Refactor to use "DexPill" component from the SDK UI library (not yet created)
     return address.isActiveForSwap
         ? Padding(
             padding: EdgeInsets.only(left: isMobile ? 4 : 8),
@@ -605,7 +606,7 @@ class SwapAddressTag extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16.0),
               ),
               child: Text(
-                LocaleKeys.tradingAddress.tr(),
+                LocaleKeys.dexAddress.tr(),
                 style: TextStyle(fontSize: isMobile ? 9 : 12),
               ),
             ),
