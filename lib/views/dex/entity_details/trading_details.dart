@@ -20,9 +20,10 @@ import 'package:web_dex/views/dex/entity_details/swap/swap_details_page.dart';
 import 'package:web_dex/views/dex/entity_details/taker_order/taker_order_details_page.dart';
 
 class TradingDetails extends StatefulWidget {
-  const TradingDetails({super.key, required this.uuid});
+  const TradingDetails({super.key, required this.uuid, this.isOrder = false});
 
   final String uuid;
+  final bool isOrder;
 
   @override
   State<TradingDetails> createState() => _TradingDetailsState();
@@ -96,98 +97,96 @@ class _TradingDetailsState extends State<TradingDetails> {
     MyOrdersService myOrdersService,
   ) async {
     Swap? swapStatus;
+
+
     try {
+      if (!mounted) return;
+
+      if (widget.isOrder) {
+        final OrderStatus? orderStatus = await myOrdersService.getStatus(widget.uuid);
+        setState(() {
+          _orderStatus = orderStatus;
+        });
+        return;
+      }
+
       swapStatus = await dexRepository.getSwapStatus(widget.uuid);
-    } on TextError catch (e, s) {
-      log(
-        e.error,
-        path: 'trading_details =>_updateStatus',
-        trace: s,
-        isError: true,
-      );
-      swapStatus = null;
+      setState(() {
+        _swapStatus = swapStatus;
+      });
+
     } catch (e, s) {
       log(
         e.toString(),
-        path: 'trading_details =>_updateStatus',
+        path: 'trading_details => _updateStatus',
         trace: s,
         isError: true,
       );
-      swapStatus = null;
+      return;
     }
 
-    final OrderStatus? orderStatus =
-        await myOrdersService.getStatus(widget.uuid);
-
-    if (!mounted) return;
-    setState(() {
-      _swapStatus = swapStatus;
-      _orderStatus = orderStatus;
-    });
-
-    if (swapStatus != null) {
-      final authBloc = context.read<AuthBloc>();
-      final walletType = authBloc.state.currentUser?.wallet.config.type.name;
-      final fromAsset = swapStatus.sellCoin;
-      final toAsset = swapStatus.buyCoin;
-      final int? durationMs =
-          swapStatus.events.isNotEmpty && swapStatus.myInfo != null
-              ? swapStatus.events.last.timestamp -
-                  swapStatus.myInfo!.startedAt * 1000
-              : null;
-      if (swapStatus.isSuccessful && !_loggedSuccess) {
-        _loggedSuccess = true;
-        // Find trade fee from events
-        double fee = 0;
-        for (var event in swapStatus.events) {
-          if (event.event.data?.feeToSendTakerFee != null) {
-            fee = event.event.data?.feeToSendTakerFee?.amount ?? 0;
-            break;
-          } else if (event.event.data?.takerPaymentTradeFee != null) {
-            fee = event.event.data?.takerPaymentTradeFee?.amount ?? 0;
-            break;
-          } else if (event.event.data?.makerPaymentSpendTradeFee != null) {
-            fee = event.event.data?.makerPaymentSpendTradeFee?.amount ?? 0;
-            break;
-          }
+    final authBloc = context.read<AuthBloc>();
+    final walletType = authBloc.state.currentUser?.wallet.config.type.name;
+    final fromAsset = swapStatus.sellCoin;
+    final toAsset = swapStatus.buyCoin;
+    final int? durationMs =
+        swapStatus.events.isNotEmpty && swapStatus.myInfo != null
+            ? swapStatus.events.last.timestamp -
+                swapStatus.myInfo!.startedAt * 1000
+            : null;
+    if (swapStatus.isSuccessful && !_loggedSuccess) {
+      _loggedSuccess = true;
+      // Find trade fee from events
+      double fee = 0;
+      for (var event in swapStatus.events) {
+        if (event.event.data?.feeToSendTakerFee != null) {
+          fee = event.event.data?.feeToSendTakerFee?.amount ?? 0;
+          break;
+        } else if (event.event.data?.takerPaymentTradeFee != null) {
+          fee = event.event.data?.takerPaymentTradeFee?.amount ?? 0;
+          break;
+        } else if (event.event.data?.makerPaymentSpendTradeFee != null) {
+          fee = event.event.data?.makerPaymentSpendTradeFee?.amount ?? 0;
+          break;
         }
+      }
+      context.read<AnalyticsBloc>().logEvent(
+            SwapSucceededEventData(
+              fromAsset: fromAsset,
+              toAsset: toAsset,
+              amount: swapStatus.sellAmount.toDouble(),
+              fee: fee,
+              walletType: walletType ?? 'unknown',
+              durationMs: durationMs,
+            ),
+          );
+
+      final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
+      if (swapStatus.isTheSameTicker) {
+        final fromChain =
+            coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
+        final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
         context.read<AnalyticsBloc>().logEvent(
-              SwapSucceededEventData(
-                fromAsset: fromAsset,
-                toAsset: toAsset,
+              AnalyticsEvents.bridgeSuccess(
+                fromChain: fromChain,
+                toChain: toChain,
+                asset: fromAsset,
                 amount: swapStatus.sellAmount.toDouble(),
-                fee: fee,
-                walletType: walletType ?? 'unknown',
                 durationMs: durationMs,
               ),
             );
-
-        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
-        if (swapStatus.isTheSameTicker) {
-          final fromChain =
-              coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
-          final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
-          context.read<AnalyticsBloc>().logEvent(
-                AnalyticsEvents.bridgeSuccess(
-                  fromChain: fromChain,
-                  toChain: toChain,
-                  asset: fromAsset,
-                  amount: swapStatus.sellAmount.toDouble(),
-                  durationMs: durationMs,
-                ),
-              );
-        }
-      } else if (swapStatus.isFailed && !_loggedFailure) {
-        _loggedFailure = true;
-        context.read<AnalyticsBloc>().logEvent(
-              SwapFailedEventData(
-                fromAsset: fromAsset,
-                toAsset: toAsset,
-                failStage: swapStatus.status.name,
-                walletType: walletType ?? 'unknown',
-                durationMs: durationMs,
-              ),
-            );
+      }
+    } else if (swapStatus.isFailed && !_loggedFailure) {
+      _loggedFailure = true;
+      context.read<AnalyticsBloc>().logEvent(
+            SwapFailedEventData(
+              fromAsset: fromAsset,
+              toAsset: toAsset,
+              failStage: swapStatus.status.name,
+              walletType: walletType ?? 'unknown',
+              durationMs: durationMs,
+            ),
+          );
 
         final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
         if (swapStatus.isTheSameTicker) {
@@ -203,7 +202,6 @@ class _TradingDetailsState extends State<TradingDetails> {
                 ),
               );
         }
-      }
     }
   }
 }

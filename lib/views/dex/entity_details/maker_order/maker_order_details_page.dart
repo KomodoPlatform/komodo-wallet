@@ -222,8 +222,7 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
     if (error != null) {
       setState(() => _cancelingError = error);
     } else {
-      routingState.dexState.action = DexAction.none;
-      routingState.dexState.uuid = '';
+      routingState.dexState.reset();
     }
   }
 }

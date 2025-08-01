@@ -25,8 +25,7 @@ class TradingDetailsHeader extends StatelessWidget {
           routingState.bridgeState.action = BridgeAction.none;
           routingState.bridgeState.uuid = '';
         } else if (routingState.dexState.action != DexAction.none) {
-          routingState.dexState.action = DexAction.none;
-          routingState.dexState.uuid = '';
+          routingState.dexState.reset();
         } else if (routingState.marketMakerState.action !=
             MarketMakerBotAction.none) {
           routingState.marketMakerState.action = MarketMakerBotAction.none;

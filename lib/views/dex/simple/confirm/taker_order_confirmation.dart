@@ -348,7 +348,7 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     if (uuid == null) return;
 
     context.read<TakerBloc>().add(TakerClear());
-    routingState.dexState.setDetailsAction(uuid);
+    routingState.dexState.setDetailsAction(uuid, isOrder: false);
 
     final tradingEntitiesBloc =
         RepositoryProvider.of<TradingEntitiesBloc>(context);

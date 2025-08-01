@@ -63,7 +63,10 @@ class _DexPageState extends State<DexPage> {
         ),
       ],
       child: isTradingDetails
-          ? TradingDetails(uuid: routingState.dexState.uuid)
+          ? TradingDetails(
+              uuid: routingState.dexState.uuid,
+              isOrder: routingState.dexState.isOrder,
+            )
           : _DexContent(),
     );
     return pageContent;
