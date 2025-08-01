@@ -50,6 +50,9 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   bool _eulaAndTosChecked = false;
   bool _allowCustomSeed = false;
 
+  // Whether the selected file name contains characters that are not allowed
+  late final bool _hasInvalidFileName;
+
   String? _filePasswordError;
   String? _commonError;
 
@@ -57,7 +60,30 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
     return _filePasswordError == null;
   }
 
-  bool get _isButtonEnabled => _eulaAndTosChecked;
+  bool get _isButtonEnabled => _eulaAndTosChecked && !_hasInvalidFileName;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Detect illegal characters in the filename (anything other than letters, numbers, underscore, hyphen, dot and space)
+    _hasInvalidFileName = _containsIllegalChars(widget.fileData.name);
+
+    if (_hasInvalidFileName) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _commonError = LocaleKeys.invalidWalletFileNameError.tr();
+        });
+        _formKey.currentState?.validate();
+      });
+    }
+  }
+
+  bool _containsIllegalChars(String fileName) {
+    // Allow alphanumerics, underscore, hyphen, dot and space in the filename
+    return RegExp(r'[^\w.\- ]').hasMatch(fileName);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +100,13 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
         Text(LocaleKeys.walletImportByFileDescription.tr(),
             style: Theme.of(context).textTheme.bodyLarge),
         const SizedBox(height: 20),
-        Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+        AutofillGroup(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
               UiTextFormField(
                 key: const Key('file-password-field'),
                 controller: _filePasswordController,
@@ -88,6 +115,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                 autocorrect: false,
                 enableInteractiveSelection: true,
                 obscureText: _isObscured,
+                autofillHints: const [AutofillHints.password],
                 validator: (_) {
                   return _filePasswordError;
                 },
@@ -168,6 +196,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
             ],
           ),
         ),
+        ),
       ],
     );
   }
@@ -184,6 +213,10 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   late final KomodoDefiSdk _sdk = context.read<KomodoDefiSdk>();
 
   Future<void> _onImport() async {
+    if (_hasInvalidFileName) {
+      // Early return if filename is invalid; button should already be disabled
+      return;
+    }
     final EncryptionTool encryptionTool = EncryptionTool();
     final String? fileData = await encryptionTool.decryptData(
       _filePasswordController.text,

@@ -22,6 +22,8 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     Emitter<AuthBlocState> emit,
   ) async {
     try {
+      emit(AuthBlocState.loading());
+
       const authOptions = AuthOptions(
         derivationMethod: DerivationMethod.hdWallet,
         privKeyPolicy: PrivateKeyPolicy.trezor(),
@@ -47,10 +49,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       _log.shout('Trezor authentication failed', e);
       emit(
         AuthBlocState.error(
-          AuthException(
-            e.toString(),
-            type: AuthExceptionType.generalAuthError,
-          ),
+          AuthException(e.toString(), type: AuthExceptionType.generalAuthError),
         ),
       );
     }
@@ -73,7 +72,8 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         );
       case AuthenticationStatus.waitingForDeviceConfirmation:
         return AuthBlocState.trezorAwaitingConfirmation(
-          message: authState.message ??
+          message:
+              authState.message ??
               'Please follow instructions on your Trezor device',
           taskId: authState.taskId,
         );
@@ -189,10 +189,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         return;
       }
 
-      await _sdk.auth.setHardwareDevicePassphrase(
-        taskId,
-        event.passphrase,
-      );
+      await _sdk.auth.setHardwareDevicePassphrase(taskId, event.passphrase);
     } catch (e) {
       _log.shout('Failed to provide passphrase', e);
       emit(
@@ -210,6 +207,14 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     AuthTrezorCancelled event,
     Emitter<AuthBlocState> emit,
   ) async {
+    final taskId = state.authenticationState?.taskId;
+    if (taskId != null) {
+      try {
+        await _sdk.auth.cancelHardwareDeviceInitialization(taskId);
+      } catch (e) {
+        _log.shout('Failed to cancel Trezor initialization', e);
+      }
+    }
     emit(AuthBlocState.initial());
   }
 }

@@ -18,6 +18,7 @@ import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:app_theme/src/dark/theme_custom_dark.dart';
 import 'package:app_theme/src/light/theme_custom_light.dart';
+import 'package:web_dex/views/wallet/common/address_icon.dart';
 
 /// Widget for showing an authenticated user's balance and anddresses for a
 /// given coin
@@ -76,6 +77,19 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
         ? (List.of(widget.pubkeys!.keys)
           ..sort((a, b) => b.balance.spendable.compareTo(a.balance.spendable)))
         : null;
+    final children = sortedAddresses != null
+        ? sortedAddresses
+            .map(
+              (pubkey) => _AddressRow(
+                pubkey: pubkey,
+                coin: widget.coin,
+                isSwapAddress: pubkey == sortedAddresses.first,
+                onTap: widget.onTap,
+                onCopy: () => copyToClipBoard(context, pubkey.address),
+              ),
+            )
+            .toList()
+        : [SkeletonListTile()];
 
     // Match GroupedAssetTickerItem: 16 horizontal, 16 vertical for both (mobile)
     // For desktop, set vertical padding to achieve 78px height
@@ -104,17 +118,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
       maintainState: true,
       childrenDivider: const Divider(height: 1, indent: 16, endIndent: 16),
       trailing: CoinMoreActionsButton(coin: widget.coin),
-      children: sortedAddresses
-          ?.map(
-            (pubkey) => _AddressRow(
-              pubkey: pubkey,
-              coin: widget.coin,
-              isSwapAddress: pubkey == sortedAddresses.first,
-              onTap: widget.onTap,
-              onCopy: () => copyToClipBoard(context, pubkey.address),
-            ),
-          )
-          .toList(),
+      children: children,
     );
   }
 
@@ -273,11 +277,7 @@ class _AddressRow extends StatelessWidget {
         onTap: onTap,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        leading: CircleAvatar(
-          radius: 16,
-          backgroundColor: theme.colorScheme.surfaceContainerHigh,
-          child: const Icon(Icons.person_outline),
-        ),
+        leading: AddressIcon(address: pubkey.address),
         title: Row(
           children: [
             Flexible(
@@ -343,7 +343,7 @@ class CoinMoreActionsButton extends StatelessWidget {
       onSelected: (action) async {
         switch (action) {
           case CoinMoreActions.disable:
-            confirmBeforeDisablingCoin(coin, context, null);
+            confirmBeforeDisablingCoin(coin, context);
         }
       },
       itemBuilder: (context) {
