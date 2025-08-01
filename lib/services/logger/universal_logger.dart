@@ -45,6 +45,13 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
 
   @override
   Future<void> write(String message, [String? path]) async {
+    // If logger is not initialized, fall back to simple print
+    if (!_isInitialized) {
+      // ignore: avoid_print
+      print('[$path] $message');
+      return;
+    }
+
     final date = DateTime.now();
 
     final LogMessage logMessage = LogMessage(
@@ -73,6 +80,12 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
 
   @override
   Future<void> getLogFile() async {
+    if (!_isInitialized) {
+      // ignore: avoid_print
+      print('Logger not initialized, cannot export log file');
+      return;
+    }
+
     final String date =
         DateFormat('dd.MM.yyyy_HH-mm-ss').format(DateTime.now());
     final String filename = 'komodo_wallet_log_$date';
