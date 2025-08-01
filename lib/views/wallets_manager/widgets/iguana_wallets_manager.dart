@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/analytics/events/user_acquisition_events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -19,18 +18,23 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_import_wrapper.dart
 import 'package:web_dex/views/wallets_manager/widgets/wallet_login.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_list.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager_controls.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 
 class IguanaWalletsManager extends StatefulWidget {
   const IguanaWalletsManager({
     required this.eventType,
     required this.close,
     required this.onSuccess,
+    this.initialWallet,
+    this.initialHdMode = false,
     super.key,
   });
 
   final WalletsManagerEventType eventType;
   final VoidCallback close;
   final void Function(Wallet) onSuccess;
+  final Wallet? initialWallet;
+  final bool initialHdMode;
 
   @override
   State<IguanaWalletsManager> createState() => _IguanaWalletsManagerState();
@@ -42,6 +46,19 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   Wallet? _selectedWallet;
   WalletsManagerExistWalletAction _existWalletAction =
       WalletsManagerExistWalletAction.none;
+  bool _initialHdMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedWallet = widget.initialWallet;
+    _initialHdMode = widget.initialWallet?.config.type == WalletType.hdwallet
+        ? true
+        : widget.initialHdMode;
+    if (_selectedWallet != null) {
+      _existWalletAction = WalletsManagerExistWalletAction.logIn;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +66,29 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       listener: (context, state) {
         if (state.mode == AuthorizeMode.logIn) {
           _onLogIn();
+        }
+
+        if (state.isError) {
+          setState(() => _isLoading = false);
+
+          // Don't show a snackbar when the error is shown on the form.
+          if (state.authError != null) return;
+
+          final theme = Theme.of(context);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                LocaleKeys.somethingWrong.tr(),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+              backgroundColor: theme.colorScheme.errorContainer,
+            ),
+          );
+        } else if (!state.isLoading) {
+          setState(() => _isLoading = false);
         }
       },
       child: Builder(
@@ -71,25 +111,25 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                       });
                     },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    child: WalletsManagerControls(
-                      onTap: (newAction) {
-                        setState(() {
-                          _action = newAction;
-                        });
+                  if (context.read<WalletsRepository>().wallets?.isNotEmpty ??
+                      false)
+                    const Divider(height: 32, thickness: 2),
+                  WalletsManagerControls(
+                    onTap: (newAction) {
+                      setState(() {
+                        _action = newAction;
+                      });
 
-                        final method = newAction == WalletsManagerAction.create
-                            ? 'create'
-                            : 'import';
-                        context.read<AnalyticsBloc>().logEvent(
-                              OnboardingStartedEventData(
-                                method: method,
-                                referralSource: widget.eventType.name,
-                              ),
-                            );
-                      },
-                    ),
+                      final method = newAction == WalletsManagerAction.create
+                          ? 'create'
+                          : 'import';
+                      context.read<AnalyticsBloc>().logEvent(
+                            OnboardingStartedEventData(
+                              method: method,
+                              referralSource: widget.eventType.name,
+                            ),
+                          );
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
@@ -117,16 +157,14 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
         _existWalletAction != WalletsManagerExistWalletAction.none) {
       switch (_existWalletAction) {
         case WalletsManagerExistWalletAction.delete:
-          return WalletDeleting(
-            wallet: selectedWallet,
-            close: _cancel,
-          );
+          return WalletDeleting(wallet: selectedWallet, close: _cancel);
         case WalletsManagerExistWalletAction.logIn:
         case WalletsManagerExistWalletAction.none:
           return WalletLogIn(
             wallet: selectedWallet,
             onLogin: _logInToWallet,
             onCancel: _cancel,
+            initialHdMode: _initialHdMode,
           );
       }
     }
@@ -220,8 +258,10 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     setState(() {
       _isLoading = true;
     });
-    final Wallet newWallet =
-        Wallet.fromConfig(name: name, config: walletConfig);
+    final Wallet newWallet = Wallet.fromConfig(
+      name: name,
+      config: walletConfig,
+    );
 
     context.read<AuthBloc>().add(
           AuthRestoreRequested(
@@ -244,9 +284,9 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     );
     analyticsBloc.logEvent(analyticsEvent);
 
-    context
-        .read<AuthBloc>()
-        .add(AuthSignInRequested(wallet: wallet, password: password));
+    context.read<AuthBloc>().add(
+          AuthSignInRequested(wallet: wallet, password: password),
+        );
 
     if (mounted) {
       setState(() {
@@ -266,10 +306,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       final walletType = currentWallet.config.type.name;
       if (action == WalletsManagerAction.create) {
         analyticsBloc.add(
-          AnalyticsWalletCreatedEvent(
-            source: source,
-            walletType: walletType,
-          ),
+          AnalyticsWalletCreatedEvent(source: source, walletType: walletType),
         );
       } else if (action == WalletsManagerAction.import) {
         analyticsBloc.add(

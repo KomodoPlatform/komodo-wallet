@@ -2,6 +2,7 @@ import 'dart:async' show Timer;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -16,7 +17,9 @@ import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
 
 class WithdrawForm extends StatefulWidget {
   final Asset asset;
@@ -41,9 +44,12 @@ class _WithdrawFormState extends State<WithdrawForm> {
   @override
   void initState() {
     super.initState();
+    final authBloc = context.read<AuthBloc>();
+    final walletType = authBloc.state.currentUser?.wallet.config.type;
     _formBloc = WithdrawFormBloc(
       asset: widget.asset,
       sdk: _sdk,
+      walletType: walletType,
     );
   }
 
@@ -93,6 +99,31 @@ class _WithdrawFormState extends State<WithdrawForm> {
                       walletType: walletType,
                     ),
                   );
+            },
+          ),
+          BlocListener<WithdrawFormBloc, WithdrawFormState>(
+            listenWhen: (prev, curr) =>
+                prev.isAwaitingTrezorConfirmation !=
+                curr.isAwaitingTrezorConfirmation,
+            listener: (context, state) {
+              if (state.isAwaitingTrezorConfirmation) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => TrezorWithdrawProgressDialog(
+                    message: LocaleKeys.trezorTransactionInProgressMessage.tr(),
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                      context.read<WithdrawFormBloc>().add(const WithdrawFormCancelled());
+                    },
+                  ),
+                );
+              } else {
+                // Dismiss dialog if it's open
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              }
             },
           ),
         ],
@@ -221,7 +252,7 @@ class PreviewWithdrawButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 48,
-      child: FilledButton(
+      child: UiPrimaryButton(
         onPressed: onPressed,
         child: isSending
             ? const SizedBox(
@@ -229,7 +260,7 @@ class PreviewWithdrawButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : Text(LocaleKeys.previewWithdrawal.tr()),
+            : Text(LocaleKeys.withdrawPreview.tr()),
       ),
     );
   }
@@ -312,23 +343,30 @@ class WithdrawFormFillSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
       builder: (context, state) {
+        final isSourceInputEnabled =
+            // Enabled if the asset has multiple source addresses or if there is
+            // no selected address and pubkeys are available.
+            (state.pubkeys?.keys.length ?? 0) > 1 ||
+                (state.selectedSourceAddress == null &&
+                    (state.pubkeys?.isNotEmpty ?? false));
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (state.asset.supportsMultipleAddresses) ...[
-              SourceAddressField(
-                asset: state.asset,
-                pubkeys: state.pubkeys,
-                selectedAddress: state.selectedSourceAddress,
-                isLoading: state.pubkeys?.isEmpty ?? true,
-                onChanged: (address) => address == null
-                    ? null
-                    : context
-                        .read<WithdrawFormBloc>()
-                        .add(WithdrawFormSourceChanged(address)),
-              ),
-              const SizedBox(height: 16),
-            ],
+            SourceAddressField(
+              asset: state.asset,
+              pubkeys: state.pubkeys,
+              selectedAddress: state.selectedSourceAddress,
+              isLoading: state.pubkeys?.isEmpty ?? true,
+              onChanged: isSourceInputEnabled
+                  ? (address) => address == null
+                      ? null
+                      : context
+                          .read<WithdrawFormBloc>()
+                          .add(WithdrawFormSourceChanged(address))
+                  : null,
+            ),
+            const SizedBox(height: 16),
             RecipientAddressWithNotification(
               address: state.recipientAddress,
               isMixedAddress: state.isMixedCaseAddress,
@@ -343,6 +381,14 @@ class WithdrawFormFillSection extends StatelessWidget {
                   : () => state.recipientAddressError?.message,
             ),
             const SizedBox(height: 16),
+            if (state.asset.protocol is TendermintProtocol) ...[
+              const IbcTransferField(),
+              if (state.isIbcTransfer) ...[
+                const SizedBox(height: 16),
+                const IbcChannelField(),
+              ],
+              const SizedBox(height: 16),
+            ],
             WithdrawAmountField(
               asset: state.asset,
               amount: state.amount,
@@ -598,7 +644,7 @@ class WithdrawResultCard extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            AssetIcon(asset.id),
+            AssetLogo.ofId(asset.id),
             const SizedBox(width: 8),
             Text(
               asset.id.name,

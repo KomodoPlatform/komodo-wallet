@@ -21,7 +21,7 @@ List<Coin> prepareCoinsForTable(
   if (!testCoinsEnabled) coins = removeTestCoins(coins);
   coins = removeWalletOnly(coins);
   coins = removeSuspended(coins, authBloc.state.isSignedIn);
-  coins = sortFiatBalance(coins, GetIt.I<KomodoDefiSdk>());
+  coins = sortByPriorityAndBalance(coins, GetIt.I<KomodoDefiSdk>());
   coins = filterCoinsByPhrase(coins, searchString ?? '').toList();
   return coins;
 }

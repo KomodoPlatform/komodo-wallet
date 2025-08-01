@@ -48,7 +48,10 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final fiatRepository = FiatRepository(
-      [BanxaFiatProvider(), RampFiatProvider()],
+      // Ramp API keys unavailable for the time being
+      // TODO(takenagain): re-enable when API keys are available
+      // [BanxaFiatProvider(), RampFiatProvider()],
+      [BanxaFiatProvider()],
       coinsRepository,
     );
     final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
@@ -56,7 +59,7 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
       create: (_) => FiatFormBloc(
         repository: fiatRepository,
         sdk: sdk,
-      )..add(FiatFormStarted()),
+      ),
       child: MultiBlocListener(
         listeners: [
           BlocListener<AuthBloc, AuthBlocState>(
@@ -91,8 +94,6 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
         _activeTabIndex = 0;
       });
     }
-
-    context.read<FiatFormBloc>().add(FiatFormCurrenciesFetched());
   }
 
   // Will be used in the future for switching between tabs when we implement

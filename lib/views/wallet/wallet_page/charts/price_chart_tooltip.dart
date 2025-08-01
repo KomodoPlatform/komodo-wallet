@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
 
@@ -50,7 +51,7 @@ class PriceChartTooltip extends StatelessWidget {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  CoinIcon(coin.id),
+                  AssetIcon.ofTicker(coin.id),
                   const SizedBox(width: 4),
                   Text(
                     '${coin.name}: ${valueToString(data.usdValue)}',

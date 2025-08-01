@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
 import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/fiat/fiat_asset_icon.dart';
 
 class FiatCurrencyListTile extends StatelessWidget {

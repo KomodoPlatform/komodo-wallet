@@ -1,7 +1,3 @@
-// TODO: update [TransportError] and [BaseError] to either use SDK exceptions
-// or to at least extend the Exception class
-// ignore_for_file: only_throw_errors
-
 import 'dart:convert';
 
 import 'package:http/http.dart';
@@ -38,7 +34,6 @@ class Mm2ApiNft {
                   'while your NFTs are loaded.',
         };
       }
-      await _enableNftChains(chains);
       final request = UpdateNftRequest(chains: nftChains);
 
       return await call(request);
@@ -125,33 +120,45 @@ class Mm2ApiNft {
     }
   }
 
+  /// Returns a list of the [chains] that are currently active in KDF via the SDK.
+  /// This is used to ensure that the NFT functionality only operates on
+  /// chains that are activated in the SDK.
+  /// If no chains are active, an empty list is returned.
   Future<List<String>> getActiveNftChains(List<NftBlockchains> chains) async {
     final List<Asset> apiCoins = await _sdk.assets.getActivatedAssets();
     final List<String> enabledCoinIds = apiCoins.map((c) => c.id.id).toList();
     _log.fine('enabledCoinIds: $enabledCoinIds');
     final List<String> nftCoins = chains.map((c) => c.coinAbbr()).toList();
     _log.fine('nftCoins: $nftCoins');
+
     final List<NftBlockchains> activeChains = chains
         .map((c) => c)
         .toList()
         .where((c) => enabledCoinIds.contains(c.coinAbbr()))
         .toList();
     _log.fine('activeChains: $activeChains');
+
     final List<String> nftChains =
         activeChains.map((c) => c.toApiRequest()).toList();
     _log.fine('nftChains: $nftChains');
+
     return nftChains;
   }
 
   Future<void> enableNft(Asset asset) async {
-    final configSymbol = asset.id.symbol.configSymbol;
+    final configSymbol = asset.id.symbol.assetConfigId;
     final activationParams =
         NftActivationParams(provider: NftProvider.moralis());
-    await _sdk.client.rpc.nft
-        .enableNft(ticker: configSymbol, activationParams: activationParams);
+    await retry<void>(
+      () async => await _sdk.client.rpc.nft
+          .enableNft(ticker: configSymbol, activationParams: activationParams),
+      maxAttempts: 3,
+      backoffStrategy:
+          ExponentialBackoff(initialDelay: const Duration(seconds: 1)),
+    );
   }
 
-  Future<void> _enableNftChains(
+  Future<void> enableNftChains(
     List<NftBlockchains> chains,
   ) async {
     final knownAssets = _sdk.assets.available;
@@ -166,12 +173,26 @@ class Mm2ApiNft {
               .firstWhere((asset) => asset.id.id == chain.nftAssetTicker()),
         )
         .toList();
+
     if (inactiveChains.isEmpty) {
       return;
     }
 
+    // Attempt to enable all inactive NFT chains, logging any errors.
+    // but not throwing them immediately, so we can try to enable all chains.
+    // If any chain fails, we will throw the last error encountered.
+    Exception? lastError;
     for (final chain in inactiveChains) {
-      await enableNft(chain);
+      try {
+        await enableNft(chain);
+      } catch (e) {
+        _log.shout('Failed to enable NFT chain: ${chain.id.id}', e);
+        lastError = e as Exception;
+      }
+    }
+
+    if (lastError != null) {
+      throw lastError;
     }
   }
 }

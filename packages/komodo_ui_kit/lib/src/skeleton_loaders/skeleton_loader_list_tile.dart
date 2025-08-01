@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class SkeletonListTile extends StatefulWidget {
-  const SkeletonListTile({super.key});
+  const SkeletonListTile({
+    super.key,
+    this.height = 122,
+  });
+
+  final double height;
 
   @override
   State<SkeletonListTile> createState() => _SkeletonListTileState();
@@ -33,8 +38,9 @@ class _SkeletonListTileState extends State<SkeletonListTile>
   }
 
   LinearGradient get gradient {
-    Color backgroundColor = Theme.of(context).colorScheme.primary;
-    Color highlightColor = Colors.grey[300]!;
+    final colorScheme = Theme.of(context).colorScheme;
+    Color backgroundColor = colorScheme.primary;
+    Color highlightColor = colorScheme.onPrimary.withValues(alpha: 0.4);
     return LinearGradient(
       begin: Alignment(_gradientPosition.value, 0),
       end: const Alignment(-1, 0),
@@ -49,6 +55,7 @@ class _SkeletonListTileState extends State<SkeletonListTile>
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: widget.height,
       padding: const EdgeInsets.all(16),
       child: Row(
         children: <Widget>[
@@ -64,8 +71,9 @@ class _SkeletonListTileState extends State<SkeletonListTile>
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                const Spacer(),
+                const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   height: 10,
@@ -83,7 +91,7 @@ class _SkeletonListTileState extends State<SkeletonListTile>
                     gradient: gradient,
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(height: 8),
               ],
             ),
           ),

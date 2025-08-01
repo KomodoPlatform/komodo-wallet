@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/wallets_manager_models.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class WalletListItem extends StatelessWidget {
   const WalletListItem({Key? key, required this.wallet, required this.onClick})
@@ -13,9 +12,20 @@ class WalletListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return UiPrimaryButton(
+      backgroundColor: Theme.of(context).cardColor,
+      text: wallet.name,
+      prefix: DecoratedBox(
+        decoration: const BoxDecoration(shape: BoxShape.circle),
+        child: Icon(
+          Icons.person,
+          size: 21,
+          color: Theme.of(context).textTheme.labelLarge?.color,
+        ),
+      ),
       height: 40,
-      backgroundColor: Theme.of(context).colorScheme.onSurface,
+      // backgroundColor: Theme.of(context).colorScheme.onSurface,
       onPressed: () => onClick(wallet, WalletsManagerExistWalletAction.logIn),
+
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -30,20 +40,19 @@ class WalletListItem extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: AutoScrollText(
-              text: wallet.name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
+            child: Text(
+              wallet.name,
+              // style: DefaultTextStyle.of(context).style.copyWith(
+              //       fontWeight: FontWeight.w500,
+              //       fontSize: 14,
+              //     ),
             ),
           ),
-          // TODO: enable delete for sdk wallets as well when supported
-          if (wallet.isLegacyWallet)
-            IconButton(
-                onPressed: () =>
-                    onClick(wallet, WalletsManagerExistWalletAction.delete),
-                icon: const Icon(Icons.close)),
+          IconButton(
+            onPressed: () =>
+                onClick(wallet, WalletsManagerExistWalletAction.delete),
+            icon: const Icon(Icons.close),
+          ),
         ],
       ),
     );

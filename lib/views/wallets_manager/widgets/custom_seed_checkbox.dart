@@ -19,7 +19,7 @@ class CustomSeedCheckbox extends StatelessWidget {
     return UiCheckbox(
       checkboxKey: const Key('checkbox-custom-seed'),
       value: value,
-      text: LocaleKeys.allowCustomFee.tr(),
+      text: LocaleKeys.useCustomSeedOrWif.tr(),
       onChanged: (newValue) async {
         if (!value && newValue) {
           final confirmed = await customSeedDialog(context);

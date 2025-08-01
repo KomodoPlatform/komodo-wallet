@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:decimal/decimal.dart';
@@ -21,6 +22,7 @@ class ToAddressField extends StatelessWidget {
       builder: (context, state) {
         return UiTextFormField(
           key: const Key('withdraw-recipient-address-input'),
+          autofocus: true,
           autocorrect: false,
           textInputAction: TextInputAction.next,
           enableInteractiveSelection: true,
@@ -112,7 +114,8 @@ class FeeSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(LocaleKeys.networkFee.tr(), style: Theme.of(context).textTheme.titleMedium),
+            Text(LocaleKeys.networkFee.tr(),
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             const CustomFeeToggle(),
             if (state.isCustomFee) ...[
@@ -303,41 +306,6 @@ class MemoField extends StatelessWidget {
                 );
           },
           helperText: 'Required for some exchanges',
-        );
-      },
-    );
-  }
-}
-
-/// Preview button to initiate withdrawal confirmation
-class PreviewButton extends StatelessWidget {
-  const PreviewButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        return SizedBox(
-          // Wrap with SizedBox
-          width: double.infinity, // Take full width
-          height: 48.0, // Fixed height
-          child: FilledButton.icon(
-            onPressed: state.isSending
-                ? null
-                : () => context.read<WithdrawFormBloc>().add(
-                      const WithdrawFormPreviewSubmitted(),
-                    ),
-            icon: state.isSending
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.send),
-            label: Text(
-              state.isSending ? 'Loading...' : 'Preview Withdrawal',
-            ),
-          ),
         );
       },
     );
@@ -587,18 +555,14 @@ class IbcChannelField extends StatelessWidget {
       builder: (context, state) {
         return UiTextFormField(
           key: const Key('withdraw-ibc-channel-input'),
-          labelText: 'IBC Channel',
-          hintText: 'Enter IBC channel ID',
+          labelText: LocaleKeys.ibcChannel.tr(),
+          hintText: LocaleKeys.ibcChannelHint.tr(),
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: (value) {
             context
                 .read<WithdrawFormBloc>()
                 .add(WithdrawFormIbcChannelChanged(value ?? ''));
-          },
-          validator: (value) {
-            if (value?.isEmpty ?? true) {
-              return 'Please enter IBC channel';
-            }
-            return null;
           },
         );
       },

@@ -1,5 +1,6 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:komodo_ui/komodo_ui.dart' show AssetIcon;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
@@ -36,7 +37,7 @@ class BridgeProtocolLabel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CoinIcon(coin.abbr, size: 16),
+          AssetIcon.ofTicker(coin.abbr, size: 16),
           const SizedBox(width: 6),
           _buildText(backgroundColor),
         ],

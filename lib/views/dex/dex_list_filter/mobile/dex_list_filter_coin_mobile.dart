@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 class DexListFilterCoinMobile extends StatelessWidget {
   const DexListFilterCoinMobile({
@@ -44,7 +44,7 @@ class DexListFilterCoinMobile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                if (abbr != null) CoinIcon(abbr),
+                if (abbr != null) AssetIcon.ofTicker(abbr),
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0),
                   child: Text(

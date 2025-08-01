@@ -8,8 +8,6 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
-import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
-import 'package:web_dex/views/wallet/wallet_page/common/coins_list_header.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_manager_search_field.dart';
 
 class WalletManageSection extends StatelessWidget {
@@ -19,6 +17,7 @@ class WalletManageSection extends StatelessWidget {
     required this.onSearchChange,
     required this.onWithBalanceChange,
     required this.pinned,
+    this.collapseProgress = 0.0,
     super.key,
   });
   final bool withBalance;
@@ -26,91 +25,64 @@ class WalletManageSection extends StatelessWidget {
   final Function(bool) onWithBalanceChange;
   final Function(String) onSearchChange;
   final bool pinned;
+  final double collapseProgress;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        clipBehavior: Clip.antiAlias,
-        color: Theme.of(context).colorScheme.surface,
-        margin: const EdgeInsets.all(0),
-        elevation: pinned ? 2 : 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: isMobile
-            ? _buildMobileSection(context)
-            : _buildDesktopSection(context));
+    return isMobile
+        ? _buildMobileSection(context)
+        : _buildDesktopSection(context);
   }
 
   bool get isAuthenticated => mode == AuthorizeMode.logIn;
   Widget _buildDesktopSection(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Flexible(
-                child: Container(
+          SizedBox(
+            height: 44,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
                   alignment: Alignment.centerLeft,
                   constraints: const BoxConstraints(maxWidth: 300),
                   child: WalletManagerSearchField(onChange: onSearchChange),
                 ),
-              ),
-              if (isAuthenticated ) ...[
-                Spacer(),
-                CoinsWithBalanceCheckbox(
-                  withBalance: withBalance,
-                  onWithBalanceChange: onWithBalanceChange,
-                ),
-                SizedBox(width: 24),
-                UiPrimaryButton(
-                  buttonKey: const Key('add-assets-button'),
-                  onPressed: () => _onAddAssetsPress(context),
-                  text: LocaleKeys.addAssets.tr(),
-                  height: 36,
-                  width: 147,
-                  borderRadius: 10,
-                  textStyle: theme.textTheme.bodySmall,
-                ),
+                if (isAuthenticated) ...[
+                  // const Spacer(),
+                  const Spacer(),
+                  CoinsWithBalanceCheckbox(
+                    withBalance: withBalance,
+                    onWithBalanceChange: onWithBalanceChange,
+                  ),
+                  const SizedBox(width: 16),
+                  UiPrimaryButton(
+                    buttonKey: const Key('add-assets-button'),
+                    onPressed: () => _onAddAssetsPress(context),
+                    text: LocaleKeys.addAssets.tr(),
+                    height: 40,
+                    width: 112,
+                    borderRadius: 10,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-          Spacer(),
-          CoinsListHeader(isAuth: mode == AuthorizeMode.logIn),
         ],
       ),
     );
   }
 
   Widget _buildMobileSection(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Text(
-                'Portfolio',
-                style: theme.textTheme.titleLarge,
-              ),
-              Spacer(),
-              if (isAuthenticated)
-                UiPrimaryButton(
-                  buttonKey: const Key('asset-management-button'),
-                  onPressed: () => _onAddAssetsPress(context),
-                  text: 'Add assets',
-                  height: 36,
-                  width: 147,
-                  borderRadius: 10,
-                  textStyle: theme.textTheme.bodySmall,
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
+          // Search row - always visible
           Row(
             children: [
               Expanded(
@@ -118,18 +90,25 @@ class WalletManageSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              HiddenWithoutWallet(
-                child: CoinsWithBalanceCheckbox(
-                  withBalance: withBalance,
-                  onWithBalanceChange: onWithBalanceChange,
+          // Collapsible row with zero-balance toggle
+          // Only show if authenticated (since HiddenWithoutWallet hides content when not authenticated)
+          if (isAuthenticated && collapseProgress < 1.0) ...[
+            SizedBox(height: (1.0 - collapseProgress) * 12),
+            SizedBox(
+              height: (1.0 - collapseProgress) * 36,
+              child: Opacity(
+                opacity: 1.0 - collapseProgress,
+                child: Row(
+                  children: [
+                    CoinsWithBalanceCheckbox(
+                      withBalance: withBalance,
+                      onWithBalanceChange: onWithBalanceChange,
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-          Spacer(),
+            ),
+          ],
         ],
       ),
     );
@@ -155,15 +134,30 @@ class CoinsWithBalanceCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        UiCheckbox(
-          key: const Key('coins-with-balance-checkbox'),
-          value: withBalance,
-          text: LocaleKeys.withBalance.tr(),
-          onChanged: onWithBalanceChange,
+    return LimitedBox(
+      maxHeight: 44,
+      maxWidth: 200,
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+          ),
         ),
-      ],
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: UiCheckbox(
+            key: const Key('coins-with-balance-checkbox'),
+            value: withBalance,
+            text: LocaleKeys.withBalance.tr(),
+            onChanged: onWithBalanceChange,
+          ),
+        ),
+      ),
     );
   }
 }

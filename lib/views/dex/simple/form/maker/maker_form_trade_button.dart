@@ -40,7 +40,7 @@ class MakerFormTradeButton extends StatelessWidget {
                 key: const Key('make-order-button'),
                 text: isTradingEnabled
                     ? LocaleKeys.makeOrder.tr()
-                    : LocaleKeys.tradingDisabledTooltip.tr(),
+                    : LocaleKeys.tradingDisabled.tr(),
                 prefix: inProgress
                     ? Padding(
                         padding: const EdgeInsets.only(right: 4),

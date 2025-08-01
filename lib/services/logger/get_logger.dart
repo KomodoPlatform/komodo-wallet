@@ -10,7 +10,7 @@ import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/services/logger/logger.dart';
 import 'package:web_dex/services/logger/mock_logger.dart';
 import 'package:web_dex/services/logger/universal_logger.dart';
-import 'package:web_dex/services/platform_info/plaftorm_info.dart';
+import 'package:web_dex/services/platform_info/platform_info.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart' show isTestMode;
 

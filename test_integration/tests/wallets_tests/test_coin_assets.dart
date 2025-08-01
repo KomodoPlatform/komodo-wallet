@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/main.dart' as app;
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_icon.dart';
 
 import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
@@ -39,12 +38,12 @@ Future<void> testCoinIcons(WidgetTester tester) async {
     
     // Check the icons before scrolling
     final coinIcons = find
-        .descendant(of: listFinder, matching: find.byType(CoinIcon))
+        .descendant(of: listFinder, matching: find.byType(AssetIcon))
         .evaluate()
-        .map((e) => e.widget as CoinIcon);
+        .map((e) => e.widget as AssetIcon);
 
     for (final coinIcon in coinIcons) {
-      final coinAbr = abbr2Ticker(coinIcon.coinAbbr).toLowerCase();
+      final coinAbr = coinIcon.assetId?.symbol.configSymbol.toLowerCase();
       final assetPath = '$coinsAssetsPath/coin_icons/png/$coinAbr.png';
       final assetExists = await canLoadAsset(assetPath);
       print('🔍 COIN ICONS: Checking asset for $coinAbr: ${assetExists ? "✓" : "✗"}');

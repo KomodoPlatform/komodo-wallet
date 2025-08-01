@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/ui/ui_primary_button.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/widgets/disclaimer/constants.dart';
 import 'package:web_dex/shared/widgets/disclaimer/tos_content.dart';
 
@@ -18,115 +18,106 @@ class _DisclaimerState extends State<Disclaimer> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final List<TextSpan> disclaimerToSText = <TextSpan>[
       TextSpan(
-          text: disclaimerEulaTitle2,
+          text: disclaimerTocTitle2,
           style: Theme.of(context).textTheme.titleLarge),
       TextSpan(
-          text: disclaimerEulaParagraph2,
+          text: disclaimerTocParagraph2,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle3,
+          text: disclaimerTocTitle3,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaTitle4,
+          text: disclaimerTocTitle4,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph3,
+          text: disclaimerTocParagraph3,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle5,
+          text: disclaimerTocTitle5,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph4,
+          text: disclaimerTocParagraph4,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle6,
+          text: disclaimerTocTitle6,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph5,
+          text: disclaimerTocParagraph5,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle7,
+          text: disclaimerTocTitle7,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph6,
+          text: disclaimerTocParagraph6,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle8,
+          text: disclaimerTocTitle8,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph7,
+          text: disclaimerTocParagraph7,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle9,
+          text: disclaimerTocTitle9,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph8,
+          text: disclaimerTocParagraph8,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle10,
+          text: disclaimerTocTitle10,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph9,
+          text: disclaimerTocParagraph9,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle11,
+          text: disclaimerTocTitle11,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph10,
+          text: disclaimerTocParagraph10,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle12,
+          text: disclaimerTocTitle12,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph11,
+          text: disclaimerTocParagraph11,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle13,
+          text: disclaimerTocTitle13,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph12,
+          text: disclaimerTocParagraph12,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle14,
+          text: disclaimerTocTitle14,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph13,
+          text: disclaimerTocParagraph13,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle15,
+          text: disclaimerTocTitle15,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph14,
+          text: disclaimerTocParagraph14,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle16,
+          text: disclaimerTocTitle16,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph15,
+          text: disclaimerTocParagraph15,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle17,
+          text: disclaimerTocTitle17,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph16,
+          text: disclaimerTocTitle19,
+          style: Theme.of(context).textTheme.titleSmall),
+      TextSpan(
+          text: disclaimerTocParagraph18,
           style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-          text: disclaimerEulaTitle18,
+          text: disclaimerTocTitle20,
           style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-          text: disclaimerEulaParagraph17,
-          style: Theme.of(context).textTheme.bodyMedium),
-      TextSpan(
-          text: disclaimerEulaTitle19,
-          style: Theme.of(context).textTheme.titleSmall),
-      TextSpan(
-          text: disclaimerEulaParagraph18,
-          style: Theme.of(context).textTheme.bodyMedium),
-      TextSpan(
-          text: disclaimerEulaTitle20,
-          style: Theme.of(context).textTheme.titleSmall),
-      TextSpan(
-          text: disclaimerEulaParagraph19,
+          text: disclaimerTocParagraph19,
           style: Theme.of(context).textTheme.bodyMedium)
     ];
 

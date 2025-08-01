@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/models/price_chart_data.dart';
 
 enum PriceChartStatus { initial, loading, success, failure }
@@ -8,7 +9,7 @@ final class PriceChartState extends Equatable {
   final List<PriceChartDataSeries> data;
   final String? error;
 
-  final Map<String, CoinPriceInfo> availableCoins;
+  final Map<AssetId, CoinPriceInfo> availableCoins;
 
   //!
   final Duration selectedPeriod;
@@ -28,7 +29,7 @@ final class PriceChartState extends Equatable {
     List<PriceChartDataSeries>? data,
     String? error,
     Duration? selectedPeriod,
-    Map<String, CoinPriceInfo>? availableCoins,
+    Map<AssetId, CoinPriceInfo>? availableCoins,
   }) {
     return PriceChartState(
       status: status ?? this.status,

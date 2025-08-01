@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/model/hw_wallet/trezor_progress_status.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -11,7 +11,7 @@ class TrezorDialogInProgress extends StatelessWidget {
       {Key? key, required this.onClose})
       : super(key: key);
 
-  final TrezorProgressStatus? progressStatus;
+  final AuthenticationStatus? progressStatus;
   final VoidCallback onClose;
 
   @override
@@ -26,12 +26,12 @@ class TrezorDialogInProgress extends StatelessWidget {
         ),
         const SizedBox(height: 48),
         Builder(builder: (context) {
-          if (progressStatus ==
-              TrezorProgressStatus.waitingForTrezorToConnect) {
+          if (progressStatus == AuthenticationStatus.waitingForDevice) {
             return _buildConnectTrezor();
           }
           if (progressStatus ==
-              TrezorProgressStatus.followHwDeviceInstructions) {
+                  AuthenticationStatus.waitingForDeviceConfirmation ||
+              progressStatus == AuthenticationStatus.passphraseRequired) {
             return _buildFollowInstructionsOnTrezor();
           }
 

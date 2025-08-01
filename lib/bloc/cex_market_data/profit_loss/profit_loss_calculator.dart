@@ -35,7 +35,8 @@ class ProfitLossCalculator {
     final transactionDates = _getTransactionDates(transactions);
     final coinUsdPrices =
         await _getTimestampedUsdPrices(coinId, transactionDates);
-    final currentPrice = coinUsdPrices[todayAtMidnight]!;
+    final currentPrice =
+        coinUsdPrices[todayAtMidnight] ?? coinUsdPrices.values.last;
     final priceStampedTransactions =
         _priceStampTransactions(transactions, coinUsdPrices);
 

@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab.dart';
 import 'package:web_dex/shared/ui/ui_tab_bar/ui_tab_bar.dart';
 
@@ -41,13 +43,13 @@ class _FiatActionTabBarState extends State<FiatActionTabBar> {
       tabs: [
         UiTab(
           key: const Key('fiat-buy-tab'),
-          text: 'Buy crypto',
+          text: LocaleKeys.buy.tr(),
           isSelected: widget.currentTabIndex == 0,
           onClick: () => widget.onTabClick(0),
         ),
         UiTab(
           key: const Key('fiat-sell-tab'),
-          text: 'Sell crypto',
+          text: LocaleKeys.sell.tr(),
           isSelected: widget.currentTabIndex == 1,
           onClick: () => widget.onTabClick(1),
         ),

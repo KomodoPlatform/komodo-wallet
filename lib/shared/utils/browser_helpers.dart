@@ -1,4 +1,7 @@
-import 'package:universal_html/html.dart';
+import 'dart:js_interop';
+
+import 'package:flutter/foundation.dart';
+import 'package:web/web.dart';
 
 class BrowserInfo {
   final String browserName;
@@ -20,11 +23,11 @@ class BrowserInfoParser {
   static BrowserInfo get() {
     final cached = _cached;
     if (cached == null) {
-      final String ua = window.navigator.userAgent.toLowerCase();
+      final userAgent = window.navigator.userAgent.toLowerCase();
       final info = BrowserInfo(
-        browserName: _getBrowserName(ua),
-        browserVersion: _getBrowserVersion(ua),
-        os: _getOs(ua),
+        browserName: _getBrowserName(userAgent),
+        browserVersion: _getBrowserVersion(userAgent),
+        os: _getOs(userAgent),
         screenSize: _getScreenSize(),
       );
       _cached = info;
@@ -40,7 +43,9 @@ class BrowserInfoParser {
     }
   }
 
-  static String _getOs(ua) {
+  static bool get isChrome => get().browserName == 'chrome';
+
+  static String _getOs(String ua) {
     if (ua.contains('windows')) {
       return 'windows';
     } else if (ua.contains('android')) {
@@ -91,10 +96,29 @@ class BrowserInfoParser {
   }
 
   static String _getScreenSize() {
-    final BodyElement? body = document.body;
+    final HTMLElement? body = document.body;
     final width = document.documentElement?.clientWidth ?? body?.clientWidth;
     final height = document.documentElement?.clientHeight ?? body?.clientHeight;
 
     return '${width ?? ''}:${height ?? ''}';
+  }
+}
+
+@JS('navigator.brave.isBrave')
+external JSPromise<JSBoolean>? _jsIsBrave();
+
+Future<bool> isBraveApiAvailable() async {
+  try {
+    final jsPromise = _jsIsBrave();
+    if (jsPromise == null) return false;
+    final jsBool = await jsPromise.toDart;
+    return jsBool.toDart;
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint('Error checking if Brave API is available: $e');
+    }
+    // Catch all exceptions, including JavaScript errors that might not
+    // be properly wrapped as Dart exceptions
+    return false;
   }
 }

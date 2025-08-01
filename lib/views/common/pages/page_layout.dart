@@ -4,12 +4,17 @@ import 'package:web_dex/views/common/pages/page_plate.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/backup_seed_notification.dart';
 
 class PageLayout extends StatelessWidget {
-  const PageLayout(
-      {required this.content, this.header, this.noBackground = false});
+  const PageLayout({
+    required this.content,
+    this.header,
+    this.noBackground = true,
+    this.padding,
+  });
 
   final Widget content;
   final Widget? header;
   final bool noBackground;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +23,14 @@ class PageLayout extends StatelessWidget {
         header: header,
         content: content,
         noBackground: noBackground,
+        padding: padding ?? EdgeInsets.zero,
       );
     }
     return _DesktopLayout(
       header: header,
       content: content,
       noBackground: noBackground,
+      padding: padding ?? PagePlate.standardPadding,
     );
   }
 }
@@ -33,11 +40,13 @@ class _MobileLayout extends StatelessWidget {
     required this.content,
     this.header,
     this.noBackground = false,
+    this.padding = PagePlate.standardPadding,
   });
 
   final Widget? header;
   final Widget content;
   final bool noBackground;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +58,7 @@ class _MobileLayout extends StatelessWidget {
         Flexible(
           child: PagePlate(
             noBackground: noBackground,
+            padding: padding,
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
@@ -67,11 +77,13 @@ class _DesktopLayout extends StatelessWidget {
     required this.content,
     this.header,
     this.noBackground = false,
+    this.padding,
   });
 
   final Widget content;
   final Widget? header;
   final bool noBackground;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -81,11 +93,14 @@ class _DesktopLayout extends StatelessWidget {
         Flexible(
           child: PagePlate(
             noBackground: noBackground,
+            padding: padding ?? EdgeInsets.zero,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 23),
-                if (header != null) header!,
+                if (header != null) ...[
+                  const SizedBox(height: 23),
+                  header!,
+                ],
                 content,
               ],
             ),

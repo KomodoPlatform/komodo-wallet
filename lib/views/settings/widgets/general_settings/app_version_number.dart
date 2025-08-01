@@ -26,6 +26,10 @@ class AppVersionNumber extends StatelessWidget {
             '${LocaleKeys.version.tr()}: ${packageInformation.packageVersion}',
             style: _textStyle,
           ),
+          SelectableText(
+            '${LocaleKeys.commit.tr()}: ${packageInformation.commitHash}',
+            style: _textStyle,
+          ),
           const _ApiVersion(),
           const SizedBox(height: 4),
           const _BundledCoinsCommitConfig(),

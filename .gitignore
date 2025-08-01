@@ -1,5 +1,5 @@
-# First-party
-sdk/
+# Ignore the SDK symmlink (if it exists)
+/sdk/
 
 # Miscellaneous
 *.class
@@ -83,3 +83,4 @@ venv/
 # FVM Version Cache
 .fvm/
 /macos/build
+AGENTS_1.md

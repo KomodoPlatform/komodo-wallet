@@ -118,7 +118,7 @@ abstract class BaseFiatProvider {
         return 'ETH';
       case CoinType.bep20:
         return 'BSC'; // It is BNB for some providers like Banxa
-      case CoinType.cosmos:
+      case CoinType.tendermint:
         return 'ATOM';
       case CoinType.avx20:
         return 'AVAX';
@@ -228,7 +228,7 @@ abstract class BaseFiatProvider {
       case 'BNB':
         return CoinType.bep20;
       case 'ATOM':
-        return CoinType.cosmos;
+        return CoinType.tendermint;
       case 'AVAX':
         return CoinType.avx20;
       case 'ETC':

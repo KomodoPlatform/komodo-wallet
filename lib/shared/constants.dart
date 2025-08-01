@@ -1,6 +1,6 @@
 RegExp numberRegExp = RegExp('^\$|^(0|([1-9][0-9]{0,12}))([.,]{1}[0-9]{0,8})?');
-RegExp emailRegExp = RegExp(
-  r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+RegExp emailRegex = RegExp(
+  r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
 );
 const int decimalRange = 8;
 
@@ -34,13 +34,26 @@ const String txByHashUrl = '$ercTxHistoryUrl/v1/transactions_by_hash';
 
 const String updateCheckerEndpoint = 'https://komodo.earth/adexwebversion';
 final Uri feedbackUrl = Uri.parse('https://komodo.earth:8181/webform/');
+const int feedbackMaxLength = 1000;
+const int contactDetailsMaxLength = 100;
+final RegExp discordUsernameRegex = RegExp(r'^[a-zA-Z0-9._]{2,32}$');
+final RegExp telegramUsernameRegex = RegExp(r'^[a-zA-Z0-9_]{5,32}$');
+final RegExp matrixIdRegex =
+    RegExp(r'^@[a-zA-Z0-9._=-]+:[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 final Uri pricesUrlV3 = Uri.parse(
   'https://defi-stats.komodo.earth/api/v3/prices/tickers_v2?expire_at=60',
 );
 
 const int millisecondsIn24H = 86400000;
 
-const bool isTestMode =
-    bool.fromEnvironment('testing_mode', defaultValue: false);
+const bool isTestMode = bool.fromEnvironment(
+  'testing_mode',
+  defaultValue: false,
+);
 const String moralisProxyUrl = 'https://moralis-proxy.komodo.earth';
 const String nftAntiSpamUrl = 'https://nft.antispam.dragonhound.info';
+
+const String geoBlockerApiUrl =
+    'https://komodo-wallet-bouncer.komodoplatform.com';
+const String tradingBlacklistUrl =
+    'https://defi-stats.komodo.earth/api/v3/utils/blacklist';

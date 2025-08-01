@@ -16,6 +16,7 @@ export 'src/buttons/ui_action_text_button.dart';
 export 'src/buttons/ui_border_button.dart';
 export 'src/buttons/ui_checkbox.dart';
 export 'src/buttons/ui_dropdown.dart';
+export 'src/buttons/ui_gradient_button.dart';
 export 'src/buttons/ui_primary_button.dart';
 export 'src/buttons/ui_secondary_button.dart';
 export 'src/buttons/ui_simple_button.dart';
@@ -26,6 +27,7 @@ export 'src/buttons/upload_button.dart';
 // Containers
 // Container widgets for organizing and displaying other widgets.
 export 'src/containers/chart_tooltip_container.dart';
+export 'src/containers/gradient_container.dart';
 // Controls
 // Widgets that handle user interaction and control other parts of the UI.
 export 'src/controls/market_chart_header_controls.dart';
@@ -34,14 +36,12 @@ export 'src/controls/selected_coin_graph_control.dart'; // New control widget
 export 'src/custom_icons/custom_icons.dart';
 // Display
 // Widgets primarily focused on displaying data and information.
+export 'src/display/auto_scroll_text.dart';
 export 'src/display/statistic_card.dart';
 // Dividers
 // Widgets for dividing content or adding scrollbars.
 export 'src/dividers/ui_divider.dart';
 export 'src/dividers/ui_scrollbar.dart';
-// Images
-// Widgets for displaying images and icons.
-export 'src/images/coin_icon.dart' show CoinIcon, checkIfAssetExists;
 // Inputs
 // Widgets related to data input and selection, including text fields and selectors.
 export 'src/inputs/input_validation_mode.dart';

@@ -5,10 +5,10 @@ There are two options, cloning via HTTPS or via SSH. HTTPS is recommended.
 If using HTTPS, run
 
 ```bash
-git clone https://github.com/KomodoPlatform/komodowallet.git
+git clone https://github.com/KomodoPlatform/komodo-wallet.git
 ```
 
-Alternatively, instruct the IDE to clone: `https://github.com/KomodoPlatform/komodowallet.git`
+Alternatively, instruct the IDE to clone: `https://github.com/KomodoPlatform/komodo-wallet.git`
 
 Note that authentication with your password is not possible due to 2FA authentication and repository visibility.
 Consider setting up GitHub integration on your IDE or using a personal [access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
@@ -18,5 +18,5 @@ Then you should be able to run:
 
 ```bash
 cd ~
-git clone git@github.com:KomodoPlatform/komodowallet.git
+git clone git@github.com:KomodoPlatform/komodo-wallet.git
 ```
