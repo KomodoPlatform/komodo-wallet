@@ -46,12 +46,15 @@ class _NftMainControlsState extends State<NftMainControls> {
           width: 140,
           height: 40,
           backgroundColor: colorScheme.surfContHighest,
-          prefix: Transform.rotate(
+          prefix: Container(
+            child: Transform.rotate(
               angle: math.pi / 4,
               child: Icon(
                 Icons.arrow_forward,
                 color: colorScheme.primary,
-              )),
+              ),
+            ),
+          ),
           onPressed: _onReceiveNft,
           textStyle: textTheme.bodySBold.copyWith(color: colorScheme.primary),
         ),

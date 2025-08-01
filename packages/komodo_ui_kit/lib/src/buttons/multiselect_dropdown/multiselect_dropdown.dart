@@ -183,17 +183,19 @@ class _MultiSelectDropdownItemState<T>
       mainAxisSize: MainAxisSize.min,
       key: Key('filter-chain-${widget.title}'),
       children: [
-        Transform.scale(
-          scale: 0.7,
-          child: Checkbox(
-            value: isSelected,
-            splashRadius: 18,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
+        Container(
+          child: Transform.scale(
+            scale: 0.7,
+            child: Checkbox(
+              value: isSelected,
+              splashRadius: 18,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              onChanged: (bool? choosed) {
+                onChange(choosed ?? false);
+              },
             ),
-            onChanged: (bool? choosed) {
-              onChange(choosed ?? false);
-            },
           ),
         ),
         Text(
