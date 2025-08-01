@@ -49,8 +49,8 @@ class FeedbackService {
     final buildMode = kReleaseMode
         ? 'release'
         : kDebugMode
-            ? 'debug'
-            : (kProfileMode ? 'profile' : 'unknown');
+        ? 'debug'
+        : (kProfileMode ? 'profile' : 'unknown');
 
     // Extract contact information from the extras if provided
     String? contactMethod;
@@ -84,7 +84,7 @@ class FeedbackService {
       'timestamp': DateTime.now().toIso8601String(),
 
       'wallet':
-          (await GetIt.I<KomodoDefiSdk>().auth.currentUser)?.toJson() ?? 'None'
+          (await GetIt.I<KomodoDefiSdk>().auth.currentUser)?.toJson() ?? 'None',
     };
 
     try {
@@ -103,8 +103,8 @@ class FeedbackService {
       final altAvailable = provider is TrelloFeedbackProvider
           ? CloudflareFeedbackProvider.fromEnvironment().isAvailable
           : provider is CloudflareFeedbackProvider
-              ? TrelloFeedbackProvider.hasEnvironmentVariables()
-              : true;
+          ? TrelloFeedbackProvider.hasEnvironmentVariables()
+          : true;
       if (kDebugMode && !altAvailable) {
         debugPrint('Failed to submit feedback: $e');
       }
@@ -200,28 +200,32 @@ class FeedbackFormatter {
     if (appInfo.isNotEmpty) {
       buffer.writeln('   📱 App Information:');
       appInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
     if (deviceInfo.isNotEmpty) {
       buffer.writeln('   💻 Device Information:');
       deviceInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
     if (buildInfo.isNotEmpty) {
       buffer.writeln('   🔨 Build Information:');
       buildInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
     if (walletInfo.isNotEmpty) {
       buffer.writeln('   👛 Wallet Information:');
       walletInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
@@ -291,8 +295,9 @@ class TrelloFeedbackProvider implements FeedbackProvider {
       'TRELLO_LIST_ID': const String.fromEnvironment('TRELLO_LIST_ID'),
     };
 
-    final missingVars =
-        requiredVars.entries.where((e) => e.value.isEmpty).toList();
+    final missingVars = requiredVars.entries
+        .where((e) => e.value.isEmpty)
+        .toList();
 
     if (missingVars.isNotEmpty) {
       final altAvailable =
@@ -434,8 +439,7 @@ class TrelloFeedbackProvider implements FeedbackProvider {
 ///
 /// The following environment variables must be set using dart-define:
 /// FEEDBACK_API_KEY: The API key for the feedback service
-/// FEEDBACK_PRODUCTION_URL: The production URL for the feedback API, OR:
-/// FEEDBACK_TEST_URL: The test URL for the feedback API to test in debug mode
+/// FEEDBACK_PRODUCTION_URL: The production URL for the feedback API
 /// TRELLO_LIST_ID: The ID of the Trello list where feedback will be sent (shared with TrelloFeedbackProvider)
 /// TRELLO_BOARD_ID: The ID of the Trello board (shared with TrelloFeedbackProvider)
 ///
@@ -450,14 +454,11 @@ class TrelloFeedbackProvider implements FeedbackProvider {
 ///
 /// Example run command (debugging):
 /// ```
-/// flutter run --dart-define=FEEDBACK_TEST_URL=https://your-test-api-url.com --dart-define=FEEDBACK_API_KEY=your_api_key --dart-define=TRELLO_LIST_ID=your_list_id --dart-define=TRELLO_BOARD_ID=your_board_id
+/// flutter run --dart-define=FEEDBACK_API_KEY=your_api_key --dart-define=TRELLO_LIST_ID=your_list_id --dart-define=TRELLO_BOARD_ID=your_board_id
 /// ```
-///
-/// The test URL is hardcoded in the code.
 ///
 class CloudflareFeedbackProvider implements FeedbackProvider {
   final String apiKey;
-  final String testEndpoint;
   final String prodEndpoint;
   final String listId;
   final String boardId;
@@ -465,7 +466,6 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
   const CloudflareFeedbackProvider({
     required this.apiKey,
     required this.prodEndpoint,
-    this.testEndpoint = '',
     required this.listId,
     required this.boardId,
   });
@@ -474,28 +474,24 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
   ///
   /// Uses the following environment variables:
   /// - FEEDBACK_API_KEY: The API key for the feedback service
-  /// - FEEDBACK_PRODUCTION_URL: The production URL for the feedback API (Only required in release mode)
-  /// - FEEDBACK_TEST_URL: The test URL for the feedback API (Only required in debug mode)
+  /// - FEEDBACK_PRODUCTION_URL: The production URL for the feedback API
   /// - TRELLO_LIST_ID: The ID of the Trello list where feedback will be sent (shared with TrelloFeedbackProvider)
   /// - TRELLO_BOARD_ID: The ID of the Trello board where feedback will be sent (shared with TrelloFeedbackProvider)
   static CloudflareFeedbackProvider fromEnvironment() {
     return CloudflareFeedbackProvider(
       apiKey: const String.fromEnvironment('FEEDBACK_API_KEY'),
       prodEndpoint: const String.fromEnvironment('FEEDBACK_PRODUCTION_URL'),
-      testEndpoint: const String.fromEnvironment('FEEDBACK_TEST_URL'),
       listId: const String.fromEnvironment('TRELLO_LIST_ID'),
       boardId: const String.fromEnvironment('TRELLO_BOARD_ID'),
     );
   }
 
-  bool get useTestEndpoint => kDebugMode && testEndpoint.isNotEmpty;
-
-  String get _endpoint => useTestEndpoint ? testEndpoint : prodEndpoint;
+  String get _endpoint => prodEndpoint;
 
   @override
   bool get isAvailable =>
       apiKey.isNotEmpty &&
-      (prodEndpoint.isNotEmpty || (kDebugMode && testEndpoint.isNotEmpty)) &&
+      prodEndpoint.isNotEmpty &&
       listId.isNotEmpty &&
       boardId.isNotEmpty;
 
@@ -518,10 +514,7 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
       final request = http.MultipartRequest('POST', Uri.parse(_endpoint));
 
       // Set headers including charset
-      request.headers.addAll({
-        'X-KW-KEY': apiKey,
-        'Accept-Charset': 'utf-8',
-      });
+      request.headers.addAll({'X-KW-KEY': apiKey, 'Accept-Charset': 'utf-8'});
 
       // Properly encode all string fields to ensure UTF-8 encoding
       request.fields.addAll({

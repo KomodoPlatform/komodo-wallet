@@ -44,7 +44,6 @@ jobs:
           # Optionally provide feedback service configuration if available
           FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
           FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
-          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
           TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
