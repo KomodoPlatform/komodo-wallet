@@ -42,6 +42,7 @@ class SwapDetails extends StatelessWidget {
             relAmount: swapStatus.isTaker
                 ? swapStatus.makerAmount
                 : swapStatus.takerAmount,
+            swapId: swapStatus.uuid,
           ),
           const SizedBox(height: 20),
           Column(

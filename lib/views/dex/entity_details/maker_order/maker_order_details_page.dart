@@ -51,6 +51,8 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
                   baseAmount: order.baseAmountAvailable ?? order.baseAmount,
                   relCoin: order.rel,
                   relAmount: order.relAmountAvailable ?? order.relAmount,
+                  isOrder: true,
+                  swapId: order.uuid,
                 ),
                 const SizedBox(height: 30),
                 _buildDetails(),
@@ -72,7 +74,6 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
         children: [
           _buildPrice(),
           _buildCreatedAt(),
-          _buildOrderId(),
           _buildStatus(),
         ],
       ),
@@ -148,31 +149,6 @@ class _MakerOrderDetailsPageState extends State<MakerOrderDetailsPage> {
           ),
         ),
         Text(status),
-      ],
-    );
-  }
-
-  TableRow _buildOrderId() {
-    final MyOrder order = widget.makerOrderStatus.order;
-    return TableRow(
-      children: [
-        SizedBox(
-          height: 30,
-          child: Text(
-            '${LocaleKeys.orderId.tr()}:',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: InkWell(
-            onTap: () => copyToClipBoard(context, order.uuid),
-            child: Text(
-              order.uuid,
-              key: const Key('maker-order-uuid'),
-            ),
-          ),
-        ),
       ],
     );
   }

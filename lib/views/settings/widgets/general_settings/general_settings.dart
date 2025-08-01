@@ -30,10 +30,14 @@ class GeneralSettings extends StatelessWidget {
         const SizedBox(height: 25),
         const SettingsManageTestCoins(),
         const SizedBox(height: 25),
-        const SettingsManageWeakPasswords(),
+        const HiddenWithoutWallet(
+          isHiddenForHw: true,
+          child: SettingsManageWeakPasswords(),
+        ),
         const SizedBox(height: 25),
         if (context.watch<TradingStatusBloc>().state is TradingEnabled)
           const HiddenWithoutWallet(
+            isHiddenForHw: true,
             child: SettingsManageTradingBot(),
           ),
         const SizedBox(height: 25),

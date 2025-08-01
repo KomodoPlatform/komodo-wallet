@@ -121,7 +121,7 @@ class _LabelNew extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             themeData.colorScheme.primary,
-            themeData.colorScheme.secondary,
+            themeData.colorScheme.inversePrimary,
           ],
         ),
       ),
