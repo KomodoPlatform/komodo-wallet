@@ -486,20 +486,21 @@ class CoinsRepo {
     // Skip the deactivation step for now, as it results in "NoSuchCoin" errors
     // when trying to re-enable the coin later in the same session.
     // TODO: Revisit this and create an issue on KDF to track the problem.
-    // final deactivationTasks = [
-    //   ...coins.map((coin) async {
-    //     await _disableCoin(coin.id.id);
-    //     if (notify) _broadcastAsset(coin.copyWith(state: CoinState.inactive));
-    //   }),
-    //   ...allChildCoins.map((child) async {
-    //     await _disableCoin(child.id.id);
-    //     if (notify) {
-    //       _broadcastAsset(child.copyWith(state: CoinState.inactive));
-    //     }
-    //   }),
-    // ];
-    // await Future.wait(deactivationTasks);
-
+    final deactivationTasks = [
+      ...coins.map((coin) async {
+        // await _disableCoin(coin.id.id);
+        if (notify) {
+          _broadcastAsset(coin.copyWith(state: CoinState.inactive));
+        }
+      }),
+      ...allChildCoins.map((child) async {
+        // await _disableCoin(child.id.id);
+        if (notify) {
+          _broadcastAsset(child.copyWith(state: CoinState.inactive));
+        }
+      }),
+    ];
+    await Future.wait(deactivationTasks);
     await Future.wait([...parentCancelFutures, ...childCancelFutures]);
   }
 
