@@ -109,7 +109,7 @@ class _AssetFiatValuePercentageChange extends StatelessWidget {
             current.get24hChangeForAsset(coin.id);
       },
       builder: (context, state) {
-        final change24hPercent = coin.lastKnown24hChange(context);
+        final change24hPercent = state.get24hChangeForAsset(coin.id);
 
         final theme = Theme.of(context);
         final themeCustom = Theme.of(context).brightness == Brightness.dark
