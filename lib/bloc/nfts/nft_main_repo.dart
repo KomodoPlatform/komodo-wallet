@@ -11,11 +11,9 @@ import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/model/text_error.dart';
 
 class NftsRepo {
-  NftsRepo({
-    required Mm2ApiNft api,
-    required CoinsRepo coinsRepo,
-  })  : _coinsRepo = coinsRepo,
-        _api = api;
+  NftsRepo({required Mm2ApiNft api, required CoinsRepo coinsRepo})
+    : _coinsRepo = coinsRepo,
+      _api = api;
 
   final Logger _log = Logger('NftsRepo');
   final CoinsRepo _coinsRepo;
@@ -75,8 +73,9 @@ class NftsRepo {
     final List<Coin> knownCoins = _coinsRepo.getKnownCoins();
     final List<Coin> parentCoins = chains
         .map((NftBlockchains chain) {
-          return knownCoins
-              .firstWhereOrNull((Coin coin) => coin.id.id == chain.coinAbbr());
+          return knownCoins.firstWhereOrNull(
+            (Coin coin) => coin.id.id == chain.coinAbbr(),
+          );
         })
         .whereType<Coin>()
         .toList();
@@ -86,7 +85,12 @@ class NftsRepo {
     }
 
     try {
-      await _coinsRepo.activateCoinsSync(parentCoins, maxRetryAttempts: 10);
+      await _coinsRepo.activateCoinsSync(
+        parentCoins,
+        notify: false,
+        addToWalletMetadata: false,
+        maxRetryAttempts: 10,
+      );
     } catch (e, s) {
       _log.shout('Failed to activate parent coins', e, s);
     }

@@ -253,6 +253,7 @@ class CoinsRepo {
   /// **Parameters:**
   /// - [assets]: List of assets to activate
   /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [addToWalletMetadata]: Whether to add assets to wallet metadata (default: true)
   /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
   /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
   /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
@@ -269,6 +270,7 @@ class CoinsRepo {
   Future<void> activateAssetsSync(
     List<Asset> assets, {
     bool notify = true,
+    bool addToWalletMetadata = true,
     int maxRetryAttempts = 30,
     Duration initialRetryDelay = const Duration(milliseconds: 500),
     Duration maxRetryDelay = const Duration(seconds: 10),
@@ -282,9 +284,12 @@ class CoinsRepo {
       return;
     }
 
-    // Add assets and their parents to wallet metadata before activating.
-    // This ensures that the wallet metadata is updated even if activation fails.
-    await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
+    if (addToWalletMetadata) {
+      // Ensure the wallet metadata is updated with the assets before activation
+      // This is to ensure that the wallet metadata is always in sync with the assets
+      // being activated, even if activation fails.
+      await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
+    }
 
     Exception? lastActivationException;
 
@@ -391,6 +396,7 @@ class CoinsRepo {
   /// **Parameters:**
   /// - [coins]: List of coins to activate
   /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [addToWalletMetadata]: Whether to add assets to wallet metadata (default: true)
   /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
   /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
   /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
@@ -410,6 +416,7 @@ class CoinsRepo {
   Future<void> activateCoinsSync(
     List<Coin> coins, {
     bool notify = true,
+    bool addToWalletMetadata = true,
     int maxRetryAttempts = 30,
     Duration initialRetryDelay = const Duration(milliseconds: 500),
     Duration maxRetryDelay = const Duration(seconds: 10),
@@ -425,6 +432,7 @@ class CoinsRepo {
     return activateAssetsSync(
       assets,
       notify: notify,
+      addToWalletMetadata: addToWalletMetadata,
       maxRetryAttempts: maxRetryAttempts,
       initialRetryDelay: initialRetryDelay,
       maxRetryDelay: maxRetryDelay,
@@ -478,20 +486,21 @@ class CoinsRepo {
     // Skip the deactivation step for now, as it results in "NoSuchCoin" errors
     // when trying to re-enable the coin later in the same session.
     // TODO: Revisit this and create an issue on KDF to track the problem.
-    // final deactivationTasks = [
-    //   ...coins.map((coin) async {
-    //     await _disableCoin(coin.id.id);
-    //     if (notify) _broadcastAsset(coin.copyWith(state: CoinState.inactive));
-    //   }),
-    //   ...allChildCoins.map((child) async {
-    //     await _disableCoin(child.id.id);
-    //     if (notify) {
-    //       _broadcastAsset(child.copyWith(state: CoinState.inactive));
-    //     }
-    //   }),
-    // ];
-    // await Future.wait(deactivationTasks);
-
+    final deactivationTasks = [
+      ...coins.map((coin) async {
+        // await _disableCoin(coin.id.id);
+        if (notify) {
+          _broadcastAsset(coin.copyWith(state: CoinState.inactive));
+        }
+      }),
+      ...allChildCoins.map((child) async {
+        // await _disableCoin(child.id.id);
+        if (notify) {
+          _broadcastAsset(child.copyWith(state: CoinState.inactive));
+        }
+      }),
+    ];
+    await Future.wait(deactivationTasks);
     await Future.wait([...parentCancelFutures, ...childCancelFutures]);
   }
 
