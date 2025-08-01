@@ -27,9 +27,9 @@ class ToAddressField extends StatelessWidget {
           textInputAction: TextInputAction.next,
           enableInteractiveSelection: true,
           onChanged: (value) {
-            context
-                .read<WithdrawFormBloc>()
-                .add(WithdrawFormRecipientChanged(value ?? ''));
+            context.read<WithdrawFormBloc>().add(
+              WithdrawFormRecipientChanged(value ?? ''),
+            );
           },
           validator: (value) {
             if (value?.isEmpty ?? true) {
@@ -63,14 +63,15 @@ class AmountField extends StatelessWidget {
             UiTextFormField(
               key: const Key('withdraw-amount-input'),
               enabled: !state.isMaxAmount,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               inputFormatters: currencyInputFormatters,
               textInputAction: TextInputAction.next,
               onChanged: (value) {
-                context
-                    .read<WithdrawFormBloc>()
-                    .add(WithdrawFormAmountChanged(value ?? ''));
+                context.read<WithdrawFormBloc>().add(
+                  WithdrawFormAmountChanged(value ?? ''),
+                );
               },
               validator: (value) {
                 if (state.isMaxAmount) return null;
@@ -90,9 +91,9 @@ class AmountField extends StatelessWidget {
             CheckboxListTile(
               value: state.isMaxAmount,
               onChanged: (value) {
-                context
-                    .read<WithdrawFormBloc>()
-                    .add(WithdrawFormMaxAmountEnabled(value ?? false));
+                context.read<WithdrawFormBloc>().add(
+                  WithdrawFormMaxAmountEnabled(value ?? false),
+                );
               },
               title: Text(LocaleKeys.amountFieldCheckboxListTile.tr()),
             ),
@@ -114,8 +115,10 @@ class FeeSection extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(LocaleKeys.networkFee.tr(),
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              LocaleKeys.networkFee.tr(),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             const CustomFeeToggle(),
             if (state.isCustomFee) ...[
@@ -160,8 +163,8 @@ class CustomFeeToggle extends StatelessWidget {
           value: state.isCustomFee,
           onChanged: (value) {
             context.read<WithdrawFormBloc>().add(
-                  WithdrawFormCustomFeeEnabled(value),
-                );
+              WithdrawFormCustomFeeEnabled(value),
+            );
           },
           contentPadding: EdgeInsets.zero,
         );
@@ -190,14 +193,14 @@ class EvmFeeFields extends StatelessWidget {
                 final gasPrice = Decimal.tryParse(value ?? '');
                 if (gasPrice != null) {
                   context.read<WithdrawFormBloc>().add(
-                        WithdrawFormCustomFeeChanged(
-                          FeeInfoEthGas(
-                            coin: state.asset.id.id,
-                            gasPrice: gasPrice,
-                            gas: evmFee?.gas ?? 21000,
-                          ),
-                        ),
-                      );
+                    WithdrawFormCustomFeeChanged(
+                      FeeInfoEthGas(
+                        coin: state.asset.id.id,
+                        gasPrice: gasPrice,
+                        gas: evmFee?.gas ?? 21000,
+                      ),
+                    ),
+                  );
                 }
               },
               helperText: 'Higher gas price = faster confirmation',
@@ -211,14 +214,14 @@ class EvmFeeFields extends StatelessWidget {
                 final gas = int.tryParse(value ?? '');
                 if (gas != null) {
                   context.read<WithdrawFormBloc>().add(
-                        WithdrawFormCustomFeeChanged(
-                          FeeInfoEthGas(
-                            coin: state.asset.id.id,
-                            gasPrice: evmFee?.gasPrice ?? Decimal.one,
-                            gas: gas,
-                          ),
-                        ),
-                      );
+                    WithdrawFormCustomFeeChanged(
+                      FeeInfoEthGas(
+                        coin: state.asset.id.id,
+                        gasPrice: evmFee?.gasPrice ?? Decimal.one,
+                        gas: gas,
+                      ),
+                    ),
+                  );
                 }
               },
               helperText: 'Estimated: 21000',
@@ -260,19 +263,17 @@ class UtxoFeeFields extends StatelessWidget {
                   label: Text('Urgent (${defaultFee * 5})'),
                 ),
               ],
-              selected: {
-                currentFee?.amount.toBigInt().toInt() ?? defaultFee,
-              },
+              selected: {currentFee?.amount.toBigInt().toInt() ?? defaultFee},
               onSelectionChanged: (values) {
                 if (values.isNotEmpty) {
                   context.read<WithdrawFormBloc>().add(
-                        WithdrawFormCustomFeeChanged(
-                          FeeInfoUtxoFixed(
-                            coin: state.asset.id.id,
-                            amount: Decimal.fromInt(values.first),
-                          ),
-                        ),
-                      );
+                    WithdrawFormCustomFeeChanged(
+                      FeeInfoUtxoFixed(
+                        coin: state.asset.id.id,
+                        amount: Decimal.fromInt(values.first),
+                      ),
+                    ),
+                  );
                 }
               },
             ),
@@ -282,32 +283,6 @@ class UtxoFeeFields extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
-        );
-      },
-    );
-  }
-}
-
-/// Field for entering transaction memo
-/// TODO: This component appears to have been replaced by WithdrawMemoField
-/// TODO: Remove this component once confirmed unused
-class MemoField extends StatelessWidget {
-  const MemoField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        return UiTextFormField(
-          key: const Key('withdraw-memo-input'),
-          labelText: 'Memo (Optional)',
-          maxLines: 2,
-          onChanged: (value) {
-            context.read<WithdrawFormBloc>().add(
-                  WithdrawFormMemoChanged(value ?? ''),
-                );
-          },
-          helperText: 'Required for some exchanges',
         );
       },
     );
@@ -336,7 +311,8 @@ class ConfirmationPage extends StatelessWidget {
                   children: [
                     _ConfirmationItem(
                       label: 'From',
-                      value: state.selectedSourceAddress?.address ??
+                      value:
+                          state.selectedSourceAddress?.address ??
                           'Default Wallet',
                     ),
                     const SizedBox(height: 12),
@@ -357,10 +333,7 @@ class ConfirmationPage extends StatelessWidget {
                     ),
                     if (state.memo != null) ...[
                       const SizedBox(height: 12),
-                      _ConfirmationItem(
-                        label: 'Memo',
-                        value: state.memo!,
-                      ),
+                      _ConfirmationItem(label: 'Memo', value: state.memo!),
                     ],
                   ],
                 ),
@@ -372,8 +345,8 @@ class ConfirmationPage extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => context.read<WithdrawFormBloc>().add(
-                          const WithdrawFormCancelled(),
-                        ),
+                      const WithdrawFormCancelled(),
+                    ),
                     child: Text(LocaleKeys.back.tr()),
                   ),
                 ),
@@ -384,8 +357,8 @@ class ConfirmationPage extends StatelessWidget {
                     onPressed: state.isSending
                         ? null
                         : () => context.read<WithdrawFormBloc>().add(
-                              const WithdrawFormSubmitted(),
-                            ),
+                            const WithdrawFormSubmitted(),
+                          ),
                     //TODO! child: state.submissionInProgress
                     child: state.isSending
                         ? const SizedBox(
@@ -410,10 +383,7 @@ class _ConfirmationItem extends StatelessWidget {
   final String label;
   final String value;
 
-  const _ConfirmationItem({
-    required this.label,
-    required this.value,
-  });
+  const _ConfirmationItem({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -423,17 +393,13 @@ class _ConfirmationItem extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.6),
-              ),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
+        Text(value, style: Theme.of(context).textTheme.bodyLarge),
       ],
     );
   }
@@ -499,8 +465,8 @@ class FailurePage extends StatelessWidget {
             Text(
               'Withdrawal Failed',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
             const SizedBox(height: 16),
             if (state.transactionError != null)
@@ -515,8 +481,8 @@ class FailurePage extends StatelessWidget {
             const SizedBox(height: 24),
             OutlinedButton(
               onPressed: () => context.read<WithdrawFormBloc>().add(
-                    const WithdrawFormCancelled(),
-                  ),
+                const WithdrawFormCancelled(),
+              ),
               child: Text(LocaleKeys.tryAgain.tr()),
             ),
           ],
@@ -538,9 +504,9 @@ class IbcTransferField extends StatelessWidget {
           subtitle: Text(LocaleKeys.ibcTransferFieldSubtitle.tr()),
           value: state.isIbcTransfer,
           onChanged: (value) {
-            context
-                .read<WithdrawFormBloc>()
-                .add(WithdrawFormIbcTransferEnabled(value));
+            context.read<WithdrawFormBloc>().add(
+              WithdrawFormIbcTransferEnabled(value),
+            );
           },
         );
       },
@@ -562,9 +528,9 @@ class IbcChannelField extends StatelessWidget {
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: (value) {
-            context
-                .read<WithdrawFormBloc>()
-                .add(WithdrawFormIbcChannelChanged(value ?? ''));
+            context.read<WithdrawFormBloc>().add(
+              WithdrawFormIbcChannelChanged(value ?? ''),
+            );
           },
         );
       },
