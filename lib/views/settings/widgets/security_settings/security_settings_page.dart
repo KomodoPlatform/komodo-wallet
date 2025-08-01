@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
@@ -241,7 +242,11 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         try {
           // Fetch private keys directly into local UI state
           // This keeps sensitive data in minimal scope
-          _sdkPrivateKeys = await context.sdk.security.getPrivateKeys();
+          final privateKeys = await context.sdk.security.getPrivateKeys();
+          final filteredPrivateKeyEntries = privateKeys.entries.where(
+            (entry) => !excludedAssetList.contains(entry.key.id),
+          );
+          _sdkPrivateKeys = Map.fromEntries(filteredPrivateKeyEntries);
 
           return true; // Success
         } catch (e) {
