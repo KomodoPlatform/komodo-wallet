@@ -114,7 +114,7 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
           ),
           Positioned(
             top: (_top ?? 0) + 10,
-            right: _right,
+            left: _left,
             child: Material(
               color: Colors.transparent,
               child: widget.dropdown,
@@ -155,15 +155,12 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
     return switcherOffset.dy + switcherSize.height;
   }
 
-  double? get _right {
+  double? get _left {
     final Offset? switcherOffset = _switcherOffset;
-    final Size? switcherSize = _switcherSize;
-
-    if (switcherOffset == null || switcherSize == null) {
+    if (switcherOffset == null) {
       return null;
     }
-    final double windowWidth = MediaQuery.of(context).size.width;
 
-    return windowWidth - (switcherOffset.dx + switcherSize.width);
+    return switcherOffset.dx;
   }
 }
