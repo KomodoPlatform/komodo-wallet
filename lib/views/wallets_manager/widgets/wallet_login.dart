@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -21,13 +20,15 @@ class WalletLogIn extends StatefulWidget {
     required this.onLogin,
     required this.onCancel,
     this.initialHdMode = false,
+    this.initialRememberMe = false,
     super.key,
   });
 
   final Wallet wallet;
-  final void Function(String, Wallet) onLogin;
+  final void Function(String, Wallet, bool) onLogin;
   final void Function() onCancel;
   final bool initialHdMode;
+  final bool initialRememberMe;
 
   @override
   State<WalletLogIn> createState() => _WalletLogInState();
@@ -37,20 +38,23 @@ class _WalletLogInState extends State<WalletLogIn> {
   final _backKeyButton = GlobalKey();
   final TextEditingController _passwordController = TextEditingController();
   late bool _isHdMode;
+  bool _rememberMe = false;
   KdfUser? _user;
 
   @override
   void initState() {
     super.initState();
     _isHdMode = widget.initialHdMode;
+    _rememberMe = widget.initialRememberMe;
     unawaited(_fetchKdfUser());
   }
 
   Future<void> _fetchKdfUser() async {
     final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final users = await kdfSdk.auth.getUsers();
-    final user = users
-        .firstWhereOrNull((user) => user.walletId.name == widget.wallet.name);
+    final user = users.firstWhereOrNull(
+      (user) => user.walletId.name == widget.wallet.name,
+    );
 
     if (user != null) {
       setState(() {
@@ -75,13 +79,10 @@ class _WalletLogInState extends State<WalletLogIn> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.wallet.config.type =
           _isHdMode && _user != null && _user!.isBip39Seed == true
-              ? WalletType.hdwallet
-              : WalletType.iguana;
+          ? WalletType.hdwallet
+          : WalletType.iguana;
 
-      widget.onLogin(
-        _passwordController.text,
-        widget.wallet,
-      );
+      widget.onLogin(_passwordController.text, widget.wallet, _rememberMe);
     });
   }
 
@@ -91,8 +92,8 @@ class _WalletLogInState extends State<WalletLogIn> {
       builder: (context, state) {
         final errorMessage =
             state.authError?.type == AuthExceptionType.incorrectPassword
-                ? LocaleKeys.incorrectPassword.tr()
-                : state.authError?.message;
+            ? LocaleKeys.incorrectPassword.tr()
+            : state.authError?.message;
 
         return AutofillGroup(
           child: Column(
@@ -100,10 +101,9 @@ class _WalletLogInState extends State<WalletLogIn> {
             children: [
               Text(
                 LocaleKeys.walletLogInTitle.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontSize: 18),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 18),
               ),
               const SizedBox(height: 40),
               UiTextFormField(
@@ -113,14 +113,21 @@ class _WalletLogInState extends State<WalletLogIn> {
                 autocorrect: false,
                 autofillHints: const [AutofillHints.username],
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               PasswordTextField(
                 onFieldSubmitted: state.isLoading ? null : _submitLogin,
                 controller: _passwordController,
                 errorText: errorMessage,
                 autofillHints: const [AutofillHints.password],
+              ),
+              const SizedBox(height: 20),
+              UiCheckbox(
+                checkboxKey: const Key('checkbox-remember-me'),
+                value: _rememberMe,
+                text: LocaleKeys.rememberMe.tr(),
+                onChanged: (value) {
+                  setState(() => _rememberMe = value);
+                },
               ),
               const SizedBox(height: 20),
               if (_user != null && _user!.isBip39Seed == true)
