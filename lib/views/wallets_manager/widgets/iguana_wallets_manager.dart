@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/analytics/events/user_acquisition_events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
@@ -339,8 +340,10 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
         );
       }
       context.read<CoinsBloc>().add(CoinsSessionStarted(currentUser));
+      // Update remembered wallet before closing the dialog to avoid using
+      // the context after the widget is disposed.
+      unawaited(_updateRememberedWallet(currentUser));
       widget.onSuccess(currentWallet);
-      unawaited(_updateRememberedWallet(currentWallet));
     }
 
     if (mounted) {
@@ -350,18 +353,11 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     }
   }
 
-  Future<void> _updateRememberedWallet(Wallet wallet) async {
+  Future<void> _updateRememberedWallet(KdfUser currentUser) async {
     final storage = getStorage();
     if (_rememberMe) {
-      // Get the current user to access the WalletId
-      final currentUser = context.read<AuthBloc>().state.currentUser;
-      if (currentUser != null) {
-        // Store the full WalletId JSON instead of just the name
-        await storage.write(
-          lastLoggedInWalletKey,
-          currentUser.walletId.toJson(),
-        );
-      }
+      // Store the full WalletId JSON instead of just the name
+      await storage.write(lastLoggedInWalletKey, currentUser.walletId.toJson());
     } else {
       await storage.delete(lastLoggedInWalletKey);
     }
