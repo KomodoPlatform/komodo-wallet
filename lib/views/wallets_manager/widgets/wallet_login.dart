@@ -12,6 +12,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletLogIn extends StatefulWidget {
@@ -20,7 +21,7 @@ class WalletLogIn extends StatefulWidget {
     required this.onLogin,
     required this.onCancel,
     this.initialHdMode = false,
-    this.initialRememberMe = false,
+    this.initialQuickLogin = false,
     super.key,
   });
 
@@ -28,7 +29,7 @@ class WalletLogIn extends StatefulWidget {
   final void Function(String, Wallet, bool) onLogin;
   final void Function() onCancel;
   final bool initialHdMode;
-  final bool initialRememberMe;
+  final bool initialQuickLogin;
 
   @override
   State<WalletLogIn> createState() => _WalletLogInState();
@@ -38,14 +39,14 @@ class _WalletLogInState extends State<WalletLogIn> {
   final _backKeyButton = GlobalKey();
   final TextEditingController _passwordController = TextEditingController();
   late bool _isHdMode;
-  bool _rememberMe = false;
+  bool _isQuickLoginEnabled = false;
   KdfUser? _user;
 
   @override
   void initState() {
     super.initState();
     _isHdMode = widget.initialHdMode;
-    _rememberMe = widget.initialRememberMe;
+    _isQuickLoginEnabled = widget.initialQuickLogin;
     unawaited(_fetchKdfUser());
   }
 
@@ -82,7 +83,11 @@ class _WalletLogInState extends State<WalletLogIn> {
           ? WalletType.hdwallet
           : WalletType.iguana;
 
-      widget.onLogin(_passwordController.text, widget.wallet, _rememberMe);
+      widget.onLogin(
+        _passwordController.text,
+        widget.wallet,
+        _isQuickLoginEnabled,
+      );
     });
   }
 
@@ -105,7 +110,7 @@ class _WalletLogInState extends State<WalletLogIn> {
                   context,
                 ).textTheme.titleLarge?.copyWith(fontSize: 18),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 24),
               UiTextFormField(
                 key: const Key('wallet-field'),
                 initialValue: widget.wallet.name,
@@ -113,31 +118,30 @@ class _WalletLogInState extends State<WalletLogIn> {
                 autocorrect: false,
                 autofillHints: const [AutofillHints.username],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               PasswordTextField(
                 onFieldSubmitted: state.isLoading ? null : _submitLogin,
                 controller: _passwordController,
                 errorText: errorMessage,
                 autofillHints: const [AutofillHints.password],
               ),
-              const SizedBox(height: 20),
-              UiCheckbox(
-                checkboxKey: const Key('checkbox-remember-me'),
-                value: _rememberMe,
-                text: LocaleKeys.rememberMe.tr(),
+              const SizedBox(height: 32),
+              QuickLoginSwitch(
+                value: _isQuickLoginEnabled,
                 onChanged: (value) {
-                  setState(() => _rememberMe = value);
+                  setState(() => _isQuickLoginEnabled = value);
                 },
               ),
-              const SizedBox(height: 20),
-              if (_user != null && _user!.isBip39Seed == true)
+              const SizedBox(height: 16),
+              if (_user != null && _user!.isBip39Seed == true) ...[
                 HDWalletModeSwitch(
                   value: _isHdMode,
                   onChanged: (value) {
                     setState(() => _isHdMode = value);
                   },
                 ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 24),
+              ],
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2.0),
                 child: UiPrimaryButton(
@@ -152,7 +156,7 @@ class _WalletLogInState extends State<WalletLogIn> {
                   onPressed: state.isLoading ? null : _submitLogin,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
               UiUnderlineTextButton(
                 key: _backKeyButton,
                 onPressed: widget.onCancel,

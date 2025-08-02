@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:app_theme/app_theme.dart';
-import 'package:collection/collection.dart';
+
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -12,7 +11,7 @@ import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/update_bloc.dart';
 import 'package:web_dex/common/screen.dart';
-import 'package:web_dex/dispatchers/popup_dispatcher.dart';
+
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
 import 'package:web_dex/router/state/routing_state.dart';
@@ -24,11 +23,12 @@ import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/shared/utils/window/window.dart';
-import 'package:web_dex/views/common/header/app_header.dart';
 import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
+import 'package:web_dex/shared/widgets/app_dialog.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -38,7 +38,7 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  PopupDispatcher? _rememberMeDispatcher;
+  bool _hasShownRememberMeDialog = false;
   @override
   void initState() {
     // TODO: localize
@@ -67,7 +67,6 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   void dispose() {
-    _rememberMeDispatcher?.close();
     super.dispose();
   }
 
@@ -77,11 +76,11 @@ class _MainLayoutState extends State<MainLayout> {
       listener: (context, state) {
         if (state.mode == AuthorizeMode.noLogin) {
           routingState.resetOnLogOut();
+          // Reset dialog state so it can be shown again if user logs out
+          _hasShownRememberMeDialog = false;
         }
       },
       builder: (context, state) {
-        final isAuthenticated = state.mode == AuthorizeMode.logIn;
-
         return LayoutBuilder(
           builder: (context, constraints) {
             return Scaffold(
@@ -110,30 +109,67 @@ class _MainLayoutState extends State<MainLayout> {
 
   Future<void> _maybeShowRememberedWallet() async {
     final authState = context.read<AuthBloc>().state;
-    if (authState.mode != AuthorizeMode.noLogin) return;
+    if (authState.mode != AuthorizeMode.noLogin || _hasShownRememberMeDialog) {
+      return;
+    }
 
     final storage = getStorage();
-    final String? lastWalletName =
-        await storage.read(lastLoggedInWalletKey) as String?;
-    if (lastWalletName == null) return;
-
     final walletsRepo = context.read<WalletsRepository>();
-    final wallets = walletsRepo.wallets ?? await walletsRepo.getWallets();
-    final wallet = wallets.firstWhereOrNull((w) => w.name == lastWalletName);
-    if (wallet == null) return;
+    final storedWalletData = await storage.read(lastLoggedInWalletKey);
+    if (storedWalletData == null) return;
 
-    _rememberMeDispatcher = PopupDispatcher(
-      borderColor: theme.custom.specificButtonBorderColor,
-      barrierColor: isMobile ? Theme.of(context).colorScheme.onSurface : null,
-      width: 320,
-      context: scaffoldKey.currentContext ?? context,
-      popupContent: WalletsManagerWrapper(
-        eventType: WalletsManagerEventType.header,
-        selectedWallet: wallet,
-        rememberMe: true,
-      ),
-    );
-    _rememberMeDispatcher?.show();
+    try {
+      // Try to parse as WalletId JSON first (new format)
+      WalletId walletId;
+      if (storedWalletData is Map<String, dynamic>) {
+        walletId = WalletId.fromJson(storedWalletData);
+      } else if (storedWalletData is String) {
+        // Backward compatibility: if it's a string, treat it as the wallet name
+        walletId = WalletId.fromName(
+          storedWalletData,
+          AuthOptions(derivationMethod: DerivationMethod.iguana),
+        );
+      } else {
+        return;
+      }
+
+      final wallets = walletsRepo.wallets ?? await walletsRepo.getWallets();
+
+      if (!mounted) return;
+
+      // Match by wallet name and optionally by pubkey hash for more precise matching
+      final wallet = wallets.where((w) {
+        if (w.name != walletId.name) return false;
+        // If we have a pubkey hash in the stored WalletId, ensure it matches
+        if (walletId.hasFullIdentity && w.config.pubKey != null) {
+          // TODO: Verify if wallet.config.pubKey corresponds to walletId.pubkeyHash
+          // For now, we just match by name
+        }
+        return true;
+      }).firstOrNull;
+
+      if (wallet == null) return;
+
+      // Mark that we've shown the dialog to prevent showing it again
+      _hasShownRememberMeDialog = true;
+
+      if (!mounted) return;
+
+      // Use AppDialog - a replacement for deprecated PopupDispatcher
+      await AppDialog.showWithCallback<void>(
+        context: context,
+        width: 320,
+        childBuilder: (onSuccess) => WalletsManagerWrapper(
+          eventType: WalletsManagerEventType.header,
+          selectedWallet: wallet,
+          rememberMe: true,
+          onSuccess: (wallet) => onSuccess(),
+        ),
+      );
+    } catch (e) {
+      // If parsing fails, clear the invalid data
+      await storage.delete(lastLoggedInWalletKey);
+    }
   }
 
   // Method to show an alert dialog with an option to agree if the app is in

@@ -174,7 +174,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
             onLogin: _logInToWallet,
             onCancel: _cancel,
             initialHdMode: _initialHdMode,
-            initialRememberMe: _rememberMe,
+            initialQuickLogin: _rememberMe,
           );
       }
     }
@@ -248,8 +248,12 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     required String name,
     required String password,
     WalletType? walletType,
+    required bool rememberMe,
   }) {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _rememberMe = rememberMe;
+    });
     final Wallet newWallet = Wallet.fromName(
       name: name,
       walletType: walletType ?? WalletType.iguana,
@@ -264,9 +268,11 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     required String name,
     required String password,
     required WalletConfig walletConfig,
+    required bool rememberMe,
   }) {
     setState(() {
       _isLoading = true;
+      _rememberMe = rememberMe;
     });
     final Wallet newWallet = Wallet.fromConfig(
       name: name,
@@ -347,7 +353,15 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   Future<void> _updateRememberedWallet(Wallet wallet) async {
     final storage = getStorage();
     if (_rememberMe) {
-      await storage.write(lastLoggedInWalletKey, wallet.name);
+      // Get the current user to access the WalletId
+      final currentUser = context.read<AuthBloc>().state.currentUser;
+      if (currentUser != null) {
+        // Store the full WalletId JSON instead of just the name
+        await storage.write(
+          lastLoggedInWalletKey,
+          currentUser.walletId.toJson(),
+        );
+      }
     } else {
       await storage.delete(lastLoggedInWalletKey);
     }
