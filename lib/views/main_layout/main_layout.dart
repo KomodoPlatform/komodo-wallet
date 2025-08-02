@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -142,8 +144,9 @@ class _MainLayoutState extends State<MainLayout> {
         if (w.name != walletId.name) return false;
         // If we have a pubkey hash in the stored WalletId, ensure it matches
         if (walletId.hasFullIdentity && w.config.pubKey != null) {
-          // TODO: Verify if wallet.config.pubKey corresponds to walletId.pubkeyHash
-          // For now, we just match by name
+          // Verify if wallet.config.pubKey corresponds to walletId.pubkeyHash
+          final pubKeyHash = md5.convert(utf8.encode(w.config.pubKey!)).toString();
+          if (pubKeyHash != walletId.pubkeyHash) return false;
         }
         return true;
       }).firstOrNull;
