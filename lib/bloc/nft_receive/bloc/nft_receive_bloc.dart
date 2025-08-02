@@ -11,12 +11,10 @@ part 'nft_receive_event.dart';
 part 'nft_receive_state.dart';
 
 class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
-  NftReceiveBloc({
-    required CoinsRepo coinsRepo,
-    required KomodoDefiSdk sdk,
-  })  : _coinsRepo = coinsRepo,
-        _sdk = sdk,
-        super(NftReceiveInitial()) {
+  NftReceiveBloc({required CoinsRepo coinsRepo, required KomodoDefiSdk sdk})
+    : _coinsRepo = coinsRepo,
+      _sdk = sdk,
+      super(NftReceiveInitial()) {
     on<NftReceiveStarted>(_onInitial);
     on<NftReceiveRefreshRequested>(_onRefresh);
     on<NftReceiveAddressChanged>(_onChangeAddress);
@@ -25,7 +23,7 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
   final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _sdk;
   final _log = Logger('NftReceiveBloc');
-  NftBlockchains? chain;
+  NftBlockchains? _chain;
 
   Future<void> _onInitial(
     NftReceiveStarted event,
@@ -36,7 +34,7 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
       return;
     }
 
-    chain = event.chain;
+    _chain = event.chain;
     final abbr = event.chain.coinAbbr();
     final coin = _coinsRepo.getCoin(abbr);
     if (coin == null) {
@@ -47,9 +45,7 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
     final walletConfig = (await _sdk.currentWallet())?.config;
     if (walletConfig?.hasBackup == false && !coin.isTestCoin) {
       _log.warning('Wallet does not have backup and is not a test coin');
-      return emit(
-        NftReceiveBackupSuccess(),
-      );
+      return emit(NftReceiveBackupSuccess());
     }
 
     final asset = _sdk.assets.available[coin.id]!;
@@ -78,7 +74,7 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
     Emitter<NftReceiveState> emit,
   ) async {
     _log.info('Refreshing NFT receive data');
-    final localChain = chain;
+    final localChain = _chain;
     if (localChain != null) {
       _log.fine('Chain is available, reinitializing with chain: $localChain');
       emit(NftReceiveInitial());

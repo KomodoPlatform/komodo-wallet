@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -27,10 +26,10 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     required NftToken nft,
     required KomodoDefiSdk kdfSdk,
     required CoinsRepo coinsRepository,
-  })  : _repo = repo,
-        _coinsRepository = coinsRepository,
-        _kdfSdk = kdfSdk,
-        super(NftWithdrawFillState.initial(nft)) {
+  }) : _repo = repo,
+       _coinsRepository = coinsRepository,
+       _kdfSdk = kdfSdk,
+       super(NftWithdrawFillState.initial(nft)) {
     on<NftWithdrawAddressChanged>(_onAddressChanged);
     on<NftWithdrawAmountChanged>(_onAmountChanged);
     on<NftWithdrawSendEvent>(_onSend);
@@ -80,21 +79,24 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       return;
     }
 
-    final BaseError? amountError =
-        _validateAmount(amount, int.parse(nft.amount), nft.contractType);
+    final BaseError? amountError = _validateAmount(
+      amount,
+      int.parse(nft.amount),
+      nft.contractType,
+    );
     if (amountError != null) {
       emit(
-        state.copyWith(
-          isSending: () => false,
-          amountError: () => amountError,
-        ),
+        state.copyWith(isSending: () => false, amountError: () => amountError),
       );
       return;
     }
 
     try {
       final WithdrawNftResponse response = await _repo.withdraw(
-          nft: nft, address: validatedAddress, amount: amount);
+        nft: nft,
+        address: validatedAddress,
+        amount: amount,
+      );
 
       final NftTransactionDetails result = response.result;
 
@@ -111,9 +113,10 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     } on TransportError catch (e) {
       emit(state.copyWith(sendError: () => e, isSending: () => false));
     } on ParsingApiJsonError catch (e) {
-      if (kDebugMode) {
+      assert(() {
         print(e.message);
-      }
+        return true;
+      }());
       emit(state.copyWith(isSending: () => false));
     }
   }
@@ -125,16 +128,13 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final state = this.state;
     if (state is! NftWithdrawConfirmState) return;
 
-    emit(
-      state.copyWith(
-        isSending: () => true,
-        sendError: () => null,
-      ),
-    );
+    emit(state.copyWith(isSending: () => true, sendError: () => null));
     final txDetails = state.txDetails;
 
-    final SendRawTransactionResponse response =
-        await _repo.confirmSend(txDetails.coin, txDetails.txHex);
+    final SendRawTransactionResponse response = await _repo.confirmSend(
+      txDetails.coin,
+      txDetails.txHex,
+    );
     final BaseError? responseError = response.error;
     final String? txHash = response.txHash;
     if (txHash == null) {
@@ -188,10 +188,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     );
   }
 
-  Future<String> _validateAddress(
-    Coin coin,
-    String address,
-  ) async {
+  Future<String> _validateAddress(Coin coin, String address) async {
     if (address.isEmpty) {
       throw TextError(error: LocaleKeys.invalidAddress.tr(args: [coin.abbr]));
     }
@@ -305,11 +302,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       );
       add(NftWithdrawAddressChanged(mixedCaseAddress));
     } catch (e) {
-      emit(
-        state.copyWith(
-          addressError: () => TextError(error: e.toString()),
-        ),
-      );
+      emit(state.copyWith(addressError: () => TextError(error: e.toString())));
     }
   }
 

@@ -10,15 +10,17 @@ import 'price_chart_event.dart';
 import 'price_chart_state.dart';
 
 class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
-  PriceChartBloc(this.cexPriceRepository, this.sdk)
-      : super(const PriceChartState()) {
+  PriceChartBloc(BinanceRepository cexPriceRepository, KomodoDefiSdk sdk)
+    : _cexPriceRepository = cexPriceRepository,
+      _sdk = sdk,
+      super(const PriceChartState()) {
     on<PriceChartStarted>(_onStarted);
     on<PriceChartPeriodChanged>(_onIntervalChanged);
     on<PriceChartCoinsSelected>(_onSymbolChanged);
   }
 
-  final BinanceRepository cexPriceRepository;
-  final KomodoDefiSdk sdk;
+  final BinanceRepository _cexPriceRepository;
+  final KomodoDefiSdk _sdk;
   final KomodoPriceRepository _komodoPriceRepository = KomodoPriceRepository(
     cexPriceProvider: KomodoPriceProvider(),
   );
@@ -35,40 +37,41 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
       }
 
       final List<Future<PriceChartDataSeries?>> futures = event.symbols
-          .map((symbol) => sdk.getSdkAsset(symbol).id)
+          .map((symbol) => _sdk.getSdkAsset(symbol).id)
           .map((symbol) async {
-        try {
-          final CoinOhlc ohlcData = await cexPriceRepository.getCoinOhlc(
-            CexCoinPair.usdtPrice(symbol.symbol.assetConfigId),
-            _dividePeriodToInterval(event.period),
-            startAt: DateTime.now().subtract(event.period),
-            endAt: DateTime.now(),
-          );
-
-          final rangeChangePercent = _calculatePercentageChange(
-            ohlcData.ohlc.firstOrNull,
-            ohlcData.ohlc.lastOrNull,
-          );
-
-          return PriceChartDataSeries(
-            info: CoinPriceInfo(
-              ticker: symbol.symbol.assetConfigId,
-              id: fetchedCexCoins[symbol]!.id,
-              name: fetchedCexCoins[symbol]!.name,
-              selectedPeriodIncreasePercentage: rangeChangePercent ?? 0.0,
-            ),
-            data: ohlcData.ohlc.map((e) {
-              return PriceChartSeriesPoint(
-                usdValue: e.close,
-                unixTimestamp: e.closeTime.toDouble(),
+            try {
+              final CoinOhlc ohlcData = await _cexPriceRepository.getCoinOhlc(
+                CexCoinPair.usdtPrice(symbol.symbol.assetConfigId),
+                _dividePeriodToInterval(event.period),
+                startAt: DateTime.now().subtract(event.period),
+                endAt: DateTime.now(),
               );
-            }).toList(),
-          );
-        } catch (e) {
-          log("Error fetching OHLC data for $symbol: $e");
-          return null;
-        }
-      }).toList();
+
+              final rangeChangePercent = _calculatePercentageChange(
+                ohlcData.ohlc.firstOrNull,
+                ohlcData.ohlc.lastOrNull,
+              );
+
+              return PriceChartDataSeries(
+                info: CoinPriceInfo(
+                  ticker: symbol.symbol.assetConfigId,
+                  id: fetchedCexCoins[symbol]!.id,
+                  name: fetchedCexCoins[symbol]!.name,
+                  selectedPeriodIncreasePercentage: rangeChangePercent ?? 0.0,
+                ),
+                data: ohlcData.ohlc.map((e) {
+                  return PriceChartSeriesPoint(
+                    usdValue: e.close,
+                    unixTimestamp: e.closeTime.toDouble(),
+                  );
+                }).toList(),
+              );
+            } catch (e) {
+              log("Error fetching OHLC data for $symbol: $e");
+              return null;
+            }
+          })
+          .toList();
 
       final data = await Future.wait(futures);
 
@@ -85,54 +88,52 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
       );
     } catch (e) {
       emit(
-        state.copyWith(
-          status: PriceChartStatus.failure,
-          error: e.toString(),
-        ),
+        state.copyWith(status: PriceChartStatus.failure, error: e.toString()),
       );
     }
   }
 
   Future<Map<AssetId, CoinPriceInfo>> _fetchCoinsFromCex() async {
     final coinPrices = await _komodoPriceRepository.getKomodoPrices();
-    final coins = (await cexPriceRepository.getCoinList())
+    final coins = (await _cexPriceRepository.getCoinList())
         .where((coin) => coin.currencies.contains('USDT'))
         // `cexPriceRepository.getCoinList()` returns coins from a CEX
         // (e.g. Binance), some of which are not in our known/available
         // assets/coins list. This filter ensures that we only attempt to
         // fetch and display data for supported coins
-        .where((coin) => sdk.assets.assetsFromTicker(coin.id).isNotEmpty)
+        .where((coin) => _sdk.assets.assetsFromTicker(coin.id).isNotEmpty)
         .map((coin) async {
-      double? dayChangePercent = coinPrices[coin.symbol]?.change24h;
+          double? dayChangePercent = coinPrices[coin.symbol]?.change24h;
 
-      if (dayChangePercent == null) {
-        try {
-          final coinOhlc = await cexPriceRepository.getCoinOhlc(
-            CexCoinPair.usdtPrice(coin.symbol),
-            GraphInterval.oneMinute,
-            startAt: DateTime.now().subtract(const Duration(days: 1)),
-            endAt: DateTime.now(),
-          );
+          if (dayChangePercent == null) {
+            try {
+              final coinOhlc = await _cexPriceRepository.getCoinOhlc(
+                CexCoinPair.usdtPrice(coin.symbol),
+                GraphInterval.oneMinute,
+                startAt: DateTime.now().subtract(const Duration(days: 1)),
+                endAt: DateTime.now(),
+              );
 
-          dayChangePercent = _calculatePercentageChange(
-            coinOhlc.ohlc.firstOrNull,
-            coinOhlc.ohlc.lastOrNull,
+              dayChangePercent = _calculatePercentageChange(
+                coinOhlc.ohlc.firstOrNull,
+                coinOhlc.ohlc.lastOrNull,
+              );
+            } catch (e) {
+              log("Error fetching OHLC data for ${coin.symbol}: $e");
+            }
+          }
+          return CoinPriceInfo(
+            ticker: coin.symbol,
+            id: coin.id,
+            name: coin.name,
+            selectedPeriodIncreasePercentage: dayChangePercent ?? 0.0,
           );
-        } catch (e) {
-          log("Error fetching OHLC data for ${coin.symbol}: $e");
-        }
-      }
-      return CoinPriceInfo(
-        ticker: coin.symbol,
-        id: coin.id,
-        name: coin.name,
-        selectedPeriodIncreasePercentage: dayChangePercent ?? 0.0,
-      );
-    }).toList();
+        })
+        .toList();
 
     final fetchedCexCoins = {
       for (var coin in await Future.wait(coins))
-        sdk.getSdkAsset(coin.ticker).id: coin,
+        _sdk.getSdkAsset(coin.ticker).id: coin,
     };
 
     return fetchedCexCoins;
@@ -164,11 +165,7 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
     if (currentState.status != PriceChartStatus.success) {
       return;
     }
-    emit(
-      state.copyWith(
-        selectedPeriod: event.period,
-      ),
-    );
+    emit(state.copyWith(selectedPeriod: event.period));
     add(
       PriceChartStarted(
         symbols: currentState.data.map((e) => e.info.id).toList(),
@@ -182,10 +179,7 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
     Emitter<PriceChartState> emit,
   ) {
     add(
-      PriceChartStarted(
-        symbols: event.symbols,
-        period: state.selectedPeriod,
-      ),
+      PriceChartStarted(symbols: event.symbols, period: state.selectedPeriod),
     );
   }
 

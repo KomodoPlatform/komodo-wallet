@@ -8,14 +8,17 @@ import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 
 class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
-  final KomodoDefiSdk sdk;
-  final String assetId;
-  final AnalyticsBloc analyticsBloc;
+  final KomodoDefiSdk _sdk;
+  final String _assetId;
+  final AnalyticsBloc _analyticsBloc;
   CoinAddressesBloc(
-    this.sdk,
-    this.assetId,
-    this.analyticsBloc,
-  ) : super(const CoinAddressesState()) {
+    KomodoDefiSdk sdk,
+    String assetId,
+    AnalyticsBloc analyticsBloc,
+  ) : _sdk = sdk,
+      _assetId = assetId,
+      _analyticsBloc = analyticsBloc,
+      super(const CoinAddressesState()) {
     on<SubmitCreateAddressEvent>(_onSubmitCreateAddress);
     on<LoadAddressesEvent>(_onLoadAddresses);
     on<UpdateHideZeroBalanceEvent>(_onUpdateHideZeroBalance);
@@ -32,7 +35,9 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
       ),
     );
 
-    final stream = sdk.pubkeys.createNewPubkeyStream(getSdkAsset(sdk, assetId));
+    final stream = _sdk.pubkeys.createNewPubkeyStream(
+      getSdkAsset(_sdk, _assetId),
+    );
 
     await for (final newAddressState in stream) {
       emit(state.copyWith(newAddressState: () => newAddressState));
@@ -43,11 +48,11 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
           final derivation = pubkey?.derivationPath;
           if (derivation != null) {
             final parsed = parseDerivationPath(derivation);
-            analyticsBloc.logEvent(
+            _analyticsBloc.logEvent(
               HdAddressGeneratedEventData(
                 accountIndex: parsed.accountIndex,
                 addressIndex: parsed.addressIndex,
-                assetSymbol: assetId,
+                assetSymbol: _assetId,
               ),
             );
           }
@@ -92,10 +97,10 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
     emit(state.copyWith(status: () => FormStatus.submitting));
 
     try {
-      final asset = getSdkAsset(sdk, assetId);
-      final addresses = (await asset.getPubkeys(sdk)).keys;
+      final asset = getSdkAsset(_sdk, _assetId);
+      final addresses = (await asset.getPubkeys(_sdk)).keys;
 
-      final reasons = await asset.getCantCreateNewAddressReasons(sdk);
+      final reasons = await asset.getCantCreateNewAddressReasons(_sdk);
 
       emit(
         state.copyWith(

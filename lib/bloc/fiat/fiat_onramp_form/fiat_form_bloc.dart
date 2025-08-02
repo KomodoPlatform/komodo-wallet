@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_flutter_imports
+
 import 'dart:convert';
 import 'dart:io' show Platform;
 
@@ -34,11 +36,11 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     required KomodoDefiSdk sdk,
     int pubkeysMaxRetryAttempts = 20,
     Duration pubkeysRetryDelay = const Duration(milliseconds: 500),
-  })  : _fiatRepository = repository,
-        _sdk = sdk,
-        _pubkeysMaxRetryAttempts = pubkeysMaxRetryAttempts,
-        _pubkeysRetryDelay = pubkeysRetryDelay,
-        super(FiatFormState.initial()) {
+  }) : _fiatRepository = repository,
+       _sdk = sdk,
+       _pubkeysMaxRetryAttempts = pubkeysMaxRetryAttempts,
+       _pubkeysRetryDelay = pubkeysRetryDelay,
+       super(FiatFormState.initial()) {
     on<FiatFormFiatSelected>(_onFiatSelected);
     // Use restartable here since this is called for auth changes, which
     // can happen frequently and we want to avoid race conditions.
@@ -169,7 +171,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormSubmitted event,
     Emitter<FiatFormState> emit,
   ) async {
-    final formValidationError = getFormIssue();
+    final formValidationError = _getFormIssue();
     if (formValidationError != null || !state.isValid) {
       _log.warning('Form validation failed. Validation: ${state.isValid}');
       return;
@@ -187,8 +189,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         walletAddress: state.selectedAssetAddress!.address,
         paymentMethod: state.selectedPaymentMethod,
         sourceAmount: state.fiatAmount.value,
-        returnUrlOnSuccess:
-            BaseFiatProvider.successUrl(state.selectedAssetAddress!.address),
+        returnUrlOnSuccess: BaseFiatProvider.successUrl(
+          state.selectedAssetAddress!.address,
+        ),
       );
 
       if (!newOrder.error.isNone) {
@@ -199,11 +202,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       var checkoutUrl = newOrder.checkoutUrl as String? ?? '';
       if (checkoutUrl.isEmpty) {
         _log.severe('Invalid checkout URL received.');
-        return emit(
-          state.copyWith(
-            fiatOrderStatus: FiatOrderStatus.failed,
-          ),
-        );
+        return emit(state.copyWith(fiatOrderStatus: FiatOrderStatus.failed));
       }
 
       // Only Ramp on web requires the intermediate html page to satisfy cors
@@ -223,12 +222,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       );
     } catch (e, s) {
       _log.shout('Error submitting fiat form', e, s);
-      emit(
-        state.copyWith(
-          status: FiatFormStatus.failure,
-          checkoutUrl: '',
-        ),
-      );
+      emit(state.copyWith(status: FiatFormStatus.failure, checkoutUrl: ''));
     }
   }
 
@@ -320,17 +314,10 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormCoinAddressSelected event,
     Emitter<FiatFormState> emit,
   ) {
-    emit(
-      state.copyWith(
-        selectedAssetAddress: () => event.address,
-      ),
-    );
+    emit(state.copyWith(selectedAssetAddress: () => event.address));
   }
 
-  void _onModeUpdated(
-    FiatFormModeUpdated event,
-    Emitter<FiatFormState> emit,
-  ) {
+  void _onModeUpdated(FiatFormModeUpdated event, Emitter<FiatFormState> emit) {
     emit(state.copyWith(fiatMode: event.mode));
   }
 
@@ -341,8 +328,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     try {
       final fiatList = await _fiatRepository.getFiatList();
       final coinList = await _fiatRepository.getCoinList();
-      coinList
-          .removeWhere((coin) => excludedAssetList.contains(coin.getAbbr()));
+      coinList.removeWhere(
+        (coin) => excludedAssetList.contains(coin.getAbbr()),
+      );
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {
       _log.shout('Error loading currency list', e, s);
@@ -429,7 +417,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
   }
 
-  String? getFormIssue() {
+  String? _getFormIssue() {
     // TODO: ? show on the UI and localise? These are currently used as more of
     // a boolean "is there an error?" rather than "what is the error?"
     if (state.paymentMethods.isEmpty) {
@@ -548,10 +536,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       );
     } catch (e, s) {
       _log.shout('Error updating payment methods', e, s);
-      return state.copyWith(
-        paymentMethods: [],
-        providerError: () => null,
-      );
+      return state.copyWith(paymentMethods: [], providerError: () => null);
     }
   }
 
