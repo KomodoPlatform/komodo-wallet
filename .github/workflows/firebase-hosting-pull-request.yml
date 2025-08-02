@@ -49,6 +49,7 @@ jobs:
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
           TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+          BUILD_COMMAND: flutter build web --no-pub --release --no-web-resources-cdn
 
       - name: Validate build
         uses: ./.github/actions/validate-build
