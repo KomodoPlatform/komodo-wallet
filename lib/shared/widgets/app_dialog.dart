@@ -153,7 +153,10 @@ class AppDialog {
       contentPadding: contentPadding,
       onDismiss: onDismiss,
       child: childBuilder(() {
-        Navigator.of(context).pop();
+        // Ensure we pop the dialog from the root navigator. Using the root
+        // navigator prevents accidentally popping routes from nested
+        // navigators which can lead to a blank screen after login.
+        Navigator.of(context, rootNavigator: true).pop();
         if (onSuccess != null) {
           onSuccess(null); // Pass null since we don't have a specific result
         }
