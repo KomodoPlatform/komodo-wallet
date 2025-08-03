@@ -90,7 +90,11 @@ class _MainLayoutState extends State<MainLayout> {
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.endFloat,
               appBar: null,
-              body: SafeArea(child: MainLayoutRouter()),
+              body: SafeArea(
+                child: MainLayoutRouter(
+                  key: ValueKey('${routingState.selectedMenu}'),
+                ),
+              ),
               bottomNavigationBar: (isMobile || isTablet)
                   ? MainMenuBarMobile()
                   : null,
@@ -145,7 +149,9 @@ class _MainLayoutState extends State<MainLayout> {
         // If we have a pubkey hash in the stored WalletId, ensure it matches
         if (walletId.hasFullIdentity && w.config.pubKey != null) {
           // Verify if wallet.config.pubKey corresponds to walletId.pubkeyHash
-          final pubKeyHash = md5.convert(utf8.encode(w.config.pubKey!)).toString();
+          final pubKeyHash = md5
+              .convert(utf8.encode(w.config.pubKey!))
+              .toString();
           if (pubKeyHash != walletId.pubkeyHash) return false;
         }
         return true;
