@@ -124,6 +124,7 @@ class _WalletLogInState extends State<WalletLogIn> {
                 controller: _passwordController,
                 errorText: errorMessage,
                 autofillHints: const [AutofillHints.password],
+                isQuickLoginEnabled: _isQuickLoginEnabled,
               ),
               const SizedBox(height: 32),
               QuickLoginSwitch(
@@ -177,12 +178,14 @@ class PasswordTextField extends StatefulWidget {
     super.key,
     this.errorText,
     this.autofillHints,
+    this.isQuickLoginEnabled = false,
   });
 
   final String? errorText;
   final TextEditingController controller;
   final void Function()? onFieldSubmitted;
   final Iterable<String>? autofillHints;
+  final bool isQuickLoginEnabled;
 
   @override
   State<PasswordTextField> createState() => _PasswordTextFieldState();
@@ -190,6 +193,50 @@ class PasswordTextField extends StatefulWidget {
 
 class _PasswordTextFieldState extends State<PasswordTextField> {
   bool _isPasswordObscured = true;
+  Timer? _autoSubmitTimer;
+  String _previousValue = '';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onPasswordChanged);
+  }
+
+  @override
+  void dispose() {
+    _autoSubmitTimer?.cancel();
+    widget.controller.removeListener(_onPasswordChanged);
+    super.dispose();
+  }
+
+  void _onPasswordChanged() {
+    if (!widget.isQuickLoginEnabled) return;
+
+    final currentValue = widget.controller.text;
+    final lengthDifference = (currentValue.length - _previousValue.length)
+        .abs();
+
+    // Detect multi-character input (likely from password manager)
+    // If 3 or more characters were added/changed at once, this suggests
+    // automated input from a password manager rather than manual typing
+    if (lengthDifference >= 3 && currentValue.isNotEmpty) {
+      // Cancel any existing timer
+      _autoSubmitTimer?.cancel();
+
+      // Set a short delay to allow for potential additional input
+      // before auto-submitting the form
+      _autoSubmitTimer = Timer(const Duration(milliseconds: 300), () {
+        // Double-check that the field still has content and quick login is enabled
+        if (widget.controller.text.isNotEmpty &&
+            widget.isQuickLoginEnabled &&
+            widget.onFieldSubmitted != null) {
+          widget.onFieldSubmitted!();
+        }
+      });
+    }
+
+    _previousValue = currentValue;
+  }
 
   @override
   Widget build(BuildContext context) {

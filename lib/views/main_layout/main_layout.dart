@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -19,18 +17,12 @@ import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/alpha_version_alert_service/alpha_version_alert_service.dart';
 import 'package:web_dex/services/feedback/feedback_service.dart';
-import 'package:web_dex/services/storage/get_storage.dart';
-import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/shared/utils/window/window.dart';
+import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/model/main_menu_value.dart';
-import 'package:web_dex/shared/utils/window/window.dart';
-import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:web_dex/shared/widgets/app_dialog.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -40,9 +32,6 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  static bool _hasShownRememberMeDialogThisSession = false;
-  static bool _hasBeenLoggedInThisSession = false;
-
   @override
   void initState() {
     // TODO: localize
@@ -55,7 +44,9 @@ class _MainLayoutState extends State<MainLayout> {
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
-      await _maybeShowRememberedWallet();
+      if (mounted) {
+        await QuickLoginSwitch.maybeShowRememberedWallet(context);
+      }
 
       if (!mounted) return;
       final tradingEnabled = tradingStatusBloc.state is TradingEnabled;
@@ -80,17 +71,16 @@ class _MainLayoutState extends State<MainLayout> {
       listener: (context, state) {
         // Track when user has been logged in
         if (state.mode == AuthorizeMode.logIn) {
-          _hasBeenLoggedInThisSession = true;
+          QuickLoginSwitch.trackUserLoggedIn();
         }
 
         // Only reset the remember me dialog flag if user was logged in and is now logged out
         // This prevents the flag from being reset on initial app startup
         if (state.mode == AuthorizeMode.noLogin &&
-            _hasBeenLoggedInThisSession) {
+            QuickLoginSwitch.hasBeenLoggedInThisSession) {
           routingState.resetOnLogOut();
           // Reset dialog state so it can be shown again after user logs out
-          _hasShownRememberMeDialogThisSession = false;
-          _hasBeenLoggedInThisSession = false;
+          QuickLoginSwitch.resetOnLogout();
         }
       },
       builder: (context, state) {
@@ -118,91 +108,6 @@ class _MainLayoutState extends State<MainLayout> {
         );
       },
     );
-  }
-
-  Future<void> _maybeShowRememberedWallet() async {
-    final authState = context.read<AuthBloc>().state;
-    if (authState.mode != AuthorizeMode.noLogin ||
-        _hasShownRememberMeDialogThisSession) {
-      return;
-    }
-
-    // Mark that we've shown the dialog to prevent race conditions
-    _hasShownRememberMeDialogThisSession = true;
-
-    final storage = getStorage();
-    final walletsRepo = context.read<WalletsRepository>();
-    final storedWalletData = await storage.read(lastLoggedInWalletKey);
-    if (storedWalletData == null) return;
-
-    WalletId walletId;
-    try {
-      // Parse stored wallet data - handle both JSON string and Map formats
-      if (storedWalletData is String) {
-        // Try to parse as JSON string first (new format)
-        try {
-          final parsedData =
-              jsonDecode(storedWalletData) as Map<String, dynamic>;
-          walletId = WalletId.fromJson(parsedData);
-        } catch (_) {
-          // If JSON parsing fails, treat as legacy wallet name
-          walletId = WalletId.fromName(
-            storedWalletData,
-            AuthOptions(derivationMethod: DerivationMethod.iguana),
-          );
-        }
-      } else if (storedWalletData is Map<String, dynamic>) {
-        walletId = WalletId.fromJson(storedWalletData);
-      } else {
-        // Unrecognized format, clear invalid data
-        await storage.delete(lastLoggedInWalletKey);
-        return;
-      }
-    } catch (e) {
-      // Only clear data for actual parsing errors
-      await storage.delete(lastLoggedInWalletKey);
-      return;
-    }
-
-    try {
-      final wallets = walletsRepo.wallets ?? await walletsRepo.getWallets();
-
-      if (!mounted) return;
-
-      // Match by wallet name and optionally by pubkey hash for more precise matching
-      final wallet = wallets.where((w) {
-        if (w.name != walletId.name) return false;
-        // If we have a pubkey hash in the stored WalletId, ensure it matches
-        if (walletId.hasFullIdentity && w.config.pubKey != null) {
-          // Verify if wallet.config.pubKey corresponds to walletId.pubkeyHash
-          final pubKeyHash = md5
-              .convert(utf8.encode(w.config.pubKey!))
-              .toString();
-          if (pubKeyHash != walletId.pubkeyHash) return false;
-        }
-        return true;
-      }).firstOrNull;
-
-      if (wallet == null) return;
-
-      if (!mounted) return;
-
-      // Use AppDialog - a replacement for deprecated PopupDispatcher
-      await AppDialog.showWithCallback<void>(
-        context: context,
-        width: 320,
-        childBuilder: (onSuccess) => WalletsManagerWrapper(
-          eventType: WalletsManagerEventType.header,
-          selectedWallet: wallet,
-          rememberMe: true,
-          onSuccess: (wallet) => onSuccess(),
-        ),
-      );
-    } catch (e) {
-      // Don't clear stored data for UI/network errors that aren't parsing-related
-      // The stored data is still valid, but we had an issue with the UI or wallet loading
-      // Log the error if needed, but preserve the stored wallet data
-    }
   }
 
   // Method to show an alert dialog with an option to agree if the app is in
