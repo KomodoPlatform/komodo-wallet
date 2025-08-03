@@ -40,7 +40,9 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  bool _hasShownRememberMeDialog = false;
+  static bool _hasShownRememberMeDialogThisSession = false;
+  static bool _hasBeenLoggedInThisSession = false;
+
   @override
   void initState() {
     // TODO: localize
@@ -76,10 +78,19 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthBlocState>(
       listener: (context, state) {
-        if (state.mode == AuthorizeMode.noLogin) {
+        // Track when user has been logged in
+        if (state.mode == AuthorizeMode.logIn) {
+          _hasBeenLoggedInThisSession = true;
+        }
+
+        // Only reset the remember me dialog flag if user was logged in and is now logged out
+        // This prevents the flag from being reset on initial app startup
+        if (state.mode == AuthorizeMode.noLogin &&
+            _hasBeenLoggedInThisSession) {
           routingState.resetOnLogOut();
-          // Reset dialog state so it can be shown again if user logs out
-          _hasShownRememberMeDialog = false;
+          // Reset dialog state so it can be shown again after user logs out
+          _hasShownRememberMeDialogThisSession = false;
+          _hasBeenLoggedInThisSession = false;
         }
       },
       builder: (context, state) {
@@ -111,30 +122,49 @@ class _MainLayoutState extends State<MainLayout> {
 
   Future<void> _maybeShowRememberedWallet() async {
     final authState = context.read<AuthBloc>().state;
-    if (authState.mode != AuthorizeMode.noLogin || _hasShownRememberMeDialog) {
+    if (authState.mode != AuthorizeMode.noLogin ||
+        _hasShownRememberMeDialogThisSession) {
       return;
     }
+
+    // Mark that we've shown the dialog to prevent race conditions
+    _hasShownRememberMeDialogThisSession = true;
 
     final storage = getStorage();
     final walletsRepo = context.read<WalletsRepository>();
     final storedWalletData = await storage.read(lastLoggedInWalletKey);
     if (storedWalletData == null) return;
 
+    WalletId walletId;
     try {
-      // Try to parse as WalletId JSON first (new format)
-      WalletId walletId;
-      if (storedWalletData is Map<String, dynamic>) {
+      // Parse stored wallet data - handle both JSON string and Map formats
+      if (storedWalletData is String) {
+        // Try to parse as JSON string first (new format)
+        try {
+          final parsedData =
+              jsonDecode(storedWalletData) as Map<String, dynamic>;
+          walletId = WalletId.fromJson(parsedData);
+        } catch (_) {
+          // If JSON parsing fails, treat as legacy wallet name
+          walletId = WalletId.fromName(
+            storedWalletData,
+            AuthOptions(derivationMethod: DerivationMethod.iguana),
+          );
+        }
+      } else if (storedWalletData is Map<String, dynamic>) {
         walletId = WalletId.fromJson(storedWalletData);
-      } else if (storedWalletData is String) {
-        // Backward compatibility: if it's a string, treat it as the wallet name
-        walletId = WalletId.fromName(
-          storedWalletData,
-          AuthOptions(derivationMethod: DerivationMethod.iguana),
-        );
       } else {
+        // Unrecognized format, clear invalid data
+        await storage.delete(lastLoggedInWalletKey);
         return;
       }
+    } catch (e) {
+      // Only clear data for actual parsing errors
+      await storage.delete(lastLoggedInWalletKey);
+      return;
+    }
 
+    try {
       final wallets = walletsRepo.wallets ?? await walletsRepo.getWallets();
 
       if (!mounted) return;
@@ -145,16 +175,15 @@ class _MainLayoutState extends State<MainLayout> {
         // If we have a pubkey hash in the stored WalletId, ensure it matches
         if (walletId.hasFullIdentity && w.config.pubKey != null) {
           // Verify if wallet.config.pubKey corresponds to walletId.pubkeyHash
-          final pubKeyHash = md5.convert(utf8.encode(w.config.pubKey!)).toString();
+          final pubKeyHash = md5
+              .convert(utf8.encode(w.config.pubKey!))
+              .toString();
           if (pubKeyHash != walletId.pubkeyHash) return false;
         }
         return true;
       }).firstOrNull;
 
       if (wallet == null) return;
-
-      // Mark that we've shown the dialog to prevent showing it again
-      _hasShownRememberMeDialog = true;
 
       if (!mounted) return;
 
@@ -170,8 +199,9 @@ class _MainLayoutState extends State<MainLayout> {
         ),
       );
     } catch (e) {
-      // If parsing fails, clear the invalid data
-      await storage.delete(lastLoggedInWalletKey);
+      // Don't clear stored data for UI/network errors that aren't parsing-related
+      // The stored data is still valid, but we had an issue with the UI or wallet loading
+      // Log the error if needed, but preserve the stored wallet data
     }
   }
 
