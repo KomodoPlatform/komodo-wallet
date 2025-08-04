@@ -18,13 +18,13 @@ class IpfsGatewayManager {
     Duration? failureCooldown,
     http.Client? httpClient,
     Duration? urlTestTimeout,
-  })  : _webOptimizedGateways =
-            webOptimizedGateways ?? IpfsConstants.defaultWebOptimizedGateways,
-        _standardGateways =
-            standardGateways ?? IpfsConstants.defaultStandardGateways,
-        _failureCooldown = failureCooldown ?? IpfsConstants.failureCooldown,
-        _httpClient = httpClient ?? http.Client(),
-        _urlTestTimeout = urlTestTimeout ?? const Duration(seconds: 5);
+  }) : _webOptimizedGateways =
+           webOptimizedGateways ?? IpfsConstants.defaultWebOptimizedGateways,
+       _standardGateways =
+           standardGateways ?? IpfsConstants.defaultStandardGateways,
+       _failureCooldown = failureCooldown ?? IpfsConstants.failureCooldown,
+       _httpClient = httpClient ?? http.Client(),
+       _urlTestTimeout = urlTestTimeout ?? const Duration(seconds: 5);
 
   // Configuration
   final List<String> _webOptimizedGateways;
@@ -78,9 +78,9 @@ class IpfsGatewayManager {
   /// Extracts the IPFS content ID from various URL formats
   static String? _extractContentId(String url) {
     // Handle ipfs:// protocol (case-insensitive)
-    if (url
-        .toLowerCase()
-        .startsWith(IpfsConstants.ipfsProtocol.toLowerCase())) {
+    if (url.toLowerCase().startsWith(
+      IpfsConstants.ipfsProtocol.toLowerCase(),
+    )) {
       return url.substring(IpfsConstants.ipfsProtocol.length);
     }
 
@@ -118,9 +118,9 @@ class IpfsGatewayManager {
   static bool isIpfsUrl(String? url) {
     if (url == null || url.isEmpty) return false;
 
-    return url
-            .toLowerCase()
-            .startsWith(IpfsConstants.ipfsProtocol.toLowerCase()) ||
+    return url.toLowerCase().startsWith(
+          IpfsConstants.ipfsProtocol.toLowerCase(),
+        ) ||
         _subdomainPattern.hasMatch(url) ||
         _gatewayPattern.hasMatch(url) ||
         url.toLowerCase().contains('/ipfs/');
@@ -192,8 +192,9 @@ class IpfsGatewayManager {
   /// Test if a URL is accessible by making a HEAD request
   Future<bool> testUrlAccessibility(String url) async {
     try {
-      final response =
-          await _httpClient.head(Uri.parse(url)).timeout(_urlTestTimeout);
+      final response = await _httpClient
+          .head(Uri.parse(url))
+          .timeout(_urlTestTimeout);
       return response.statusCode == 200;
     } catch (e) {
       return false;

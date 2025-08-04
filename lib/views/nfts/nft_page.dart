@@ -40,10 +40,7 @@ class NftPage extends StatelessWidget {
                 ),
               ),
             ],
-            child: NFTPageView(
-              pageState: pageState,
-              uuid: uuid,
-            ),
+            child: NFTPageView(pageState: pageState, uuid: uuid),
           ),
         );
       },
@@ -86,36 +83,40 @@ class _NFTPageViewState extends State<NFTPageView> {
           !_loggedOpen && curr.isInitialized && !prev.isInitialized,
       listener: (context, state) {
         _loggedOpen = true;
-        final count = state.nftCount.values
-            .fold<int>(0, (sum, item) => sum + (item ?? 0));
+        final count = state.nftCount.values.fold<int>(
+          0,
+          (sum, item) => sum + (item ?? 0),
+        );
         context.read<AnalyticsBloc>().logEvent(
-              NftGalleryOpenedEventData(
-                nftCount: count,
-                loadTimeMs: _loadStopwatch.elapsedMilliseconds,
-              ),
-            );
+          NftGalleryOpenedEventData(
+            nftCount: count,
+            loadTimeMs: _loadStopwatch.elapsedMilliseconds,
+          ),
+        );
       },
       child: PageLayout(
         header: null,
         content: Expanded(
           child: Container(
             margin: isMobile ? const EdgeInsets.only(top: 14) : null,
-            child: Builder(builder: (context) {
-              switch (widget.pageState) {
-                case NFTSelectedState.details:
-                case NFTSelectedState.send:
-                  return NftDetailsPage(
-                    uuid: widget.uuid,
-                    isSend: widget.pageState == NFTSelectedState.send,
-                  );
-                case NFTSelectedState.receive:
-                  return const NftReceivePage();
-                case NFTSelectedState.transactions:
-                  return const NftListOfTransactionsPage();
-                case NFTSelectedState.none:
-                  return const NftMain();
-              }
-            }),
+            child: Builder(
+              builder: (context) {
+                switch (widget.pageState) {
+                  case NFTSelectedState.details:
+                  case NFTSelectedState.send:
+                    return NftDetailsPage(
+                      uuid: widget.uuid,
+                      isSend: widget.pageState == NFTSelectedState.send,
+                    );
+                  case NFTSelectedState.receive:
+                    return const NftReceivePage();
+                  case NFTSelectedState.transactions:
+                    return const NftListOfTransactionsPage();
+                  case NFTSelectedState.none:
+                    return const NftMain();
+                }
+              },
+            ),
           ),
         ),
       ),

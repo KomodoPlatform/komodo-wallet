@@ -35,22 +35,16 @@ class _NftDetailsPageMobileState extends State<NftDetailsPageMobile> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NftWithdrawBloc, NftWithdrawState>(
-        builder: (BuildContext context, NftWithdrawState state) {
-      final nft = state.nft;
+      builder: (BuildContext context, NftWithdrawState state) {
+        final nft = state.nft;
 
-      return SingleChildScrollView(
-        child: _isSend
-            ? _Send(
-                nft: nft,
-                close: _closeSend,
-              )
-            : _Details(
-                nft: nft,
-                onBack: _livePage,
-                onSend: _showSend,
-              ),
-      );
-    });
+        return SingleChildScrollView(
+          child: _isSend
+              ? _Send(nft: nft, close: _closeSend)
+              : _Details(nft: nft, onBack: _livePage, onSend: _showSend),
+        );
+      },
+    );
   }
 
   void _showSend() {
@@ -91,16 +85,11 @@ class _Details extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 50),
-        PageHeader(
-          title: nft.name,
-          onBackButtonPressed: onBack,
-        ),
+        PageHeader(title: nft.name, onBackButtonPressed: onBack),
         const SizedBox(height: 5),
         ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 343),
-          child: NftImage(
-            imageUrl: nft.imageUrl,
-          ),
+          child: NftImage(imageUrl: nft.imageUrl),
         ),
         const SizedBox(height: 28),
         UiPrimaryButton(
@@ -109,17 +98,14 @@ class _Details extends StatelessWidget {
           onPressed: onSend,
         ),
         const SizedBox(height: 28),
-        NftDescription(nft: nft)
+        NftDescription(nft: nft),
       ],
     );
   }
 }
 
 class _Send extends StatelessWidget {
-  const _Send({
-    required this.nft,
-    required this.close,
-  });
+  const _Send({required this.nft, required this.close});
   final NftToken nft;
   final VoidCallback close;
 
@@ -134,9 +120,7 @@ class _Send extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 50),
-        NftDetailsHeaderMobile(
-          close: close,
-        ),
+        NftDetailsHeaderMobile(close: close),
         const SizedBox(height: 10),
         if (state is! NftWithdrawSuccessState)
           Padding(
@@ -165,14 +149,18 @@ class _Send extends StatelessWidget {
                             Text(
                               nft.name,
                               style: textTheme.bodySBold.copyWith(
-                                  color: colorScheme.primary, height: 1),
+                                color: colorScheme.primary,
+                                height: 1,
+                              ),
                             ),
                             const SizedBox(height: 10),
                             Text(
                               nft.collectionName ?? '',
-                              style: textTheme.bodyXS
-                                  .copyWith(color: colorScheme.s70, height: 1),
-                            )
+                              style: textTheme.bodyXS.copyWith(
+                                color: colorScheme.s70,
+                                height: 1,
+                              ),
+                            ),
                           ],
                         ),
                       ),

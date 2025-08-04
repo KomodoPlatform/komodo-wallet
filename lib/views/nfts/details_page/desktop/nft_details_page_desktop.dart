@@ -31,39 +31,41 @@ class NftDetailsPageDesktop extends StatelessWidget {
           children: [
             Flexible(
               child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(maxWidth: 389, maxHeight: 440),
+                constraints: const BoxConstraints(
+                  maxWidth: 389,
+                  maxHeight: 440,
+                ),
                 child: NftImage(imageUrl: nft.imageUrl),
               ),
             ),
             const SizedBox(width: 32),
             Flexible(
               child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(maxWidth: 416, maxHeight: 440),
+                constraints: const BoxConstraints(
+                  maxWidth: 416,
+                  maxHeight: 440,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    NftDescription(
-                      nft: nft,
-                      isDescriptionShown: !isSend,
-                    ),
+                    NftDescription(nft: nft, isDescriptionShown: !isSend),
                     const SizedBox(height: 12),
                     if (state is! NftWithdrawSuccessState) NftData(nft: nft),
                     if (isSend)
-                      Flexible(
-                        child: NftWithdrawView(nft: nft),
-                      )
+                      Flexible(child: NftWithdrawView(nft: nft))
                     else ...[
                       const Spacer(),
                       UiPrimaryButton(
-                          text: LocaleKeys.send.tr(),
-                          height: 40,
-                          onPressed: () {
-                            routingState.nftsState
-                                .setDetailsAction(nft.uuid, true);
-                          }),
+                        text: LocaleKeys.send.tr(),
+                        height: 40,
+                        onPressed: () {
+                          routingState.nftsState.setDetailsAction(
+                            nft.uuid,
+                            true,
+                          );
+                        },
+                      ),
                     ],
                   ],
                 ),

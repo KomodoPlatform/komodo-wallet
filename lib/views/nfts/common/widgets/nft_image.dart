@@ -9,19 +9,15 @@ import 'package:web_dex/bloc/nft_image/nft_image_bloc.dart';
 enum NftImageType { image, video, placeholder }
 
 class NftImage extends StatelessWidget {
-  const NftImage({
-    super.key,
-    this.imageUrl,
-  });
+  const NftImage({super.key, this.imageUrl});
 
   final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => NftImageBloc(
-        ipfsGatewayManager: context.read<IpfsGatewayManager>(),
-      ),
+      create: (context) =>
+          NftImageBloc(ipfsGatewayManager: context.read<IpfsGatewayManager>()),
       child: Builder(
         builder: (context) {
           switch (type) {
@@ -64,9 +60,7 @@ class NftImage extends StatelessWidget {
 }
 
 class _NftImageWithFallback extends StatefulWidget {
-  const _NftImageWithFallback({
-    required this.imageUrl,
-  });
+  const _NftImageWithFallback({required this.imageUrl, super.key});
 
   final String imageUrl;
 
@@ -80,9 +74,9 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
     super.initState();
     // Request the bloc to start loading and finding a working URL
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NftImageBloc>().add(NftImageLoadRequested(
-            imageUrl: widget.imageUrl,
-          ));
+      context.read<NftImageBloc>().add(
+        NftImageLoadRequested(imageUrl: widget.imageUrl),
+      );
     });
   }
 
@@ -107,9 +101,7 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
 
         // Show loading indicator if no URL is ready yet
         if (state.isLoading && state.currentUrl == null) {
-          return const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
-          );
+          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
         }
 
         // Don't render anything if we don't have a current URL
@@ -128,15 +120,17 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
   }
 
   Widget _buildImageWidget(
-      BuildContext context, NftImageState state, String currentUrl) {
+    BuildContext context,
+    NftImageState state,
+    String currentUrl,
+  ) {
     switch (state.mediaType) {
       case NftMediaType.svg:
         return SvgPicture.network(
           currentUrl,
           fit: BoxFit.cover,
-          placeholderBuilder: (_) => const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+          placeholderBuilder: (_) =>
+              const Center(child: CircularProgressIndicator(strokeWidth: 2)),
         );
       case NftMediaType.gif:
       case NftMediaType.image:
@@ -151,9 +145,9 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
               // Image loaded successfully - notify bloc
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  context.read<NftImageBloc>().add(NftImageLoadSucceeded(
-                        loadedUrl: currentUrl,
-                      ));
+                  context.read<NftImageBloc>().add(
+                    NftImageLoadSucceeded(loadedUrl: currentUrl),
+                  );
                 }
               });
               return child;
@@ -168,10 +162,12 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
             // Handle image load error - notify bloc to try next URL
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) {
-                context.read<NftImageBloc>().add(NftImageLoadFailed(
-                      failedUrl: currentUrl,
-                      errorMessage: error.toString(),
-                    ));
+                context.read<NftImageBloc>().add(
+                  NftImageLoadFailed(
+                    failedUrl: currentUrl,
+                    errorMessage: error.toString(),
+                  ),
+                );
               }
             });
 
@@ -186,9 +182,7 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
 }
 
 class _NftVideoWithFallback extends StatefulWidget {
-  const _NftVideoWithFallback({
-    required this.videoUrl,
-  });
+  const _NftVideoWithFallback({required this.videoUrl, super.key});
 
   final String videoUrl;
 
@@ -207,9 +201,9 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
 
     // Request the bloc to start loading and finding a working URL
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NftImageBloc>().add(NftImageLoadRequested(
-            imageUrl: widget.videoUrl,
-          ));
+      context.read<NftImageBloc>().add(
+        NftImageLoadRequested(imageUrl: widget.videoUrl),
+      );
     });
   }
 
@@ -241,9 +235,7 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
         }
 
         if (currentVideoUrl == null || state.isLoading || _controller == null) {
-          return const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
-          );
+          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
         }
 
         return _controller!.value.isInitialized
@@ -251,9 +243,7 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
                 borderRadius: BorderRadius.circular(24),
                 child: VideoPlayer(_controller!),
               )
-            : const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              );
+            : const Center(child: CircularProgressIndicator(strokeWidth: 2));
       },
     );
   }
@@ -264,27 +254,32 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
 
     _controller = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
 
-    _controller!.initialize().then((_) {
-      if (mounted) {
-        setState(() {});
-        _controller!.setLooping(true);
-        _controller!.play();
+    _controller!
+        .initialize()
+        .then((_) {
+          if (mounted) {
+            setState(() {});
+            _controller!.setLooping(true);
+            _controller!.play();
 
-        // Notify bloc of successful load
-        context
-            .read<NftImageBloc>()
-            .add(NftImageLoadSucceeded(loadedUrl: videoUrl));
-      }
-    }).catchError((error) {
-      debugPrint('Error initializing video from $videoUrl: $error');
-      if (mounted) {
-        // Notify bloc of failed load
-        context.read<NftImageBloc>().add(NftImageLoadFailed(
-              failedUrl: videoUrl,
-              errorMessage: error.toString(),
-            ));
-      }
-    });
+            // Notify bloc of successful load
+            context.read<NftImageBloc>().add(
+              NftImageLoadSucceeded(loadedUrl: videoUrl),
+            );
+          }
+        })
+        .catchError((error) {
+          debugPrint('Error initializing video from $videoUrl: $error');
+          if (mounted) {
+            // Notify bloc of failed load
+            context.read<NftImageBloc>().add(
+              NftImageLoadFailed(
+                failedUrl: videoUrl,
+                errorMessage: error.toString(),
+              ),
+            );
+          }
+        });
   }
 
   @override
@@ -300,12 +295,8 @@ class _NftPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: const Center(
-        child: Icon(Icons.monetization_on, size: 36),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: const Center(child: Icon(Icons.monetization_on, size: 36)),
     );
   }
 }

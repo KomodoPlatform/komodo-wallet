@@ -76,13 +76,13 @@ class NftImageState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        currentUrl,
-        currentUrlIndex,
-        retryCount,
-        allUrls,
-        errorMessage,
-        isRetrying,
-        mediaType,
-      ];
+    status,
+    currentUrl,
+    currentUrlIndex,
+    retryCount,
+    allUrls,
+    errorMessage,
+    isRetrying,
+    mediaType,
+  ];
 }

@@ -7,9 +7,7 @@ abstract class NftImageEvent extends Equatable {
 
 /// Event to start loading an image (bloc will generate fallback URLs)
 class NftImageLoadRequested extends NftImageEvent {
-  const NftImageLoadRequested({
-    required this.imageUrl,
-  });
+  const NftImageLoadRequested({required this.imageUrl});
 
   final String imageUrl;
 
@@ -19,10 +17,7 @@ class NftImageLoadRequested extends NftImageEvent {
 
 /// Event triggered when an image fails to load
 class NftImageLoadFailed extends NftImageEvent {
-  const NftImageLoadFailed({
-    required this.failedUrl,
-    this.errorMessage,
-  });
+  const NftImageLoadFailed({required this.failedUrl, this.errorMessage});
 
   final String failedUrl;
   final String? errorMessage;
@@ -33,10 +28,7 @@ class NftImageLoadFailed extends NftImageEvent {
 
 /// Event triggered when an image loads successfully
 class NftImageLoadSucceeded extends NftImageEvent {
-  const NftImageLoadSucceeded({
-    required this.loadedUrl,
-    this.loadTime,
-  });
+  const NftImageLoadSucceeded({required this.loadedUrl, this.loadTime});
 
   final String loadedUrl;
   final Duration? loadTime;
