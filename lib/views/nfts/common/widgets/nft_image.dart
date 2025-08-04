@@ -27,7 +27,7 @@ class NftImage extends StatelessWidget {
           switch (type) {
             case NftImageType.image:
               return _NftImageWithFallback(
-                key: Key(imageUrl!),
+                key: ValueKey(imageUrl!),
                 imageUrl: imageUrl!,
               );
             case NftImageType.video:
