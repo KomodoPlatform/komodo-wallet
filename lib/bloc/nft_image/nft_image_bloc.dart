@@ -225,7 +225,6 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
   @override
   Future<void> close() {
     _retryTimer?.cancel();
-    _ipfsGatewayManager.dispose();
     return super.close();
   }
 }
