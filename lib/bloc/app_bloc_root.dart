@@ -155,7 +155,10 @@ class AppBlocRoot extends StatelessWidget {
       providers: [
         // Keep ipfs gateway manager near root to keep in-memory cache of failing
         // URLS to avoid repeated requests to the same failing URLs.
-        RepositoryProvider(create: (_) => IpfsGatewayManager()),
+        RepositoryProvider(
+          create: (_) => IpfsGatewayManager(),
+          dispose: (manager) => manager.dispose(),
+        ),
         RepositoryProvider(
           create: (_) => NftsRepo(
             api: mm2Api.nft,
