@@ -97,4 +97,4 @@ docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
   -u "$HOST_UID:$HOST_GID" \
   $ENV_ARGS \
   komodo/komodo-wallet:latest sh -c \
-  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; $BUILD_CMD || true; flutter build $BUILD_TARGET --config-only; $BUILD_COMMAND"
+  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; $BUILD_COMMAND || true; flutter build $BUILD_TARGET --config-only; $BUILD_CMD"
