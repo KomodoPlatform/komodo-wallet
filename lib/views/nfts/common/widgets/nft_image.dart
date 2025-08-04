@@ -27,6 +27,7 @@ class NftImage extends StatelessWidget {
           switch (type) {
             case NftImageType.image:
               return _NftImageWithFallback(
+                key: Key(imageUrl!),
                 imageUrl: imageUrl!,
               );
             case NftImageType.video:
@@ -36,6 +37,7 @@ class NftImage extends StatelessWidget {
               return PlatformTuner.isNativeDesktop
                   ? const _NftPlaceholder()
                   : _NftVideoWithFallback(
+                      key: Key(imageUrl!),
                       videoUrl: imageUrl!,
                     );
             case NftImageType.placeholder:
@@ -82,6 +84,16 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
             imageUrl: widget.imageUrl,
           ));
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant _NftImageWithFallback oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      final bloc = context.read<NftImageBloc>();
+      bloc.add(const NftImageResetRequested());
+      bloc.add(NftImageLoadRequested(imageUrl: widget.imageUrl));
+    }
   }
 
   @override
@@ -199,6 +211,19 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
             imageUrl: widget.videoUrl,
           ));
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant _NftVideoWithFallback oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.videoUrl != widget.videoUrl) {
+      _controller?.dispose();
+      _controller = null;
+      currentVideoUrl = null;
+      final bloc = context.read<NftImageBloc>();
+      bloc.add(const NftImageResetRequested());
+      bloc.add(NftImageLoadRequested(imageUrl: widget.videoUrl));
+    }
   }
 
   @override
