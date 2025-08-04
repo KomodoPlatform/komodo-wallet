@@ -23,8 +23,8 @@ class ConnectWalletButton extends StatefulWidget {
     this.withText = true,
     this.withIcon = false,
     Size? buttonSize,
-  })  : buttonSize = buttonSize ?? const Size(double.infinity, 40),
-        super(key: key);
+  }) : buttonSize = buttonSize ?? const Size(double.infinity, 40),
+       super(key: key);
   final Size buttonSize;
   final bool withIcon;
   final bool withText;
@@ -60,15 +60,17 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
                     child: SvgPicture.asset(
                       walletIconPath,
                       colorFilter: ColorFilter.mode(
-                          theme.custom.defaultGradientButtonTextColor,
-                          BlendMode.srcIn),
+                        theme.custom.defaultGradientButtonTextColor,
+                        BlendMode.srcIn,
+                      ),
                       width: 15,
                       height: 15,
                     ),
                   )
                 : null,
-            text: LocaleKeys.connectSomething
-                .tr(args: [LocaleKeys.wallet.tr().toLowerCase()]),
+            text: LocaleKeys.connectSomething.tr(
+              args: [LocaleKeys.wallet.tr().toLowerCase()],
+            ),
             onPressed: onButtonPressed,
           )
         : ElevatedButton(
@@ -85,7 +87,9 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
             child: SvgPicture.asset(
               walletIconPath,
               colorFilter: ColorFilter.mode(
-                  theme.custom.defaultGradientButtonTextColor, BlendMode.srcIn),
+                theme.custom.defaultGradientButtonTextColor,
+                BlendMode.srcIn,
+              ),
               width: 20,
             ),
           );
@@ -97,20 +101,23 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
   }
 
   PopupDispatcher _createPopupDispatcher() {
-    final TakerBloc takerBloc = context.read<TakerBloc>();
-    final BridgeBloc bridgeBloc = context.read<BridgeBloc>();
+    final BuildContext popupContext = scaffoldKey.currentContext ?? context;
+    final TakerBloc takerBloc = popupContext.read<TakerBloc>();
+    final BridgeBloc bridgeBloc = popupContext.read<BridgeBloc>();
 
     return PopupDispatcher(
       borderColor: theme.custom.specificButtonBorderColor,
-      barrierColor: isMobile ? Theme.of(context).colorScheme.onSurface : null,
+      barrierColor: isMobile
+          ? Theme.of(popupContext).colorScheme.onSurface
+          : null,
       width: 320,
-      context: scaffoldKey.currentContext ?? context,
+      context: popupContext,
       popupContent: WalletsManagerWrapper(
         eventType: widget.eventType,
         onSuccess: (_) async {
           takerBloc.add(TakerReInit());
           bridgeBloc.add(const BridgeReInit());
-          await reInitTradingForms(context);
+          await reInitTradingForms(popupContext);
           _popupDispatcher?.close();
         },
       ),
