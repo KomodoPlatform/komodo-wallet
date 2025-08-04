@@ -70,8 +70,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
 
     // Generate IPFS gateway alternatives if it's an IPFS URL
     if (IpfsGatewayManager.isIpfsUrl(imageUrl)) {
-      final ipfsUrls =
-          await _ipfsGatewayManager.getReliableGatewayUrls(imageUrl);
+      final ipfsUrls = await _ipfsGatewayManager.getReliableGatewayUrls(imageUrl);
       // Add URLs that aren't already in the list
       for (final url in ipfsUrls) {
         if (!urls.contains(url)) {
