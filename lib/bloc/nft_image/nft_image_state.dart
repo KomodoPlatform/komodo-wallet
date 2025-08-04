@@ -1,7 +1,7 @@
 part of 'nft_image_bloc.dart';
 
 /// Image loading states for NFT image fallback mechanism
-enum ImageLoadStatus { initial, loading, loaded, retrying, exhausted, error }
+enum NftImageStatus { initial, loading, success, retrying, exhausted, failure }
 
 /// NFT media types for display handling
 enum NftMediaType { image, video, svg, gif, unknown }
@@ -9,7 +9,7 @@ enum NftMediaType { image, video, svg, gif, unknown }
 /// State for NFT image loading with fallback mechanism
 class NftImageState extends Equatable {
   const NftImageState({
-    this.status = ImageLoadStatus.initial,
+    this.status = NftImageStatus.initial,
     this.currentUrl,
     this.currentUrlIndex = 0,
     this.retryCount = 0,
@@ -19,7 +19,7 @@ class NftImageState extends Equatable {
     this.mediaType = NftMediaType.unknown,
   });
 
-  final ImageLoadStatus status;
+  final NftImageStatus status;
   final String? currentUrl;
   final int currentUrlIndex;
   final int retryCount;
@@ -33,7 +33,7 @@ class NftImageState extends Equatable {
 
   /// Whether all URLs have been exhausted
   bool get isExhausted =>
-      currentUrlIndex >= allUrls.length - 1 && status == ImageLoadStatus.error;
+      currentUrlIndex >= allUrls.length - 1 && status == NftImageStatus.failure;
 
   /// The next URL to try
   String? get nextUrl {
@@ -43,17 +43,17 @@ class NftImageState extends Equatable {
 
   /// Whether the widget should show a placeholder
   bool get shouldShowPlaceholder =>
-      status == ImageLoadStatus.exhausted ||
-      (status == ImageLoadStatus.error && !hasMoreUrls);
+      status == NftImageStatus.exhausted ||
+      (status == NftImageStatus.failure && !hasMoreUrls);
 
   /// Whether the widget is in a loading state
   bool get isLoading =>
-      status == ImageLoadStatus.loading ||
-      status == ImageLoadStatus.retrying ||
+      status == NftImageStatus.loading ||
+      status == NftImageStatus.retrying ||
       currentUrl == null;
 
   NftImageState copyWith({
-    ImageLoadStatus? status,
+    NftImageStatus? status,
     String? currentUrl,
     int? currentUrlIndex,
     int? retryCount,

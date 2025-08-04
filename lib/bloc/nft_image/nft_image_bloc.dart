@@ -12,11 +12,11 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
   NftImageBloc({required IpfsGatewayManager ipfsGatewayManager})
     : _ipfsGatewayManager = ipfsGatewayManager,
       super(const NftImageState()) {
-    on<NftImageLoadRequested>(_onLoadImage);
+    on<NftImageLoadStarted>(_onImageLoadStarted);
     on<NftImageLoadFailed>(_onImageLoadFailed);
-    on<NftImageLoadSucceeded>(_onImageLoadSuccess);
-    on<NftImageRetryRequested>(_onRetryImageLoad);
-    on<NftImageResetRequested>(_onResetImageLoad);
+    on<NftImageLoadSucceeded>(_onImageLoadSucceeded);
+    on<NftImageRetryStarted>(_onImageRetryStarted);
+    on<NftImageCleared>(_onImageCleared);
   }
 
   final IpfsGatewayManager _ipfsGatewayManager;
@@ -84,9 +84,9 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
     return urls;
   }
 
-  /// Handles the load image event
-  Future<void> _onLoadImage(
-    NftImageLoadRequested event,
+  /// Handles the load image started event
+  Future<void> _onImageLoadStarted(
+    NftImageLoadStarted event,
     Emitter<NftImageState> emit,
   ) async {
     _retryTimer?.cancel();
@@ -97,7 +97,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
     if (allUrls.isEmpty) {
       emit(
         state.copyWith(
-          status: ImageLoadStatus.error,
+          status: NftImageStatus.failure,
           errorMessage: 'No URLs available to load',
           mediaType: mediaType,
         ),
@@ -108,7 +108,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
     // Emit initial state with all URLs but no current URL yet
     emit(
       state.copyWith(
-        status: ImageLoadStatus.loading,
+        status: NftImageStatus.loading,
         currentUrl: null,
         currentUrlIndex: 0,
         retryCount: 0,
@@ -126,7 +126,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
       final urlIndex = allUrls.indexOf(workingUrl);
       emit(
         state.copyWith(
-          status: ImageLoadStatus.loading,
+          status: NftImageStatus.loading,
           currentUrl: workingUrl,
           currentUrlIndex: urlIndex,
         ),
@@ -134,7 +134,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
     } else {
       emit(
         state.copyWith(
-          status: ImageLoadStatus.exhausted,
+          status: NftImageStatus.exhausted,
           errorMessage: 'No accessible URLs found',
         ),
       );
@@ -163,7 +163,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
       final urlIndex = state.allUrls.indexOf(nextWorkingUrl);
       emit(
         state.copyWith(
-          status: ImageLoadStatus.loading,
+          status: NftImageStatus.loading,
           currentUrl: nextWorkingUrl,
           currentUrlIndex: urlIndex,
           retryCount: state.retryCount + 1,
@@ -175,7 +175,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
       // All URLs exhausted or max retries reached
       emit(
         state.copyWith(
-          status: ImageLoadStatus.exhausted,
+          status: NftImageStatus.exhausted,
           errorMessage: event.errorMessage ?? 'All image URLs failed to load',
           isRetrying: false,
         ),
@@ -184,10 +184,16 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
   }
 
   /// Handles successful image load
-  Future<void> _onImageLoadSuccess(
+  Future<void> _onImageLoadSucceeded(
     NftImageLoadSucceeded event,
     Emitter<NftImageState> emit,
   ) async {
+    // Return early if this URL is already successfully loaded
+    if (state.status == NftImageStatus.success &&
+        state.currentUrl == event.loadedUrl) {
+      return;
+    }
+
     _retryTimer?.cancel();
 
     // Log the successful attempt
@@ -199,7 +205,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
 
     emit(
       state.copyWith(
-        status: ImageLoadStatus.loaded,
+        status: NftImageStatus.success,
         currentUrl: event.loadedUrl,
         errorMessage: null,
         isRetrying: false,
@@ -207,13 +213,13 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
     );
   }
 
-  /// Handles manual retry request (only used for failed states)
-  Future<void> _onRetryImageLoad(
-    NftImageRetryRequested event,
+  /// Handles manual retry started event (only used for failed states)
+  Future<void> _onImageRetryStarted(
+    NftImageRetryStarted event,
     Emitter<NftImageState> emit,
   ) async {
-    if (state.status == ImageLoadStatus.exhausted ||
-        state.status == ImageLoadStatus.error) {
+    if (state.status == NftImageStatus.exhausted ||
+        state.status == NftImageStatus.failure) {
       // Try to find any working URL from the beginning
       final workingUrl = await _findWorkingUrl(state.allUrls, 0);
 
@@ -221,7 +227,7 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
         final urlIndex = state.allUrls.indexOf(workingUrl);
         emit(
           state.copyWith(
-            status: ImageLoadStatus.loading,
+            status: NftImageStatus.loading,
             currentUrl: workingUrl,
             currentUrlIndex: urlIndex,
             retryCount: 0,
@@ -233,9 +239,9 @@ class NftImageBloc extends Bloc<NftImageEvent, NftImageState> {
     }
   }
 
-  /// Handles reset event
-  Future<void> _onResetImageLoad(
-    NftImageResetRequested event,
+  /// Handles clear event
+  Future<void> _onImageCleared(
+    NftImageCleared event,
     Emitter<NftImageState> emit,
   ) async {
     _retryTimer?.cancel();

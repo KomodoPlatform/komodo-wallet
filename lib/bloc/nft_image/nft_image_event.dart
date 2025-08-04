@@ -6,8 +6,8 @@ abstract class NftImageEvent extends Equatable {
 }
 
 /// Event to start loading an image (bloc will generate fallback URLs)
-class NftImageLoadRequested extends NftImageEvent {
-  const NftImageLoadRequested({required this.imageUrl});
+class NftImageLoadStarted extends NftImageEvent {
+  const NftImageLoadStarted({required this.imageUrl});
 
   final String imageUrl;
 
@@ -37,17 +37,17 @@ class NftImageLoadSucceeded extends NftImageEvent {
   List<Object?> get props => [loadedUrl, loadTime];
 }
 
-/// Event to try the next URL in the fallback list
-class NftImageRetryRequested extends NftImageEvent {
-  const NftImageRetryRequested();
+/// Event to start retrying with the next URL in the fallback list
+class NftImageRetryStarted extends NftImageEvent {
+  const NftImageRetryStarted();
 
   @override
   List<Object> get props => [];
 }
 
-/// Event to reset the image loading state
-class NftImageResetRequested extends NftImageEvent {
-  const NftImageResetRequested();
+/// Event when the image loading state has been cleared
+class NftImageCleared extends NftImageEvent {
+  const NftImageCleared();
 
   @override
   List<Object> get props => [];

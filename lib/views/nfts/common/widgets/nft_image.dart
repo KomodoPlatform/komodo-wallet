@@ -75,7 +75,7 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
     // Request the bloc to start loading and finding a working URL
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NftImageBloc>().add(
-        NftImageLoadRequested(imageUrl: widget.imageUrl),
+        NftImageLoadStarted(imageUrl: widget.imageUrl),
       );
     });
   }
@@ -85,8 +85,8 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imageUrl != widget.imageUrl) {
       final bloc = context.read<NftImageBloc>();
-      bloc.add(const NftImageResetRequested());
-      bloc.add(NftImageLoadRequested(imageUrl: widget.imageUrl));
+      bloc.add(const NftImageCleared());
+      bloc.add(NftImageLoadStarted(imageUrl: widget.imageUrl));
     }
   }
 
@@ -141,8 +141,8 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
           fit: BoxFit.cover,
           gaplessPlayback: state.mediaType == NftMediaType.gif,
           loadingBuilder: (context, child, loadingProgress) {
+            // If frame is available, image is successfully loaded
             if (loadingProgress == null) {
-              // Image loaded successfully - notify bloc
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   context.read<NftImageBloc>().add(
@@ -150,6 +150,7 @@ class _NftImageWithFallbackState extends State<_NftImageWithFallback> {
                   );
                 }
               });
+
               return child;
             }
 
@@ -202,7 +203,7 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
     // Request the bloc to start loading and finding a working URL
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NftImageBloc>().add(
-        NftImageLoadRequested(imageUrl: widget.videoUrl),
+        NftImageLoadStarted(imageUrl: widget.videoUrl),
       );
     });
   }
@@ -215,8 +216,8 @@ class _NftVideoWithFallbackState extends State<_NftVideoWithFallback> {
       _controller = null;
       currentVideoUrl = null;
       final bloc = context.read<NftImageBloc>();
-      bloc.add(const NftImageResetRequested());
-      bloc.add(NftImageLoadRequested(imageUrl: widget.videoUrl));
+      bloc.add(const NftImageCleared());
+      bloc.add(NftImageLoadStarted(imageUrl: widget.videoUrl));
     }
   }
 
