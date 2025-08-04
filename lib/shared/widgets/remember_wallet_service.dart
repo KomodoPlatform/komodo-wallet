@@ -89,11 +89,11 @@ class RememberWalletService {
       await AppDialog.showWithCallback<void>(
         context: context,
         width: 320,
-        childBuilder: (onSuccess) => WalletsManagerWrapper(
+        childBuilder: (closeDialog) => WalletsManagerWrapper(
           eventType: WalletsManagerEventType.header,
           selectedWallet: wallet,
           rememberMe: true,
-          onSuccess: (wallet) => onSuccess(),
+          onSuccess: (wallet) => closeDialog(),
         ),
       );
     } catch (e) {
