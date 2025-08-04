@@ -37,7 +37,7 @@ class NftImage extends StatelessWidget {
               return PlatformTuner.isNativeDesktop
                   ? const _NftPlaceholder()
                   : _NftVideoWithFallback(
-                      key: Key(imageUrl!),
+                      key: ValueKey(imageUrl!),
                       videoUrl: imageUrl!,
                     );
             case NftImageType.placeholder:
