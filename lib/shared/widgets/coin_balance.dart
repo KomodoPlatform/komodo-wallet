@@ -17,35 +17,30 @@ class CoinBalance extends StatelessWidget {
     final baseFont = Theme.of(context).textTheme.bodySmall;
     final balanceStyle = baseFont?.copyWith(fontWeight: FontWeight.w500);
 
-    final sdk = context.sdk;
-    final balanceValue =
-        sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0;
-
-    final amountRow = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child: AutoScrollText(
-            key: Key('coin-balance-asset-${coin.abbr.toLowerCase()}'),
-            text: doubleToString(balanceValue),
-            style: balanceStyle,
-            textAlign: TextAlign.right,
-          ),
-        ),
-        Text(' ${Coin.normalizeAbbr(coin.abbr)}', style: balanceStyle),
-      ],
-    );
-
-    final fiatWidget = CoinFiatBalance(coin, isAutoScrollEnabled: true);
+    final balance =
+        context.sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0;
 
     final children = [
-      amountRow,
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: AutoScrollText(
+              key: Key('coin-balance-asset-${coin.abbr.toLowerCase()}'),
+              text: doubleToString(balance),
+              style: balanceStyle,
+              textAlign: TextAlign.right,
+            ),
+          ),
+          Text(' ${Coin.normalizeAbbr(coin.abbr)}', style: balanceStyle),
+        ],
+      ),
       ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 100),
         child: Row(
           children: [
             Text(' (', style: balanceStyle),
-            fiatWidget,
+            CoinFiatBalance(coin, isAutoScrollEnabled: true),
             Text(')', style: balanceStyle),
           ],
         ),

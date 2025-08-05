@@ -14,7 +14,8 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_balance.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 import 'package:web_dex/shared/widgets/coin_type_tag.dart';
 import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
@@ -243,8 +244,7 @@ class AddressCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  CoinBalance(coin: coin),
-                  const SizedBox(height: 4),
+                  _Balance(address: address, coin: coin),
                 ],
               )
             : SizedBox(
@@ -273,8 +273,28 @@ class AddressCard extends StatelessWidget {
                   ],
                 ),
               ),
-        trailing: isMobile ? null : CoinBalance(coin: coin),
+        trailing: isMobile ? null : _Balance(address: address, coin: coin),
       ),
+    );
+  }
+}
+
+class _Balance extends StatelessWidget {
+  const _Balance({required this.address, required this.coin});
+
+  final PubkeyInfo address;
+  final Coin coin;
+
+  @override
+  Widget build(BuildContext context) {
+    final balance = address.balance.total.toDouble();
+    final price = coin.lastKnownUsdPrice(context.sdk);
+    final usdValue = price == null ? null : price * balance;
+    final fiat = formatUsdValue(usdValue);
+
+    return Text(
+      '${doubleToString(balance)} ${abbr2Ticker(coin.abbr)} ($fiat)',
+      style: TextStyle(fontSize: isMobile ? 12 : 14),
     );
   }
 }
