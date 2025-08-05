@@ -140,15 +140,18 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                               onTap: onTapItem,
                               isSelected: _checkSelectedItem(MainMenuValue.nft),
                             ),
-                            DesktopMenuDesktopItem(
-                              key: const Key('main-menu-staking'),
-                              enabled: currentWallet?.isHW != true,
-                              menu: MainMenuValue.staking,
-                              onTap: onTapItem,
-                              isSelected: _checkSelectedItem(
-                                MainMenuValue.staking,
+                            if (MainMenuValue
+                                .staking
+                                .isEnabledInCurrentBuildMode)
+                              DesktopMenuDesktopItem(
+                                key: const Key('main-menu-staking'),
+                                enabled: currentWallet?.isHW != true,
+                                menu: MainMenuValue.staking,
+                                onTap: onTapItem,
+                                isSelected: _checkSelectedItem(
+                                  MainMenuValue.staking,
+                                ),
                               ),
-                            ),
                             const Spacer(),
                             Divider(thickness: 1),
                             DesktopMenuDesktopItem(

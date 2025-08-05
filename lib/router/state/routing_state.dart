@@ -26,6 +26,12 @@ class RoutingState {
   bool isBrowserNavigationBlocked = false;
 
   set selectedMenu(MainMenuValue menu) {
+    // Prevent navigation to disabled menu items in current build mode
+    if (!menu.isEnabledInCurrentBuildMode) {
+      // Redirect to default menu instead
+      menu = MainMenuValue.defaultMenu();
+    }
+
     if (_shouldCallResetWhenMenuChanged(menu)) {
       reset();
     }

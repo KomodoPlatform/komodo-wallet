@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:web_dex/model/first_uri_segment.dart';
 import 'package:web_dex/router/parsers/base_route_parser.dart';
 import 'package:web_dex/router/routes.dart';
@@ -10,6 +11,11 @@ import 'package:web_dex/router/routes.dart';
 class StakingRouteParser extends BaseRouteParser {
   @override
   AppRoutePath getRoutePath(Uri uri) {
+    // Redirect to wallet if staking is disabled in debug mode
+    if (kDebugMode) {
+      return WalletRoutePath.wallet();
+    }
+
     final pathSegments = uri.pathSegments;
 
     // Handle /staking
@@ -27,7 +33,6 @@ class StakingRouteParser extends BaseRouteParser {
     return StakingRoutePath.staking();
   }
 
-  @override
   bool handlesDeepLinkParameters(Iterable<String> queryParameterKeys) {
     // Staking doesn't handle any special deep link parameters
     return false;

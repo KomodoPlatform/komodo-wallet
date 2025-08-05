@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 enum MainMenuValue {
@@ -15,8 +16,29 @@ enum MainMenuValue {
 
   static MainMenuValue defaultMenu() => MainMenuValue.wallet;
 
-  bool isEnabledInCurrentMode({required bool tradingEnabled}) {
+  bool isEnabledInTradingMode({required bool tradingEnabled}) {
     return tradingEnabled || !isDisabledWhenWalletOnly;
+  }
+
+  bool get isEnabledInCurrentBuildMode =>
+      isEnabledInBuildMode(isDebugMode: kDebugMode);
+
+  /// Returns true if this menu item is enabled in the current build mode
+  bool isEnabledInBuildMode({required bool isDebugMode}) {
+    switch (this) {
+      case MainMenuValue.staking:
+        return isDebugMode;
+      case MainMenuValue.wallet:
+      case MainMenuValue.fiat:
+      case MainMenuValue.dex:
+      case MainMenuValue.bridge:
+      case MainMenuValue.marketMakerBot:
+      case MainMenuValue.nft:
+      case MainMenuValue.settings:
+      case MainMenuValue.support:
+      case MainMenuValue.none:
+        return true;
+    }
   }
 
   // Getter to determine if the item is disabled if the wallet is in wallet-only mode
