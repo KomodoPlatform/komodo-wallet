@@ -68,6 +68,9 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
         _switcherOffset = renderObject.localToGlobal(Offset.zero);
       });
     }
+    if (_tooltipWrapper.mounted) {
+      _close();
+    }
     _tooltipWrapper = _buildTooltipWrapper();
   }
 
