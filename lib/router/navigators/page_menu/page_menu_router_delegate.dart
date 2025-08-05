@@ -10,6 +10,7 @@ import 'package:web_dex/views/market_maker_bot/market_maker_bot_page.dart';
 import 'package:web_dex/views/nfts/nft_page.dart';
 import 'package:web_dex/views/settings/settings_page.dart';
 import 'package:web_dex/views/settings/widgets/support_page/support_page.dart';
+import 'package:web_dex/views/staking/staking_page.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_page.dart';
 
 class PageMenuRouterDelegate extends RouterDelegate<AppRoutePath>
@@ -42,6 +43,8 @@ class PageMenuRouterDelegate extends RouterDelegate<AppRoutePath>
                 uuid: routingState.nftsState.uuid,
               )
             : empty;
+      case MainMenuValue.staking:
+        return const StakingPage();
       case MainMenuValue.settings:
         return isMobile
             ? SettingsPage(

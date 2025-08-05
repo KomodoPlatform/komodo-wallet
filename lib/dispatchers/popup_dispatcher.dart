@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
-import 'package:universal_html/html.dart' as html;
+import 'dart:html' as html;
 import 'package:web_dex/router/state/routing_state.dart';
 
 class PopupDispatcher {

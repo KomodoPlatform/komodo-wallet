@@ -33,7 +33,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final newMode = event.mode;
     theme.mode = newMode;
     await _settingsRepo.updateSettings(_storedSettings.copyWith(mode: newMode));
-    changeHtmlTheme(newMode.index);
     emitter(state.copyWith(mode: newMode));
 
     rebuildAll(null);
@@ -81,4 +80,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     );
     emitter(state.copyWith(hideZeroBalanceAssets: event.hideZeroBalanceAssets));
   }
+
+
 }

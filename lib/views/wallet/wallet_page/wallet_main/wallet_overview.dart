@@ -60,26 +60,27 @@ class _WalletOverviewState extends State<WalletOverview> {
         final portfolioGrowthState = portfolioGrowthBloc.state;
 
         // Get asset overview state data
-        final stateWithData = portfolioAssetsOverviewBloc.state
+        final stateWithData =
+            portfolioAssetsOverviewBloc.state
                 is PortfolioAssetsOverviewLoadSuccess
             ? portfolioAssetsOverviewBloc.state
-                as PortfolioAssetsOverviewLoadSuccess
+                  as PortfolioAssetsOverviewLoadSuccess
             : null;
 
         // Get total balance from the PortfolioGrowthBloc if available, otherwise calculate
         final double totalBalance =
             portfolioGrowthState is PortfolioGrowthChartLoadSuccess
-                ? portfolioGrowthState.totalBalance
-                : stateWithData?.totalValue.value ??
-                    _getTotalBalance(state.walletCoins.values, context);
+            ? portfolioGrowthState.totalBalance
+            : stateWithData?.totalValue.value ??
+                  _getTotalBalance(state.walletCoins.values, context);
 
         if (!_logged && stateWithData != null) {
           context.read<AnalyticsBloc>().logEvent(
-                PortfolioViewedEventData(
-                  totalCoins: assetCount,
-                  totalValueUsd: stateWithData.totalValue.value,
-                ),
-              );
+            PortfolioViewedEventData(
+              totalCoins: assetCount,
+              totalValueUsd: stateWithData.totalValue.value,
+            ),
+          );
           _logged = true;
         }
 
@@ -92,12 +93,12 @@ class _WalletOverviewState extends State<WalletOverview> {
               builder: (context, state) {
                 final double totalChange24h =
                     state is PortfolioGrowthChartLoadSuccess
-                        ? state.totalChange24h
-                        : 0.0;
+                    ? state.totalChange24h
+                    : 0.0;
                 final double percentageChange24h =
                     state is PortfolioGrowthChartLoadSuccess
-                        ? state.percentageChange24h
-                        : 0.0;
+                    ? state.percentageChange24h
+                    : 0.0;
 
                 return BalanceSummaryWidget(
                   totalBalance: totalBalance,
@@ -105,8 +106,9 @@ class _WalletOverviewState extends State<WalletOverview> {
                   changePercentage: percentageChange24h,
                   onTap: widget.onAssetsPressed,
                   onLongPress: () {
-                    final formattedValue = NumberFormat.currency(symbol: '\$')
-                        .format(totalBalance);
+                    final formattedValue = NumberFormat.currency(
+                      symbol: '\$',
+                    ).format(totalBalance);
                     copyToClipBoard(context, formattedValue);
                   },
                 );
@@ -119,43 +121,47 @@ class _WalletOverviewState extends State<WalletOverview> {
               value: totalBalance,
               onTap: widget.onAssetsPressed,
               onLongPress: () {
-                final formattedValue =
-                    NumberFormat.currency(symbol: '\$').format(totalBalance);
+                final formattedValue = NumberFormat.currency(
+                  symbol: '\$',
+                ).format(totalBalance);
                 copyToClipBoard(context, formattedValue);
               },
               trendWidget:
                   BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
-                builder: (context, state) {
-                  final double totalChange =
-                      state is PortfolioGrowthChartLoadSuccess
+                    builder: (context, state) {
+                      final double totalChange =
+                          state is PortfolioGrowthChartLoadSuccess
                           ? state.percentageChange24h
                           : 0.0;
-                  final double totalChange24h =
-                      state is PortfolioGrowthChartLoadSuccess
+                      final double totalChange24h =
+                          state is PortfolioGrowthChartLoadSuccess
                           ? state.totalChange24h
                           : 0.0;
 
-                  return TrendPercentageText(
-                    percentage: totalChange,
-                    upColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(context)
-                            .extension<ThemeCustomDark>()!
-                            .increaseColor
-                        : Theme.of(context)
-                            .extension<ThemeCustomLight>()!
-                            .increaseColor,
-                    downColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(context)
-                            .extension<ThemeCustomDark>()!
-                            .decreaseColor
-                        : Theme.of(context)
-                            .extension<ThemeCustomLight>()!
-                            .decreaseColor,
-                    value: totalChange24h,
-                    valueFormatter: NumberFormat.currency(symbol: '\$').format,
-                  );
-                },
-              ),
+                      return TrendPercentageText(
+                        percentage: totalChange,
+                        upColor: Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(
+                                context,
+                              ).extension<ThemeCustomDark>()!.increaseColor
+                            : Theme.of(
+                                context,
+                              ).extension<ThemeCustomLight>()!.increaseColor,
+                        downColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(
+                                context,
+                              ).extension<ThemeCustomDark>()!.decreaseColor
+                            : Theme.of(
+                                context,
+                              ).extension<ThemeCustomLight>()!.decreaseColor,
+                        value: totalChange24h,
+                        valueFormatter: NumberFormat.currency(
+                          symbol: '\$',
+                        ).format,
+                      );
+                    },
+                  ),
             ),
           ],
           StatisticCard(
@@ -164,15 +170,13 @@ class _WalletOverviewState extends State<WalletOverview> {
             value: stateWithData?.totalInvestment.value ?? 0,
             onTap: widget.onPortfolioGrowthPressed,
             onLongPress: () {
-              final formattedValue = NumberFormat.currency(symbol: '\$')
-                  .format(stateWithData?.totalInvestment.value ?? 0);
+              final formattedValue = NumberFormat.currency(
+                symbol: '\$',
+              ).format(stateWithData?.totalInvestment.value ?? 0);
               copyToClipBoard(context, formattedValue);
             },
             trendWidget: ActionChip(
-              avatar: Icon(
-                Icons.pie_chart,
-                size: 16,
-              ),
+              avatar: Icon(Icons.pie_chart, size: 16),
               onPressed: widget.onAssetsPressed,
               visualDensity: const VisualDensity(vertical: -4),
               label: Text(
@@ -190,27 +194,28 @@ class _WalletOverviewState extends State<WalletOverview> {
             value: stateWithData?.profitAmount.value ?? 0,
             onTap: widget.onPortfolioProfitLossPressed,
             onLongPress: () {
-              final formattedValue = NumberFormat.currency(symbol: '\$')
-                  .format(stateWithData?.profitAmount.value ?? 0);
+              final formattedValue = NumberFormat.currency(
+                symbol: '\$',
+              ).format(stateWithData?.profitAmount.value ?? 0);
               copyToClipBoard(context, formattedValue);
             },
             trendWidget: stateWithData != null
                 ? TrendPercentageText(
                     percentage: stateWithData.profitIncreasePercentage,
                     upColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(context)
-                            .extension<ThemeCustomDark>()!
-                            .increaseColor
-                        : Theme.of(context)
-                            .extension<ThemeCustomLight>()!
-                            .increaseColor,
+                        ? Theme.of(
+                            context,
+                          ).extension<ThemeCustomDark>()!.increaseColor
+                        : Theme.of(
+                            context,
+                          ).extension<ThemeCustomLight>()!.increaseColor,
                     downColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(context)
-                            .extension<ThemeCustomDark>()!
-                            .decreaseColor
-                        : Theme.of(context)
-                            .extension<ThemeCustomLight>()!
-                            .decreaseColor,
+                        ? Theme.of(
+                            context,
+                          ).extension<ThemeCustomDark>()!.decreaseColor
+                        : Theme.of(
+                            context,
+                          ).extension<ThemeCustomLight>()!.decreaseColor,
                     // Show the total profit amount as the value
                     value: stateWithData.profitAmount.value,
                     valueFormatter: NumberFormat.currency(symbol: '\$').format,
@@ -223,12 +228,12 @@ class _WalletOverviewState extends State<WalletOverview> {
           return StatisticsCarousel(cards: statisticCards);
         } else {
           return Row(
-            spacing: 24,
-            children: statisticCards.map((card) {
-              return Expanded(
-                child: card,
-              );
-            }).toList(),
+            children: [
+              for (int i = 0; i < statisticCards.length; i++) ...[
+                Expanded(child: statisticCards[i]),
+                if (i < statisticCards.length - 1) const SizedBox(width: 24),
+              ],
+            ],
           );
         }
       },
@@ -238,19 +243,16 @@ class _WalletOverviewState extends State<WalletOverview> {
   Widget _buildSpinner() {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-          padding: EdgeInsets.all(20.0),
-          child: UiSpinner(),
-        ),
-      ],
+      children: [Padding(padding: EdgeInsets.all(20.0), child: UiSpinner())],
     );
   }
 
   // TODO: Migrate these values to a new/existing bloc e.g. PortfolioGrowthBloc
   double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
     double total = coins.fold(
-        0, (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0));
+      0,
+      (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0),
+    );
 
     if (total > 0.01) {
       return total;
@@ -264,10 +266,7 @@ class _WalletOverviewState extends State<WalletOverview> {
 class StatisticsCarousel extends StatefulWidget {
   final List<Widget> cards;
 
-  const StatisticsCarousel({
-    super.key,
-    required this.cards,
-  });
+  const StatisticsCarousel({super.key, required this.cards});
 
   @override
   State<StatisticsCarousel> createState() => _StatisticsCarouselState();

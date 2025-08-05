@@ -37,9 +37,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
           materialPageContext = context;
           return GestureDetector(
             onTap: () => runDropdownDismiss(context),
-            child: MainLayout(
-              key: ValueKey('${routingState.selectedMenu}'),
-            ),
+            child: MainLayout(key: ValueKey('${routingState.selectedMenu}')),
           );
         },
       ),
@@ -86,6 +84,8 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       _setNewBridgeRoutePath(configurationToSet);
     } else if (configurationToSet is NftRoutePath) {
       _setNewNftsRoutePath(configurationToSet);
+    } else if (configurationToSet is StakingRoutePath) {
+      _setNewStakingRoutePath(configurationToSet);
     } else if (configurationToSet is SettingsRoutePath) {
       _setNewSettingsRoutePath(configurationToSet);
     } else if (configurationToSet is MarketMakerBotRoutePath) {
@@ -116,6 +116,11 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
     routingState.selectedMenu = MainMenuValue.nft;
     routingState.nftsState.uuid = path.uuid;
     routingState.nftsState.pageState = path.pageState;
+  }
+
+  void _setNewStakingRoutePath(StakingRoutePath path) {
+    routingState.selectedMenu = MainMenuValue.staking;
+    routingState.stakingState.selectedAssetId = path.assetId;
   }
 
   void _setNewFiatRoutePath(FiatRoutePath path) {
@@ -154,6 +159,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       MainMenuValue.bridge: _currentBridgeConfiguration,
       MainMenuValue.marketMakerBot: _currentMarketMakerBotConfiguration,
       MainMenuValue.nft: _currentNftConfiguration,
+      MainMenuValue.staking: _currentStakingConfiguration,
       MainMenuValue.settings: _currentSettingsConfiguration,
       MainMenuValue.support: _currentSettingsConfiguration,
     };
@@ -239,6 +245,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       case NFTSelectedState.none:
         return NftRoutePath.nfts();
     }
+  }
+
+  AppRoutePath get _currentStakingConfiguration {
+    if (routingState.stakingState.selectedAssetId.isNotEmpty) {
+      return StakingRoutePath.asset(routingState.stakingState.selectedAssetId);
+    }
+    return StakingRoutePath.staking();
   }
 
   AppRoutePath get _currentSettingsConfiguration {

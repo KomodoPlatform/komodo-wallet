@@ -46,7 +46,7 @@ dependencies:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_cex_market_data
-      ref: dev
+      ref: add/add-full-staking-support-to-sdk
 
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
@@ -103,8 +103,8 @@ dependencies:
 
   easy_localization: 3.0.7+1 # last reviewed 3.0.2 via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
-  universal_html: 2.2.4
+  # Migrated from universal_html to package:web for modern Dart JS interop
+  web: ^1.1.0
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
   hive: ^2.2.3 # Changed from git to pub.dev because git dependencies are not allowed in published packages
@@ -142,21 +142,21 @@ dependencies:
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_sdk
-      ref: dev
+      ref: add/add-full-staking-support-to-sdk
 
   komodo_defi_types:
     # path: sdk/packages/komodo_defi_types # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_types
-      ref: dev
+      ref: add/add-full-staking-support-to-sdk
 
   komodo_ui:
     # path: sdk/packages/komodo_ui # Requires symlink to the SDK in the root of the project
     git:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_ui
-      ref: dev
+      ref: add/add-full-staking-support-to-sdk
   feedback: ^3.1.0
   ntp: ^2.0.0
   flutter_window_close: ^1.2.0

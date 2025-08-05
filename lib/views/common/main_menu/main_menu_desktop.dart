@@ -26,8 +26,9 @@ class MainMenuDesktop extends StatefulWidget {
 class _MainMenuDesktopState extends State<MainMenuDesktop> {
   @override
   Widget build(BuildContext context) {
-    final isAuthenticated = context
-        .select((AuthBloc bloc) => bloc.state.mode == AuthorizeMode.logIn);
+    final isAuthenticated = context.select(
+      (AuthBloc bloc) => bloc.state.mode == AuthorizeMode.logIn,
+    );
 
     return BlocBuilder<AuthBloc, AuthBlocState>(
       builder: (context, state) {
@@ -76,16 +77,18 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                               key: const Key('main-menu-wallet'),
                               menu: MainMenuValue.wallet,
                               onTap: onTapItem,
-                              isSelected:
-                                  _checkSelectedItem(MainMenuValue.wallet),
+                              isSelected: _checkSelectedItem(
+                                MainMenuValue.wallet,
+                              ),
                             ),
                             DesktopMenuDesktopItem(
                               key: const Key('main-menu-fiat'),
                               enabled: currentWallet?.isHW != true,
                               menu: MainMenuValue.fiat,
                               onTap: onTapItem,
-                              isSelected:
-                                  _checkSelectedItem(MainMenuValue.fiat),
+                              isSelected: _checkSelectedItem(
+                                MainMenuValue.fiat,
+                              ),
                             ),
                             Tooltip(
                               message: tradingEnabled
@@ -96,8 +99,9 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                                 enabled: currentWallet?.isHW != true,
                                 menu: MainMenuValue.dex,
                                 onTap: onTapItem,
-                                isSelected:
-                                    _checkSelectedItem(MainMenuValue.dex),
+                                isSelected: _checkSelectedItem(
+                                  MainMenuValue.dex,
+                                ),
                               ),
                             ),
                             Tooltip(
@@ -109,8 +113,9 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                                 enabled: currentWallet?.isHW != true,
                                 menu: MainMenuValue.bridge,
                                 onTap: onTapItem,
-                                isSelected:
-                                    _checkSelectedItem(MainMenuValue.bridge),
+                                isSelected: _checkSelectedItem(
+                                  MainMenuValue.bridge,
+                                ),
                               ),
                             ),
                             if (isMMBotEnabled && isAuthenticated)
@@ -124,16 +129,26 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                                   menu: MainMenuValue.marketMakerBot,
                                   onTap: onTapItem,
                                   isSelected: _checkSelectedItem(
-                                      MainMenuValue.marketMakerBot),
+                                    MainMenuValue.marketMakerBot,
+                                  ),
                                 ),
                               ),
                             DesktopMenuDesktopItem(
-                                key: const Key('main-menu-nft'),
-                                enabled: currentWallet?.isHW != true,
-                                menu: MainMenuValue.nft,
-                                onTap: onTapItem,
-                                isSelected:
-                                    _checkSelectedItem(MainMenuValue.nft)),
+                              key: const Key('main-menu-nft'),
+                              enabled: currentWallet?.isHW != true,
+                              menu: MainMenuValue.nft,
+                              onTap: onTapItem,
+                              isSelected: _checkSelectedItem(MainMenuValue.nft),
+                            ),
+                            DesktopMenuDesktopItem(
+                              key: const Key('main-menu-staking'),
+                              enabled: currentWallet?.isHW != true,
+                              menu: MainMenuValue.staking,
+                              onTap: onTapItem,
+                              isSelected: _checkSelectedItem(
+                                MainMenuValue.staking,
+                              ),
+                            ),
                             const Spacer(),
                             Divider(thickness: 1),
                             DesktopMenuDesktopItem(
@@ -142,8 +157,9 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                               onTap: onTapItem,
                               needAttention:
                                   currentWallet?.config.hasBackup == false,
-                              isSelected:
-                                  _checkSelectedItem(MainMenuValue.settings),
+                              isSelected: _checkSelectedItem(
+                                MainMenuValue.settings,
+                              ),
                             ),
                           ],
                         ),
@@ -156,31 +172,33 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                     child: Theme(
                       data: isDarkTheme ? newThemeDark : newThemeLight,
-                      child: Builder(builder: (context) {
-                        final ColorSchemeExtension colorScheme =
-                            Theme.of(context)
-                                .extension<ColorSchemeExtension>()!;
-                        return DexThemeSwitcher(
-                          isDarkTheme: isDarkTheme,
-                          lightThemeTitle: LocaleKeys.lightMode.tr(),
-                          darkThemeTitle: LocaleKeys.darkMode.tr(),
-                          buttonKeyValue: 'theme-switcher',
-                          onThemeModeChanged: (mode) {
-                            settings.add(
-                              ThemeModeChanged(
-                                mode: isDarkTheme
-                                    ? ThemeMode.light
-                                    : ThemeMode.dark,
-                              ),
-                            );
-                          },
-                          switcherStyle: DexThemeSwitcherStyle(
-                            textColor: colorScheme.primary,
-                            thumbBgColor: colorScheme.surfContLow,
-                            switcherBgColor: colorScheme.p10,
-                          ),
-                        );
-                      }),
+                      child: Builder(
+                        builder: (context) {
+                          final ColorSchemeExtension colorScheme = Theme.of(
+                            context,
+                          ).extension<ColorSchemeExtension>()!;
+                          return DexThemeSwitcher(
+                            isDarkTheme: isDarkTheme,
+                            lightThemeTitle: LocaleKeys.lightMode.tr(),
+                            darkThemeTitle: LocaleKeys.darkMode.tr(),
+                            buttonKeyValue: 'theme-switcher',
+                            onThemeModeChanged: (mode) {
+                              settings.add(
+                                ThemeModeChanged(
+                                  mode: isDarkTheme
+                                      ? ThemeMode.light
+                                      : ThemeMode.dark,
+                                ),
+                              );
+                            },
+                            switcherStyle: DexThemeSwitcherStyle(
+                              textColor: colorScheme.primary,
+                              thumbBgColor: colorScheme.surfContLow,
+                              switcherBgColor: colorScheme.p10,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
