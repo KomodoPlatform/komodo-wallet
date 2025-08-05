@@ -14,6 +14,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/widgets/coin_balance.dart';
 import 'package:web_dex/shared/widgets/coin_type_tag.dart';
 import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
@@ -242,7 +243,7 @@ class AddressCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _Balance(address: address, coin: coin),
+                  CoinBalance(coin: coin),
                   const SizedBox(height: 4),
                 ],
               )
@@ -272,24 +273,8 @@ class AddressCard extends StatelessWidget {
                   ],
                 ),
               ),
-        trailing: isMobile ? null : _Balance(address: address, coin: coin),
+        trailing: isMobile ? null : CoinBalance(coin: coin),
       ),
-    );
-  }
-}
-
-class _Balance extends StatelessWidget {
-  const _Balance({required this.address, required this.coin});
-
-  final PubkeyInfo address;
-  final Coin coin;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      '${doubleToString(address.balance.total.toDouble())} '
-      '${abbr2Ticker(coin.abbr)} (${address.balance.total.toDouble()})',
-      style: TextStyle(fontSize: isMobile ? 12 : 14),
     );
   }
 }
