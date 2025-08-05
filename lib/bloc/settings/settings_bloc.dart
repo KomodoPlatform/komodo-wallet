@@ -5,7 +5,6 @@ import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/bloc/settings/settings_state.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/stored_settings.dart';
-import 'package:web_dex/platform/platform.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/common/screen.dart';
-import 'dart:html' as html;
+import 'package:web_dex/services/platform_web_api/platform_web_api.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 
 class PopupDispatcher {
@@ -20,7 +20,7 @@ class PopupDispatcher {
     this.maxWidth = 640,
     this.barrierDismissible = true,
     this.onDismiss,
-  });
+  }) : _platformWebApi = PlatformWebApi();
 
   final BuildContext? context;
   final Widget? popupContent;
@@ -33,10 +33,12 @@ class PopupDispatcher {
   final Color? borderColor;
   final VoidCallback? onDismiss;
 
+  final PlatformWebApi _platformWebApi;
+
   bool _isShown = false;
   bool get isShown => _isShown;
 
-  StreamSubscription<html.PopStateEvent>? _popStreamSubscription;
+  StreamSubscription<void>? _popStreamSubscription;
 
   Future<void> show() async {
     if (_currentContext == null) return;
@@ -52,7 +54,8 @@ class PopupDispatcher {
       barrierColor: theme.custom.dialogBarrierColor,
       builder: (BuildContext dialogContext) {
         return SimpleDialog(
-          insetPadding: insetPadding ??
+          insetPadding:
+              insetPadding ??
               EdgeInsets.symmetric(
                 horizontal: isMobile ? 16 : 24,
                 vertical: isMobile ? 40 : 24,
@@ -63,7 +66,8 @@ class PopupDispatcher {
                 ? BorderSide(color: borderColor)
                 : BorderSide.none,
           ),
-          contentPadding: contentPadding ??
+          contentPadding:
+              contentPadding ??
               EdgeInsets.symmetric(
                 horizontal: isMobile ? 16 : 30,
                 vertical: isMobile ? 26 : 30,
@@ -73,7 +77,7 @@ class PopupDispatcher {
               width: width,
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: popupContent,
-            )
+            ),
           ],
         );
       },
@@ -99,7 +103,7 @@ class PopupDispatcher {
   }
 
   void _onPopStateSubscriptionWeb() {
-    _popStreamSubscription = html.window.onPopState.listen((_) {
+    _popStreamSubscription = _platformWebApi.onPopState(() {
       final navigator = Navigator.of(_currentContext!, rootNavigator: true);
       if (navigator.canPop()) {
         _resetBrowserNavigationToDefault();
