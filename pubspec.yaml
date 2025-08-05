@@ -50,7 +50,7 @@ dependencies:
 
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
-  dragon_logs: 1.1.0
+  dragon_logs: 1.2.0
 
   ## ---- Dart.dev, Flutter.dev
   args: ^2.7.0 # dart.dev

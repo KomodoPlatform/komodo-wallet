@@ -180,10 +180,10 @@ packages:
     dependency: "direct main"
     description:
       name: dragon_logs
-      sha256: e697f25bd0f27b0b85af42aff7f55f003fe045c0e3eeda6164bf97aab1525804
+      sha256: f9ec32adfff05d09f038c8c1e49f6ee703e96bf476180cc8ff11039c49881a24
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.2.0"
   easy_localization:
     dependency: "direct main"
     description:
@@ -256,14 +256,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.1.2"
-  file_system_access_api:
-    dependency: transitive
-    description:
-      name: file_system_access_api
-      sha256: c961c5020ab4e5f05200dbdd9809c5256c3dc4a1fe5746ca7d8cf8e8cc11c47d
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   firebase_analytics:
     dependency: "direct main"
     description:
