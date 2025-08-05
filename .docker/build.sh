@@ -72,4 +72,4 @@ docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
   -u "$HOST_UID:$HOST_GID" \
   $ENV_ARGS \
   komodo/komodo-wallet:latest sh -c \
-  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; flutter build web --no-pub || true; flutter build $BUILD_TARGET --config-only; flutter build $BUILD_TARGET --no-pub --dart-define=COMMIT_HASH=$COMMIT_HASH --$BUILD_MODE"
+  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; flutter build web --no-pub --wasm || true; flutter build $BUILD_TARGET --config-only; flutter build $BUILD_TARGET --no-pub --wasm --dart-define=COMMIT_HASH=$COMMIT_HASH --$BUILD_MODE"

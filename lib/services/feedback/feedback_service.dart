@@ -47,8 +47,8 @@ class FeedbackService {
     final buildMode = kReleaseMode
         ? 'release'
         : kDebugMode
-            ? 'debug'
-            : (kProfileMode ? 'profile' : 'unknown');
+        ? 'debug'
+        : (kProfileMode ? 'profile' : 'unknown');
 
     // Extract contact information from the extras if provided
     String? contactMethod;
@@ -80,7 +80,7 @@ class FeedbackService {
       'timestamp': DateTime.now().toIso8601String(),
 
       'wallet':
-          (await GetIt.I<KomodoDefiSdk>().auth.currentUser)?.toJson() ?? 'None'
+          (await GetIt.I<KomodoDefiSdk>().auth.currentUser)?.toJson() ?? 'None',
     };
 
     try {
@@ -95,8 +95,8 @@ class FeedbackService {
       final altAvailable = provider is TrelloFeedbackProvider
           ? CloudflareFeedbackProvider.fromEnvironment().isAvailable
           : provider is CloudflareFeedbackProvider
-              ? TrelloFeedbackProvider.hasEnvironmentVariables()
-              : true;
+          ? TrelloFeedbackProvider.hasEnvironmentVariables()
+          : true;
       if (kDebugMode && !altAvailable) {
         debugPrint('Failed to submit feedback: $e');
       }
@@ -176,28 +176,32 @@ class FeedbackFormatter {
     if (appInfo.isNotEmpty) {
       buffer.writeln('   📱 App Information:');
       appInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
     if (deviceInfo.isNotEmpty) {
       buffer.writeln('   💻 Device Information:');
       deviceInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
     if (buildInfo.isNotEmpty) {
       buffer.writeln('   🔨 Build Information:');
       buildInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
     if (walletInfo.isNotEmpty) {
       buffer.writeln('   👛 Wallet Information:');
       walletInfo.forEach(
-          (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'));
+        (key, value) => buffer.writeln('      • ${_formatKey(key)}: $value'),
+      );
       buffer.writeln();
     }
 
@@ -267,8 +271,9 @@ class TrelloFeedbackProvider implements FeedbackProvider {
       'TRELLO_LIST_ID': const String.fromEnvironment('TRELLO_LIST_ID'),
     };
 
-    final missingVars =
-        requiredVars.entries.where((e) => e.value.isEmpty).toList();
+    final missingVars = requiredVars.entries
+        .where((e) => e.value.isEmpty)
+        .toList();
 
     if (missingVars.isNotEmpty) {
       final altAvailable =
@@ -393,7 +398,7 @@ class TrelloFeedbackProvider implements FeedbackProvider {
 ///
 /// Example build command:
 /// ```
-/// flutter build web --dart-define=FEEDBACK_PRODUCTION_URL=https://your-api-url.com --dart-define=FEEDBACK_API_KEY=your_api_key --dart-define=TRELLO_LIST_ID=your_list_id --dart-define=TRELLO_BOARD_ID=your_board_id
+/// flutter build web --wasm --dart-define=FEEDBACK_PRODUCTION_URL=https://your-api-url.com --dart-define=FEEDBACK_API_KEY=your_api_key --dart-define=TRELLO_LIST_ID=your_list_id --dart-define=TRELLO_BOARD_ID=your_board_id
 /// ```
 ///
 /// Example run command (debugging):
@@ -465,10 +470,7 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
       final request = http.MultipartRequest('POST', Uri.parse(_endpoint));
 
       // Set headers including charset
-      request.headers.addAll({
-        'X-KW-KEY': apiKey,
-        'Accept-Charset': 'utf-8',
-      });
+      request.headers.addAll({'X-KW-KEY': apiKey, 'Accept-Charset': 'utf-8'});
 
       // Properly encode all string fields to ensure UTF-8 encoding
       request.fields.addAll({
