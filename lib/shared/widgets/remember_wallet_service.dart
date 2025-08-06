@@ -3,6 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/model/authorize_mode.dart';
@@ -14,6 +15,7 @@ import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dar
 
 /// Service to handle remember wallet functionality
 class RememberWalletService {
+  static final _log = Logger('RememberWalletService');
   static bool _hasShownRememberMeDialogThisSession = false;
   static bool _hasBeenLoggedInThisSession = false;
 
@@ -86,9 +88,11 @@ class RememberWalletService {
       if (!context.mounted) return;
 
       // Use AppDialog - a replacement for deprecated PopupDispatcher
+      // Setting useRootNavigator to false prevents navigation stack corruption
       await AppDialog.showWithCallback<void>(
         context: context,
         width: 320,
+        useRootNavigator: false,
         childBuilder: (closeDialog) => WalletsManagerWrapper(
           eventType: WalletsManagerEventType.header,
           selectedWallet: wallet,
@@ -96,10 +100,13 @@ class RememberWalletService {
           onSuccess: (wallet) => closeDialog(),
         ),
       );
-    } catch (e) {
-      // Don't clear stored data for UI/network errors that aren't parsing-related
-      // The stored data is still valid, but we had an issue with the UI or wallet loading
-      // Log the error if needed, but preserve the stored wallet data
+    } catch (e, stackTrace) {
+      // Log the error for debugging and monitoring
+      _log.severe('Failed to show remembered wallet dialog', e, stackTrace);
+
+      // Re-throw the error to prevent silent failures that could leave the app
+      // in an inconsistent state. The caller should handle this appropriately.
+      rethrow;
     }
   }
 

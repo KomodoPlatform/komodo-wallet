@@ -45,7 +45,12 @@ class _MainLayoutState extends State<MainLayout> {
       await updateBloc.init();
 
       if (mounted) {
-        await QuickLoginSwitch.maybeShowRememberedWallet(context);
+        try {
+          await QuickLoginSwitch.maybeShowRememberedWallet(context);
+        } catch (e) {
+          // If showing the remembered wallet dialog fails, we continue normally
+          // The error has already been logged by RememberWalletService
+        }
       }
 
       if (!mounted) return;
