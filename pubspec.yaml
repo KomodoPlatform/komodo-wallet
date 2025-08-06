@@ -110,10 +110,10 @@ dependencies:
   web: ^1.1.0
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  hive: ^2.2.3 # Changed from git to pub.dev because git dependencies are not allowed in published packages
+  hive_ce: ^2.11.3 # Changed from git to pub.dev because git dependencies are not allowed in published packages
 
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  hive_flutter: ^1.1.0 # Changed from git to pub.dev because git dependencies are not allowed in published packages
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
+  hive_ce_flutter: ^2.3.1 # Changed from `hive_flutter` to `hive_ce_flutter` (Community Edition) because `hive_flutter` is no longer maintained
 
   # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
   badges: 3.1.2

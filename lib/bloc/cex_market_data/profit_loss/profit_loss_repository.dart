@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -20,16 +20,16 @@ import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 class ProfitLossRepository {
   ProfitLossRepository({
     required PersistenceProvider<String, ProfitLossCache>
-        profitLossCacheProvider,
+    profitLossCacheProvider,
     required cex.CexRepository cexRepository,
     required TransactionHistoryRepo transactionHistoryRepo,
     required ProfitLossCalculator profitLossCalculator,
     required KomodoDefiSdk sdk,
-  })  : _transactionHistoryRepo = transactionHistoryRepo,
-        _cexRepository = cexRepository,
-        _profitLossCacheProvider = profitLossCacheProvider,
-        _profitLossCalculator = profitLossCalculator,
-        _sdk = sdk;
+  }) : _transactionHistoryRepo = transactionHistoryRepo,
+       _cexRepository = cexRepository,
+       _profitLossCacheProvider = profitLossCacheProvider,
+       _profitLossCalculator = profitLossCalculator,
+       _sdk = sdk;
 
   /// Return a new instance of [ProfitLossRepository] with default values.
   ///
@@ -51,8 +51,9 @@ class ProfitLossRepository {
 
     return ProfitLossRepository(
       transactionHistoryRepo: transactionHistoryRepo,
-      profitLossCacheProvider:
-          HiveLazyBoxProvider<String, ProfitLossCache>(name: cacheTableName),
+      profitLossCacheProvider: HiveLazyBoxProvider<String, ProfitLossCache>(
+        name: cacheTableName,
+      ),
       cexRepository: cexRepository,
       profitLossCalculator: RealisedProfitLossCalculator(cexRepository),
       sdk: sdk,
@@ -187,8 +188,8 @@ class ProfitLossRepository {
         walletId: walletId,
         isHdWallet: currentUser.isHd,
       );
-      final ProfitLossCache? profitLossCache =
-          await _profitLossCacheProvider.get(compoundKey);
+      final ProfitLossCache? profitLossCache = await _profitLossCacheProvider
+          .get(compoundKey);
       final bool cacheExists = profitLossCache != null;
       cacheStopwatch.stop();
 
@@ -208,10 +209,7 @@ class ProfitLossRepository {
     }
 
     final supportCheckStopwatch = Stopwatch()..start();
-    final isCoinSupported = await isCoinChartSupported(
-      coinId,
-      fiatCoinId,
-    );
+    final isCoinSupported = await isCoinChartSupported(coinId, fiatCoinId);
     supportCheckStopwatch.stop();
 
     if (!isCoinSupported) {
@@ -225,8 +223,8 @@ class ProfitLossRepository {
 
     final txStopwatch = Stopwatch()..start();
     _log.fine('Fetching transactions for ${coinId.id}');
-    final transactions =
-        await _transactionHistoryRepo.fetchCompletedTransactions(coinId);
+    final transactions = await _transactionHistoryRepo
+        .fetchCompletedTransactions(coinId);
     txStopwatch.stop();
     _log.fine(
       'Fetched ${transactions.length} transactions for ${coinId.id} '
@@ -260,12 +258,12 @@ class ProfitLossRepository {
     _log.fine(
       'Calculating profit/loss for ${coinId.id} with ${transactions.length} transactions',
     );
-    final List<ProfitLoss> profitLosses =
-        await _profitLossCalculator.getProfitFromTransactions(
-      transactions,
-      coinId: coinId.id,
-      fiatCoinId: fiatCoinId,
-    );
+    final List<ProfitLoss> profitLosses = await _profitLossCalculator
+        .getProfitFromTransactions(
+          transactions,
+          coinId: coinId.id,
+          fiatCoinId: fiatCoinId,
+        );
     calcStopwatch.stop();
     _log.fine(
       'Calculated ${profitLosses.length} profit/loss entries for ${coinId.id} '

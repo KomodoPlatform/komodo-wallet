@@ -1,6 +1,6 @@
 import 'dart:math' show Point;
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
 import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -27,11 +27,11 @@ class PortfolioGrowthRepository {
     required PersistenceProvider<String, GraphCache> cacheProvider,
     required CoinsRepo coinsRepository,
     required KomodoDefiSdk sdk,
-  })  : _transactionHistoryRepository = transactionHistoryRepo,
-        _cexRepository = cexRepository,
-        _graphCache = cacheProvider,
-        _coinsRepository = coinsRepository,
-        _sdk = sdk;
+  }) : _transactionHistoryRepository = transactionHistoryRepo,
+       _cexRepository = cexRepository,
+       _graphCache = cacheProvider,
+       _coinsRepository = coinsRepository,
+       _sdk = sdk;
 
   /// Create a new instance of the repository with default dependencies.
   /// The default dependencies are the [BinanceRepository] and the
@@ -161,17 +161,17 @@ class PortfolioGrowthRepository {
         .fetchCompletedTransactions(coin.id)
         .then((value) => value.toList())
         .catchError((Object e) {
-      txStopwatch.stop();
-      _log.warning(
-        'Error fetching transactions for ${coin.id} '
-        'in ${txStopwatch.elapsedMilliseconds}ms: $e',
-      );
-      if (ignoreTransactionFetchErrors) {
-        return List<Transaction>.empty();
-      } else {
-        throw e;
-      }
-    });
+          txStopwatch.stop();
+          _log.warning(
+            'Error fetching transactions for ${coin.id} '
+            'in ${txStopwatch.elapsedMilliseconds}ms: $e',
+          );
+          if (ignoreTransactionFetchErrors) {
+            return List<Transaction>.empty();
+          } else {
+            throw e;
+          }
+        });
     txStopwatch.stop();
     _log.fine(
       'Fetched ${transactions.length} transactions for ${coin.id} '
@@ -250,8 +250,10 @@ class PortfolioGrowthRepository {
       'in ${ohlcStopwatch.elapsedMilliseconds}ms',
     );
 
-    final List<Point<double>> portfolowGrowthChart =
-        _mergeTransactionsWithOhlc(ohlcData, transactions);
+    final List<Point<double>> portfolowGrowthChart = _mergeTransactionsWithOhlc(
+      ohlcData,
+      transactions,
+    );
     final cacheInsertStopwatch = Stopwatch()..start();
     await _graphCache.insert(
       GraphCache(
@@ -364,8 +366,9 @@ class PortfolioGrowthRepository {
     charts.removeWhere((element) => element.isEmpty);
     if (charts.isEmpty) {
       _log.warning(
-          'getPortfolioGrowthChart: No valid charts found after filtering '
-          'empty charts in ${methodStopwatch.elapsedMilliseconds}ms');
+        'getPortfolioGrowthChart: No valid charts found after filtering '
+        'empty charts in ${methodStopwatch.elapsedMilliseconds}ms',
+      );
       return ChartData.empty();
     }
 
@@ -375,7 +378,9 @@ class PortfolioGrowthRepository {
     // chart matches the current prices and ends at the current time.
     // TODO: Move to the SDK when portfolio balance is implemented.
     final double totalUsdBalance = coins.fold(
-        0, (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0));
+      0,
+      (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0),
+    );
     if (totalUsdBalance <= 0) {
       _log.fine(
         'Total USD balance is zero or negative, skipping balance point addition',
@@ -407,8 +412,10 @@ class PortfolioGrowthRepository {
       );
     }
 
-    final filteredChart =
-        mergedChart.filterDomain(startAt: startAt, endAt: endAt);
+    final filteredChart = mergedChart.filterDomain(
+      startAt: startAt,
+      endAt: endAt,
+    );
 
     methodStopwatch.stop();
     _log.fine(
@@ -435,14 +442,13 @@ class PortfolioGrowthRepository {
     }
 
     final ChartData spotValues = ohlcData.ohlc.map((cex.Ohlc ohlc) {
-      return Point<double>(
-        ohlc.closeTime.toDouble(),
-        ohlc.close,
-      );
+      return Point<double>(ohlc.closeTime.toDouble(), ohlc.close);
     }).toList();
 
-    final portfolowGrowthChart =
-        Charts.mergeTransactionsWithPortfolioOHLC(transactions, spotValues);
+    final portfolowGrowthChart = Charts.mergeTransactionsWithPortfolioOHLC(
+      transactions,
+      spotValues,
+    );
 
     stopwatch.stop();
     _log.fine(
