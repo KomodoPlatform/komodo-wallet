@@ -103,7 +103,7 @@ packages:
     description:
       path: "packages/komodo_defi_rpc_methods"
       ref: "add/add-full-staking-support-to-sdk"
-      resolved-ref: "1b684dd5fb76d0995594da685db1b4de3a102008"
+      resolved-ref: "8072d37f63f4c2a0bac493ccd9db1b2a7cbd0946"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.3.0+0"
@@ -112,7 +112,7 @@ packages:
     description:
       path: "packages/komodo_defi_types"
       ref: "add/add-full-staking-support-to-sdk"
-      resolved-ref: "1b684dd5fb76d0995594da685db1b4de3a102008"
+      resolved-ref: "8072d37f63f4c2a0bac493ccd9db1b2a7cbd0946"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.3.0+0"
@@ -121,7 +121,7 @@ packages:
     description:
       path: "packages/komodo_ui"
       ref: "add/add-full-staking-support-to-sdk"
-      resolved-ref: "1b684dd5fb76d0995594da685db1b4de3a102008"
+      resolved-ref: "8072d37f63f4c2a0bac493ccd9db1b2a7cbd0946"
       url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
     source: git
     version: "0.3.0+0"
