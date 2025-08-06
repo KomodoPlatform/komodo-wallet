@@ -50,6 +50,10 @@ fi
 
 # Build command logic
 BUILD_COMMAND="flutter build $BUILD_TARGET --no-pub --$BUILD_MODE"
+# Add --wasm flag if building for web
+if [ "$BUILD_TARGET" = "web" ]; then
+    BUILD_COMMAND="$BUILD_COMMAND --wasm"
+fi
 # Prepare build command with feedback service credentials
 BUILD_CMD="$BUILD_COMMAND"
 # Add commit hash to build command
