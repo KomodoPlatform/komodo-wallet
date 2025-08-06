@@ -69,6 +69,7 @@ import 'package:web_dex/router/parsers/root_route_parser.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 import 'package:web_dex/shared/utils/debug_utils.dart';
+import 'package:web_dex/shared/utils/ipfs_gateway_manager.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class AppBlocRoot extends StatelessWidget {
@@ -156,6 +157,12 @@ class AppBlocRoot extends StatelessWidget {
 
     return MultiRepositoryProvider(
       providers: [
+        // Keep ipfs gateway manager near root to keep in-memory cache of failing
+        // URLS to avoid repeated requests to the same failing URLs.
+        RepositoryProvider(
+          create: (_) => IpfsGatewayManager(),
+          dispose: (manager) => manager.dispose(),
+        ),
         RepositoryProvider(
           create: (_) => NftsRepo(api: mm2Api.nft, coinsRepo: coinsRepository),
         ),
