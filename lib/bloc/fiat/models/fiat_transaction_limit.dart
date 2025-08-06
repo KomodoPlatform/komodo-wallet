@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:decimal/decimal.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class FiatTransactionLimit extends Equatable {
   const FiatTransactionLimit({
@@ -9,16 +10,16 @@ class FiatTransactionLimit extends Equatable {
     required this.weekly,
   });
 
-  factory FiatTransactionLimit.fromJson(Map<String, dynamic> json) {
+  factory FiatTransactionLimit.fromJson(JsonMap json) {
     return FiatTransactionLimit(
-      min: Decimal.tryParse(json['min'] as String? ?? '') ?? Decimal.zero,
-      max: Decimal.tryParse(json['max'] as String? ?? '') ?? Decimal.zero,
-      weekly: Decimal.tryParse(json['weekly'] as String? ?? '') ?? Decimal.zero,
-      fiatCode: json['fiat_code'] as String? ?? '',
+      min: json.value<Decimal>('min'),
+      max: json.value<Decimal>('max'),
+      weekly: json.value<Decimal>('weekly'),
+      fiatCode: json.valueOrNull<String>('fiat_code') ?? '',
     );
   }
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     return {
       'min': min.toString(),
       'max': max.toString(),

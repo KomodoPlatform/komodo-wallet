@@ -6,6 +6,7 @@ import 'package:formz/formz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -42,9 +43,9 @@ class MarketMakerTradeFormBloc
   MarketMakerTradeFormBloc({
     required DexRepository dexRepo,
     required CoinsRepo coinsRepo,
-  })  : _dexRepository = dexRepo,
-        _coinsRepo = coinsRepo,
-        super(MarketMakerTradeFormState.initial()) {
+  }) : _dexRepository = dexRepo,
+       _coinsRepo = coinsRepo,
+       super(MarketMakerTradeFormState.initial()) {
     on<MarketMakerTradeFormSellCoinChanged>(_onSellCoinChanged);
     on<MarketMakerTradeFormBuyCoinChanged>(_onBuyCoinChanged);
     on<MarketMakerTradeFormTradeVolumeChanged>(_onTradeVolumeChanged);
@@ -169,12 +170,14 @@ class MarketMakerTradeFormBloc
         await state.sellCoin.value?.getBalance(_sdk) ?? BalanceInfo.zero();
     final spendableBalance = sellCoinBalance.spendable.toDouble();
 
-    final maximumTradeVolume =
-        double.tryParse(event.maximumTradeVolume.toString()) ?? 0.0;
+    final maximumTradeVolume = _parseDouble(
+      event.maximumTradeVolume.toString(),
+    );
     final newSellAmount = CoinTradeAmountInput.dirty(
-        (maximumTradeVolume * spendableBalance).toString(),
-        0,
-        spendableBalance);
+      (maximumTradeVolume * spendableBalance).toString(),
+      0,
+      spendableBalance,
+    );
 
     final newBuyAmount = _getBuyAmountFromSellAmount(
       newSellAmount.value,
@@ -202,8 +205,9 @@ class MarketMakerTradeFormBloc
       emit(
         state.copyWith(
           preImageError: preImageError,
-          sellAmount:
-              CoinTradeAmountInput.dirty(newSellAmountFromPreImage.toString()),
+          sellAmount: CoinTradeAmountInput.dirty(
+            newSellAmountFromPreImage.toString(),
+          ),
         ),
       );
     }
@@ -216,8 +220,9 @@ class MarketMakerTradeFormBloc
     final buyCoinBalance =
         await state.buyCoin.value?.getBalance(_sdk) ?? BalanceInfo.zero();
     final spendableBalance = buyCoinBalance.spendable.toDouble();
-    final maxVolumeValue =
-        double.tryParse(state.maximumTradeVolume.value.toString()) ?? 0.0;
+    final maxVolumeValue = _parseDouble(
+      state.maximumTradeVolume.value.toString(),
+    );
 
     final newSellAmount = maxVolumeValue * spendableBalance;
 
@@ -249,9 +254,7 @@ class MarketMakerTradeFormBloc
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
     emit(
-      state.copyWith(
-        tradeMargin: TradeMarginInput.dirty(event.tradeMargin),
-      ),
+      state.copyWith(tradeMargin: TradeMarginInput.dirty(event.tradeMargin)),
     );
 
     if (state.buyCoin.value != null) {
@@ -430,7 +433,7 @@ class MarketMakerTradeFormBloc
     String sellAmount,
     double? priceFromUsdWithMargin,
   ) {
-    final double sellAmountValue = double.tryParse(sellAmount) ?? 0;
+    final double sellAmountValue = _parseDouble(sellAmount);
 
     if (priceFromUsdWithMargin != null) {
       final currentPrice = priceFromUsdWithMargin;
@@ -449,16 +452,17 @@ class MarketMakerTradeFormBloc
     CoinSelectInput sellCoin,
   ) async {
     if (preImageError is TradePreimageNotSufficientBalanceError) {
-      final sellAmountValue = double.tryParse(sellAmount.value) ?? 0;
+      final sellAmountValue = _parseDouble(sellAmount.value);
       if (sellCoin.value?.abbr != preImageError.coin) {
         return sellAmountValue;
       }
       final sellId = sellCoin.value?.assetId;
       final balance = sellId != null ? await _coinsRepo.balance(sellId) : null;
 
-      final requiredAmount = double.tryParse(preImageError.required) ?? 0;
+      final requiredAmount = _parseDouble(preImageError.required);
       final sellCoinBalance = balance ?? BalanceInfo.zero();
-      final newSellAmount = sellAmountValue -
+      final newSellAmount =
+          sellAmountValue -
           (requiredAmount - sellCoinBalance.spendable.toDouble());
       return newSellAmount;
     }
@@ -543,5 +547,12 @@ class MarketMakerTradeFormBloc
         await _coinsRepo.activateCoinsSync([parentCoin]);
       }
     }
+  }
+
+  /// Helper method to parse double values using JSON type utils
+  double _parseDouble(String value) {
+    // Create a temporary JsonMap with the value to use the JSON type utils
+    final tempJson = {'value': value};
+    return tempJson.valueOrNull<double>('value') ?? 0.0;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/fee/fee_request.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class WithdrawRequestParams {
   WithdrawRequestParams({
@@ -46,7 +47,7 @@ class WithdrawRequest
   late String userpass;
 
   @override
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     final FeeRequest? fee = params.fee;
 
     return <String, dynamic>{

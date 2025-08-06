@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/rpc_error_type.dart';
 
 class RpcException implements Exception {
@@ -23,15 +24,17 @@ class RpcError extends Equatable {
     this.id,
   });
 
-  factory RpcError.fromJson(Map<String, dynamic> json) => RpcError(
-        mmrpc: json['mmrpc'] as String?,
-        error: json['error'] as String?,
-        errorPath: json['error_path'] as String?,
-        errorTrace: json['error_trace'] as String?,
-        errorType: RpcErrorType.fromString(json['error_type'] as String? ?? ''),
-        errorData: json['error_data'] as String?,
-        id: json['id'] as int?,
-      );
+  factory RpcError.fromJson(JsonMap json) => RpcError(
+    mmrpc: json.valueOrNull<String>('mmrpc'),
+    error: json.valueOrNull<String>('error'),
+    errorPath: json.valueOrNull<String>('error_path'),
+    errorTrace: json.valueOrNull<String>('error_trace'),
+    errorType: RpcErrorType.fromString(
+      json.valueOrNull<String>('error_type') ?? '',
+    ),
+    errorData: json.valueOrNull<String>('error_data'),
+    id: json.valueOrNull<int>('id'),
+  );
 
   final String? mmrpc;
   final String? error;
@@ -41,15 +44,15 @@ class RpcError extends Equatable {
   final String? errorData;
   final int? id;
 
-  Map<String, dynamic> toJson() => {
-        'mmrpc': mmrpc,
-        'error': error,
-        'error_path': errorPath,
-        'error_trace': errorTrace,
-        'error_type': errorType?.toString(),
-        'error_data': errorData,
-        'id': id,
-      };
+  JsonMap toJson() => {
+    'mmrpc': mmrpc,
+    'error': error,
+    'error_path': errorPath,
+    'error_trace': errorTrace,
+    'error_type': errorType?.toString(),
+    'error_data': errorData,
+    'id': id,
+  };
 
   RpcError copyWith({
     String? mmrpc,
@@ -87,14 +90,6 @@ RpcError: {
 
   @override
   List<Object?> get props {
-    return [
-      mmrpc,
-      error,
-      errorPath,
-      errorTrace,
-      errorType,
-      errorData,
-      id,
-    ];
+    return [mmrpc, error, errorPath, errorTrace, errorType, errorData, id];
   }
 }

@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -214,7 +215,7 @@ class Pagination {
   final String? fromId;
   final int? pageNumber;
 
-  Map<String, dynamic> toJson() => {
+  JsonMap toJson() => {
         if (fromId != null) 'FromId': fromId,
         if (pageNumber != null) 'PageNumber': pageNumber,
       };

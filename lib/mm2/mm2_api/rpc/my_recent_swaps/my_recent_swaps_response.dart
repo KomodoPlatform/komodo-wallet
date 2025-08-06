@@ -1,22 +1,16 @@
 import 'package:web_dex/model/swap.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class MyRecentSwapsResponse {
-  MyRecentSwapsResponse({
-    required this.result,
-  });
+  MyRecentSwapsResponse({required this.result});
 
-  factory MyRecentSwapsResponse.fromJson(Map<String, dynamic> json) =>
-      MyRecentSwapsResponse(
-        result: MyRecentSwapsResponseResult.fromJson(
-          Map<String, dynamic>.from(json['result'] as Map? ?? {}),
-        ),
-      );
+  factory MyRecentSwapsResponse.fromJson(JsonMap json) => MyRecentSwapsResponse(
+    result: MyRecentSwapsResponseResult.fromJson(json.value<JsonMap>('result')),
+  );
 
   MyRecentSwapsResponseResult result;
 
-  Map<String, dynamic> get toJson => <String, dynamic>{
-        'result': result.toJson,
-      };
+  JsonMap get toJson => <String, dynamic>{'result': result.toJson};
 }
 
 class MyRecentSwapsResponseResult {
@@ -31,22 +25,20 @@ class MyRecentSwapsResponseResult {
     required this.totalPages,
   });
 
-  factory MyRecentSwapsResponseResult.fromJson(Map<String, dynamic> json) =>
+  factory MyRecentSwapsResponseResult.fromJson(JsonMap json) =>
       MyRecentSwapsResponseResult(
-        fromUuid: json['from_uuid'] as String?,
-        limit: json['limit'] as int? ?? 0,
-        skipped: json['skipped'] as int? ?? 0,
-        swaps: List<Swap>.from(
-          (json['swaps'] as List? ?? <Swap>[])
-              .where((dynamic x) => x != null)
-              .map(
-                (dynamic x) => Swap.fromJson(x as Map<String, dynamic>? ?? {}),
-              ),
-        ),
-        total: json['total'] as int? ?? 0,
-        foundRecords: json['found_records'] as int? ?? 0,
-        pageNumber: json['page_number'] as int? ?? 0,
-        totalPages: json['total_pages'] as int? ?? 0,
+        fromUuid: json.valueOrNull<String>('from_uuid'),
+        limit: json.value<int>('limit'),
+        skipped: json.value<int>('skipped'),
+        swaps: json
+            .value<List<JsonMap>>('swaps')
+            .where((JsonMap x) => x.isNotEmpty)
+            .map((JsonMap x) => Swap.fromJson(x))
+            .toList(),
+        total: json.value<int>('total'),
+        foundRecords: json.value<int>('found_records'),
+        pageNumber: json.value<int>('page_number'),
+        totalPages: json.value<int>('total_pages'),
       );
 
   String? fromUuid;
@@ -58,13 +50,11 @@ class MyRecentSwapsResponseResult {
   int totalPages;
   int foundRecords;
 
-  Map<String, dynamic> get toJson => <String, dynamic>{
-        'from_uuid': fromUuid,
-        'limit': limit,
-        'skipped': skipped,
-        'swaps': List<dynamic>.from(
-          swaps.map<Map<String, dynamic>>((Swap x) => x.toJson()),
-        ),
-        'total': total,
-      };
+  JsonMap get toJson => <String, dynamic>{
+    'from_uuid': fromUuid,
+    'limit': limit,
+    'skipped': skipped,
+    'swaps': List<dynamic>.from(swaps.map<JsonMap>((Swap x) => x.toJson())),
+    'total': total,
+  };
 }
