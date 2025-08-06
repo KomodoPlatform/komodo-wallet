@@ -553,7 +553,14 @@ class CoinsRepo {
           if (fiatPrice != null) {
             // Use configSymbol to lookup for backwards compatibility with the old,
             // string-based price list (and fallback)
-            final change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
+            Decimal? change24h;
+            try {
+              change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
+            } catch (e) {
+              _log.warning('Failed to get 24h change for ${asset.id.id}: $e');
+              // Continue without 24h change data
+            }
+
             _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
               ticker: asset.id.id,
               price: fiatPrice.toDouble(),
