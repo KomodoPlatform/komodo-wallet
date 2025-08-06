@@ -28,10 +28,12 @@ class CoinDetailsInfoFiat extends StatelessWidget {
       padding: isMobile ? null : const EdgeInsets.fromLTRB(0, 6, 4, 0),
       child: Flex(
         direction: isMobile ? Axis.horizontal : Axis.vertical,
-        mainAxisAlignment:
-            isMobile ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end,
-        crossAxisAlignment:
-            isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.end,
+        mainAxisAlignment: isMobile
+            ? MainAxisAlignment.spaceBetween
+            : MainAxisAlignment.end,
+        crossAxisAlignment: isMobile
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.end,
         mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
         children: [
           if (isMobile) _AssetFiatBalance(isMobile: isMobile, coin: coin),
@@ -45,10 +47,7 @@ class CoinDetailsInfoFiat extends StatelessWidget {
 }
 
 class _AssetFiatPrice extends StatelessWidget {
-  const _AssetFiatPrice({
-    required this.coin,
-    required this.isMobile,
-  });
+  const _AssetFiatPrice({required this.coin, required this.isMobile});
 
   final Coin coin;
   final bool isMobile;
@@ -69,13 +68,15 @@ class _AssetFiatPrice extends StatelessWidget {
     return Flex(
       direction: isMobile ? Axis.vertical : Axis.horizontal,
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min, // Prevent layout constraint violations
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(LocaleKeys.price.tr(),
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(
+          LocaleKeys.price.tr(),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         isMobile ? const SizedBox(height: 3) : const SizedBox(width: 10),
         Row(
           children: [
@@ -109,7 +110,7 @@ class _AssetFiatValuePercentageChange extends StatelessWidget {
             current.get24hChangeForAsset(coin.id);
       },
       builder: (context, state) {
-        final change24hPercent = coin.lastKnown24hChange(context);
+        final change24hPercent = state.get24hChangeForAsset(coin.id);
 
         final theme = Theme.of(context);
         final themeCustom = Theme.of(context).brightness == Brightness.dark
@@ -119,13 +120,16 @@ class _AssetFiatValuePercentageChange extends StatelessWidget {
         return Flex(
           direction: isMobile ? Axis.vertical : Axis.horizontal,
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min, // Prevent layout constraint violations
+          mainAxisSize:
+              MainAxisSize.min, // Prevent layout constraint violations
           children: [
-            Text(LocaleKeys.change24h.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+            Text(
+              LocaleKeys.change24h.tr(),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             isMobile ? const SizedBox(height: 3) : const SizedBox(width: 10),
             TrendPercentageText(
               percentage: change24hPercent,
@@ -146,10 +150,7 @@ class _AssetFiatValuePercentageChange extends StatelessWidget {
 }
 
 class _AssetFiatBalance extends StatelessWidget {
-  const _AssetFiatBalance({
-    required this.isMobile,
-    required this.coin,
-  });
+  const _AssetFiatBalance({required this.isMobile, required this.coin});
 
   final bool isMobile;
   final Coin coin;
@@ -164,18 +165,15 @@ class _AssetFiatBalance extends StatelessWidget {
         Text(
           LocaleKeys.fiatBalance.tr(),
           style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
         ),
         isMobile ? const SizedBox(height: 3) : const SizedBox(width: 10),
         CoinFiatBalance(
           coin,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ],
     );

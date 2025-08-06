@@ -38,19 +38,11 @@ class CoinAddresses extends StatefulWidget {
 }
 
 class _CoinAddressesState extends State<CoinAddresses> {
-  late CoinAddressesBloc _coinAddressesBloc;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Safely store a reference to the bloc
-    _coinAddressesBloc = context.read<CoinAddressesBloc>();
-  }
+  // No need to store a reference to the bloc since we don't manage its lifecycle
 
   @override
   void dispose() {
-    // Use the stored reference instead of looking it up through context
-    _coinAddressesBloc.close();
+    // Remove bloc.close() - the bloc is owned and managed by the parent widget
     super.dispose();
   }
 
@@ -98,23 +90,21 @@ class _CoinAddressesState extends State<CoinAddresses> {
                                 state.cantCreateNewAddressReasons,
                           ),
                           const SizedBox(height: 12),
-                          ...state.addresses.asMap().entries.map(
-                            (entry) {
-                              final index = entry.key;
-                              final address = entry.value;
-                              if (state.hideZeroBalance &&
-                                  address.balance.spendable == Decimal.zero) {
-                                return const SizedBox();
-                              }
+                          ...state.addresses.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final address = entry.value;
+                            if (state.hideZeroBalance &&
+                                address.balance.spendable == Decimal.zero) {
+                              return const SizedBox();
+                            }
 
-                              return AddressCard(
-                                address: address,
-                                index: index,
-                                coin: widget.coin,
-                                setPageType: widget.setPageType,
-                              );
-                            },
-                          ),
+                            return AddressCard(
+                              address: address,
+                              index: index,
+                              coin: widget.coin,
+                              setPageType: widget.setPageType,
+                            );
+                          }),
                           if (state.status == FormStatus.submitting)
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 20.0),
@@ -123,8 +113,9 @@ class _CoinAddressesState extends State<CoinAddresses> {
                           if (state.status == FormStatus.failure ||
                               state.createAddressStatus == FormStatus.failure)
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 20.0,
+                              ),
                               child: Center(
                                 child: ErrorDisplay(
                                   message: LocaleKeys.somethingWrong.tr(),
@@ -176,9 +167,7 @@ class _Header extends StatelessWidget {
       children: [
         const AddressesTitle(),
         const Spacer(),
-        HideZeroBalanceCheckbox(
-          hideZeroBalance: hideZeroBalance,
-        ),
+        HideZeroBalanceCheckbox(hideZeroBalance: hideZeroBalance),
         if (!isMobile)
           Padding(
             padding: const EdgeInsets.only(left: 24.0),
@@ -214,13 +203,13 @@ class AddressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       color: theme.custom.dexPageTheme.emptyPlace,
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 4.0,
+          horizontal: 16.0,
+        ),
         leading: isMobile ? null : AddressIcon(address: address.address),
         title: isMobile
             ? Column(
@@ -249,10 +238,7 @@ class AddressCard extends StatelessWidget {
                         address: address.address,
                         coinAbbr: coin.abbr,
                       ),
-                      QrButton(
-                        coin: coin,
-                        address: address,
-                      ),
+                      QrButton(coin: coin, address: address),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -293,10 +279,7 @@ class AddressCard extends StatelessWidget {
 }
 
 class _Balance extends StatelessWidget {
-  const _Balance({
-    required this.address,
-    required this.coin,
-  });
+  const _Balance({required this.address, required this.coin});
 
   final PubkeyInfo address;
   final Coin coin;
@@ -312,11 +295,7 @@ class _Balance extends StatelessWidget {
 }
 
 class QrButton extends StatelessWidget {
-  const QrButton({
-    super.key,
-    required this.address,
-    required this.coin,
-  });
+  const QrButton({super.key, required this.address, required this.coin});
 
   final PubkeyInfo address;
   final Coin coin;
@@ -361,8 +340,9 @@ class QrButton extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      LocaleKeys.onlySendToThisAddress
-                          .tr(args: [abbr2Ticker(coin.abbr)]),
+                      LocaleKeys.onlySendToThisAddress.tr(
+                        args: [abbr2Ticker(coin.abbr)],
+                      ),
                       style: const TextStyle(fontSize: 14),
                     ),
                     Padding(
@@ -378,10 +358,7 @@ class QrButton extends StatelessWidget {
                         ],
                       ),
                     ),
-                    QrCode(
-                      address: address.address,
-                      coinAbbr: coin.abbr,
-                    ),
+                    QrCode(address: address.address, coinAbbr: coin.abbr),
                     const SizedBox(height: 16),
                     // Address row with copy and explorer link
                     Container(
@@ -399,7 +376,8 @@ class QrButton extends StatelessWidget {
                           Expanded(
                             child: TruncatedMiddleText(
                               address.address,
-                              style: Theme.of(context).textTheme.bodySmall ??
+                              style:
+                                  Theme.of(context).textTheme.bodySmall ??
                                   const TextStyle(fontSize: 12),
                             ),
                           ),
@@ -409,14 +387,16 @@ class QrButton extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             clipBehavior: Clip.hardEdge,
                             child: IconButton(
-                              tooltip: LocaleKeys.copyAddressToClipboard
-                                  .tr(args: [coin.abbr]),
+                              tooltip: LocaleKeys.copyAddressToClipboard.tr(
+                                args: [coin.abbr],
+                              ),
                               icon: const Icon(Icons.copy_rounded, size: 20),
                               onPressed: () => copyToClipBoard(
                                 context,
                                 address.address,
-                                LocaleKeys.copiedAddressToClipboard
-                                    .tr(args: [coin.abbr]),
+                                LocaleKeys.copiedAddressToClipboard.tr(
+                                  args: [coin.abbr],
+                                ),
                               ),
                             ),
                           ),
@@ -484,10 +464,7 @@ class PubkeyReceiveDialog extends StatelessWidget {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            LocaleKeys.receive.tr(),
-            style: const TextStyle(fontSize: 16),
-          ),
+          Text(LocaleKeys.receive.tr(), style: const TextStyle(fontSize: 16)),
           Material(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
@@ -507,8 +484,9 @@ class PubkeyReceiveDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              LocaleKeys.onlySendToThisAddress
-                  .tr(args: [abbr2Ticker(coin.abbr)]),
+              LocaleKeys.onlySendToThisAddress.tr(
+                args: [abbr2Ticker(coin.abbr)],
+              ),
               style: const TextStyle(fontSize: 14),
             ),
             Padding(
@@ -524,10 +502,7 @@ class PubkeyReceiveDialog extends StatelessWidget {
                 ],
               ),
             ),
-            QrCode(
-              address: address.address,
-              coinAbbr: coin.abbr,
-            ),
+            QrCode(address: address.address, coinAbbr: coin.abbr),
             const SizedBox(height: 16),
             // Address row with copy and explorer link
             Container(
@@ -542,7 +517,8 @@ class PubkeyReceiveDialog extends StatelessWidget {
                   Expanded(
                     child: TruncatedMiddleText(
                       address.address,
-                      style: Theme.of(context).textTheme.bodySmall ??
+                      style:
+                          Theme.of(context).textTheme.bodySmall ??
                           const TextStyle(fontSize: 12),
                     ),
                   ),
@@ -552,14 +528,16 @@ class PubkeyReceiveDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     clipBehavior: Clip.hardEdge,
                     child: IconButton(
-                      tooltip: LocaleKeys.copyAddressToClipboard
-                          .tr(args: [coin.abbr]),
+                      tooltip: LocaleKeys.copyAddressToClipboard.tr(
+                        args: [coin.abbr],
+                      ),
                       icon: const Icon(Icons.copy_rounded, size: 20),
                       onPressed: () => copyToClipBoard(
                         context,
                         address.address,
-                        LocaleKeys.copiedAddressToClipboard
-                            .tr(args: [coin.abbr]),
+                        LocaleKeys.copiedAddressToClipboard.tr(
+                          args: [coin.abbr],
+                        ),
                       ),
                     ),
                   ),
@@ -572,15 +550,18 @@ class PubkeyReceiveDialog extends StatelessWidget {
                       tooltip: LocaleKeys.viewOnExplorer.tr(),
                       icon: const Icon(Icons.open_in_new, size: 20),
                       onPressed: () {
-                        final url =
-                            getAddressExplorerUrl(coin, address.address);
+                        final url = getAddressExplorerUrl(
+                          coin,
+                          address.address,
+                        );
                         if (url.isNotEmpty) {
                           launchURLString(url, inSeparateTab: true);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content:
-                                  Text(LocaleKeys.explorerUnavailable.tr()),
+                              content: Text(
+                                LocaleKeys.explorerUnavailable.tr(),
+                              ),
                             ),
                           );
                         }
@@ -605,10 +586,7 @@ class PubkeyReceiveDialog extends StatelessWidget {
 }
 
 class SwapAddressTag extends StatelessWidget {
-  const SwapAddressTag({
-    super.key,
-    required this.address,
-  });
+  const SwapAddressTag({super.key, required this.address});
 
   final PubkeyInfo address;
 
@@ -637,16 +615,16 @@ class SwapAddressTag extends StatelessWidget {
 }
 
 class AddressesTitle extends StatelessWidget {
-  const AddressesTitle({
-    super.key,
-  });
+  const AddressesTitle({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       LocaleKeys.addresses.tr(),
-      style:
-          TextStyle(fontSize: isMobile ? 14 : 24, fontWeight: FontWeight.bold),
+      style: TextStyle(
+        fontSize: isMobile ? 14 : 24,
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 }
@@ -654,10 +632,7 @@ class AddressesTitle extends StatelessWidget {
 class HideZeroBalanceCheckbox extends StatelessWidget {
   final bool hideZeroBalance;
 
-  const HideZeroBalanceCheckbox({
-    super.key,
-    required this.hideZeroBalance,
-  });
+  const HideZeroBalanceCheckbox({super.key, required this.hideZeroBalance});
 
   @override
   Widget build(BuildContext context) {
@@ -666,9 +641,9 @@ class HideZeroBalanceCheckbox extends StatelessWidget {
       text: LocaleKeys.hideZeroBalanceAddresses.tr(),
       value: hideZeroBalance,
       onChanged: (value) {
-        context
-            .read<CoinAddressesBloc>()
-            .add(UpdateHideZeroBalanceEvent(value));
+        context.read<CoinAddressesBloc>().add(
+          UpdateHideZeroBalanceEvent(value),
+        );
       },
     );
   }
@@ -702,13 +677,14 @@ class CreateButton extends StatelessWidget {
         prefix: createAddressStatus == FormStatus.submitting
             ? null
             : const Icon(Icons.add, size: 16),
-        onPressed: canCreateNewAddress &&
+        onPressed:
+            canCreateNewAddress &&
                 status != FormStatus.submitting &&
                 createAddressStatus != FormStatus.submitting
             ? () {
-                context
-                    .read<CoinAddressesBloc>()
-                    .add(const SubmitCreateAddressEvent());
+                context.read<CoinAddressesBloc>().add(
+                  const SubmitCreateAddressEvent(),
+                );
               }
             : null,
       ),
@@ -722,22 +698,24 @@ class CreateButton extends StatelessWidget {
       return '';
     }
 
-    return cantCreateNewAddressReasons!.map((reason) {
-      return switch (reason) {
-        CantCreateNewAddressReason.maxGapLimitReached =>
-          LocaleKeys.maxGapLimitReached.tr(),
-        CantCreateNewAddressReason.maxAddressesReached =>
-          LocaleKeys.maxAddressesReached.tr(),
-        CantCreateNewAddressReason.missingDerivationPath =>
-          LocaleKeys.missingDerivationPath.tr(),
-        CantCreateNewAddressReason.protocolNotSupported =>
-          LocaleKeys.protocolNotSupported.tr(),
-        CantCreateNewAddressReason.derivationModeNotSupported =>
-          LocaleKeys.derivationModeNotSupported.tr(),
-        CantCreateNewAddressReason.noActiveWallet =>
-          LocaleKeys.noActiveWallet.tr(),
-      };
-    }).join('\n');
+    return cantCreateNewAddressReasons!
+        .map((reason) {
+          return switch (reason) {
+            CantCreateNewAddressReason.maxGapLimitReached =>
+              LocaleKeys.maxGapLimitReached.tr(),
+            CantCreateNewAddressReason.maxAddressesReached =>
+              LocaleKeys.maxAddressesReached.tr(),
+            CantCreateNewAddressReason.missingDerivationPath =>
+              LocaleKeys.missingDerivationPath.tr(),
+            CantCreateNewAddressReason.protocolNotSupported =>
+              LocaleKeys.protocolNotSupported.tr(),
+            CantCreateNewAddressReason.derivationModeNotSupported =>
+              LocaleKeys.derivationModeNotSupported.tr(),
+            CantCreateNewAddressReason.noActiveWallet =>
+              LocaleKeys.noActiveWallet.tr(),
+          };
+        })
+        .join('\n');
   }
 }
 
@@ -745,11 +723,7 @@ class QrCode extends StatelessWidget {
   final String address;
   final String coinAbbr;
 
-  const QrCode({
-    super.key,
-    required this.address,
-    required this.coinAbbr,
-  });
+  const QrCode({super.key, required this.address, required this.coinAbbr});
 
   @override
   Widget build(BuildContext context) {
@@ -767,9 +741,7 @@ class QrCode extends StatelessWidget {
             errorCorrectionLevel: QrErrorCorrectLevel.H,
           ),
         ),
-        Positioned(
-          child: AssetIcon.ofTicker(coinAbbr, size: 40),
-        ),
+        Positioned(child: AssetIcon.ofTicker(coinAbbr, size: 40)),
       ],
     );
   }

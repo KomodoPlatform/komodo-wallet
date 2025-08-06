@@ -66,6 +66,7 @@ import 'package:web_dex/router/parsers/root_route_parser.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 import 'package:web_dex/shared/utils/debug_utils.dart';
+import 'package:web_dex/shared/utils/ipfs_gateway_manager.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class AppBlocRoot extends StatelessWidget {
@@ -86,8 +87,9 @@ class AppBlocRoot extends StatelessWidget {
   ) async {
     final sharedPrefs = await SharedPreferences.getInstance();
 
-    final storedLastPerformanceMode =
-        sharedPrefs.getString('last_performance_mode');
+    final storedLastPerformanceMode = sharedPrefs.getString(
+      'last_performance_mode',
+    );
 
     if (storedLastPerformanceMode != performanceMode?.name) {
       profitLossRepo.clearCache().ignore();
@@ -152,11 +154,14 @@ class AppBlocRoot extends StatelessWidget {
 
     return MultiRepositoryProvider(
       providers: [
+        // Keep ipfs gateway manager near root to keep in-memory cache of failing
+        // URLS to avoid repeated requests to the same failing URLs.
         RepositoryProvider(
-          create: (_) => NftsRepo(
-            api: mm2Api.nft,
-            coinsRepo: coinsRepository,
-          ),
+          create: (_) => IpfsGatewayManager(),
+          dispose: (manager) => manager.dispose(),
+        ),
+        RepositoryProvider(
+          create: (_) => NftsRepo(api: mm2Api.nft, coinsRepo: coinsRepository),
         ),
         RepositoryProvider(create: (_) => tradingEntitiesBloc),
         RepositoryProvider(create: (_) => dexRepository),
@@ -178,21 +183,17 @@ class AppBlocRoot extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => CoinsBloc(
-              komodoDefiSdk,
-              coinsRepository,
-            )..add(CoinsStarted()),
+            create: (context) =>
+                CoinsBloc(komodoDefiSdk, coinsRepository)..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(
-            create: (context) => PriceChartBloc(
-              binanceRepository,
-              komodoDefiSdk,
-            )..add(
-                const PriceChartStarted(
-                  symbols: ['BTC'],
-                  period: Duration(days: 30),
+            create: (context) =>
+                PriceChartBloc(binanceRepository, komodoDefiSdk)..add(
+                  const PriceChartStarted(
+                    symbols: ['BTC'],
+                    period: Duration(days: 30),
+                  ),
                 ),
-              ),
           ),
           BlocProvider<AssetOverviewBloc>(
             create: (context) => AssetOverviewBloc(
@@ -202,10 +203,7 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider<ProfitLossBloc>(
-            create: (context) => ProfitLossBloc(
-              profitLossRepo,
-              komodoDefiSdk,
-            ),
+            create: (context) => ProfitLossBloc(profitLossRepo, komodoDefiSdk),
           ),
           BlocProvider<PortfolioGrowthBloc>(
             create: (BuildContext ctx) => PortfolioGrowthBloc(
@@ -214,9 +212,8 @@ class AppBlocRoot extends StatelessWidget {
             ),
           ),
           BlocProvider<TransactionHistoryBloc>(
-            create: (BuildContext ctx) => TransactionHistoryBloc(
-              sdk: komodoDefiSdk,
-            ),
+            create: (BuildContext ctx) =>
+                TransactionHistoryBloc(sdk: komodoDefiSdk),
           ),
           BlocProvider<SettingsBloc>(
             create: (context) =>
@@ -252,10 +249,8 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider(
             lazy: false,
-            create: (context) => NftMainBloc(
-              repo: context.read<NftsRepo>(),
-              sdk: komodoDefiSdk,
-            ),
+            create: (context) =>
+                NftMainBloc(repo: context.read<NftsRepo>(), sdk: komodoDefiSdk),
           ),
           if (isBitrefillIntegrationEnabled)
             BlocProvider(
@@ -264,10 +259,7 @@ class AppBlocRoot extends StatelessWidget {
             ),
           BlocProvider<MarketMakerBotBloc>(
             create: (context) => MarketMakerBotBloc(
-              MarketMakerBotRepository(
-                mm2Api,
-                SettingsRepository(),
-              ),
+              MarketMakerBotRepository(mm2Api, SettingsRepository()),
               MarketMakerBotOrderListRepository(
                 myOrdersService,
                 SettingsRepository(),
@@ -277,13 +269,14 @@ class AppBlocRoot extends StatelessWidget {
           ),
           BlocProvider<TradingStatusBloc>(
             lazy: false,
-            create: (context) => TradingStatusBloc(
-              context.read<TradingStatusRepository>(),
-            )..add(TradingStatusCheckRequested()),
+            create: (context) =>
+                TradingStatusBloc(context.read<TradingStatusRepository>())
+                  ..add(TradingStatusCheckRequested()),
           ),
           BlocProvider<SystemHealthBloc>(
-            create: (_) => SystemHealthBloc(SystemClockRepository(), mm2Api)
-              ..add(SystemHealthPeriodicCheckStarted()),
+            create: (_) =>
+                SystemHealthBloc(SystemClockRepository(), mm2Api)
+                  ..add(SystemHealthPeriodicCheckStarted()),
           ),
           BlocProvider<CoinsManagerBloc>(
             create: (context) => CoinsManagerBloc(
@@ -347,8 +340,9 @@ class _MyAppViewState extends State<_MyAppView> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       onGenerateTitle: (_) => appTitle,
-      themeMode: context
-          .select((SettingsBloc settingsBloc) => settingsBloc.state.themeMode),
+      themeMode: context.select(
+        (SettingsBloc settingsBloc) => settingsBloc.state.themeMode,
+      ),
       darkTheme: theme.global.dark,
       theme: theme.global.light,
       routerDelegate: _routerDelegate,
@@ -388,15 +382,16 @@ class _MyAppViewState extends State<_MyAppView> {
       // Remove the loading indicator.
       loadingElement.remove();
 
-      final delay =
-          DateTime.now().difference(_pageLoadStartTime).inMilliseconds;
+      final delay = DateTime.now()
+          .difference(_pageLoadStartTime)
+          .inMilliseconds;
       context.read<AnalyticsBloc>().logEvent(
-            PageInteractiveDelayEventData(
-              pageName: 'app_root',
-              interactiveDelayMs: delay,
-              spinnerTimeMs: 200,
-            ),
-          );
+        PageInteractiveDelayEventData(
+          pageName: 'app_root',
+          interactiveDelayMs: delay,
+          spinnerTimeMs: 200,
+        ),
+      );
     }
   }
 
@@ -430,20 +425,22 @@ class _MyAppViewState extends State<_MyAppView> {
         // }
 
         // ignore: use_build_context_synchronously
-        await AssetIcon.precacheAssetIcon(context, assetId).onError(
-            (_, __) => debugPrint('Error precaching coin icon $assetId'));
+        await AssetIcon.precacheAssetIcon(
+          context,
+          assetId,
+        ).onError((_, __) => debugPrint('Error precaching coin icon $assetId'));
       }
 
       _currentPrecacheOperation!.complete();
 
       if (!mounted) return;
       context.read<AnalyticsBloc>().logEvent(
-            CoinsDataUpdatedEventData(
-              updateSource: 'remote',
-              updateDurationMs: stopwatch.elapsedMilliseconds,
-              coinsCount: availableAssetIds.length,
-            ),
-          );
+        CoinsDataUpdatedEventData(
+          updateSource: 'remote',
+          updateDurationMs: stopwatch.elapsedMilliseconds,
+          coinsCount: availableAssetIds.length,
+        ),
+      );
     } catch (e) {
       log('Error precaching coin icons: $e');
       _currentPrecacheOperation!.completeError(e);

@@ -56,6 +56,7 @@ class UiTextFormField extends StatefulWidget {
     this.focusedBorder,
     this.errorStyle,
     this.validationMode = InputValidationMode.eager,
+    this.autofillHints,
   });
 
   final String? initialValue;
@@ -95,6 +96,7 @@ class UiTextFormField extends StatefulWidget {
   final InputBorder? focusedBorder;
   final TextStyle? errorStyle;
   final InputValidationMode validationMode;
+  final Iterable<String>? autofillHints;
 
   @override
   State<UiTextFormField> createState() => _UiTextFormFieldState();
@@ -231,6 +233,7 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       maxLength: widget.maxLength,
       maxLengthEnforcement: widget.maxLengthEnforcement,
       inputFormatters: widget.inputFormatters,
+      autofillHints: widget.autofillHints,
       validator: (value) {
         // Don't update state during build, just return the validation result
         final error = widget.validator?.call(value) ?? widget.errorText;
