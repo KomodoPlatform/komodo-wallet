@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "dart-code.flutter",
+        "dart-code.dart-code",
+        "ms-vscode-remote.remote-containers",
+        "felixangelov.bloc"
+    ]
+}
