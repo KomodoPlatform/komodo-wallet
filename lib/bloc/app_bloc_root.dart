@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -422,27 +423,39 @@ class _MyAppViewState extends State<_MyAppView> {
 
     _currentPrecacheOperation = Completer<void>();
 
+    // Load all icons similaneously if user is not on mobile device
+    final shouldShotgunLoad = !Platform.isAndroid && !Platform.isIOS;
+
     try {
       final stopwatch = Stopwatch()..start();
       final availableAssetIds = sdk.assets.available.keys.where(
         (assetId) => !excludedAssetList.contains(assetId.symbol.configSymbol),
       );
 
-      await for (final assetId in Stream.fromIterable(availableAssetIds)) {
-        // TODO: Test if necessary to complete prematurely with error if build
-        // context is stale. Alternatively, we can check if the context is
-        // not mounted and return early with error.
-        // ignore: use_build_context_synchronously
-        // if (context.findRenderObject() == null) {
-        //   _currentPrecacheOperation!.completeError('Build context is stale.');
-        //   return;
-        // }
+      if (shouldShotgunLoad) {
+        await Future.wait(
+          availableAssetIds.map(
+            (assetId) => AssetIcon.precacheAssetIcon(context, assetId).onError(
+              (_, __) => debugPrint('Error precaching coin icon $assetId'),
+            ),
+          ),
+        );
+      } else {
+        for (final assetId in availableAssetIds) {
+          // TODO: Test if necessary to complete prematurely with error if build
+          // context is stale. Alternatively, we can check if the context is
+          // not mounted and return early with error.
+          // ignore: use_build_context_synchronously
+          // if (context.findRenderObject() == null) {
+          //   _currentPrecacheOperation!.completeError('Build context is stale.');
+          //   return;
+          // }
 
-        // ignore: use_build_context_synchronously
-        await AssetIcon.precacheAssetIcon(
-          context,
-          assetId,
-        ).onError((_, __) => debugPrint('Error precaching coin icon $assetId'));
+          // ignore: use_build_context_synchronously
+          await AssetIcon.precacheAssetIcon(context, assetId).onError(
+            (_, __) => debugPrint('Error precaching coin icon $assetId'),
+          );
+        }
       }
 
       _currentPrecacheOperation!.complete();
