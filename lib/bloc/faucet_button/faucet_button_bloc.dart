@@ -1,16 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/3p_api/faucet/faucet.dart' as api;
 import 'package:web_dex/3p_api/faucet/faucet_response.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_event.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
 import 'package:logging/logging.dart';
 
-class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamable<FaucetState> {
-  final KomodoDefiSdk kdfSdk;
+class FaucetBloc extends Bloc<FaucetEvent, FaucetState>
+    implements StateStreamable<FaucetState> {
   final _log = Logger('FaucetBloc');
 
-  FaucetBloc({required this.kdfSdk}) : super(FaucetInitial()) {
+  FaucetBloc() : super(FaucetInitial()) {
     on<FaucetRequested>(_onFaucetRequest);
   }
 
@@ -31,12 +30,16 @@ class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamab
       final response = await api.callFaucet(event.coinAbbr, event.address);
 
       if (response.status == FaucetStatus.success) {
-        emit(FaucetRequestSuccess(FaucetResponse(
-          status: response.status,
-          address: event.address,
-          message: response.message,
-          coin: event.coinAbbr,
-        )));
+        emit(
+          FaucetRequestSuccess(
+            FaucetResponse(
+              status: response.status,
+              address: event.address,
+              message: response.message,
+              coin: event.coinAbbr,
+            ),
+          ),
+        );
       } else {
         emit(FaucetRequestError("Faucet request failed: ${response.message}"));
       }

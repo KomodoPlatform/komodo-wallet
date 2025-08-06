@@ -12,8 +12,6 @@ class TradingKindBloc extends Bloc<TradingKindEvent, TradingKindState> {
     on<KindChanged>(_onKindChanged);
   }
 
-  void setKind(TradingKind kind) => add(KindChanged(kind));
-
   void _onKindChanged(KindChanged event, Emitter<TradingKindState> emit) {
     emit(state.copyWith(kind: event.kind));
   }

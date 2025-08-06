@@ -15,17 +15,20 @@ import 'package:web_dex/shared/utils/utils.dart';
 
 class CustomTokenImportBloc
     extends Bloc<CustomTokenImportEvent, CustomTokenImportState> {
-  final ICustomTokenImportRepository repository;
+  final ICustomTokenImportRepository _repository;
   final CoinsRepo _coinsRepo;
-  final KomodoDefiSdk sdk;
-  final AnalyticsBloc analyticsBloc;
+  final KomodoDefiSdk _sdk;
+  final AnalyticsBloc _analyticsBloc;
 
   CustomTokenImportBloc(
-    this.repository,
+    ICustomTokenImportRepository repository,
     this._coinsRepo,
-    this.sdk,
-    this.analyticsBloc,
-  ) : super(CustomTokenImportState.defaults()) {
+    KomodoDefiSdk sdk,
+    AnalyticsBloc analyticsBloc,
+  ) : _repository = repository,
+      _sdk = sdk,
+      _analyticsBloc = analyticsBloc,
+      super(CustomTokenImportState.defaults()) {
     on<UpdateNetworkEvent>(_onUpdateAsset);
     on<UpdateAddressEvent>(_onUpdateAddress);
     on<SubmitImportCustomTokenEvent>(_onSubmitImportCustomToken);
@@ -37,15 +40,17 @@ class CustomTokenImportBloc
     ResetFormStatusEvent event,
     Emitter<CustomTokenImportState> emit,
   ) {
-    final availableCoinTypes =
-        CoinType.values.map((CoinType type) => type.toCoinSubClass());
-    final items = CoinSubClass.values
-        .where(
-          (CoinSubClass type) =>
-              type.isEvmProtocol() && availableCoinTypes.contains(type),
-        )
-        .toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final availableCoinTypes = CoinType.values.map(
+      (CoinType type) => type.toCoinSubClass(),
+    );
+    final items =
+        CoinSubClass.values
+            .where(
+              (CoinSubClass type) =>
+                  type.isEvmProtocol() && availableCoinTypes.contains(type),
+            )
+            .toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
 
     emit(
       state.copyWith(
@@ -88,14 +93,18 @@ class CustomTokenImportBloc
       }
 
       await _coinsRepo.activateCoinsSync([networkAsset]);
-      final tokenData =
-          await repository.fetchCustomToken(state.network, state.address);
+      final tokenData = await _repository.fetchCustomToken(
+        state.network,
+        state.address,
+      );
       await _coinsRepo.activateAssetsSync([tokenData]);
 
       final balanceInfo = await _coinsRepo.tryGetBalanceInfo(tokenData.id);
       final balance = balanceInfo.spendable;
-      final usdBalance =
-          _coinsRepo.getUsdPriceByAmount(balance.toString(), tokenData.id.id);
+      final usdBalance = _coinsRepo.getUsdPriceByAmount(
+        balance.toString(),
+        tokenData.id.id,
+      );
 
       emit(
         state.copyWith(
@@ -133,11 +142,11 @@ class CustomTokenImportBloc
     emit(state.copyWith(importStatus: FormStatus.submitting));
 
     try {
-      await repository.importCustomToken(state.coin!);
+      await _repository.importCustomToken(state.coin!);
 
       final walletType =
-          (await sdk.auth.currentUser)?.wallet.config.type.name ?? '';
-      analyticsBloc.logEvent(
+          (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '';
+      _analyticsBloc.logEvent(
         AssetAddedEventData(
           assetSymbol: state.coin!.id.id,
           assetNetwork: state.network.ticker,
