@@ -28,7 +28,7 @@ class NftTxnMedia extends StatelessWidget {
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 40, maxHeight: 40),
-          child: NftImage(imagePath: imagePath),
+          child: NftImage(imageUrl: imagePath),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -41,24 +41,28 @@ class NftTxnMedia extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Flexible(
-                      child: Text(title ?? '-',
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.fade,
-                          style: titleTextStyle),
+                      child: Text(
+                        title ?? '-',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.fade,
+                        style: titleTextStyle,
+                      ),
                     ),
                     Text(' ($amount)', maxLines: 1, style: titleTextStyle),
                   ],
                 ),
               ),
-              Text(collectionName,
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  style: subtitleTextStyle),
+              Text(
+                collectionName,
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: subtitleTextStyle,
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
