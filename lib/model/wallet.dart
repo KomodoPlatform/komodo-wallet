@@ -11,7 +11,9 @@ class Wallet {
   factory Wallet.fromJson(JsonMap json) => Wallet(
     id: json.valueOrNull<String>('id') ?? '',
     name: json.valueOrNull<String>('name') ?? '',
-    config: WalletConfig.fromJson(json.value<JsonMap>('config')),
+    config: WalletConfig.fromJson(
+      json.valueOrNull<JsonMap>('config') ?? <String, dynamic>{},
+    ),
   );
 
   /// Creates a wallet from a name and the optional parameters.
@@ -84,8 +86,10 @@ class WalletConfig {
       ),
       seedPhrase: json.valueOrNull<String>('seed_phrase') ?? '',
       pubKey: json.valueOrNull<String>('pub_key'),
-      activatedCoins: json.value<List<String>>('activated_coins'),
-      hasBackup: json.value<bool>('has_backup'),
+      activatedCoins:
+          json.valueOrNull<List<dynamic>>('activated_coins')?.cast<String>() ??
+          <String>[],
+      hasBackup: json.valueOrNull<bool>('has_backup') ?? false,
     );
   }
 
@@ -153,7 +157,7 @@ extension KdfUserWalletExtension on KdfUser {
         pubKey: walletId.pubkeyHash,
         activatedCoins:
             metadata.valueOrNull<List<String>>('activated_coins') ?? [],
-        hasBackup: metadata.value<bool>('has_backup'),
+        hasBackup: metadata.valueOrNull<bool>('has_backup') ?? false,
         type: walletType,
       ),
     );

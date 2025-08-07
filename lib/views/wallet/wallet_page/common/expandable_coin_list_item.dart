@@ -51,10 +51,11 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
   void initState() {
     super.initState();
     // Attempt to restore state from PageStorage using a unique key
-    _isExpanded = PageStorage.of(context).readState(
-          context,
-          identifier: '${widget.coin.abbr}_expanded',
-        ) as bool? ??
+    _isExpanded =
+        PageStorage.of(
+              context,
+            ).readState(context, identifier: '${widget.coin.abbr}_expanded')
+            as bool? ??
         false;
   }
 
@@ -72,23 +73,28 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
 
   @override
   Widget build(BuildContext context) {
-    final hasAddresses = widget.pubkeys?.keys.isNotEmpty ?? false;
+    // Safely check if we have pubkeys with addresses
+    final hasPubkeys = widget.pubkeys != null;
+    final hasAddresses = hasPubkeys && (widget.pubkeys!.keys.isNotEmpty);
+
+    // Only sort addresses if we have them
     final sortedAddresses = hasAddresses
-        ? (List.of(widget.pubkeys!.keys)
-          ..sort((a, b) => b.balance.spendable.compareTo(a.balance.spendable)))
+        ? (List.of(
+            widget.pubkeys!.keys,
+          )..sort((a, b) => b.balance.spendable.compareTo(a.balance.spendable)))
         : null;
     final children = sortedAddresses != null
         ? sortedAddresses
-            .map(
-              (pubkey) => _AddressRow(
-                pubkey: pubkey,
-                coin: widget.coin,
-                isSwapAddress: pubkey == sortedAddresses.first,
-                onTap: widget.onTap,
-                onCopy: () => copyToClipBoard(context, pubkey.address),
-              ),
-            )
-            .toList()
+              .map(
+                (pubkey) => _AddressRow(
+                  pubkey: pubkey,
+                  coin: widget.coin,
+                  isSwapAddress: pubkey == sortedAddresses.first,
+                  onTap: widget.onTap,
+                  onCopy: () => copyToClipBoard(context, pubkey.address),
+                ),
+              )
+              .toList()
         : [SkeletonListTile()];
 
     // Match GroupedAssetTickerItem: 16 horizontal, 16 vertical for both (mobile)
@@ -96,15 +102,22 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
     final horizontalPadding = 16.0;
     final verticalPadding = isMobile ? 16.0 : 22.0; // 34 (icon) + 22*2 = 78
 
+    // Fixed height containers in title widget prevent scroll jumps during loading or updates
+
     // TODO! Change rotation of the icon in contracted state
     return CollapsibleCard(
       key: PageStorageKey('coin_${widget.coin.abbr}'),
       borderRadius: BorderRadius.circular(12),
       headerPadding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding, vertical: verticalPadding),
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
+      ),
+      // Using fixed height containers inside the title widget instead
       onTap: widget.onTap,
       childrenMargin: EdgeInsets.symmetric(
-          horizontal: horizontalPadding, vertical: verticalPadding),
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
+      ),
       childrenDecoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
@@ -134,6 +147,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
 
   Widget _buildMobileTitle(BuildContext context, ThemeData theme) {
     return Container(
+      height: 40, // Fixed height to prevent layout shifts
       alignment: Alignment.centerLeft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -145,10 +159,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Coin name - using headlineMedium for bold 16px text
-              Text(
-                widget.coin.name,
-                style: theme.textTheme.headlineMedium,
-              ),
+              Text(widget.coin.name, style: theme.textTheme.headlineMedium),
               // Crypto balance - using bodySmall for 12px secondary text
               Text(
                 '${doubleToString(widget.coin.balance(context.sdk) ?? 0)} ${widget.coin.abbr}',
@@ -178,12 +189,12 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
                   // Calculate the 24h USD change value
                   final change24hValue =
                       change24hPercent != null && usdBalance > 0
-                          ? (change24hPercent * usdBalance / 100)
-                          : 0.0;
+                      ? (change24hPercent * usdBalance / 100)
+                      : 0.0;
                   final themeCustom =
                       Theme.of(context).brightness == Brightness.dark
-                          ? Theme.of(context).extension<ThemeCustomDark>()!
-                          : Theme.of(context).extension<ThemeCustomLight>()!;
+                      ? Theme.of(context).extension<ThemeCustomDark>()!
+                      : Theme.of(context).extension<ThemeCustomLight>()!;
                   return TrendPercentageText(
                     percentage: change24hPercent ?? 0.0,
                     upColor: themeCustom.increaseColor,
@@ -206,6 +217,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
 
   Widget _buildDesktopTitle(BuildContext context, ThemeData theme) {
     return Container(
+      height: 34, // Fixed height to prevent layout shifts
       alignment: Alignment.centerLeft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -233,8 +245,8 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
 
               final themeCustom =
                   Theme.of(context).brightness == Brightness.dark
-                      ? Theme.of(context).extension<ThemeCustomDark>()!
-                      : Theme.of(context).extension<ThemeCustomLight>()!;
+                  ? Theme.of(context).extension<ThemeCustomDark>()!
+                  : Theme.of(context).extension<ThemeCustomLight>()!;
               return TrendPercentageText(
                 percentage: change24hPercent,
                 upColor: themeCustom.increaseColor,
@@ -275,8 +287,10 @@ class _AddressRow extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: ListTile(
         onTap: onTap,
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 16,
+        ),
         leading: AddressIcon(address: pubkey.address),
         title: Row(
           children: [
@@ -299,11 +313,7 @@ class _AddressRow extends StatelessWidget {
             if (isSwapAddress &&
                 context.watch<TradingStatusBloc>().state is TradingEnabled) ...[
               const SizedBox(width: 8),
-              Chip(
-                label: Text(
-                  LocaleKeys.tradingAddress.tr(),
-                ),
-              ),
+              Chip(label: Text(LocaleKeys.tradingAddress.tr())),
             ],
           ],
         ),
@@ -358,6 +368,4 @@ class CoinMoreActionsButton extends StatelessWidget {
   }
 }
 
-enum CoinMoreActions {
-  disable,
-}
+enum CoinMoreActions { disable }
