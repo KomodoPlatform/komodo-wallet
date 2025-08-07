@@ -27,9 +27,6 @@ class RememberWalletService {
       return;
     }
 
-    // Mark that we've shown the dialog to prevent race conditions
-    _hasShownRememberMeDialogThisSession = true;
-
     final storage = getStorage();
     final walletsRepo = context.read<WalletsRepository>();
     final storedWalletData = await storage.read(lastLoggedInWalletKey);
@@ -88,11 +85,14 @@ class RememberWalletService {
       if (!context.mounted) return;
 
       // Use AppDialog - a replacement for deprecated PopupDispatcher
-      // Setting useRootNavigator to false prevents navigation stack corruption
+      // Allow AppDialog to use its default root navigator behavior to avoid navigation stack corruption
+      // Mark that we've shown the dialog to prevent multiple prompts in a single session
+      _hasShownRememberMeDialogThisSession = true;
+
       await AppDialog.showWithCallback<void>(
         context: context,
         width: 320,
-        useRootNavigator: false,
+        // Keep default useRootNavigator (true) to avoid navigation stack corruption
         childBuilder: (closeDialog) => WalletsManagerWrapper(
           eventType: WalletsManagerEventType.header,
           selectedWallet: wallet,
@@ -103,6 +103,9 @@ class RememberWalletService {
     } catch (e, stackTrace) {
       // Log the error for debugging and monitoring
       _log.severe('Failed to show remembered wallet dialog', e, stackTrace);
+
+      // Reset the flag so future attempts can be made if this one failed
+      _hasShownRememberMeDialogThisSession = false;
 
       // Re-throw the error to prevent silent failures that could leave the app
       // in an inconsistent state. The caller should handle this appropriately.
