@@ -13,9 +13,8 @@ import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_type_tag.dart';
 import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
@@ -647,7 +646,7 @@ class HideZeroBalanceCheckbox extends StatelessWidget {
       value: hideZeroBalance,
       onChanged: (value) {
         context.read<CoinAddressesBloc>().add(
-          UpdateHideZeroBalanceEvent(value),
+          CoinAddressesZeroBalanceVisibilityChanged(value),
         );
       },
     );
@@ -688,7 +687,7 @@ class CreateButton extends StatelessWidget {
                 createAddressStatus != FormStatus.submitting
             ? () {
                 context.read<CoinAddressesBloc>().add(
-                  const SubmitCreateAddressEvent(),
+                  const CoinAddressesAddressCreationSubmitted(),
                 );
               }
             : null,
