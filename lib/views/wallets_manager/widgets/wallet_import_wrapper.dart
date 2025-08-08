@@ -14,7 +14,9 @@ class WalletImportWrapper extends StatefulWidget {
     required String name,
     required String password,
     required WalletConfig walletConfig,
-  }) onImport;
+    required bool rememberMe,
+  })
+  onImport;
   final void Function() onCancel;
 
   @override
@@ -73,7 +75,4 @@ class _WalletImportWrapperState extends State<WalletImportWrapper> {
   }
 }
 
-enum WalletImportTypes {
-  simple,
-  file,
-}
+enum WalletImportTypes { simple, file }

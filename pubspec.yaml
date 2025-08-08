@@ -172,6 +172,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0 # flutter.dev
+  bloc_lint: ^0.2.1
 
 dependency_overrides:
   # Temporary until Flutter's pinned version is updated

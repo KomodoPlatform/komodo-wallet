@@ -21,15 +21,13 @@ class HDWalletModeSwitch extends StatelessWidget {
           const SizedBox(width: 8),
           Tooltip(
             message: LocaleKeys.hdWalletModeSwitchTooltip.tr(),
-            child: const Icon(Icons.info, size: 16),
+            child: Icon(Icons.info, size: 16),
           ),
         ],
       ),
       subtitle: Text(
         LocaleKeys.hdWalletModeSwitchSubtitle.tr(),
-        style: const TextStyle(
-          fontSize: 12,
-        ),
+        style: Theme.of(context).textTheme.bodySmall,
       ),
       value: value,
       onChanged: onChanged,

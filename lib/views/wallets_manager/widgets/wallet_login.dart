@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -13,6 +12,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletLogIn extends StatefulWidget {
@@ -21,13 +21,15 @@ class WalletLogIn extends StatefulWidget {
     required this.onLogin,
     required this.onCancel,
     this.initialHdMode = false,
+    this.initialQuickLogin = false,
     super.key,
   });
 
   final Wallet wallet;
-  final void Function(String, Wallet) onLogin;
+  final void Function(String, Wallet, bool) onLogin;
   final void Function() onCancel;
   final bool initialHdMode;
+  final bool initialQuickLogin;
 
   @override
   State<WalletLogIn> createState() => _WalletLogInState();
@@ -37,20 +39,23 @@ class _WalletLogInState extends State<WalletLogIn> {
   final _backKeyButton = GlobalKey();
   final TextEditingController _passwordController = TextEditingController();
   late bool _isHdMode;
+  bool _isQuickLoginEnabled = false;
   KdfUser? _user;
 
   @override
   void initState() {
     super.initState();
     _isHdMode = widget.initialHdMode;
+    _isQuickLoginEnabled = widget.initialQuickLogin;
     unawaited(_fetchKdfUser());
   }
 
   Future<void> _fetchKdfUser() async {
     final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final users = await kdfSdk.auth.getUsers();
-    final user = users
-        .firstWhereOrNull((user) => user.walletId.name == widget.wallet.name);
+    final user = users.firstWhereOrNull(
+      (user) => user.walletId.name == widget.wallet.name,
+    );
 
     if (user != null) {
       setState(() {
@@ -75,12 +80,13 @@ class _WalletLogInState extends State<WalletLogIn> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.wallet.config.type =
           _isHdMode && _user != null && _user!.isBip39Seed == true
-              ? WalletType.hdwallet
-              : WalletType.iguana;
+          ? WalletType.hdwallet
+          : WalletType.iguana;
 
       widget.onLogin(
         _passwordController.text,
         widget.wallet,
+        _isQuickLoginEnabled,
       );
     });
   }
@@ -91,8 +97,8 @@ class _WalletLogInState extends State<WalletLogIn> {
       builder: (context, state) {
         final errorMessage =
             state.authError?.type == AuthExceptionType.incorrectPassword
-                ? LocaleKeys.incorrectPassword.tr()
-                : state.authError?.message;
+            ? LocaleKeys.incorrectPassword.tr()
+            : state.authError?.message;
 
         return AutofillGroup(
           child: Column(
@@ -100,12 +106,11 @@ class _WalletLogInState extends State<WalletLogIn> {
             children: [
               Text(
                 LocaleKeys.walletLogInTitle.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontSize: 18),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 18),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 24),
               UiTextFormField(
                 key: const Key('wallet-field'),
                 initialValue: widget.wallet.name,
@@ -113,24 +118,31 @@ class _WalletLogInState extends State<WalletLogIn> {
                 autocorrect: false,
                 autofillHints: const [AutofillHints.username],
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 16),
               PasswordTextField(
                 onFieldSubmitted: state.isLoading ? null : _submitLogin,
                 controller: _passwordController,
                 errorText: errorMessage,
                 autofillHints: const [AutofillHints.password],
+                isQuickLoginEnabled: _isQuickLoginEnabled,
               ),
-              const SizedBox(height: 20),
-              if (_user != null && _user!.isBip39Seed == true)
+              const SizedBox(height: 32),
+              QuickLoginSwitch(
+                value: _isQuickLoginEnabled,
+                onChanged: (value) {
+                  setState(() => _isQuickLoginEnabled = value);
+                },
+              ),
+              const SizedBox(height: 16),
+              if (_user != null && _user!.isBip39Seed == true) ...[
                 HDWalletModeSwitch(
                   value: _isHdMode,
                   onChanged: (value) {
                     setState(() => _isHdMode = value);
                   },
                 ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 24),
+              ],
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2.0),
                 child: UiPrimaryButton(
@@ -145,7 +157,7 @@ class _WalletLogInState extends State<WalletLogIn> {
                   onPressed: state.isLoading ? null : _submitLogin,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
               UiUnderlineTextButton(
                 key: _backKeyButton,
                 onPressed: widget.onCancel,
@@ -166,12 +178,14 @@ class PasswordTextField extends StatefulWidget {
     super.key,
     this.errorText,
     this.autofillHints,
+    this.isQuickLoginEnabled = false,
   });
 
   final String? errorText;
   final TextEditingController controller;
   final void Function()? onFieldSubmitted;
   final Iterable<String>? autofillHints;
+  final bool isQuickLoginEnabled;
 
   @override
   State<PasswordTextField> createState() => _PasswordTextFieldState();
@@ -179,6 +193,50 @@ class PasswordTextField extends StatefulWidget {
 
 class _PasswordTextFieldState extends State<PasswordTextField> {
   bool _isPasswordObscured = true;
+  Timer? _autoSubmitTimer;
+  String _previousValue = '';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onPasswordChanged);
+  }
+
+  @override
+  void dispose() {
+    _autoSubmitTimer?.cancel();
+    widget.controller.removeListener(_onPasswordChanged);
+    super.dispose();
+  }
+
+  void _onPasswordChanged() {
+    if (!widget.isQuickLoginEnabled) return;
+
+    final currentValue = widget.controller.text;
+    final lengthDifference = (currentValue.length - _previousValue.length)
+        .abs();
+
+    // Detect multi-character input (likely from password manager)
+    // If 3 or more characters were added/changed at once, this suggests
+    // automated input from a password manager rather than manual typing
+    if (lengthDifference >= 3 && currentValue.isNotEmpty) {
+      // Cancel any existing timer
+      _autoSubmitTimer?.cancel();
+
+      // Set a short delay to allow for potential additional input
+      // before auto-submitting the form
+      _autoSubmitTimer = Timer(const Duration(milliseconds: 300), () {
+        // Double-check that the field still has content and quick login is enabled
+        if (widget.controller.text.isNotEmpty &&
+            widget.isQuickLoginEnabled &&
+            widget.onFieldSubmitted != null) {
+          widget.onFieldSubmitted!();
+        }
+      });
+    }
+
+    _previousValue = currentValue;
+  }
 
   @override
   Widget build(BuildContext context) {
