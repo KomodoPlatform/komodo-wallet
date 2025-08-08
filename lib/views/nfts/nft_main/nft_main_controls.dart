@@ -46,12 +46,13 @@ class _NftMainControlsState extends State<NftMainControls> {
           width: 140,
           height: 40,
           backgroundColor: colorScheme.surfContHighest,
-          prefix: Container(
-            child: Transform.rotate(
-              angle: math.pi / 4,
-              child: Icon(
-                Icons.arrow_forward,
-                color: colorScheme.primary,
+          prefix: SizedBox.square(
+            dimension: 20, // box size for a 16px icon rotated 45°
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Transform.rotate(
+                angle: math.pi / 4,
+                child: Icon(Icons.arrow_forward, size: 14, color: colorScheme.primary),
               ),
             ),
           ),
