@@ -66,19 +66,24 @@ class ActiveCoinsList extends StatelessWidget {
           itemBuilder: (context, index) {
             final coin = sorted[index];
 
-            // Fetch pubkeys if not already loaded
+            // Pre-fetch pubkeys if not already loaded
+            // This must happen before rendering the ExpandableCoinListItem
             if (!state.pubkeys.containsKey(coin.abbr)) {
               // TODO: Investigate if this is causing performance issues
+              // Dispatch event to load pubkeys for this coin
               context.read<CoinsBloc>().add(CoinsPubkeysRequested(coin.abbr));
             }
 
+            // We initially request the pubkeys, but they might not be loaded yet
+            // so we need to check if they're available before rendering
+            final pubkeys = state.pubkeys[coin.abbr];
+
             return Padding(
-              padding: EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: 4),
               child: ExpandableCoinListItem(
-                // Changed from ExpandableCoinListItem
                 key: Key('coin-list-item-${coin.abbr.toLowerCase()}'),
                 coin: coin,
-                pubkeys: state.pubkeys[coin.abbr],
+                pubkeys: pubkeys,
                 isSelected: false,
                 onTap: () => onCoinItemTap(coin),
               ),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/services/storage/base_storage.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class AppStorage implements BaseStorage {
   SharedPreferences? _prefs;
@@ -25,7 +26,7 @@ class AppStorage implements BaseStorage {
       final dynamic value = prefs.get(key);
       if (value is String) {
         try {
-          return jsonDecode(value);
+          return jsonFromString(value);
         } catch (_) {
           return value;
         }
@@ -66,7 +67,7 @@ class AppStorage implements BaseStorage {
         await prefs.setString(key, data);
         break;
       default:
-        await prefs.setString(key, jsonEncode(data));
+        await prefs.setString(key, jsonToString(data));
     }
   }
 

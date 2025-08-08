@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:decimal/decimal.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_transaction_fee.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_transaction_limit.dart';
@@ -28,32 +29,25 @@ class FiatPaymentMethod extends Equatable {
     transactionFees: const [],
   );
 
-  factory FiatPaymentMethod.fromJson(Map<String, dynamic> json) {
-    final limitsJson = json['transaction_limits'] as List<dynamic>? ?? [];
+  factory FiatPaymentMethod.fromJson(JsonMap json) {
+    final limitsJson = json.value<List<JsonMap>>('transaction_limits');
     final List<FiatTransactionLimit> limits = limitsJson
-        .map(
-          (e) =>
-              FiatTransactionLimit.fromJson(e as Map<String, dynamic>? ?? {}),
-        )
+        .map((e) => FiatTransactionLimit.fromJson(e))
         .toList();
 
-    final feesJson = json['transaction_fees'] as List<dynamic>? ?? [];
+    final feesJson = json.value<List<JsonMap>>('transaction_fees');
     final List<FiatTransactionFee> fees = feesJson
-        .map(
-          (e) => FiatTransactionFee.fromJson(e as Map<String, dynamic>? ?? {}),
-        )
+        .map((e) => FiatTransactionFee.fromJson(e))
         .toList();
 
     return FiatPaymentMethod(
-      providerId: json['provider_id'] as String? ?? '',
-      id: assertString(json['id']) ?? '',
-      name: json['name'] as String? ?? '',
-      priceInfo: FiatPriceInfo.fromJson(
-        json['price_info'] as Map<String, dynamic>? ?? {},
-      ),
-      relativePercent:
-          Decimal.parse(json['relative_percent'] as String? ?? '0'),
-      providerIconAssetPath: json['provider_icon_asset_path'] as String? ?? '',
+      providerId: json.valueOrNull<String>('provider_id') ?? '',
+      id: assertString(json.valueOrNull<String>('id')) ?? '',
+      name: json.valueOrNull<String>('name') ?? '',
+      priceInfo: FiatPriceInfo.fromJson(json.value<JsonMap>('price_info')),
+      relativePercent: json.value<Decimal>('relative_percent'),
+      providerIconAssetPath:
+          json.valueOrNull<String>('provider_icon_asset_path') ?? '',
       transactionLimits: limits,
       transactionFees: fees,
     );
@@ -93,7 +87,7 @@ class FiatPaymentMethod extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     return {
       'provider_id': providerId,
       'id': id,
@@ -108,15 +102,15 @@ class FiatPaymentMethod extends Equatable {
 
   @override
   List<Object?> get props => [
-        providerId,
-        id,
-        name,
-        priceInfo,
-        relativePercent,
-        providerIconAssetPath,
-        transactionLimits,
-        transactionFees,
-      ];
+    providerId,
+    id,
+    name,
+    priceInfo,
+    relativePercent,
+    providerIconAssetPath,
+    transactionLimits,
+    transactionFees,
+  ];
 }
 
 List<FiatPaymentMethod> defaultFiatPaymentMethods = [

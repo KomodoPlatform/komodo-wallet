@@ -1,5 +1,6 @@
 import 'package:rational/rational.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class MatchRequest {
   MatchRequest({
@@ -16,24 +17,26 @@ class MatchRequest {
     this.takerOrderUuid = '',
   });
 
-  factory MatchRequest.fromJson(Map<String, dynamic> json) {
-    final Rational baseAmount = fract2rat(json['base_amount_fraction']) ??
-        Rational.parse(json['base_amount'] ?? '0');
-    final Rational relAmount = fract2rat(json['rel_amount_fraction']) ??
-        Rational.parse(json['rel_amount'] ?? '0');
+  factory MatchRequest.fromJson(JsonMap json) {
+    final Rational baseAmount =
+        fract2rat(json.valueOrNull<JsonMap>('base_amount_fraction')) ??
+        Rational.parse(json.valueOrNull<String>('base_amount') ?? '0');
+    final Rational relAmount =
+        fract2rat(json.valueOrNull<JsonMap>('rel_amount_fraction')) ??
+        Rational.parse(json.valueOrNull<String>('rel_amount') ?? '0');
 
     return MatchRequest(
-      action: json['action'] ?? '',
-      base: json['base'] ?? '',
+      action: json.valueOrNull<String>('action') ?? '',
+      base: json.valueOrNull<String>('base') ?? '',
       baseAmount: baseAmount,
-      destPubKey: json['dest_pub_key'] ?? '',
-      method: json['method'] ?? '',
-      rel: json['rel'] ?? '',
+      destPubKey: json.valueOrNull<String>('dest_pub_key') ?? '',
+      method: json.valueOrNull<String>('method') ?? '',
+      rel: json.valueOrNull<String>('rel') ?? '',
       relAmount: relAmount,
-      senderPubkey: json['sender_pubkey'] ?? '',
-      uuid: json['uuid'] ?? '',
-      makerOrderUuid: json['maker_order_uuid'] ?? '',
-      takerOrderUuid: json['taker_order_uuid'] ?? '',
+      senderPubkey: json.valueOrNull<String>('sender_pubkey') ?? '',
+      uuid: json.valueOrNull<String>('uuid') ?? '',
+      makerOrderUuid: json.valueOrNull<String>('maker_order_uuid') ?? '',
+      takerOrderUuid: json.valueOrNull<String>('taker_order_uuid') ?? '',
     );
   }
 
@@ -49,19 +52,19 @@ class MatchRequest {
   String makerOrderUuid;
   String takerOrderUuid;
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'action': action,
-        'base': base,
-        'base_amount': baseAmount.toDouble().toString(),
-        'base_amount_fraction': rat2fract(baseAmount),
-        'dest_pub_key': destPubKey,
-        'method': method,
-        'rel': rel,
-        'rel_amount': relAmount.toDouble().toString(),
-        'rel_amount_fraction': rat2fract(relAmount),
-        'sender_pubkey': senderPubkey,
-        'uuid': uuid,
-        'maker_order_uuid': makerOrderUuid,
-        'taker_order_uuid': takerOrderUuid,
-      };
+  JsonMap toJson() => <String, dynamic>{
+    'action': action,
+    'base': base,
+    'base_amount': baseAmount.toDouble().toString(),
+    'base_amount_fraction': rat2fract(baseAmount),
+    'dest_pub_key': destPubKey,
+    'method': method,
+    'rel': rel,
+    'rel_amount': relAmount.toDouble().toString(),
+    'rel_amount_fraction': rat2fract(relAmount),
+    'sender_pubkey': senderPubkey,
+    'uuid': uuid,
+    'maker_order_uuid': makerOrderUuid,
+    'taker_order_uuid': takerOrderUuid,
+  };
 }

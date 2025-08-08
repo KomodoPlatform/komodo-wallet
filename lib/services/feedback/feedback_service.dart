@@ -397,7 +397,7 @@ class TrelloFeedbackProvider implements FeedbackProvider {
 ///
 /// Example build command:
 /// ```
-/// flutter build web --dart-define=FEEDBACK_PRODUCTION_URL=https://your-api-url.com --dart-define=FEEDBACK_API_KEY=your_api_key --dart-define=TRELLO_LIST_ID=your_list_id --dart-define=TRELLO_BOARD_ID=your_board_id
+/// flutter build web --wasm --dart-define=FEEDBACK_PRODUCTION_URL=https://your-api-url.com --dart-define=FEEDBACK_API_KEY=your_api_key --dart-define=TRELLO_LIST_ID=your_list_id --dart-define=TRELLO_BOARD_ID=your_board_id
 /// ```
 ///
 /// Example run command (debugging):

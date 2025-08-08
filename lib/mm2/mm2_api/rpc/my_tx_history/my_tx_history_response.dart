@@ -1,15 +1,14 @@
 import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class MyTxHistoryResponse {
-  MyTxHistoryResponse({
-    required this.result,
-  });
+  MyTxHistoryResponse({required this.result});
 
-  factory MyTxHistoryResponse.fromJson(Map<String, dynamic> json) =>
-      MyTxHistoryResponse(
-        result: TransactionHistoryResponseResult.fromJson(
-            json['result'] ?? <String, dynamic>{}),
-      );
+  factory MyTxHistoryResponse.fromJson(JsonMap json) => MyTxHistoryResponse(
+    result: TransactionHistoryResponseResult.fromJson(
+      json.value<JsonMap>('result'),
+    ),
+  );
 
   TransactionHistoryResponseResult result;
 }
@@ -25,21 +24,20 @@ class TransactionHistoryResponseResult {
     required this.transactions,
   });
 
-  factory TransactionHistoryResponseResult.fromJson(
-          Map<String, dynamic> json) =>
+  factory TransactionHistoryResponseResult.fromJson(JsonMap json) =>
       TransactionHistoryResponseResult(
-        fromId: json['from_id'] ?? '',
-        limit: json['limit'] ?? 0,
-        skipped: json['skipped'] ?? 0,
-        total: json['total'] ?? 0,
-        currentBlock: json['current_block'] ?? 0,
-        syncStatus: json['sync_status'] == null
-            ? SyncStatus()
-            : SyncStatus.fromJson(json['sync_status']),
-        transactions: json['transactions'] is List
-            ? List<Transaction>.from(json['transactions']
-                .map((dynamic x) => Transaction.fromJson(x)))
-            : [],
+        fromId: json.valueOrNull<String>('from_id') ?? '',
+        limit: json.value<int>('limit'),
+        skipped: json.value<int>('skipped'),
+        total: json.value<int>('total'),
+        currentBlock: json.value<int>('current_block'),
+        syncStatus: json.valueOrNull<JsonMap>('sync_status') != null
+            ? SyncStatus.fromJson(json.value<JsonMap>('sync_status'))
+            : SyncStatus(),
+        transactions: json
+            .value<List<JsonMap>>('transactions')
+            .map((JsonMap x) => Transaction.fromJson(x))
+            .toList(),
       );
 
   final String fromId;
@@ -52,16 +50,14 @@ class TransactionHistoryResponseResult {
 }
 
 class SyncStatus {
-  SyncStatus({
-    this.state,
-    this.additionalInfo,
-  });
+  SyncStatus({this.state, this.additionalInfo});
 
-  factory SyncStatus.fromJson(Map<String, dynamic> json) => SyncStatus(
-      additionalInfo: json['additional_info'] == null
-          ? null
-          : AdditionalInfo.fromJson(json['additional_info']),
-      state: _convertSyncStatusState(json['state']));
+  factory SyncStatus.fromJson(JsonMap json) => SyncStatus(
+    additionalInfo: json.valueOrNull<JsonMap>('additional_info') != null
+        ? AdditionalInfo.fromJson(json.value<JsonMap>('additional_info'))
+        : null,
+    state: _convertSyncStatusState(json.value<String>('state')),
+  );
 
   AdditionalInfo? additionalInfo;
   SyncStatusState? state;
@@ -75,24 +71,24 @@ class AdditionalInfo {
     required this.blocksLeft,
   });
 
-  factory AdditionalInfo.fromJson(Map<String, dynamic> json) => AdditionalInfo(
-        code: json['code'] ?? 0,
-        message: json['message'] ?? '',
-        transactionsLeft: json['transactions_left'] ?? 0,
-        blocksLeft: json['blocks_left'] ?? 0,
-      );
+  factory AdditionalInfo.fromJson(JsonMap json) => AdditionalInfo(
+    code: json.value<int>('code'),
+    message: json.valueOrNull<String>('message') ?? '',
+    transactionsLeft: json.value<int>('transactions_left'),
+    blocksLeft: json.value<int>('blocks_left'),
+  );
 
   int code;
   String message;
   int transactionsLeft;
   int blocksLeft;
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'code': code,
-        'message': message,
-        'transactions_left': transactionsLeft,
-        'blocks_left': blocksLeft,
-      };
+  JsonMap toJson() => <String, dynamic>{
+    'code': code,
+    'message': message,
+    'transactions_left': transactionsLeft,
+    'blocks_left': blocksLeft,
+  };
 }
 
 SyncStatusState? _convertSyncStatusState(String? state) {

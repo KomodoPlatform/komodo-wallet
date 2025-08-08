@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 enum MainMenuValue {
@@ -8,14 +9,36 @@ enum MainMenuValue {
   bridge,
   marketMakerBot,
   nft,
+  staking,
   settings,
   support,
   none;
 
   static MainMenuValue defaultMenu() => MainMenuValue.wallet;
 
-  bool isEnabledInCurrentMode({required bool tradingEnabled}) {
+  bool isEnabledInTradingMode({required bool tradingEnabled}) {
     return tradingEnabled || !isDisabledWhenWalletOnly;
+  }
+
+  bool get isEnabledInCurrentBuildMode =>
+      isEnabledInBuildMode(isDebugMode: kDebugMode);
+
+  /// Returns true if this menu item is enabled in the current build mode
+  bool isEnabledInBuildMode({required bool isDebugMode}) {
+    switch (this) {
+      case MainMenuValue.staking:
+        return isDebugMode;
+      case MainMenuValue.wallet:
+      case MainMenuValue.fiat:
+      case MainMenuValue.dex:
+      case MainMenuValue.bridge:
+      case MainMenuValue.marketMakerBot:
+      case MainMenuValue.nft:
+      case MainMenuValue.settings:
+      case MainMenuValue.support:
+      case MainMenuValue.none:
+        return true;
+    }
   }
 
   // Getter to determine if the item is disabled if the wallet is in wallet-only mode
@@ -29,6 +52,7 @@ enum MainMenuValue {
       case MainMenuValue.wallet:
       case MainMenuValue.fiat:
       case MainMenuValue.nft:
+      case MainMenuValue.staking:
       case MainMenuValue.settings:
       case MainMenuValue.support:
         return false;
@@ -51,6 +75,8 @@ enum MainMenuValue {
         return LocaleKeys.tradingBot.tr();
       case MainMenuValue.nft:
         return LocaleKeys.nfts.tr();
+      case MainMenuValue.staking:
+        return 'Staking'; // TODO: Add to LocaleKeys
       case MainMenuValue.settings:
         return LocaleKeys.settings.tr();
       case MainMenuValue.support:
@@ -72,6 +98,7 @@ enum MainMenuValue {
       case MainMenuValue.fiat:
       case MainMenuValue.marketMakerBot:
       case MainMenuValue.nft:
+      case MainMenuValue.staking:
         return true;
     }
   }
@@ -88,12 +115,14 @@ enum MainMenuValue {
         return 3;
       case MainMenuValue.nft:
         return 4;
-      case MainMenuValue.settings:
+      case MainMenuValue.staking:
         return 5;
+      case MainMenuValue.settings:
+        return 6;
       case MainMenuValue.marketMakerBot:
-        return 6;
+        return 7;
       case MainMenuValue.support:
-        return 6;
+        return 7;
       case MainMenuValue.none:
         return 0;
     }

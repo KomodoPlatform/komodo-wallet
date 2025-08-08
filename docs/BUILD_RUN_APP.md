@@ -28,7 +28,7 @@ flutter build appbundle
 flutter build ios
 ```
 
-----
+---
 
 ## Target platforms
 
@@ -53,11 +53,31 @@ Run in release mode:
 flutter run -d chrome --release
 ```
 
+Run with WebAssembly support (recommended for performance):
+
+```bash
+flutter run -d chrome --wasm
+```
+
+Run with WebAssembly in release mode:
+
+```bash
+flutter run -d chrome --wasm --release
+```
+
 Running on web-server (useful for testing/debugging in different browsers):
 
 ```bash
 flutter run -d web-server --web-port=8080
 ```
+
+Running on web-server with WebAssembly:
+
+```bash
+flutter run -d web-server --web-port=8080 --wasm
+```
+
+**Note**: WebAssembly builds provide better performance and multi-threading support but require compatible browsers (Chrome 119+, Firefox 120+). See the [WebAssembly documentation](BUILD_RELEASE.md#webassembly-setup) for more details.
 
 ## Desktop
 
@@ -67,8 +87,8 @@ In order to build for macOS, you need to use a macOS host.
 
 Before you begin:
 
- 1. Open `macos/Runner.xcworkspace` in XCode
- 2. Set Product -> Destination -> Destination Architectures to 'Show Both'
+1.  Open `macos/Runner.xcworkspace` in XCode
+2.  Set Product -> Destination -> Destination Architectures to 'Show Both'
 
 ```bash
 flutter clean
@@ -112,18 +132,18 @@ Please ensure the following prerequisites are installed:
 - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) | Community 17.13.0 (Windows only), with the `Desktop development with C++` workload installed.
 - [Nuget CLI](https://www.nuget.org/downloads) is required for Windows desktop builds. Install with winget
 
-    ```PowerShell
-    winget install -e --id Microsoft.NuGet
-    # Add a primary package source
-    . $profile
-    nuget sources add -name "NuGet.org" -source https://api.nuget.org/v3/index.json
-    ```
+  ```PowerShell
+  winget install -e --id Microsoft.NuGet
+  # Add a primary package source
+  . $profile
+  nuget sources add -name "NuGet.org" -source https://api.nuget.org/v3/index.json
+  ```
 
 - Enable long paths in Windows registry. Open CMD or PowerShell as Administrator, run the following, and restart:
 
-    ```PowerShell
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
-    ```
+  ```PowerShell
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+  ```
 
 Before building for Windows, run `flutter doctor` to check if all the dependencies are installed. If not, follow the instructions in the error message.
 
@@ -285,8 +305,8 @@ Physical iPhone or iPad required, simulators are not yet supported.
 6. Run in debug mode with `flutter run -d <device-id>`
 7. Follow the instructions in the error message (if any)
    In many cases it's worth trying to run the app from XCode first, then run `flutter run -d <device-id>` again
-    - Open `ios/Runner.xcworkspace` in XCode
-    - Product -> Run
+   - Open `ios/Runner.xcworkspace` in XCode
+   - Product -> Run
 8. Follow the instructions on your device to trust the developer
 
 Run in release mode:

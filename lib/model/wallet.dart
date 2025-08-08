@@ -6,19 +6,15 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 
 class Wallet {
-  Wallet({
-    required this.id,
-    required this.name,
-    required this.config,
-  });
+  Wallet({required this.id, required this.name, required this.config});
 
-  factory Wallet.fromJson(Map<String, dynamic> json) => Wallet(
-        id: json['id'] as String? ?? '',
-        name: json['name'] as String? ?? '',
-        config: WalletConfig.fromJson(
-          json['config'] as Map<String, dynamic>? ?? {},
-        ),
-      );
+  factory Wallet.fromJson(JsonMap json) => Wallet(
+    id: json.valueOrNull<String>('id') ?? '',
+    name: json.valueOrNull<String>('name') ?? '',
+    config: WalletConfig.fromJson(
+      json.valueOrNull<JsonMap>('config') ?? <String, dynamic>{},
+    ),
+  );
 
   /// Creates a wallet from a name and the optional parameters.
   /// [name] - The name of the wallet.
@@ -49,11 +45,7 @@ class Wallet {
     required String name,
     required WalletConfig config,
   }) {
-    return Wallet(
-      id: const Uuid().v1(),
-      name: name,
-      config: config,
-    );
+    return Wallet(id: const Uuid().v1(), name: name, config: config);
   }
 
   String id;
@@ -66,18 +58,14 @@ class Wallet {
   Future<String> getLegacySeed(String password) async =>
       await EncryptionTool().decryptData(password, config.seedPhrase) ?? '';
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'name': name,
-        'config': config.toJson(),
-      };
+  JsonMap toJson() => <String, dynamic>{
+    'id': id,
+    'name': name,
+    'config': config.toJson(),
+  };
 
   Wallet copy() {
-    return Wallet(
-      id: id,
-      name: name,
-      config: config.copy(),
-    );
+    return Wallet(id: id, name: name, config: config.copy());
   }
 }
 
@@ -91,17 +79,17 @@ class WalletConfig {
     this.isLegacyWallet = false,
   });
 
-  factory WalletConfig.fromJson(Map<String, dynamic> json) {
+  factory WalletConfig.fromJson(JsonMap json) {
     return WalletConfig(
       type: WalletType.fromJson(
-        json['type'] as String? ?? WalletType.iguana.name,
+        json.valueOrNull<String>('type') ?? WalletType.iguana.name,
       ),
-      seedPhrase: json['seed_phrase'] as String? ?? '',
-      pubKey: json['pub_key'] as String?,
+      seedPhrase: json.valueOrNull<String>('seed_phrase') ?? '',
+      pubKey: json.valueOrNull<String>('pub_key'),
       activatedCoins:
-          List<String>.from(json['activated_coins'] as List? ?? <String>[])
-              .toList(),
-      hasBackup: json['has_backup'] as bool? ?? false,
+          json.valueOrNull<List<dynamic>>('activated_coins')?.cast<String>() ??
+          <String>[],
+      hasBackup: json.valueOrNull<bool>('has_backup') ?? false,
     );
   }
 
@@ -112,7 +100,7 @@ class WalletConfig {
   WalletType type;
   bool isLegacyWallet;
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     return <String, dynamic>{
       'type': type.name,
       'seed_phrase': seedPhrase,
@@ -158,8 +146,9 @@ enum WalletType {
 
 extension KdfUserWalletExtension on KdfUser {
   Wallet get wallet {
-    final walletType =
-        WalletType.fromJson(metadata['type'] as String? ?? 'iguana');
+    final walletType = WalletType.fromJson(
+      metadata.valueOrNull<String>('type') ?? 'iguana',
+    );
     return Wallet(
       id: walletId.name,
       name: walletId.name,
@@ -168,7 +157,7 @@ extension KdfUserWalletExtension on KdfUser {
         pubKey: walletId.pubkeyHash,
         activatedCoins:
             metadata.valueOrNull<List<String>>('activated_coins') ?? [],
-        hasBackup: metadata['has_backup'] as bool? ?? false,
+        hasBackup: metadata.valueOrNull<bool>('has_backup') ?? false,
         type: walletType,
       ),
     );

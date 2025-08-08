@@ -69,7 +69,7 @@ For web builds:
 
 ```bash
 flutter pub get --enforce-lockfile
-flutter build web --csp --no-web-resources-cdn --no-pub
+flutter build web --csp --no-web-resources-cdn --no-pub --wasm
 ```
 
 For Docker builds:
