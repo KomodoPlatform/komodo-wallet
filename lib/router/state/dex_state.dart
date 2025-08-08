@@ -5,6 +5,7 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
   DexState()
       : _action = DexAction.none,
         _uuid = '',
+        _isOrder = false,
         _fromCurrency = '',
         _fromAmount = '',
         _toCurrency = '',
@@ -13,6 +14,7 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
 
   DexAction _action;
   String _uuid;
+  bool _isOrder;
 
   String _fromCurrency;
   String _fromAmount;
@@ -29,8 +31,9 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
     notifyListeners();
   }
 
-  void setDetailsAction(String uuid) {
+  void setDetailsAction(String uuid, {bool isOrder = false}) {
     _uuid = uuid;
+    _isOrder = isOrder;
     _action = DexAction.tradingDetails;
     notifyListeners();
   }
@@ -45,6 +48,8 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
   }
 
   String get uuid => _uuid;
+
+  bool get isOrder => _isOrder;
 
   String get fromCurrency => _fromCurrency;
   set fromCurrency(String fromCurrency) {
@@ -79,6 +84,8 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
   @override
   void reset() {
     action = DexAction.none;
+    _uuid = '';
+    _isOrder = false;
   }
 
   @override

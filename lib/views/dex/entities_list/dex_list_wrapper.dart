@@ -112,7 +112,7 @@ class _DexListWrapperState extends State<DexListWrapper> {
   }
 
   void _onSwapItemClick(Swap swap) {
-    routingState.dexState.setDetailsAction(swap.uuid);
+    routingState.dexState.setDetailsAction(swap.uuid, isOrder: false);
   }
 }
 

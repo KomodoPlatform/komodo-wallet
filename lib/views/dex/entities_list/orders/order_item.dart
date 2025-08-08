@@ -54,7 +54,7 @@ class _OrderItemState extends State<OrderItem> {
           ),
         FocusableWidget(
           onTap: () {
-            routingState.dexState.setDetailsAction(order.uuid);
+            routingState.dexState.setDetailsAction(order.uuid, isOrder: true);
           },
           borderRadius: BorderRadius.circular(10),
           child: Container(

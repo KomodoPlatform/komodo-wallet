@@ -86,7 +86,10 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
           }
         },
         child: isTradingDetails
-            ? TradingDetails(uuid: routingState.marketMakerState.uuid)
+            ? TradingDetails(
+                uuid: routingState.marketMakerState.uuid,
+                isOrder: true,
+              )
             : MarketMakerBotView(),
       ),
     );
