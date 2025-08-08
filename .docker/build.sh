@@ -89,32 +89,6 @@ else
     echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
   fi
 fi
-
-# Add Trello feedback service variables if ALL required values are provided
-if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$TRELLO_API_KEY" ] && [ -n "$TRELLO_TOKEN" ]; then
-  echo "Adding Trello feedback service configuration"
-  BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
-  BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
-else
-  # If any Trello credential is missing, log a message but continue the build
-  if [ -n "$TRELLO_API_KEY" ] || [ -n "$TRELLO_TOKEN" ] || [ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]; then
-    echo "Warning: Incomplete Trello credentials provided. All Trello credentials must be present to include them in the build."
-  fi
-fi
-
-# Add Cloudflare feedback service variables if ALL required values are provided
-# Note: Cloudflare also needs the Trello board and list IDs to be available
-if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$FEEDBACK_API_KEY" ] && [ -n "$FEEDBACK_PRODUCTION_URL" ]; then
-  echo "Adding Cloudflare feedback service configuration"
-  BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_API_KEY=$FEEDBACK_API_KEY"
-  BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_PRODUCTION_URL=$FEEDBACK_PRODUCTION_URL"
-else
-  # If any Cloudflare credential is missing, log a message but continue the build
-  if [ -n "$FEEDBACK_API_KEY" ] || [ -n "$FEEDBACK_PRODUCTION_URL" ] ||
-     ([ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]); then
-    echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
-  fi
-fi
 # Add web-specific build arguments if the target is web
 if [ "$BUILD_TARGET" = "web" ]; then
     echo "Adding web-specific build arguments: --no-web-resources-cdn"
