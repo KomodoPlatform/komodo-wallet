@@ -13,6 +13,7 @@ import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_state.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_type_tag.dart';
 import 'package:web_dex/shared/widgets/truncate_middle_text.dart';
@@ -243,7 +244,6 @@ class AddressCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _Balance(address: address, coin: coin),
-                  const SizedBox(height: 4),
                 ],
               )
             : SizedBox(
@@ -286,9 +286,13 @@ class _Balance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final balance = address.balance.total.toDouble();
+    final price = coin.lastKnownUsdPrice(context.sdk);
+    final usdValue = price == null ? null : price * balance;
+    final fiat = formatUsdValue(usdValue);
+
     return Text(
-      '${doubleToString(address.balance.total.toDouble())} '
-      '${abbr2Ticker(coin.abbr)} (${address.balance.total.toDouble()})',
+      '${doubleToString(balance)} ${abbr2Ticker(coin.abbr)} ($fiat)',
       style: TextStyle(fontSize: isMobile ? 12 : 14),
     );
   }
@@ -642,7 +646,7 @@ class HideZeroBalanceCheckbox extends StatelessWidget {
       value: hideZeroBalance,
       onChanged: (value) {
         context.read<CoinAddressesBloc>().add(
-          UpdateHideZeroBalanceEvent(value),
+          CoinAddressesZeroBalanceVisibilityChanged(value),
         );
       },
     );
@@ -683,7 +687,7 @@ class CreateButton extends StatelessWidget {
                 createAddressStatus != FormStatus.submitting
             ? () {
                 context.read<CoinAddressesBloc>().add(
-                  const SubmitCreateAddressEvent(),
+                  const CoinAddressesAddressCreationSubmitted(),
                 );
               }
             : null,
