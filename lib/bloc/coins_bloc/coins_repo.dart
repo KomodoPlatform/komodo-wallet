@@ -553,22 +553,19 @@ class CoinsRepo {
           if (fiatPrice != null) {
             // Use configSymbol to lookup for backwards compatibility with the old,
             // string-based price list (and fallback)
-            double? change24h;
+            Decimal? change24h;
             try {
-              final change24hDecimal = await _kdfSdk.marketData.priceChange24h(
-                asset.id,
-              );
-              change24h = change24hDecimal?.toDouble();
+              change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
             } catch (e) {
               _log.warning('Failed to get 24h change for ${asset.id.id}: $e');
-              // Continue with null change24h rather than failing the entire price update
+              // Continue without 24h change data
             }
 
             _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
               ticker: asset.id.id,
               price: fiatPrice.toDouble(),
               lastUpdated: DateTime.now(),
-              change24h: change24h,
+              change24h: change24h?.toDouble(),
             );
           }
         } catch (e) {
