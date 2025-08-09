@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -195,10 +196,12 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
   bool _isPasswordObscured = true;
   Timer? _autoSubmitTimer;
   String _previousValue = '';
+  late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     widget.controller.addListener(_onPasswordChanged);
   }
 
@@ -206,6 +209,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
   void dispose() {
     _autoSubmitTimer?.cancel();
     widget.controller.removeListener(_onPasswordChanged);
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -213,29 +217,80 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
     if (!widget.isQuickLoginEnabled) return;
 
     final currentValue = widget.controller.text;
-    final lengthDifference = (currentValue.length - _previousValue.length)
-        .abs();
+    final previousValue = _previousValue;
+    final lengthDifference = (currentValue.length - previousValue.length).abs();
 
-    // Detect multi-character input (likely from password manager)
-    // If 3 or more characters were added/changed at once, this suggests
-    // automated input from a password manager rather than manual typing
+    // Detect multi-character input; avoid blindly assuming password manager
     if (lengthDifference >= 3 && currentValue.isNotEmpty) {
       // Cancel any existing timer
       _autoSubmitTimer?.cancel();
 
+      // Capture values at the time of scheduling to compare later
+      final scheduledBeforeValue = previousValue;
+      final scheduledAfterValue = currentValue;
+
       // Set a short delay to allow for potential additional input
-      // before auto-submitting the form
-      _autoSubmitTimer = Timer(const Duration(milliseconds: 300), () {
-        // Double-check that the field still has content and quick login is enabled
-        if (widget.controller.text.isNotEmpty &&
-            widget.isQuickLoginEnabled &&
-            widget.onFieldSubmitted != null) {
-          widget.onFieldSubmitted!();
+      _autoSubmitTimer = Timer(const Duration(milliseconds: 300), () async {
+        if (!mounted) return;
+
+        // Ensure quick login is still enabled and callback available
+        if (!widget.isQuickLoginEnabled || widget.onFieldSubmitted == null) {
+          return;
+        }
+
+        // If user manually pasted, skip auto-submit. Heuristic: clipboard text
+        // matches the inserted chunk and field currently has focus.
+        try {
+          // Only attempt paste-detection if focused; autofill may occur without explicit paste
+          if (_focusNode.hasFocus) {
+            final clipboardData = await Clipboard.getData('text/plain');
+            final clipboardText = clipboardData?.text ?? '';
+            if (clipboardText.isNotEmpty) {
+              final insertedText = _deriveInsertedText(
+                before: scheduledBeforeValue,
+                after: scheduledAfterValue,
+              );
+              if (insertedText.isNotEmpty && insertedText == clipboardText) {
+                return; // Looks like a paste; do not auto-submit
+              }
+            }
+          }
+        } catch (_) {
+          // Ignore clipboard errors and proceed with normal checks
+        }
+
+        // Double-check that the field still has the same content we scheduled on
+        // and still has content
+        final latestText = widget.controller.text;
+        if (latestText.isNotEmpty && latestText == scheduledAfterValue) {
+          widget.onFieldSubmitted!.call();
         }
       });
     }
 
     _previousValue = currentValue;
+  }
+
+  // Compute the inserted substring between before and after values
+  String _deriveInsertedText({required String before, required String after}) {
+    // If text replaced entirely
+    if (before.isEmpty) return after;
+
+    // Find common prefix
+    int start = 0;
+    while (start < before.length && start < after.length && before[start] == after[start]) {
+      start++;
+    }
+
+    // Find common suffix
+    int endBefore = before.length - 1;
+    int endAfter = after.length - 1;
+    while (endBefore >= start && endAfter >= start && before[endBefore] == after[endAfter]) {
+      endBefore--;
+      endAfter--;
+    }
+
+    return after.substring(start, endAfter + 1);
   }
 
   @override
@@ -256,6 +311,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
             onVisibilityChange: onVisibilityChange,
           ),
           onFieldSubmitted: (_) => widget.onFieldSubmitted?.call(),
+          focusNode: _focusNode,
         ),
       ],
     );
