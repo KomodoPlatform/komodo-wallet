@@ -62,17 +62,14 @@ class _NftListItemState extends State<NftListItem> {
                 child: InkWell(
                   onTap: _onTap,
                   child: GridTile(
-                    footer: _NftData(
-                      nft: widget.nft,
-                      onSendTap: _onSendTap,
-                    ),
+                    footer: _NftData(nft: widget.nft, onSendTap: _onSendTap),
                     child: Stack(
                       children: [
                         Positioned.fill(
                           child: AnimatedScale(
                             duration: const Duration(milliseconds: 200),
                             scale: isHover ? 1.05 : 1,
-                            child: NftImage(imagePath: widget.nft.imageUrl),
+                            child: NftImage(imageUrl: widget.nft.imageUrl),
                           ),
                         ),
 
@@ -117,29 +114,19 @@ class _NftAmount extends StatelessWidget {
       shape: const CircleBorder(),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Text(
-          nft.amount,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
+        child: Text(nft.amount, style: Theme.of(context).textTheme.bodyLarge),
       ),
     );
   }
 }
 
 class _NftData extends StatelessWidget {
-  const _NftData({
-    required this.nft,
-    required this.onSendTap,
-  });
+  const _NftData({required this.nft, required this.onSendTap});
   final NftToken nft;
   final VoidCallback onSendTap;
 
-  Text _tileText(String text) => Text(
-        text,
-        maxLines: 1,
-        softWrap: false,
-        overflow: TextOverflow.fade,
-      );
+  Text _tileText(String text) =>
+      Text(text, maxLines: 1, softWrap: false, overflow: TextOverflow.fade);
 
   @override
   Widget build(BuildContext context) {
