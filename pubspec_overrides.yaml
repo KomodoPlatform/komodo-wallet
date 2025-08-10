@@ -1,0 +1,5 @@
+dependency_overrides:
+    firebase_core:
+      path: packages/firebase_core_noop
+    firebase_analytics:
+      path: packages/firebase_analytics_noop
