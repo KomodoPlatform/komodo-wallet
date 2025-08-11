@@ -34,11 +34,11 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     required KomodoDefiSdk sdk,
     int pubkeysMaxRetryAttempts = 20,
     Duration pubkeysRetryDelay = const Duration(milliseconds: 500),
-  })  : _fiatRepository = repository,
-        _sdk = sdk,
-        _pubkeysMaxRetryAttempts = pubkeysMaxRetryAttempts,
-        _pubkeysRetryDelay = pubkeysRetryDelay,
-        super(FiatFormState.initial()) {
+  }) : _fiatRepository = repository,
+       _sdk = sdk,
+       _pubkeysMaxRetryAttempts = pubkeysMaxRetryAttempts,
+       _pubkeysRetryDelay = pubkeysRetryDelay,
+       super(FiatFormState.initial()) {
     on<FiatFormFiatSelected>(_onFiatSelected);
     // Use restartable here since this is called for auth changes, which
     // can happen frequently and we want to avoid race conditions.
@@ -179,6 +179,12 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       emit(state.copyWith(checkoutUrl: ''));
     }
 
+    // emit a loading state immediately to indicate that the order is being
+    // processed. This is to prevent long API calls from causing the user
+    // to think that nothing is happening. i.e. button is not disabled and
+    // the loading indicator is not shown.
+    emit(state.copyWith(fiatOrderStatus: FiatOrderStatus.inProgress));
+
     try {
       final newOrder = await _fiatRepository.buyCoin(
         accountReference: state.selectedAssetAddress!.address,
@@ -187,8 +193,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         walletAddress: state.selectedAssetAddress!.address,
         paymentMethod: state.selectedPaymentMethod,
         sourceAmount: state.fiatAmount.value,
-        returnUrlOnSuccess:
-            BaseFiatProvider.successUrl(state.selectedAssetAddress!.address),
+        returnUrlOnSuccess: BaseFiatProvider.successUrl(
+          state.selectedAssetAddress!.address,
+        ),
       );
 
       if (!newOrder.error.isNone) {
@@ -199,17 +206,22 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       var checkoutUrl = newOrder.checkoutUrl as String? ?? '';
       if (checkoutUrl.isEmpty) {
         _log.severe('Invalid checkout URL received.');
-        return emit(
-          state.copyWith(
-            fiatOrderStatus: FiatOrderStatus.failed,
-          ),
-        );
+        return emit(state.copyWith(fiatOrderStatus: FiatOrderStatus.failed));
       }
 
       // Only Ramp on web requires the intermediate html page to satisfy cors
       // rules and allow for console.log and postMessage events to be handled.
       // Banxa does not use `postMessage` and does not require this.
-      checkoutUrl = BaseFiatProvider.fiatWrapperPageUrl(checkoutUrl);
+      // TODO: review this when Ramp integration is re-enabled.
+      // Wasm cross-origin isolation fallout was observed with Banxa when using
+      // the intermediate iframe approach.
+      // Ensure no X-Frame-Options: DENY/SAMEORIGIN and frame-ancestors allows
+      // your domain if CSP is present.
+      // Headers required from provider:
+      // - Cross‑Origin‑Resource‑Policy: cross-origin
+      if (state.selectedPaymentMethod.providerId == 'Ramp') {
+        checkoutUrl = BaseFiatProvider.fiatWrapperPageUrl(checkoutUrl);
+      }
       final webViewMode = _determineWebViewMode();
 
       emit(
@@ -223,12 +235,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       );
     } catch (e, s) {
       _log.shout('Error submitting fiat form', e, s);
-      emit(
-        state.copyWith(
-          status: FiatFormStatus.failure,
-          checkoutUrl: '',
-        ),
-      );
+      emit(state.copyWith(status: FiatFormStatus.failure, checkoutUrl: ''));
     }
   }
 
@@ -320,17 +327,10 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormCoinAddressSelected event,
     Emitter<FiatFormState> emit,
   ) {
-    emit(
-      state.copyWith(
-        selectedAssetAddress: () => event.address,
-      ),
-    );
+    emit(state.copyWith(selectedAssetAddress: () => event.address));
   }
 
-  void _onModeUpdated(
-    FiatFormModeUpdated event,
-    Emitter<FiatFormState> emit,
-  ) {
+  void _onModeUpdated(FiatFormModeUpdated event, Emitter<FiatFormState> emit) {
     emit(state.copyWith(fiatMode: event.mode));
   }
 
@@ -341,8 +341,9 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     try {
       final fiatList = await _fiatRepository.getFiatList();
       final coinList = await _fiatRepository.getCoinList();
-      coinList
-          .removeWhere((coin) => excludedAssetList.contains(coin.getAbbr()));
+      coinList.removeWhere(
+        (coin) => excludedAssetList.contains(coin.getAbbr()),
+      );
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {
       _log.shout('Error loading currency list', e, s);
@@ -548,10 +549,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       );
     } catch (e, s) {
       _log.shout('Error updating payment methods', e, s);
-      return state.copyWith(
-        paymentMethods: [],
-        providerError: () => null,
-      );
+      return state.copyWith(paymentMethods: [], providerError: () => null);
     }
   }
 
