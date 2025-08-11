@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:matomo_tracker/matomo_tracker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/firebase_options.dart';
 
 abstract class AnalyticsEventData {
   String get name;
@@ -63,12 +61,11 @@ abstract class AnalyticsRepo {
   void dispose();
 }
 
-class FirebaseAnalyticsRepo implements AnalyticsRepo {
-  FirebaseAnalyticsRepo(AnalyticsSettings settings) {
+class MatomoAnalyticsRepo implements AnalyticsRepo {
+  MatomoAnalyticsRepo(AnalyticsSettings settings) {
     _initializeWithRetry(settings);
   }
 
-  late FirebaseAnalytics _instance;
   final Completer<void> _initCompleter = Completer<void>();
 
   bool _isInitialized = false;
@@ -76,6 +73,12 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
   int _initRetryCount = 0;
   static const int _maxInitRetries = 3;
   static const String _persistedQueueKey = 'analytics_persisted_queue';
+
+  // Matomo configuration via compile-time environment variables
+  // Provide these with --dart-define=MATOMO_URL=..., --dart-define=MATOMO_SITE_ID=...
+  static final String _matomoUrl = const String.fromEnvironment('MATOMO_URL', defaultValue: '');
+  static final String _matomoSiteIdStr = const String.fromEnvironment('MATOMO_SITE_ID', defaultValue: '');
+  static int? get _matomoSiteId => int.tryParse(_matomoSiteIdStr);
 
   /// Queue to store events when analytics is disabled
   final List<AnalyticsEventData> _eventQueue = [];
@@ -94,38 +97,30 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
   /// Registers the AnalyticsRepo instance with GetIt for dependency injection
   static void register(AnalyticsSettings settings) {
     if (!GetIt.I.isRegistered<AnalyticsRepo>()) {
-      final repo = FirebaseAnalyticsRepo(settings);
+      final repo = MatomoAnalyticsRepo(settings);
       GetIt.I.registerSingleton<AnalyticsRepo>(repo);
 
       if (kDebugMode) {
         log(
           'AnalyticsRepo registered with GetIt',
-          path: 'analytics -> FirebaseAnalyticsService -> register',
+          path: 'analytics -> MatomoAnalyticsService -> register',
         );
       }
     } else if (kDebugMode) {
       log(
         'AnalyticsRepo already registered with GetIt',
-        path: 'analytics -> FirebaseAnalyticsService -> register',
+        path: 'analytics -> MatomoAnalyticsService -> register',
       );
     }
   }
 
   /// Initialize with retry mechanism
   Future<void> _initializeWithRetry(AnalyticsSettings settings) async {
-    // Firebase is not supported on Linux
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
-      _isInitialized = false;
-      _isEnabled = false;
-      _initCompleter.completeError(UnsupportedError);
-      return;
-    }
-
     try {
       if (kDebugMode) {
         log(
-          'Initializing Firebase Analytics with settings: isSendAllowed=${settings.isSendAllowed}',
-          path: 'analytics -> FirebaseAnalyticsService -> _initialize',
+          'Initializing Matomo Analytics with settings: isSendAllowed=${settings.isSendAllowed}',
+          path: 'analytics -> MatomoAnalyticsService -> _initialize',
         );
       }
 
@@ -138,29 +133,32 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       // Load any previously saved events
       await loadPersistedQueue();
 
-      // Initialize Firebase
-      try {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      } on UnsupportedError {
+      // Initialize Matomo if configuration is provided
+      if (_matomoUrl.isEmpty || _matomoSiteId == null) {
         _isInitialized = false;
         _isEnabled = false;
         if (kDebugMode) {
-          log('Firebase Analytics initializeApp failed with UnsupportedError');
+          log('Matomo configuration missing: set MATOMO_URL and MATOMO_SITE_ID to enable analytics');
         }
-        _initCompleter.completeError(UnsupportedError);
+        // Do not throw; allow app to proceed without analytics
+        if (!_initCompleter.isCompleted) {
+          _initCompleter.complete();
+        }
         return;
       }
-      _instance = FirebaseAnalytics.instance;
+
+      await MatomoTracker.instance.initialize(
+        siteId: _matomoSiteId!,
+        url: _matomoUrl,
+      );
 
       _isInitialized = true;
       _isEnabled = settings.isSendAllowed;
 
       if (kDebugMode) {
         log(
-          'Firebase Analytics initialized: _isInitialized=$_isInitialized, _isEnabled=$_isEnabled',
-          path: 'analytics -> FirebaseAnalyticsService -> _initialize',
+          'Matomo Analytics initialized: _isInitialized=$_isInitialized, _isEnabled=$_isEnabled',
+          path: 'analytics -> MatomoAnalyticsService -> _initialize',
         );
       }
 
@@ -179,8 +177,8 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
 
       if (kDebugMode) {
         log(
-          'Error initializing Firebase Analytics: $e',
-          path: 'analytics -> FirebaseAnalyticsService -> _initialize',
+          'Error initializing Matomo Analytics: $e',
+          path: 'analytics -> MatomoAnalyticsService -> _initialize',
           isError: true,
         );
       }
@@ -192,7 +190,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
         if (kDebugMode) {
           log(
             'Retrying analytics initialization (attempt $_initRetryCount of $_maxInitRetries)',
-            path: 'analytics -> FirebaseAnalyticsService -> _initialize',
+            path: 'analytics -> MatomoAnalyticsService -> _initialize',
           );
         }
 
@@ -233,19 +231,26 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
           const JsonEncoder.withIndent('  ').convert(sanitizedParameters);
       log(
         'Analytics Event: ${event.name}; Parameters: $formattedParams',
-        path: 'analytics -> FirebaseAnalyticsService -> sendData',
+        path: 'analytics -> MatomoAnalyticsService -> sendData',
       );
     }
 
     try {
-      await _instance.logEvent(
-        name: event.name,
-        parameters: sanitizedParameters,
+      // Map our generic analytics event to Matomo event
+      await MatomoTracker.instance.trackEvent(
+        eventInfo: EventInfo(
+          category: 'app',
+          action: event.name,
+          name: sanitizedParameters.isEmpty
+              ? null
+              : jsonEncode(sanitizedParameters),
+          value: null,
+        ),
       );
     } catch (e, s) {
       log(
         e.toString(),
-        path: 'analytics -> FirebaseAnalyticsService -> logEvent',
+        path: 'analytics -> MatomoAnalyticsService -> logEvent',
         trace: s,
         isError: true,
       );
@@ -260,7 +265,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
           const JsonEncoder.withIndent('  ').convert(data.parameters);
       log(
         'Analytics Event Queued: ${data.name}\nParameters:\n$formattedParams',
-        path: 'analytics -> FirebaseAnalyticsService -> queueEvent',
+        path: 'analytics -> MatomoAnalyticsService -> queueEvent',
       );
     }
 
@@ -269,7 +274,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Analytics not initialized, added to queue (${_eventQueue.length} events queued)',
-          path: 'analytics -> FirebaseAnalyticsService -> queueEvent',
+          path: 'analytics -> MatomoAnalyticsService -> queueEvent',
         );
       }
       return;
@@ -282,7 +287,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Analytics disabled, added to queue (${_eventQueue.length} events queued)',
-          path: 'analytics -> FirebaseAnalyticsService -> queueEvent',
+          path: 'analytics -> MatomoAnalyticsService -> queueEvent',
         );
       }
     }
@@ -295,14 +300,13 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
     }
 
     _isEnabled = true;
-    await _instance.setAnalyticsCollectionEnabled(true);
 
     // Process any queued events
     if (_eventQueue.isNotEmpty) {
       if (kDebugMode) {
         log(
           'Processing ${_eventQueue.length} queued analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> activate',
+          path: 'analytics -> MatomoAnalyticsService -> activate',
         );
       }
 
@@ -318,7 +322,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode && processedCount > 0) {
         log(
           'Successfully processed $processedCount queued analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> activate',
+          path: 'analytics -> MatomoAnalyticsService -> activate',
         );
       }
     }
@@ -333,12 +337,11 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
     if (kDebugMode) {
       log(
         'Analytics collection disabled',
-        path: 'analytics -> FirebaseAnalyticsService -> deactivate',
+        path: 'analytics -> MatomoAnalyticsService -> deactivate',
       );
     }
 
     _isEnabled = false;
-    await _instance.setAnalyticsCollectionEnabled(false);
   }
 
   @override
@@ -347,7 +350,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'No events to persist (queue empty)',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
+          path: 'analytics -> MatomoAnalyticsService -> persistQueue',
         );
       }
       return;
@@ -357,7 +360,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Persisting ${_eventQueue.length} queued analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
+          path: 'analytics -> MatomoAnalyticsService -> persistQueue',
         );
       }
 
@@ -378,14 +381,14 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Successfully persisted ${_eventQueue.length} events to SharedPreferences',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
+          path: 'analytics -> MatomoAnalyticsService -> persistQueue',
         );
       }
     } catch (e, s) {
       if (kDebugMode) {
         log(
           'Error persisting analytics queue: $e',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
+          path: 'analytics -> MatomoAnalyticsService -> persistQueue',
           trace: s,
           isError: true,
         );
@@ -399,7 +402,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Loading persisted analytics events from SharedPreferences',
-          path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
+          path: 'analytics -> MatomoAnalyticsService -> loadPersistedQueue',
         );
       }
 
@@ -410,7 +413,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
         if (kDebugMode) {
           log(
             'No persisted analytics events found',
-            path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
+            path: 'analytics -> MatomoAnalyticsService -> loadPersistedQueue',
           );
         }
         return;
@@ -430,7 +433,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Loaded ${_eventQueue.length} persisted analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
+          path: 'analytics -> MatomoAnalyticsService -> loadPersistedQueue',
         );
       }
 
@@ -440,7 +443,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Error loading persisted analytics queue: $e',
-          path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
+          path: 'analytics -> MatomoAnalyticsService -> loadPersistedQueue',
           trace: s,
           isError: true,
         );
@@ -458,7 +461,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       if (kDebugMode) {
         log(
           'Cancelled queue persistence timer',
-          path: 'analytics -> FirebaseAnalyticsService -> dispose',
+          path: 'analytics -> MatomoAnalyticsService -> dispose',
         );
       }
     }

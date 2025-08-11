@@ -57,12 +57,12 @@ final class AppBootstrapper {
     final stored = await SettingsRepository.loadStoredSettings();
     _storedSettings = stored;
 
-    // Register the analytics repository with GetIt
-    // This will make sure we have a singleton instance across the app
-    FirebaseAnalyticsRepo.register(stored.analytics);
-
-    log('AppBootstrapper: Analytics repository registered with GetIt');
-    return;
+        // Register the analytics repository with GetIt
+     // This will make sure we have a singleton instance across the app
+     MatomoAnalyticsRepo.register(stored.analytics);
+ 
+     log('AppBootstrapper: Analytics repository registered with GetIt');
+     return;
   }
 }
 
