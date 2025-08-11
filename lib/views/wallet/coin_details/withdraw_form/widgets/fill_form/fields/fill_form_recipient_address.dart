@@ -12,6 +12,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/buttons/convert_address_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/views/qr_scanner/qr_scanner_screen.dart';
 
 class FillFormRecipientAddress extends StatefulWidget {
   const FillFormRecipientAddress({super.key});
@@ -79,8 +80,7 @@ class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
                             final address = await Navigator.push<String>(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const QrCodeReaderOverlay(),
+                                builder: (context) => const QrScannerScreen(),
                               ),
                             );
 

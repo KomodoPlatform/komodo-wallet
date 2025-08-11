@@ -12,6 +12,7 @@ import 'package:komodo_ui/utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
+import 'package:web_dex/views/qr_scanner/qr_scanner_screen.dart';
 
 class ToAddressField extends StatelessWidget {
   const ToAddressField({super.key});
@@ -42,7 +43,17 @@ class ToAddressField extends StatelessWidget {
           suffixIcon: IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             onPressed: () async {
-              // TODO: Implement QR scanner
+              final address = await Navigator.push<String>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const QrScannerScreen(),
+                ),
+              );
+              if (context.mounted && (address?.isNotEmpty ?? false)) {
+                context
+                    .read<WithdrawFormBloc>()
+                    .add(WithdrawFormRecipientChanged(address!));
+              }
             },
           ),
         );

@@ -160,6 +160,7 @@ dependencies:
   feedback: ^3.1.0
   ntp: ^2.0.0
   flutter_window_close: ^1.2.0
+  qr_code_scanner_plus: ^2.0.10+1
 
 dev_dependencies:
   integration_test: # SDK
