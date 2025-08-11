@@ -185,6 +185,8 @@ class CustomFeedbackForm extends StatelessWidget {
                         ),
                       ),
                     UiUnderlineTextButton(
+                      width: 100,
+                      height: 40,
                       text: LocaleKeys.cancel.tr(),
                       onPressed: isLoading
                           ? null
