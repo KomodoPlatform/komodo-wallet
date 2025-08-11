@@ -22,7 +22,7 @@ class UiDropdown extends StatefulWidget {
 }
 
 class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
-  late OverlayEntry _tooltipWrapper;
+  OverlayEntry? _tooltipWrapper;
   GlobalKey _switcherKey = GlobalKey();
   Size? _switcherSize;
   Offset? _switcherOffset;
@@ -43,9 +43,9 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
         _switcherOffset = renderObject.localToGlobal(Offset.zero);
       }
       _tooltipWrapper = _buildTooltipWrapper();
+      
+      if (widget.isOpen) _open();
     });
-
-    if (widget.isOpen) _open();
 
     super.initState();
   }
@@ -54,7 +54,7 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
   void didUpdateWidget(covariant UiDropdown oldWidget) {
     if (widget.isOpen == oldWidget.isOpen) return;
 
-    if (widget.isOpen != _tooltipWrapper.mounted) _switch();
+    if (widget.isOpen != (_tooltipWrapper?.mounted ?? false)) _switch();
     super.didUpdateWidget(oldWidget);
   }
 
@@ -68,14 +68,17 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
         _switcherOffset = renderObject.localToGlobal(Offset.zero);
       });
     }
+    if (_tooltipWrapper?.mounted == true) {
+      _close();
+    }
     _tooltipWrapper = _buildTooltipWrapper();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    if (_tooltipWrapper.mounted) {
-      _tooltipWrapper.remove();
+    if (_tooltipWrapper?.mounted == true) {
+      _tooltipWrapper!.remove();
     }
     super.dispose();
   }
@@ -126,7 +129,7 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
   }
 
   void _switch() {
-    if (_tooltipWrapper.mounted) {
+    if (_tooltipWrapper?.mounted == true) {
       _close();
     } else {
       _open();
@@ -134,15 +137,19 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
   }
 
   void _open() {
-    Overlay.of(context).insert(_tooltipWrapper);
-    final onSwitch = widget.onSwitch;
-    if (onSwitch != null) onSwitch(true);
+    if (_tooltipWrapper != null) {
+      Overlay.of(context).insert(_tooltipWrapper!);
+      final onSwitch = widget.onSwitch;
+      if (onSwitch != null) onSwitch(true);
+    }
   }
 
   void _close() {
-    _tooltipWrapper.remove();
-    final onSwitch = widget.onSwitch;
-    if (onSwitch != null) onSwitch(false);
+    if (_tooltipWrapper != null) {
+      _tooltipWrapper!.remove();
+      final onSwitch = widget.onSwitch;
+      if (onSwitch != null) onSwitch(false);
+    }
   }
 
   double? get _top {

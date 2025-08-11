@@ -30,11 +30,9 @@ import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 import 'package:web_dex/shared/constants.dart';
 
 class CoinsRepo {
-  CoinsRepo({
-    required KomodoDefiSdk kdfSdk,
-    required MM2 mm2,
-  })  : _kdfSdk = kdfSdk,
-        _mm2 = mm2 {
+  CoinsRepo({required KomodoDefiSdk kdfSdk, required MM2 mm2})
+    : _kdfSdk = kdfSdk,
+      _mm2 = mm2 {
     enabledAssetsChanges = StreamController<Coin>.broadcast(
       onListen: () => _enabledAssetListenerCount += 1,
       onCancel: () => _enabledAssetListenerCount -= 1,
@@ -90,14 +88,15 @@ class CoinsRepo {
     _balanceWatchers[asset.id]?.cancel();
 
     // Start a new subscription
-    _balanceWatchers[asset.id] =
-        _kdfSdk.balances.watchBalance(asset.id).listen((balanceInfo) {
-      // Update the balance cache with the new values
-      _balancesCache[asset.id.id] = (
-        balance: balanceInfo.total.toDouble(),
-        spendable: balanceInfo.spendable.toDouble(),
-      );
-    });
+    _balanceWatchers[asset.id] = _kdfSdk.balances.watchBalance(asset.id).listen(
+      (balanceInfo) {
+        // Update the balance cache with the new values
+        _balancesCache[asset.id.id] = (
+          balance: balanceInfo.total.toDouble(),
+          spendable: balanceInfo.spendable.toDouble(),
+        );
+      },
+    );
   }
 
   void flushCache() {
@@ -172,8 +171,10 @@ class CoinsRepo {
     }
   }
 
-  @Deprecated('Use KomodoDefiSdk assets or the '
-      'Wallet [KdfUser].wallet extension instead.')
+  @Deprecated(
+    'Use KomodoDefiSdk assets or the '
+    'Wallet [KdfUser].wallet extension instead.',
+  )
   Future<List<Coin>> getWalletCoins() async {
     final currentUser = await _kdfSdk.auth.currentUser;
     if (currentUser == null) {
@@ -181,22 +182,20 @@ class CoinsRepo {
     }
 
     return currentUser.wallet.config.activatedCoins
-        .map(
-          (coinId) {
-            final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
-            if (assets.isEmpty) {
-              _log.warning('No assets found for coinId: $coinId');
-              return null;
-            }
-            if (assets.length > 1) {
-              _log.shout(
-                'Multiple assets found for coinId: $coinId (${assets.length} assets). '
-                'Selecting the first asset: ${assets.first.id.id}',
-              );
-            }
-            return assets.single;
-          },
-        )
+        .map((coinId) {
+          final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
+          if (assets.isEmpty) {
+            _log.warning('No assets found for coinId: $coinId');
+            return null;
+          }
+          if (assets.length > 1) {
+            _log.shout(
+              'Multiple assets found for coinId: $coinId (${assets.length} assets). '
+              'Selecting the first asset: ${assets.first.id.id}',
+            );
+          }
+          return assets.single;
+        })
         .whereType<Asset>()
         .map(_assetToCoinWithoutAddress)
         .toList();
@@ -253,6 +252,7 @@ class CoinsRepo {
   /// **Parameters:**
   /// - [assets]: List of assets to activate
   /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [addToWalletMetadata]: Whether to add assets to wallet metadata (default: true)
   /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
   /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
   /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
@@ -269,6 +269,7 @@ class CoinsRepo {
   Future<void> activateAssetsSync(
     List<Asset> assets, {
     bool notify = true,
+    bool addToWalletMetadata = true,
     int maxRetryAttempts = 30,
     Duration initialRetryDelay = const Duration(milliseconds: 500),
     Duration maxRetryDelay = const Duration(seconds: 10),
@@ -276,20 +277,21 @@ class CoinsRepo {
     final isSignedIn = await _kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       final coinIdList = assets.map((e) => e.id.id).join(', ');
-      _log.warning(
-        'No wallet signed in. Skipping activation of [$coinIdList]',
-      );
+      _log.warning('No wallet signed in. Skipping activation of [$coinIdList]');
       return;
     }
 
-    // Add assets and their parents to wallet metadata before activating.
-    // This ensures that the wallet metadata is updated even if activation fails.
-    await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
+    if (addToWalletMetadata) {
+      // Ensure the wallet metadata is updated with the assets before activation
+      // This is to ensure that the wallet metadata is always in sync with the assets
+      // being activated, even if activation fails.
+      await _addAssetsToWalletMetdata(assets.map((asset) => asset.id));
+    }
 
     Exception? lastActivationException;
 
     for (final asset in assets) {
-      final coin = asset.toCoin();
+      final coin = _assetToCoinWithoutAddress(asset);
       try {
         if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
 
@@ -308,8 +310,9 @@ class CoinsRepo {
 
             final progress = await _kdfSdk.assets.activateAsset(asset).last;
             if (!progress.isSuccess) {
-              throw Exception(progress.errorMessage ??
-                  'Activation failed for ${asset.id.id}');
+              throw Exception(
+                progress.errorMessage ?? 'Activation failed for ${asset.id.id}',
+              );
             }
           },
           maxAttempts: maxRetryAttempts,
@@ -324,7 +327,8 @@ class CoinsRepo {
           _broadcastAsset(coin.copyWith(state: CoinState.active));
           if (coin.id.parentId != null) {
             final parentCoin = _assetToCoinWithoutAddress(
-                _kdfSdk.assets.available[coin.id.parentId]!);
+              _kdfSdk.assets.available[coin.id.parentId]!,
+            );
             _broadcastAsset(parentCoin.copyWith(state: CoinState.active));
           }
         }
@@ -340,11 +344,12 @@ class CoinsRepo {
       } catch (e, s) {
         lastActivationException = e is Exception ? e : Exception(e.toString());
         _log.shout(
-            'Error activating asset after retries: ${asset.id.id}', e, s);
+          'Error activating asset after retries: ${asset.id.id}',
+          e,
+          s,
+        );
         if (notify) {
-          _broadcastAsset(
-            asset.toCoin().copyWith(state: CoinState.suspended),
-          );
+          _broadcastAsset(asset.toCoin().copyWith(state: CoinState.suspended));
         }
       } finally {
         // Register outside of the try-catch to ensure icon is available even
@@ -391,6 +396,7 @@ class CoinsRepo {
   /// **Parameters:**
   /// - [coins]: List of coins to activate
   /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [addToWalletMetadata]: Whether to add assets to wallet metadata (default: true)
   /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
   /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
   /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
@@ -410,18 +416,23 @@ class CoinsRepo {
   Future<void> activateCoinsSync(
     List<Coin> coins, {
     bool notify = true,
+    bool addToWalletMetadata = true,
     int maxRetryAttempts = 30,
     Duration initialRetryDelay = const Duration(milliseconds: 500),
     Duration maxRetryDelay = const Duration(seconds: 10),
   }) async {
     final assets = coins
         .map((coin) => _kdfSdk.assets.available[coin.id])
-        .whereType<Asset>()
+        // use cast instead of `whereType` to ensure an exception is thrown
+        // if the provided asset is not found in the SDK. An explicit
+        // argument error might be more apt here.
+        .cast<Asset>()
         .toList();
 
     return activateAssetsSync(
       assets,
       notify: notify,
+      addToWalletMetadata: addToWalletMetadata,
       maxRetryAttempts: maxRetryAttempts,
       initialRetryDelay: initialRetryDelay,
       maxRetryDelay: maxRetryDelay,
@@ -432,6 +443,10 @@ class CoinsRepo {
   /// If [notify] is true, it will broadcast the deactivation to listeners.
   /// This method is used to deactivate coins that are no longer needed or
   /// supported by the user.
+  ///
+  /// NOTE: Only balance watchers are cancelled, the coins are not deactivated
+  /// in the SDK or MM2. This is a temporary solution to avoid "NoSuchCoin"
+  /// errors when trying to re-enable the coin later in the same session.
   Future<void> deactivateCoinsSync(
     List<Coin> coins, {
     bool notify = true,
@@ -468,19 +483,23 @@ class CoinsRepo {
       _balanceWatchers.remove(child.id);
     });
 
+    // Skip the deactivation step for now, as it results in "NoSuchCoin" errors
+    // when trying to re-enable the coin later in the same session.
+    // TODO: Revisit this and create an issue on KDF to track the problem.
     final deactivationTasks = [
       ...coins.map((coin) async {
-        await _disableCoin(coin.id.id);
-        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.inactive));
+        // await _disableCoin(coin.id.id);
+        if (notify) {
+          _broadcastAsset(coin.copyWith(state: CoinState.inactive));
+        }
       }),
       ...allChildCoins.map((child) async {
-        await _disableCoin(child.id.id);
+        // await _disableCoin(child.id.id);
         if (notify) {
           _broadcastAsset(child.copyWith(state: CoinState.inactive));
         }
       }),
     ];
-
     await Future.wait(deactivationTasks);
     await Future.wait([...parentCancelFutures, ...childCancelFutures]);
   }
@@ -494,8 +513,10 @@ class CoinsRepo {
     }
   }
 
-  @Deprecated('Use SDK pubkeys.getPubkeys instead and let the user '
-      'select from the available options.')
+  @Deprecated(
+    'Use SDK pubkeys.getPubkeys instead and let the user '
+    'select from the available options.',
+  )
   Future<String?> getFirstPubkey(String coinId) async {
     final asset = _kdfSdk.assets.findAssetsByConfigId(coinId).single;
     final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
@@ -520,19 +541,34 @@ class CoinsRepo {
     try {
       // Try to use the SDK's price manager to get prices for active coins
       final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
-      for (final asset in activatedAssets) {
+      // Filter out excluded and testnet assets, as they are not expected
+      // to have valid prices available at any of the providers
+      final validActivatedAssets = activatedAssets
+          .where((asset) => !excludedAssetList.contains(asset.id.id))
+          .where((asset) => !asset.protocol.isTestnet);
+      for (final asset in validActivatedAssets) {
         try {
           // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
           final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
           if (fiatPrice != null) {
             // Use configSymbol to lookup for backwards compatibility with the old,
             // string-based price list (and fallback)
-            final change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
+            double? change24h;
+            try {
+              final change24hDecimal = await _kdfSdk.marketData.priceChange24h(
+                asset.id,
+              );
+              change24h = change24hDecimal?.toDouble();
+            } catch (e) {
+              _log.warning('Failed to get 24h change for ${asset.id.id}: $e');
+              // Continue with null change24h rather than failing the entire price update
+            }
+
             _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
               ticker: asset.id.id,
               price: fiatPrice.toDouble(),
               lastUpdated: DateTime.now(),
-              change24h: change24h?.toDouble(),
+              change24h: change24h,
             );
           }
         } catch (e) {
@@ -595,24 +631,28 @@ class CoinsRepo {
         lastUpdated: DateTime.fromMillisecondsSinceEpoch(
           (pricesJson['last_updated_timestamp'] as int? ?? 0) * 1000,
         ),
-        priceProvider:
-            cexDataProvider(pricesJson['price_provider'] as String? ?? ''),
+        priceProvider: cexDataProvider(
+          pricesJson['price_provider'] as String? ?? '',
+        ),
         change24h: double.tryParse(pricesJson['change_24h'] as String? ?? ''),
-        changeProvider:
-            cexDataProvider(pricesJson['change_24h_provider'] as String? ?? ''),
+        changeProvider: cexDataProvider(
+          pricesJson['change_24h_provider'] as String? ?? '',
+        ),
         volume24h: double.tryParse(pricesJson['volume24h'] as String? ?? ''),
-        volumeProvider:
-            cexDataProvider(pricesJson['volume_provider'] as String? ?? ''),
+        volumeProvider: cexDataProvider(
+          pricesJson['volume_provider'] as String? ?? '',
+        ),
       );
     });
     return prices;
   }
 
   Future<Map<String, CexPrice>?> _updateFromFallback() async {
-    final List<String> ids = (await _kdfSdk.assets.getActivatedAssets())
-        .map((c) => c.id.symbol.coinGeckoId ?? '')
-        .toList()
-      ..removeWhere((id) => id.isEmpty);
+    final List<String> ids =
+        (await _kdfSdk.assets.getActivatedAssets())
+            .map((c) => c.id.symbol.coinGeckoId ?? '')
+            .toList()
+          ..removeWhere((id) => id.isEmpty);
     final Uri fallbackUri = Uri.parse(
       'https://api.coingecko.com/api/v3/simple/price?ids='
       '${ids.join(',')}&vs_currencies=usd',
@@ -645,8 +685,9 @@ class CoinsRepo {
 
       // Coins with the same coingeckoId supposedly have same usd price
       // (e.g. KMD == KMD-BEP20)
-      final Iterable<Coin> samePriceCoins =
-          getKnownCoins().where((coin) => coin.coingeckoId == coingeckoId);
+      final Iterable<Coin> samePriceCoins = getKnownCoins().where(
+        (coin) => coin.coingeckoId == coingeckoId,
+      );
 
       for (final Coin coin in samePriceCoins) {
         prices[coin.id.symbol.configSymbol] = CexPrice(
@@ -668,8 +709,9 @@ class CoinsRepo {
     // the SDK's balance watchers to get live updates. We still
     // implement it for backward compatibility.
     final walletCoinsCopy = Map<String, Coin>.from(walletCoins);
-    final coins =
-        walletCoinsCopy.values.where((coin) => coin.isActive).toList();
+    final coins = walletCoinsCopy.values
+        .where((coin) => coin.isActive)
+        .toList();
 
     // Get balances from the SDK for all active coins
     for (final coin in coins) {
@@ -694,15 +736,15 @@ class CoinsRepo {
         // Only yield if there's a change
         if (balanceChanged || spendableChanged) {
           // Update the cache
-          _balancesCache[coin.id.id] =
-              (balance: newBalance, spendable: newSpendable);
+          _balancesCache[coin.id.id] = (
+            balance: newBalance,
+            spendable: newSpendable,
+          );
 
           // Yield updated coin with new balance
           // We still set both the deprecated fields and rely on the SDK
           // for future access to maintain backward compatibility
-          yield coin.copyWith(
-            sendableBalance: newSpendable,
-          );
+          yield coin.copyWith(sendableBalance: newSpendable);
         }
       } catch (e, s) {
         _log.warning('Failed to update balance for ${coin.id}', e, s);
@@ -710,8 +752,10 @@ class CoinsRepo {
     }
   }
 
-  @Deprecated('Use KomodoDefiSdk withdraw method instead. '
-      'This will be removed in the future.')
+  @Deprecated(
+    'Use KomodoDefiSdk withdraw method instead. '
+    'This will be removed in the future.',
+  )
   Future<BlocResponse<WithdrawDetails, BaseError>> withdraw(
     WithdrawRequest request,
   ) async {
@@ -740,9 +784,7 @@ class CoinsRepo {
       response['result'] as Map<String, dynamic>? ?? {},
     );
 
-    return BlocResponse(
-      result: withdrawDetails,
-    );
+    return BlocResponse(result: withdrawDetails);
   }
 
   /// Get a cached price for a given coin symbol
