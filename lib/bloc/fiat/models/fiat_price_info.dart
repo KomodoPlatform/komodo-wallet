@@ -13,11 +13,12 @@ class FiatPriceInfo extends Equatable {
 
   factory FiatPriceInfo.fromJson(JsonMap json) {
     return FiatPriceInfo(
-      fiatAmount: json.value<Decimal>('fiat_amount'),
-      coinAmount: json.value<Decimal>('coin_amount'),
+      fiatAmount: json.valueOrNull<Decimal>('fiat_amount') ?? Decimal.zero,
+      coinAmount: json.valueOrNull<Decimal>('coin_amount') ?? Decimal.zero,
       fiatCode: json.valueOrNull<String>('fiat_code') ?? '',
       coinCode: json.valueOrNull<String>('coin_code') ?? '',
-      spotPriceIncludingFee: json.value<Decimal>('spot_price_including_fee'),
+      spotPriceIncludingFee:
+          json.valueOrNull<Decimal>('spot_price_including_fee') ?? Decimal.zero,
     );
   }
 

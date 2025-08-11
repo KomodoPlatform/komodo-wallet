@@ -1,5 +1,5 @@
-import 'package:equatable/equatable.dart';
 import 'package:decimal/decimal.dart';
+import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_transaction_fee.dart';
@@ -30,22 +30,27 @@ class FiatPaymentMethod extends Equatable {
   );
 
   factory FiatPaymentMethod.fromJson(JsonMap json) {
-    final limitsJson = json.value<List<JsonMap>>('transaction_limits');
+    final limitsJson =
+        json.valueOrNull<List<JsonMap>>('transaction_limits') ?? const [];
     final List<FiatTransactionLimit> limits = limitsJson
         .map((e) => FiatTransactionLimit.fromJson(e))
         .toList();
 
-    final feesJson = json.value<List<JsonMap>>('transaction_fees');
+    final feesJson =
+        json.valueOrNull<List<JsonMap>>('transaction_fees') ?? const [];
     final List<FiatTransactionFee> fees = feesJson
         .map((e) => FiatTransactionFee.fromJson(e))
         .toList();
 
     return FiatPaymentMethod(
       providerId: json.valueOrNull<String>('provider_id') ?? '',
-      id: assertString(json.valueOrNull<String>('id')) ?? '',
+      id: assertString(json['id']) ?? '',
       name: json.valueOrNull<String>('name') ?? '',
-      priceInfo: FiatPriceInfo.fromJson(json.value<JsonMap>('price_info')),
-      relativePercent: json.value<Decimal>('relative_percent'),
+      priceInfo: FiatPriceInfo.fromJson(
+        json.valueOrNull<JsonMap>('price_info') ?? const {},
+      ),
+      relativePercent:
+          json.valueOrNull<Decimal>('relative_percent') ?? Decimal.zero,
       providerIconAssetPath:
           json.valueOrNull<String>('provider_icon_asset_path') ?? '',
       transactionLimits: limits,

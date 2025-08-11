@@ -2,7 +2,6 @@ import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_buy_order_error.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class FiatBuyOrderInfo extends Equatable {
   const FiatBuyOrderInfo({
@@ -76,7 +75,15 @@ class FiatBuyOrderInfo extends Equatable {
       );
     }
 
-    final data = jsonData!.value<JsonMap>('order')!;
+    // Guard for missing 'order' payload
+    final data = jsonData?.valueOrNull<JsonMap>('order');
+    if (data == null) {
+      return FiatBuyOrderInfo.empty().copyWith(
+        error: const FiatBuyOrderError.parsing(
+          message: 'Missing order payload',
+        ),
+      );
+    }
 
     return FiatBuyOrderInfo(
       id: data.valueOrNull<String>('id') ?? '',
@@ -84,14 +91,14 @@ class FiatBuyOrderInfo extends Equatable {
       accountReference: data.valueOrNull<String>('account_reference') ?? '',
       orderType: data.valueOrNull<String>('order_type') ?? '',
       fiatCode: data.valueOrNull<String>('fiat_code') ?? '',
-      fiatAmount: data.value<Decimal>('fiat_amount'),
+      fiatAmount: data.valueOrNull<Decimal>('fiat_amount') ?? Decimal.zero,
       coinCode: data.valueOrNull<String>('coin_code') ?? '',
       walletAddress: data.valueOrNull<String>('wallet_address') ?? '',
       extAccountId: data.valueOrNull<String>('ext_account_id') ?? '',
       network: data.valueOrNull<String>('network') ?? '',
       paymentCode: data.valueOrNull<String>('payment_code') ?? '',
       checkoutUrl: data.valueOrNull<String>('checkout_url') ?? '',
-      createdAt: assertString(data.valueOrNull<String>('created_at')) ?? '',
+      createdAt: data.valueOrNull<String>('created_at') ?? '',
       error: errors != null
           ? FiatBuyOrderError.fromJson(errors)
           : const FiatBuyOrderError.none(),

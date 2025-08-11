@@ -6,7 +6,7 @@ class FiatTransactionFee extends Equatable {
   const FiatTransactionFee({required this.fees});
 
   factory FiatTransactionFee.fromJson(JsonMap json) {
-    final feesJson = json.value<List<JsonMap>>('fees');
+    final feesJson = json.valueOrNull<List<JsonMap>>('fees') ?? const [];
     final List<FeeDetail> feesList = feesJson
         .map((e) => FeeDetail.fromJson(e))
         .toList();
@@ -27,7 +27,9 @@ class FeeDetail extends Equatable {
   const FeeDetail({required this.amount});
 
   factory FeeDetail.fromJson(JsonMap json) {
-    return FeeDetail(amount: json.value<Decimal>('amount'));
+    return FeeDetail(
+      amount: json.valueOrNull<Decimal>('amount') ?? Decimal.zero,
+    );
   }
 
   final Decimal amount;
