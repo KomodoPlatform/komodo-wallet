@@ -108,6 +108,12 @@ static gboolean my_application_local_command_line(GApplication* application, gch
 static void my_application_dispose(GObject* object) {
   MyApplication* self = MY_APPLICATION(object);
   g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
+
+  if (self->main_window != nullptr) {
+    g_signal_handlers_disconnect_by_func(self->main_window, G_CALLBACK(on_window_destroy), self);
+    self->main_window = nullptr;
+  }
+
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);
 }
 
