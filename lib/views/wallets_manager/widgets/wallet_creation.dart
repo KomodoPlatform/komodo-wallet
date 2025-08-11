@@ -204,6 +204,8 @@ class _WalletCreationState extends State<WalletCreation> {
     setState(() => _inProgress = true);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // Complete autofill session so password managers can save new credentials
+      TextInput.finishAutofillContext(shouldSave: true);
       widget.onCreate(
         name: _nameController.text.trim(),
         password: _passwordController.text,

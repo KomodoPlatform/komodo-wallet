@@ -132,43 +132,45 @@ class _FormViewState extends State<_FormView> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CurrentField(
-            controller: _oldController,
-            isObscured: _isObscured,
-            onVisibilityChange: _onVisibilityChange,
-            formKey: _formKey,
-          ),
-          const SizedBox(height: 30),
-          _NewField(
-            controller: _newController,
-            isObscured: _isObscured,
-            onVisibilityChange: _onVisibilityChange,
-          ),
-          const SizedBox(height: 20),
-          _ConfirmField(
-            confirmController: _confirmController,
-            newController: _newController,
-            isObscured: _isObscured,
-            onVisibilityChange: _onVisibilityChange,
-          ),
-          const SizedBox(height: 30),
-          if (_error != null) ...{
-            Text(
-              _error!,
-              style: TextStyle(color: theme.currentGlobal.colorScheme.error),
+    return AutofillGroup(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CurrentField(
+              controller: _oldController,
+              isObscured: _isObscured,
+              onVisibilityChange: _onVisibilityChange,
+              formKey: _formKey,
             ),
-            const SizedBox(height: 10),
-          },
-          UiPrimaryButton(
-            onPressed: _onUpdate,
-            text: LocaleKeys.updatePassword.tr(),
-          ),
-        ],
+            const SizedBox(height: 30),
+            _NewField(
+              controller: _newController,
+              isObscured: _isObscured,
+              onVisibilityChange: _onVisibilityChange,
+            ),
+            const SizedBox(height: 20),
+            _ConfirmField(
+              confirmController: _confirmController,
+              newController: _newController,
+              isObscured: _isObscured,
+              onVisibilityChange: _onVisibilityChange,
+            ),
+            const SizedBox(height: 30),
+            if (_error != null) ...{
+              Text(
+                _error!,
+                style: TextStyle(color: theme.currentGlobal.colorScheme.error),
+              ),
+              const SizedBox(height: 10),
+            },
+            UiPrimaryButton(
+              onPressed: _onUpdate,
+              text: LocaleKeys.updatePassword.tr(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -198,6 +200,8 @@ class _FormViewState extends State<_FormView> {
       setState(() => _error = null);
       _newController.text = '';
       _confirmController.text = '';
+      // Complete autofill context so managers can update stored password
+      TextInput.finishAutofillContext(shouldSave: true);
       widget.onSuccess();
     } catch (e) {
       setState(() {

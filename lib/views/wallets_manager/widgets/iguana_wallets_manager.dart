@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -309,6 +310,9 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     context.read<AuthBloc>().add(
       AuthSignInRequested(wallet: wallet, password: password),
     );
+
+    // Close autofill context after we programmatically submit credentials
+    TextInput.finishAutofillContext(shouldSave: true);
 
     if (mounted) {
       setState(() {
