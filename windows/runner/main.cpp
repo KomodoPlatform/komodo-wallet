@@ -17,6 +17,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   // plugins.
   ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
+  // Enforce single instance: create a named mutex. If it already exists,
+  // try to bring the existing window to the foreground and exit immediately.
+  HANDLE singleInstanceMutex = CreateMutexW(nullptr, TRUE, L"Global\\KomodoWallet_SingleInstanceMutex");
+  if (singleInstanceMutex != nullptr && GetLastError() == ERROR_ALREADY_EXISTS) {
+    // Attempt to find the existing window by class or title and focus it.
+    HWND existing = FindWindowW(L"FLUTTER_RUNNER_WIN32_WINDOW", nullptr);
+    if (existing == nullptr) {
+      existing = FindWindowW(nullptr, L"komodowallet");
+    }
+    if (existing != nullptr) {
+      ShowWindow(existing, SW_RESTORE);
+      AllowSetForegroundWindow(ASFW_ANY);
+      SetForegroundWindow(existing);
+      BringWindowToTop(existing);
+    }
+    if (singleInstanceMutex) {
+      CloseHandle(singleInstanceMutex);
+    }
+    ::CoUninitialize();
+    return EXIT_SUCCESS;
+  }
+
   flutter::DartProject project(L"data");
 
   std::vector<std::string> command_line_arguments =
@@ -28,6 +50,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
   if (!window.Create(L"komodowallet", origin, size)) {
+    if (singleInstanceMutex) {
+      ReleaseMutex(singleInstanceMutex);
+      CloseHandle(singleInstanceMutex);
+    }
+    ::CoUninitialize();
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);
@@ -36,6 +63,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   while (::GetMessage(&msg, nullptr, 0, 0)) {
     ::TranslateMessage(&msg);
     ::DispatchMessage(&msg);
+  }
+
+  if (singleInstanceMutex) {
+    ReleaseMutex(singleInstanceMutex);
+    CloseHandle(singleInstanceMutex);
   }
 
   ::CoUninitialize();
