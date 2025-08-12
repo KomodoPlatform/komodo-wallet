@@ -13,6 +13,7 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/copied_text.dart';
+import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 
 class TransactionDetails extends StatelessWidget {
   const TransactionDetails({
@@ -112,9 +113,22 @@ class TransactionDetails extends StatelessWidget {
                       title: LocaleKeys.transactionHash.tr(),
                       value: transaction.txHash ?? '',
                       isCopied: true,
+                      isTruncated: true,
                     ),
-                    const SizedBox(height: 20),
-                    _buildAddresses(isMobile, context),
+                    SizedBox(height: 16),
+                    _buildSimpleData(
+                      context,
+                      title: LocaleKeys.from.tr(),
+                      value: transaction.from.first,
+                      isCopied: true,
+                    ),
+                    _buildSimpleData(
+                      context,
+                      title: LocaleKeys.to.tr(),
+                      value: transaction.to.first,
+                      isCopied: true,
+                    ),
+                    SizedBox(height: 16),
                     _buildControls(context, isMobile),
                   ],
                 ),
@@ -131,27 +145,34 @@ class TransactionDetails extends StatelessWidget {
     required String title,
     required String address,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            title,
-            style:
-                Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
+          // Title with fixed flex
+          Expanded(
+            flex: 2,
+            child: Text(
+              title,
+              style:
+                  Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
+            ),
           ),
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 200),
-            child: CopiedText(
-              copiedValue: address,
-              isTruncated: true,
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 16,
-              ),
-              fontSize: 14,
+          // Address and copy button
+          Expanded(
+            flex: 5,
+            child: Row(
+              children: [
+                Expanded(
+                  child: AutoScrollText(
+                    text: address,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AddressCopyButton(address: address),
+              ],
             ),
           ),
         ],
@@ -163,47 +184,21 @@ class TransactionDetails extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(bottom: 10),
-      child: isMobile
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildAddress(
-                  context,
-                  title: LocaleKeys.from.tr(),
-                  address: transaction.from.first,
-                ),
-                _buildAddress(
-                  context,
-                  title: LocaleKeys.to.tr(),
-                  address: transaction.to.first,
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    child: _buildAddress(
-                      context,
-                      title: LocaleKeys.from.tr(),
-                      address: transaction.from.first,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    child: _buildAddress(
-                      context,
-                      title: LocaleKeys.to.tr(),
-                      address: transaction.to.first,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAddress(
+            context,
+            title: LocaleKeys.from.tr(),
+            address: transaction.from.first,
+          ),
+          _buildAddress(
+            context,
+            title: LocaleKeys.to.tr(),
+            address: transaction.to.first,
+          ),
+        ],
+      ),
     );
   }
 
@@ -352,6 +347,7 @@ class TransactionDetails extends StatelessWidget {
     required String value,
     bool hasBackground = false,
     bool isCopied = false,
+    bool isTruncated = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
@@ -376,7 +372,7 @@ class TransactionDetails extends StatelessWidget {
                       constraints: const BoxConstraints(maxHeight: 340),
                       child: CopiedText(
                         copiedValue: value,
-                        isTruncated: true,
+                        isTruncated: isTruncated,
                         padding: const EdgeInsets.symmetric(
                           vertical: 8,
                           horizontal: 16,

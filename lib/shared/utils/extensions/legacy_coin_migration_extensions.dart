@@ -1,5 +1,8 @@
 import 'package:decimal/decimal.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 
 extension LegacyCoinMigrationExtensions on Coin {
@@ -56,5 +59,11 @@ extension LegacyCoinMigrationExtensions on Coin {
     final price = sdk.marketData.priceIfKnown(id);
     if (price == null) return null;
     return price.toDouble();
+  }
+
+  /// Get cached 24hr change from CoinsBloc state
+  /// This bridges the gap until SDK provides cached 24hr data
+  double? lastKnown24hChange(BuildContext context) {
+    return context.read<CoinsBloc>().state.get24hChangeForAsset(id);
   }
 }

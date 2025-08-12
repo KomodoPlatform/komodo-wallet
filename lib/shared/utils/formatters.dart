@@ -353,10 +353,10 @@ String truncateMiddleSymbols(
 String formatTransactionDateTime(Transaction tx) {
   if (tx.timestamp == DateTime.fromMillisecondsSinceEpoch(0) &&
       tx.confirmations == 0) {
-    return 'unconfirmed';
+    return 'Unconfirmed';
   } else if (tx.timestamp == DateTime.fromMillisecondsSinceEpoch(0) &&
       tx.confirmations > 0) {
-    return 'confirmed';
+    return 'Now';
   } else {
     return DateFormat('dd MMM yyyy HH:mm').format(tx.timestamp);
   }

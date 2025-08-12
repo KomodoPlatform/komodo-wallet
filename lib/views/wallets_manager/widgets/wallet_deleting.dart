@@ -215,6 +215,7 @@ class _PasswordFieldState extends State<_PasswordField> {
     return UiTextFormField(
       key: const Key('delete-wallet-password'),
       controller: widget.controller,
+      autofocus: true,
       autocorrect: false,
       obscureText: _isObscured,
       errorText: widget.errorText,

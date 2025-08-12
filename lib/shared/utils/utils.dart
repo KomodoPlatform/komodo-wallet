@@ -625,9 +625,9 @@ Future<bool> confirmCoinDisableWithOrders(
 
 void confirmBeforeDisablingCoin(
   Coin coin,
-  BuildContext context,
+  BuildContext context, {
   void Function()? onConfirm,
-) {
+}) {
   final tradingEntitiesBloc =
       RepositoryProvider.of<TradingEntitiesBloc>(context);
   final bloc = context.read<CoinsBloc>();

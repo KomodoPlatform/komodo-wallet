@@ -98,6 +98,7 @@ class CustomFeedbackForm extends StatelessWidget {
                           maxLength: feedbackMaxLength,
                           maxLengthEnforcement: MaxLengthEnforcement.enforced,
                           enabled: !isLoading,
+                          autofocus: true,
                           hintText: 'Enter your feedback here...',
                           errorText: state.feedbackTextError,
                           validationMode: InputValidationMode.eager,

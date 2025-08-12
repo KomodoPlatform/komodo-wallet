@@ -70,8 +70,9 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
   @override
   Widget build(BuildContext context) {
     // TODO: Refactor to reduce unnecessary bloc references and rebuilds.
-    final price =
-        context.watch<CoinsBloc>().state.getPriceForAsset(_primaryAsset);
+    final price = context.watch<CoinsBloc>().state.getPriceForAsset(
+      _primaryAsset,
+    );
     final priceFormatter = NumberFormat.currency(
       symbol: '\$',
       decimalDigits: 2,
@@ -84,18 +85,16 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
       child: Material(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          side: BorderSide(
-            color: theme.dividerColor,
-            width: 1,
-          ),
+          side: BorderSide(color: theme.dividerColor, width: 1),
         ),
         color: widget.backgroundColor,
         clipBehavior: Clip.hardEdge,
         type: MaterialType.card,
         borderOnForeground: true,
         child: InkWell(
-          onTap:
-              widget.onTap == null ? null : () => widget.onTap!(_primaryAsset),
+          onTap: widget.onTap == null
+              ? null
+              : () => widget.onTap!(_primaryAsset),
           child: Column(
             children: [
               Container(
@@ -133,8 +132,9 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                       flex: isMobile ? 4 : 2,
                       child: BlocBuilder<CoinsBloc, CoinsState>(
                         builder: (context, state) {
-                          final change24hPercent =
-                              state.get24hChangeForAsset(_primaryAsset);
+                          final change24hPercent = state.get24hChangeForAsset(
+                            _primaryAsset,
+                          );
                           return change24hPercent == null
                               ? const SizedBox.shrink()
                               : Tooltip(
@@ -146,28 +146,30 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                                     ),
                                     child: TrendPercentageText(
                                       percentage: change24hPercent,
-                                      upColor: Theme.of(context).brightness ==
+                                      upColor:
+                                          Theme.of(context).brightness ==
                                               Brightness.dark
                                           ? Theme.of(context)
-                                              .extension<ThemeCustomDark>()!
-                                              .increaseColor
+                                                .extension<ThemeCustomDark>()!
+                                                .increaseColor
                                           : Theme.of(context)
-                                              .extension<ThemeCustomLight>()!
-                                              .increaseColor,
-                                      downColor: Theme.of(context).brightness ==
+                                                .extension<ThemeCustomLight>()!
+                                                .increaseColor,
+                                      downColor:
+                                          Theme.of(context).brightness ==
                                               Brightness.dark
                                           ? Theme.of(context)
-                                              .extension<ThemeCustomDark>()!
-                                              .decreaseColor
+                                                .extension<ThemeCustomDark>()!
+                                                .decreaseColor
                                           : Theme.of(context)
-                                              .extension<ThemeCustomLight>()!
-                                              .decreaseColor,
+                                                .extension<ThemeCustomLight>()!
+                                                .decreaseColor,
                                       iconSize: 16,
                                       percentagePrecision: 2,
                                       value: isMobile ? price?.price : null,
                                       valueFormatter: (price?.price != null)
                                           ? (value) =>
-                                              priceFormatter.format(value)
+                                                priceFormatter.format(value)
                                           : null,
                                     ),
                                   ),
@@ -177,17 +179,17 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                     ),
                     Expanded(
                       flex: 2,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: 130,
-                          maxHeight: 35,
-                        ),
-                        child: InkWell(
-                          onTap: () => widget.onStatisticsTap?.call(
-                            _primaryAsset,
-                            const Duration(days: 7),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          constraints: const BoxConstraints(maxWidth: 200),
+                          child: InkWell(
+                            onTap: () => widget.onStatisticsTap?.call(
+                              _primaryAsset,
+                              const Duration(days: 7),
+                            ),
+                            child: CoinSparkline(coinId: _primaryAsset.id),
                           ),
-                          child: CoinSparkline(coinId: _primaryAsset.id),
                         ),
                       ),
                     ),
@@ -223,10 +225,7 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
 }
 
 class _ExpandedView extends StatelessWidget {
-  const _ExpandedView({
-    required this.assets,
-    required this.theme,
-  });
+  const _ExpandedView({required this.assets, required this.theme});
 
   final List<AssetId> assets;
   final ThemeData theme;
@@ -235,11 +234,7 @@ class _ExpandedView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(
-        left: 16.0,
-        right: 16.0,
-        bottom: 16.0,
-      ),
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -261,9 +256,7 @@ class _ExpandedView extends StatelessWidget {
 }
 
 class _AssetIconsRow extends StatelessWidget {
-  const _AssetIconsRow({
-    required this.assets,
-  });
+  const _AssetIconsRow({required this.assets});
 
   final List<AssetId> assets;
 
@@ -282,9 +275,7 @@ class _AssetIconsRow extends StatelessWidget {
 }
 
 class _AssetIconItem extends StatelessWidget {
-  const _AssetIconItem({
-    required this.asset,
-  });
+  const _AssetIconItem({required this.asset});
 
   final AssetId asset;
 
@@ -300,9 +291,7 @@ class _AssetIconItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
         child: Container(
           height: size,
-          constraints: BoxConstraints(
-            minWidth: size,
-          ),
+          constraints: BoxConstraints(minWidth: size),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface.withOpacity(0.3),
             borderRadius: BorderRadius.circular(8.0),

@@ -12,7 +12,8 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
+
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
 import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
@@ -36,8 +37,10 @@ class ActiveCoinsList extends StatelessWidget {
     return BlocBuilder<CoinsBloc, CoinsState>(
       builder: (context, state) {
         final coins = state.walletCoins.values.toList();
-        final Iterable<Coin> displayedCoins =
-            _getDisplayedCoins(coins, context.sdk);
+        final Iterable<Coin> displayedCoins = _getDisplayedCoins(
+          coins,
+          context.sdk,
+        );
 
         if (displayedCoins.isEmpty &&
             (searchPhrase.isNotEmpty || withBalance)) {
@@ -50,8 +53,10 @@ class ActiveCoinsList extends StatelessWidget {
           );
         }
 
-        List<Coin> sorted =
-            sortByPriorityAndBalance(displayedCoins.toList(), context.sdk);
+        List<Coin> sorted = sortByPriorityAndBalance(
+          displayedCoins.toList(),
+          context.sdk,
+        );
 
         if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
           sorted = removeTestCoins(sorted);
@@ -131,10 +136,7 @@ class AddressBalanceList extends StatelessWidget {
           itemCount: sortedAddresses.length,
           itemBuilder: (context, index) {
             final pubkey = sortedAddresses[index];
-            return AddressBalanceCard(
-              pubkey: pubkey,
-              coin: coin,
-            );
+            return AddressBalanceCard(pubkey: pubkey, coin: coin);
           },
         ),
 
@@ -160,23 +162,25 @@ class AddressBalanceList extends StatelessWidget {
       return '';
     }
 
-    return cantCreateNewAddressReasons!.map((reason) {
-      return switch (reason) {
-        // TODO: Localise and possibly also move localisations to the SDK.
-        CantCreateNewAddressReason.maxGapLimitReached =>
-          'Maximum gap limit reached - please use existing unused addresses first',
-        CantCreateNewAddressReason.maxAddressesReached =>
-          'Maximum number of addresses reached for this asset',
-        CantCreateNewAddressReason.missingDerivationPath =>
-          'Missing derivation path configuration',
-        CantCreateNewAddressReason.protocolNotSupported =>
-          'Protocol does not support multiple addresses',
-        CantCreateNewAddressReason.derivationModeNotSupported =>
-          'Current wallet mode does not support multiple addresses',
-        CantCreateNewAddressReason.noActiveWallet =>
-          'No active wallet - please sign in first',
-      };
-    }).join('\n');
+    return cantCreateNewAddressReasons!
+        .map((reason) {
+          return switch (reason) {
+            // TODO: Localise and possibly also move localisations to the SDK.
+            CantCreateNewAddressReason.maxGapLimitReached =>
+              'Maximum gap limit reached - please use existing unused addresses first',
+            CantCreateNewAddressReason.maxAddressesReached =>
+              'Maximum number of addresses reached for this asset',
+            CantCreateNewAddressReason.missingDerivationPath =>
+              'Missing derivation path configuration',
+            CantCreateNewAddressReason.protocolNotSupported =>
+              'Protocol does not support multiple addresses',
+            CantCreateNewAddressReason.derivationModeNotSupported =>
+              'Current wallet mode does not support multiple addresses',
+            CantCreateNewAddressReason.noActiveWallet =>
+              'No active wallet - please sign in first',
+          };
+        })
+        .join('\n');
   }
 }
 
@@ -212,7 +216,9 @@ class AddressBalanceCard extends StatelessWidget {
                         children: [
                           AddressText(address: pubkey.address),
                           AddressCopyButton(
-                              address: pubkey.address, coinAbbr: coin.abbr),
+                            address: pubkey.address,
+                            coinAbbr: coin.abbr,
+                          ),
                           if (pubkey.isActiveForSwap)
                             // TODO: Refactor to use "DexPill" component from the SDK UI library (not yet created)
                             Padding(
@@ -231,7 +237,7 @@ class AddressBalanceCard extends StatelessWidget {
                                   style: TextStyle(fontSize: isMobile ? 9 : 12),
                                 ),
                               ),
-                            )
+                            
                         ],
                       ),
                       if (pubkey.derivationPath != null)
@@ -261,10 +267,10 @@ class AddressBalanceCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    CoinFiatBalance(
-                      coin.copyWith(),
+                    _AddressFiatBalance(
+                      coin: coin,
+                      balance: pubkey.balance.spendable.toDouble(),
                       style: Theme.of(context).textTheme.bodySmall,
-                      // customBalance: pubkey.balance.spendable.toDouble(),
                     ),
                   ],
                 ),
@@ -302,5 +308,30 @@ class AddressBalanceCard extends StatelessWidget {
 
   String formatBalance(BigInt balance) {
     return doubleToString(balance.toDouble());
+  }
+}
+
+class _AddressFiatBalance extends StatelessWidget {
+  const _AddressFiatBalance({
+    required this.coin,
+    required this.balance,
+    this.style,
+  });
+
+  final Coin coin;
+  final double balance;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final sdk = context.sdk;
+    final price = sdk.marketData.priceIfKnown(coin.id);
+
+    if (price == null) {
+      return Text(formatUsdValue(null), style: style);
+    }
+
+    final fiatValue = (Decimal.parse(balance.toString()) * price).toDouble();
+    return Text(formatUsdValue(fiatValue), style: style);
   }
 }
