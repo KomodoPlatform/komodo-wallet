@@ -74,9 +74,7 @@ class _WalletLogInState extends State<WalletLogIn> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.wallet.config.type =
-          _isHdMode && _user != null && _user!.isBip39Seed == true
-              ? WalletType.hdwallet
-              : WalletType.iguana;
+          _isHdMode ? WalletType.hdwallet : WalletType.iguana;
 
       widget.onLogin(
         _passwordController.text,

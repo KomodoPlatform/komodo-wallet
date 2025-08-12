@@ -105,6 +105,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       }
 
       _log.info('logged in from a wallet');
+      await _kdfSdk.setWalletType(event.wallet.config.type);
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
