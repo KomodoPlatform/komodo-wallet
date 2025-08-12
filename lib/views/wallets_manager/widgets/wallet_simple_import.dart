@@ -366,17 +366,11 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       MnemonicFailedReason.customNotAllowed =>
         LocaleKeys.customSeedWarningText.tr(),
       MnemonicFailedReason.invalidWord =>
-        LocaleKeys.seedConfirmIncorrectText.tr(),
-      MnemonicFailedReason.invalidChecksum => _isHdMode
-          ? LocaleKeys.walletCreationHdBip39SeedError.tr()
-          : LocaleKeys.walletCreationBip39SeedError.tr(),
+        LocaleKeys.mnemonicInvalidWordError.tr(),
+      MnemonicFailedReason.invalidChecksum =>
+        LocaleKeys.mnemonicInvalidChecksumError.tr(),
       MnemonicFailedReason.invalidLength =>
-        // TODO: Add this string has placeholders for min/max counts, which we
-        // specify as "12" and "24"
-        // LocaleKeys.seedPhraseCheckingEnterWord.tr(args: ['12', '24']),
-        _isHdMode
-            ? LocaleKeys.walletCreationHdBip39SeedError.tr()
-            : LocaleKeys.walletCreationBip39SeedError.tr(),
+        LocaleKeys.mnemonicInvalidLengthError.tr(args: ['12', '24']),
     };
   }
 }
