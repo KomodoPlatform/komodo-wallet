@@ -21,6 +21,11 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_for
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
 
+bool _isMemoSupportedProtocol(Asset asset) {
+  final protocol = asset.protocol;
+  return protocol is TendermintProtocol || protocol is ZhtlcProtocol;
+}
+
 class WithdrawForm extends StatefulWidget {
   final Asset asset;
   final VoidCallback onSuccess;
@@ -443,7 +448,7 @@ class WithdrawFormFillSection extends StatelessWidget {
               ],
             ],
             const SizedBox(height: 16),
-            if (state.asset.protocol is TendermintProtocol || state.asset.protocol is ZhtlcProtocol) ...[
+            if (_isMemoSupportedProtocol(state.asset)) ...[
             WithdrawMemoField(
               memo: state.memo,
               onChanged: (value) => context
