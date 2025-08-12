@@ -49,13 +49,14 @@ class _WalletLogInState extends State<WalletLogIn> {
   Future<void> _fetchKdfUser() async {
     final kdfSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final users = await kdfSdk.auth.getUsers();
-    final user = users
-        .firstWhereOrNull((user) => user.walletId.name == widget.wallet.name);
+    final user = users.firstWhereOrNull(
+      (user) => user.walletId.name == widget.wallet.name,
+    );
 
     if (user != null) {
       setState(() {
         _user = user;
-        _isHdMode = user.wallet.config.type == WalletType.hdwallet;
+        _isHdMode = user.walletId.isHd;
       });
     }
   }
@@ -73,13 +74,11 @@ class _WalletLogInState extends State<WalletLogIn> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.wallet.config.type =
-          _isHdMode ? WalletType.hdwallet : WalletType.iguana;
+      widget.wallet.config.type = _isHdMode
+          ? WalletType.hdwallet
+          : WalletType.iguana;
 
-      widget.onLogin(
-        _passwordController.text,
-        widget.wallet,
-      );
+      widget.onLogin(_passwordController.text, widget.wallet);
     });
   }
 
@@ -89,8 +88,8 @@ class _WalletLogInState extends State<WalletLogIn> {
       builder: (context, state) {
         final errorMessage =
             state.authError?.type == AuthExceptionType.incorrectPassword
-                ? LocaleKeys.incorrectPassword.tr()
-                : state.authError?.message;
+            ? LocaleKeys.incorrectPassword.tr()
+            : state.authError?.message;
 
         return AutofillGroup(
           child: Column(
@@ -98,10 +97,9 @@ class _WalletLogInState extends State<WalletLogIn> {
             children: [
               Text(
                 LocaleKeys.walletLogInTitle.tr(),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontSize: 18),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 18),
               ),
               const SizedBox(height: 40),
               UiTextFormField(
@@ -111,9 +109,7 @@ class _WalletLogInState extends State<WalletLogIn> {
                 autocorrect: false,
                 autofillHints: const [AutofillHints.username],
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               PasswordTextField(
                 onFieldSubmitted: state.isLoading ? null : _submitLogin,
                 controller: _passwordController,

@@ -24,7 +24,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   /// Handles [AuthBlocEvent]s and emits [AuthBlocState]s.
   /// [_kdfSdk] is an instance of [KomodoDefiSdk] used for authentication.
   AuthBloc(this._kdfSdk, this._walletsRepository, this._settingsRepository)
-      : super(AuthBlocState.initial()) {
+    : super(AuthBlocState.initial()) {
     on<AuthModeChanged>(_onAuthChanged);
     on<AuthStateClearRequested>(_onClearState);
     on<AuthSignOutRequested>(_onLogout);
@@ -105,7 +105,6 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       }
 
       _log.info('logged in from a wallet');
-      await _kdfSdk.setWalletType(event.wallet.config.type);
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
@@ -172,7 +171,6 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       );
 
       _log.info('registered from a wallet');
-      await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: false);
       await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
 
@@ -221,7 +219,6 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       );
 
       _log.info('restored from a wallet');
-      await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
       await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
 
@@ -343,8 +340,9 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   void _listenToAuthStateChanges() {
     _authChangesSubscription?.cancel();
     _authChangesSubscription = _kdfSdk.auth.watchCurrentUser().listen((user) {
-      final AuthorizeMode event =
-          user != null ? AuthorizeMode.logIn : AuthorizeMode.noLogin;
+      final AuthorizeMode event = user != null
+          ? AuthorizeMode.logIn
+          : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));
     });
   }
