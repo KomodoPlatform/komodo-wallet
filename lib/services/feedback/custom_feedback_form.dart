@@ -32,6 +32,16 @@ class CustomFeedbackForm extends StatelessWidget {
         final theme = Theme.of(context);
         final isLoading = state.status == FeedbackFormStatus.submitting;
         final formValid = state.isValid && !isLoading;
+        final submitLabel = LocaleKeys.sendFeedbackButton.tr();
+        final submitTextStyle = theme.textTheme.labelLarge
+                ?.copyWith(fontWeight: FontWeight.bold, fontSize: 14) ??
+            const TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
+        final TextPainter _submitPainter = TextPainter(
+          text: TextSpan(text: submitLabel, style: submitTextStyle),
+          maxLines: 1,
+          textDirection: Directionality.of(context),
+        )..layout();
+        final double _submitButtonWidth = _submitPainter.width + 32; // 16px horizontal padding on both sides
         return Form(
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
@@ -184,24 +194,25 @@ class CustomFeedbackForm extends StatelessWidget {
                           child: CircularProgressIndicator(strokeWidth: 2.0),
                         ),
                       ),
-                    UiUnderlineTextButton(
-                      width: 100,
-                      height: 40,
-                      text: LocaleKeys.cancel.tr(),
-                      onPressed: isLoading
-                          ? null
-                          : () => BetterFeedback.of(context).hide(),
+                    TextButton(
+                      onPressed:
+                          isLoading ? null : () => BetterFeedback.of(context).hide(),
+                      child: Text(LocaleKeys.cancel.tr()),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 8),
                     UiPrimaryButton(
-                      width: 130,
+                      width: _submitButtonWidth,
                       height: 40,
                       onPressed: formValid
                           ? () => context
                               .read<FeedbackFormBloc>()
                               .add(const FeedbackFormSubmitted())
                           : null,
-                      text: 'SUBMIT',
+                      text: submitLabel,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                     ),
                   ],
                 ),
