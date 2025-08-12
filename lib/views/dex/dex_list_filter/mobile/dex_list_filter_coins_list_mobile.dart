@@ -41,6 +41,7 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
         children: [
           UiTextFormField(
             hintText: LocaleKeys.searchAssets.tr(),
+            autofocus: true,
             onChanged: (String? searchPhrase) {
               setState(() {
                 _searchPhrase = searchPhrase ?? '';

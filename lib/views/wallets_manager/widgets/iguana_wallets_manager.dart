@@ -18,18 +18,23 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_import_wrapper.dart
 import 'package:web_dex/views/wallets_manager/widgets/wallet_login.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_list.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager_controls.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 
 class IguanaWalletsManager extends StatefulWidget {
   const IguanaWalletsManager({
     required this.eventType,
     required this.close,
     required this.onSuccess,
+    this.initialWallet,
+    this.initialHdMode = false,
     super.key,
   });
 
   final WalletsManagerEventType eventType;
   final VoidCallback close;
   final void Function(Wallet) onSuccess;
+  final Wallet? initialWallet;
+  final bool initialHdMode;
 
   @override
   State<IguanaWalletsManager> createState() => _IguanaWalletsManagerState();
@@ -41,6 +46,19 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
   Wallet? _selectedWallet;
   WalletsManagerExistWalletAction _existWalletAction =
       WalletsManagerExistWalletAction.none;
+  bool _initialHdMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedWallet = widget.initialWallet;
+    _initialHdMode = widget.initialWallet?.config.type == WalletType.hdwallet
+        ? true
+        : widget.initialHdMode;
+    if (_selectedWallet != null) {
+      _existWalletAction = WalletsManagerExistWalletAction.logIn;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +111,9 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
                       });
                     },
                   ),
-                  Divider(height: 32, thickness: 2),
+                  if (context.read<WalletsRepository>().wallets?.isNotEmpty ??
+                      false)
+                    const Divider(height: 32, thickness: 2),
                   WalletsManagerControls(
                     onTap: (newAction) {
                       setState(() {
@@ -144,6 +164,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
             wallet: selectedWallet,
             onLogin: _logInToWallet,
             onCancel: _cancel,
+            initialHdMode: _initialHdMode,
           );
       }
     }

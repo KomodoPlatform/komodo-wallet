@@ -45,6 +45,7 @@ extension AssetCoinExtension on Asset {
       walletOnly: config.valueOrNull<bool>('wallet_only') ?? false,
       mode: id.isSegwit ? CoinMode.segwit : CoinMode.standard,
       derivationPath: id.derivationPath,
+      decimals: id.chainId.decimals ?? 8,
     );
   }
 

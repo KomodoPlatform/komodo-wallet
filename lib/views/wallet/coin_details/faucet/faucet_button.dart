@@ -92,6 +92,7 @@ class _FaucetButtonState extends State<FaucetButton> {
                   children: [
                     Icon(Icons.local_drink_rounded,
                         color: Colors.blue, size: isMobile ? 14 : 16),
+                    const SizedBox(width: 4),
                     Text(
                       LocaleKeys.faucet.tr(),
                       style: TextStyle(

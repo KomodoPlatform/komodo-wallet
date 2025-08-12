@@ -7,12 +7,9 @@ class ThemeCustomLight extends ThemeExtension<ThemeCustomLight>
 
   @override
   late final Color suspendedBannerBackgroundColor;
-  @override
-  late final Color keyPadColor;
 
   void initializeThemeDependentColors(ThemeData theme) {
     suspendedBannerBackgroundColor = theme.colorScheme.onSurface;
-    keyPadColor = theme.colorScheme.onSurface;
   }
 
   @override
@@ -212,6 +209,8 @@ class ThemeCustomLight extends ThemeExtension<ThemeCustomLight>
   @override
   final bridgeFormHeader = const TextStyle(
       fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 3.5);
+  @override
+  final Color keyPadColor = const Color.fromRGBO(251, 251, 251, 1);
   @override
   final Color keyPadTextColor = const Color.fromRGBO(129, 151, 182, 1);
   @override

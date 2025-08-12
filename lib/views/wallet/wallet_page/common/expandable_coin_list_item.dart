@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
@@ -17,6 +18,7 @@ import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
 import 'package:app_theme/src/dark/theme_custom_dark.dart';
 import 'package:app_theme/src/light/theme_custom_light.dart';
+import 'package:web_dex/views/wallet/common/address_icon.dart';
 
 /// Widget for showing an authenticated user's balance and anddresses for a
 /// given coin
@@ -75,6 +77,19 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
         ? (List.of(widget.pubkeys!.keys)
           ..sort((a, b) => b.balance.spendable.compareTo(a.balance.spendable)))
         : null;
+    final children = sortedAddresses != null
+        ? sortedAddresses
+            .map(
+              (pubkey) => _AddressRow(
+                pubkey: pubkey,
+                coin: widget.coin,
+                isSwapAddress: pubkey == sortedAddresses.first,
+                onTap: widget.onTap,
+                onCopy: () => copyToClipBoard(context, pubkey.address),
+              ),
+            )
+            .toList()
+        : [SkeletonListTile()];
 
     // Match GroupedAssetTickerItem: 16 horizontal, 16 vertical for both (mobile)
     // For desktop, set vertical padding to achieve 78px height
@@ -103,17 +118,7 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
       maintainState: true,
       childrenDivider: const Divider(height: 1, indent: 16, endIndent: 16),
       trailing: CoinMoreActionsButton(coin: widget.coin),
-      children: sortedAddresses
-          ?.map(
-            (pubkey) => _AddressRow(
-              pubkey: pubkey,
-              coin: widget.coin,
-              isSwapAddress: pubkey == sortedAddresses.first,
-              onTap: widget.onTap,
-              onCopy: () => copyToClipBoard(context, pubkey.address),
-            ),
-          )
-          .toList(),
+      children: children,
     );
   }
 
@@ -272,16 +277,14 @@ class _AddressRow extends StatelessWidget {
         onTap: onTap,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        leading: CircleAvatar(
-          radius: 16,
-          backgroundColor: theme.colorScheme.surfaceContainerHigh,
-          child: const Icon(Icons.person_outline),
-        ),
+        leading: AddressIcon(address: pubkey.address),
         title: Row(
           children: [
-            Text(
-              pubkey.addressShort,
-              style: theme.textTheme.bodyMedium,
+            Flexible(
+              child: AutoScrollText(
+                text: pubkey.address,
+                style: theme.textTheme.bodyMedium,
+              ),
             ),
             const SizedBox(width: 8),
             Material(
@@ -296,13 +299,24 @@ class _AddressRow extends StatelessWidget {
             if (isSwapAddress &&
                 context.watch<TradingStatusBloc>().state is TradingEnabled) ...[
               const SizedBox(width: 8),
-              const Chip(
-                label: Text(
-                  'Swap',
-                  // style: theme.textTheme.labelSmall,
+              // TODO: Refactor to use "DexPill" component from the SDK UI library (not yet created)
+              Padding(
+                padding: EdgeInsets.only(left: isMobile ? 4 : 8),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: isMobile ? 6 : 8,
+                    horizontal: isMobile ? 8 : 12.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiary,
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: Text(
+                    LocaleKeys.dexAddress.tr(),
+                    style: TextStyle(fontSize: isMobile ? 9 : 12),
+                  ),
                 ),
-                // backgroundColor: theme.colorScheme.primaryContainer,
-              ),
+              )      
             ],
           ],
         ),
@@ -342,7 +356,7 @@ class CoinMoreActionsButton extends StatelessWidget {
       onSelected: (action) async {
         switch (action) {
           case CoinMoreActions.disable:
-            confirmBeforeDisablingCoin(coin, context, null);
+            confirmBeforeDisablingCoin(coin, context);
         }
       },
       itemBuilder: (context) {

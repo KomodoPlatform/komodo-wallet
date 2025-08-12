@@ -10,6 +10,7 @@ import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/bloc/fiat/ramp/models/host_assets_config.dart';
 import 'package:web_dex/bloc/fiat/ramp/models/onramp_purchase_quotation/onramp_purchase_quotation.dart';
+import 'package:web_dex/bloc/fiat/ramp/ramp_api_utils.dart';
 
 const komodoLogoUrl = 'https://app.komodoplatform.com/icons/logo_icon.png';
 
@@ -97,10 +98,14 @@ class RampFiatProvider extends BaseFiatProvider {
 
   @override
   Future<List<FiatCurrency>> getFiatList() async {
-    final response = await _getFiats();
-    final data = response as List<dynamic>;
+    final raw = await _getFiats();
+    final data = RampApiUtils.validateResponse<List<Map<String, dynamic>>>(
+      raw,
+      context: '_getFiats',
+    );
+
     return data
-        .where((item) => item['onrampAvailable'] as bool)
+        .where((item) => item['onrampAvailable'] as bool? ?? false)
         .map(
           (item) => FiatCurrency(
             symbol: item['fiatCurrency'] as String,
@@ -114,9 +119,13 @@ class RampFiatProvider extends BaseFiatProvider {
   @override
   Future<List<CryptoCurrency>> getCoinList() async {
     try {
-      final response = await _getCoins();
-      final config =
-          HostAssetsConfig.fromJson(response as Map<String, dynamic>);
+      final raw = await _getCoins();
+      final response = RampApiUtils.validateResponse<Map<String, dynamic>>(
+        raw,
+        context: '_getCoins',
+      );
+
+      final config = HostAssetsConfig.fromJson(response);
 
       return config.assets
           .map((asset) {

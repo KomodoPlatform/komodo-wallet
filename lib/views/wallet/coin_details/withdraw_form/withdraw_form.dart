@@ -2,6 +2,7 @@ import 'dart:async' show Timer;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -18,6 +19,7 @@ import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
 
 class WithdrawForm extends StatefulWidget {
   final Asset asset;
@@ -42,9 +44,12 @@ class _WithdrawFormState extends State<WithdrawForm> {
   @override
   void initState() {
     super.initState();
+    final authBloc = context.read<AuthBloc>();
+    final walletType = authBloc.state.currentUser?.wallet.config.type;
     _formBloc = WithdrawFormBloc(
       asset: widget.asset,
       sdk: _sdk,
+      walletType: walletType,
     );
   }
 
@@ -94,6 +99,31 @@ class _WithdrawFormState extends State<WithdrawForm> {
                       walletType: walletType,
                     ),
                   );
+            },
+          ),
+          BlocListener<WithdrawFormBloc, WithdrawFormState>(
+            listenWhen: (prev, curr) =>
+                prev.isAwaitingTrezorConfirmation !=
+                curr.isAwaitingTrezorConfirmation,
+            listener: (context, state) {
+              if (state.isAwaitingTrezorConfirmation) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => TrezorWithdrawProgressDialog(
+                    message: LocaleKeys.trezorTransactionInProgressMessage.tr(),
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                      context.read<WithdrawFormBloc>().add(const WithdrawFormCancelled());
+                    },
+                  ),
+                );
+              } else {
+                // Dismiss dialog if it's open
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              }
             },
           ),
         ],
@@ -222,7 +252,7 @@ class PreviewWithdrawButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 48,
-      child: FilledButton(
+      child: UiPrimaryButton(
         onPressed: onPressed,
         child: isSending
             ? const SizedBox(
@@ -230,7 +260,7 @@ class PreviewWithdrawButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : Text(LocaleKeys.previewWithdrawal.tr()),
+            : Text(LocaleKeys.withdrawPreview.tr()),
       ),
     );
   }

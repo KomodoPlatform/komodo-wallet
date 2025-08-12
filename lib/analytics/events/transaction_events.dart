@@ -200,6 +200,7 @@ class SwapSucceededEventData implements AnalyticsEventData {
     required this.amount,
     required this.fee,
     required this.walletType,
+    this.durationMs,
   });
 
   final String fromAsset;
@@ -207,6 +208,7 @@ class SwapSucceededEventData implements AnalyticsEventData {
   final double amount;
   final double fee;
   final String walletType;
+  final int? durationMs;
 
   @override
   String get name => 'swap_success';
@@ -218,6 +220,7 @@ class SwapSucceededEventData implements AnalyticsEventData {
         'amount': amount,
         'fee': fee,
         'wallet_type': walletType,
+        if (durationMs != null) 'duration_ms': durationMs,
       };
 }
 
@@ -229,12 +232,14 @@ class AnalyticsSwapSucceededEvent extends AnalyticsSendDataEvent {
     required double amount,
     required double fee,
     required String walletType,
+    int? durationMs,
   }) : super(SwapSucceededEventData(
           fromAsset: fromAsset,
           toAsset: toAsset,
           amount: amount,
           fee: fee,
           walletType: walletType,
+          durationMs: durationMs,
         ));
 }
 
@@ -250,12 +255,14 @@ class SwapFailedEventData implements AnalyticsEventData {
     required this.toAsset,
     required this.failStage,
     required this.walletType,
+    this.durationMs,
   });
 
   final String fromAsset;
   final String toAsset;
   final String failStage;
   final String walletType;
+  final int? durationMs;
 
   @override
   String get name => 'swap_failure';
@@ -266,6 +273,7 @@ class SwapFailedEventData implements AnalyticsEventData {
         'to_asset': toAsset,
         'fail_stage': failStage,
         'wallet_type': walletType,
+        if (durationMs != null) 'duration_ms': durationMs,
       };
 }
 
@@ -276,10 +284,12 @@ class AnalyticsSwapFailedEvent extends AnalyticsSendDataEvent {
     required String toAsset,
     required String failStage,
     required String walletType,
+    int? durationMs,
   }) : super(SwapFailedEventData(
           fromAsset: fromAsset,
           toAsset: toAsset,
           failStage: failStage,
           walletType: walletType,
+          durationMs: durationMs,
         ));
 }

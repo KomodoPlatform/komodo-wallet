@@ -8,6 +8,7 @@ import 'package:web_dex/bloc/feedback_form/feedback_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/services/feedback/feedback_models.dart';
 import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/views/support/missing_coins_dialog.dart';
 
 /// A form that prompts the user for feedback using BLoC for state management.
 class CustomFeedbackForm extends StatelessWidget {
@@ -78,9 +79,14 @@ class CustomFeedbackForm extends StatelessWidget {
                               .toList(),
                           onChanged: isLoading
                               ? null
-                              : (feedbackType) => context
-                                  .read<FeedbackFormBloc>()
-                                  .add(FeedbackFormTypeChanged(feedbackType)),
+                              : (feedbackType) {
+                                  if (feedbackType ==
+                                      FeedbackType.missingCoins) {
+                                    showMissingCoinsDialog(context);
+                                  }
+                                  context.read<FeedbackFormBloc>().add(
+                                      FeedbackFormTypeChanged(feedbackType));
+                                },
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -92,6 +98,7 @@ class CustomFeedbackForm extends StatelessWidget {
                           maxLength: feedbackMaxLength,
                           maxLengthEnforcement: MaxLengthEnforcement.enforced,
                           enabled: !isLoading,
+                          autofocus: true,
                           hintText: 'Enter your feedback here...',
                           errorText: state.feedbackTextError,
                           validationMode: InputValidationMode.eager,
@@ -101,7 +108,9 @@ class CustomFeedbackForm extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          state.feedbackType == FeedbackType.support
+                          state.feedbackType == FeedbackType.support ||
+                                  state.feedbackType ==
+                                      FeedbackType.missingCoins
                               ? 'How can we contact you?'
                               : 'How can we contact you? (Optional)',
                           style: theme.textTheme.titleMedium,

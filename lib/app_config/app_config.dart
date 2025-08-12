@@ -11,12 +11,14 @@ const double appBarHeight = 70;
 const int scaleOnInfinitePrecision = 20; // ETH has 18 decimals, so use more
 const String allWalletsStorageKey = 'all-wallets';
 const String defaultDexCoin = 'KMD';
+const String trezorWalletNamePrefix = 'my trezor';
 const List<Locale> localeList = [Locale('en')];
 const String assetsPath = 'assets';
 const String coinsAssetsPath = 'packages/komodo_defi_framework/assets';
 
 final Uri discordSupportChannelUrl = Uri.parse(
-    'https://discord.com/channels/412898016371015680/429676282196787200');
+  'https://discord.com/channels/412898016371015680/429676282196787200',
+);
 final Uri discordInviteUrl = Uri.parse('https://komodoplatform.com/discord');
 
 /// Const to define if Bitrefill integration is enabled in the app.
@@ -91,6 +93,7 @@ Map<String, int> priorityCoinsAbbrMap = {
 
 /// List of coins that are excluded from the list of coins displayed on the
 /// coin lists (e.g. wallet page, coin selection dropdowns, etc.)
+/// TODO: remove this list once zhltc and NFTs are fully supported in the SDK
 const Set<String> excludedAssetList = {
   'ADEXBSCT',
   'ADEXBSC',
@@ -160,17 +163,17 @@ const List<String> appWalletOnlyAssetList = [
 /// Coins that are enabled by default on restore from seed or registration.
 /// This will not affect existing wallets.
 List<String> get enabledByDefaultCoins => [
-      'KMD', // Always included (Komodo ecosystem)
-      'BTC-segwit', // Bitcoin (Rank 1, ~$2.21T market cap)
-      'ETH', // Ethereum (Rank 2, ~$335B market cap)
-      'BNB', // Binance Coin (Rank 5, ~$93B market cap)
-      'DOGE', // Dogecoin (Rank 9, ~$27.1B market cap)
-      'LTC-segwit', // Litecoin (popular, has segwit support)
-      'USDT-ERC20', // Tether on Ethereum (most common stablecoin)
-      'XRP', // XRP (Rank 4, ~$145B market cap)
-      if (kDebugMode) 'DOC',
-      if (kDebugMode) 'MARTY',
-    ];
+  'KMD', // Always included (Komodo ecosystem)
+  'BTC-segwit', // Bitcoin (Rank 1, ~$2.21T market cap)
+  'ETH', // Ethereum (Rank 2, ~$335B market cap)
+  'BNB', // Binance Coin (Rank 5, ~$93B market cap)
+  'DOGE', // Dogecoin (Rank 9, ~$27.1B market cap)
+  'LTC-segwit', // Litecoin (popular, has segwit support)
+  'USDT-ERC20', // Tether on Ethereum (most common stablecoin)
+  'XRP-ERC20', // XRP (Rank 4, ~$145B market cap)
+  if (kDebugMode) 'DOC',
+  if (kDebugMode) 'MARTY',
+];
 
 List<String> get coinsWithFaucet => ['RICK', 'MORTY', 'DOC', 'MARTY'];
 

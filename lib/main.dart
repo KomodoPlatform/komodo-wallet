@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:feedback/feedback.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWasm, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWasm, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -12,6 +12,7 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:web_dex/analytics/widgets/analytics_lifecycle_handler.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
@@ -27,7 +28,6 @@ import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
-import 'package:web_dex/analytics/widgets/analytics_lifecycle_handler.dart';
 import 'package:web_dex/sdk/widgets/window_close_handler.dart';
 import 'package:web_dex/services/feedback/custom_feedback_form.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
@@ -44,52 +44,49 @@ PerformanceMode? get appDemoPerformanceMode =>
     _appDemoPerformanceMode ?? _getPerformanceModeFromUrl();
 
 Future<void> main() async {
-  await runZonedGuarded(
-    () async {
-      usePathUrlStrategy();
-      WidgetsFlutterBinding.ensureInitialized();
-      Bloc.observer = AppBlocObserver();
-      PerformanceAnalytics.init();
+  await runZonedGuarded(() async {
+    usePathUrlStrategy();
+    WidgetsFlutterBinding.ensureInitialized();
+    Bloc.observer = AppBlocObserver();
+    PerformanceAnalytics.init();
 
-      FlutterError.onError = (FlutterErrorDetails details) {
-        catchUnhandledExceptions(details.exception, details.stack);
-      };
+    FlutterError.onError = (FlutterErrorDetails details) {
+      catchUnhandledExceptions(details.exception, details.stack);
+    };
 
-      // Foundational dependencies / setup - everything else builds on these 3.
-      // The current focus is migrating mm2Api to the new sdk, so that the sdk
-      // is the only/primary API/repository for KDF
-      final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
-      final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
-      await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api);
+    // Foundational dependencies / setup - everything else builds on these 3.
+    // The current focus is migrating mm2Api to the new sdk, so that the sdk
+    // is the only/primary API/repository for KDF
+    final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
+    final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
+    await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api);
 
-      final coinsRepo = CoinsRepo(kdfSdk: komodoDefiSdk, mm2: mm2);
-      final walletsRepository = WalletsRepository(
-        komodoDefiSdk,
-        mm2Api,
-        getStorage(),
-      );
+    final coinsRepo = CoinsRepo(kdfSdk: komodoDefiSdk, mm2: mm2);
+    final walletsRepository = WalletsRepository(
+      komodoDefiSdk,
+      mm2Api,
+      getStorage(),
+    );
 
-      runApp(
-        EasyLocalization(
-          supportedLocales: localeList,
-          fallbackLocale: localeList.first,
-          useFallbackTranslations: true,
-          useOnlyLangCode: true,
-          path: '$assetsPath/translations',
-          child: MultiRepositoryProvider(
-            providers: [
-              RepositoryProvider(create: (_) => komodoDefiSdk),
-              RepositoryProvider(create: (_) => mm2Api),
-              RepositoryProvider(create: (_) => coinsRepo),
-              RepositoryProvider(create: (_) => walletsRepository),
-            ],
-            child: const MyApp(),
-          ),
+    runApp(
+      EasyLocalization(
+        supportedLocales: localeList,
+        fallbackLocale: localeList.first,
+        useFallbackTranslations: true,
+        useOnlyLangCode: true,
+        path: '$assetsPath/translations',
+        child: MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider(create: (_) => komodoDefiSdk),
+            RepositoryProvider(create: (_) => mm2Api),
+            RepositoryProvider(create: (_) => coinsRepo),
+            RepositoryProvider(create: (_) => walletsRepository),
+          ],
+          child: const MyApp(),
         ),
-      );
-    },
-    catchUnhandledExceptions,
-  );
+      ),
+    );
+  }, catchUnhandledExceptions);
 }
 
 void catchUnhandledExceptions(Object error, StackTrace? stack) {
@@ -145,7 +142,10 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (_) {
             final bloc = AuthBloc(
-                komodoDefiSdk, walletsRepository, SettingsRepository());
+              komodoDefiSdk,
+              walletsRepository,
+              SettingsRepository(),
+            );
             bloc.add(const AuthLifecycleCheckRequested());
             return bloc;
           },
@@ -177,10 +177,6 @@ FeedbackThemeData _feedbackThemeData(ThemeData appTheme) {
     colorScheme: appTheme.colorScheme,
     sheetIsDraggable: true,
     feedbackSheetHeight: 0.3,
-    drawColors: [
-      Colors.red,
-      Colors.white,
-      Colors.green,
-    ],
+    drawColors: [Colors.red, Colors.white, Colors.green],
   );
 }

@@ -35,3 +35,8 @@ class WeakPasswordsAllowedChanged extends SettingsEvent {
   @override
   List<Object> get props => [weakPasswordsAllowed];
 }
+
+class HideZeroBalanceAssetsChanged extends SettingsEvent {
+  const HideZeroBalanceAssetsChanged({required this.hideZeroBalanceAssets});
+  final bool hideZeroBalanceAssets;
+}

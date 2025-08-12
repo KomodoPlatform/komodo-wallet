@@ -19,6 +19,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<MarketMakerBotSettingsChanged>(_onMarketMakerBotSettingsChanged);
     on<TestCoinsEnabledChanged>(_onTestCoinsEnabledChanged);
     on<WeakPasswordsAllowedChanged>(_onWeakPasswordsAllowedChanged);
+    on<HideZeroBalanceAssetsChanged>(_onHideZeroBalanceAssetsChanged);
   }
 
   late StoredSettings _storedSettings;
@@ -67,5 +68,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           weakPasswordsAllowed: event.weakPasswordsAllowed),
     );
     emitter(state.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed));
+  }
+
+  Future<void> _onHideZeroBalanceAssetsChanged(
+    HideZeroBalanceAssetsChanged event,
+    Emitter<SettingsState> emitter,
+  ) async {
+    await _settingsRepo.updateSettings(
+      _storedSettings.copyWith(
+        hideZeroBalanceAssets: event.hideZeroBalanceAssets,
+      ),
+    );
+    emitter(state.copyWith(hideZeroBalanceAssets: event.hideZeroBalanceAssets));
   }
 }

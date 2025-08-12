@@ -26,6 +26,9 @@ class WithdrawFormState extends Equatable {
   final bool isSending;
   final WithdrawalResult? result;
 
+  // Hardware wallet progress state
+  final bool isAwaitingTrezorConfirmation;
+
   // Validation errors
   final TextError? recipientAddressError; // Basic address validation
   final bool isMixedCaseAddress; // EVM mixed case specific error
@@ -55,6 +58,10 @@ class WithdrawFormState extends Equatable {
   // field validators
   /// Checks if the form has valid data to submit, not just absence of errors
   bool _hasValidFormData() {
+    // A source address must be selected
+    if (selectedSourceAddress == null) {
+      return false;
+    }
     // Recipient address is required and must not be empty
     if (recipientAddress.trim().isEmpty) {
       return false;
@@ -101,6 +108,8 @@ class WithdrawFormState extends Equatable {
     this.preview,
     this.isSending = false,
     this.result,
+    // Hardware wallet state
+    this.isAwaitingTrezorConfirmation = false,
     // Error states
     this.recipientAddressError,
     this.isMixedCaseAddress = false,
@@ -128,6 +137,8 @@ class WithdrawFormState extends Equatable {
     ValueGetter<WithdrawalPreview?>? preview,
     bool? isSending,
     ValueGetter<WithdrawalResult?>? result,
+    // Hardware wallet state
+    bool? isAwaitingTrezorConfirmation,
     // Error states
     ValueGetter<TextError?>? recipientAddressError,
     bool? isMixedCaseAddress,
@@ -156,18 +167,25 @@ class WithdrawFormState extends Equatable {
       preview: preview != null ? preview() : this.preview,
       isSending: isSending ?? this.isSending,
       result: result != null ? result() : this.result,
+      // Hardware wallet state
+      isAwaitingTrezorConfirmation:
+          isAwaitingTrezorConfirmation ?? this.isAwaitingTrezorConfirmation,
+      // Error states
       recipientAddressError: recipientAddressError != null
           ? recipientAddressError()
           : this.recipientAddressError,
       isMixedCaseAddress: isMixedCaseAddress ?? this.isMixedCaseAddress,
       amountError: amountError != null ? amountError() : this.amountError,
-      customFeeError:
-          customFeeError != null ? customFeeError() : this.customFeeError,
-      ibcChannelError:
-          ibcChannelError != null ? ibcChannelError() : this.ibcChannelError,
+      customFeeError: customFeeError != null
+          ? customFeeError()
+          : this.customFeeError,
+      ibcChannelError: ibcChannelError != null
+          ? ibcChannelError()
+          : this.ibcChannelError,
       previewError: previewError != null ? previewError() : this.previewError,
-      transactionError:
-          transactionError != null ? transactionError() : this.transactionError,
+      transactionError: transactionError != null
+          ? transactionError()
+          : this.transactionError,
       networkError: networkError != null ? networkError() : this.networkError,
     );
   }
@@ -185,8 +203,9 @@ class WithdrawFormState extends Equatable {
           : null,
       memo: memo,
       ibcTransfer: isIbcTransfer ? true : null,
-      ibcSourceChannel:
-          ibcChannel?.isNotEmpty == true ? ibcChannel!.trim() : null,
+      ibcSourceChannel: ibcChannel?.isNotEmpty == true
+          ? int.tryParse(ibcChannel!.trim())
+          : null,
       isMax: isMaxAmount,
     );
   }
@@ -202,28 +221,29 @@ class WithdrawFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        asset,
-        pubkeys,
-        step,
-        recipientAddress,
-        amount,
-        selectedSourceAddress,
-        isMaxAmount,
-        isCustomFee,
-        customFee,
-        memo,
-        isIbcTransfer,
-        ibcChannel,
-        preview,
-        isSending,
-        result,
-        recipientAddressError,
-        isMixedCaseAddress,
-        amountError,
-        customFeeError,
-        ibcChannelError,
-        previewError,
-        transactionError,
-        networkError,
-      ];
+    asset,
+    pubkeys,
+    step,
+    recipientAddress,
+    amount,
+    selectedSourceAddress,
+    isMaxAmount,
+    isCustomFee,
+    customFee,
+    memo,
+    isIbcTransfer,
+    ibcChannel,
+    preview,
+    isSending,
+    result,
+    isAwaitingTrezorConfirmation,
+    recipientAddressError,
+    isMixedCaseAddress,
+    amountError,
+    customFeeError,
+    ibcChannelError,
+    previewError,
+    transactionError,
+    networkError,
+  ];
 }

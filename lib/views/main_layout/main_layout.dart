@@ -71,7 +71,7 @@ class _MainLayoutState extends State<MainLayout> {
             appBar: null,
             body: SafeArea(child: MainLayoutRouter()),
             bottomNavigationBar:
-                isMobile? MainMenuBarMobile() : null,
+                (isMobile || isTablet) ? MainMenuBarMobile() : null,
             floatingActionButton: MainLayoutFab(
               showAddCoinButton: routingState.selectedMenu ==
                       MainMenuValue.wallet &&

@@ -21,6 +21,8 @@ import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/price_chart/price_chart_event.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/bloc/settings/settings_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/common/screen.dart';
@@ -53,7 +55,6 @@ class WalletMain extends StatefulWidget {
 }
 
 class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
-  bool _showCoinWithBalance = false;
   String _searchKey = '';
   PopupDispatcher? _popupDispatcher;
   StreamSubscription<Wallet?>? _walletSubscription;
@@ -251,10 +252,10 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
     assetOverviewBloc.add(const AssetOverviewClearRequested());
   }
 
-  void _onShowCoinsWithBalanceClick(bool? value) {
-    setState(() {
-      _showCoinWithBalance = value ?? false;
-    });
+  void _onShowCoinsWithBalanceClick(bool value) {
+    context
+        .read<SettingsBloc>()
+        .add(HideZeroBalanceAssetsChanged(hideZeroBalanceAssets: value));
   }
 
   void _onSearchChange(String searchKey) {
@@ -290,7 +291,8 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverSearchBarDelegate(
-              withBalance: _showCoinWithBalance,
+              withBalance:
+                  context.watch<SettingsBloc>().state.hideZeroBalanceAssets,
               onSearchChange: _onSearchChange,
               onWithBalanceChange: _onShowCoinsWithBalanceClick,
               mode: mode,
@@ -300,7 +302,8 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
           CoinListView(
             mode: mode,
             searchPhrase: _searchKey,
-            withBalance: _showCoinWithBalance,
+            withBalance:
+                context.watch<SettingsBloc>().state.hideZeroBalanceAssets,
             onActiveCoinItemTap: _onActiveCoinItemTap,
             onAssetItemTap: _onAssetItemTap,
             onAssetStatisticsTap: _onAssetStatisticsTap,

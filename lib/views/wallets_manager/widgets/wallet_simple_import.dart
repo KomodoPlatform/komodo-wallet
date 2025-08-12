@@ -31,13 +31,12 @@ class WalletSimpleImport extends StatefulWidget {
     required String name,
     required String password,
     required WalletConfig walletConfig,
-  })
-  onImport;
+  }) onImport;
 
   final void Function() onCancel;
 
   final void Function({required String fileName, required String fileData})
-  onUploadFiles;
+      onUploadFiles;
 
   @override
   State<WalletSimpleImport> createState() => _WalletImportWrapperState();
@@ -57,7 +56,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
   bool _allowCustomSeed = false;
-  bool _isHdMode = true;
+  bool _isHdMode = false;
 
   bool get _isButtonEnabled {
     final isFormValid = _refreshFormValidationState();
@@ -91,51 +90,53 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
           );
         }
       },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SelectableText(
-            _step == WalletSimpleImportSteps.nameAndSeed
-                ? LocaleKeys.walletImportTitle.tr()
-                : LocaleKeys.walletImportCreatePasswordTitle.tr(
-                    args: [_nameController.text],
-                  ),
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontSize: 20),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                _buildFields(),
-                const SizedBox(height: 20),
-                UiPrimaryButton(
-                  key: const Key('confirm-seed-button'),
-                  text: _inProgress
-                      ? '${LocaleKeys.pleaseWait.tr()}...'
-                      : LocaleKeys.import.tr(),
-                  height: 50,
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  onPressed: _isButtonEnabled ? _onImport : null,
-                ),
-                const SizedBox(height: 20),
-                UiUnderlineTextButton(
-                  onPressed: _onCancel,
-                  text: _step == WalletSimpleImportSteps.nameAndSeed
-                      ? LocaleKeys.cancel.tr()
-                      : LocaleKeys.back.tr(),
-                ),
-              ],
+      child: AutofillGroup(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SelectableText(
+              _step == WalletSimpleImportSteps.nameAndSeed
+                  ? LocaleKeys.walletImportTitle.tr()
+                  : LocaleKeys.walletImportCreatePasswordTitle.tr(
+                      args: [_nameController.text.trim()],
+                    ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontSize: 20),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  _buildFields(),
+                  const SizedBox(height: 20),
+                  UiPrimaryButton(
+                    key: const Key('confirm-seed-button'),
+                    text: _inProgress
+                        ? '${LocaleKeys.pleaseWait.tr()}...'
+                        : LocaleKeys.import.tr(),
+                    height: 50,
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    onPressed: _isButtonEnabled ? _onImport : null,
+                  ),
+                  const SizedBox(height: 20),
+                  UiUnderlineTextButton(
+                    onPressed: _onCancel,
+                    text: _step == WalletSimpleImportSteps.nameAndSeed
+                        ? LocaleKeys.cancel.tr()
+                        : LocaleKeys.back.tr(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -258,6 +259,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       autofocus: true,
       autocorrect: false,
       textInputAction: TextInputAction.next,
+      autofillHints: const [AutofillHints.username],
       validator: (String? name) =>
           _inProgress ? null : walletsRepository.validateWalletName(name ?? ''),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
@@ -326,7 +328,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onImport(
-        name: _nameController.text,
+        name: _nameController.text.trim(),
         password: _passwordController.text,
         walletConfig: config,
       );
@@ -338,16 +340,14 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       return null;
     }
 
-    final maybeFailedReason = context
-        .read<KomodoDefiSdk>()
-        .mnemonicValidator
-        .validateMnemonic(
-          seed ?? '',
-          minWordCount: 12,
-          maxWordCount: 24,
-          isHd: _isHdMode,
-          allowCustomSeed: _allowCustomSeed,
-        );
+    final maybeFailedReason =
+        context.read<KomodoDefiSdk>().mnemonicValidator.validateMnemonic(
+              seed ?? '',
+              minWordCount: 12,
+              maxWordCount: 24,
+              isHd: _isHdMode,
+              allowCustomSeed: _allowCustomSeed,
+            );
 
     if (maybeFailedReason == null) {
       return null;
@@ -356,10 +356,9 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     return switch (maybeFailedReason) {
       MnemonicFailedReason.empty =>
         LocaleKeys.walletCreationEmptySeedError.tr(),
-      MnemonicFailedReason.customNotSupportedForHd =>
-        _isHdMode
-            ? LocaleKeys.walletCreationHdBip39SeedError.tr()
-            : LocaleKeys.walletCreationBip39SeedError.tr(),
+      MnemonicFailedReason.customNotSupportedForHd => _isHdMode
+          ? LocaleKeys.walletCreationHdBip39SeedError.tr()
+          : LocaleKeys.walletCreationBip39SeedError.tr(),
       MnemonicFailedReason.customNotAllowed =>
         LocaleKeys.customSeedWarningText.tr(),
       MnemonicFailedReason.invalidLength =>

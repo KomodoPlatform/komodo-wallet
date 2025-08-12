@@ -5,10 +5,23 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 import 'package:web_dex/shared/widgets/html_parser.dart';
 
+class SupportItemData {
+  const SupportItemData({
+    required this.title,
+    this.content,
+    this.onTap,
+  });
+
+  final String title;
+  final String? content;
+  final VoidCallback? onTap;
+}
+
 class SupportItem extends StatefulWidget {
   const SupportItem({Key? key, required this.data, this.isLast = false})
       : super(key: key);
-  final Map<String, String> data;
+
+  final SupportItemData data;
   final bool isLast;
 
   @override
@@ -34,7 +47,7 @@ class _SupportItemState extends State<SupportItem> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.data['title']!,
+                    widget.data.title,
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w700),
                   ),
@@ -50,6 +63,10 @@ class _SupportItemState extends State<SupportItem> {
               ],
             ),
             onTap: () {
+              if (widget.data.onTap != null) {
+                widget.data.onTap!();
+                return;
+              }
               setState(() {
                 expanded = !expanded;
               });
@@ -59,17 +76,18 @@ class _SupportItemState extends State<SupportItem> {
         const SizedBox(
           height: 10,
         ),
-        Visibility(
-            visible: expanded,
-            child: HtmlParser(
-              widget.data['content']!,
-              linkStyle: TextStyle(
-                  color: theme.custom.headerFloatBoxColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14),
-              textStyle:
-                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-            )),
+        if (widget.data.content != null)
+          Visibility(
+              visible: expanded,
+              child: HtmlParser(
+                widget.data.content!,
+                linkStyle: TextStyle(
+                    color: theme.custom.headerFloatBoxColor,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14),
+                textStyle:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              )),
         const UiDivider(),
       ],
     );

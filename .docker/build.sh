@@ -42,29 +42,58 @@ mkdir -p ./build
 
 COMMIT_HASH=$(git rev-parse --short HEAD | cut -c1-7)
 
+# Only pass GITHUB_API_PUBLIC_READONLY_TOKEN as environment variable
 ENV_ARGS=""
-ENV_VARS="GITHUB_API_PUBLIC_READONLY_TOKEN TRELLO_API_KEY \
-TRELLO_TOKEN TRELLO_BOARD_ID TRELLO_LIST_ID \
-FEEDBACK_API_KEY FEEDBACK_PRODUCTION_URL FEEDBACK_TEST_URL \
-COMMIT_HASH"
+if [ -n "$GITHUB_API_PUBLIC_READONLY_TOKEN" ]; then
+    ENV_ARGS="-e GITHUB_API_PUBLIC_READONLY_TOKEN=$GITHUB_API_PUBLIC_READONLY_TOKEN"
+fi
 
-for VAR in $ENV_VARS; do
-  case "$VAR" in
-    GITHUB_API_PUBLIC_READONLY_TOKEN) VALUE=$GITHUB_API_PUBLIC_READONLY_TOKEN ;;
-    TRELLO_API_KEY) VALUE=$TRELLO_API_KEY ;;
-    TRELLO_TOKEN) VALUE=$TRELLO_TOKEN ;;
-    TRELLO_BOARD_ID) VALUE=$TRELLO_BOARD_ID ;;
-    TRELLO_LIST_ID) VALUE=$TRELLO_LIST_ID ;;
-    FEEDBACK_API_KEY) VALUE=$FEEDBACK_API_KEY ;;
-    FEEDBACK_PRODUCTION_URL) VALUE=$FEEDBACK_PRODUCTION_URL ;;
-    FEEDBACK_TEST_URL) VALUE=$FEEDBACK_TEST_URL ;;
-    COMMIT_HASH) VALUE=$COMMIT_HASH ;;
-    *) VALUE= ;;
-  esac
+# Build command logic
+BUILD_COMMAND="flutter build $BUILD_TARGET --no-pub --$BUILD_MODE"
+# Prepare build command with feedback service credentials
+BUILD_CMD="$BUILD_COMMAND"
+# Add commit hash to build command
+BUILD_CMD="$BUILD_CMD --dart-define=COMMIT_HASH=$COMMIT_HASH"
 
-  [ -n "$VALUE" ] && ENV_ARGS="$ENV_ARGS -e $VAR=$VALUE"
-done
+# Check and add the shared Trello board and list IDs if they are available
+HAVE_TRELLO_IDS=false
+if [ -n "$TRELLO_BOARD_ID" ] && [ -n "$TRELLO_LIST_ID" ]; then
+  HAVE_TRELLO_IDS=true
+  # Add these shared IDs to the build command
+  BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_BOARD_ID=$TRELLO_BOARD_ID"
+  BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_LIST_ID=$TRELLO_LIST_ID"
+fi
 
+# Add Trello feedback service variables if ALL required values are provided
+if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$TRELLO_API_KEY" ] && [ -n "$TRELLO_TOKEN" ]; then
+  echo "Adding Trello feedback service configuration"
+  BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_API_KEY=$TRELLO_API_KEY"
+  BUILD_CMD="$BUILD_CMD --dart-define=TRELLO_TOKEN=$TRELLO_TOKEN"
+else
+  # If any Trello credential is missing, log a message but continue the build
+  if [ -n "$TRELLO_API_KEY" ] || [ -n "$TRELLO_TOKEN" ] || [ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]; then
+    echo "Warning: Incomplete Trello credentials provided. All Trello credentials must be present to include them in the build."
+  fi
+fi
+
+# Add Cloudflare feedback service variables if ALL required values are provided
+# Note: Cloudflare also needs the Trello board and list IDs to be available
+if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$FEEDBACK_API_KEY" ] && [ -n "$FEEDBACK_PRODUCTION_URL" ]; then
+  echo "Adding Cloudflare feedback service configuration"
+  BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_API_KEY=$FEEDBACK_API_KEY"
+  BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_PRODUCTION_URL=$FEEDBACK_PRODUCTION_URL"
+else
+  # If any Cloudflare credential is missing, log a message but continue the build
+  if [ -n "$FEEDBACK_API_KEY" ] || [ -n "$FEEDBACK_PRODUCTION_URL" ] ||
+     ([ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]); then
+    echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
+  fi
+fi
+# Add web-specific build arguments if the target is web
+if [ "$BUILD_TARGET" = "web" ]; then
+    echo "Adding web-specific build arguments: --no-web-resources-cdn"
+    BUILD_CMD="$BUILD_CMD --no-web-resources-cdn"
+fi
 # Use the provided arguments for flutter build
 # Build a second time if needed, as asset downloads will require a rebuild on the first attempt
 docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
@@ -72,4 +101,4 @@ docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
   -u "$HOST_UID:$HOST_GID" \
   $ENV_ARGS \
   komodo/komodo-wallet:latest sh -c \
-  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; flutter build web --no-pub || true; flutter build $BUILD_TARGET --config-only; flutter build $BUILD_TARGET --no-pub --dart-define=COMMIT_HASH=$COMMIT_HASH --$BUILD_MODE"
+  "sudo chown -R komodo:komodo /app/build; flutter pub get --enforce-lockfile; $BUILD_COMMAND || true; flutter build $BUILD_TARGET --config-only; $BUILD_CMD"

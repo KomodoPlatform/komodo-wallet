@@ -15,12 +15,12 @@ Token toggled off / hidden,asset_disabled,Asset Mgmt,"asset_symbol, asset_networ
 Send flow started,send_initiated,Transactions,"asset_symbol, network, amount","Tx funnel start, popular send assets",High (v0.9.0),FALSE,Send form start,Log when user opens send flow with asset and amount.
 On-chain send completed,send_success,Transactions,"asset_symbol, network, amount","Successful sends, volume, avg size",High (v0.9.0),FALSE,Send confirmation,Fire after a transaction broadcast succeeds.
 Send failed / cancelled,send_failure,Transactions,"asset_symbol, network, fail_reason","Error hotspots, UX / network issues",High (v0.9.0),FALSE,Send error handling,Emit when send flow fails or is cancelled.
-Swap order submitted,swap_initiated,Trading (DEX),"from_asset, to_asset, networks","DEX funnel start, pair demand",High (v0.9.0),FALSE,Swap order submit,Dispatch when atomic swap order created.
-Atomic swap succeeded,swap_success,Trading (DEX),"from_asset, to_asset, amount, fee","Trading volume, fee revenue",High (v0.9.0),FALSE,Swap completion,Send on successful atomic swap completion.
-Swap failed,swap_failure,Trading (DEX),"from_asset, to_asset, fail_stage","Liquidity gaps, tech/UX blockers",High (v0.9.0),FALSE,Swap error,Log when swap fails at any stage.
-Bridge transfer started,bridge_initiated,Cross-Chain,"from_chain, to_chain, asset","Bridge demand, chain pairs",Medium (v0.9.1),FALSE,Bridge transfer start,Emit when cross-chain bridge initiated.
-Bridge completed,bridge_success,Cross-Chain,"from_chain, to_chain, asset, amount","Cross-chain volume, success rate",Medium (v0.9.1),FALSE,Bridge completion,Send when bridge transfer succeeds.
-Bridge failed,bridge_failure,Cross-Chain,"from_chain, to_chain, fail_error","Reliability issues, risk analysis",Medium (v0.9.1),FALSE,Bridge error,Fire when bridge transfer fails.
+Swap order submitted,swap_initiated,Trading (DEX),"from_asset, to_asset, networks","DEX funnel start, pair demand",High (v0.9.0),TRUE,Swap order submit,Dispatch when atomic swap order created.
+Atomic swap succeeded,swap_success,Trading (DEX),"from_asset, to_asset, amount, fee","Trading volume, fee revenue",High (v0.9.0),TRUE,Swap completion,Send on successful atomic swap completion.
+Swap failed,swap_failure,Trading (DEX),"from_asset, to_asset, fail_stage","Liquidity gaps, tech/UX blockers",High (v0.9.0),TRUE,Swap error,Log when swap fails at any stage.
+Bridge transfer started,bridge_initiated,Cross-Chain,"from_chain, to_chain, asset","Bridge demand, chain pairs",Medium (v0.9.1),TRUE,Bridge transfer start,Emit when cross-chain bridge initiated.
+Bridge completed,bridge_success,Cross-Chain,"from_chain, to_chain, asset, amount","Cross-chain volume, success rate",Medium (v0.9.1),TRUE,Bridge completion,Send when bridge transfer succeeds.
+Bridge failed,bridge_failure,Cross-Chain,"from_chain, to_chain, fail_error","Reliability issues, risk analysis",Medium (v0.9.1),TRUE,Bridge error,Fire when bridge transfer fails.
 NFT gallery opened (measure load perf),nft_gallery_opened,NFT Wallet,"nft_count, load_time_ms","NFT engagement, gallery performance",Medium (v0.9.1),FALSE,NFT gallery screen,Record load time and count when gallery opened.
 NFT send flow started,nft_transfer_initiated,NFT Wallet,"collection_name, token_id, hd_type","NFT tx funnel start, collection popularity",Medium (v0.9.1),FALSE,NFT send screen,Trigger when user opens NFT transfer flow.
 NFT sent successfully,nft_transfer_success,NFT Wallet,"collection_name, token_id, fee, hd_type","NFT volume, user confidence",Medium (v0.9.1),FALSE,NFT send confirmation,Log when NFT transfer completes successfully.

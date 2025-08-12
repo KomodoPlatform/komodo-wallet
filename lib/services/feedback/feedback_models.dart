@@ -1,3 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
+
 class CustomFeedback {
   CustomFeedback({
     this.feedbackType,
@@ -66,13 +69,15 @@ class CustomFeedback {
           buffer.writeln('   🔗 Matrix: $contact');
           break;
       }
-      if (feedbackType == FeedbackType.support) {
+      if (feedbackType == FeedbackType.support ||
+          feedbackType == FeedbackType.missingCoins) {
         buffer.writeln(
             '   ⚠️  PRIORITY: Contact details provided for support request');
       }
     } else {
       buffer.writeln('   ❌ No contact information provided');
-      if (feedbackType == FeedbackType.support) {
+      if (feedbackType == FeedbackType.support ||
+          feedbackType == FeedbackType.missingCoins) {
         buffer.writeln(
             '   ⚠️  WARNING: Support request without contact details!');
       }
@@ -82,6 +87,7 @@ class CustomFeedback {
 }
 
 enum FeedbackType {
+  missingCoins,
   bugReport,
   featureRequest,
   support,
@@ -97,6 +103,8 @@ extension FeedbackTypeDescription on FeedbackType {
         return 'Feature Request';
       case FeedbackType.support:
         return 'Support Request';
+      case FeedbackType.missingCoins:
+        return LocaleKeys.myCoinsMissing.tr();
       case FeedbackType.other:
         return 'Other';
     }
@@ -120,7 +128,7 @@ extension ContactMethodLabel on ContactMethod {
       case ContactMethod.telegram:
         return 'Telegram';
       case ContactMethod.email:
-        return 'Email';
+        return LocaleKeys.email.tr();
     }
   }
 }

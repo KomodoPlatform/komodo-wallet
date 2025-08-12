@@ -35,7 +35,7 @@ To add a new language translation in the app you need to add an `fr.json` file i
 then run this command
 
 ```bash
-flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys --no-pub
+flutter pub run easy_localization:generate -S ./assets/translations -s en.json -f keys
 ```
 
 and update constants.dart file to:

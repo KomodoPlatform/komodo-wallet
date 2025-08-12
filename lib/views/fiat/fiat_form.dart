@@ -39,9 +39,17 @@ class _FiatFormState extends State<FiatForm> {
 
     _isLoggedIn = RepositoryProvider.of<AuthBloc>(context).state.isSignedIn;
 
-    context
-        .read<FiatFormBloc>()
-        .add(const FiatFormRefreshed(forceRefresh: true));
+    final fiatFormBloc = context.read<FiatFormBloc>()
+      ..add(const FiatFormCurrenciesRefreshRequested())
+      ..add(const FiatFormPaymentMethodsRefreshRequested());
+
+    if (_isLoggedIn) {
+      fiatFormBloc.add(
+        FiatFormCoinSelected(
+          fiatFormBloc.state.selectedAsset.value ?? CryptoCurrency.bitcoin(),
+        ),
+      );
+    }
   }
 
   @override
@@ -154,15 +162,15 @@ class _FiatFormState extends State<FiatForm> {
 
   void _onFiatChanged(FiatCurrency value) => context.read<FiatFormBloc>()
     ..add(FiatFormFiatSelected(value))
-    ..add(const FiatFormRefreshed(forceRefresh: true));
+    ..add(const FiatFormPaymentMethodsRefreshRequested());
 
   void _onCoinChanged(CryptoCurrency value) => context.read<FiatFormBloc>()
     ..add(FiatFormCoinSelected(value))
-    ..add(const FiatFormRefreshed(forceRefresh: true));
+    ..add(const FiatFormPaymentMethodsRefreshRequested());
 
   void _onFiatAmountChanged(String? value) => context.read<FiatFormBloc>()
     ..add(FiatFormAmountUpdated(value ?? '0'))
-    ..add(const FiatFormRefreshed(forceRefresh: true));
+    ..add(const FiatFormPaymentMethodsRefreshRequested());
 
   void _onSourceAddressChanged(PubkeyInfo? value) {
     context.read<FiatFormBloc>().add(FiatFormAssetAddressUpdated(value));
@@ -172,21 +180,37 @@ class _FiatFormState extends State<FiatForm> {
       context.read<FiatFormBloc>().add(FiatFormModeUpdated.fromTabIndex(i));
 
   Future<void> _handleAccountStatusChange(bool isLoggedIn) async {
-    if (_isLoggedIn != isLoggedIn) {
-      setState(() => _isLoggedIn = isLoggedIn);
+    if (_isLoggedIn == isLoggedIn) {
+      // If the login state hasn't changed, do nothing.
+      return;
     }
 
-    if (isLoggedIn) {
-      context.read<FiatFormBloc>().add(const FiatFormRefreshed());
-    } else {
-      context.read<FiatFormBloc>().add(const FiatFormAccountCleared());
+    setState(() => _isLoggedIn = isLoggedIn);
+
+    if (!mounted) {
+      return;
     }
+
+    if (!isLoggedIn) {
+      return context.read<FiatFormBloc>().add(const FiatFormResetRequested());
+    }
+
+    // Refresh the payment methods and asset addresses (pubkeys)
+    // when the user logs in.
+    final fiatFormBloc = context.read<FiatFormBloc>();
+    fiatFormBloc
+      ..add(
+        FiatFormCoinSelected(
+          fiatFormBloc.state.selectedAsset.value ?? CryptoCurrency.bitcoin(),
+        ),
+      )
+      ..add(const FiatFormPaymentMethodsRefreshRequested());
   }
 
   void _onConsoleMessage(String message) {
     context
         .read<FiatFormBloc>()
-        .add(FiatFormOnRampPaymentStatusMessageReceived(message));
+        .add(FiatFormPaymentStatusMessageReceived(message));
   }
 
   void _onCloseWebView() {

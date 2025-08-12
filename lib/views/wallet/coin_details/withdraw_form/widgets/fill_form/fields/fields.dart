@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:decimal/decimal.dart';
@@ -21,6 +22,7 @@ class ToAddressField extends StatelessWidget {
       builder: (context, state) {
         return UiTextFormField(
           key: const Key('withdraw-recipient-address-input'),
+          autofocus: true,
           autocorrect: false,
           textInputAction: TextInputAction.next,
           enableInteractiveSelection: true,
@@ -310,41 +312,6 @@ class MemoField extends StatelessWidget {
   }
 }
 
-/// Preview button to initiate withdrawal confirmation
-class PreviewButton extends StatelessWidget {
-  const PreviewButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
-      builder: (context, state) {
-        return SizedBox(
-          // Wrap with SizedBox
-          width: double.infinity, // Take full width
-          height: 48.0, // Fixed height
-          child: FilledButton.icon(
-            onPressed: state.isSending
-                ? null
-                : () => context.read<WithdrawFormBloc>().add(
-                      const WithdrawFormPreviewSubmitted(),
-                    ),
-            icon: state.isSending
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.send),
-            label: Text(
-              state.isSending ? 'Loading...' : 'Preview Withdrawal',
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
 /// Page for confirming withdrawal details
 class ConfirmationPage extends StatelessWidget {
   const ConfirmationPage({super.key});
@@ -579,67 +546,23 @@ class IbcTransferField extends StatelessWidget {
   }
 }
 
-class IbcChannelField extends StatefulWidget {
+class IbcChannelField extends StatelessWidget {
   const IbcChannelField({super.key});
 
   @override
-  State<IbcChannelField> createState() => _IbcChannelFieldState();
-}
-
-class _IbcChannelFieldState extends State<IbcChannelField> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocConsumer<WithdrawFormBloc, WithdrawFormState>(
-      listenWhen: (previous, current) =>
-          previous.ibcChannel != current.ibcChannel &&
-          current.ibcChannel != _controller.text,
-      listener: (context, state) {
-        // Only update controller if the bloc state differs from current text
-        // This prevents the cursor from jumping when user is typing
-        if (state.ibcChannel != _controller.text) {
-          _controller.text = state.ibcChannel ?? '';
-        }
-      },
-      buildWhen: (previous, current) =>
-          previous.ibcChannelError != current.ibcChannelError,
+    return BlocBuilder<WithdrawFormBloc, WithdrawFormState>(
       builder: (context, state) {
         return UiTextFormField(
           key: const Key('withdraw-ibc-channel-input'),
-          controller: _controller,
           labelText: LocaleKeys.ibcChannel.tr(),
           hintText: LocaleKeys.ibcChannelHint.tr(),
-          errorText: state.ibcChannelError?.message,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: (value) {
             context
                 .read<WithdrawFormBloc>()
                 .add(WithdrawFormIbcChannelChanged(value ?? ''));
-          },
-          validator: (value) {
-            if (value?.isEmpty ?? true) {
-              return LocaleKeys.ibcChannelRequired.tr();
-            }
-
-            // Validate format: channel-<number>
-            final channelRegex = RegExp(r'^channel-\d+$');
-            if (!channelRegex.hasMatch(value!)) {
-              return LocaleKeys.ibcChannelInvalidFormat.tr();
-            }
-
-            return null;
           },
         );
       },

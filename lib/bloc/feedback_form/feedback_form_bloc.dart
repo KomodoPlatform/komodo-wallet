@@ -135,7 +135,7 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     final hasMethod = method != null;
     final hasDetails = trimmed.isNotEmpty;
 
-    if (type == FeedbackType.support) {
+    if (type == FeedbackType.support || type == FeedbackType.missingCoins) {
       if (!hasMethod || !hasDetails) {
         return LocaleKeys.contactRequiredError.tr();
       }

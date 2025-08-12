@@ -6,6 +6,7 @@ import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:collection/collection.dart';
 
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_event.dart';
@@ -16,19 +17,22 @@ import 'package:decimal/decimal.dart';
 
 class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   final KomodoDefiSdk _sdk;
+  final WalletType? _walletType;
 
   WithdrawFormBloc({
     required Asset asset,
     required KomodoDefiSdk sdk,
-  })  : _sdk = sdk,
-        super(
-          WithdrawFormState(
-            asset: asset,
-            step: WithdrawFormStep.fill,
-            recipientAddress: '',
-            amount: '0',
-          ),
-        ) {
+    WalletType? walletType,
+  }) : _sdk = sdk,
+       _walletType = walletType,
+       super(
+         WithdrawFormState(
+           asset: asset,
+           step: WithdrawFormStep.fill,
+           recipientAddress: '',
+           amount: '0',
+         ),
+       ) {
     on<WithdrawFormRecipientChanged>(_onRecipientChanged);
     on<WithdrawFormAmountChanged>(_onAmountChanged);
     on<WithdrawFormSourceChanged>(_onSourceChanged);
@@ -58,9 +62,9 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         final current = state.selectedSourceAddress;
         final newSelection = current != null
             ? pubkeys.keys.firstWhereOrNull(
-                  (key) => key.address == current.address,
-                ) ??
-                pubkeys.keys.first
+                    (key) => key.address == current.address,
+                  ) ??
+                  pubkeys.keys.first
             : (pubkeys.keys.length == 1 ? pubkeys.keys.first : null);
 
         emit(
@@ -252,8 +256,9 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     Emitter<WithdrawFormState> emit,
   ) {
     final balance = event.address.balance;
-    final updatedAmount =
-        state.isMaxAmount ? balance.spendable.toString() : state.amount;
+    final updatedAmount = state.isMaxAmount
+        ? balance.spendable.toString()
+        : state.amount;
 
     emit(
       state.copyWith(
@@ -277,8 +282,9 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   ) {
     final balance =
         state.selectedSourceAddress?.balance ?? state.pubkeys?.balance;
-    final maxAmount =
-        event.isEnabled ? (balance?.spendable.toString() ?? '0') : '0';
+    final maxAmount = event.isEnabled
+        ? (balance?.spendable.toString() ?? '0')
+        : '0';
 
     emit(
       state.copyWith(
@@ -316,16 +322,11 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         _validateUtxoFee(event.fee as FeeInfoUtxoFixed);
       }
       emit(
-        state.copyWith(
-          customFee: () => event.fee,
-          customFeeError: () => null,
-        ),
+        state.copyWith(customFee: () => event.fee, customFeeError: () => null),
       );
     } catch (e) {
       emit(
-        state.copyWith(
-          customFeeError: () => TextError(error: e.toString()),
-        ),
+        state.copyWith(customFeeError: () => TextError(error: e.toString())),
       );
     }
   }
@@ -369,28 +370,23 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     WithdrawFormIbcChannelChanged event,
     Emitter<WithdrawFormState> emit,
   ) {
-    final ibcChannelError = _validateIbcChannel(event.channel);
+    if (event.channel.isEmpty) {
+      emit(
+        state.copyWith(
+          ibcChannel: () => event.channel,
+          ibcChannelError: () =>
+              TextError(error: LocaleKeys.enterIbcChannel.tr()),
+        ),
+      );
+      return;
+    }
 
     emit(
       state.copyWith(
         ibcChannel: () => event.channel,
-        ibcChannelError: () => ibcChannelError,
+        ibcChannelError: () => null,
       ),
     );
-  }
-
-  /// Validate format: channel-{number}
-  TextError? _validateIbcChannel(String channel) {
-    if (channel.isEmpty) {
-      return TextError(error: 'Channel ID is required');
-    }
-
-    final channelRegex = RegExp(r'^channel-\d+$');
-    if (!channelRegex.hasMatch(channel)) {
-      return TextError(error: 'Invalid format. Use: channel-<number>');
-    }
-
-    return null;
   }
 
   Future<void> _onPreviewSubmitted(
@@ -404,8 +400,14 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           isSending: true,
           previewError: () => null,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
+
+      // For Trezor wallets, the preview generation might require user interaction
+      if (_walletType == WalletType.trezor) {
+        emit(state.copyWith(isAwaitingTrezorConfirmation: true));
+      }
 
       final preview = await _sdk.withdrawals.previewWithdrawal(
         state.toWithdrawParameters(),
@@ -416,6 +418,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           preview: () => preview,
           step: WithdrawFormStep.confirm,
           isSending: false,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
     } catch (e) {
@@ -424,6 +427,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           previewError: () =>
               TextError(error: 'Failed to generate preview: $e'),
           isSending: false,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
     }
@@ -440,8 +444,14 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           isSending: true,
           transactionError: () => null,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
+
+      // Show Trezor progress message for hardware wallets
+      if (_walletType == WalletType.trezor) {
+        emit(state.copyWith(isAwaitingTrezorConfirmation: true));
+      }
 
       await for (final progress in _sdk.withdrawals.withdraw(
         state.toWithdrawParameters(),
@@ -452,6 +462,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
               step: WithdrawFormStep.success,
               result: () => progress.withdrawalResult,
               isSending: false,
+              isAwaitingTrezorConfirmation: false,
             ),
           );
           return;
@@ -467,6 +478,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
           transactionError: () => TextError(error: 'Transaction failed: $e'),
           step: WithdrawFormStep.failed,
           isSending: false,
+          isAwaitingTrezorConfirmation: false,
         ),
       );
     }
@@ -481,10 +493,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     add(const WithdrawFormReset());
   }
 
-  void _onReset(
-    WithdrawFormReset event,
-    Emitter<WithdrawFormState> emit,
-  ) {
+  void _onReset(WithdrawFormReset event, Emitter<WithdrawFormState> emit) {
     emit(
       WithdrawFormState(
         asset: state.asset,
