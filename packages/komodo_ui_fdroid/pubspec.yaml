@@ -21,7 +21,7 @@ dependencies:
       url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
       path: packages/komodo_defi_types
       ref: dev
-  mobile_scanner: ^7.0.0
+  qr_code_scanner_plus: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 class QrCodeReaderOverlay extends StatefulWidget {
   const QrCodeReaderOverlay({super.key});
@@ -19,7 +19,16 @@ class QrCodeReaderOverlay extends StatefulWidget {
 }
 
 class _QrCodeReaderOverlayState extends State<QrCodeReaderOverlay> {
-  bool qrDetected = false;
+  final GlobalKey debugKey = GlobalKey(debugLabel: 'QR');
+  QRViewController? _controller;
+  bool _qrDetected = false;
+  bool _controllerReady = false;
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,93 +39,60 @@ class _QrCodeReaderOverlayState extends State<QrCodeReaderOverlay> {
         foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
         elevation: 0,
       ),
-      body: MobileScanner(
-        controller: MobileScannerController(
-          detectionTimeoutMs: 1000,
-          formats: [BarcodeFormat.qrCode],
-        ),
-        errorBuilder: _buildQrScannerError,
-        onDetect: (capture) {
-          if (qrDetected) return;
-
-          final qrCodes = capture.barcodes;
-
-          if (qrCodes.isNotEmpty) {
-            final r = qrCodes.first.rawValue;
-            qrDetected = true;
-
-            // MRC: Guarantee that we don't try to close the current screen
-            // if it was already closed
-            if (!context.mounted) return;
-            Navigator.pop(context, r);
-          }
-        },
-        placeholderBuilder:
-            (context) => const Center(child: CircularProgressIndicator()),
+      body: Stack(
+        children: [
+          QRView(
+            key: debugKey,
+            onQRViewCreated: _onQRViewCreated,
+            formatsAllowed: const [BarcodeFormat.qrcode],
+            overlay: QrScannerOverlayShape(
+              borderColor: Theme.of(context).colorScheme.primary,
+              borderWidth: 8,
+              borderRadius: 12,
+              borderLength: 32,
+              cutOutSize: MediaQuery.of(context).size.width * 0.7,
+            ),
+            onPermissionSet: (ctrl, granted) {
+              if (!granted) {
+                _showPermissionDenied(context);
+              }
+            },
+          ),
+          if (!_controllerReady)
+            const Center(child: CircularProgressIndicator()),
+        ],
       ),
     );
   }
 
-  Widget _buildQrScannerError(
-    BuildContext context,
-    MobileScannerException exception,
-  ) {
-    late String errorMessage;
+  void _onQRViewCreated(QRViewController controller) {
+    _controller = controller;
+    setState(() => _controllerReady = true);
 
-    switch (exception.errorCode) {
-      case MobileScannerErrorCode.controllerUninitialized:
-        errorMessage = // TODO!l10n: LocaleKeys.qrScannerErrorControllerUninitialized.tr();
-            'The controller was used before being initialized';
+    controller.scannedDataStream.listen((barcode) {
+      if (_qrDetected) return;
+      final String? code = barcode.code;
+      if (code == null || code.isEmpty) return;
 
-      case MobileScannerErrorCode.permissionDenied:
-        errorMessage = // TODO!l10n: LocaleKeys.qrScannerErrorPermissionDenied.tr();
-            'Permission to use the camera was denied. Please enable camera '
-            'permissions in your device settings.';
-      // TODO: Disable the scanner button if the device does not
-      // support scanning
-      case MobileScannerErrorCode.unsupported:
-        errorMessage = //TODO!l10n: LocaleKeys.qrScannerErrorUnsupported.tr();
-            'Your device does not support scanning QR codes.';
-      case MobileScannerErrorCode.controllerNotAttached:
-      case MobileScannerErrorCode.genericError:
-      case MobileScannerErrorCode.controllerDisposed:
-      case MobileScannerErrorCode.controllerAlreadyInitialized:
-      case MobileScannerErrorCode.controllerInitializing:
-        errorMessage = //TODO!l10n: LocaleKeys.qrScannerErrorGenericError.tr();
-            'An error occurred while scanning the QR code. Please try again.';
-    }
+      _qrDetected = true;
+      if (!mounted) return;
+      Navigator.pop(context, code);
+    });
+  }
 
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.warning, color: Colors.yellowAccent, size: 64),
-          const SizedBox(height: 8),
-          Text(
-            //TODO!l10n: LocaleKeys.qrScannerErrorTitle.tr(),
-            'Error',
-            style: Theme.of(context).textTheme.titleLarge,
+  void _showPermissionDenied(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text(
+          'Permission to use the camera was denied. Please enable camera permissions in your device settings.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
           ),
-          const SizedBox(height: 32),
-          Text(errorMessage, style: Theme.of(context).textTheme.bodyLarge),
-          if (exception.errorDetails != null)
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  //TODO!l10n: '${LocaleKeys.errorCode.tr()}: ${exception.errorDetails!.code}',
-                  'Error code: ${exception.errorDetails!.code}',
-                ),
-                Text(
-                  //TODO!l10n: '${LocaleKeys.errorDetails.tr()}: ${exception.errorDetails!.details}',
-                  'Error details: ${exception.errorDetails!.details}',
-                ),
-                Text(
-                  //TODO!l10n: '${LocaleKeys.errorMessage.tr()}: ${exception.errorDetails!.message}',
-                  'Error message: ${exception.errorDetails!.message}',
-                ),
-              ],
-            ),
         ],
       ),
     );
