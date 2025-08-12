@@ -208,7 +208,7 @@ bool isParentCoin(CoinType type, String symbol) {
     case CoinType.ftm20:
       return symbol == 'FTM';
     case CoinType.arb20:
-      return symbol == 'ARB' || symbol.startsWith('ARB') ;
+      return symbol == 'ETH-ARB20';
     case CoinType.hrc20:
       return symbol == 'ONE';
     case CoinType.plg20:
