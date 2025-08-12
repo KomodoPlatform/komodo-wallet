@@ -1,4 +1,4 @@
-package com.komodoplatform.atomicdex;
+package com.komodoplatform.komodowallet;
 
 import android.app.Activity;
 import android.content.Intent;
