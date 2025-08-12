@@ -10,6 +10,9 @@ import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/rpc_error.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/rpc_error_type.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/market_bot_events.dart';
+import 'package:get_it/get_it.dart';
 
 part 'market_maker_bot_event.dart';
 part 'market_maker_bot_state.dart';
@@ -65,6 +68,10 @@ class MarketMakerBotBloc
         emit(const MarketMakerBotState.running());
         return;
       }
+      // Log bot error
+      GetIt.I<AnalyticsBloc>().logEvent(
+        MarketbotErrorEventData(errorCode: 'start_failed', strategyType: 'simple'),
+      );
       emit(const MarketMakerBotState.stopped().copyWith(error: e.toString()));
     }
   }
@@ -82,6 +89,10 @@ class MarketMakerBotBloc
       );
       emit(const MarketMakerBotState.stopped());
     } catch (e) {
+      // Log bot error
+      GetIt.I<AnalyticsBloc>().logEvent(
+        MarketbotErrorEventData(errorCode: 'stop_failed', strategyType: 'simple'),
+      );
       emit(
         const MarketMakerBotState.stopped()
             .copyWith(error: 'Failed to stop the bot'),
@@ -119,6 +130,10 @@ class MarketMakerBotBloc
       final stoppingState =
           const MarketMakerBotState.stopping().copyWith(error: e.toString());
       emit(stoppingState);
+      // Log bot error
+      GetIt.I<AnalyticsBloc>().logEvent(
+        MarketbotErrorEventData(errorCode: 'update_failed', strategyType: 'simple'),
+      );
       await _botRepository.stop(botId: event.botId);
       emit(stoppingState.copyWith(status: MarketMakerBotStatus.stopped));
     }
@@ -157,6 +172,10 @@ class MarketMakerBotBloc
       final stoppingState =
           const MarketMakerBotState.stopping().copyWith(error: e.toString());
       emit(stoppingState);
+      // Log bot error
+      GetIt.I<AnalyticsBloc>().logEvent(
+        MarketbotErrorEventData(errorCode: 'cancel_failed', strategyType: 'simple'),
+      );
       await _botRepository.stop(botId: event.botId);
       emit(stoppingState.copyWith(status: MarketMakerBotStatus.stopped));
     }
@@ -175,6 +194,10 @@ class MarketMakerBotBloc
     while (orders.any((order) => order.order != null)) {
       if (DateTime.now().difference(start) > timeout) {
         if (fatalTimeout) {
+          // Log bot error
+          GetIt.I<AnalyticsBloc>().logEvent(
+            MarketbotErrorEventData(errorCode: 'timeout_cancelling', strategyType: 'simple'),
+          );
           throw TimeoutException('Failed to cancel orders in time');
         }
         return;

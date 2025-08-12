@@ -17,6 +17,10 @@ import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transactio
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_event.dart';
+import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_state.dart';
 
 part 'nft_withdraw_event.dart';
 part 'nft_withdraw_state.dart';
@@ -93,6 +97,17 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     }
 
     try {
+      // Log initiated
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
+      GetIt.I<AnalyticsBloc>().logEvent(
+        NftTransferInitiatedEventData(
+          collectionName: nft.collectionName ?? nft.symbol ?? 'unknown',
+          tokenId: nft.tokenId,
+          walletType: walletType,
+        ),
+      );
+
       final WithdrawNftResponse response = await _repo.withdraw(
           nft: nft, address: validatedAddress, amount: amount);
 
@@ -107,8 +122,29 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
         ),
       );
     } on ApiError catch (e) {
+      // Log failure
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
+      GetIt.I<AnalyticsBloc>().logEvent(
+        NftTransferFailureEventData(
+          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          failReason: e.message,
+          walletType: walletType,
+        ),
+      );
+
       emit(state.copyWith(sendError: () => e, isSending: () => false));
     } on TransportError catch (e) {
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
+      GetIt.I<AnalyticsBloc>().logEvent(
+        NftTransferFailureEventData(
+          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          failReason: e.message,
+          walletType: walletType,
+        ),
+      );
+
       emit(state.copyWith(sendError: () => e, isSending: () => false));
     } on ParsingApiJsonError catch (e) {
       if (kDebugMode) {
@@ -138,6 +174,17 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final BaseError? responseError = response.error;
     final String? txHash = response.txHash;
     if (txHash == null) {
+      // Log failure
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
+      GetIt.I<AnalyticsBloc>().logEvent(
+        NftTransferFailureEventData(
+          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          failReason: responseError?.message ?? 'unknown',
+          walletType: walletType,
+        ),
+      );
+
       emit(
         state.copyWith(
           isSending: () => false,
@@ -146,6 +193,20 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
         ),
       );
     } else {
+      // Log success with fee
+      final walletType =
+          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
+      final fee = double.tryParse(state.txDetails.feeDetails.feeValue ?? '0') ??
+          0.0;
+      GetIt.I<AnalyticsBloc>().logEvent(
+        NftTransferSuccessEventData(
+          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          tokenId: state.txDetails.tokenId,
+          fee: fee,
+          walletType: walletType,
+        ),
+      );
+
       emit(
         NftWithdrawSuccessState(
           txHash: txHash,
