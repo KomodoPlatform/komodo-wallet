@@ -44,7 +44,7 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
       ),
     );
 
-    final stream = sdk.pubkeys.createNewPubkeyStream(getSdkAsset(sdk, assetId));
+    final stream = sdk.pubkeys.watchCreateNewPubkey(getSdkAsset(sdk, assetId));
 
     await for (final newAddressState in stream) {
       emit(state.copyWith(newAddressState: () => newAddressState));
@@ -168,7 +168,7 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
     // when we start watching. UI flickering between old and new states is
     // avoided this way. The watchPubkeys function yields the last known pubkeys
     // when the pubkeys stream is first activated.
-    sdk.pubkeys.preCachePubkeys(asset);
+    sdk.pubkeys.watchCreateNewPubkey(asset);
     _pubkeysSub = sdk.pubkeys
         .watchPubkeys(asset, activateIfNeeded: true)
         .listen(
