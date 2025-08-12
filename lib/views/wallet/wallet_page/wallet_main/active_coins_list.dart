@@ -237,7 +237,7 @@ class AddressBalanceCard extends StatelessWidget {
                                   style: TextStyle(fontSize: isMobile ? 9 : 12),
                                 ),
                               ),
-                            
+                            ),
                         ],
                       ),
                       if (pubkey.derivationPath != null)
