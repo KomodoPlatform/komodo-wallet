@@ -1,0 +1,7 @@
+include: package:very_good_analysis/analysis_options.6.0.0.yaml
+analyzer:
+  errors:
+    use_if_null_to_convert_nulls_to_bools: ignore
+linter:
+  rules:
+    - eol_at_end_of_file
