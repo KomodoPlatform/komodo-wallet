@@ -31,12 +31,13 @@ class WalletSimpleImport extends StatefulWidget {
     required String name,
     required String password,
     required WalletConfig walletConfig,
-  }) onImport;
+  })
+  onImport;
 
   final void Function() onCancel;
 
   final void Function({required String fileName, required String fileData})
-      onUploadFiles;
+  onUploadFiles;
 
   @override
   State<WalletSimpleImport> createState() => _WalletImportWrapperState();
@@ -340,14 +341,16 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       return null;
     }
 
-    final maybeFailedReason =
-        context.read<KomodoDefiSdk>().mnemonicValidator.validateMnemonic(
-              seed ?? '',
-              minWordCount: 12,
-              maxWordCount: 24,
-              isHd: _isHdMode,
-              allowCustomSeed: _allowCustomSeed,
-            );
+    final maybeFailedReason = context
+        .read<KomodoDefiSdk>()
+        .mnemonicValidator
+        .validateMnemonic(
+          seed ?? '',
+          minWordCount: 12,
+          maxWordCount: 24,
+          isHd: _isHdMode,
+          allowCustomSeed: _allowCustomSeed,
+        );
 
     if (maybeFailedReason == null) {
       return null;
@@ -356,11 +359,17 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     return switch (maybeFailedReason) {
       MnemonicFailedReason.empty =>
         LocaleKeys.walletCreationEmptySeedError.tr(),
-      MnemonicFailedReason.customNotSupportedForHd => _isHdMode
-          ? LocaleKeys.walletCreationHdBip39SeedError.tr()
-          : LocaleKeys.walletCreationBip39SeedError.tr(),
+      MnemonicFailedReason.customNotSupportedForHd =>
+        _isHdMode
+            ? LocaleKeys.walletCreationHdBip39SeedError.tr()
+            : LocaleKeys.walletCreationBip39SeedError.tr(),
       MnemonicFailedReason.customNotAllowed =>
         LocaleKeys.customSeedWarningText.tr(),
+      MnemonicFailedReason.invalidWord =>
+        LocaleKeys.seedConfirmIncorrectText.tr(),
+      MnemonicFailedReason.invalidChecksum => _isHdMode
+          ? LocaleKeys.walletCreationHdBip39SeedError.tr()
+          : LocaleKeys.walletCreationBip39SeedError.tr(),
       MnemonicFailedReason.invalidLength =>
         // TODO: Add this string has placeholders for min/max counts, which we
         // specify as "12" and "24"
