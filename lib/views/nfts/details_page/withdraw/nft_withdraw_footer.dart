@@ -8,9 +8,6 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/router/state/nfts_state.dart';
 import 'package:web_dex/router/state/routing_state.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/nft_events.dart';
-import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 
 class NftWithdrawFooter extends StatelessWidget {
   const NftWithdrawFooter();
@@ -72,18 +69,6 @@ class NftWithdrawFooter extends StatelessWidget {
     final NftWithdrawState state = bloc.state;
 
     if (state is NftWithdrawFillState) {
-      // Defensive: the bloc will log initiated, but this ensures a log even if flow changes
-      final walletType =
-          context.read<AuthBloc>().state.currentUser?.wallet.config.type.name ??
-              'unknown';
-      context.read<AnalyticsBloc>().logEvent(
-            NftTransferInitiatedEventData(
-              collectionName:
-                  state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
-              tokenId: state.nft.tokenId,
-              walletType: walletType,
-            ),
-          );
       bloc.add(
         const NftWithdrawSendEvent(),
       );
