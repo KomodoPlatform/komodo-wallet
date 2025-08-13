@@ -32,7 +32,13 @@ class CustomFeedbackForm extends StatelessWidget {
         final theme = Theme.of(context);
         final isLoading = state.status == FeedbackFormStatus.submitting;
         final formValid = state.isValid && !isLoading;
-        final submitLabel = LocaleKeys.sendFeedbackButton.tr();
+        const double _buttonHorizontalPadding = 16;
+        const double _buttonHeight = 40;
+        const double _buttonIconSize = 18;
+        const double _buttonIconSpacing = 8;
+        const double _buttonsSpacing = 8;
+
+        final submitLabel = LocaleKeys.send.tr();
         final submitTextStyle = theme.textTheme.labelLarge
                 ?.copyWith(fontWeight: FontWeight.bold, fontSize: 14) ??
             const TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
@@ -41,7 +47,10 @@ class CustomFeedbackForm extends StatelessWidget {
           maxLines: 1,
           textDirection: Directionality.of(context),
         )..layout();
-        final double _submitButtonWidth = _submitPainter.width + 32; // 16px horizontal padding on both sides
+        final double _submitButtonWidth = _submitPainter.width +
+            (2 * _buttonHorizontalPadding) +
+            _buttonIconSize +
+            _buttonIconSpacing;
         return Form(
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
@@ -199,18 +208,25 @@ class CustomFeedbackForm extends StatelessWidget {
                           isLoading ? null : () => BetterFeedback.of(context).hide(),
                       child: Text(LocaleKeys.cancel.tr()),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: _buttonsSpacing),
                     UiPrimaryButton(
                       width: _submitButtonWidth,
-                      height: 40,
+                      height: _buttonHeight,
                       onPressed: formValid
                           ? () => context
                               .read<FeedbackFormBloc>()
                               .add(const FeedbackFormSubmitted())
                           : null,
                       text: submitLabel,
+                      prefix: Padding(
+                        padding: const EdgeInsets.only(right: _buttonIconSpacing),
+                        child: Icon(
+                          Icons.send_rounded,
+                          size: _buttonIconSize,
+                        ),
+                      ),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
+                        horizontal: _buttonHorizontalPadding,
                         vertical: 8,
                       ),
                     ),
