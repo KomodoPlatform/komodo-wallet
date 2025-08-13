@@ -39,12 +39,12 @@ class NftTransferInitiatedEventData implements AnalyticsEventData {
   const NftTransferInitiatedEventData({
     required this.collectionName,
     required this.tokenId,
-    required this.hdType,
+    required this.walletType,
   });
 
   final String collectionName;
   final String tokenId;
-  final String hdType;
+  final String walletType;
 
   @override
   String get name => 'nft_transfer_initiated';
@@ -53,7 +53,7 @@ class NftTransferInitiatedEventData implements AnalyticsEventData {
   JsonMap get parameters => {
         'collection_name': collectionName,
         'token_id': tokenId,
-        'hd_type': hdType,
+        'wallet_type': walletType,
       };
 }
 
@@ -61,12 +61,12 @@ class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
   AnalyticsNftTransferInitiatedEvent({
     required String collectionName,
     required String tokenId,
-    required String hdType,
+    required String walletType,
   }) : super(
           NftTransferInitiatedEventData(
             collectionName: collectionName,
             tokenId: tokenId,
-            hdType: hdType,
+            walletType: walletType,
           ),
         );
 }
@@ -77,13 +77,13 @@ class NftTransferSuccessEventData implements AnalyticsEventData {
     required this.collectionName,
     required this.tokenId,
     required this.fee,
-    required this.hdType,
+    required this.walletType,
   });
 
   final String collectionName;
   final String tokenId;
   final double fee;
-  final String hdType;
+  final String walletType;
 
   @override
   String get name => 'nft_transfer_success';
@@ -93,7 +93,7 @@ class NftTransferSuccessEventData implements AnalyticsEventData {
         'collection_name': collectionName,
         'token_id': tokenId,
         'fee': fee,
-        'hd_type': hdType,
+        'wallet_type': walletType,
       };
 }
 
@@ -102,13 +102,13 @@ class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
     required String collectionName,
     required String tokenId,
     required double fee,
-    required String hdType,
+    required String walletType,
   }) : super(
           NftTransferSuccessEventData(
             collectionName: collectionName,
             tokenId: tokenId,
             fee: fee,
-            hdType: hdType,
+            walletType: walletType,
           ),
         );
 }
@@ -118,12 +118,12 @@ class NftTransferFailureEventData implements AnalyticsEventData {
   const NftTransferFailureEventData({
     required this.collectionName,
     required this.failReason,
-    required this.hdType,
+    required this.walletType,
   });
 
   final String collectionName;
   final String failReason;
-  final String hdType;
+  final String walletType;
 
   @override
   String get name => 'nft_transfer_failure';
@@ -132,7 +132,7 @@ class NftTransferFailureEventData implements AnalyticsEventData {
   JsonMap get parameters => {
         'collection_name': collectionName,
         'fail_reason': failReason,
-        'hd_type': hdType,
+        'wallet_type': walletType,
       };
 }
 
@@ -140,12 +140,12 @@ class AnalyticsNftTransferFailureEvent extends AnalyticsSendDataEvent {
   AnalyticsNftTransferFailureEvent({
     required String collectionName,
     required String failReason,
-    required String hdType,
+    required String walletType,
   }) : super(
           NftTransferFailureEventData(
             collectionName: collectionName,
             failReason: failReason,
-            hdType: hdType,
+            walletType: walletType,
           ),
         );
 }

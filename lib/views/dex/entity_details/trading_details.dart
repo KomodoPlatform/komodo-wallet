@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/analytics/analytics_factory.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/analytics/events/transaction_events.dart';
+import 'package:web_dex/analytics/events/cross_chain_events.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/swap.dart';
@@ -168,14 +168,14 @@ class _TradingDetailsState extends State<TradingDetails> {
               coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
           final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
           context.read<AnalyticsBloc>().logEvent(
-                AnalyticsEvents.bridgeSuccess(
-                  fromChain: fromChain,
-                  toChain: toChain,
-                  asset: fromAsset,
-                  amount: swapStatus.sellAmount.toDouble(),
-                  durationMs: durationMs,
-                ),
-              );
+            BridgeSucceededEventData(
+              fromChain: fromChain,
+              toChain: toChain,
+              asset: fromAsset,
+              amount: swapStatus.sellAmount.toDouble(),
+              walletType: walletType ?? 'unknown',
+            ),
+          );
         }
       } else if (swapStatus.isFailed && !_loggedFailure) {
         _loggedFailure = true;
@@ -195,13 +195,13 @@ class _TradingDetailsState extends State<TradingDetails> {
               coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
           final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
           context.read<AnalyticsBloc>().logEvent(
-                AnalyticsEvents.bridgeFailure(
-                  fromChain: fromChain,
-                  toChain: toChain,
-                  failError: swapStatus.status.name,
-                  durationMs: durationMs,
-                ),
-              );
+            BridgeFailedEventData(
+              fromChain: fromChain,
+              toChain: toChain,
+              failError: swapStatus.status.name,
+              walletType: walletType ?? 'unknown',
+            ),
+          );
         }
       }
     }

@@ -20,6 +20,8 @@ import 'package:web_dex/views/dex/simple/form/exchange_info/exchange_rate.dart';
 import 'package:web_dex/views/dex/simple/form/exchange_info/total_fees.dart';
 import 'package:web_dex/views/market_maker_bot/important_note.dart';
 import 'package:web_dex/views/market_maker_bot/market_maker_form_error_message_extensions.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/market_bot_events.dart';
 
 class MarketMakerBotConfirmationForm extends StatefulWidget {
   const MarketMakerBotConfirmationForm({
@@ -121,7 +123,24 @@ class _MarketMakerBotConfirmationFormState
                 Flexible(
                   child: SwapActionButtons(
                     onCancel: widget.onCancel,
-                    onCreateOrder: hasError ? null : widget.onCreateOrder,
+                    onCreateOrder: state.status == MarketMakerTradeFormStatus.success
+                        ? () {
+                            // Log setup complete with base capital
+                            final sellAmt =
+                                state.sellAmount.valueAsRational.toDouble();
+                            // Attempt fiat estimate using priceFromUsd if available
+                            final price = state.priceFromUsd ??
+                                state.priceFromUsdWithMargin ?? 0.0;
+                            final baseCapital = price > 0 ? sellAmt * price : sellAmt;
+                            context.read<AnalyticsBloc>().logEvent(
+                                  MarketbotSetupCompleteEventData(
+                                    strategyType: 'simple',
+                                    baseCapital: baseCapital,
+                                  ),
+                                );
+                            widget.onCreateOrder();
+                          }
+                        : null,
                   ),
                 ),
               ],
