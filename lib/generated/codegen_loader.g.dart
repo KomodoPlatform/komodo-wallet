@@ -206,7 +206,8 @@ abstract class  LocaleKeys {
   static const walletCreationBip39SeedError = 'walletCreationBip39SeedError';
   static const walletCreationHdBip39SeedError = 'walletCreationHdBip39SeedError';
   static const walletPageNoSuchAsset = 'walletPageNoSuchAsset';
-  static const swapCoin = 'swapCoin';
+  static const swap = 'swap';
+  static const dexAddress = 'dexAddress';
   static const fiatBalance = 'fiatBalance';
   static const yourBalance = 'yourBalance';
   static const all = 'all';
@@ -269,7 +270,6 @@ abstract class  LocaleKeys {
   static const buyPrice = 'buyPrice';
   static const inProgress = 'inProgress';
   static const orders = 'orders';
-  static const swap = 'swap';
   static const percentFilled = 'percentFilled';
   static const orderType = 'orderType';
   static const recover = 'recover';
@@ -380,6 +380,9 @@ abstract class  LocaleKeys {
   static const dexErrorMessage = 'dexErrorMessage';
   static const seedConfirmInitialText = 'seedConfirmInitialText';
   static const seedConfirmIncorrectText = 'seedConfirmIncorrectText';
+  static const mnemonicInvalidWordError = 'mnemonicInvalidWordError';
+  static const mnemonicInvalidChecksumError = 'mnemonicInvalidChecksumError';
+  static const mnemonicInvalidLengthError = 'mnemonicInvalidLengthError';
   static const usedSamePassword = 'usedSamePassword';
   static const passwordNotAccepted = 'passwordNotAccepted';
   static const confirmNewPassword = 'confirmNewPassword';
@@ -679,7 +682,6 @@ abstract class  LocaleKeys {
   static const decimals = 'decimals';
   static const onlySendToThisAddress = 'onlySendToThisAddress';
   static const scanTheQrCode = 'scanTheQrCode';
-  static const tradingAddress = 'tradingAddress';
   static const addresses = 'addresses';
   static const creating = 'creating';
   static const createAddress = 'createAddress';
