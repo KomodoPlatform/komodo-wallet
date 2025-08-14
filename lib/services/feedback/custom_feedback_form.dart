@@ -38,42 +38,44 @@ class CustomFeedbackForm extends StatelessWidget {
               Expanded(
                 child: Stack(
                   children: [
-                    const FeedbackSheetDragHandle(),
                     if (scrollController != null)
-                      _ScrollableFormContent(
-                        scrollController: scrollController!,
-                        topPadding: 20.0,
-                        children: [
-                          const _SectionTitle(
-                            title: 'What kind of feedback do you want to give?',
-                          ),
-                          const SizedBox(height: 8),
-                          _FeedbackTypeDropdown(
-                            isLoading: isLoading,
-                            selected: state.feedbackType,
-                          ),
-                          const SizedBox(height: 8),
-                          _MessageField(
-                            isLoading: isLoading,
-                            errorText: state.feedbackTextError,
-                          ),
-                          const SizedBox(height: 8),
-                          _SectionTitle(
-                            title:
-                                state.feedbackType == FeedbackType.support ||
-                                    state.feedbackType ==
-                                        FeedbackType.missingCoins
-                                ? 'How can we contact you?'
-                                : 'How can we contact you? (Optional)',
-                          ),
-                          const SizedBox(height: 4),
-                          _ContactRow(
-                            isLoading: isLoading,
-                            selectedMethod: state.contactMethod,
-                            contactError: state.contactDetailsError,
-                          ),
-                        ],
-                      ),
+                      const FeedbackSheetDragHandle(),
+                    _ScrollableFormContent(
+                      scrollController: scrollController,
+                      topPadding: scrollController != null ? 20.0 : 0.0,
+                      children: [
+                        _SectionTitle(
+                          title: LocaleKeys.feedbackFormKindQuestion.tr(),
+                        ),
+                        const SizedBox(height: 4),
+                        _FeedbackTypeDropdown(
+                          isLoading: isLoading,
+                          selected: state.feedbackType,
+                        ),
+
+                        const SizedBox(height: 8),
+                        _MessageField(
+                          isLoading: isLoading,
+                          errorText: state.feedbackTextError,
+                        ),
+
+                        const SizedBox(height: 8),
+                        _SectionTitle(
+                          title:
+                              state.feedbackType == FeedbackType.support ||
+                                  state.feedbackType ==
+                                      FeedbackType.missingCoins
+                              ? LocaleKeys.feedbackFormContactRequired.tr()
+                              : LocaleKeys.feedbackFormContactOptional.tr(),
+                        ),
+                        const SizedBox(height: 4),
+                        _ContactRow(
+                          isLoading: isLoading,
+                          selectedMethod: state.contactMethod,
+                          contactError: state.contactDetailsError,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -103,7 +105,7 @@ class _ScrollableFormContent extends StatelessWidget {
     required this.children,
   });
 
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
   final double topPadding;
   final List<Widget> children;
 
@@ -191,7 +193,8 @@ class _MessageField extends StatelessWidget {
       maxLength: feedbackMaxLength,
       maxLengthEnforcement: MaxLengthEnforcement.enforced,
       enabled: !isLoading,
-      hintText: 'Enter your feedback here...',
+      labelText: LocaleKeys.feedbackFormDescribeTitle.tr(),
+      hintText: LocaleKeys.feedbackFormMessageHint.tr(),
       errorText: errorText,
       validationMode: InputValidationMode.eager,
       onChanged: (value) => context.read<FeedbackFormBloc>().add(
@@ -222,7 +225,7 @@ class _ContactRow extends StatelessWidget {
           child: DropdownButtonFormField<ContactMethod>(
             isExpanded: true,
             value: selectedMethod,
-            hint: const Text('Select'),
+            hint: Text(LocaleKeys.selectToken.tr()),
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -249,7 +252,7 @@ class _ContactRow extends StatelessWidget {
             enabled: !isLoading,
             maxLength: contactDetailsMaxLength,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
-            hintText: _getContactHint(selectedMethod),
+            hintText: _getContactHint(selectedMethod).tr(),
             errorText: contactError,
             validationMode: InputValidationMode.eager,
             onChanged: (value) => context.read<FeedbackFormBloc>().add(
@@ -312,14 +315,14 @@ class _ActionsRow extends StatelessWidget {
 String _getContactHint(ContactMethod? method) {
   switch (method) {
     case ContactMethod.discord:
-      return 'Discord username (e.g., username123)';
+      return LocaleKeys.feedbackFormDiscordHint;
     case ContactMethod.matrix:
-      return 'Matrix ID (e.g., @user:matrix.org)';
+      return LocaleKeys.feedbackFormMatrixHint;
     case ContactMethod.telegram:
-      return 'Telegram username (e.g., @username)';
+      return LocaleKeys.feedbackFormTelegramHint;
     case ContactMethod.email:
-      return 'Your email address';
+      return LocaleKeys.feedbackFormEmailHint;
     default:
-      return 'Enter your contact details';
+      return LocaleKeys.feedbackFormContactHint;
   }
 }
