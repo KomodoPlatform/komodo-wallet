@@ -217,6 +217,8 @@ bool isParentCoin(CoinType type, String symbol) {
       return symbol == 'MOVR';
     case CoinType.krc20:
       return symbol == 'KCS';
+    case CoinType.qrc20:
+      return symbol == 'QTUM';
     default:
       return false;
   }
