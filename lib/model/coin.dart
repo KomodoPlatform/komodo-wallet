@@ -174,32 +174,32 @@ class Coin extends Equatable {
     bool? isCustomCoin,
   }) {
     return Coin(
-      type: type ?? this.type,
-      abbr: abbr ?? this.abbr,
-      id: id ?? this.id,
-      name: name ?? this.name,
-      logoImageUrl: logoImageUrl ?? this.logoImageUrl,
-      explorerUrl: explorerUrl ?? this.explorerUrl,
-      explorerTxUrl: explorerTxUrl ?? this.explorerTxUrl,
-      explorerAddressUrl: explorerAddressUrl ?? this.explorerAddressUrl,
-      protocolType: protocolType ?? this.protocolType,
-      protocolData: protocolData ?? this.protocolData,
-      isTestCoin: isTestCoin ?? this.isTestCoin,
-      coingeckoId: coingeckoId ?? this.coingeckoId,
-      fallbackSwapContract: fallbackSwapContract ?? this.fallbackSwapContract,
-      priority: priority ?? this.priority,
-      state: state ?? this.state,
-      decimals: decimals ?? this.decimals,
-      parentCoin: parentCoin ?? this.parentCoin,
-      derivationPath: derivationPath ?? this.derivationPath,
-      usdPrice: usdPrice ?? this.usdPrice,
-      coinpaprikaId: coinpaprikaId ?? this.coinpaprikaId,
-      activeByDefault: activeByDefault ?? this.activeByDefault,
-      swapContractAddress: swapContractAddress ?? _swapContractAddress,
-      walletOnly: walletOnly ?? _walletOnly,
-      mode: mode ?? this.mode,
-      isCustomCoin: isCustomCoin ?? this.isCustomCoin,
-    )
+        type: type ?? this.type,
+        abbr: abbr ?? this.abbr,
+        id: id ?? this.id,
+        name: name ?? this.name,
+        logoImageUrl: logoImageUrl ?? this.logoImageUrl,
+        explorerUrl: explorerUrl ?? this.explorerUrl,
+        explorerTxUrl: explorerTxUrl ?? this.explorerTxUrl,
+        explorerAddressUrl: explorerAddressUrl ?? this.explorerAddressUrl,
+        protocolType: protocolType ?? this.protocolType,
+        protocolData: protocolData ?? this.protocolData,
+        isTestCoin: isTestCoin ?? this.isTestCoin,
+        coingeckoId: coingeckoId ?? this.coingeckoId,
+        fallbackSwapContract: fallbackSwapContract ?? this.fallbackSwapContract,
+        priority: priority ?? this.priority,
+        state: state ?? this.state,
+        decimals: decimals ?? this.decimals,
+        parentCoin: parentCoin ?? this.parentCoin,
+        derivationPath: derivationPath ?? this.derivationPath,
+        usdPrice: usdPrice ?? this.usdPrice,
+        coinpaprikaId: coinpaprikaId ?? this.coinpaprikaId,
+        activeByDefault: activeByDefault ?? this.activeByDefault,
+        swapContractAddress: swapContractAddress ?? _swapContractAddress,
+        walletOnly: walletOnly ?? _walletOnly,
+        mode: mode ?? this.mode,
+        isCustomCoin: isCustomCoin ?? this.isCustomCoin,
+      )
       ..address = address ?? this.address
       ..sendableBalance = sendableBalance ?? this.sendableBalance;
   }
@@ -208,11 +208,11 @@ class Coin extends Equatable {
   // legacy fields here.
   @override
   List<Object?> get props => [
-        id,
-        // Legacy fields still updated and used in the app, so we keep them
-        // in the props list for now to maintain the desired state updates.
-        state, type, abbr, usdPrice, isTestCoin, parentCoin, address,
-      ];
+    id,
+    // Legacy fields still updated and used in the app, so we keep them
+    // in the props list for now to maintain the desired state updates.
+    state, type, abbr, usdPrice, isTestCoin, parentCoin, address,
+  ];
 }
 
 extension LegacyCoinToSdkAsset on Coin {
@@ -227,8 +227,8 @@ class ProtocolData {
 
   factory ProtocolData.fromJson(Map<String, dynamic> json) => ProtocolData(
         platform: json['platform'],
-        contractAddress: json['contract_address'] ?? '',
-      );
+    contractAddress: json['contract_address'] ?? '',
+  );
 
   String platform;
   String contractAddress;
@@ -244,17 +244,17 @@ class ProtocolData {
 class CoinNode {
   const CoinNode({required this.url, required this.guiAuth});
   static CoinNode fromJson(Map<String, dynamic> json) => CoinNode(
-        url: json['url'],
-        guiAuth: (json['gui_auth'] ?? json['komodo_proxy']) ?? false,
-      );
+    url: json['url'],
+    guiAuth: (json['gui_auth'] ?? json['komodo_proxy']) ?? false,
+  );
   final bool guiAuth;
   final String url;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'url': url,
-        'gui_auth': guiAuth,
-        'komodo_proxy': guiAuth,
-      };
+    'url': url,
+    'gui_auth': guiAuth,
+    'komodo_proxy': guiAuth,
+  };
 }
 
 enum CoinMode { segwit, standard, hw }
@@ -275,3 +275,17 @@ extension CoinListExtension on List<Coin> {
 
 const String _urgentDeprecationNotice =
     '(URGENT) This must be fixed before the next release.';
+
+/// Extension to filter a list of coins to unique elements based on a given ID function.
+/// If no ID function is provided, the elements themselves are used as IDs.
+///
+/// Helper method to get unique items from a list, given that the equality check for Coin is
+/// based on transient fields that can change for the same coin.
+extension Unique<E, Id> on List<E> {
+  List<E> unique(Id Function(E element) id, [bool inplace = true]) {
+    final ids = <dynamic>{};
+    var list = inplace ? this : List<E>.from(this);
+    list.retainWhere((x) => ids.add(id(x)));
+    return list;
+  }
+}
