@@ -377,6 +377,9 @@ abstract class  LocaleKeys {
   static const dexErrorMessage = 'dexErrorMessage';
   static const seedConfirmInitialText = 'seedConfirmInitialText';
   static const seedConfirmIncorrectText = 'seedConfirmIncorrectText';
+  static const mnemonicInvalidWordError = 'mnemonicInvalidWordError';
+  static const mnemonicInvalidChecksumError = 'mnemonicInvalidChecksumError';
+  static const mnemonicInvalidLengthError = 'mnemonicInvalidLengthError';
   static const usedSamePassword = 'usedSamePassword';
   static const passwordNotAccepted = 'passwordNotAccepted';
   static const confirmNewPassword = 'confirmNewPassword';
