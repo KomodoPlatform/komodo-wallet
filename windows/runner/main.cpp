@@ -17,10 +17,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   // plugins.
   ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
-  // Enforce single instance: create a named mutex. If it already exists,
-  // try to bring the existing window to the foreground and exit immediately.
+  // Enforce single instance: create a named mutex. If it already exists or we
+  // don't have access to it, try to bring the existing window to the foreground
+  // and exit immediately.
   HANDLE singleInstanceMutex = CreateMutexW(nullptr, TRUE, L"Global\\KomodoWallet_SingleInstanceMutex");
-  if (singleInstanceMutex != nullptr && GetLastError() == ERROR_ALREADY_EXISTS) {
+  DWORD createMutexError = GetLastError();
+  const bool mutexIndicatesOtherInstance =
+      (singleInstanceMutex == nullptr && createMutexError == ERROR_ACCESS_DENIED) ||
+      (singleInstanceMutex != nullptr && (createMutexError == ERROR_ALREADY_EXISTS || createMutexError == ERROR_ACCESS_DENIED));
+  if (mutexIndicatesOtherInstance) {
     // Attempt to find the existing window by class or title and focus it.
     HWND existing = FindWindowW(L"FLUTTER_RUNNER_WIN32_WINDOW", nullptr);
     if (existing == nullptr) {
