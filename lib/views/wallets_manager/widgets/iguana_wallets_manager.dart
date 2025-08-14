@@ -311,9 +311,6 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       AuthSignInRequested(wallet: wallet, password: password),
     );
 
-    // Close autofill context after we programmatically submit credentials
-    TextInput.finishAutofillContext(shouldSave: true);
-
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -347,6 +344,9 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       // Update remembered wallet before closing the dialog to avoid using
       // the context after the widget is disposed.
       unawaited(_updateRememberedWallet(currentUser));
+      // Complete autofill session only after a successful login so that
+      // password managers can save validated credentials.
+      TextInput.finishAutofillContext(shouldSave: true);
       widget.onSuccess(currentWallet);
     }
 
