@@ -487,7 +487,6 @@
   "feedback": "Feedback",
   "feedbackViewTitle": "Send us your feedback",
   "feedbackPageDescription": "Help us improve by sharing your suggestions, reporting bugs, or giving general feedback.",
-  "sendFeedbackButton": "Share your feedback",
   "feedbackThankyou": "Thank you for your feedback!",
   "feedbackError": "Failed to submit feedback",
   "selectAToken": "Select a token",

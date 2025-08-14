@@ -12,45 +12,25 @@ import 'package:web_dex/views/support/missing_coins_dialog.dart';
 
 /// A form that prompts the user for feedback using BLoC for state management.
 class CustomFeedbackForm extends StatelessWidget {
-  const CustomFeedbackForm({
-    super.key,
-    required this.scrollController,
-  });
+  const CustomFeedbackForm({super.key, required this.scrollController});
 
   final ScrollController? scrollController;
 
   static FeedbackBuilder get feedbackBuilder =>
       (context, onSubmit, scrollController) => BlocProvider(
-            create: (_) => FeedbackFormBloc(onSubmit),
-            child: CustomFeedbackForm(scrollController: scrollController),
-          );
+        create: (_) => FeedbackFormBloc(onSubmit),
+        child: CustomFeedbackForm(scrollController: scrollController),
+      );
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FeedbackFormBloc, FeedbackFormState>(
       builder: (context, state) {
-        final theme = Theme.of(context);
+        // final theme = Theme.of(context); // Unused here; section widgets read theme directly
         final isLoading = state.status == FeedbackFormStatus.submitting;
         final formValid = state.isValid && !isLoading;
-        const double _buttonHorizontalPadding = 16;
-        const double _buttonHeight = 40;
-        const double _buttonIconSize = 18;
-        const double _buttonIconSpacing = 8;
-        const double _buttonsSpacing = 8;
-
         final submitLabel = LocaleKeys.send.tr();
-        final submitTextStyle = theme.textTheme.labelLarge
-                ?.copyWith(fontWeight: FontWeight.bold, fontSize: 14) ??
-            const TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
-        final TextPainter _submitPainter = TextPainter(
-          text: TextSpan(text: submitLabel, style: submitTextStyle),
-          maxLines: 1,
-          textDirection: Directionality.of(context),
-        )..layout();
-        final double _submitButtonWidth = _submitPainter.width +
-            (2 * _buttonHorizontalPadding) +
-            _buttonIconSize +
-            _buttonIconSpacing;
+
         return Form(
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
@@ -58,185 +38,273 @@ class CustomFeedbackForm extends StatelessWidget {
               Expanded(
                 child: Stack(
                   children: [
+                    const FeedbackSheetDragHandle(),
                     if (scrollController != null)
-                      const FeedbackSheetDragHandle(),
-                    ListView(
-                      controller: scrollController,
-                      padding: EdgeInsets.fromLTRB(
-                        16,
-                        scrollController != null ? 20 : 16,
-                        16,
-                        0,
-                      ),
-                      children: [
-                        Text(
-                          'What kind of feedback do you want to give?',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<FeedbackType>(
-                          isExpanded: true,
-                          value: state.feedbackType,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                      _ScrollableFormContent(
+                        scrollController: scrollController!,
+                        topPadding: 20.0,
+                        children: [
+                          const _SectionTitle(
+                            title: 'What kind of feedback do you want to give?',
                           ),
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please select a feedback type';
-                            }
-                            return null;
-                          },
-                          items: FeedbackType.values
-                              .map(
-                                (type) => DropdownMenuItem<FeedbackType>(
-                                  value: type,
-                                  child: Text(type.description),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: isLoading
-                              ? null
-                              : (feedbackType) {
-                                  if (feedbackType ==
-                                      FeedbackType.missingCoins) {
-                                    showMissingCoinsDialog(context);
-                                  }
-                                  context.read<FeedbackFormBloc>().add(
-                                      FeedbackFormTypeChanged(feedbackType));
-                                },
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Please describe your feedback:',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        UiTextFormField(
-                          maxLength: feedbackMaxLength,
-                          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                          enabled: !isLoading,
-                          autofocus: true,
-                          hintText: 'Enter your feedback here...',
-                          errorText: state.feedbackTextError,
-                          validationMode: InputValidationMode.eager,
-                          onChanged: (value) => context
-                              .read<FeedbackFormBloc>()
-                              .add(FeedbackFormMessageChanged(value ?? '')),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          state.feedbackType == FeedbackType.support ||
-                                  state.feedbackType ==
-                                      FeedbackType.missingCoins
-                              ? 'How can we contact you?'
-                              : 'How can we contact you? (Optional)',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: 130,
-                              child: DropdownButtonFormField<ContactMethod>(
-                                isExpanded: true,
-                                value: state.contactMethod,
-                                hint: const Text('Select'),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                items: ContactMethod.values
-                                    .map(
-                                      (method) =>
-                                          DropdownMenuItem<ContactMethod>(
-                                        value: method,
-                                        child: Text(method.label),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: isLoading
-                                    ? null
-                                    : (method) => context
-                                        .read<FeedbackFormBloc>()
-                                        .add(FeedbackFormContactMethodChanged(
-                                            method)),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: UiTextFormField(
-                                enabled: !isLoading,
-                                maxLength: contactDetailsMaxLength,
-                                maxLengthEnforcement:
-                                    MaxLengthEnforcement.enforced,
-                                hintText: _getContactHint(state.contactMethod),
-                                errorText: state.contactDetailsError,
-                                validationMode: InputValidationMode.eager,
-                                onChanged: (value) => context
-                                    .read<FeedbackFormBloc>()
-                                    .add(FeedbackFormContactDetailsChanged(
-                                        value ?? '')),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          const SizedBox(height: 8),
+                          _FeedbackTypeDropdown(
+                            isLoading: isLoading,
+                            selected: state.feedbackType,
+                          ),
+                          const SizedBox(height: 8),
+                          _MessageField(
+                            isLoading: isLoading,
+                            errorText: state.feedbackTextError,
+                          ),
+                          const SizedBox(height: 8),
+                          _SectionTitle(
+                            title:
+                                state.feedbackType == FeedbackType.support ||
+                                    state.feedbackType ==
+                                        FeedbackType.missingCoins
+                                ? 'How can we contact you?'
+                                : 'How can we contact you? (Optional)',
+                          ),
+                          const SizedBox(height: 4),
+                          _ContactRow(
+                            isLoading: isLoading,
+                            selectedMethod: state.contactMethod,
+                            contactError: state.contactDetailsError,
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (isLoading)
-                      const Padding(
-                        padding: EdgeInsets.only(right: 16.0),
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2.0),
-                        ),
-                      ),
-                    TextButton(
-                      onPressed:
-                          isLoading ? null : () => BetterFeedback.of(context).hide(),
-                      child: Text(LocaleKeys.cancel.tr()),
-                    ),
-                    SizedBox(width: _buttonsSpacing),
-                    UiPrimaryButton(
-                      width: _submitButtonWidth,
-                      height: _buttonHeight,
-                      onPressed: formValid
-                          ? () => context
-                              .read<FeedbackFormBloc>()
-                              .add(const FeedbackFormSubmitted())
-                          : null,
-                      text: submitLabel,
-                      prefix: Padding(
-                        padding: const EdgeInsets.only(right: _buttonIconSpacing),
-                        child: Icon(
-                          Icons.send_rounded,
-                          size: _buttonIconSize,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: _buttonHorizontalPadding,
-                        vertical: 8,
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: _ActionsRow(
+                  isLoading: isLoading,
+                  isFormValid: formValid,
+                  submitLabel: submitLabel,
                 ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _ScrollableFormContent extends StatelessWidget {
+  const _ScrollableFormContent({
+    required this.scrollController,
+    required this.topPadding,
+    required this.children,
+  });
+
+  final ScrollController scrollController;
+  final double topPadding;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+      child: Scrollbar(
+        controller: scrollController,
+        thumbVisibility: true,
+        child: ListView(
+          controller: scrollController,
+          padding: EdgeInsets.fromLTRB(16, topPadding, 16, 0),
+          children: children,
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Text(title, style: theme.textTheme.titleMedium);
+  }
+}
+
+class _FeedbackTypeDropdown extends StatelessWidget {
+  const _FeedbackTypeDropdown({
+    required this.isLoading,
+    required this.selected,
+  });
+
+  final bool isLoading;
+  final FeedbackType? selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<FeedbackType>(
+      autofocus: true,
+      isExpanded: true,
+      value: selected,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      validator: (value) =>
+          value == null ? 'Please select a feedback type' : null,
+      items: FeedbackType.values
+          .map(
+            (type) => DropdownMenuItem<FeedbackType>(
+              value: type,
+              child: Text(type.description),
+            ),
+          )
+          .toList(),
+      onChanged: isLoading
+          ? null
+          : (feedbackType) {
+              if (feedbackType == FeedbackType.missingCoins) {
+                showMissingCoinsDialog(context);
+              }
+              context.read<FeedbackFormBloc>().add(
+                FeedbackFormTypeChanged(feedbackType),
+              );
+            },
+    );
+  }
+}
+
+class _MessageField extends StatelessWidget {
+  const _MessageField({required this.isLoading, required this.errorText});
+
+  final bool isLoading;
+  final String? errorText;
+
+  @override
+  Widget build(BuildContext context) {
+    return UiTextFormField(
+      maxLines: null,
+      maxLength: feedbackMaxLength,
+      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+      enabled: !isLoading,
+      hintText: 'Enter your feedback here...',
+      errorText: errorText,
+      validationMode: InputValidationMode.eager,
+      onChanged: (value) => context.read<FeedbackFormBloc>().add(
+        FeedbackFormMessageChanged(value ?? ''),
+      ),
+    );
+  }
+}
+
+class _ContactRow extends StatelessWidget {
+  const _ContactRow({
+    required this.isLoading,
+    required this.selectedMethod,
+    required this.contactError,
+  });
+
+  final bool isLoading;
+  final ContactMethod? selectedMethod;
+  final String? contactError;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 130,
+          child: DropdownButtonFormField<ContactMethod>(
+            isExpanded: true,
+            value: selectedMethod,
+            hint: const Text('Select'),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            items: ContactMethod.values
+                .map(
+                  (method) => DropdownMenuItem<ContactMethod>(
+                    value: method,
+                    child: Text(method.label),
+                  ),
+                )
+                .toList(),
+            onChanged: isLoading
+                ? null
+                : (method) => context.read<FeedbackFormBloc>().add(
+                    FeedbackFormContactMethodChanged(method),
+                  ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: UiTextFormField(
+            enabled: !isLoading,
+            maxLength: contactDetailsMaxLength,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            hintText: _getContactHint(selectedMethod),
+            errorText: contactError,
+            validationMode: InputValidationMode.eager,
+            onChanged: (value) => context.read<FeedbackFormBloc>().add(
+              FeedbackFormContactDetailsChanged(value ?? ''),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionsRow extends StatelessWidget {
+  const _ActionsRow({
+    required this.isLoading,
+    required this.isFormValid,
+    required this.submitLabel,
+  });
+
+  final bool isLoading;
+  final bool isFormValid;
+  final String submitLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        if (isLoading)
+          const Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2.0),
+            ),
+          ),
+        TextButton(
+          onPressed: isLoading ? null : () => BetterFeedback.of(context).hide(),
+          child: Text(LocaleKeys.cancel.tr()),
+        ),
+        const SizedBox(width: 16),
+        FilledButton.icon(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          ),
+          onPressed: isFormValid
+              ? () => context.read<FeedbackFormBloc>().add(
+                  const FeedbackFormSubmitted(),
+                )
+              : null,
+          label: Text(submitLabel),
+          icon: const Icon(Icons.send),
+        ),
+      ],
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart' show kIsWasm, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,7 +28,7 @@ import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/model/stored_settings.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/sdk/widgets/window_close_handler.dart';
-import 'package:web_dex/services/feedback/custom_feedback_form.dart';
+import 'package:web_dex/services/feedback/app_feedback_wrapper.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
@@ -135,8 +134,6 @@ class MyApp extends StatelessWidget {
     final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
 
-    final theme = Theme.of(context);
-
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
@@ -151,11 +148,7 @@ class MyApp extends StatelessWidget {
           },
         ),
       ],
-      child: BetterFeedback(
-        feedbackBuilder: CustomFeedbackForm.feedbackBuilder,
-        themeMode: ThemeMode.light,
-        darkTheme: _feedbackThemeData(theme),
-        theme: _feedbackThemeData(theme),
+      child: AppFeedbackWrapper(
         child: AnalyticsLifecycleHandler(
           child: WindowCloseHandler(
             child: app_bloc_root.AppBlocRoot(
@@ -167,16 +160,4 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-}
-
-FeedbackThemeData _feedbackThemeData(ThemeData appTheme) {
-  return FeedbackThemeData(
-    bottomSheetTextInputStyle: appTheme.textTheme.bodyMedium!,
-    bottomSheetDescriptionStyle: appTheme.textTheme.bodyMedium!,
-    dragHandleColor: appTheme.colorScheme.primary,
-    colorScheme: appTheme.colorScheme,
-    sheetIsDraggable: true,
-    feedbackSheetHeight: 0.3,
-    drawColors: [Colors.red, Colors.white, Colors.green],
-  );
 }

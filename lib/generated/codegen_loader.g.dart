@@ -484,7 +484,6 @@ abstract class  LocaleKeys {
   static const feedback = 'feedback';
   static const feedbackViewTitle = 'feedbackViewTitle';
   static const feedbackPageDescription = 'feedbackPageDescription';
-  static const sendFeedbackButton = 'sendFeedbackButton';
   static const feedbackThankyou = 'feedbackThankyou';
   static const feedbackError = 'feedbackError';
   static const selectAToken = 'selectAToken';
