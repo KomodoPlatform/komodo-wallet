@@ -32,6 +32,9 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
 
+# Include Visual C++ redistributable libraries automatically
+include(InstallRequiredSystemLibraries)
+
 # Compilation settings that should be applied to most targets.
 #
 # Be cautious about adding new options here, as plugins use this function by
@@ -99,3 +102,32 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# Install Visual C++ redistributable libraries
+if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+  install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
+    DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+    COMPONENT Runtime)
+endif()
+
+# Additional DLL installation for CI builds
+# Try to find and install VC++ redistributables manually if InstallRequiredSystemLibraries didn't work
+if(WIN32)
+  # Common locations for VC++ redistributables
+  set(VCREDIST_PATHS
+    "$ENV{VCToolsRedistDir}x64/Microsoft.VC143.CRT"
+    "$ENV{VCINSTALLDIR}Redist/MSVC/*/x64/Microsoft.VC143.CRT"
+    "C:/Program Files/Microsoft Visual Studio/2022/*/VC/Redist/MSVC/*/x64/Microsoft.VC143.CRT"
+    "C:/Program Files (x86)/Microsoft Visual Studio/2019/*/VC/Redist/MSVC/*/x64/Microsoft.VC143.CRT"
+  )
+  
+  foreach(VCREDIST_PATH ${VCREDIST_PATHS})
+    file(GLOB VCREDIST_DLLS "${VCREDIST_PATH}/*.dll")
+    if(VCREDIST_DLLS)
+      install(FILES ${VCREDIST_DLLS}
+        DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+        COMPONENT Runtime)
+      break()
+    endif()
+  endforeach()
+endif()

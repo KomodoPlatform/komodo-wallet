@@ -85,6 +85,47 @@ jobs:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ${{ matrix.build_command }}
 
+      # Windows-specific step to ensure dependencies are properly installed
+      - name: Install Windows bundle dependencies
+        if: ${{ matrix.platform == 'windows' }}
+        shell: pwsh
+        run: |
+          Write-Host "Current directory: $(pwd)"
+          Write-Host "Listing build directory:"
+          Get-ChildItem -Recurse build | Where-Object { $_.Name -like "*.dll" -or $_.Name -like "*.exe" } | ForEach-Object { Write-Host $_.FullName }
+          
+          # Ensure Visual C++ redistributables are copied
+          if (Test-Path "build\windows\x64\runner\Release") {
+            cd build\windows\x64\runner\Release
+            Write-Host "Contents of Release directory:"
+            Get-ChildItem | ForEach-Object { Write-Host $_.Name }
+            
+            # Try to manually copy required DLLs if they exist in the system
+            $vcRedistPaths = @(
+              "${env:VCToolsRedistDir}x64\Microsoft.VC143.CRT",
+              "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\*\x64\Microsoft.VC143.CRT",
+              "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Redist\MSVC\*\x64\Microsoft.VC143.CRT"
+            )
+            
+            foreach ($vcRedistPath in $vcRedistPaths) {
+              $expandedPaths = Get-ChildItem -Path $vcRedistPath -ErrorAction SilentlyContinue
+              if ($expandedPaths) {
+                foreach ($path in $expandedPaths) {
+                  if (Test-Path $path.FullName) {
+                    Write-Host "Found VC++ redistributables at: $($path.FullName)"
+                    Copy-Item "$($path.FullName)\*.dll" . -Force -ErrorAction SilentlyContinue
+                    break
+                  }
+                }
+                if ($?) { break }
+              }
+            }
+            
+            # List final contents
+            Write-Host "Final Release directory contents:"
+            Get-ChildItem | ForEach-Object { Write-Host $_.Name }
+          }
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

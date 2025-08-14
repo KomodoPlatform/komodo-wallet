@@ -24,6 +24,7 @@ runs:
     - name: Install Windows build dependencies
       shell: pwsh
       run: |
+        flutter config --enable-windows-desktop
         flutter pub get --enforce-lockfile
         flutter doctor
 
