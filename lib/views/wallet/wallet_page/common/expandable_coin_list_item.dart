@@ -313,7 +313,24 @@ class _AddressRow extends StatelessWidget {
             if (isSwapAddress &&
                 context.watch<TradingStatusBloc>().state is TradingEnabled) ...[
               const SizedBox(width: 8),
-              Chip(label: Text(LocaleKeys.tradingAddress.tr())),
+              // TODO: Refactor to use "DexPill" component from the SDK UI library (not yet created)
+              Padding(
+                padding: EdgeInsets.only(left: isMobile ? 4 : 8),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: isMobile ? 6 : 8,
+                    horizontal: isMobile ? 8 : 12.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiary,
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: Text(
+                    LocaleKeys.dexAddress.tr(),
+                    style: TextStyle(fontSize: isMobile ? 9 : 12),
+                  ),
+                ),
+              ),
             ],
           ],
         ),

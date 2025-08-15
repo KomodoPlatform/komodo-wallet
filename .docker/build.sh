@@ -93,7 +93,11 @@ else
     echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
   fi
 fi
-
+# Add web-specific build arguments if the target is web
+if [ "$BUILD_TARGET" = "web" ]; then
+    echo "Adding web-specific build arguments: --no-web-resources-cdn"
+    BUILD_CMD="$BUILD_CMD --no-web-resources-cdn"
+fi
 # Use the provided arguments for flutter build
 # Build a second time if needed, as asset downloads will require a rebuild on the first attempt
 docker run $PLATFORM_FLAG --rm -v ./build:/app/build \
