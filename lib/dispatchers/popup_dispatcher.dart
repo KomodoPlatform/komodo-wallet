@@ -114,7 +114,11 @@ class PopupDispatcher {
   void close() {
     _resetBrowserNavigationToDefault();
     if (_currentContext == null) return;
-    if (_isShown) Navigator.of(_currentContext!).pop();
+    if (_isShown) {
+      final navigator = Navigator.of(_currentContext!);
+      // ignore: discarded_futures
+      navigator.maybePop();
+    }
   }
 
   void _setupDismissibleLogic() {

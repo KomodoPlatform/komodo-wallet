@@ -188,10 +188,22 @@ class AppDialog {
       child: Builder(
         builder: (context) {
           try {
+            // Guard against multiple close attempts which may happen during
+            // rapid navigation state changes (e.g. login success + route change)
+            bool didRequestClose = false;
             return childBuilder(() {
+              if (didRequestClose) return;
+              didRequestClose = true;
+
               // Pop the dialog using the same navigator that was used to show it.
-              // This prevents navigation stack corruption that can lead to blank screens.
-              Navigator.of(context, rootNavigator: useRootNavigator).pop();
+              // Use maybePop to avoid "Bad state: No element" when there is
+              // nothing left to pop on the target navigator.
+              final navigator = Navigator.of(
+                context,
+                rootNavigator: useRootNavigator,
+              );
+              // ignore: discarded_futures
+              navigator.maybePop();
             });
           } catch (e) {
             // If childBuilder throws an error, show a fallback widget
@@ -219,7 +231,9 @@ class AppDialog {
   /// - Use `true` for dialogs shown with `AppDialog.showWithCallback()` (default)
   static void close(BuildContext context, {bool useRootNavigator = false}) {
     if (context.mounted) {
-      Navigator.of(context, rootNavigator: useRootNavigator).pop();
+      final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+      // ignore: discarded_futures
+      navigator.maybePop();
     }
   }
 }
