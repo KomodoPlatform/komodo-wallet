@@ -24,7 +24,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   DWORD createMutexError = GetLastError();
   const bool mutexIndicatesOtherInstance =
       (singleInstanceMutex == nullptr && createMutexError == ERROR_ACCESS_DENIED) ||
-      (singleInstanceMutex != nullptr && (createMutexError == ERROR_ALREADY_EXISTS || createMutexError == ERROR_ACCESS_DENIED));
+      (singleInstanceMutex != nullptr && createMutexError == ERROR_ALREADY_EXISTS);
   if (mutexIndicatesOtherInstance) {
     // Attempt to find the existing window by class or title and focus it.
     HWND existing = FindWindowW(L"FLUTTER_RUNNER_WIN32_WINDOW", nullptr);
