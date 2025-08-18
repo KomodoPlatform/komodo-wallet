@@ -111,7 +111,7 @@ static void my_application_dispose(GObject* object) {
   g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
 
   if (self->main_window != nullptr) {
-    g_signal_handlers_disconnect_by_func(self->main_window, G_CALLBACK(on_window_destroy), self);
+    g_signal_handlers_disconnect_by_data(self->main_window, self);
     self->main_window = nullptr;
   }
 
