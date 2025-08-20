@@ -12,6 +12,7 @@ class FeedbackFormState extends Equatable {
     this.contactDetailsError,
     this.status = FeedbackFormStatus.initial,
     this.errorMessage,
+    this.includeLogs = false,
   });
 
   final FeedbackType? feedbackType;
@@ -22,6 +23,7 @@ class FeedbackFormState extends Equatable {
   final String? contactDetailsError;
   final FeedbackFormStatus status;
   final String? errorMessage;
+  final bool includeLogs;
 
   bool get isValid =>
       feedbackType != null &&
@@ -38,6 +40,7 @@ class FeedbackFormState extends Equatable {
     String? contactDetailsError,
     FeedbackFormStatus? status,
     String? errorMessage,
+    bool? includeLogs,
   }) {
     return FeedbackFormState(
       feedbackType: feedbackType ?? this.feedbackType,
@@ -48,6 +51,7 @@ class FeedbackFormState extends Equatable {
       contactDetailsError: contactDetailsError,
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
+      includeLogs: includeLogs ?? this.includeLogs,
     );
   }
 

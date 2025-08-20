@@ -165,6 +165,19 @@ class CustomFeedbackForm extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
+                        UiCheckbox(
+                          checkboxKey:
+                              const Key('feedback-include-logs-checkbox'),
+                          value: state.includeLogs,
+                          text: 'Include logs (max 10MB)',
+                          onChanged: isLoading
+                              ? null
+                              : (value) => context
+                                  .read<FeedbackFormBloc>()
+                                  .add(FeedbackFormIncludeLogsChanged(
+                                      value ?? false)),
+                        ),
                       ],
                     ),
                   ],

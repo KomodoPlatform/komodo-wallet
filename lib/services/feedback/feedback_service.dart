@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:dragon_logs/dragon_logs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart';
@@ -55,11 +57,13 @@ class FeedbackService {
     String? contactDetails;
     String? feedbackType;
 
+    bool includeLogs = false;
     if (feedback.extra != null && feedback.extra is JsonMap) {
       final extras = feedback.extra!;
       contactMethod = extras['contact_method'] as String?;
       contactDetails = extras['contact_details'] as String?;
       feedbackType = extras['feedback_type'] as String?;
+      includeLogs = (extras['include_logs'] as bool?) ?? false;
     }
 
     final Map<String, dynamic> metadata = {
@@ -84,11 +88,15 @@ class FeedbackService {
     };
 
     try {
+      // Prepare logs if requested, capped to 10MB
+      final logsBytes = includeLogs ? await _exportLogsCappedBytes() : null;
+
       await provider.submitFeedback(
         description: feedback.text,
         screenshot: feedback.screenshot,
         type: feedbackType ?? 'User Feedback',
         metadata: metadata,
+        logs: logsBytes,
       );
       return true;
     } catch (e) {
@@ -105,6 +113,21 @@ class FeedbackService {
   }
 }
 
+/// Exports logs as UTF-8 bytes capped to 10MB by keeping the most recent content.
+Future<Uint8List> _exportLogsCappedBytes() async {
+  // DragonLogs.exportLogsString returns a full text export. We cap to 10MB.
+  const int maxBytes = 10 * 1024 * 1024; // 10MB
+  final String logsText = await DragonLogs.exportLogsString();
+  // Get UTF-8 bytes
+  final Uint8List bytes = Uint8List.fromList(utf8.encode(logsText));
+  if (bytes.length <= maxBytes) {
+    return bytes;
+  }
+  // If too large, take last maxBytes segment to prioritize most recent lines.
+  final int start = bytes.length - maxBytes;
+  return bytes.sublist(start);
+}
+
 /// Abstract interface for feedback providers
 abstract class FeedbackProvider {
   /// Submits feedback to the provider
@@ -113,6 +136,7 @@ abstract class FeedbackProvider {
     required Uint8List screenshot,
     required String type,
     required Map<String, dynamic> metadata,
+    Uint8List? logs,
   });
 
   /// Returns true if this provider is configured and available for use
@@ -309,6 +333,7 @@ class TrelloFeedbackProvider implements FeedbackProvider {
     required Uint8List screenshot,
     required String type,
     required Map<String, dynamic> metadata,
+    Uint8List? logs,
   }) async {
     try {
       // Create comprehensive formatted description for agents
@@ -355,6 +380,33 @@ class TrelloFeedbackProvider implements FeedbackProvider {
           contentType: MediaType('image', 'png'),
         ),
       );
+
+      // Optionally attach logs as a second attachment
+      if (logs != null && logs.isNotEmpty) {
+        final logsAttachmentRequest = http.MultipartRequest(
+          'POST',
+          Uri.parse('https://api.trello.com/1/cards/$cardId/attachments'),
+        );
+        logsAttachmentRequest.fields.addAll({'key': apiKey, 'token': token});
+        logsAttachmentRequest.files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            logs,
+            filename: 'logs.txt',
+            contentType: MediaType('text', 'plain'),
+          ),
+        );
+        final logsAttachmentResponse = await logsAttachmentRequest.send();
+        final logsStreamedResponse = await http.Response.fromStream(
+          logsAttachmentResponse,
+        );
+
+        if (logsStreamedResponse.statusCode != 200) {
+          throw Exception(
+            'Failed to attach logs (${logsStreamedResponse.statusCode}): ${logsStreamedResponse.body}',
+          );
+        }
+      }
 
       final attachmentResponse = await attachmentRequest.send();
       final streamedResponse = await http.Response.fromStream(
@@ -453,6 +505,7 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
     required Uint8List screenshot,
     required String type,
     required Map<String, dynamic> metadata,
+    Uint8List? logs,
   }) async {
     try {
       // Create comprehensive formatted description for agents
@@ -487,6 +540,18 @@ class CloudflareFeedbackProvider implements FeedbackProvider {
         ),
       );
 
+      // Include logs if provided
+      if (logs != null && logs.isNotEmpty) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'logs',
+            logs,
+            filename: 'logs.txt',
+            contentType: MediaType('text', 'plain'),
+          ),
+        );
+      }
+
       // Encode metadata as JSON with proper UTF-8 handling
       final metadataJson = metadata.toJsonString();
       request.fields['metadata'] = metadataJson;
@@ -520,6 +585,7 @@ class DebugConsoleFeedbackProvider implements FeedbackProvider {
     required Uint8List screenshot,
     required String type,
     required Map<String, dynamic> metadata,
+    Uint8List? logs,
   }) async {
     debugPrint('---------------- DEBUG FEEDBACK ----------------');
     debugPrint('Type: $type');
@@ -528,6 +594,9 @@ class DebugConsoleFeedbackProvider implements FeedbackProvider {
     debugPrint('\nMetadata:');
     metadata.forEach((key, value) => debugPrint('$key: $value'));
     debugPrint('Screenshot size: ${screenshot.length} bytes');
+    if (logs != null) {
+      debugPrint('Logs size: ${logs.length} bytes');
+    }
     debugPrint('---------------------------------------------');
   }
 }

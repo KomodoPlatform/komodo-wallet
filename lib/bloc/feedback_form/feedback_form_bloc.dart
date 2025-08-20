@@ -15,6 +15,7 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     on<FeedbackFormMessageChanged>(_onMessageChanged);
     on<FeedbackFormContactMethodChanged>(_onContactMethodChanged);
     on<FeedbackFormContactDetailsChanged>(_onContactDetailsChanged);
+    on<FeedbackFormIncludeLogsChanged>(_onIncludeLogsChanged);
     on<FeedbackFormSubmitted>(_onSubmitted);
   }
 
@@ -72,6 +73,13 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     emit(state.copyWith(contactDetails: details, contactDetailsError: error));
   }
 
+  void _onIncludeLogsChanged(
+    FeedbackFormIncludeLogsChanged event,
+    Emitter<FeedbackFormState> emit,
+  ) {
+    emit(state.copyWith(includeLogs: event.include));
+  }
+
   Future<void> _onSubmitted(
     FeedbackFormSubmitted event,
     Emitter<FeedbackFormState> emit,
@@ -104,7 +112,10 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
       );
       await _onSubmit(
         data.toFormattedDescription(),
-        extras: data.toMap(),
+        extras: {
+          ...data.toMap(),
+          'include_logs': state.includeLogs,
+        },
       );
       emit(state.copyWith(status: FeedbackFormStatus.success));
     } catch (e) {

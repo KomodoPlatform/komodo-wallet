@@ -46,3 +46,12 @@ class FeedbackFormContactDetailsChanged extends FeedbackFormEvent {
 class FeedbackFormSubmitted extends FeedbackFormEvent {
   const FeedbackFormSubmitted();
 }
+
+class FeedbackFormIncludeLogsChanged extends FeedbackFormEvent {
+  const FeedbackFormIncludeLogsChanged(this.include);
+
+  final bool include;
+
+  @override
+  List<Object?> get props => [include];
+}
