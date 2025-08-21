@@ -304,6 +304,7 @@
   "feedbackFormDescribeTitle": "Your feedback",
   "feedbackFormContactRequired": "How can we contact you?",
   "feedbackFormContactOptional": "How can we contact you? (Optional)",
+  "feedbackFormNoContactOptOut": "I don't want to share contact info",
   "feedbackFormMessageHint": "Enter your feedback here...",
   "feedbackFormBugReport": "Bug Report",
   "feedbackFormFeatureRequest": "Feature Request",

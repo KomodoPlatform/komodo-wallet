@@ -31,6 +31,10 @@ class CustomFeedbackForm extends StatelessWidget {
         final formValid = state.isValid && !isLoading;
         final submitLabel = LocaleKeys.send.tr();
 
+        final requiresContact =
+            state.feedbackType == FeedbackType.support ||
+                state.feedbackType == FeedbackType.missingCoins;
+
         return Form(
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
@@ -61,18 +65,30 @@ class CustomFeedbackForm extends StatelessWidget {
 
                         const SizedBox(height: 8),
                         _SectionTitle(
-                          title:
-                              state.feedbackType == FeedbackType.support ||
-                                  state.feedbackType ==
-                                      FeedbackType.missingCoins
+                          title: requiresContact
                               ? LocaleKeys.feedbackFormContactRequired.tr()
                               : LocaleKeys.feedbackFormContactOptional.tr(),
                         ),
                         const SizedBox(height: 4),
+                        if (!requiresContact)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: UiCheckbox(
+                              value: state.contactOptOut,
+                              text: LocaleKeys.feedbackFormNoContactOptOut.tr(),
+                              onChanged: isLoading
+                                  ? null
+                                  : (value) => context
+                                      .read<FeedbackFormBloc>()
+                                      .add(FeedbackFormContactOptOutToggled(
+                                          value)),
+                            ),
+                          ),
                         _ContactRow(
                           isLoading: isLoading,
                           selectedMethod: state.contactMethod,
                           contactError: state.contactDetailsError,
+                          disabled: state.contactOptOut && !requiresContact,
                         ),
                       ],
                     ),
@@ -209,14 +225,17 @@ class _ContactRow extends StatelessWidget {
     required this.isLoading,
     required this.selectedMethod,
     required this.contactError,
+    this.disabled = false,
   });
 
   final bool isLoading;
   final ContactMethod? selectedMethod;
   final String? contactError;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
+    final inputsEnabled = !isLoading && !disabled;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -239,17 +258,17 @@ class _ContactRow extends StatelessWidget {
                   ),
                 )
                 .toList(),
-            onChanged: isLoading
-                ? null
-                : (method) => context.read<FeedbackFormBloc>().add(
-                    FeedbackFormContactMethodChanged(method),
-                  ),
+            onChanged: inputsEnabled
+                ? (method) => context.read<FeedbackFormBloc>().add(
+                      FeedbackFormContactMethodChanged(method),
+                    )
+                : null,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: UiTextFormField(
-            enabled: !isLoading,
+            enabled: inputsEnabled,
             maxLength: contactDetailsMaxLength,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
             hintText: _getContactHint(selectedMethod).tr(),

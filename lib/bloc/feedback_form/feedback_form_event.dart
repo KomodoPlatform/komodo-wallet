@@ -43,6 +43,15 @@ class FeedbackFormContactDetailsChanged extends FeedbackFormEvent {
   List<Object?> get props => [details];
 }
 
+class FeedbackFormContactOptOutToggled extends FeedbackFormEvent {
+  const FeedbackFormContactOptOutToggled(this.value);
+
+  final bool value;
+
+  @override
+  List<Object?> get props => [value];
+}
+
 class FeedbackFormSubmitted extends FeedbackFormEvent {
   const FeedbackFormSubmitted();
 }

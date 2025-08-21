@@ -15,6 +15,7 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     on<FeedbackFormMessageChanged>(_onMessageChanged);
     on<FeedbackFormContactMethodChanged>(_onContactMethodChanged);
     on<FeedbackFormContactDetailsChanged>(_onContactDetailsChanged);
+    on<FeedbackFormContactOptOutToggled>(_onContactOptOutToggled);
     on<FeedbackFormSubmitted>(_onSubmitted);
   }
 
@@ -24,13 +25,19 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     FeedbackFormTypeChanged event,
     Emitter<FeedbackFormState> emit,
   ) {
+    final requiresContact =
+        event.type == FeedbackType.support || event.type == FeedbackType.missingCoins;
+
     final contactError = _validateContactDetails(
       state.contactDetails,
       event.type,
       state.contactMethod,
     );
+
     emit(state.copyWith(
       feedbackType: event.type,
+      // Disable opt-out for mandatory types
+      contactOptOut: requiresContact ? false : state.contactOptOut,
       contactDetailsError: contactError,
     ));
   }
@@ -72,6 +79,33 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     emit(state.copyWith(contactDetails: details, contactDetailsError: error));
   }
 
+  void _onContactOptOutToggled(
+    FeedbackFormContactOptOutToggled event,
+    Emitter<FeedbackFormState> emit,
+  ) {
+    // For support or missing coins, opt-out is not allowed; enforce false
+    final requiresContact =
+        state.feedbackType == FeedbackType.support || state.feedbackType == FeedbackType.missingCoins;
+    final optOut = requiresContact ? false : event.value;
+
+    if (optOut) {
+      emit(state.copyWith(
+        contactOptOut: true,
+        contactMethod: null,
+        contactDetails: '',
+        contactDetailsError: null,
+      ));
+      return;
+    }
+
+    final err = _validateContactDetails(
+      state.contactDetails,
+      state.feedbackType,
+      state.contactMethod,
+    );
+    emit(state.copyWith(contactOptOut: false, contactDetailsError: err));
+  }
+
   Future<void> _onSubmitted(
     FeedbackFormSubmitted event,
     Emitter<FeedbackFormState> emit,
@@ -98,9 +132,11 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
       final data = CustomFeedback(
         feedbackType: state.feedbackType,
         feedbackText: state.feedbackText,
-        contactMethod: state.contactMethod,
+        contactMethod: state.contactOptOut ? null : state.contactMethod,
         contactDetails:
-            state.contactDetails.isNotEmpty ? state.contactDetails : null,
+            state.contactOptOut
+                ? null
+                : (state.contactDetails.isNotEmpty ? state.contactDetails : null),
       );
       await _onSubmit(
         data.toFormattedDescription(),
@@ -135,12 +171,12 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     final hasMethod = method != null;
     final hasDetails = trimmed.isNotEmpty;
 
-    if (type == FeedbackType.support || type == FeedbackType.missingCoins) {
+    final requiresContact = type == FeedbackType.support || type == FeedbackType.missingCoins;
+    final optedOut = state.contactOptOut && !requiresContact;
+
+    if (!optedOut) {
+      // Contact required by default or for mandatory types
       if (!hasMethod || !hasDetails) {
-        return LocaleKeys.contactRequiredError.tr();
-      }
-    } else {
-      if ((hasMethod && !hasDetails) || (!hasMethod && hasDetails)) {
         return LocaleKeys.contactRequiredError.tr();
       }
     }
