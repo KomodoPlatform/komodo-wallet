@@ -18,8 +18,8 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.9.2+0
 
 environment:
-  sdk: ^3.8.1
-  flutter: ^3.32.5
+  sdk: ">=3.8.1 <4.0.0"
+  flutter: ">=3.35.1 <4.0.0"
 
 dependencies:
   ## ---- Flutter SDK
@@ -50,7 +50,11 @@ dependencies:
 
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
-  dragon_logs: 1.1.0
+  dragon_logs:
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/dragon_logs
+      ref: dev
 
   ## ---- Dart.dev, Flutter.dev
   args: ^2.7.0 # dart.dev
@@ -125,7 +129,12 @@ dependencies:
   formz: 0.8.0
 
   # TODO: review required
-  dragon_charts_flutter: 0.1.1-dev.1
+  dragon_charts_flutter:
+    git:
+      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+      path: packages/dragon_charts_flutter
+      ref: dev
+
   bloc_concurrency: 0.3.0
   file_picker: ^10.0.0
 
