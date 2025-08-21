@@ -188,10 +188,10 @@ packages:
     dependency: "direct main"
     description:
       name: dragon_logs
-      sha256: e697f25bd0f27b0b85af42aff7f55f003fe045c0e3eeda6164bf97aab1525804
+      sha256: e7ef209485f2fd1f267b01773d3ab5018ee2129aa70c37892f87c863dcac8043
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.2.0+1"
   easy_localization:
     dependency: "direct main"
     description:
@@ -264,14 +264,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.1.2"
-  file_system_access_api:
-    dependency: transitive
-    description:
-      name: file_system_access_api
-      sha256: c961c5020ab4e5f05200dbdd9809c5256c3dc4a1fe5746ca7d8cf8e8cc11c47d
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   firebase_analytics:
     dependency: "direct main"
     description:
@@ -654,75 +646,67 @@ packages:
   komodo_cex_market_data:
     dependency: "direct main"
     description:
-      path: "packages/komodo_cex_market_data"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.0.1"
+      name: komodo_cex_market_data
+      sha256: c4a1dd6cc734b58328b93c58147c7ba022285205150115c0a7f861d9cc6a12ef
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2+1"
   komodo_coin_updates:
     dependency: transitive
     description:
-      path: "packages/komodo_coin_updates"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "1.0.0"
+      name: komodo_coin_updates
+      sha256: "092814ca1f44106a6a38cea22d68fda1df06467960772dc2aef9a23d2dbedc84"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   komodo_coins:
     dependency: transitive
     description:
-      path: "packages/komodo_coins"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_coins
+      sha256: "237cb4fae02634f41576a1f5cc08130dc5b58c5f95c9a53cd747cc9b849b0e4b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   komodo_defi_framework:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_framework"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_framework
+      sha256: "1419add64e8049b7717c18a944bc58dfae5039315e1abef1a4fd6b8a70d0cbcd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   komodo_defi_local_auth:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_local_auth"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_local_auth
+      sha256: "0ccce6e31a6577e571d77704e1b6c628186e3bf86d64ec129ae88ace909a94b3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   komodo_defi_rpc_methods:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_rpc_methods
+      sha256: d8910f43f456e9c88d828489dff6111816f036a3dd5fc93b1986c6f71d78a525
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   komodo_defi_sdk:
     dependency: "direct main"
     description:
-      path: "packages/komodo_defi_sdk"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_sdk
+      sha256: "0fcf055e3b8dc0f8b93895ca7f527f5feb9deb883691e12271cc1da2eaa325a0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   komodo_defi_types:
     dependency: "direct main"
     description:
-      path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_types
+      sha256: dff90bef918d7309f1f524e52b0c10d5ca96cb67c1c9df8f071c8de7e8aa7628
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+2"
   komodo_persistence_layer:
     dependency: "direct main"
     description:
@@ -733,12 +717,11 @@ packages:
   komodo_ui:
     dependency: "direct main"
     description:
-      path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_ui
+      sha256: "4ec10c5fe64cb65ce583abd35eadb0fccfce2b0ba9d6ba8bcb87c01baa7d6776"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   komodo_ui_kit:
     dependency: "direct main"
     description:
@@ -749,36 +732,35 @@ packages:
   komodo_wallet_build_transformer:
     dependency: transitive
     description:
-      path: "packages/komodo_wallet_build_transformer"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_wallet_build_transformer
+      sha256: e729dd905d317e0151edfffcf8242f88fe14a24a2cd986cd4a635ad9d241b52b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   leak_tracker:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
+      sha256: "8dcda04c3fc16c14f48a7bb586d4be1f0d1572731b6d81d51772ef47c02081e0"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.9"
+    version: "11.0.1"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
       name: leak_tracker_flutter_testing
-      sha256: f8b613e7e6a13ec79cfdc0e97638fddb3ab848452eff057653abd3edba760573
+      sha256: "1dbc140bb5a23c75ea9c4811222756104fbcd1a27173f0c34ca01e16bea473c1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.9"
+    version: "3.0.10"
   leak_tracker_testing:
     dependency: transitive
     description:
       name: leak_tracker_testing
-      sha256: "6ba465d5d76e67ddf503e1161d1f4a6bc42306f9d66ca1e8f079a47290fb06d3"
+      sha256: "8d5a2d49f4a66b49744b23b018848400d23e54caf9463f4eb20df3eb8acb2eb1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   lints:
     dependency: transitive
     description:
@@ -1284,26 +1266,26 @@ packages:
     dependency: "direct dev"
     description:
       name: test
-      sha256: "301b213cd241ca982e9ba50266bd3f5bd1ea33f1455554c5abb85d1be0e2d87e"
+      sha256: "65e29d831719be0591f7b3b1a32a3cda258ec98c58c7b25f7b84241bc31215bb"
       url: "https://pub.dev"
     source: hosted
-    version: "1.25.15"
+    version: "1.26.2"
   test_api:
     dependency: transitive
     description:
       name: test_api
-      sha256: fb31f383e2ee25fbbfe06b40fe21e1e458d14080e3c67e7ba0acfde4df4e0bbd
+      sha256: "522f00f556e73044315fa4585ec3270f1808a4b186c936e612cab0b565ff1e00"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.4"
+    version: "0.7.6"
   test_core:
     dependency: transitive
     description:
       name: test_core
-      sha256: "84d17c3486c8dfdbe5e12a50c8ae176d15e2a771b96909a9442b40173649ccaa"
+      sha256: "80bf5a02b60af04b09e14f6fe68b921aad119493e26e490deaca5993fef1b05a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.8"
+    version: "0.6.11"
   typed_data:
     dependency: transitive
     description:
@@ -1428,18 +1410,18 @@ packages:
     dependency: transitive
     description:
       name: vector_math
-      sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
+      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.2.0"
   very_good_analysis:
     dependency: transitive
     description:
       name: very_good_analysis
-      sha256: c529563be4cbba1137386f2720fb7ed69e942012a28b13398d8a5e3e6ef551a7
+      sha256: e479fbc0941009262343db308133e121bf8660c2c81d48dd8e952df7b7e1e382
       url: "https://pub.dev"
     source: hosted
-    version: "8.0.0"
+    version: "9.0.0"
   video_player:
     dependency: "direct main"
     description:
@@ -1578,5 +1560,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.8.1 <4.0.0"
-  flutter: ">=3.32.5"
+  dart: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.1"

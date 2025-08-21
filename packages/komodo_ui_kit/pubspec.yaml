@@ -13,17 +13,20 @@ dependencies:
     path: ../../app_theme/
 
   komodo_defi_types:
-    git:
-      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
-      path: packages/komodo_defi_types
-      ref: dev
+    # path: ../../sdk/packages/komodo_defi_types # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    # git: # Option 2: Git dependency
+    #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+    #   path: packages/komodo_defi_types
+    #   ref: dev
+    ^0.3.0 # Option 3: Pub.dev dependency
 
   komodo_ui:
-    # path: ../../sdk/packages/komodo_ui # Requires symlink to the SDK in the root of the project
-    git:
-      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
-      path: packages/komodo_ui
-      ref: dev
+    # path: ../../sdk/packages/komodo_ui # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    # git: # Option 2: Git dependency
+    #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+    #   path: packages/komodo_ui
+    #   ref: dev
+    ^0.3.0 # Option 3: Pub.dev dependency
 
 dev_dependencies:
   flutter_lints: ^5.0.0 # flutter.dev

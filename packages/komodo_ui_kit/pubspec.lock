@@ -83,7 +83,7 @@ packages:
     source: hosted
     version: "3.1.0"
   intl:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: intl
       sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
@@ -101,30 +101,27 @@ packages:
   komodo_defi_rpc_methods:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_rpc_methods
+      sha256: d8910f43f456e9c88d828489dff6111816f036a3dd5fc93b1986c6f71d78a525
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   komodo_defi_types:
     dependency: "direct main"
     description:
-      path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_types
+      sha256: dff90bef918d7309f1f524e52b0c10d5ca96cb67c1c9df8f071c8de7e8aa7628
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+2"
   komodo_ui:
     dependency: "direct main"
     description:
-      path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_ui
+      sha256: "4ec10c5fe64cb65ce583abd35eadb0fccfce2b0ba9d6ba8bcb87c01baa7d6776"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   lints:
     dependency: transitive
     description:
@@ -198,10 +195,10 @@ packages:
     dependency: transitive
     description:
       name: vector_math
-      sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
+      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.2.0"
   web:
     dependency: transitive
     description:
@@ -211,5 +208,5 @@ packages:
     source: hosted
     version: "1.1.1"
 sdks:
-  dart: ">=3.7.0 <4.0.0"
-  flutter: ">=3.32.5"
+  dart: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.1"
