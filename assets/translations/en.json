@@ -312,6 +312,7 @@
   "feedbackFormDiscord": "Discord",
   "feedbackFormMatrix": "Matrix",
   "feedbackFormTelegram": "Telegram",
+  "feedbackFormSelectContactMethod": "Select contact method",
   "feedbackFormDiscordHint": "Discord username (e.g., username123)",
   "feedbackFormMatrixHint": "Matrix ID (e.g., @user:matrix.org)",
   "feedbackFormTelegramHint": "Telegram username (e.g., @username)",

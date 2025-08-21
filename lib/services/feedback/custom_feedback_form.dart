@@ -152,7 +152,7 @@ class _FeedbackTypeDropdown extends StatelessWidget {
     return DropdownButtonFormField<FeedbackType>(
       autofocus: true,
       isExpanded: true,
-      value: selected,
+      initialValue: selected,
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -224,8 +224,8 @@ class _ContactRow extends StatelessWidget {
           width: 130,
           child: DropdownButtonFormField<ContactMethod>(
             isExpanded: true,
-            value: selectedMethod,
-            hint: Text(LocaleKeys.selectToken.tr()),
+            initialValue: selectedMethod,
+            hint: Text(LocaleKeys.feedbackFormSelectContactMethod.tr()),
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
