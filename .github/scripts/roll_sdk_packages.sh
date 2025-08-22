@@ -145,6 +145,37 @@ get_package_info_from_lock() {
   fi
 }
 
+# Determine dependency type for a given package in a pubspec.yaml
+# Returns one of: git|path|hosted|unknown
+get_dependency_type_from_pubspec() {
+  local package_name=$1
+  local pubspec_file=$2
+
+  if ! grep -q "^[[:space:]]*$package_name:" "$pubspec_file"; then
+    echo "unknown"
+    return
+  fi
+
+  # Capture the package declaration line and the following 10 lines
+  local section=$(awk -v pkg="$package_name" '
+    $0 ~ "^[[:space:]]*"pkg":" { print; c=10; next }
+    c>0 { print; c--; }
+  ' "$pubspec_file")
+
+  if echo "$section" | grep -q "^[[:space:]]*git:"; then
+    echo "git"
+    return
+  fi
+
+  if echo "$section" | grep -q "^[[:space:]]*path:"; then
+    echo "path"
+    return
+  fi
+
+  # Default to hosted if not git or path
+  echo "hosted"
+}
+
 # Initialize changes file
 echo "# SDK Package Rolls" > "$CHANGES_FILE"
 echo "" >> "$CHANGES_FILE"
@@ -185,21 +216,31 @@ for PUBSPEC in $PUBSPEC_FILES; do
   # Check if any SDK package is listed as a dependency
   CONTAINS_SDK_PACKAGE=false
   SDK_PACKAGES_FOUND=()
+  SDK_HOSTED_PACKAGES=()
+  SDK_GIT_PACKAGES=()
   
   for PACKAGE in "${SDK_PACKAGES[@]}"; do
     # More robust pattern matching that allows for comments and other formatting
     if grep -q "^[[:space:]]*$PACKAGE:" "$PUBSPEC"; then
-      # Additional check: detect if it's a git-based package from the KomodoPlatform repo
-      if grep -A 10 "$PACKAGE:" "$PUBSPEC" | grep -q "github.com/KomodoPlatform/komodo-defi-sdk-flutter"; then
-        echo "Found SDK package $PACKAGE (git-based) in $PROJECT_NAME"
-        CONTAINS_SDK_PACKAGE=true
-        SDK_PACKAGES_FOUND+=("$PACKAGE")
-      else
-        echo "Package $PACKAGE found but may not be from the SDK repository"
-        # Still include it, but log for clarity
-        CONTAINS_SDK_PACKAGE=true
-        SDK_PACKAGES_FOUND+=("$PACKAGE")
-      fi
+      CONTAINS_SDK_PACKAGE=true
+      SDK_PACKAGES_FOUND+=("$PACKAGE")
+      DEP_TYPE=$(get_dependency_type_from_pubspec "$PACKAGE" "$PUBSPEC")
+      case "$DEP_TYPE" in
+        git)
+          echo "Found SDK package $PACKAGE (git-based) in $PROJECT_NAME"
+          SDK_GIT_PACKAGES+=("$PACKAGE")
+          ;;
+        hosted)
+          echo "Found SDK package $PACKAGE (hosted on pub.dev) in $PROJECT_NAME"
+          SDK_HOSTED_PACKAGES+=("$PACKAGE")
+          ;;
+        path)
+          echo "Found SDK package $PACKAGE (local path) in $PROJECT_NAME - skipping version bump"
+          ;;
+        *)
+          echo "Found SDK package $PACKAGE (unknown type) in $PROJECT_NAME"
+          ;;
+      esac
     fi
   done
   
@@ -252,14 +293,27 @@ for PUBSPEC in $PUBSPEC_FILES; do
       fi
     else
       log_info "Running flutter pub upgrade for SDK packages only in $PROJECT_NAME"
-      # Upgrade all SDK packages at once
-      if [ ${#SDK_PACKAGES_FOUND[@]} -gt 0 ]; then
-        log_info "Upgrading packages: ${SDK_PACKAGES_FOUND[*]}"
-        if ! flutter pub upgrade --unlock-transitive ${SDK_PACKAGES_FOUND[@]}; then
-          log_warning "Failed to upgrade packages in $PROJECT_NAME"
+      # First, bump hosted SDK package constraints to latest using flutter pub add
+      if [ ${#SDK_HOSTED_PACKAGES[@]} -gt 0 ]; then
+        for HPKG in "${SDK_HOSTED_PACKAGES[@]}"; do
+          log_info "Updating hosted SDK dependency constraint for $HPKG to latest via flutter pub add"
+          if ! flutter pub add "$HPKG"; then
+            log_warning "Failed to update hosted package $HPKG in $PROJECT_NAME"
+            PACKAGE_UPDATE_FAILED=true
+          fi
+        done
+      fi
+
+      # Then, upgrade git-based SDK packages to refresh their lock entries
+      if [ ${#SDK_GIT_PACKAGES[@]} -gt 0 ]; then
+        log_info "Upgrading git-based SDK packages: ${SDK_GIT_PACKAGES[*]}"
+        if ! flutter pub upgrade --unlock-transitive ${SDK_GIT_PACKAGES[@]}; then
+          log_warning "Failed to upgrade git-based packages in $PROJECT_NAME"
           PACKAGE_UPDATE_FAILED=true
         fi
-      else
+      fi
+
+      if [ ${#SDK_HOSTED_PACKAGES[@]} -eq 0 ] && [ ${#SDK_GIT_PACKAGES[@]} -eq 0 ]; then
         log_info "No SDK packages found to upgrade in $PROJECT_NAME"
       fi
     fi
