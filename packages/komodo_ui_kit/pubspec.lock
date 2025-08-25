@@ -102,26 +102,26 @@ packages:
     dependency: transitive
     description:
       name: komodo_defi_rpc_methods
-      sha256: d8910f43f456e9c88d828489dff6111816f036a3dd5fc93b1986c6f71d78a525
+      sha256: "7ca9953e29ded777e2b335841940c440fb3313a0b0fe7038a90f895d2709f45a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0+1"
+    version: "0.3.1+1"
   komodo_defi_types:
     dependency: "direct main"
     description:
       name: komodo_defi_types
-      sha256: dff90bef918d7309f1f524e52b0c10d5ca96cb67c1c9df8f071c8de7e8aa7628
+      sha256: "69b1076abca0451d260c66650f7d32d1a6605d5443a6e38300ba81bff5a5db04"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0+2"
+    version: "0.3.2+1"
   komodo_ui:
     dependency: "direct main"
     description:
       name: komodo_ui
-      sha256: "4ec10c5fe64cb65ce583abd35eadb0fccfce2b0ba9d6ba8bcb87c01baa7d6776"
+      sha256: "2ced7a730c396718725195d81065086a86f6a41bce1bb57ad986c27e030d15e6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0+1"
+    version: "0.3.0+3"
   lints:
     dependency: transitive
     description:
@@ -130,6 +130,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      sha256: c8245ada5f1717ed44271ed1c26b8ce85ca3228fd2ffdb75468ab01979309d61
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   material_color_utilities:
     dependency: transitive
     description:

@@ -424,10 +424,12 @@ for PUBSPEC in $PUBSPEC_FILES; do
             log_warning "Failed to upgrade hosted packages (major) in $PROJECT_NAME"
             # Restore original pubspec.yaml to retain structure
             mv -f "$PUBSPEC_BAK_FILE" "$PUBSPEC"
+            rm -f "$PUBSPEC_BAK_FILE" || true
             PACKAGE_UPDATE_FAILED=true
           else
             # Restore original pubspec.yaml to retain structure; later we'll update versions inline
             mv -f "$PUBSPEC_BAK_FILE" "$PUBSPEC"
+            rm -f "$PUBSPEC_BAK_FILE" || true
           fi
         else
           log_info "Upgrading hosted SDK packages: ${SDK_HOSTED_PACKAGES[*]}"
@@ -537,6 +539,9 @@ if [ -n "${GITHUB_OUTPUT}" ]; then
     echo "updates_found=false" >> $GITHUB_OUTPUT
     log_info "No rolls needed."
     # Exit with special code 100 to indicate no changes needed (not a failure)
+    # Ensure any temporary backups are removed even when no changes are detected
+    find "$REPO_ROOT" -name "*.bak" -type f -delete || true
+    find "$REPO_ROOT" -name "*.bak_major" -type f -delete || true
     exit 100
   fi
 else
@@ -547,6 +552,9 @@ else
   else
     log_info "No rolls needed."
     # Exit with special code 100 to indicate no changes needed (not a failure)
+    # Ensure any temporary backups are removed even when no changes are detected
+    find "$REPO_ROOT" -name "*.bak" -type f -delete || true
+    find "$REPO_ROOT" -name "*.bak_major" -type f -delete || true
     exit 100
   fi
 fi

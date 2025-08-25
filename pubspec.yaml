@@ -49,7 +49,7 @@ dependencies:
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_cex_market_data
     #   ref: dev
-    ^0.0.2 # Option 3: Pub.dev dependency
+    ^0.0.2+1 # Option 3: Pub.dev dependency
 
   dragon_logs:
     # path: sdk/packages/dragon_logs # Option 1: Local directory. Requires symlink to the SDK in the root of the project
@@ -138,7 +138,7 @@ dependencies:
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/dragon_charts_flutter
     #   ref: dev
-    ^0.1.1-dev.1 # Option 3: Pub.dev dependency
+    ^0.1.1-dev.3 # Option 3: Pub.dev dependency
 
   bloc_concurrency: 0.3.0
   file_picker: ^10.0.0
@@ -158,7 +158,7 @@ dependencies:
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_defi_sdk
     #   ref: dev
-    ^0.3.0 # Option 3: Pub.dev dependency
+    ^0.3.0+1 # Option 3: Pub.dev dependency
 
   komodo_defi_types:
     # path: sdk/packages/komodo_defi_types # Option 1: Local directory. Requires symlink to the SDK in the root of the project
@@ -166,7 +166,7 @@ dependencies:
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_defi_types
     #   ref: dev
-    ^0.3.0 # Option 3: Pub.dev dependency
+    ^0.3.0+2 # Option 3: Pub.dev dependency
 
   komodo_ui:
     # path: sdk/packages/komodo_ui # Option 1: Local directory. Requires symlink to the SDK in the root of the project
@@ -174,7 +174,7 @@ dependencies:
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_ui
     #   ref: dev
-    ^0.3.0 # Option 3: Pub.dev dependency
+    ^0.3.0+1 # Option 3: Pub.dev dependency
 
   feedback: ^3.1.0
   ntp: ^2.0.0
