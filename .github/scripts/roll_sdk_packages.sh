@@ -82,6 +82,8 @@ SDK_PACKAGES=(
   "komodo_ui"
   "komodo_wallet_build_transformer"
   "komodo_wallet_cli"
+  "dragon_charts_flutter"
+  "dragon_logs"
 )
 
 # Extract version information from the pubspec.lock file
@@ -176,15 +178,73 @@ get_dependency_type_from_pubspec() {
   echo "hosted"
 }
 
-# Initialize changes file
-echo "# SDK Package Rolls" > "$CHANGES_FILE"
-echo "" >> "$CHANGES_FILE"
-echo "**Date:** $CURRENT_DATE" >> "$CHANGES_FILE"
-echo "**Target Branch:** $TARGET_BRANCH" >> "$CHANGES_FILE"
-echo "**Upgrade Mode:** $([ "$UPGRADE_ALL_PACKAGES" = "true" ] && echo "All Packages" || echo "SDK Packages Only")" >> "$CHANGES_FILE"
-echo "" >> "$CHANGES_FILE"
-echo "The following SDK packages were rolled to newer versions:" >> "$CHANGES_FILE"
-echo "" >> "$CHANGES_FILE"
+# Update a hosted dependency version inline in pubspec.yaml while preserving formatting
+# This updates only the version value for the specified package, keeping comments and structure intact
+update_hosted_dependency_version_inline() {
+  local package_name=$1
+  local pubspec_file=$2
+  local new_version=$3
+
+  # Find the line number where the package is declared
+  local start_line=$(grep -n "^[[:space:]]*$package_name:" "$pubspec_file" | head -1 | cut -d: -f1)
+  if [ -z "$start_line" ]; then
+    return 0
+  fi
+
+  local start_content=$(sed -n "${start_line}p" "$pubspec_file")
+
+  # Case 1: single-line declaration like: `package_name: ^1.2.3`
+  if echo "$start_content" | grep -q "\\^"; then
+    sed -i.bak -E "${start_line}s/\\^[-0-9A-Za-z+\.]+/\\^${new_version}/" "$pubspec_file" || true
+    return 0
+  fi
+
+  # Case 2: multi-line value; find the first non-empty, non-comment line after the declaration
+  local rel_target_line=$(tail -n +$((start_line+1)) "$pubspec_file" | awk '
+    BEGIN { ln=0 }
+    {
+      ln++
+      # Skip empty lines and comments
+      if ($0 ~ /^[[:space:]]*$/) next
+      if ($0 ~ /^[[:space:]]*#/) next
+      print ln
+      exit
+    }')
+
+  if [ -z "$rel_target_line" ]; then
+    return 0
+  fi
+
+  local target_line=$((start_line + rel_target_line))
+  local target_content=$(sed -n "${target_line}p" "$pubspec_file")
+
+  # Only update if the target line contains a caret-version; otherwise leave unchanged
+  if echo "$target_content" | grep -q "\\^"; then
+    sed -i.bak -E "${target_line}s/\\^[-0-9A-Za-z+\.]+/\\^${new_version}/" "$pubspec_file" || true
+  fi
+}
+
+# Prepare or update changes file header without discarding existing content
+MODE_TEXT=$([ "$UPGRADE_ALL_PACKAGES" = "true" ] && echo "All Packages" || echo "SDK Packages Only")
+if [ ! -f "$CHANGES_FILE" ] || ! grep -q "^# SDK Package Rolls" "$CHANGES_FILE"; then
+  {
+    echo "# SDK Package Rolls"
+    echo ""
+    echo "**Date:** $CURRENT_DATE"
+    echo "**Target Branch:** $TARGET_BRANCH"
+    echo "**Upgrade Mode:** $MODE_TEXT"
+    echo ""
+    echo "The following SDK packages were rolled to newer versions:"
+    echo ""
+  } > "$CHANGES_FILE"
+else
+  # Update header values in-place; keep all other lines unchanged
+  sed -i.bak -E "s/^\\*\\*Date:\\*\\*.*/**Date:** $CURRENT_DATE/" "$CHANGES_FILE" || true
+  sed -i.bak -E "s/^\\*\\*Target Branch:\\*\\*.*/**Target Branch:** $TARGET_BRANCH/" "$CHANGES_FILE" || true
+  sed -i.bak -E "s/^\\*\\*Upgrade Mode:\\*\\*.*/**Upgrade Mode:** $MODE_TEXT/" "$CHANGES_FILE" || true
+  rm -f "$CHANGES_FILE.bak"
+  echo "" >> "$CHANGES_FILE"
+fi
 
 # Find all pubspec.yaml files
 echo "Finding all pubspec.yaml files..."
@@ -293,15 +353,13 @@ for PUBSPEC in $PUBSPEC_FILES; do
       fi
     else
       log_info "Running flutter pub upgrade for SDK packages only in $PROJECT_NAME"
-      # First, bump hosted SDK package constraints to latest using flutter pub add
+      # Upgrade hosted SDK packages to latest allowed by current constraints
       if [ ${#SDK_HOSTED_PACKAGES[@]} -gt 0 ]; then
-        for HPKG in "${SDK_HOSTED_PACKAGES[@]}"; do
-          log_info "Updating hosted SDK dependency constraint for $HPKG to latest via flutter pub add"
-          if ! flutter pub add "$HPKG"; then
-            log_warning "Failed to update hosted package $HPKG in $PROJECT_NAME"
-            PACKAGE_UPDATE_FAILED=true
-          fi
-        done
+        log_info "Upgrading hosted SDK packages: ${SDK_HOSTED_PACKAGES[*]}"
+        if ! flutter pub upgrade ${SDK_HOSTED_PACKAGES[@]}; then
+          log_warning "Failed to upgrade hosted packages in $PROJECT_NAME"
+          PACKAGE_UPDATE_FAILED=true
+        fi
       fi
 
       # Then, upgrade git-based SDK packages to refresh their lock entries
@@ -334,6 +392,16 @@ for PUBSPEC in $PUBSPEC_FILES; do
         fi
         LOCK_AFTER="pubspec.lock"
         
+        # For hosted SDK packages, update pubspec.yaml inline version to match resolved lock version while preserving formatting
+        if [ ${#SDK_HOSTED_PACKAGES[@]} -gt 0 ]; then
+          for HPKG in "${SDK_HOSTED_PACKAGES[@]}"; do
+            RESOLVED_VERSION=$(get_package_info_from_lock "$HPKG" "$LOCK_AFTER" | sed -nE 's/.*version: "([^"]+)".*/\1/p')
+            if [ -n "$RESOLVED_VERSION" ]; then
+              update_hosted_dependency_version_inline "$HPKG" "$PUBSPEC" "$RESOLVED_VERSION" || true
+            fi
+          done
+        fi
+
         # Add the project to the changes list
         echo "## $PROJECT_NAME" >> "$CHANGES_FILE"
         echo "" >> "$CHANGES_FILE"
