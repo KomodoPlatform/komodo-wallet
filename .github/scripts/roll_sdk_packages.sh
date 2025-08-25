@@ -4,10 +4,11 @@
 # Designed to handle git-based dependencies and work with the GitHub CI workflow
 #
 # Usage:
-#   .github/scripts/roll_sdk_packages.sh [-a] [-t <branch>]
+#   .github/scripts/roll_sdk_packages.sh [-a] [-m] [-t <branch>]
 #
 # Options:
 #   -a, --upgrade-all         Upgrade all packages (use --major-versions)
+#   -m, --major-sdk-only      Upgrade SDK packages allowing major versions only
 #   -t, --target-branch BR    Target branch for PR creation (default: dev)
 #   -h, --help                Show this help and exit
 #
@@ -54,16 +55,18 @@ fi
 
 # Configuration defaults (overridden via CLI flags)
 UPGRADE_ALL_PACKAGES=false
+UPGRADE_SDK_MAJOR=false
 TARGET_BRANCH="dev"
 
 # Usage/help printer
 print_usage() {
   cat <<'USAGE'
 Usage:
-  .github/scripts/roll_sdk_packages.sh [-a] [-t <branch>]
+  .github/scripts/roll_sdk_packages.sh [-a] [-m] [-t <branch>]
 
 Options:
   -a, --upgrade-all         Upgrade all packages (use --major-versions)
+  -m, --major-sdk-only      Upgrade SDK packages allowing major versions only
   -t, --target-branch BR    Target branch for PR creation (default: dev)
   -h, --help                Show this help and exit
 USAGE
@@ -74,6 +77,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     -a|--upgrade-all|--all)
       UPGRADE_ALL_PACKAGES=true
+      shift
+      ;;
+    -m|--major-sdk-only)
+      UPGRADE_SDK_MAJOR=true
       shift
       ;;
     -t|--target-branch)
@@ -272,7 +279,13 @@ update_hosted_dependency_version_inline() {
 }
 
 # Prepare or update changes file header without discarding existing content
-MODE_TEXT=$([ "$UPGRADE_ALL_PACKAGES" = "true" ] && echo "All Packages" || echo "SDK Packages Only")
+if [ "$UPGRADE_ALL_PACKAGES" = "true" ]; then
+  MODE_TEXT="All Packages"
+elif [ "$UPGRADE_SDK_MAJOR" = "true" ]; then
+  MODE_TEXT="SDK Packages Only (allow major versions)"
+else
+  MODE_TEXT="SDK Packages Only"
+fi
 if [ ! -f "$CHANGES_FILE" ] || ! grep -q "^# SDK Package Rolls" "$CHANGES_FILE"; then
   {
     echo "# SDK Package Rolls"
@@ -400,12 +413,20 @@ for PUBSPEC in $PUBSPEC_FILES; do
       fi
     else
       log_info "Running flutter pub upgrade for SDK packages only in $PROJECT_NAME"
-      # Upgrade hosted SDK packages to latest allowed by current constraints
+      # Upgrade hosted SDK packages
       if [ ${#SDK_HOSTED_PACKAGES[@]} -gt 0 ]; then
-        log_info "Upgrading hosted SDK packages: ${SDK_HOSTED_PACKAGES[*]}"
-        if ! flutter pub upgrade ${SDK_HOSTED_PACKAGES[@]}; then
-          log_warning "Failed to upgrade hosted packages in $PROJECT_NAME"
-          PACKAGE_UPDATE_FAILED=true
+        if [ "$UPGRADE_SDK_MAJOR" = true ]; then
+          log_info "Upgrading hosted SDK packages (allowing major): ${SDK_HOSTED_PACKAGES[*]}"
+          if ! flutter pub upgrade --major-versions ${SDK_HOSTED_PACKAGES[@]}; then
+            log_warning "Failed to upgrade hosted packages (major) in $PROJECT_NAME"
+            PACKAGE_UPDATE_FAILED=true
+          fi
+        else
+          log_info "Upgrading hosted SDK packages: ${SDK_HOSTED_PACKAGES[*]}"
+          if ! flutter pub upgrade ${SDK_HOSTED_PACKAGES[@]}; then
+            log_warning "Failed to upgrade hosted packages in $PROJECT_NAME"
+            PACKAGE_UPDATE_FAILED=true
+          fi
         fi
       fi
 
