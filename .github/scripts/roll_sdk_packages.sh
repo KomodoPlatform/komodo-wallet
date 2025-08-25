@@ -417,9 +417,17 @@ for PUBSPEC in $PUBSPEC_FILES; do
       if [ ${#SDK_HOSTED_PACKAGES[@]} -gt 0 ]; then
         if [ "$UPGRADE_SDK_MAJOR" = true ]; then
           log_info "Upgrading hosted SDK packages (allowing major): ${SDK_HOSTED_PACKAGES[*]}"
+          # Backup pubspec.yaml to preserve formatting/comments
+          PUBSPEC_BAK_FILE="$PUBSPEC.bak_major"
+          cp "$PUBSPEC" "$PUBSPEC_BAK_FILE"
           if ! flutter pub upgrade --major-versions ${SDK_HOSTED_PACKAGES[@]}; then
             log_warning "Failed to upgrade hosted packages (major) in $PROJECT_NAME"
+            # Restore original pubspec.yaml to retain structure
+            mv -f "$PUBSPEC_BAK_FILE" "$PUBSPEC"
             PACKAGE_UPDATE_FAILED=true
+          else
+            # Restore original pubspec.yaml to retain structure; later we'll update versions inline
+            mv -f "$PUBSPEC_BAK_FILE" "$PUBSPEC"
           fi
         else
           log_info "Upgrading hosted SDK packages: ${SDK_HOSTED_PACKAGES[*]}"
