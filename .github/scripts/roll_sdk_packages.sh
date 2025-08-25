@@ -4,11 +4,12 @@
 # Designed to handle git-based dependencies and work with the GitHub CI workflow
 #
 # Usage:
-#   UPGRADE_ALL_PACKAGES=false TARGET_BRANCH=dev .github/scripts/roll_sdk_packages.sh
+#   .github/scripts/roll_sdk_packages.sh [-a] [-t <branch>]
 #
-# Parameters:
-#   UPGRADE_ALL_PACKAGES: Set to "true" to upgrade all packages, "false" to only upgrade SDK packages
-#   TARGET_BRANCH: The target branch for PR creation
+# Options:
+#   -a, --upgrade-all         Upgrade all packages (use --major-versions)
+#   -t, --target-branch BR    Target branch for PR creation (default: dev)
+#   -h, --help                Show this help and exit
 #
 # For more details, see `docs/SDK_DEPENDENCY_MANAGEMENT.md`
 
@@ -51,11 +52,57 @@ if ! command -v flutter &> /dev/null; then
   exit 1
 fi
 
-# Configuration
-# Set to "true" to upgrade all packages, "false" to only upgrade SDK packages
-UPGRADE_ALL_PACKAGES=${UPGRADE_ALL_PACKAGES:-false}
-# Branch to target for PR creation
-TARGET_BRANCH=${TARGET_BRANCH:-"dev"}
+# Configuration defaults (overridden via CLI flags)
+UPGRADE_ALL_PACKAGES=false
+TARGET_BRANCH="dev"
+
+# Usage/help printer
+print_usage() {
+  cat <<'USAGE'
+Usage:
+  .github/scripts/roll_sdk_packages.sh [-a] [-t <branch>]
+
+Options:
+  -a, --upgrade-all         Upgrade all packages (use --major-versions)
+  -t, --target-branch BR    Target branch for PR creation (default: dev)
+  -h, --help                Show this help and exit
+USAGE
+}
+
+# Parse CLI arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -a|--upgrade-all|--all)
+      UPGRADE_ALL_PACKAGES=true
+      shift
+      ;;
+    -t|--target-branch)
+      if [[ -z "${2:-}" ]]; then
+        log_error "Missing value for $1"
+        print_usage
+        exit 2
+      fi
+      TARGET_BRANCH="$2"
+      shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      log_error "Unknown option: $1"
+      print_usage
+      exit 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 # Get the current date for branch naming and commit messages
 CURRENT_DATE=$(date '+%Y-%m-%d')
