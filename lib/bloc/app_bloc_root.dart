@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -10,7 +11,7 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:web_dex/services/platform_web_api/platform_web_api.dart';
 import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
@@ -21,6 +22,9 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_repository.dart';
+import 'package:web_dex/bloc/staking/staking_repository.dart';
+import 'package:web_dex/bloc/staking/staking_creation/staking_creation_bloc.dart';
+import 'package:web_dex/bloc/staking/staking_rewards/staking_rewards_bloc.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/generator.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/mock_transaction_history_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
@@ -179,6 +183,9 @@ class AppBlocRoot extends StatelessWidget {
           create: (_) => KmdRewardsBloc(coinsRepository, mm2Api),
         ),
         RepositoryProvider(create: (_) => TradingStatusRepository()),
+        RepositoryProvider(
+          create: (_) => StakingRepository(sdk: komodoDefiSdk),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -296,6 +303,16 @@ class AppBlocRoot extends StatelessWidget {
             create: (context) =>
                 PlatformBloc()..add(const PlatformInitRequested()),
           ),
+          BlocProvider<StakingCreationBloc>(
+            create: (context) => StakingCreationBloc(
+              repository: context.read<StakingRepository>(),
+            ),
+          ),
+          BlocProvider<StakingRewardsBloc>(
+            create: (context) => StakingRewardsBloc(
+              repository: context.read<StakingRepository>(),
+            ),
+          ),
         ],
         child: _MyAppView(),
       ),
@@ -313,10 +330,12 @@ class _MyAppViewState extends State<_MyAppView> {
   late final RootRouteInformationParser _routeInformationParser;
   late final AirDexBackButtonDispatcher _airDexBackButtonDispatcher;
   late final DateTime _pageLoadStartTime;
+  late final PlatformWebApi _platformWebApi;
 
   @override
   void initState() {
     _pageLoadStartTime = DateTime.now();
+    _platformWebApi = PlatformWebApi();
     final coinsBloc = context.read<CoinsBloc>();
     _routeInformationParser = RootRouteInformationParser(coinsBloc);
     _airDexBackButtonDispatcher = AirDexBackButtonDispatcher(_routerDelegate);
@@ -367,20 +386,16 @@ class _MyAppViewState extends State<_MyAppView> {
   // web and native to avoid web-code in code concerning all platforms.
   Future<void> _hideAppLoader() async {
     if (kIsWeb) {
-      html.document.getElementById('main-content')?.style.display = 'block';
-
-      final loadingElement = html.document.getElementById('loading');
-
-      if (loadingElement == null) return;
+      _platformWebApi.setElementDisplay('main-content', 'block');
 
       // Trigger the zoom out animation.
-      loadingElement.classes.add('init_done');
+      _platformWebApi.addElementClass('loading', 'init_done');
 
       // Await 200ms so the user can see the animation.
       await Future<void>.delayed(const Duration(milliseconds: 200));
 
       // Remove the loading indicator.
-      loadingElement.remove();
+      _platformWebApi.removeElement('loading');
 
       final delay = DateTime.now()
           .difference(_pageLoadStartTime)
@@ -408,27 +423,39 @@ class _MyAppViewState extends State<_MyAppView> {
 
     _currentPrecacheOperation = Completer<void>();
 
+    // Load all icons similaneously if user is not on mobile device
+    final shouldShotgunLoad = !Platform.isAndroid && !Platform.isIOS;
+
     try {
       final stopwatch = Stopwatch()..start();
       final availableAssetIds = sdk.assets.available.keys.where(
         (assetId) => !excludedAssetList.contains(assetId.symbol.configSymbol),
       );
 
-      await for (final assetId in Stream.fromIterable(availableAssetIds)) {
-        // TODO: Test if necessary to complete prematurely with error if build
-        // context is stale. Alternatively, we can check if the context is
-        // not mounted and return early with error.
-        // ignore: use_build_context_synchronously
-        // if (context.findRenderObject() == null) {
-        //   _currentPrecacheOperation!.completeError('Build context is stale.');
-        //   return;
-        // }
+      if (shouldShotgunLoad) {
+        await Future.wait(
+          availableAssetIds.map(
+            (assetId) => AssetIcon.precacheAssetIcon(context, assetId).onError(
+              (_, __) => debugPrint('Error precaching coin icon $assetId'),
+            ),
+          ),
+        );
+      } else {
+        for (final assetId in availableAssetIds) {
+          // TODO: Test if necessary to complete prematurely with error if build
+          // context is stale. Alternatively, we can check if the context is
+          // not mounted and return early with error.
+          // ignore: use_build_context_synchronously
+          // if (context.findRenderObject() == null) {
+          //   _currentPrecacheOperation!.completeError('Build context is stale.');
+          //   return;
+          // }
 
-        // ignore: use_build_context_synchronously
-        await AssetIcon.precacheAssetIcon(
-          context,
-          assetId,
-        ).onError((_, __) => debugPrint('Error precaching coin icon $assetId'));
+          // ignore: use_build_context_synchronously
+          await AssetIcon.precacheAssetIcon(context, assetId).onError(
+            (_, __) => debugPrint('Error precaching coin icon $assetId'),
+          );
+        }
       }
 
       _currentPrecacheOperation!.complete();

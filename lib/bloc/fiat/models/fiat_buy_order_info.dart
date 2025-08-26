@@ -1,7 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_buy_order_error.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class FiatBuyOrderInfo extends Equatable {
   const FiatBuyOrderInfo({
@@ -22,49 +22,50 @@ class FiatBuyOrderInfo extends Equatable {
   });
 
   FiatBuyOrderInfo.fromCheckoutUrl(String url)
-      : this(
-          id: '',
-          accountId: '',
-          accountReference: '',
-          orderType: '',
-          fiatCode: '',
-          fiatAmount: Decimal.zero,
-          coinCode: '',
-          walletAddress: '',
-          extAccountId: '',
-          network: '',
-          paymentCode: '',
-          checkoutUrl: url,
-          createdAt: '',
-          error: const FiatBuyOrderError.none(),
-        );
+    : this(
+        id: '',
+        accountId: '',
+        accountReference: '',
+        orderType: '',
+        fiatCode: '',
+        fiatAmount: Decimal.zero,
+        coinCode: '',
+        walletAddress: '',
+        extAccountId: '',
+        network: '',
+        paymentCode: '',
+        checkoutUrl: url,
+        createdAt: '',
+        error: const FiatBuyOrderError.none(),
+      );
 
   FiatBuyOrderInfo.empty()
-      : this(
-          id: '',
-          accountId: '',
-          accountReference: '',
-          orderType: '',
-          fiatCode: '',
-          fiatAmount: Decimal.zero,
-          coinCode: '',
-          walletAddress: '',
-          extAccountId: '',
-          network: '',
-          paymentCode: '',
-          checkoutUrl: '',
-          createdAt: '',
-          error: const FiatBuyOrderError.none(),
-        );
+    : this(
+        id: '',
+        accountId: '',
+        accountReference: '',
+        orderType: '',
+        fiatCode: '',
+        fiatAmount: Decimal.zero,
+        coinCode: '',
+        walletAddress: '',
+        extAccountId: '',
+        network: '',
+        paymentCode: '',
+        checkoutUrl: '',
+        createdAt: '',
+        error: const FiatBuyOrderError.none(),
+      );
 
-  factory FiatBuyOrderInfo.fromJson(Map<String, dynamic> json) {
-    final jsonData = json['data'] as Map<String, dynamic>?;
-    final errors = json['errors'] as Map<String, dynamic>?;
+  factory FiatBuyOrderInfo.fromJson(JsonMap json) {
+    final jsonData = json.valueOrNull<JsonMap>('data');
+    final errors = json.valueOrNull<JsonMap>('errors');
 
-    if (json['data'] == null && errors == null) {
+    if (jsonData == null && errors == null) {
       return FiatBuyOrderInfo.empty().copyWith(
-        error:
-            const FiatBuyOrderError.parsing(message: 'Missing order payload'),
+        error: const FiatBuyOrderError.parsing(
+          message: 'Missing order payload',
+        ),
       );
     }
 
@@ -74,22 +75,30 @@ class FiatBuyOrderInfo extends Equatable {
       );
     }
 
-    final data = jsonData!['order'] as Map<String, dynamic>;
+    // Guard for missing 'order' payload
+    final data = jsonData?.valueOrNull<JsonMap>('order');
+    if (data == null) {
+      return FiatBuyOrderInfo.empty().copyWith(
+        error: const FiatBuyOrderError.parsing(
+          message: 'Missing order payload',
+        ),
+      );
+    }
 
     return FiatBuyOrderInfo(
-      id: data['id'] as String? ?? '',
-      accountId: data['account_id'] as String? ?? '',
-      accountReference: data['account_reference'] as String? ?? '',
-      orderType: data['order_type'] as String? ?? '',
-      fiatCode: data['fiat_code'] as String? ?? '',
-      fiatAmount: Decimal.parse(data['fiat_amount']?.toString() ?? '0'),
-      coinCode: data['coin_code'] as String? ?? '',
-      walletAddress: data['wallet_address'] as String? ?? '',
-      extAccountId: data['ext_account_id'] as String? ?? '',
-      network: data['network'] as String? ?? '',
-      paymentCode: data['payment_code'] as String? ?? '',
-      checkoutUrl: data['checkout_url'] as String? ?? '',
-      createdAt: assertString(data['created_at']) ?? '',
+      id: data.valueOrNull<String>('id') ?? '',
+      accountId: data.valueOrNull<String>('account_id') ?? '',
+      accountReference: data.valueOrNull<String>('account_reference') ?? '',
+      orderType: data.valueOrNull<String>('order_type') ?? '',
+      fiatCode: data.valueOrNull<String>('fiat_code') ?? '',
+      fiatAmount: data.valueOrNull<Decimal>('fiat_amount') ?? Decimal.zero,
+      coinCode: data.valueOrNull<String>('coin_code') ?? '',
+      walletAddress: data.valueOrNull<String>('wallet_address') ?? '',
+      extAccountId: data.valueOrNull<String>('ext_account_id') ?? '',
+      network: data.valueOrNull<String>('network') ?? '',
+      paymentCode: data.valueOrNull<String>('payment_code') ?? '',
+      checkoutUrl: data.valueOrNull<String>('checkout_url') ?? '',
+      createdAt: data.valueOrNull<String>('created_at') ?? '',
       error: errors != null
           ? FiatBuyOrderError.fromJson(errors)
           : const FiatBuyOrderError.none(),
@@ -113,23 +122,23 @@ class FiatBuyOrderInfo extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        accountId,
-        accountReference,
-        orderType,
-        fiatCode,
-        fiatAmount,
-        coinCode,
-        walletAddress,
-        extAccountId,
-        network,
-        paymentCode,
-        checkoutUrl,
-        createdAt,
-        error,
-      ];
+    id,
+    accountId,
+    accountReference,
+    orderType,
+    fiatCode,
+    fiatAmount,
+    coinCode,
+    walletAddress,
+    extAccountId,
+    network,
+    paymentCode,
+    checkoutUrl,
+    createdAt,
+    error,
+  ];
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     return {
       'data': {
         'order': {

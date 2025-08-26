@@ -20,10 +20,7 @@ part 'coins_state.dart';
 
 /// Responsible for coin activation, deactivation, syncing, and fiat price
 class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
-  CoinsBloc(
-    this._kdfSdk,
-    this._coinsRepo,
-  ) : super(CoinsState.initial()) {
+  CoinsBloc(this._kdfSdk, this._coinsRepo) : super(CoinsState.initial()) {
     on<CoinsStarted>(_onCoinsStarted, transformer: droppable());
     // TODO: move auth listener to ui layer: bloclistener should fire auth events
     on<CoinsBalanceMonitoringStarted>(_onCoinsBalanceMonitoringStarted);
@@ -75,14 +72,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
 
       // Update state with new pubkeys
-      emit(
-        state.copyWith(
-          pubkeys: {
-            ...state.pubkeys,
-            event.coinId: pubkeys,
-          },
-        ),
-      );
+      emit(state.copyWith(pubkeys: {...state.pubkeys, event.coinId: pubkeys}));
     } catch (e, s) {
       _log.shout('Failed to get pubkeys for ${event.coinId}', e, s);
     }
@@ -207,8 +197,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       final coinUpdates = _syncIguanaCoinsStates();
       await emit.forEach(
         coinUpdates,
-        onData: (coin) => state
-            .copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
+        onData: (coin) => state.copyWith(
+          walletCoins: {...state.walletCoins, coin.id.id: coin},
+        ),
       );
     }
 
@@ -261,8 +252,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Map<String, Coin> currentCoins,
   ) {
     final updatedWalletCoins = Map.fromEntries(
-      currentWalletCoins.entries
-          .where((entry) => !coinsToDisable.contains(entry.key)),
+      currentWalletCoins.entries.where(
+        (entry) => !coinsToDisable.contains(entry.key),
+      ),
     );
     final updatedCoins = Map<String, Coin>.of(currentCoins);
     for (final assetId in coinsToDisable) {
@@ -321,13 +313,48 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       // Start off by emitting the newly activated coins so that they all appear
       // in the list at once, rather than one at a time as they are activated
       final coinsToActivate = currentWallet.config.activatedCoins;
-      emit(_prePopulateListWithActivatingCoins(coinsToActivate));
-      await _activateCoins(coinsToActivate, emit);
 
+      // Check if we have any coins to activate
+      if (coinsToActivate.isEmpty) {
+        _log.warning('No activated coins found in wallet config');
+        // If wallet has no activated coins, try to use default enabled coins
+        final defaultCoins = enabledByDefaultCoins;
+        if (defaultCoins.isNotEmpty) {
+          _log.info('Using default enabled coins list');
+          emit(_prePopulateListWithActivatingCoins(defaultCoins));
+          await _activateCoins(defaultCoins, emit);
+        }
+      } else {
+        emit(_prePopulateListWithActivatingCoins(coinsToActivate));
+        await _activateCoins(coinsToActivate, emit);
+      }
+
+      // Even if activation fails, try to refresh balances
       add(CoinsBalancesRefreshed());
       add(CoinsBalanceMonitoringStarted());
+
+      // If we still have no wallet coins, try one more approach
+      if (state.walletCoins.isEmpty) {
+        _log.warning(
+          'No wallet coins after activation, trying to sync from metadata',
+        );
+        final coinUpdates = _syncIguanaCoinsStates();
+        await emit.forEach(
+          coinUpdates,
+          onData: (coin) => state.copyWith(
+            walletCoins: {...state.walletCoins, coin.id.id: coin},
+          ),
+        );
+      }
     } catch (e, s) {
       _log.shout('Error on login', e, s);
+      // Try to recover by using default coins if we have none
+      if (state.walletCoins.isEmpty) {
+        _log.info('Attempting recovery with default coins');
+        emit(_prePopulateListWithActivatingCoins(enabledByDefaultCoins));
+        await _activateCoins(enabledByDefaultCoins, emit);
+        add(CoinsBalancesRefreshed());
+      }
     }
   }
 
@@ -337,11 +364,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     add(CoinsBalanceMonitoringStopped());
 
-    emit(
-      state.copyWith(
-        walletCoins: {},
-      ),
-    );
+    emit(state.copyWith(walletCoins: {}));
     _coinsRepo.flushCache();
   }
 
@@ -354,34 +377,66 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       return;
     }
 
-    // Filter out assets that are not available in the SDK. This is to avoid activation
-    // activation loops for assets not supported by the SDK.this may happen if the wallet
-    // has assets that were removed from the SDK or the config has unsupported default
-    // assets.
-    final coinsToActivate = coins
-        .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
-        .where((assetsSet) => assetsSet.isNotEmpty)
-        .map((assetsSet) => assetsSet.single);
+    try {
+      // Filter out assets that are not available in the SDK. This is to avoid activation
+      // activation loops for assets not supported by the SDK.this may happen if the wallet
+      // has assets that were removed from the SDK or the config has unsupported default
+      // assets.
+      final coinsToActivate = coins
+          .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
+          .where((assetsSet) => assetsSet.isNotEmpty)
+          .map((assetsSet) => assetsSet.single);
 
-    final enableFutures = coinsToActivate
-        .map((asset) => _coinsRepo.activateAssetsSync([asset]))
-        .toList();
+      // If no coins to activate after filtering, log and return to avoid errors
+      if (coinsToActivate.isEmpty) {
+        _log.warning('No valid coins to activate after filtering');
+        // Try to sync coin states from wallet metadata to ensure some coins show up
+        final coinUpdates = _syncIguanaCoinsStates();
+        await emit.forEach(
+          coinUpdates,
+          onData: (coin) => state.copyWith(
+            walletCoins: {...state.walletCoins, coin.id.id: coin},
+          ),
+          onError: (error, stackTrace) {
+            _log.severe('Error syncing coins states', error, stackTrace);
+            return state;
+          },
+        );
+        return;
+      }
 
-    // Ignore the return type here and let the broadcast handle the state updates as
-    // coins are activated.
-    await Future.wait(enableFutures);
+      final enableFutures = coinsToActivate
+          .map((asset) => _coinsRepo.activateAssetsSync([asset]))
+          .toList();
+
+      // Ignore the return type here and let the broadcast handle the state updates as
+      // coins are activated.
+      await Future.wait(enableFutures);
+    } catch (e, s) {
+      _log.shout('Error activating coins', e, s);
+      // Try to recover by syncing coins states
+      final coinUpdates = _syncIguanaCoinsStates();
+      await emit.forEach(
+        coinUpdates,
+        onData: (coin) => state.copyWith(
+          walletCoins: {...state.walletCoins, coin.id.id: coin},
+        ),
+        onError: (error, stackTrace) {
+          _log.severe('Error syncing coins states', error, stackTrace);
+          return state;
+        },
+      );
+    }
   }
 
   CoinsState _prePopulateListWithActivatingCoins(Iterable<String> coins) {
     final knownCoins = _coinsRepo.getKnownCoinsMap();
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
-          .map(
-            (coin) {
-              final sdkCoin = knownCoins[coin];
-              return sdkCoin?.copyWith(state: CoinState.activating);
-            },
-          )
+          .map((coin) {
+            final sdkCoin = knownCoins[coin];
+            return sdkCoin?.copyWith(state: CoinState.activating);
+          })
           .where((coin) => coin != null)
           .cast<Coin>(),
       key: (element) => (element as Coin).id.id,
@@ -413,8 +468,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       }
       if (assets.length > 1) {
         final assetIds = assets.map((a) => a.id.id).join(', ');
-        _log.shout('Multiple assets found for activated coin ID: $coinId. '
-            'Expected single asset, found ${assets.length}: $assetIds. ');
+        _log.shout(
+          'Multiple assets found for activated coin ID: $coinId. '
+          'Expected single asset, found ${assets.length}: $assetIds. ',
+        );
       }
 
       // This is expected to throw if there are multiple assets, to stick
@@ -422,8 +479,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       walletAssets.add(assets.single);
     }
 
-    final coinsToSync =
-        _getWalletCoinsNotInState(walletAssets, coinsBlocWalletCoinsState);
+    final coinsToSync = _getWalletCoinsNotInState(
+      walletAssets,
+      coinsBlocWalletCoinsState,
+    );
     if (coinsToSync.isNotEmpty) {
       _log.info(
         'Found ${coinsToSync.length} wallet coins not in state, '
@@ -434,7 +493,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   List<Coin> _getWalletCoinsNotInState(
-      List<Asset> walletAssets, Map<String, Coin> coinsBlocWalletCoinsState) {
+    List<Asset> walletAssets,
+    Map<String, Coin> coinsBlocWalletCoinsState,
+  ) {
     final List<Coin> coinsToSyncToState = [];
 
     final enabledAssetsNotInState = walletAssets

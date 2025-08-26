@@ -8,8 +8,8 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106
-  hive: ^2.2.3 # Changed from git to pub.dev because git dependencies are not allowed in published packages
+  # Approved via https://github.com/KomodoPlatform/komodo-wallet/pull/1106 (Outdated)
+  hive_ce: ^2.11.3 # Changed from `hive` to `hive_ce` (Community Edition) because `hive` is no longer maintained
 
 dev_dependencies:
   lints: ^5.1.1

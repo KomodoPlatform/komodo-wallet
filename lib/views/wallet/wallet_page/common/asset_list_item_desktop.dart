@@ -31,26 +31,20 @@ class AssetListItemDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       clipBehavior: Clip.antiAlias,
       child: Material(
         color: backgroundColor,
         child: InkWell(
           onTap: () => onTap(assetId),
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 16,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+            height: 78.0, // Fixed height to prevent jumpy scrollbar
             child: Row(
               children: [
                 Expanded(
                   child: Container(
-                    constraints: const BoxConstraints(
-                      maxWidth: 200,
-                    ),
+                    constraints: const BoxConstraints(maxWidth: 200),
                     alignment: Alignment.centerLeft,
                     child: AssetItem(
                       assetId: assetId,
@@ -69,20 +63,20 @@ class AssetListItemDesktop extends StatelessWidget {
                       child: TrendPercentageText(
                         percentage: 23,
                         upColor: Theme.of(context).brightness == Brightness.dark
-                            ? Theme.of(context)
-                                .extension<ThemeCustomDark>()!
-                                .increaseColor
-                            : Theme.of(context)
-                                .extension<ThemeCustomLight>()!
-                                .increaseColor,
+                            ? Theme.of(
+                                context,
+                              ).extension<ThemeCustomDark>()!.increaseColor
+                            : Theme.of(
+                                context,
+                              ).extension<ThemeCustomLight>()!.increaseColor,
                         downColor:
                             Theme.of(context).brightness == Brightness.dark
-                                ? Theme.of(context)
-                                    .extension<ThemeCustomDark>()!
-                                    .decreaseColor
-                                : Theme.of(context)
-                                    .extension<ThemeCustomLight>()!
-                                    .decreaseColor,
+                            ? Theme.of(
+                                context,
+                              ).extension<ThemeCustomDark>()!.decreaseColor
+                            : Theme.of(
+                                context,
+                              ).extension<ThemeCustomLight>()!.decreaseColor,
                         value: 50,
                         valueFormatter: (value) =>
                             NumberFormat.currency(symbol: '\$').format(value),
@@ -93,10 +87,8 @@ class AssetListItemDesktop extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: InkWell(
-                    onTap: () => onStatisticsTap?.call(
-                      assetId,
-                      const Duration(days: 7),
-                    ),
+                    onTap: () =>
+                        onStatisticsTap?.call(assetId, const Duration(days: 7)),
                     child: CoinSparkline(coinId: assetId.id),
                   ),
                 ),

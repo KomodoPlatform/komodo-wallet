@@ -370,6 +370,8 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       MnemonicFailedReason.invalidChecksum =>
         LocaleKeys.mnemonicInvalidChecksumError.tr(),
       MnemonicFailedReason.invalidLength =>
+        // TODO: Add valid lengths instead of saying all lengths between 12
+        // and 24 are valid.
         LocaleKeys.mnemonicInvalidLengthError.tr(args: ['12', '24']),
     };
   }

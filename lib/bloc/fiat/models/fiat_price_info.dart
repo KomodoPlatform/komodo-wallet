@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 class FiatPriceInfo extends Equatable {
   const FiatPriceInfo({
@@ -10,14 +11,14 @@ class FiatPriceInfo extends Equatable {
     required this.spotPriceIncludingFee,
   });
 
-  factory FiatPriceInfo.fromJson(Map<String, dynamic> json) {
+  factory FiatPriceInfo.fromJson(JsonMap json) {
     return FiatPriceInfo(
-      fiatAmount: _safeParseDecimal(json['fiat_amount']),
-      coinAmount: _safeParseDecimal(json['coin_amount']),
-      fiatCode: json['fiat_code'] as String? ?? '',
-      coinCode: json['coin_code'] as String? ?? '',
+      fiatAmount: json.valueOrNull<Decimal>('fiat_amount') ?? Decimal.zero,
+      coinAmount: json.valueOrNull<Decimal>('coin_amount') ?? Decimal.zero,
+      fiatCode: json.valueOrNull<String>('fiat_code') ?? '',
+      coinCode: json.valueOrNull<String>('coin_code') ?? '',
       spotPriceIncludingFee:
-          _safeParseDecimal(json['spot_price_including_fee']),
+          json.valueOrNull<Decimal>('spot_price_including_fee') ?? Decimal.zero,
     );
   }
 
@@ -52,7 +53,7 @@ class FiatPriceInfo extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     return {
       'fiat_amount': fiatAmount.toString(),
       'coin_amount': coinAmount.toString(),
@@ -62,20 +63,12 @@ class FiatPriceInfo extends Equatable {
     };
   }
 
-  static Decimal _safeParseDecimal(dynamic value) {
-    try {
-      return Decimal.parse(value?.toString() ?? '0');
-    } on FormatException {
-      return Decimal.zero;
-    }
-  }
-
   @override
   List<Object?> get props => [
-        fiatAmount,
-        coinAmount,
-        fiatCode,
-        coinCode,
-        spotPriceIncludingFee,
-      ];
+    fiatAmount,
+    coinAmount,
+    fiatCode,
+    coinCode,
+    spotPriceIncludingFee,
+  ];
 }

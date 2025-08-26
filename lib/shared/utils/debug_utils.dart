@@ -6,21 +6,23 @@ import 'package:uuid/uuid.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 Future<void> initDebugData(
   AuthBloc authBloc,
   WalletsRepository walletsRepository,
 ) async {
   try {
-    final String testWalletStr =
-        await rootBundle.loadString('assets/debug_data.json');
-    final Map<String, dynamic> debugDataJson = jsonDecode(testWalletStr);
-    final Map<String, dynamic>? newWalletJson = debugDataJson['wallet'];
+    final String testWalletStr = await rootBundle.loadString(
+      'assets/debug_data.json',
+    );
+    final JsonMap debugDataJson = jsonFromString(testWalletStr);
+    final JsonMap? newWalletJson = debugDataJson.valueOrNull<JsonMap>('wallet');
     if (newWalletJson == null) {
       return;
     }
 
-    if (newWalletJson['automateLogin'] == true) {
+    if (newWalletJson.value<bool>('automateLogin') == true) {
       final Wallet? debugWallet = await _createDebugWallet(
         walletsRepository,
         newWalletJson,
@@ -32,9 +34,9 @@ Future<void> initDebugData(
 
       authBloc.add(
         AuthRestoreRequested(
-          seed: newWalletJson['seed'],
+          seed: newWalletJson.value<String>('seed'),
           wallet: debugWallet,
-          password: newWalletJson["password"],
+          password: newWalletJson.value<String>("password"),
         ),
       );
     }
@@ -45,17 +47,19 @@ Future<void> initDebugData(
 
 Future<Wallet?> _createDebugWallet(
   WalletsRepository walletsBloc,
-  Map<String, dynamic> walletJson, {
+  JsonMap walletJson, {
   bool hasBackup = false,
 }) async {
   final wallets = walletsBloc.wallets;
-  final Wallet? existedDebugWallet =
-      wallets?.firstWhereOrNull((w) => w.name == walletJson['name']);
+  final Wallet? existedDebugWallet = wallets
+      ?.where((w) => w.name == walletJson.valueOrNull<String>('name'))
+      .firstOrNull;
   if (existedDebugWallet != null) return existedDebugWallet;
 
-  final String name = walletJson['name'];
-  final List<String> activatedCoins =
-      List<String>.from(walletJson['activated_coins'] ?? <String>[]);
+  final String name = walletJson.valueOrNull<String>('name') ?? '';
+  final List<String> activatedCoins = walletJson.value<List<String>>(
+    'activated_coins',
+  );
 
   return Wallet(
     id: const Uuid().v1(),
@@ -63,7 +67,7 @@ Future<Wallet?> _createDebugWallet(
     config: WalletConfig(
       activatedCoins: activatedCoins,
       hasBackup: hasBackup,
-      seedPhrase: walletJson['seed'],
+      seedPhrase: walletJson.value<String>('seed'),
     ),
   );
 }
@@ -76,8 +80,8 @@ Future<List<dynamic>?> loadDebugSwaps() async {
     return null;
   }
 
-  final Map<String, dynamic> debugDataJson = jsonDecode(testDataStr);
+  final JsonMap debugDataJson = jsonFromString(testDataStr);
 
-  if (debugDataJson['swaps'] == null) return null;
-  return debugDataJson['swaps']['import'];
+  if (debugDataJson.valueOrNull<JsonMap>('swaps') == null) return null;
+  return debugDataJson.value<JsonMap>('swaps').value<List<dynamic>>('import');
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 
 extension StringExtension on String {
   /// Converts the string to sentence case.
@@ -11,11 +12,6 @@ extension StringExtension on String {
   }
 
   bool isJson() {
-    try {
-      jsonDecode(this);
-      return true;
-    } catch (e) {
-      return false;
-    }
+    return tryParseJson(this) != null;
   }
 }
