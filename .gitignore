@@ -1,6 +1,3 @@
-# Ignore the SDK symmlink (if it exists)
-/sdk/
-
 # Miscellaneous
 *.class
 *.log

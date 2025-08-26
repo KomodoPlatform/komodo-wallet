@@ -179,18 +179,16 @@ packages:
   dragon_charts_flutter:
     dependency: "direct main"
     description:
-      name: dragon_charts_flutter
-      sha256: a55562f94a54a8e329075a88be7578d1b22d4996b869440978f9cdbb62782739
-      url: "https://pub.dev"
-    source: hosted
+      path: "sdk/packages/dragon_charts_flutter"
+      relative: true
+    source: path
     version: "0.1.1-dev.3"
   dragon_logs:
     dependency: "direct main"
     description:
-      name: dragon_logs
-      sha256: "42794f6cda139b00b4c964b1ed7e4d8649238af3049df065bbfedc42f953f7fa"
-      url: "https://pub.dev"
-    source: hosted
+      path: "sdk/packages/dragon_logs"
+      relative: true
+    source: path
     version: "2.0.0"
   easy_localization:
     dependency: "direct main"
@@ -670,10 +668,9 @@ packages:
   komodo_cex_market_data:
     dependency: "direct main"
     description:
-      name: komodo_cex_market_data
-      sha256: f4c541d37d44fc53c36a300a83866ee3c696c1d6e0084b612d86234e0f5063c4
-      url: "https://pub.dev"
-    source: hosted
+      path: "sdk/packages/komodo_cex_market_data"
+      relative: true
+    source: path
     version: "0.0.3+1"
   komodo_coin_updates:
     dependency: transitive
@@ -718,18 +715,16 @@ packages:
   komodo_defi_sdk:
     dependency: "direct main"
     description:
-      name: komodo_defi_sdk
-      sha256: "26c0ec50657def4aa26cfb4c9ea30a6f90df51c502c94031050a61a5201bc0e6"
-      url: "https://pub.dev"
-    source: hosted
+      path: "sdk/packages/komodo_defi_sdk"
+      relative: true
+    source: path
     version: "0.4.0+3"
   komodo_defi_types:
     dependency: "direct main"
     description:
-      name: komodo_defi_types
-      sha256: "69b1076abca0451d260c66650f7d32d1a6605d5443a6e38300ba81bff5a5db04"
-      url: "https://pub.dev"
-    source: hosted
+      path: "sdk/packages/komodo_defi_types"
+      relative: true
+    source: path
     version: "0.3.2+1"
   komodo_persistence_layer:
     dependency: "direct main"
@@ -741,10 +736,9 @@ packages:
   komodo_ui:
     dependency: "direct main"
     description:
-      name: komodo_ui
-      sha256: "2ced7a730c396718725195d81065086a86f6a41bce1bb57ad986c27e030d15e6"
-      url: "https://pub.dev"
-    source: hosted
+      path: "sdk/packages/komodo_ui"
+      relative: true
+    source: path
     version: "0.3.0+3"
   komodo_ui_kit:
     dependency: "direct main"
