@@ -1,5 +1,4 @@
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 
@@ -44,13 +43,5 @@ Coin setCoin({
     swapContractAddress: null,
     type: CoinType.smartChain,
     walletOnly: false,
-    usdPrice: usdPrice != null
-        ? CexPrice(
-            price: usdPrice,
-            change24h: change24h ?? 0.0,
-            volume24h: 0.0,
-            ticker: 'USD',
-          )
-        : null,
   );
 }
