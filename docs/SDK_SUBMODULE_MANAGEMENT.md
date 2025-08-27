@@ -13,29 +13,35 @@ The Komodo Wallet project uses the komodo-defi-sdk-flutter repository as a git s
 
 ## Initial Setup
 
-After cloning the repository, you must initialize the submodule:
+The `sdk/` submodule is configured to track the `dev` branch but stays pinned to a specific commit in this repository. Cloning should initialize it to the recorded (pinned) commit, not the latest.
+
+Recommended (initializes submodules at the pinned commits while cloning):
+
+```bash
+git clone --recurse-submodules <repo-url>
+```
+
+If you already cloned without submodules:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-This will clone the SDK repository into the `sdk/` folder and checkout the tracked commit on the `dev` branch.
+Either approach ensures the SDK in `sdk/` is checked out at the pinned commit recorded by the wallet repository (the submodule tracks `dev`, but does not auto-advance).
 
 ## Working with the SDK Submodule
 
-### Updating to Latest SDK Changes
+### Updating to Latest SDK Changes (explicit)
 
-To update the submodule to the latest changes from the upstream `dev` branch:
+The SDK submodule only updates when explicitly requested. To advance the pinned commit to the latest on the tracked `dev` branch:
 
 ```bash
-cd sdk
-git fetch origin
-git checkout dev
-git pull origin dev
-cd ..
+git submodule update --remote --checkout sdk
 git add sdk
-git commit -m "Update SDK submodule to latest dev"
+git commit -m "chore(sdk): update submodule to latest dev"
 ```
+
+This updates the submodule to the latest remote `dev` commit and records that pinned commit in the wallet repo. It does not merge or rebase inside the submodule.
 
 ### Making SDK Changes (Hotfix Workflow)
 
@@ -107,6 +113,19 @@ flutter pub get
 git add sdk
 git commit -m "Switch SDK to feature/some-feature-branch for testing"
 ```
+
+If you only want to test locally without updating the pinned commit in the wallet repo, do not commit changes to the `sdk/` path.
+
+### Auto-fetch pinned SDK commit on branch checkout
+
+When you checkout or switch wallet branches, the recorded submodule commit may change. To automatically update the `sdk/` working tree to that pinned commit and fetch it if missing (recommended once per clone):
+
+```bash
+git config submodule.recurse true
+git config fetch.recurseSubmodules on-demand
+```
+
+With these settings, `git switch`/`git checkout` and `git pull` will recurse into submodules and fetch as needed so the `sdk/` working tree matches the pinned commit.
 
 ## Best Practices
 
@@ -189,15 +208,16 @@ git commit -m "Fix SDK submodule branch tracking"
 
 ## CI/CD Considerations
 
-GitHub Actions and other CI systems need to initialize submodules. The workflows have been updated to include:
+CI must use the pinned commit for `sdk/` (never auto-advance). Ensure checkout initializes submodules to the recorded commits:
 
 ```yaml
 - uses: actions/checkout@v4
   with:
-    submodules: recursive
+    submodules: recursive # initialize submodules at the recorded (pinned) commits
+    fetch-depth: 0 # optional, ensures tags/history if needed
 ```
 
-This ensures the CI environment has access to the SDK code during builds and tests.
+Do not run `git submodule update --remote` in CI, as that would advance the submodule beyond the pinned commit.
 
 ## Related Documentation
 

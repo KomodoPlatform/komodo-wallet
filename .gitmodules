@@ -2,3 +2,5 @@
 	path = sdk
 	url = https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
 	branch = dev
+	update = checkout
+	fetchRecurseSubmodules = on-demand
