@@ -30,6 +30,5 @@ import 'package:web_dex/model/coin.dart';
 /// unit tests: [get_fiat_amount_tests]
 double getFiatAmount(Coin coin, Rational amount) {
   final Decimal usdPrice = coin.usdPrice?.price ?? Decimal.zero;
-  final Rational usdPriceRational = Rational.parse(usdPrice.toString());
-  return (amount * usdPriceRational).toDouble();
+  return (amount * usdPrice.toRational()).toDouble();
 }

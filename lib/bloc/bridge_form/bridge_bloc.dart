@@ -348,7 +348,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     Emitter<BridgeState> emit,
   ) {
     final Rational? amount = event.value.isNotEmpty
-        ? Rational.parse(event.value)
+        ? Rational.tryParse(event.value)
         : null;
 
     if (amount == state.sellAmount) return;

@@ -112,9 +112,9 @@ class MarketMakerBotOrderListRepository {
 
     Rational relAmount = Rational.zero;
     if (price != null) {
-      final margin =
+      final Rational marginFraction =
           Decimal.parse(config.margin.toString()) / Decimal.fromInt(100);
-      final priceWithMargin = price * (Rational.one + margin);
+      final Rational priceWithMargin = price * (Rational.one + marginFraction);
       return baseCoinAmount * priceWithMargin;
     }
 

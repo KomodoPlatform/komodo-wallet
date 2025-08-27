@@ -169,7 +169,7 @@ class ProfitLossCalculator {
 }
 
 class RealisedProfitLossCalculator extends ProfitLossCalculator {
-  RealisedProfitLossCalculator(super.cexRepository);
+  RealisedProfitLossCalculator(super._sdk);
 
   @override
   double _calculateProfitLoss(_ProfitLossState state, Decimal currentPrice) {
@@ -178,7 +178,7 @@ class RealisedProfitLossCalculator extends ProfitLossCalculator {
 }
 
 class UnRealisedProfitLossCalculator extends ProfitLossCalculator {
-  UnRealisedProfitLossCalculator(super.cexRepository);
+  UnRealisedProfitLossCalculator(super._sdk);
 
   @override
   double _calculateProfitLoss(_ProfitLossState state, Decimal currentPrice) {

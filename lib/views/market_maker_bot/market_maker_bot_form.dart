@@ -110,11 +110,10 @@ class _MakerFormDesktopLayoutState extends State<_MakerFormDesktopLayout> {
                 child: BlocBuilder<CoinsBloc, CoinsState>(
                   builder: (context, state) {
                     final coins = state.walletCoins.values
-                        .where(
-                          (e) =>
-                              e.usdPrice != null &&
-                              e.usdPrice!.price!.toDouble() > 0,
-                        )
+                        .where((e) {
+                          final usdPrice = e.usdPrice?.price?.toDouble() ?? 0.0;
+                          return usdPrice > 0;
+                        })
                         .cast<Coin>()
                         .toList();
                     return MarketMakerBotFormContent(coins: coins);
@@ -174,11 +173,10 @@ class _MakerFormMobileLayoutState extends State<_MakerFormMobileLayout> {
             BlocBuilder<CoinsBloc, CoinsState>(
               builder: (context, state) {
                 final coins = state.walletCoins.values
-                    .where(
-                      (e) =>
-                          e.usdPrice != null &&
-                          e.usdPrice!.price!.toDouble() > 0,
-                    )
+                    .where((e) {
+                      final usdPrice = e.usdPrice?.price?.toDouble() ?? 0.0;
+                      return usdPrice > 0;
+                    })
                     .cast<Coin>()
                     .toList();
                 return MarketMakerBotFormContent(coins: coins);

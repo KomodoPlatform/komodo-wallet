@@ -298,9 +298,9 @@ class PortfolioGrowthBloc
   Future<Rational> _calculateTotalChange24h(List<Coin> coins) async {
     Rational totalChange = Rational.zero;
     for (final coin in coins) {
-      final usdBalance = coin.lastKnownUsdBalance(sdk) ?? Decimal.zero;
+      final double usdBalance = coin.lastKnownUsdBalance(sdk) ?? 0.0;
       final usdBalanceDecimal = Decimal.parse(usdBalance.toString());
-      final price = await portfolioGrowthRepository.getCachedPrice(
+      final price = portfolioGrowthRepository.getCachedPrice(
         coin.id.symbol.configSymbol.toUpperCase(),
       );
       final change24h = price?.change24h ?? Decimal.zero;

@@ -124,34 +124,13 @@ class PortfolioGrowthRepository {
     }
 
     if (useCache) {
-      final cacheStopwatch = Stopwatch()..start();
-      final String compoundKey = GraphCache.getPrimaryKey(
-        coinId: coinId.id,
-        fiatCoinId: fiatCoinId,
-        graphType: GraphType.balanceGrowth,
-        walletId: walletId,
-        isHdWallet: currentUser.isHd,
+      return await _tryLoadCoinGrowthChartFromCache(
+        coinId,
+        fiatCoinId,
+        walletId,
+        currentUser,
+        methodStopwatch,
       );
-      final GraphCache? cachedGraph = await _graphCache.get(compoundKey);
-      final cacheExists = cachedGraph != null;
-      cacheStopwatch.stop();
-
-      if (cacheExists) {
-        _log.fine(
-          'Cache hit for ${coinId.id}: ${cacheStopwatch.elapsedMilliseconds}ms',
-        );
-        methodStopwatch.stop();
-        _log.fine(
-          'getCoinGrowthChart completed in '
-          '${methodStopwatch.elapsedMilliseconds}ms (cached)',
-        );
-        return cachedGraph.graph;
-      } else {
-        _log.fine(
-          'Cache miss ${coinId.id}: ${cacheStopwatch.elapsedMilliseconds}ms',
-        );
-        throw CacheMissException(compoundKey);
-      }
     }
 
     final Coin coin = _coinsRepository.getCoinFromId(coinId)!;
@@ -235,20 +214,30 @@ class PortfolioGrowthRepository {
           endAt: endAt,
           intervalSeconds: interval.toSeconds(),
         ).ohlc.map(
-          (ohlc) => (
+          (ohlc) => MapEntry<DateTime, Decimal>(
             DateTime.fromMillisecondsSinceEpoch(ohlc.closeTimeMs),
             ohlc.close,
           ),
         ),
       );
     } else {
-      final dates = List.generate(
-        (endAt.difference(startAt).inSeconds / interval.toSeconds()).toInt(),
-        (index) =>
-            startAt!.add(Duration(seconds: index * interval.toSeconds())),
+      final totalSecs = endAt.difference(startAt).inSeconds;
+      final stepSecs = interval.toSeconds();
+      final steps = (totalSecs ~/ stepSecs) + 1; // include start and end
+      final safeSteps = steps > 0 ? steps : 1;
+      final dates = List<DateTime>.generate(
+        safeSteps,
+        (i) => startAt!.add(Duration(seconds: i * stepSecs)),
       );
 
-      ohlcData = await _sdk.marketData.fiatPriceHistory(coinId, dates);
+      final quoteCurrency =
+          QuoteCurrency.fromString(fiatCoinId) ?? Stablecoin.usdt;
+
+      ohlcData = await _sdk.marketData.fiatPriceHistory(
+        coinId,
+        dates,
+        quoteCurrency: quoteCurrency,
+      );
     }
     ohlcStopwatch.stop();
     _log.fine(
@@ -284,6 +273,43 @@ class PortfolioGrowthRepository {
     );
 
     return portfolowGrowthChart;
+  }
+
+  Future<ChartData> _tryLoadCoinGrowthChartFromCache(
+    AssetId coinId,
+    String fiatCoinId,
+    String walletId,
+    KdfUser currentUser,
+    Stopwatch methodStopwatch,
+  ) async {
+    final cacheStopwatch = Stopwatch()..start();
+    final String compoundKey = GraphCache.getPrimaryKey(
+      coinId: coinId.id,
+      fiatCoinId: fiatCoinId,
+      graphType: GraphType.balanceGrowth,
+      walletId: walletId,
+      isHdWallet: currentUser.isHd,
+    );
+    final GraphCache? cachedGraph = await _graphCache.get(compoundKey);
+    final cacheExists = cachedGraph != null;
+    cacheStopwatch.stop();
+
+    if (cacheExists) {
+      _log.fine(
+        'Cache hit for ${coinId.id}: ${cacheStopwatch.elapsedMilliseconds}ms',
+      );
+      methodStopwatch.stop();
+      _log.fine(
+        'getCoinGrowthChart completed in '
+        '${methodStopwatch.elapsedMilliseconds}ms (cached)',
+      );
+      return cachedGraph.graph;
+    } else {
+      _log.fine(
+        'Cache miss ${coinId.id}: ${cacheStopwatch.elapsedMilliseconds}ms',
+      );
+      throw CacheMissException(compoundKey);
+    }
   }
 
   /// Get the growth chart for the portfolio based on the transactions
@@ -519,9 +545,10 @@ class PortfolioGrowthRepository {
   }) {
     final DateTime lastDate = endDate ?? DateTime.now();
     final duration = lastDate.difference(startDate);
-    final int interval = duration.inSeconds.toDouble() ~/ targetLength;
+    final int interval = duration.inSeconds ~/ targetLength;
+    final int safeInterval = interval > 0 ? interval : 1;
     final intervalValue = graphIntervalsInSeconds.entries.firstWhere(
-      (entry) => entry.value >= interval,
+      (entry) => entry.value >= safeInterval,
       orElse: () => graphIntervalsInSeconds.entries.last,
     );
     return intervalValue.key;
