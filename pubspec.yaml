@@ -21,6 +21,12 @@ environment:
   sdk: ">=3.8.1 <4.0.0"
   flutter: ">=3.35.2 <4.0.0"
 
+workspace:
+  # - sdk/
+  - packages/komodo_ui_kit
+  - packages/komodo_persistence_layer
+  - app_theme
+
 dependencies:
   ## ---- Flutter SDK
 

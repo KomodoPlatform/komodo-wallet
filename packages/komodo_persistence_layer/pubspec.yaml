@@ -3,6 +3,8 @@ description: Persistence layer abstractions for Flutter/Dart.
 version: 0.0.1
 publish_to: none
 
+resolution: workspace
+
 environment:
   sdk: ">=3.8.1 <4.0.0"
 

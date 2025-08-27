@@ -6,6 +6,8 @@ environment:
   sdk: ">=3.8.1 <4.0.0"
   flutter: ">=3.35.2 <4.0.0"
 
+resolution: workspace
+
 dependencies:
   flutter:
     sdk: flutter
@@ -30,13 +32,6 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^5.0.0 # flutter.dev
-
-dependency_overrides:
-  # Force komodo packages to use local path versions
-  komodo_defi_types:
-    path: ../../sdk/packages/komodo_defi_types
-  komodo_ui:
-    path: ../../sdk/packages/komodo_ui
 
 flutter:
   uses-material-design: true
