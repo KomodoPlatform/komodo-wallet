@@ -14,8 +14,11 @@
 #
 # For more details, see `docs/SDK_DEPENDENCY_MANAGEMENT.md`
 
-# Exit on error, but with proper cleanup
-set -e
+# Exit on error, but with proper cleanup (robust shell options)
+set -Eeuo pipefail
+
+# Establish REPO_ROOT early for cleanup safety
+REPO_ROOT="${REPO_ROOT:-$(pwd)}"
 
 # Error handling and cleanup function
 cleanup() {
@@ -25,7 +28,10 @@ cleanup() {
   if [ $exit_code -ne 0 ] && [ $exit_code -ne 100 ]; then
     echo "ERROR: Script failed with exit code $exit_code"
     # Clean up any temporary files
-    find "$REPO_ROOT" -name "*.bak" -type f -delete
+    if [ -n "${REPO_ROOT:-}" ] && [ -d "$REPO_ROOT" ]; then
+      find "$REPO_ROOT" -name "*.bak" -type f -delete || true
+      find "$REPO_ROOT" -name "*.bak_major" -type f -delete || true
+    fi
   fi
   
   exit $exit_code
@@ -113,7 +119,7 @@ done
 
 # Get the current date for branch naming and commit messages
 CURRENT_DATE=$(date '+%Y-%m-%d')
-REPO_ROOT=$(pwd)
+# REPO_ROOT already set above
 CHANGES_FILE="$REPO_ROOT/SDK_CHANGELOG.md"
 
 # List of external SDK packages to be updated (from KomodoPlatform/komodo-defi-sdk-flutter.git)
@@ -213,7 +219,8 @@ get_dependency_type_from_pubspec() {
   fi
 
   # Capture the package declaration line and the following 10 lines
-  local section=$(awk -v pkg="$package_name" '
+  local section
+  section=$(awk -v pkg="$package_name" '
     $0 ~ "^[[:space:]]*"pkg":" { print; c=10; next }
     c>0 { print; c--; }
   ' "$pubspec_file")
@@ -249,7 +256,7 @@ update_hosted_dependency_version_inline() {
 
   # Case 1: single-line declaration like: `package_name: ^1.2.3`
   if echo "$start_content" | grep -q "\\^"; then
-    sed -i.bak -E "${start_line}s/\\^[-0-9A-Za-z+\.]+/\\^${new_version}/" "$pubspec_file" || true
+    sed -i.bak -E "${start_line}s/\\^([0-9]+\\.[0-9]+\\.[0-9]+([\\-+][0-9A-Za-z\\.-]+)*)/\\^${new_version}/" "$pubspec_file" || true
     return 0
   fi
 
@@ -274,11 +281,11 @@ update_hosted_dependency_version_inline() {
 
   # Only update if the target line contains a caret-version; otherwise leave unchanged
   if echo "$target_content" | grep -q "\\^"; then
-    sed -i.bak -E "${target_line}s/\\^[-0-9A-Za-z+\.]+/\\^${new_version}/" "$pubspec_file" || true
+    sed -i.bak -E "${target_line}s/\\^([0-9]+\\.[0-9]+\\.[0-9]+([\\-+][0-9A-Za-z\\.-]+)*)/\\^${new_version}/" "$pubspec_file" || true
   fi
 }
 
-# Prepare or update changes file header without discarding existing content
+# Determine mode text (used in header)
 if [ "$UPGRADE_ALL_PACKAGES" = "true" ]; then
   MODE_TEXT="All Packages"
 elif [ "$UPGRADE_SDK_MAJOR" = "true" ]; then
@@ -286,35 +293,38 @@ elif [ "$UPGRADE_SDK_MAJOR" = "true" ]; then
 else
   MODE_TEXT="SDK Packages Only"
 fi
-if [ ! -f "$CHANGES_FILE" ] || ! grep -q "^# SDK Package Rolls" "$CHANGES_FILE"; then
-  {
-    echo "# SDK Package Rolls"
-    echo ""
-    echo "**Date:** $CURRENT_DATE"
-    echo "**Target Branch:** $TARGET_BRANCH"
-    echo "**Upgrade Mode:** $MODE_TEXT"
-    echo ""
-    echo "The following SDK packages were rolled to newer versions:"
-    echo ""
-  } > "$CHANGES_FILE"
-else
-  # Update header values in-place; keep all other lines unchanged
-  sed -i.bak -E "s/^\\*\\*Date:\\*\\*.*/**Date:** $CURRENT_DATE/" "$CHANGES_FILE" || true
-  sed -i.bak -E "s/^\\*\\*Target Branch:\\*\\*.*/**Target Branch:** $TARGET_BRANCH/" "$CHANGES_FILE" || true
-  sed -i.bak -E "s/^\\*\\*Upgrade Mode:\\*\\*.*/**Upgrade Mode:** $MODE_TEXT/" "$CHANGES_FILE" || true
-  rm -f "$CHANGES_FILE.bak"
-  echo "" >> "$CHANGES_FILE"
-fi
 
-# Find all pubspec.yaml files
+# Lazily create or update the changes file header only when changes are known
+create_or_update_changes_header() {
+  if [ ! -f "$CHANGES_FILE" ] || ! grep -q "^# SDK Package Rolls" "$CHANGES_FILE"; then
+    {
+      echo "# SDK Package Rolls"
+      echo ""
+      echo "**Date:** $CURRENT_DATE"
+      echo "**Target Branch:** $TARGET_BRANCH"
+      echo "**Upgrade Mode:** $MODE_TEXT"
+      echo ""
+      echo "The following SDK packages were rolled to newer versions:"
+      echo ""
+    } > "$CHANGES_FILE"
+  else
+    sed -i.bak -E "s/^\\*\\*Date:\\*\\*.*/**Date:** $CURRENT_DATE/" "$CHANGES_FILE" || true
+    sed -i.bak -E "s/^\\*\\*Target Branch:\\*\\*.*/**Target Branch:** $TARGET_BRANCH/" "$CHANGES_FILE" || true
+    sed -i.bak -E "s/^\\*\\*Upgrade Mode:\\*\\*.*/**Upgrade Mode:** $MODE_TEXT/" "$CHANGES_FILE" || true
+    rm -f "$CHANGES_FILE.bak"
+    echo "" >> "$CHANGES_FILE"
+  fi
+}
+
+# Find all pubspec.yaml files (robust to whitespace in paths)
 echo "Finding all pubspec.yaml files..."
-PUBSPEC_FILES=$(find "$REPO_ROOT" -name "pubspec.yaml" -not -path "*/build/*" -not -path "*/\.*/*" -not -path "*/ios/*" -not -path "*/android/*")
+mapfile -d '' PUBSPEC_FILES < <(find "$REPO_ROOT" -name "pubspec.yaml" -not -path "*/build/*" -not -path "*/\.*/*" -not -path "*/ios/*" -not -path "*/android/*" -print0)
 
-echo "Found $(echo "$PUBSPEC_FILES" | wc -l) pubspec.yaml files"
+echo "Found ${#PUBSPEC_FILES[@]} pubspec.yaml files"
 
 ROLLS_MADE=false
 
-for PUBSPEC in $PUBSPEC_FILES; do
+for PUBSPEC in "${PUBSPEC_FILES[@]}"; do
   PROJECT_DIR=$(dirname "$PUBSPEC")
   PROJECT_NAME=$(basename "$PROJECT_DIR")
   
@@ -480,6 +490,8 @@ for PUBSPEC in $PUBSPEC_FILES; do
           done
         fi
 
+        # Prepare changes file header (only now that changes are known)
+        create_or_update_changes_header
         # Add the project to the changes list
         echo "## $PROJECT_NAME" >> "$CHANGES_FILE"
         echo "" >> "$CHANGES_FILE"
@@ -521,6 +533,8 @@ done
 
 # Add the SDK rolls image at the bottom of the changes file
 if [ "$ROLLS_MADE" = true ]; then
+  # Ensure header exists before appending image
+  create_or_update_changes_header
   echo "![SDK Package Rolls](https://raw.githubusercontent.com/KomodoPlatform/komodo-wallet/aaf19e4605c62854ba176bf1ea75d75b3cb48df9/docs/assets/sdk-rolls.png)" >> "$CHANGES_FILE"
   echo "" >> "$CHANGES_FILE"
   
