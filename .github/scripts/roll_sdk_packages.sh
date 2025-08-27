@@ -420,7 +420,7 @@ for PUBSPEC in $PUBSPEC_FILES; do
           # Backup pubspec.yaml to preserve formatting/comments
           PUBSPEC_BAK_FILE="$PUBSPEC.bak_major"
           cp "$PUBSPEC" "$PUBSPEC_BAK_FILE"
-          if ! flutter pub upgrade --major-versions ${SDK_HOSTED_PACKAGES[@]}; then
+          if ! flutter pub upgrade --major-versions "${SDK_HOSTED_PACKAGES[@]}"; then
             log_warning "Failed to upgrade hosted packages (major) in $PROJECT_NAME"
             # Restore original pubspec.yaml to retain structure
             mv -f "$PUBSPEC_BAK_FILE" "$PUBSPEC"
@@ -433,7 +433,7 @@ for PUBSPEC in $PUBSPEC_FILES; do
           fi
         else
           log_info "Upgrading hosted SDK packages: ${SDK_HOSTED_PACKAGES[*]}"
-          if ! flutter pub upgrade ${SDK_HOSTED_PACKAGES[@]}; then
+          if ! flutter pub upgrade "${SDK_HOSTED_PACKAGES[@]}"; then
             log_warning "Failed to upgrade hosted packages in $PROJECT_NAME"
             PACKAGE_UPDATE_FAILED=true
           fi
@@ -443,7 +443,7 @@ for PUBSPEC in $PUBSPEC_FILES; do
       # Then, upgrade git-based SDK packages to refresh their lock entries
       if [ ${#SDK_GIT_PACKAGES[@]} -gt 0 ]; then
         log_info "Upgrading git-based SDK packages: ${SDK_GIT_PACKAGES[*]}"
-        if ! flutter pub upgrade --unlock-transitive ${SDK_GIT_PACKAGES[@]}; then
+        if ! flutter pub upgrade --unlock-transitive "${SDK_GIT_PACKAGES[@]}"; then
           log_warning "Failed to upgrade git-based packages in $PROJECT_NAME"
           PACKAGE_UPDATE_FAILED=true
         fi
