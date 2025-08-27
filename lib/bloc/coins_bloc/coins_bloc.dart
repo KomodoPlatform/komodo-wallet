@@ -325,7 +325,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       await _activateCoins(coinsToActivate, emit);
 
       // Sync coins from wallet metadata to ensure all coins are properly displayed
-      // even if activation failed due to georestriction
+      // even if activation failed for any reason (network issues, SDK issues, etc.)
       if (currentWallet.config.type == WalletType.iguana ||
           currentWallet.config.type == WalletType.hdwallet) {
         final coinUpdates = _syncIguanaCoinsStates();

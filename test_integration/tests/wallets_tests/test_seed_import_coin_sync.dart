@@ -12,9 +12,9 @@ import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
 
 Future<void> testSeedImportGeorestriction(WidgetTester tester) async {
-  await pause(sec: 2, msg: 'TEST SEED IMPORT GEORESTRICTION');
+  await pause(sec: 2, msg: 'TEST SEED IMPORT COIN SYNC');
 
-  await pause(sec: 2, msg: '🔍 SEED IMPORT: Starting seed import georestriction test');
+  await pause(sec: 2, msg: '🔍 SEED IMPORT: Starting seed import coin sync test');
   
   // Test seed phrase for import
   const String testSeed = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
@@ -73,7 +73,7 @@ Future<void> testSeedImportGeorestriction(WidgetTester tester) async {
   final Finder coinListItems = find.byKey(const Key('coin-list-item-'));
   await tester.pumpAndSettle();
   
-  // Verify that coins are visible (even if suspended due to georestriction)
+  // Verify that coins are visible (even if suspended due to activation failures)
   expect(coinListItems, findsWidgets, reason: 'Coins should be visible in wallet after import, even if suspended');
   print('🔍 SEED IMPORT: Verified coins are visible in wallet');
 
@@ -82,8 +82,8 @@ Future<void> testSeedImportGeorestriction(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('Run seed import georestriction test:', (WidgetTester tester) async {
-    print('🔍 MAIN: Starting seed import georestriction test suite');
+  testWidgets('Run seed import coin sync test:', (WidgetTester tester) async {
+    print('🔍 MAIN: Starting seed import coin sync test suite');
     tester.testTextInput.register();
     await app.main();
     await tester.pumpAndSettle();
@@ -91,6 +91,6 @@ void main() {
     await acceptAlphaWarning(tester);
     await testSeedImportGeorestriction(tester);
     
-    print('🔍 MAIN: Seed import georestriction tests completed successfully');
+    print('🔍 MAIN: Seed import coin sync tests completed successfully');
   });
 }

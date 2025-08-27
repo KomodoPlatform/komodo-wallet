@@ -10,7 +10,7 @@ import 'test_activate_coins.dart';
 import 'test_cex_prices.dart';
 import 'test_coin_assets.dart';
 import 'test_filters.dart';
-import 'test_seed_import_georestriction.dart';
+import 'test_seed_import_coin_sync.dart';
 import 'test_withdraw.dart';
 
 void main() {
