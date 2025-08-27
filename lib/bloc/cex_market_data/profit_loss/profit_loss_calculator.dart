@@ -1,13 +1,16 @@
 import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/extensions/profit_loss_transaction_extension.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/price_stamped_transaction.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 
 class ProfitLossCalculator {
   ProfitLossCalculator(this._sdk);
+
   final KomodoDefiSdk _sdk;
+  final Logger _log = Logger('ProfitLossCalculator');
 
   /// Get the running profit/loss for a coin based on the transactions.
   /// ProfitLoss = Proceeds - CostBasis
@@ -53,7 +56,15 @@ class ProfitLossCalculator {
     Map<DateTime, Decimal> usdPrices,
   ) {
     return transactions.map((transaction) {
-      final usdPrice = usdPrices[_getDateAtMidnight(transaction.timestamp)]!;
+      final DateTime midnightDate = _getDateAtMidnight(transaction.timestamp);
+      final Decimal? usdPrice = usdPrices[midnightDate];
+      if (usdPrice == null) {
+        _log.warning(
+          'No USD price found for transaction ${transaction.id} '
+          'at $midnightDate. Available prices: ${usdPrices.keys}',
+        );
+        throw Exception('No USD price found for transaction ${transaction.id}');
+      }
       return UsdPriceStampedTransaction(transaction, usdPrice.toDouble());
     }).toList();
   }
@@ -63,7 +74,8 @@ class ProfitLossCalculator {
   }
 
   DateTime _getDateAtMidnight(DateTime date) {
-    return DateTime(date.year, date.month, date.day);
+    final utcDate = date.toUtc();
+    return DateTime.utc(utcDate.year, utcDate.month, utcDate.day);
   }
 
   List<ProfitLoss> _calculateProfitLosses(
