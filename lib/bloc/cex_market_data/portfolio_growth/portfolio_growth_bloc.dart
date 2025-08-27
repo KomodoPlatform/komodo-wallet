@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:logging/logging.dart';
+import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
@@ -141,24 +143,35 @@ class PortfolioGrowthBloc
       // recover at the cost of a longer first loading time.
     }
 
-    await emit.forEach(
-      // computation is omitted, so null-valued events are emitted on a set
-      // interval.
-      Stream<Object?>.periodic(event.updateFrequency).asyncMap((_) async {
-        // Update prices before fetching chart data
-        await portfolioGrowthRepository.updatePrices();
-        return _fetchPortfolioGrowthChart(event);
-      }),
-      onData: (data) =>
-          _handlePortfolioGrowthUpdate(data, event.selectedPeriod, event.coins),
-      onError: (error, stackTrace) {
-        _log.shout('Failed to load portfolio growth', error, stackTrace);
-        return GrowthChartLoadFailure(
-          error: TextError(error: 'Failed to load portfolio growth'),
-          selectedPeriod: event.selectedPeriod,
+    final periodicUpdate = Stream<Object?>.periodic(event.updateFrequency)
+        .asyncMap((_) async {
+          // Update prices before fetching chart data
+          await portfolioGrowthRepository.updatePrices();
+          return _fetchPortfolioGrowthChart(event);
+        });
+
+    // Use await for here to allow for the async update handler. The previous
+    // implementation awaited the emit.forEach to ensure that cancelling the
+    // event handler with transformers would stop the previous periodic updates.
+    await for (final data in periodicUpdate) {
+      try {
+        emit(
+          await _handlePortfolioGrowthUpdate(
+            data,
+            event.selectedPeriod,
+            event.coins,
+          ),
         );
-      },
-    );
+      } catch (error, stackTrace) {
+        _log.shout('Failed to load portfolio growth', error, stackTrace);
+        emit(
+          GrowthChartLoadFailure(
+            error: TextError(error: 'Failed to load portfolio growth'),
+            selectedPeriod: event.selectedPeriod,
+          ),
+        );
+      }
+    }
   }
 
   Future<List<Coin>> _removeUnsupportedCoins(
@@ -196,16 +209,16 @@ class PortfolioGrowthBloc
     await portfolioGrowthRepository.updatePrices();
 
     final totalBalance = _calculateTotalBalance(coins);
-    final totalChange24h = _calculateTotalChange24h(coins);
-    final percentageChange24h = _calculatePercentageChange24h(coins);
+    final totalChange24h = await _calculateTotalChange24h(coins);
+    final percentageChange24h = await _calculatePercentageChange24h(coins);
 
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: chart,
       percentageIncrease: chart.percentageIncrease,
       selectedPeriod: event.selectedPeriod,
       totalBalance: totalBalance,
-      totalChange24h: totalChange24h,
-      percentageChange24h: percentageChange24h,
+      totalChange24h: totalChange24h.toDouble(),
+      percentageChange24h: percentageChange24h.toDouble(),
       isUpdating: false,
     );
   }
@@ -241,27 +254,27 @@ class PortfolioGrowthBloc
     return coinsCopy;
   }
 
-  PortfolioGrowthState _handlePortfolioGrowthUpdate(
+  Future<PortfolioGrowthState> _handlePortfolioGrowthUpdate(
     ChartData growthChart,
     Duration selectedPeriod,
     List<Coin> coins,
-  ) {
+  ) async {
     if (growthChart.isEmpty && state is PortfolioGrowthChartLoadSuccess) {
       return state;
     }
 
     final percentageIncrease = growthChart.percentageIncrease;
     final totalBalance = _calculateTotalBalance(coins);
-    final totalChange24h = _calculateTotalChange24h(coins);
-    final percentageChange24h = _calculatePercentageChange24h(coins);
+    final totalChange24h = await _calculateTotalChange24h(coins);
+    final percentageChange24h = await _calculatePercentageChange24h(coins);
 
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: growthChart,
       percentageIncrease: percentageIncrease,
       selectedPeriod: selectedPeriod,
       totalBalance: totalBalance,
-      totalChange24h: totalChange24h,
-      percentageChange24h: percentageChange24h,
+      totalChange24h: totalChange24h.toDouble(),
+      percentageChange24h: percentageChange24h.toDouble(),
       isUpdating: false,
     );
   }
@@ -282,32 +295,34 @@ class PortfolioGrowthBloc
   }
 
   /// Calculate the total 24h change in USD value
-  double _calculateTotalChange24h(List<Coin> coins) {
-    // Calculate the 24h change by summing the change percentage of each coin
-    // multiplied by its USD balance and divided by 100 (to convert percentage to decimal)
-    return coins.fold(0.0, (sum, coin) {
-      // Use the price change from the CexPrice if available
-      final usdBalance = coin.lastKnownUsdBalance(sdk) ?? 0.0;
-      // Get the coin price from the repository's prices cache
-      final price = portfolioGrowthRepository.getCachedPrice(
+  Future<Rational> _calculateTotalChange24h(List<Coin> coins) async {
+    Rational totalChange = Rational.zero;
+    for (final coin in coins) {
+      final usdBalance = coin.lastKnownUsdBalance(sdk) ?? Decimal.zero;
+      final usdBalanceDecimal = Decimal.parse(usdBalance.toString());
+      final price = await portfolioGrowthRepository.getCachedPrice(
         coin.id.symbol.configSymbol.toUpperCase(),
       );
-      final change24h = price?.change24h ?? 0.0;
-      return sum + (change24h * usdBalance / 100);
-    });
+      final change24h = price?.change24h ?? Decimal.zero;
+      totalChange += change24h * usdBalanceDecimal / Decimal.fromInt(100);
+    }
+    return totalChange;
   }
 
   /// Calculate the percentage change over 24h for the entire portfolio
-  double _calculatePercentageChange24h(List<Coin> coins) {
+  Future<Rational> _calculatePercentageChange24h(List<Coin> coins) async {
     final double totalBalance = _calculateTotalBalance(coins);
-    final double totalChange = _calculateTotalChange24h(coins);
+    final Rational totalBalanceRational = Rational.parse(
+      totalBalance.toString(),
+    );
+    final Rational totalChange = await _calculateTotalChange24h(coins);
 
     // Avoid division by zero or very small balances
-    if (totalBalance <= 0.01) {
-      return 0.0;
+    if (totalBalanceRational <= Rational.fromInt(1, 100)) {
+      return Rational.zero;
     }
 
     // Return the percentage change
-    return (totalChange / totalBalance) * 100;
+    return (totalChange / totalBalanceRational) * Rational.fromInt(100);
   }
 }

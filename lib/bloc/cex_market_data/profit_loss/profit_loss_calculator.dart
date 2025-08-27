@@ -1,12 +1,13 @@
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:decimal/decimal.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/extensions/profit_loss_transaction_extension.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/price_stamped_transaction.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/profit_loss.dart';
 
 class ProfitLossCalculator {
-  ProfitLossCalculator(this._cexRepository);
-  final CexRepository _cexRepository;
+  ProfitLossCalculator(this._sdk);
+  final KomodoDefiSdk _sdk;
 
   /// Get the running profit/loss for a coin based on the transactions.
   /// ProfitLoss = Proceeds - CostBasis
@@ -22,7 +23,7 @@ class ProfitLossCalculator {
   /// Returns the list of [ProfitLoss] for the coin.
   Future<List<ProfitLoss>> getProfitFromTransactions(
     List<Transaction> transactions, {
-    required String coinId,
+    required AssetId coinId,
     required String fiatCoinId,
   }) async {
     if (transactions.isEmpty) {
@@ -33,23 +34,27 @@ class ProfitLossCalculator {
 
     final todayAtMidnight = _getDateAtMidnight(DateTime.now());
     final transactionDates = _getTransactionDates(transactions);
-    final coinUsdPrices =
-        await _getTimestampedUsdPrices(coinId, transactionDates);
+    final coinUsdPrices = await _sdk.marketData.fiatPriceHistory(
+      coinId,
+      transactionDates,
+    );
     final currentPrice =
         coinUsdPrices[todayAtMidnight] ?? coinUsdPrices.values.last;
-    final priceStampedTransactions =
-        _priceStampTransactions(transactions, coinUsdPrices);
+    final priceStampedTransactions = _priceStampTransactions(
+      transactions,
+      coinUsdPrices,
+    );
 
     return _calculateProfitLosses(priceStampedTransactions, currentPrice);
   }
 
   List<UsdPriceStampedTransaction> _priceStampTransactions(
     List<Transaction> transactions,
-    Map<DateTime, double> usdPrices,
+    Map<DateTime, Decimal> usdPrices,
   ) {
     return transactions.map((transaction) {
       final usdPrice = usdPrices[_getDateAtMidnight(transaction.timestamp)]!;
-      return UsdPriceStampedTransaction(transaction, usdPrice);
+      return UsdPriceStampedTransaction(transaction, usdPrice.toDouble());
     }).toList();
   }
 
@@ -61,17 +66,9 @@ class ProfitLossCalculator {
     return DateTime(date.year, date.month, date.day);
   }
 
-  Future<Map<DateTime, double>> _getTimestampedUsdPrices(
-    String coinId,
-    List<DateTime> dates,
-  ) async {
-    final cleanCoinId = coinId.split('-').firstOrNull?.toUpperCase() ?? '';
-    return _cexRepository.getCoinFiatPrices(cleanCoinId, dates);
-  }
-
   List<ProfitLoss> _calculateProfitLosses(
     List<UsdPriceStampedTransaction> transactions,
-    double currentPrice,
+    Decimal currentPrice,
   ) {
     var state = _ProfitLossState();
     final profitLosses = <ProfitLoss>[];
@@ -102,8 +99,10 @@ class ProfitLossCalculator {
     _ProfitLossState state,
     UsdPriceStampedTransaction transaction,
   ) {
-    final newHolding =
-        (holdings: transaction.amount.toDouble(), price: transaction.priceUsd);
+    final newHolding = (
+      holdings: transaction.amount.toDouble(),
+      price: transaction.priceUsd,
+    );
     return _ProfitLossState(
       holdings: [...state.holdings, newHolding],
       realizedProfitLoss: state.realizedProfitLoss,
@@ -124,8 +123,9 @@ class ProfitLossCalculator {
     // calculate the cost basis (formula assumes positive "total" value).
     var remainingToSell = transaction.amount.toDouble().abs();
     var costBasis = 0.0;
-    final newHoldings =
-        List<({double holdings, double price})>.from(state.holdings);
+    final newHoldings = List<({double holdings, double price})>.from(
+      state.holdings,
+    );
 
     while (remainingToSell > 0) {
       final oldestBuy = newHoldings.first.holdings;
@@ -136,7 +136,7 @@ class ProfitLossCalculator {
       } else {
         newHoldings[0] = (
           holdings: newHoldings[0].holdings - remainingToSell,
-          price: newHoldings[0].price
+          price: newHoldings[0].price,
         );
         costBasis += remainingToSell * state.holdings.first.price;
         remainingToSell = 0;
@@ -161,11 +161,8 @@ class ProfitLossCalculator {
     );
   }
 
-  double _calculateProfitLoss(
-    _ProfitLossState state,
-    double currentPrice,
-  ) {
-    final currentValue = state.currentHoldings * currentPrice;
+  double _calculateProfitLoss(_ProfitLossState state, Decimal currentPrice) {
+    final currentValue = state.currentHoldings * currentPrice.toDouble();
     final unrealizedProfitLoss = currentValue - state.totalInvestment;
     return state.realizedProfitLoss + unrealizedProfitLoss;
   }
@@ -175,10 +172,7 @@ class RealisedProfitLossCalculator extends ProfitLossCalculator {
   RealisedProfitLossCalculator(super.cexRepository);
 
   @override
-  double _calculateProfitLoss(
-    _ProfitLossState state,
-    double currentPrice,
-  ) {
+  double _calculateProfitLoss(_ProfitLossState state, Decimal currentPrice) {
     return state.realizedProfitLoss;
   }
 }
@@ -187,11 +181,8 @@ class UnRealisedProfitLossCalculator extends ProfitLossCalculator {
   UnRealisedProfitLossCalculator(super.cexRepository);
 
   @override
-  double _calculateProfitLoss(
-    _ProfitLossState state,
-    double currentPrice,
-  ) {
-    final currentValue = state.currentHoldings * currentPrice;
+  double _calculateProfitLoss(_ProfitLossState state, Decimal currentPrice) {
+    final currentValue = state.currentHoldings * currentPrice.toDouble();
     final unrealizedProfitLoss = currentValue - state.totalInvestment;
     return unrealizedProfitLoss;
   }

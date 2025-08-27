@@ -1,8 +1,14 @@
 import 'dart:math' show Point;
 
+import 'package:decimal/decimal.dart';
 import 'package:hive/hive.dart';
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_cex_market_data/komodo_cex_market_data.dart'
+    show
+        CoinOhlc,
+        GraphInterval,
+        GraphIntervalExtension,
+        OhlcGetters,
+        graphIntervalsInSeconds;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
@@ -15,6 +21,7 @@ import 'package:web_dex/bloc/cex_market_data/models/models.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/cache_miss_exception.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
+import 'package:web_dex/model/cex_price.dart' show CexPrice;
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
@@ -22,23 +29,20 @@ import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 class PortfolioGrowthRepository {
   /// Create a new instance of the repository with the provided dependencies.
   PortfolioGrowthRepository({
-    required cex.CexRepository cexRepository,
     required TransactionHistoryRepo transactionHistoryRepo,
     required PersistenceProvider<String, GraphCache> cacheProvider,
     required CoinsRepo coinsRepository,
     required KomodoDefiSdk sdk,
-  })  : _transactionHistoryRepository = transactionHistoryRepo,
-        _cexRepository = cexRepository,
-        _graphCache = cacheProvider,
-        _coinsRepository = coinsRepository,
-        _sdk = sdk;
+  }) : _transactionHistoryRepository = transactionHistoryRepo,
+       _graphCache = cacheProvider,
+       _coinsRepository = coinsRepository,
+       _sdk = sdk;
 
   /// Create a new instance of the repository with default dependencies.
   /// The default dependencies are the [BinanceRepository] and the
   /// [TransactionHistoryRepo].
   factory PortfolioGrowthRepository.withDefaults({
     required TransactionHistoryRepo transactionHistoryRepo,
-    required cex.CexRepository cexRepository,
     required CoinsRepo coinsRepository,
     required KomodoDefiSdk sdk,
     PerformanceMode? demoMode,
@@ -52,7 +56,6 @@ class PortfolioGrowthRepository {
     }
 
     return PortfolioGrowthRepository(
-      cexRepository: cexRepository,
       transactionHistoryRepo: transactionHistoryRepo,
       cacheProvider: HiveLazyBoxProvider<String, GraphCache>(
         name: GraphType.balanceGrowth.tableName,
@@ -61,9 +64,6 @@ class PortfolioGrowthRepository {
       sdk: sdk,
     );
   }
-
-  /// The CEX repository to fetch the spot price of the coins.
-  final cex.CexRepository _cexRepository;
 
   /// The transaction history repository to fetch the transactions.
   final TransactionHistoryRepo _transactionHistoryRepository;
@@ -161,17 +161,17 @@ class PortfolioGrowthRepository {
         .fetchCompletedTransactions(coin.id)
         .then((value) => value.toList())
         .catchError((Object e) {
-      txStopwatch.stop();
-      _log.warning(
-        'Error fetching transactions for ${coin.id} '
-        'in ${txStopwatch.elapsedMilliseconds}ms: $e',
-      );
-      if (ignoreTransactionFetchErrors) {
-        return List<Transaction>.empty();
-      } else {
-        throw e;
-      }
-    });
+          txStopwatch.stop();
+          _log.warning(
+            'Error fetching transactions for ${coin.id} '
+            'in ${txStopwatch.elapsedMilliseconds}ms: $e',
+          );
+          if (ignoreTransactionFetchErrors) {
+            return List<Transaction>.empty();
+          } else {
+            throw e;
+          }
+        });
     txStopwatch.stop();
     _log.fine(
       'Fetched ${transactions.length} transactions for ${coin.id} '
@@ -215,10 +215,7 @@ class PortfolioGrowthRepository {
     endAt ??= DateTime.now();
 
     final String baseCoinId = coin.id.symbol.configSymbol.toUpperCase();
-    final cex.GraphInterval interval = _getOhlcInterval(
-      startAt,
-      endDate: endAt,
-    );
+    final GraphInterval interval = _getOhlcInterval(startAt, endDate: endAt);
 
     _log.fine(
       'Fetching OHLC data for $baseCoinId/$fiatCoinId '
@@ -226,32 +223,42 @@ class PortfolioGrowthRepository {
     );
 
     final ohlcStopwatch = Stopwatch()..start();
-    cex.CoinOhlc ohlcData;
+    Map<DateTime, Decimal> ohlcData;
     // if the base coin is the same as the fiat coin, return a chart with a
     // constant value of 1.0
     if (baseCoinId.toLowerCase() == fiatCoinId.toLowerCase()) {
       _log.fine('Using constant price for fiat coin: $baseCoinId');
-      ohlcData = cex.CoinOhlc.fromConstantPrice(
-        startAt: startAt,
-        endAt: endAt,
-        intervalSeconds: interval.toSeconds(),
+      ohlcData = Map.fromIterable(
+        CoinOhlc.fromConstantPrice(
+          startAt: startAt,
+          endAt: endAt,
+          intervalSeconds: interval.toSeconds(),
+        ).ohlc.map(
+          (ohlc) => (
+            DateTime.fromMillisecondsSinceEpoch(ohlc.closeTimeMs),
+            ohlc.close,
+          ),
+        ),
       );
     } else {
-      ohlcData = await _cexRepository.getCoinOhlc(
-        cex.CexCoinPair(baseCoinTicker: baseCoinId, relCoinTicker: fiatCoinId),
-        interval,
-        startAt: startAt,
-        endAt: endAt,
+      final dates = List.generate(
+        (endAt.difference(startAt).inSeconds / interval.toSeconds()).toInt(),
+        (index) =>
+            startAt!.add(Duration(seconds: index * interval.toSeconds())),
       );
+
+      ohlcData = await _sdk.marketData.fiatPriceHistory(coinId, dates);
     }
     ohlcStopwatch.stop();
     _log.fine(
-      'Fetched ${ohlcData.ohlc.length} OHLC data points '
+      'Fetched ${ohlcData.length} OHLC data points '
       'in ${ohlcStopwatch.elapsedMilliseconds}ms',
     );
 
-    final List<Point<double>> portfolowGrowthChart =
-        _mergeTransactionsWithOhlc(ohlcData, transactions);
+    final List<Point<double>> portfolowGrowthChart = _mergeTransactionsWithOhlc(
+      ohlcData,
+      transactions,
+    );
     final cacheInsertStopwatch = Stopwatch()..start();
     await _graphCache.insert(
       GraphCache(
@@ -364,8 +371,9 @@ class PortfolioGrowthRepository {
     charts.removeWhere((element) => element.isEmpty);
     if (charts.isEmpty) {
       _log.warning(
-          'getPortfolioGrowthChart: No valid charts found after filtering '
-          'empty charts in ${methodStopwatch.elapsedMilliseconds}ms');
+        'getPortfolioGrowthChart: No valid charts found after filtering '
+        'empty charts in ${methodStopwatch.elapsedMilliseconds}ms',
+      );
       return ChartData.empty();
     }
 
@@ -375,7 +383,9 @@ class PortfolioGrowthRepository {
     // chart matches the current prices and ends at the current time.
     // TODO: Move to the SDK when portfolio balance is implemented.
     final double totalUsdBalance = coins.fold(
-        0, (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0));
+      0,
+      (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0),
+    );
     if (totalUsdBalance <= 0) {
       _log.fine(
         'Total USD balance is zero or negative, skipping balance point addition',
@@ -407,8 +417,10 @@ class PortfolioGrowthRepository {
       );
     }
 
-    final filteredChart =
-        mergedChart.filterDomain(startAt: startAt, endAt: endAt);
+    final filteredChart = mergedChart.filterDomain(
+      startAt: startAt,
+      endAt: endAt,
+    );
 
     methodStopwatch.stop();
     _log.fine(
@@ -420,29 +432,33 @@ class PortfolioGrowthRepository {
   }
 
   ChartData _mergeTransactionsWithOhlc(
-    cex.CoinOhlc ohlcData,
+    Map<DateTime, Decimal> ohlcData,
     List<Transaction> transactions,
   ) {
     final stopwatch = Stopwatch()..start();
     _log.fine(
       'Merging ${transactions.length} transactions with '
-      '${ohlcData.ohlc.length} OHLC data points',
+      '${ohlcData.length} OHLC data points',
     );
 
-    if (transactions.isEmpty || ohlcData.ohlc.isEmpty) {
+    if (transactions.isEmpty || ohlcData.isEmpty) {
       _log.warning('Empty transactions or OHLC data, returning empty chart');
       return List.empty();
     }
 
-    final ChartData spotValues = ohlcData.ohlc.map((cex.Ohlc ohlc) {
+    final ChartData spotValues = ohlcData.entries.map((
+      MapEntry<DateTime, Decimal> entry,
+    ) {
       return Point<double>(
-        ohlc.closeTime.toDouble(),
-        ohlc.close,
+        entry.key.millisecondsSinceEpoch.toDouble(),
+        entry.value.toDouble(),
       );
     }).toList();
 
-    final portfolowGrowthChart =
-        Charts.mergeTransactionsWithPortfolioOHLC(transactions, spotValues);
+    final portfolowGrowthChart = Charts.mergeTransactionsWithPortfolioOHLC(
+      transactions,
+      spotValues,
+    );
 
     stopwatch.stop();
     _log.fine(
@@ -469,7 +485,6 @@ class PortfolioGrowthRepository {
     bool allowFiatAsBase = true,
   }) async {
     final Coin coin = _coinsRepository.getCoinFromId(coinId)!;
-    final supportedCoins = await _cexRepository.getCoinList();
     final coinTicker = coin.id.symbol.configSymbol.toUpperCase();
     // Allow fiat coins through, as they are represented by a constant value,
     // 1, in the repository layer and are not supported by the CEX API
@@ -477,12 +492,7 @@ class PortfolioGrowthRepository {
       return true;
     }
 
-    final coinPair = CexCoinPair(
-      baseCoinTicker: coinTicker,
-      relCoinTicker: fiatCoinId.toUpperCase(),
-    );
-    final isCoinSupported = coinPair.isCoinSupported(supportedCoins);
-    return !coin.isTestCoin && isCoinSupported;
+    return !coin.isTestCoin;
   }
 
   /// Get the OHLC interval for the chart based on the number of transactions
@@ -501,7 +511,7 @@ class PortfolioGrowthRepository {
   /// final interval
   ///  = _getOhlcInterval(transactions, targetLength: 500);
   /// ```
-  cex.GraphInterval _getOhlcInterval(
+  GraphInterval _getOhlcInterval(
     DateTime startDate, {
     DateTime? endDate,
     int targetLength = 500,
@@ -509,9 +519,9 @@ class PortfolioGrowthRepository {
     final DateTime lastDate = endDate ?? DateTime.now();
     final duration = lastDate.difference(startDate);
     final int interval = duration.inSeconds.toDouble() ~/ targetLength;
-    final intervalValue = cex.graphIntervalsInSeconds.entries.firstWhere(
+    final intervalValue = graphIntervalsInSeconds.entries.firstWhere(
       (entry) => entry.value >= interval,
-      orElse: () => cex.graphIntervalsInSeconds.entries.last,
+      orElse: () => graphIntervalsInSeconds.entries.last,
     );
     return intervalValue.key;
   }
