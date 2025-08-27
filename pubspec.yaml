@@ -204,18 +204,30 @@ dependency_overrides:
 
   # Force all komodo_ packages to use local path versions
   # Internal SDK interdependencies are hosted versions
-  komodo_cex_market_data:
-    path: sdk/packages/komodo_cex_market_data
-  dragon_logs:
-    path: sdk/packages/dragon_logs
   dragon_charts_flutter:
     path: sdk/packages/dragon_charts_flutter
+  dragon_logs:
+      path: sdk/packages/dragon_logs
+  komodo_cex_market_data:
+    path: sdk/packages/komodo_cex_market_data
+  komodo_coin_updates:
+    path: sdk/packages/komodo_coin_updates
+  komodo_coins:
+    path: sdk/packages/komodo_coins
+  komodo_defi_framework:
+    path: sdk/packages/komodo_defi_framework
+  komodo_defi_local_auth:
+    path: sdk/packages/komodo_defi_local_auth
+  komodo_defi_rpc_methods:
+    path: sdk/packages/komodo_defi_rpc_methods
   komodo_defi_sdk:
     path: sdk/packages/komodo_defi_sdk
   komodo_defi_types:
     path: sdk/packages/komodo_defi_types
   komodo_ui:
     path: sdk/packages/komodo_ui
+  komodo_wallet_build_transformer:
+    path: sdk/packages/komodo_wallet_build_transformer
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
