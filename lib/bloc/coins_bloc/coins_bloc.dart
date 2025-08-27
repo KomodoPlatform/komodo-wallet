@@ -324,6 +324,22 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       emit(_prePopulateListWithActivatingCoins(coinsToActivate));
       await _activateCoins(coinsToActivate, emit);
 
+      // Sync coins from wallet metadata to ensure all coins are properly displayed
+      // even if activation failed due to georestriction
+      if (currentWallet.config.type == WalletType.iguana ||
+          currentWallet.config.type == WalletType.hdwallet) {
+        final coinUpdates = _syncIguanaCoinsStates();
+        await emit.forEach(
+          coinUpdates,
+          onData: (coin) =>
+              state.copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
+          onError: (error, stackTrace) {
+            _log.severe('Error syncing iguana coins states', error, stackTrace);
+            return state;
+          },
+        );
+      }
+
       add(CoinsBalancesRefreshed());
       add(CoinsBalanceMonitoringStarted());
     } catch (e, s) {
