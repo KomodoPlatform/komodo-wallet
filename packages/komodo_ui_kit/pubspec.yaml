@@ -13,7 +13,7 @@ dependencies:
     path: ../../app_theme/
 
   komodo_defi_types:
-    path: ../../sdk/packages/komodo_defi_types # Option 1: Local path via sdk submodule (pinned; no symlink required)
+    path: ../../sdk/packages/komodo_defi_types # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_defi_types
@@ -21,7 +21,7 @@ dependencies:
     # ^0.3.2+1 # Option 3: Pub.dev dependency
 
   komodo_ui:
-    path: ../../sdk/packages/komodo_ui # Option 1: Local path via sdk submodule (pinned; no symlink required)
+    path: ../../sdk/packages/komodo_ui # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_ui
