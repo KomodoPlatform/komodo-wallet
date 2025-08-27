@@ -13,6 +13,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:logging/logging.dart';
+import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/mock_portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
@@ -532,18 +533,19 @@ class PortfolioGrowthRepository {
   ///
   /// This method fetches the current prices for all coins and calculates
   /// the 24h change by multiplying each coin's percentage change by its USD balance
-  Future<double> calculateTotalChange24h(List<Coin> coins) async {
+  Future<Rational> calculateTotalChange24h(List<Coin> coins) async {
     // Fetch current prices including 24h change data
     final prices = await _coinsRepository.fetchCurrentPrices() ?? {};
 
     // Calculate the 24h change by summing the change percentage of each coin
     // multiplied by its USD balance and divided by 100 (to convert percentage to decimal)
-    double totalChange = 0.0;
+    Rational totalChange = Rational.zero;
     for (final coin in coins) {
       final price = prices[coin.id.symbol.configSymbol.toUpperCase()];
-      final change24h = price?.change24h ?? 0.0;
+      final change24h = price?.change24h ?? Decimal.zero;
       final usdBalance = coin.lastKnownUsdBalance(_sdk) ?? 0.0;
-      totalChange += (change24h * usdBalance / 100);
+      final usdBalanceDecimal = Decimal.parse(usdBalance.toString());
+      totalChange += (change24h * usdBalanceDecimal / Decimal.fromInt(100));
     }
     return totalChange;
   }
