@@ -83,7 +83,7 @@ packages:
     source: hosted
     version: "3.1.0"
   intl:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: intl
       sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
@@ -101,30 +101,25 @@ packages:
   komodo_defi_rpc_methods:
     dependency: transitive
     description:
-      path: "packages/komodo_defi_rpc_methods"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      name: komodo_defi_rpc_methods
+      sha256: "7ca9953e29ded777e2b335841940c440fb3313a0b0fe7038a90f895d2709f45a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1+1"
   komodo_defi_types:
     dependency: "direct main"
     description:
-      path: "packages/komodo_defi_types"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      path: "../../sdk/packages/komodo_defi_types"
+      relative: true
+    source: path
+    version: "0.3.2+1"
   komodo_ui:
     dependency: "direct main"
     description:
-      path: "packages/komodo_ui"
-      ref: dev
-      resolved-ref: d5b5c38da93e62f59bffb8e6b3e1e7ceb3fb91d5
-      url: "https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git"
-    source: git
-    version: "0.3.0+0"
+      path: "../../sdk/packages/komodo_ui"
+      relative: true
+    source: path
+    version: "0.3.0+3"
   lints:
     dependency: transitive
     description:
@@ -133,6 +128,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      sha256: c8245ada5f1717ed44271ed1c26b8ce85ca3228fd2ffdb75468ab01979309d61
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   material_color_utilities:
     dependency: transitive
     description:
@@ -198,10 +201,10 @@ packages:
     dependency: transitive
     description:
       name: vector_math
-      sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
+      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.2.0"
   web:
     dependency: transitive
     description:
@@ -211,5 +214,5 @@ packages:
     source: hosted
     version: "1.1.1"
 sdks:
-  dart: ">=3.7.0 <4.0.0"
-  flutter: ">=3.32.5"
+  dart: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.1"

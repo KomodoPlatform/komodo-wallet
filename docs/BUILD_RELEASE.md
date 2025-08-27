@@ -40,6 +40,14 @@ flutter build apk
 
 ## Docker builds
 
+Prerequisite (ensure SDK submodule is initialized to the pinned commit):
+
+```bash
+git submodule update --init --recursive
+# Recommended once per clone to auto-fetch pinned commits on branch switches
+git config fetch.recurseSubmodules on-demand
+```
+
 ### Build for web
 
 ```bash
