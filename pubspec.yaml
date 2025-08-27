@@ -44,7 +44,7 @@ dependencies:
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
   komodo_cex_market_data:
-    path: sdk/packages/komodo_cex_market_data # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_cex_market_data # Option 1: Local path via sdk submodule (pinned; no symlink required)
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_cex_market_data
@@ -52,7 +52,7 @@ dependencies:
     # ^0.0.3+1 # Option 3: Pub.dev dependency
 
   dragon_logs:
-    path: sdk/packages/dragon_logs # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/dragon_logs # Option 1: Local path via sdk submodule (pinned; no symlink required)
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/dragon_logs
@@ -133,7 +133,7 @@ dependencies:
 
   # TODO: review required
   dragon_charts_flutter:
-    path: sdk/packages/dragon_charts_flutter # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/dragon_charts_flutter # Option 1: Local path via sdk submodule (pinned; no symlink required)
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/dragon_charts_flutter
@@ -153,7 +153,7 @@ dependencies:
   get_it: ^8.0.3 # sdk depends on this version, and hosted instead of git reference
 
   komodo_defi_sdk:
-    path: sdk/packages/komodo_defi_sdk # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_defi_sdk # Option 1: Local path via sdk submodule (pinned; no symlink required)
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_defi_sdk
@@ -161,7 +161,7 @@ dependencies:
     # ^0.4.0+3 # Option 3: Pub.dev dependency
 
   komodo_defi_types:
-    path: sdk/packages/komodo_defi_types # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_defi_types # Option 1: Local path via sdk submodule (pinned; no symlink required)
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_defi_types
@@ -169,7 +169,7 @@ dependencies:
     # ^0.3.2+1 # Option 3: Pub.dev dependency
 
   komodo_ui:
-    path: sdk/packages/komodo_ui # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_ui # Option 1: Local path via sdk submodule (pinned; no symlink required)
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_ui
