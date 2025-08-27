@@ -1,6 +1,6 @@
 # Repository Guidelines for Agents
 
-This repository is a Flutter project. The environment has all Dart and Flutter dependencies pre-fetched during setup, but network access is disabled afterwards. Use the commands below to work with the project.
+This repository is a Flutter project. The environment has all Dart and Flutter dependencies pre-fetched during setup. It is possible that you may not have internet access. Use the commands below to work with the project.
 
 ## Setup
 

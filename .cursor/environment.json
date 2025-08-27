@@ -1,0 +1,7 @@
+{
+    "build": {
+        "context": ".",
+        "dockerfile": "../.devcontainer/Dockerfile"
+    },
+    "install": "flutter pub get --enforce-lockfile && flutter build bundle --no-pub || true"
+}
