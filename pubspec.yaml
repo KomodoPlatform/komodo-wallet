@@ -19,7 +19,7 @@ version: 0.9.2+0
 
 environment:
   sdk: ">=3.8.1 <4.0.0"
-  flutter: ">=3.35.1 <4.0.0"
+  flutter: ">=3.35.2 <4.0.0"
 
 dependencies:
   ## ---- Flutter SDK
@@ -44,20 +44,20 @@ dependencies:
   ## ---- KomodoPlatform pub.dev packages (First-party)
 
   komodo_cex_market_data:
-    # path: sdk/packages/komodo_cex_market_data # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_cex_market_data # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_cex_market_data
     #   ref: dev
-    ^0.0.3+1 # Option 3: Pub.dev dependency
+    # ^0.0.3+1 # Option 3: Pub.dev dependency
 
   dragon_logs:
-    # path: sdk/packages/dragon_logs # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/dragon_logs # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/dragon_logs
     #   ref: dev
-    ^2.0.0 # Option 3: Pub.dev dependency
+    # ^2.0.0 # Option 3: Pub.dev dependency
 
   ## ---- Dart.dev, Flutter.dev
   args: ^2.7.0 # dart.dev
@@ -133,12 +133,12 @@ dependencies:
 
   # TODO: review required
   dragon_charts_flutter:
-    # path: sdk/packages/dragon_charts_flutter # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/dragon_charts_flutter # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/dragon_charts_flutter
     #   ref: dev
-    ^0.1.1-dev.3 # Option 3: Pub.dev dependency
+    # ^0.1.1-dev.3 # Option 3: Pub.dev dependency
 
   bloc_concurrency: 0.3.0
   file_picker: ^10.0.0
@@ -153,28 +153,28 @@ dependencies:
   get_it: ^8.0.3 # sdk depends on this version, and hosted instead of git reference
 
   komodo_defi_sdk:
-    # path: sdk/packages/komodo_defi_sdk # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_defi_sdk # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_defi_sdk
     #   ref: dev
-    ^0.4.0+3 # Option 3: Pub.dev dependency
+    # ^0.4.0+3 # Option 3: Pub.dev dependency
 
   komodo_defi_types:
-    # path: sdk/packages/komodo_defi_types # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_defi_types # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_defi_types
     #   ref: dev
-    ^0.3.2+1 # Option 3: Pub.dev dependency
+    # ^0.3.2+1 # Option 3: Pub.dev dependency
 
   komodo_ui:
-    # path: sdk/packages/komodo_ui # Option 1: Local directory. Requires symlink to the SDK in the root of the project
+    path: sdk/packages/komodo_ui # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
     # git: # Option 2: Git dependency
     #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
     #   path: packages/komodo_ui
     #   ref: dev
-    ^0.3.0+3 # Option 3: Pub.dev dependency
+    # ^0.3.0+3 # Option 3: Pub.dev dependency
 
   feedback: ^3.1.0
   ntp: ^2.0.0
@@ -195,6 +195,21 @@ dev_dependencies:
 dependency_overrides:
   # Temporary until Flutter's pinned version is updated
   intl: ^0.20.2
+
+  # Force all komodo_ packages to use local path versions
+  # Internal SDK interdependencies are hosted versions
+  komodo_cex_market_data:
+    path: sdk/packages/komodo_cex_market_data
+  dragon_logs:
+    path: sdk/packages/dragon_logs
+  dragon_charts_flutter:
+    path: sdk/packages/dragon_charts_flutter
+  komodo_defi_sdk:
+    path: sdk/packages/komodo_defi_sdk
+  komodo_defi_types:
+    path: sdk/packages/komodo_defi_types
+  komodo_ui:
+    path: sdk/packages/komodo_ui
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -109,18 +109,16 @@ packages:
   komodo_defi_types:
     dependency: "direct main"
     description:
-      name: komodo_defi_types
-      sha256: "69b1076abca0451d260c66650f7d32d1a6605d5443a6e38300ba81bff5a5db04"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../sdk/packages/komodo_defi_types"
+      relative: true
+    source: path
     version: "0.3.2+1"
   komodo_ui:
     dependency: "direct main"
     description:
-      name: komodo_ui
-      sha256: "2ced7a730c396718725195d81065086a86f6a41bce1bb57ad986c27e030d15e6"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../sdk/packages/komodo_ui"
+      relative: true
+    source: path
     version: "0.3.0+3"
   lints:
     dependency: transitive
