@@ -19,17 +19,20 @@ class MarketMakerBotForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<MarketMakerTradeFormBloc, MarketMakerTradeFormState,
-        MarketMakerTradeFormStage>(
+    return BlocSelector<
+      MarketMakerTradeFormBloc,
+      MarketMakerTradeFormState,
+      MarketMakerTradeFormStage
+    >(
       selector: (state) => state.stage,
       builder: (context, formStage) {
         if (formStage == MarketMakerTradeFormStage.confirmationRequired) {
           return MarketMakerBotConfirmationForm(
             onCreateOrder: () => _onCreateOrderPressed(context),
             onCancel: () {
-              context
-                  .read<MarketMakerTradeFormBloc>()
-                  .add(const MarketMakerConfirmationPreviewCancelRequested());
+              context.read<MarketMakerTradeFormBloc>().add(
+                const MarketMakerConfirmationPreviewCancelRequested(),
+              );
             },
           );
         }
@@ -45,9 +48,9 @@ class MarketMakerBotForm extends StatelessWidget {
     final marketMakerTradeFormBloc = context.read<MarketMakerTradeFormBloc>();
     final tradePair = marketMakerTradeFormBloc.state.toTradePairConfig();
 
-    context
-        .read<MarketMakerBotBloc>()
-        .add(MarketMakerBotOrderUpdateRequested(tradePair));
+    context.read<MarketMakerBotBloc>().add(
+      MarketMakerBotOrderUpdateRequested(tradePair),
+    );
 
     context.read<DexTabBarBloc>().add(const TabChanged(2));
 
@@ -59,7 +62,8 @@ class _MakerFormDesktopLayout extends StatefulWidget {
   const _MakerFormDesktopLayout();
 
   @override
-  State<_MakerFormDesktopLayout> createState() => _MakerFormDesktopLayoutState();
+  State<_MakerFormDesktopLayout> createState() =>
+      _MakerFormDesktopLayoutState();
 }
 
 class _MakerFormDesktopLayoutState extends State<_MakerFormDesktopLayout> {
@@ -100,13 +104,16 @@ class _MakerFormDesktopLayoutState extends State<_MakerFormDesktopLayout> {
               key: const Key('maker-form-layout-scroll'),
               controller: _mainScrollController,
               child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+                constraints: BoxConstraints(
+                  maxWidth: theme.custom.dexFormWidth,
+                ),
                 child: BlocBuilder<CoinsBloc, CoinsState>(
                   builder: (context, state) {
                     final coins = state.walletCoins.values
                         .where(
-                          (e) => e.usdPrice != null && e.usdPrice!.price > 0,
+                          (e) =>
+                              e.usdPrice != null &&
+                              e.usdPrice!.price!.toDouble() > 0,
                         )
                         .cast<Coin>()
                         .toList();
@@ -168,7 +175,9 @@ class _MakerFormMobileLayoutState extends State<_MakerFormMobileLayout> {
               builder: (context, state) {
                 final coins = state.walletCoins.values
                     .where(
-                      (e) => e.usdPrice != null && e.usdPrice!.price > 0,
+                      (e) =>
+                          e.usdPrice != null &&
+                          e.usdPrice!.price!.toDouble() > 0,
                     )
                     .cast<Coin>()
                     .toList();
@@ -185,9 +194,7 @@ class _MakerFormMobileLayoutState extends State<_MakerFormMobileLayout> {
 }
 
 class MarketMakerBotOrderbook extends StatelessWidget {
-  const MarketMakerBotOrderbook({
-    super.key,
-  });
+  const MarketMakerBotOrderbook({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +232,7 @@ Order? _getMyOrder(BuildContext context, Rational? price) {
 }
 
 void _onAskClick(BuildContext context, Order order) {
-  context
-      .read<MarketMakerTradeFormBloc>()
-      .add(MarketMakerTradeFormAskOrderbookSelected(order));
+  context.read<MarketMakerTradeFormBloc>().add(
+    MarketMakerTradeFormAskOrderbookSelected(order),
+  );
 }

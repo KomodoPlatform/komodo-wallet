@@ -44,8 +44,9 @@ class MarketMakerBotOrderListRepository {
   Future<List<TradePair>> getTradePairs() async {
     final settings = await _settingsRepository.loadSettings();
     final configs = settings.marketMakerBotSettings.tradeCoinPairConfigs;
-    final makerOrders = (await _ordersService.getOrders())
-        ?.where((order) => order.orderType == TradeSide.maker);
+    final makerOrders = (await _ordersService.getOrders())?.where(
+      (order) => order.orderType == TradeSide.maker,
+    );
 
     final tradePairs = configs.map((TradeCoinPairConfig config) {
       final order = makerOrders
@@ -87,7 +88,7 @@ class MarketMakerBotOrderListRepository {
     final baseCoinBalance = baseCoin == null
         ? Decimal.zero
         : _coinsRepository.lastKnownBalance(baseCoin.id)?.spendable ??
-            Decimal.zero;
+              Decimal.zero;
     return baseCoinBalance.toRational() *
         Rational.parse(baseCoinBalance.toString());
   }
@@ -97,19 +98,24 @@ class MarketMakerBotOrderListRepository {
     TradeCoinPairConfig config,
     MyOrder? order,
   ) {
-    final double? baseUsdPrice =
-        _coinsRepository.getCoin(config.baseCoinId)?.usdPrice?.price;
-    final double? relUsdPrice =
-        _coinsRepository.getCoin(config.relCoinId)?.usdPrice?.price;
+    final Decimal? baseUsdPrice = _coinsRepository
+        .getCoin(config.baseCoinId)
+        ?.usdPrice
+        ?.price;
+    final Decimal? relUsdPrice = _coinsRepository
+        .getCoin(config.relCoinId)
+        ?.usdPrice
+        ?.price;
     final price = relUsdPrice != null && baseUsdPrice != null
         ? baseUsdPrice / relUsdPrice
         : null;
 
     Rational relAmount = Rational.zero;
     if (price != null) {
-      final double priceWithMargin = price * (1 + (config.margin / 100));
-      final double amount = baseCoinAmount.toDouble() * priceWithMargin;
-      return Rational.parse(amount.toString());
+      final margin =
+          Decimal.parse(config.margin.toString()) / Decimal.fromInt(100);
+      final priceWithMargin = price * (Rational.one + margin);
+      return baseCoinAmount * priceWithMargin;
     }
 
     return relAmount;
