@@ -50,6 +50,7 @@ import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_repository.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
+import 'package:web_dex/bloc/version_info/version_info_bloc.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/orderbook_bloc.dart';
@@ -287,6 +288,16 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider<FaucetBloc>(
             create: (context) =>
                 FaucetBloc(kdfSdk: context.read<KomodoDefiSdk>()),
+          ),
+          BlocProvider<VersionInfoBloc>(
+            lazy: false,
+            create: (context) =>
+                VersionInfoBloc(
+                    mm2Api: context.read<Mm2Api>(),
+                    komodoDefiSdk: context.read<KomodoDefiSdk>(),
+                  )
+                  ..add(const LoadVersionInfo())
+                  ..add(const StartPeriodicPolling()),
           ),
           BlocProvider<PlatformBloc>(
             lazy: false,
