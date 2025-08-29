@@ -18,7 +18,7 @@ class VersionInfoBloc extends Bloc<VersionInfoEvent, VersionInfoState> {
     Duration? pollInterval,
   }) : _mm2Api = mm2Api,
        _komodoDefiSdk = komodoDefiSdk,
-       _pollInterval = pollInterval ?? const Duration(minutes: 1),
+       _pollInterval = pollInterval ?? const Duration(minutes: 5),
        super(const VersionInfoInitial()) {
     on<LoadVersionInfo>(_onLoadVersionInfo);
     on<StartPeriodicPolling>(_onStartPeriodicPolling);
