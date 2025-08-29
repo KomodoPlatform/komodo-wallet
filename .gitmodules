@@ -4,3 +4,4 @@
 	branch = dev
 	update = checkout
 	fetchRecurseSubmodules = on-demand
+	ignore = dirty

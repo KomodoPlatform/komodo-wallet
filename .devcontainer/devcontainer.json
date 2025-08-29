@@ -9,7 +9,8 @@
         "sudo chown -R komodo:komodo /workspaces/komodo-wallet",
         "git submodule sync --recursive || true",
         "git submodule update --init --recursive --checkout || true",
-        "git config fetch.recurseSubmodules on-demand || true"
+        "git config fetch.recurseSubmodules on-demand || true",
+        "git config submodule.sdk.ignore dirty || true"
     ],
     "postAttachCommand": "flutter pub get --enforce-lockfile",
     "runArgs": [
