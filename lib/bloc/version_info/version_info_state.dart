@@ -34,18 +34,18 @@ class VersionInfoLoaded extends VersionInfoState {
   final String? latestCoinsCommit;
 
   VersionInfoLoaded copyWith({
-    String? appVersion,
-    String? commitHash,
-    String? apiCommitHash,
-    String? currentCoinsCommit,
-    String? latestCoinsCommit,
+    ValueGetter<String?>? appVersion,
+    ValueGetter<String?>? commitHash,
+    ValueGetter<String?>? apiCommitHash,
+    ValueGetter<String?>? currentCoinsCommit,
+    ValueGetter<String?>? latestCoinsCommit,
   }) {
     return VersionInfoLoaded(
-      appVersion: appVersion ?? this.appVersion,
-      commitHash: commitHash ?? this.commitHash,
-      apiCommitHash: apiCommitHash ?? this.apiCommitHash,
-      currentCoinsCommit: currentCoinsCommit ?? this.currentCoinsCommit,
-      latestCoinsCommit: latestCoinsCommit ?? this.latestCoinsCommit,
+      appVersion: appVersion?.call() ?? this.appVersion,
+      commitHash: commitHash?.call() ?? this.commitHash,
+      apiCommitHash: apiCommitHash?.call() ?? this.apiCommitHash,
+      currentCoinsCommit: currentCoinsCommit?.call() ?? this.currentCoinsCommit,
+      latestCoinsCommit: latestCoinsCommit?.call() ?? this.latestCoinsCommit,
     );
   }
 

@@ -23,7 +23,7 @@ import 'package:web_dex/views/wallet/wallet_page/wallet_main/balance_summary_wid
 // that bloc is primarily focused on chart data.
 //
 // IMPLEMENTATION NOTES:
-// - Current Balance: Uses PortfolioGrowthBloc.totalBalance with fallback to calculated balance
+// - Current Balance: Uses calculated total balance from the SDK
 // - 24h Change: Uses PortfolioGrowthBloc.percentageChange24h and totalChange24h
 // - All-time Investment: Uses AssetOverviewBloc.totalInvestment
 // - All-time Profit: Uses AssetOverviewBloc.profitAmount and profitIncreasePercentage
@@ -55,10 +55,6 @@ class _WalletOverviewState extends State<WalletOverview> {
         final portfolioAssetsOverviewBloc = context.watch<AssetOverviewBloc>();
         final int assetCount = state.walletCoins.length;
 
-        // Get the portfolio growth bloc to access balance and 24h change
-        final portfolioGrowthBloc = context.watch<PortfolioGrowthBloc>();
-        final portfolioGrowthState = portfolioGrowthBloc.state;
-
         // Get asset overview state data
         final stateWithData =
             portfolioAssetsOverviewBloc.state
@@ -67,13 +63,13 @@ class _WalletOverviewState extends State<WalletOverview> {
                   as PortfolioAssetsOverviewLoadSuccess
             : null;
 
-        // Get total balance from the PortfolioGrowthBloc if available, otherwise calculate
-        final double totalBalance =
-            _getTotalBalance(state.walletCoins.values, context) > 0
-            ? portfolioGrowthState is PortfolioGrowthChartLoadSuccess
-                  ? portfolioGrowthState.totalBalance
-                  : stateWithData?.totalValue.value ?? 0.0
-            : 0.0;
+        // Calculate the total balance from the SDK balances and market data
+        // interfaces rather than the PortfolioGrowthBloc - limited coin
+        // coverage and dependent on OHLC API request limits.
+        final double totalBalance = _getTotalBalance(
+          state.walletCoins.values,
+          context,
+        );
 
         if (!_logged && stateWithData != null) {
           context.read<AnalyticsBloc>().logEvent(

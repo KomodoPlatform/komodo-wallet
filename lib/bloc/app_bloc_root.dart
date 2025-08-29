@@ -292,10 +292,7 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider<VersionInfoBloc>(
             lazy: false,
             create: (context) =>
-                VersionInfoBloc(
-                    mm2Api: context.read<Mm2Api>(),
-                    komodoDefiSdk: context.read<KomodoDefiSdk>(),
-                  )
+                VersionInfoBloc(mm2Api: mm2Api, komodoDefiSdk: komodoDefiSdk)
                   ..add(const LoadVersionInfo())
                   ..add(const StartPeriodicPolling()),
           ),

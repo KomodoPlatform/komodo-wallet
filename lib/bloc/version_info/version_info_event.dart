@@ -15,3 +15,7 @@ class StartPeriodicPolling extends VersionInfoEvent {
 class StopPeriodicPolling extends VersionInfoEvent {
   const StopPeriodicPolling();
 }
+
+class PollVersionInfo extends VersionInfoEvent {
+  const PollVersionInfo();
+}
