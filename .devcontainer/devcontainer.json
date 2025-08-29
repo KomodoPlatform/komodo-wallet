@@ -5,7 +5,12 @@
     "remoteUser": "komodo",
     "workspaceFolder": "/workspaces/komodo-wallet",
     "initializeCommand": "docker build -t komodo/android-sdk:35 -f ${localWorkspaceFolder}/.docker/android-sdk.dockerfile ${localWorkspaceFolder}",
-    "postCreateCommand": "sudo chown -R komodo:komodo /workspaces/komodo-wallet",
+    "postCreateCommand": [
+        "sudo chown -R komodo:komodo /workspaces/komodo-wallet",
+        "git submodule sync --recursive || true",
+        "git submodule update --init --recursive --checkout || true",
+        "git config fetch.recurseSubmodules on-demand || true"
+    ],
     "postAttachCommand": "flutter pub get --enforce-lockfile",
     "runArgs": [
         "--privileged",
