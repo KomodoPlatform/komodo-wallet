@@ -1,11 +1,17 @@
 {
     "name": "flutter_docker",
-    "image": "komodo/komodo-wallet:latest",
+    "context": "..",
+    "dockerFile": "../.docker/komodo-wallet-android.dockerfile",
     "remoteUser": "komodo",
     "workspaceFolder": "/workspaces/komodo-wallet",
-    "initializeCommand": "docker build --platform linux/amd64 -t komodo/android-sdk:35 -f ${localWorkspaceFolder}/.docker/android-sdk.dockerfile ${localWorkspaceFolder} && docker build --platform linux/amd64 -t komodo/komodo-wallet:latest -f ${localWorkspaceFolder}/.docker/komodo-wallet-android.dockerfile ${localWorkspaceFolder}",
+    "initializeCommand": "docker build -t komodo/android-sdk:35 -f ${localWorkspaceFolder}/.docker/android-sdk.dockerfile ${localWorkspaceFolder}",
     "postCreateCommand": "sudo chown -R komodo:komodo /workspaces/komodo-wallet",
     "postAttachCommand": "flutter pub get --enforce-lockfile",
+    "runArgs": [
+        "--privileged",
+        "-v",
+        "/dev/bus/usb:/dev/bus/usb"
+    ],
     "forwardPorts": [
         8081,
         5037
