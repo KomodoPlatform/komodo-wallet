@@ -125,7 +125,6 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       );
     }
 
-    await _sdk.setWalletType(WalletType.trezor);
     await _sdk.confirmSeedBackup(hasBackup: true);
     if (authState.user!.wallet.config.activatedCoins.isEmpty) {
       // If no coins are activated, we assume this is the first time

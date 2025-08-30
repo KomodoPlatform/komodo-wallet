@@ -1,24 +1,22 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
+    show PrivateKeyPolicy;
 import 'package:uuid/uuid.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 
 class Wallet {
-  Wallet({
-    required this.id,
-    required this.name,
-    required this.config,
-  });
+  Wallet({required this.id, required this.name, required this.config});
 
   factory Wallet.fromJson(Map<String, dynamic> json) => Wallet(
-        id: json['id'] as String? ?? '',
-        name: json['name'] as String? ?? '',
-        config: WalletConfig.fromJson(
-          json['config'] as Map<String, dynamic>? ?? {},
-        ),
-      );
+    id: json['id'] as String? ?? '',
+    name: json['name'] as String? ?? '',
+    config: WalletConfig.fromJson(
+      json['config'] as Map<String, dynamic>? ?? {},
+    ),
+  );
 
   /// Creates a wallet from a name and the optional parameters.
   /// [name] - The name of the wallet.
@@ -49,11 +47,7 @@ class Wallet {
     required String name,
     required WalletConfig config,
   }) {
-    return Wallet(
-      id: const Uuid().v1(),
-      name: name,
-      config: config,
-    );
+    return Wallet(id: const Uuid().v1(), name: name, config: config);
   }
 
   String id;
@@ -67,17 +61,13 @@ class Wallet {
       await EncryptionTool().decryptData(password, config.seedPhrase) ?? '';
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'name': name,
-        'config': config.toJson(),
-      };
+    'id': id,
+    'name': name,
+    'config': config.toJson(),
+  };
 
   Wallet copy() {
-    return Wallet(
-      id: id,
-      name: name,
-      config: config.copy(),
-    );
+    return Wallet(id: id, name: name, config: config.copy());
   }
 }
 
@@ -93,14 +83,16 @@ class WalletConfig {
 
   factory WalletConfig.fromJson(Map<String, dynamic> json) {
     return WalletConfig(
+      // Legacy wallets may still carry a serialized type. We keep it for
+      // compatibility, but the app should use SDK auth options as source of truth.
       type: WalletType.fromJson(
         json['type'] as String? ?? WalletType.iguana.name,
       ),
       seedPhrase: json['seed_phrase'] as String? ?? '',
       pubKey: json['pub_key'] as String?,
-      activatedCoins:
-          List<String>.from(json['activated_coins'] as List? ?? <String>[])
-              .toList(),
+      activatedCoins: List<String>.from(
+        json['activated_coins'] as List? ?? <String>[],
+      ).toList(),
       hasBackup: json['has_backup'] as bool? ?? false,
     );
   }
@@ -114,6 +106,7 @@ class WalletConfig {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
+      // Retain type for legacy export. Runtime uses SDK auth options.
       'type': type.name,
       'seed_phrase': seedPhrase,
       'pub_key': pubKey,
@@ -158,8 +151,13 @@ enum WalletType {
 
 extension KdfUserWalletExtension on KdfUser {
   Wallet get wallet {
-    final walletType =
-        WalletType.fromJson(metadata['type'] as String? ?? 'iguana');
+    // Derive wallet type from SDK auth options rather than metadata
+    final isTrezor =
+        walletId.authOptions.privKeyPolicy == const PrivateKeyPolicy.trezor();
+    final isHd = walletId.isHd;
+    final walletType = isTrezor
+        ? WalletType.trezor
+        : (isHd ? WalletType.hdwallet : WalletType.iguana);
     return Wallet(
       id: walletId.name,
       name: walletId.name,
