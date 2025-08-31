@@ -2,17 +2,12 @@
 
 set -euo pipefail
 
-# Ensure proper ownership of the workspace (best effort)
-sudo chown -R komodo:komodo /workspaces/komodo-wallet || true
-
 # Initialize and pin submodules to the recorded commits
-git submodule sync --recursive || true
-git submodule update --init --recursive --checkout || true
+git submodule sync --recursive
+git submodule update --init --recursive --checkout
 
 # Recommended git settings for submodules
-git config fetch.recurseSubmodules on-demand || true
-git config submodule.sdk.ignore dirty || true
+git config fetch.recurseSubmodules on-demand
+git config submodule.sdk.ignore dirty
 
 echo "postCreate: completed submodule initialization and permissions setup"
-
-

@@ -5,13 +5,17 @@
     "remoteUser": "komodo",
     "workspaceFolder": "/workspaces/komodo-wallet",
     "initializeCommand": "docker build -t komodo/android-sdk:35 -f ${localWorkspaceFolder}/.docker/android-sdk.dockerfile ${localWorkspaceFolder}",
-    "postCreateCommand": "bash -lc .devcontainer/postCreate.sh",
+    "postCreateCommand": "bash -lc '.devcontainer/postCreate.sh'",
     "postAttachCommand": "flutter pub get --enforce-lockfile",
-    "runArgs": [
-        "--privileged",
-        "-v",
-        "/dev/bus/usb:/dev/bus/usb"
-    ],
+    // Security Note: The following runArgs are commented out for security reasons.
+    // Uncomment these lines only when you need to debug Android apps via USB connection
+    // through the dev container. The --privileged flag grants extended privileges to
+    // the container, and USB device mounting allows direct hardware access.
+    // "runArgs": [
+    //     "--privileged",
+    //     "-v",
+    //     "/dev/bus/usb:/dev/bus/usb"
+    // ],
     "forwardPorts": [
         8081,
         5037
