@@ -1,11 +1,14 @@
+import 'package:app_theme/src/dark/theme_custom_dark.dart';
+import 'package:app_theme/src/light/theme_custom_light.dart';
 import 'package:flutter/material.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' show RepositoryProvider;
+import 'package:komodo_cex_market_data/komodo_cex_market_data.dart'
+    show SparklineRepository;
+import 'package:komodo_defi_types/komodo_defi_types.dart' show AssetId;
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item.dart';
 import 'package:web_dex/shared/widgets/asset_item/asset_item_size.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/charts/coin_sparkline.dart';
-import 'package:app_theme/src/dark/theme_custom_dark.dart';
-import 'package:app_theme/src/light/theme_custom_light.dart';
 
 /// A widget that displays an asset in a list item format optimized for desktop devices.
 ///
@@ -30,27 +33,24 @@ class AssetListItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sparklineRepository = RepositoryProvider.of<SparklineRepository>(
+      context,
+    );
+
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       clipBehavior: Clip.antiAlias,
       child: Material(
         color: backgroundColor,
         child: InkWell(
           onTap: () => onTap(assetId),
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 16,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
             child: Row(
               children: [
                 Expanded(
                   child: Container(
-                    constraints: const BoxConstraints(
-                      maxWidth: 200,
-                    ),
+                    constraints: const BoxConstraints(maxWidth: 200),
                     alignment: Alignment.centerLeft,
                     child: AssetItem(
                       assetId: assetId,
@@ -69,20 +69,20 @@ class AssetListItemDesktop extends StatelessWidget {
                       child: TrendPercentageText(
                         percentage: 23,
                         upColor: Theme.of(context).brightness == Brightness.dark
-                            ? Theme.of(context)
-                                .extension<ThemeCustomDark>()!
-                                .increaseColor
-                            : Theme.of(context)
-                                .extension<ThemeCustomLight>()!
-                                .increaseColor,
+                            ? Theme.of(
+                                context,
+                              ).extension<ThemeCustomDark>()!.increaseColor
+                            : Theme.of(
+                                context,
+                              ).extension<ThemeCustomLight>()!.increaseColor,
                         downColor:
                             Theme.of(context).brightness == Brightness.dark
-                                ? Theme.of(context)
-                                    .extension<ThemeCustomDark>()!
-                                    .decreaseColor
-                                : Theme.of(context)
-                                    .extension<ThemeCustomLight>()!
-                                    .decreaseColor,
+                            ? Theme.of(
+                                context,
+                              ).extension<ThemeCustomDark>()!.decreaseColor
+                            : Theme.of(
+                                context,
+                              ).extension<ThemeCustomLight>()!.decreaseColor,
                         value: 50,
                         valueFormatter: (value) =>
                             NumberFormat.currency(symbol: '\$').format(value),
@@ -93,11 +93,12 @@ class AssetListItemDesktop extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: InkWell(
-                    onTap: () => onStatisticsTap?.call(
-                      assetId,
-                      const Duration(days: 7),
+                    onTap: () =>
+                        onStatisticsTap?.call(assetId, const Duration(days: 7)),
+                    child: CoinSparkline(
+                      coinId: assetId,
+                      repository: sparklineRepository,
                     ),
-                    child: CoinSparkline(coinId: assetId.id),
                   ),
                 ),
               ],

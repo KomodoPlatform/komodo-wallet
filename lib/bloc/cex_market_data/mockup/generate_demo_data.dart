@@ -1,22 +1,22 @@
 import 'dart:math';
 
 import 'package:decimal/decimal.dart';
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 
-// similar to generator implementation to allow for const constructor
-final _ohlcvCache = <CexCoinPair, List<Ohlc>>{};
+// Cache for demo price history data
+final _priceHistoryCache = <AssetId, Map<DateTime, double>>{};
 
 /// Generates semi-random transaction data for demo purposes. The transactions
-/// are generated based on the historical OHLCV data for the given coin. The
+/// are generated based on simulated historical price data for the given coin. The
 /// transactions are generated in a way that the overall balance of the user
 /// will increase or decrease based on the given performance mode.
 class DemoDataGenerator {
-  final CexRepository _ohlcRepo;
+  final KomodoDefiSdk _sdk;
   final int randomSeed;
-  final List<CexCoinPair> coinPairs;
+  final List<AssetId> assetIds;
   final Map<PerformanceMode, double> transactionsPerMode;
   final Map<PerformanceMode, double> overallReturn;
   final Map<PerformanceMode, List<double>> buyProbabilities;
@@ -24,16 +24,9 @@ class DemoDataGenerator {
   final double initialBalance;
 
   const DemoDataGenerator(
-    this._ohlcRepo, {
+    this._sdk, {
     this.initialBalance = 1000.0,
-    this.coinPairs = const [
-      CexCoinPair.usdtPrice('KMD'),
-      CexCoinPair.usdtPrice('LTC'),
-      CexCoinPair.usdtPrice('MATIC'),
-      CexCoinPair.usdtPrice('AVAX'),
-      CexCoinPair.usdtPrice('FTM'),
-      CexCoinPair.usdtPrice('ATOM'),
-    ],
+    this.assetIds = const <AssetId>[], // Will be initialized with default list
     this.transactionsPerMode = const {
       PerformanceMode.good: 28,
       PerformanceMode.mediocre: 52,
@@ -57,47 +50,118 @@ class DemoDataGenerator {
     this.randomSeed = 42,
   });
 
+  /// Default asset IDs for demo purposes
+  static final List<AssetId> defaultAssetIds = [
+    AssetId(
+      chainId: AssetChainId(chainId: 1),
+      derivationPath: '',
+      id: 'KMD',
+      name: 'Komodo',
+      subClass: CoinSubClass.smartChain,
+      symbol: AssetSymbol(assetConfigId: 'KMD'),
+    ),
+    AssetId(
+      chainId: AssetChainId(chainId: 2),
+      derivationPath: '',
+      id: 'LTC',
+      name: 'Litecoin',
+      subClass: CoinSubClass.smartChain,
+      symbol: AssetSymbol(assetConfigId: 'LTC'),
+    ),
+    AssetId(
+      chainId: AssetChainId(chainId: 137),
+      derivationPath: '',
+      id: 'MATIC',
+      name: 'Polygon',
+      subClass: CoinSubClass.matic,
+      symbol: AssetSymbol(assetConfigId: 'MATIC'),
+    ),
+    AssetId(
+      chainId: AssetChainId(chainId: 43114),
+      derivationPath: '',
+      id: 'AVAX',
+      name: 'Avalanche',
+      subClass: CoinSubClass.avx20,
+      symbol: AssetSymbol(assetConfigId: 'AVAX'),
+    ),
+    AssetId(
+      chainId: AssetChainId(chainId: 250),
+      derivationPath: '',
+      id: 'FTM',
+      name: 'Fantom',
+      subClass: CoinSubClass.ftm20,
+      symbol: AssetSymbol(assetConfigId: 'FTM'),
+    ),
+    AssetId(
+      chainId: AssetChainId(chainId: 118),
+      derivationPath: '',
+      id: 'ATOM',
+      name: 'Cosmos',
+      subClass: CoinSubClass.tendermint,
+      symbol: AssetSymbol(assetConfigId: 'ATOM'),
+    ),
+  ];
+
   Future<List<Transaction>> generateTransactions(
     String coinId,
     PerformanceMode mode,
   ) async {
-    if (_ohlcvCache.isEmpty) {
-      _ohlcvCache.addAll(await fetchOhlcData());
+    if (_priceHistoryCache.isEmpty) {
+      await fetchPriceHistoryData();
     }
 
-    // Remove segwit suffix for cache key, as the ohlc data from cex providers
-    // does not include the segwit suffix
-    final cacheKey = coinId.replaceAll('-segwit', '');
-    if (!_ohlcvCache.containsKey(CexCoinPair.usdtPrice(cacheKey))) {
+    // Try to match the coinId to one of our asset IDs
+    final actualAssetIds = assetIds.isEmpty ? defaultAssetIds : assetIds;
+    final assetId = actualAssetIds.cast<AssetId?>().firstWhere(
+      (asset) =>
+          asset!.id.toLowerCase() == coinId.toLowerCase() ||
+          asset.symbol.assetConfigId.toLowerCase() == coinId.toLowerCase(),
+      orElse: () => null,
+    );
+
+    if (assetId == null || !_priceHistoryCache.containsKey(assetId)) {
       return [];
     }
-    final ohlcvData = _ohlcvCache[CexCoinPair.usdtPrice(cacheKey)]!;
+
+    final priceHistory = _priceHistoryCache[assetId]!;
+    final priceEntries = priceHistory.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
 
     final numTransactions = transactionsPerMode[mode]!;
     final random = Random(randomSeed);
-    final buyProbalities = buyProbabilities[mode]!;
+    final buyProbabilities = this.buyProbabilities[mode]!;
     final tradeAmounts = tradeAmountFactors[mode]!;
-    double totalBalance = initialBalance / ohlcvData.last.close;
+
+    // Get the initial price for calculations
+    final initialPrice = priceEntries.first.value;
+    final finalPrice = priceEntries.last.value;
+    double totalBalance = initialBalance / initialPrice;
     double targetFinalBalance =
-        (initialBalance * overallReturn[mode]!) / ohlcvData.first.close;
+        (initialBalance * overallReturn[mode]!) / finalPrice;
 
     List<Transaction> transactions = [];
 
     for (int i = 0; i < numTransactions; i++) {
-      final int index = (i * ohlcvData.length ~/ numTransactions)
-          .clamp(0, ohlcvData.length - 1);
-      final Ohlc ohlcv = ohlcvData[index];
+      final int index = (i * priceEntries.length ~/ numTransactions).clamp(
+        0,
+        priceEntries.length - 1,
+      );
+      final priceEntry = priceEntries[index];
 
       final int quarter = (i * 4 ~/ numTransactions).clamp(0, 3);
-      final bool isBuy = random.nextDouble() < buyProbalities[quarter];
+      final bool isBuy = random.nextDouble() < buyProbabilities[quarter];
       final bool isSameDay = random.nextDouble() < tradeAmounts[quarter];
       final double tradeAmountFactor = tradeAmounts[quarter];
 
       final double tradeAmount =
           random.nextDouble() * tradeAmountFactor * totalBalance;
 
-      final transaction =
-          fromTradeAmount(coinId, tradeAmount, isBuy, ohlcv.closeTime);
+      final transaction = fromTradeAmount(
+        coinId,
+        tradeAmount,
+        isBuy,
+        priceEntry.key.millisecondsSinceEpoch,
+      );
       transactions.add(transaction);
 
       if (isSameDay) {
@@ -105,7 +169,7 @@ class DemoDataGenerator {
           coinId,
           -tradeAmount,
           !isBuy,
-          ohlcv.closeTime + 100,
+          priceEntry.key.millisecondsSinceEpoch + 100,
         );
         transactions.add(transaction);
       }
@@ -131,8 +195,9 @@ class DemoDataGenerator {
     double totalBalance,
     List<Transaction> transactions,
   ) {
-    final Decimal adjustmentFactor =
-        Decimal.parse((targetFinalBalance / totalBalance).toString());
+    final Decimal adjustmentFactor = Decimal.parse(
+      (targetFinalBalance / totalBalance).toString(),
+    );
     final adjustedTransactions = <Transaction>[];
     for (var transaction in transactions) {
       final netChange = transaction.balanceChanges.netChange;
@@ -154,33 +219,101 @@ class DemoDataGenerator {
     return adjustedTransactions;
   }
 
-  Future<Map<CexCoinPair, List<Ohlc>>> fetchOhlcData() async {
-    final ohlcvData = <CexCoinPair, List<Ohlc>>{};
-    final supportedCoins = await _ohlcRepo.getCoinList();
-    for (final CexCoinPair coin in coinPairs) {
-      final supportedCoin = supportedCoins.where(
-        (element) => element.id == coin.baseCoinTicker,
-      );
-      if (supportedCoin.isEmpty) {
-        continue;
+  /// Fetches simulated price history data for demo purposes.
+  /// This replaces the legacy CEX repository OHLC data fetching.
+  Future<void> fetchPriceHistoryData() async {
+    final actualAssetIds = assetIds.isEmpty ? defaultAssetIds : assetIds;
+    for (final assetId in actualAssetIds) {
+      try {
+        // Try to fetch real price history from SDK if available
+        final now = DateTime.now();
+        final startDate = now.subtract(const Duration(days: 365));
+
+        // Generate daily intervals for the past year
+        final dates = <DateTime>[];
+        for (
+          var date = startDate;
+          date.isBefore(now);
+          date = date.add(const Duration(days: 1))
+        ) {
+          dates.add(date);
+        }
+
+        Map<DateTime, double> priceHistory;
+
+        try {
+          // Attempt to get real price data from SDK
+          final quoteCurrency = QuoteCurrency.fromString('USDT');
+          if (quoteCurrency != null) {
+            final sdkPriceHistory = await _sdk.marketData.fiatPriceHistory(
+              assetId,
+              dates,
+              quoteCurrency: quoteCurrency,
+            );
+
+            // Convert Decimal to double
+            priceHistory = sdkPriceHistory.map(
+              (key, value) => MapEntry(key, value.toDouble()),
+            );
+          } else {
+            throw Exception('Unable to create USDT quote currency');
+          }
+        } catch (e) {
+          // Fallback: generate simulated price data
+          priceHistory = _generateSimulatedPriceData(
+            startDate: startDate,
+            endDate: now,
+            initialPrice:
+                50.0 +
+                Random(assetId.hashCode).nextDouble() *
+                    100, // Price between $50-$150
+          );
+        }
+
+        _priceHistoryCache[assetId] = priceHistory;
+      } catch (e) {
+        // If all else fails, generate basic simulated data
+        final now = DateTime.now();
+        final startDate = now.subtract(const Duration(days: 365));
+        final priceHistory = _generateSimulatedPriceData(
+          startDate: startDate,
+          endDate: now,
+          initialPrice:
+              10.0 +
+              Random(assetId.hashCode).nextDouble() *
+                  90, // Price between $10-$100
+        );
+        _priceHistoryCache[assetId] = priceHistory;
       }
-
-      const interval = GraphInterval.oneDay;
-      final startAt = DateTime.now().subtract(const Duration(days: 365));
-
-      final data =
-          await _ohlcRepo.getCoinOhlc(coin, interval, startAt: startAt);
-
-      final twoWeeksAgo = DateTime.now().subtract(const Duration(days: 14));
-      data.ohlc.addAll(
-        await _ohlcRepo
-            .getCoinOhlc(coin, GraphInterval.oneHour, startAt: twoWeeksAgo)
-            .then((value) => value.ohlc),
-      );
-
-      ohlcvData[coin] = data.ohlc;
     }
-    return ohlcvData;
+  }
+
+  /// Generates simulated price data for demo purposes
+  Map<DateTime, double> _generateSimulatedPriceData({
+    required DateTime startDate,
+    required DateTime endDate,
+    required double initialPrice,
+  }) {
+    final priceHistory = <DateTime, double>{};
+    final random = Random(randomSeed);
+    var currentPrice = initialPrice;
+
+    for (
+      var date = startDate;
+      date.isBefore(endDate);
+      date = date.add(const Duration(days: 1))
+    ) {
+      // Generate semi-realistic price movements (±5% daily change)
+      final changePercent = (random.nextDouble() - 0.5) * 0.1; // ±5%
+      currentPrice = currentPrice * (1 + changePercent);
+
+      // Ensure price doesn't go below $1
+      currentPrice = currentPrice.clamp(1.0, double.infinity);
+
+      priceHistory[date] = currentPrice;
+    }
+
+    return priceHistory;
   }
 }
 
@@ -188,7 +321,7 @@ Transaction fromTradeAmount(
   String coinId,
   double tradeAmount,
   bool isBuy,
-  int closeTimestamp,
+  int timestampMilliseconds,
 ) {
   const uuid = Uuid();
   final random = Random(42);
@@ -215,7 +348,7 @@ Transaction fromTradeAmount(
       spentByMe: Decimal.parse(isBuy ? tradeAmount.toString() : '0'),
       totalAmount: Decimal.parse(tradeAmount.toString()),
     ),
-    timestamp: DateTime.fromMillisecondsSinceEpoch(closeTimestamp),
+    timestamp: DateTime.fromMillisecondsSinceEpoch(timestampMilliseconds),
     to: const ["address2"],
     txHash: uuid.v4(),
     memo: "memo",
