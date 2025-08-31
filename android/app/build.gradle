@@ -48,7 +48,7 @@ if (flutterVersionName == null) {
 android {
     namespace 'com.komodoplatform.atomicdex'
 
-    compileSdk 35
+    compileSdk 36
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -63,7 +63,7 @@ android {
     defaultConfig {
         applicationId "com.komodoplatform.atomicdex"
         minSdkVersion 28
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 

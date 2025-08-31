@@ -63,8 +63,8 @@ class OrderbookTable extends StatelessWidget {
     final Coin? relCoin = coinsRepository.getCoin(orderbook.rel);
     if (baseCoin == null || relCoin == null) return const SizedBox.shrink();
 
-    final double? baseUsdPrice = baseCoin.usdPrice?.price;
-    final double? relUsdPrice = relCoin.usdPrice?.price;
+    final double? baseUsdPrice = baseCoin.usdPrice?.price?.toDouble();
+    final double? relUsdPrice = relCoin.usdPrice?.price?.toDouble();
     if (baseUsdPrice == null || relUsdPrice == null) {
       return const SizedBox.shrink();
     }

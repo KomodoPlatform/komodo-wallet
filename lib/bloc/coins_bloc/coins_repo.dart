@@ -529,7 +529,7 @@ class CoinsRepo {
   double? getUsdPriceByAmount(String amount, String coinAbbr) {
     final Coin? coin = getCoin(coinAbbr);
     final double? parsedAmount = double.tryParse(amount);
-    final double? usdPrice = coin?.usdPrice?.price;
+    final double? usdPrice = coin?.usdPrice?.price?.toDouble();
 
     if (coin == null || usdPrice == null || parsedAmount == null) {
       return null;
@@ -538,166 +538,42 @@ class CoinsRepo {
   }
 
   Future<Map<String, CexPrice>?> fetchCurrentPrices() async {
-    try {
-      // Try to use the SDK's price manager to get prices for active coins
-      final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
-      // Filter out excluded and testnet assets, as they are not expected
-      // to have valid prices available at any of the providers
-      final validActivatedAssets = activatedAssets
-          .where((asset) => !excludedAssetList.contains(asset.id.id))
-          .where((asset) => !asset.protocol.isTestnet);
-      for (final asset in validActivatedAssets) {
-        try {
-          // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
-          final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
-          if (fiatPrice != null) {
-            // Use configSymbol to lookup for backwards compatibility with the old,
-            // string-based price list (and fallback)
-            Decimal? change24h;
-            try {
-              change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
-            } catch (e) {
-              _log.warning('Failed to get 24h change for ${asset.id.id}: $e');
-              // Continue without 24h change data
-            }
-
-            _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
-              ticker: asset.id.id,
-              price: fiatPrice.toDouble(),
-              lastUpdated: DateTime.now(),
-              change24h: change24h?.toDouble(),
-            );
+    // Try to use the SDK's price manager to get prices for active coins
+    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+    // Filter out excluded and testnet assets, as they are not expected
+    // to have valid prices available at any of the providers
+    final validActivatedAssets = activatedAssets
+        .where((asset) => !excludedAssetList.contains(asset.id.id))
+        .where((asset) => !asset.protocol.isTestnet);
+    for (final asset in validActivatedAssets) {
+      try {
+        // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
+        final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
+        if (fiatPrice != null) {
+          // Use configSymbol to lookup for backwards compatibility with the old,
+          // string-based price list (and fallback)
+          Decimal? change24h;
+          try {
+            change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
+          } catch (e) {
+            _log.warning('Failed to get 24h change for ${asset.id.id}: $e');
+            // Continue without 24h change data
           }
-        } catch (e) {
-          _log.warning('Failed to get price for ${asset.id.id}: $e');
+
+          _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
+            assetId: asset.id,
+            price: fiatPrice,
+            lastUpdated: DateTime.now(),
+            change24h: change24h,
+          );
         }
-      }
-
-      // Still use the backup methods for other coins or if SDK fails
-      final Map<String, CexPrice>? fallbackPrices =
-          await _updateFromMain() ?? await _updateFromFallback();
-
-      if (fallbackPrices != null) {
-        // Merge fallback prices with SDK prices (don't overwrite SDK prices)
-        fallbackPrices.forEach((key, value) {
-          if (!_pricesCache.containsKey(key)) {
-            _pricesCache[key] = value;
-          }
-        });
-      }
-    } catch (e, s) {
-      _log.shout('Error refreshing prices from SDK', e, s);
-
-      // Fallback to the existing methods
-      final Map<String, CexPrice>? prices =
-          await _updateFromMain() ?? await _updateFromFallback();
-
-      if (prices != null) {
-        _pricesCache = prices;
+      } catch (e) {
+        _log.warning('Failed to get price for ${asset.id.id}: $e');
       }
     }
 
     return _pricesCache;
   }
-
-  Future<Map<String, CexPrice>?> _updateFromMain() async {
-    http.Response res;
-    String body;
-    try {
-      res = await http.get(pricesUrlV3);
-      body = res.body;
-    } catch (e, s) {
-      _log.shout('Error updating price from main: $e', e, s);
-      return null;
-    }
-
-    Map<String, dynamic>? json;
-    try {
-      json = jsonDecode(body) as Map<String, dynamic>;
-    } catch (e, s) {
-      _log.shout('Error parsing of update price from main response', e, s);
-    }
-
-    if (json == null) return null;
-    final Map<String, CexPrice> prices = {};
-    json.forEach((String priceTicker, dynamic pricesData) {
-      final pricesJson = pricesData as Map<String, dynamic>? ?? {};
-      prices[priceTicker] = CexPrice(
-        ticker: priceTicker,
-        price: double.tryParse(pricesJson['last_price'] as String? ?? '') ?? 0,
-        lastUpdated: DateTime.fromMillisecondsSinceEpoch(
-          (pricesJson['last_updated_timestamp'] as int? ?? 0) * 1000,
-        ),
-        priceProvider: cexDataProvider(
-          pricesJson['price_provider'] as String? ?? '',
-        ),
-        change24h: double.tryParse(pricesJson['change_24h'] as String? ?? ''),
-        changeProvider: cexDataProvider(
-          pricesJson['change_24h_provider'] as String? ?? '',
-        ),
-        volume24h: double.tryParse(pricesJson['volume24h'] as String? ?? ''),
-        volumeProvider: cexDataProvider(
-          pricesJson['volume_provider'] as String? ?? '',
-        ),
-      );
-    });
-    return prices;
-  }
-
-  Future<Map<String, CexPrice>?> _updateFromFallback() async {
-    final List<String> ids =
-        (await _kdfSdk.assets.getActivatedAssets())
-            .map((c) => c.id.symbol.coinGeckoId ?? '')
-            .toList()
-          ..removeWhere((id) => id.isEmpty);
-    final Uri fallbackUri = Uri.parse(
-      'https://api.coingecko.com/api/v3/simple/price?ids='
-      '${ids.join(',')}&vs_currencies=usd',
-    );
-
-    http.Response res;
-    String body;
-    try {
-      res = await http.get(fallbackUri);
-      body = res.body;
-    } catch (e, s) {
-      _log.shout('Error updating price from fallback', e, s);
-      return null;
-    }
-
-    Map<String, dynamic>? json;
-    try {
-      json = jsonDecode(body) as Map<String, dynamic>?;
-    } catch (e, s) {
-      _log.shout('Error parsing of update price from fallback response', e, s);
-    }
-
-    if (json == null) return null;
-    final Map<String, CexPrice> prices = {};
-
-    for (final MapEntry<String, dynamic> entry in json.entries) {
-      final coingeckoId = entry.key;
-      final pricesData = entry.value as Map<String, dynamic>? ?? {};
-      if (coingeckoId == 'test-coin') continue;
-
-      // Coins with the same coingeckoId supposedly have same usd price
-      // (e.g. KMD == KMD-BEP20)
-      final Iterable<Coin> samePriceCoins = getKnownCoins().where(
-        (coin) => coin.coingeckoId == coingeckoId,
-      );
-
-      for (final Coin coin in samePriceCoins) {
-        prices[coin.id.symbol.configSymbol] = CexPrice(
-          ticker: coin.id.id,
-          price: double.parse(pricesData['usd'].toString()),
-        );
-      }
-    }
-
-    return prices;
-  }
-
-  // updateTrezorBalances removed (TrezorRepo deleted)
 
   /// Updates balances for active coins by querying the SDK
   /// Yields coins that have balance changes
