@@ -66,7 +66,7 @@ class VersionInfoBloc extends Bloc<VersionInfoEvent, VersionInfoState> {
       emit(basicInfo.copyWith(apiCommitHash: apiCommitHash));
       _logger.info(
         'MM2 API version loaded successfully - Version: $apiVersion, '
-        'Commit: $apiCommitHash',
+        'Commit: ${apiCommitHash?.call()}',
       );
     } catch (e, s) {
       _logger.severe('Failed to load MM2 API version', e, s);
