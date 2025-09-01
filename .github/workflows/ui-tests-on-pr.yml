@@ -42,6 +42,8 @@ jobs:
     steps:
       - name: Setup GH Actions
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       # Flutter integration test setup
       - name: Install Chrome and chromedriver

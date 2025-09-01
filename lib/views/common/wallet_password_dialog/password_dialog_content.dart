@@ -60,11 +60,8 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Hidden username field for password manager context
-                  Visibility(
-                    visible: false,
-                    maintainSize: false,
-                    maintainAnimation: false,
-                    maintainState: false,
+                  Offstage(
+                    offstage: true,
                     child: UiTextFormField(
                       initialValue: widget.wallet?.name ?? '',
                       autofillHints: const [AutofillHints.username],
@@ -152,6 +149,8 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
       }
 
       if (mounted) {
+        // Finish autofill context to allow password managers to record usage
+        TextInput.finishAutofillContext(shouldSave: false);
         widget.onSuccess(password);
         setState(() => _inProgress = false);
       }
@@ -263,11 +262,8 @@ class _PasswordDialogContentWithLoadingState
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Hidden username field for password manager context
-                    Visibility(
-                      visible: false,
-                      maintainSize: false,
-                      maintainAnimation: false,
-                      maintainState: false,
+                    Offstage(
+                      offstage: true,
                       child: UiTextFormField(
                         initialValue: widget.wallet?.name ?? '',
                         autofillHints: const [AutofillHints.username],
@@ -370,6 +366,8 @@ class _PasswordDialogContentWithLoadingState
       try {
         final success = await widget.onPasswordValidated(password);
         if (mounted) {
+          // Not saving new credentials here; just closing context
+          TextInput.finishAutofillContext(shouldSave: false);
           widget.onComplete(success);
         }
       } catch (e) {

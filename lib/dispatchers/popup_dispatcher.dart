@@ -8,6 +8,32 @@ import 'package:web_dex/common/screen.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:web_dex/router/state/routing_state.dart';
 
+/// **DEPRECATED**: Use `AppDialog` from `package:web_dex/shared/widgets/app_dialog.dart` instead.
+///
+/// This class is deprecated and will be removed in a future version.
+/// It has been replaced by `AppDialog.show()` which provides the same functionality
+/// using Flutter's built-in dialog system with better performance and maintainability.
+///
+/// Migration example:
+/// ```dart
+/// // OLD (deprecated):
+/// PopupDispatcher(
+///   context: context,
+///   width: 320,
+///   popupContent: MyWidget(),
+/// ).show();
+///
+/// // NEW (recommended):
+/// AppDialog.show(
+///   context: context,
+///   width: 320,
+///   child: MyWidget(),
+/// );
+/// ```
+@Deprecated(
+  'Use AppDialog from package:web_dex/shared/widgets/app_dialog.dart instead. '
+  'This class will be removed in a future version.',
+)
 class PopupDispatcher {
   PopupDispatcher({
     this.context,
@@ -52,7 +78,8 @@ class PopupDispatcher {
       barrierColor: theme.custom.dialogBarrierColor,
       builder: (BuildContext dialogContext) {
         return SimpleDialog(
-          insetPadding: insetPadding ??
+          insetPadding:
+              insetPadding ??
               EdgeInsets.symmetric(
                 horizontal: isMobile ? 16 : 24,
                 vertical: isMobile ? 40 : 24,
@@ -63,7 +90,8 @@ class PopupDispatcher {
                 ? BorderSide(color: borderColor)
                 : BorderSide.none,
           ),
-          contentPadding: contentPadding ??
+          contentPadding:
+              contentPadding ??
               EdgeInsets.symmetric(
                 horizontal: isMobile ? 16 : 30,
                 vertical: isMobile ? 26 : 30,
@@ -73,7 +101,7 @@ class PopupDispatcher {
               width: width,
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: popupContent,
-            )
+            ),
           ],
         );
       },
@@ -86,7 +114,11 @@ class PopupDispatcher {
   void close() {
     _resetBrowserNavigationToDefault();
     if (_currentContext == null) return;
-    if (_isShown) Navigator.of(_currentContext!).pop();
+    if (_isShown) {
+      final navigator = Navigator.of(_currentContext!);
+      // ignore: discarded_futures
+      navigator.maybePop();
+    }
   }
 
   void _setupDismissibleLogic() {

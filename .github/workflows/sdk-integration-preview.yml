@@ -41,13 +41,19 @@ jobs:
 
       - name: Setup GH Actions
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Clone SDK repository
+      - name: Update SDK to specified branch
         shell: bash
         run: |
-          echo "Cloning komodo-defi-sdk-flutter repository..."
-          git clone --depth 1 --branch ${{ inputs.sdk_branch }} https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git sdk
-          echo "SDK cloned to ./sdk directory"
+          echo "Updating SDK submodule to branch ${{ inputs.sdk_branch }}..."
+          cd sdk
+          git fetch origin
+          git checkout ${{ inputs.sdk_branch }}
+          git pull origin ${{ inputs.sdk_branch }}
+          cd ..
+          echo "SDK updated to branch ${{ inputs.sdk_branch }}"
           ls -la sdk/
 
       - name: Update KDF API configuration

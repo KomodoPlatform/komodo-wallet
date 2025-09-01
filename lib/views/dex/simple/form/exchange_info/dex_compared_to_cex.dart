@@ -26,8 +26,8 @@ class DexComparedToCex extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double? baseUsd = base?.usdPrice?.price;
-    final double? relUsd = rel?.usdPrice?.price;
+    final double? baseUsd = base?.usdPrice?.price?.toDouble();
+    final double? relUsd = rel?.usdPrice?.price?.toDouble();
 
     double diff = 0;
     if (baseUsd != null && relUsd != null && rate != null) {
