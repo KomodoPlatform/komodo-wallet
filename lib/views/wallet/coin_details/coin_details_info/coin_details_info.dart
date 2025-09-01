@@ -107,7 +107,7 @@ class _CoinDetailsInfoState extends State<CoinDetailsInfo>
         child: PageLayout(
           padding: const EdgeInsets.fromLTRB(15, 32, 15, 20),
           header: PageHeader(
-            title: widget.coin.name,
+            title: widget.coin.displayName,
             widgetTitle: widget.coin.mode == CoinMode.segwit
                 ? const Padding(
                     padding: EdgeInsets.only(left: 6.0),

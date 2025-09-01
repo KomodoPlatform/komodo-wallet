@@ -88,7 +88,9 @@ Map<String, List<Coin>> removeSingleProtocol(Map<String, List<Coin>> group) {
 }
 
 CoinsByTicker removeTokensWithEmptyOrderbook(
-    CoinsByTicker tokenGroups, List<OrderBookDepth> depths) {
+  CoinsByTicker tokenGroups,
+  List<OrderBookDepth> depths,
+) {
   final CoinsByTicker copy = CoinsByTicker.from(tokenGroups);
 
   copy.removeWhere((key, value) {
@@ -109,21 +111,18 @@ CoinsByTicker removeTokensWithEmptyOrderbook(
 }
 
 CoinsByTicker convertToCoinsByTicker(List<Coin> coinsList) {
-  return coinsList.fold<CoinsByTicker>(
-    {},
-    (previousValue, coin) {
-      final String ticker = abbr2Ticker(coin.abbr);
-      final List<Coin>? coinsWithSameTicker = previousValue[ticker];
+  return coinsList.fold<CoinsByTicker>({}, (previousValue, coin) {
+    final String ticker = abbr2Ticker(coin.abbr);
+    final List<Coin>? coinsWithSameTicker = previousValue[ticker];
 
-      if (coinsWithSameTicker == null) {
-        previousValue[ticker] = [coin];
-      } else if (!isCoinInList(coin, coinsWithSameTicker)) {
-        coinsWithSameTicker.add(coin);
-      }
+    if (coinsWithSameTicker == null) {
+      previousValue[ticker] = [coin];
+    } else if (!isCoinInList(coin, coinsWithSameTicker)) {
+      coinsWithSameTicker.add(coin);
+    }
 
-      return previousValue;
-    },
-  );
+    return previousValue;
+  });
 }
 
 bool isCoinInList(Coin coin, List<Coin> list) {
@@ -136,7 +135,7 @@ Iterable<Coin> filterCoinsByPhrase(Iterable<Coin> coins, String phrase) {
 }
 
 bool compareCoinByPhrase(Coin coin, String phrase) {
-  final String compareName = coin.name.toLowerCase();
+  final String compareName = coin.displayName.toLowerCase();
   final String compareAbbr = abbr2Ticker(coin.abbr).toLowerCase();
   final lowerCasePhrase = phrase.toLowerCase();
 
