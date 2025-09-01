@@ -81,6 +81,9 @@ Future<void> main() async {
             RepositoryProvider(create: (_) => mm2Api),
             RepositoryProvider(create: (_) => coinsRepo),
             RepositoryProvider(create: (_) => walletsRepository),
+            // TODO: Refactor in SDK to avoid use of this global variable.
+            // This is necessary for now for CoinSparkline.
+            RepositoryProvider(create: (_) => sparklineRepository),
           ],
           child: const MyApp(),
         ),

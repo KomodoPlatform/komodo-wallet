@@ -70,7 +70,7 @@ class CoinsState extends Equatable {
 
   /// Gets the 24h price change percentage for a given asset ID
   double? get24hChangeForAsset(AssetId assetId) {
-    return getPriceForAsset(assetId)?.change24h;
+    return getPriceForAsset(assetId)?.change24h?.toDouble();
   }
 
   /// Calculates the USD price for a given amount of a coin
@@ -90,7 +90,7 @@ class CoinsState extends Equatable {
     final Coin? coin = coins[coinAbbr];
     final double? parsedAmount = double.tryParse(amount);
     final CexPrice? cexPrice = prices[coinAbbr.toUpperCase()];
-    final double? usdPrice = cexPrice?.price;
+    final double? usdPrice = cexPrice?.price?.toDouble();
 
     if (coin == null || usdPrice == null || parsedAmount == null) {
       return null;

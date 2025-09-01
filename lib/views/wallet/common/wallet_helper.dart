@@ -26,6 +26,8 @@ import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions
 /// print(result); // Output: 0.014
 /// ```
 /// unit tests: [testGetTotal24Change]
+/// TODO: consider removing or migrating to the SDK. This function is unreferenced
+/// and the unit tests are skipped due to issues mocking the SDK classes/interfaces.
 double? getTotal24Change(Iterable<Coin>? coins, KomodoDefiSdk sdk) {
   double getTotalUsdBalance(Iterable<Coin> coins) {
     return coins.fold(0, (prev, coin) {
@@ -36,7 +38,7 @@ double? getTotal24Change(Iterable<Coin>? coins, KomodoDefiSdk sdk) {
       // embedded in the coin object for now until backup/fallback price
       // providers are copied over to the SDK
       final coinPrice =
-          coin.lastKnownUsdPrice(sdk) ?? coin.usdPrice?.price ?? 0;
+          coin.lastKnownUsdPrice(sdk) ?? coin.usdPrice?.price?.toDouble() ?? 0;
       return prev + balance * coinPrice;
     });
   }
@@ -48,12 +50,13 @@ double? getTotal24Change(Iterable<Coin>? coins, KomodoDefiSdk sdk) {
 
   Rational totalChange = Rational.zero;
   for (Coin coin in coins) {
-    final double? coin24Change = coin.usdPrice?.change24h;
+    final double? coin24Change = coin.usdPrice?.change24h?.toDouble();
     if (coin24Change == null) continue;
 
     final balance = coin.lastKnownBalance(sdk)?.spendable.toDouble() ?? 0;
 
-    final Rational coinFraction = Rational.parse(balance.toString()) *
+    final Rational coinFraction =
+        Rational.parse(balance.toString()) *
         Rational.parse((coin.usdPrice?.price ?? 0).toString()) /
         Rational.parse(totalUsdBalance.toString());
     final coin24ChangeRat = Rational.parse(coin24Change.toString());
