@@ -4,16 +4,21 @@
 # Designed to handle git-based dependencies and work with the GitHub CI workflow
 #
 # Usage:
-#   UPGRADE_ALL_PACKAGES=false TARGET_BRANCH=dev .github/scripts/roll_sdk_packages.sh
+#   .github/scripts/roll_sdk_packages.sh [-a] [-m] [-t <branch>]
 #
-# Parameters:
-#   UPGRADE_ALL_PACKAGES: Set to "true" to upgrade all packages, "false" to only upgrade SDK packages
-#   TARGET_BRANCH: The target branch for PR creation
+# Options:
+#   -a, --upgrade-all         Upgrade all packages (use --major-versions)
+#   -m, --major-sdk-only      Upgrade SDK packages allowing major versions only
+#   -t, --target-branch BR    Target branch for PR creation (default: dev)
+#   -h, --help                Show this help and exit
 #
 # For more details, see `docs/SDK_DEPENDENCY_MANAGEMENT.md`
 
-# Exit on error, but with proper cleanup
-set -e
+# Exit on error, but with proper cleanup (robust shell options)
+set -Eeuo pipefail
+
+# Establish REPO_ROOT early for cleanup safety
+REPO_ROOT="${REPO_ROOT:-$(pwd)}"
 
 # Error handling and cleanup function
 cleanup() {
@@ -23,7 +28,10 @@ cleanup() {
   if [ $exit_code -ne 0 ] && [ $exit_code -ne 100 ]; then
     echo "ERROR: Script failed with exit code $exit_code"
     # Clean up any temporary files
-    find "$REPO_ROOT" -name "*.bak" -type f -delete
+    if [ -n "${REPO_ROOT:-}" ] && [ -d "$REPO_ROOT" ]; then
+      find "$REPO_ROOT" -name "*.bak" -type f -delete || true
+      find "$REPO_ROOT" -name "*.bak_major" -type f -delete || true
+    fi
   fi
   
   exit $exit_code
@@ -51,15 +59,67 @@ if ! command -v flutter &> /dev/null; then
   exit 1
 fi
 
-# Configuration
-# Set to "true" to upgrade all packages, "false" to only upgrade SDK packages
-UPGRADE_ALL_PACKAGES=${UPGRADE_ALL_PACKAGES:-false}
-# Branch to target for PR creation
-TARGET_BRANCH=${TARGET_BRANCH:-"dev"}
+# Configuration defaults (overridden via CLI flags)
+UPGRADE_ALL_PACKAGES=false
+UPGRADE_SDK_MAJOR=false
+TARGET_BRANCH="dev"
+
+# Usage/help printer
+print_usage() {
+  cat <<'USAGE'
+Usage:
+  .github/scripts/roll_sdk_packages.sh [-a] [-m] [-t <branch>]
+
+Options:
+  -a, --upgrade-all         Upgrade all packages (use --major-versions)
+  -m, --major-sdk-only      Upgrade SDK packages allowing major versions only
+  -t, --target-branch BR    Target branch for PR creation (default: dev)
+  -h, --help                Show this help and exit
+USAGE
+}
+
+# Parse CLI arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -a|--upgrade-all|--all)
+      UPGRADE_ALL_PACKAGES=true
+      shift
+      ;;
+    -m|--major-sdk-only)
+      UPGRADE_SDK_MAJOR=true
+      shift
+      ;;
+    -t|--target-branch)
+      if [[ -z "${2:-}" ]]; then
+        log_error "Missing value for $1"
+        print_usage
+        exit 2
+      fi
+      TARGET_BRANCH="$2"
+      shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      log_error "Unknown option: $1"
+      print_usage
+      exit 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 # Get the current date for branch naming and commit messages
 CURRENT_DATE=$(date '+%Y-%m-%d')
-REPO_ROOT=$(pwd)
+# REPO_ROOT already set above
 CHANGES_FILE="$REPO_ROOT/SDK_CHANGELOG.md"
 
 # List of external SDK packages to be updated (from KomodoPlatform/komodo-defi-sdk-flutter.git)
@@ -82,6 +142,8 @@ SDK_PACKAGES=(
   "komodo_ui"
   "komodo_wallet_build_transformer"
   "komodo_wallet_cli"
+  "dragon_charts_flutter"
+  "dragon_logs"
 )
 
 # Extract version information from the pubspec.lock file
@@ -145,25 +207,124 @@ get_package_info_from_lock() {
   fi
 }
 
-# Initialize changes file
-echo "# SDK Package Rolls" > "$CHANGES_FILE"
-echo "" >> "$CHANGES_FILE"
-echo "**Date:** $CURRENT_DATE" >> "$CHANGES_FILE"
-echo "**Target Branch:** $TARGET_BRANCH" >> "$CHANGES_FILE"
-echo "**Upgrade Mode:** $([ "$UPGRADE_ALL_PACKAGES" = "true" ] && echo "All Packages" || echo "SDK Packages Only")" >> "$CHANGES_FILE"
-echo "" >> "$CHANGES_FILE"
-echo "The following SDK packages were rolled to newer versions:" >> "$CHANGES_FILE"
-echo "" >> "$CHANGES_FILE"
+# Determine dependency type for a given package in a pubspec.yaml
+# Returns one of: git|path|hosted|unknown
+get_dependency_type_from_pubspec() {
+  local package_name=$1
+  local pubspec_file=$2
 
-# Find all pubspec.yaml files
+  if ! grep -q "^[[:space:]]*$package_name:" "$pubspec_file"; then
+    echo "unknown"
+    return
+  fi
+
+  # Capture the package declaration line and the following 10 lines
+  local section
+  section=$(awk -v pkg="$package_name" '
+    $0 ~ "^[[:space:]]*"pkg":" { print; c=10; next }
+    c>0 { print; c--; }
+  ' "$pubspec_file")
+
+  if echo "$section" | grep -q "^[[:space:]]*git:"; then
+    echo "git"
+    return
+  fi
+
+  if echo "$section" | grep -q "^[[:space:]]*path:"; then
+    echo "path"
+    return
+  fi
+
+  # Default to hosted if not git or path
+  echo "hosted"
+}
+
+# Update a hosted dependency version inline in pubspec.yaml while preserving formatting
+# This updates only the version value for the specified package, keeping comments and structure intact
+update_hosted_dependency_version_inline() {
+  local package_name=$1
+  local pubspec_file=$2
+  local new_version=$3
+
+  # Find the line number where the package is declared
+  local start_line=$(grep -n "^[[:space:]]*$package_name:" "$pubspec_file" | head -1 | cut -d: -f1)
+  if [ -z "$start_line" ]; then
+    return 0
+  fi
+
+  local start_content=$(sed -n "${start_line}p" "$pubspec_file")
+
+  # Case 1: single-line declaration like: `package_name: ^1.2.3`
+  if echo "$start_content" | grep -q "\\^"; then
+    sed -i.bak -E "${start_line}s/\\^([0-9]+\\.[0-9]+\\.[0-9]+([\\-+][0-9A-Za-z\\.-]+)*)/\\^${new_version}/" "$pubspec_file" || true
+    return 0
+  fi
+
+  # Case 2: multi-line value; find the first non-empty, non-comment line after the declaration
+  local rel_target_line=$(tail -n +$((start_line+1)) "$pubspec_file" | awk '
+    BEGIN { ln=0 }
+    {
+      ln++
+      # Skip empty lines and comments
+      if ($0 ~ /^[[:space:]]*$/) next
+      if ($0 ~ /^[[:space:]]*#/) next
+      print ln
+      exit
+    }')
+
+  if [ -z "$rel_target_line" ]; then
+    return 0
+  fi
+
+  local target_line=$((start_line + rel_target_line))
+  local target_content=$(sed -n "${target_line}p" "$pubspec_file")
+
+  # Only update if the target line contains a caret-version; otherwise leave unchanged
+  if echo "$target_content" | grep -q "\\^"; then
+    sed -i.bak -E "${target_line}s/\\^([0-9]+\\.[0-9]+\\.[0-9]+([\\-+][0-9A-Za-z\\.-]+)*)/\\^${new_version}/" "$pubspec_file" || true
+  fi
+}
+
+# Determine mode text (used in header)
+if [ "$UPGRADE_ALL_PACKAGES" = "true" ]; then
+  MODE_TEXT="All Packages"
+elif [ "$UPGRADE_SDK_MAJOR" = "true" ]; then
+  MODE_TEXT="SDK Packages Only (allow major versions)"
+else
+  MODE_TEXT="SDK Packages Only"
+fi
+
+# Lazily create or update the changes file header only when changes are known
+create_or_update_changes_header() {
+  if [ ! -f "$CHANGES_FILE" ] || ! grep -q "^# SDK Package Rolls" "$CHANGES_FILE"; then
+    {
+      echo "# SDK Package Rolls"
+      echo ""
+      echo "**Date:** $CURRENT_DATE"
+      echo "**Target Branch:** $TARGET_BRANCH"
+      echo "**Upgrade Mode:** $MODE_TEXT"
+      echo ""
+      echo "The following SDK packages were rolled to newer versions:"
+      echo ""
+    } > "$CHANGES_FILE"
+  else
+    sed -i.bak -E "s/^\\*\\*Date:\\*\\*.*/**Date:** $CURRENT_DATE/" "$CHANGES_FILE" || true
+    sed -i.bak -E "s/^\\*\\*Target Branch:\\*\\*.*/**Target Branch:** $TARGET_BRANCH/" "$CHANGES_FILE" || true
+    sed -i.bak -E "s/^\\*\\*Upgrade Mode:\\*\\*.*/**Upgrade Mode:** $MODE_TEXT/" "$CHANGES_FILE" || true
+    rm -f "$CHANGES_FILE.bak"
+    echo "" >> "$CHANGES_FILE"
+  fi
+}
+
+# Find all pubspec.yaml files (robust to whitespace in paths)
 echo "Finding all pubspec.yaml files..."
-PUBSPEC_FILES=$(find "$REPO_ROOT" -name "pubspec.yaml" -not -path "*/build/*" -not -path "*/\.*/*" -not -path "*/ios/*" -not -path "*/android/*")
+mapfile -d '' PUBSPEC_FILES < <(find "$REPO_ROOT" -name "pubspec.yaml" -not -path "*/build/*" -not -path "*/\.*/*" -not -path "*/ios/*" -not -path "*/android/*" -print0)
 
-echo "Found $(echo "$PUBSPEC_FILES" | wc -l) pubspec.yaml files"
+echo "Found ${#PUBSPEC_FILES[@]} pubspec.yaml files"
 
 ROLLS_MADE=false
 
-for PUBSPEC in $PUBSPEC_FILES; do
+for PUBSPEC in "${PUBSPEC_FILES[@]}"; do
   PROJECT_DIR=$(dirname "$PUBSPEC")
   PROJECT_NAME=$(basename "$PROJECT_DIR")
   
@@ -185,21 +346,31 @@ for PUBSPEC in $PUBSPEC_FILES; do
   # Check if any SDK package is listed as a dependency
   CONTAINS_SDK_PACKAGE=false
   SDK_PACKAGES_FOUND=()
+  SDK_HOSTED_PACKAGES=()
+  SDK_GIT_PACKAGES=()
   
   for PACKAGE in "${SDK_PACKAGES[@]}"; do
     # More robust pattern matching that allows for comments and other formatting
     if grep -q "^[[:space:]]*$PACKAGE:" "$PUBSPEC"; then
-      # Additional check: detect if it's a git-based package from the KomodoPlatform repo
-      if grep -A 10 "$PACKAGE:" "$PUBSPEC" | grep -q "github.com/KomodoPlatform/komodo-defi-sdk-flutter"; then
-        echo "Found SDK package $PACKAGE (git-based) in $PROJECT_NAME"
-        CONTAINS_SDK_PACKAGE=true
-        SDK_PACKAGES_FOUND+=("$PACKAGE")
-      else
-        echo "Package $PACKAGE found but may not be from the SDK repository"
-        # Still include it, but log for clarity
-        CONTAINS_SDK_PACKAGE=true
-        SDK_PACKAGES_FOUND+=("$PACKAGE")
-      fi
+      CONTAINS_SDK_PACKAGE=true
+      SDK_PACKAGES_FOUND+=("$PACKAGE")
+      DEP_TYPE=$(get_dependency_type_from_pubspec "$PACKAGE" "$PUBSPEC")
+      case "$DEP_TYPE" in
+        git)
+          echo "Found SDK package $PACKAGE (git-based) in $PROJECT_NAME"
+          SDK_GIT_PACKAGES+=("$PACKAGE")
+          ;;
+        hosted)
+          echo "Found SDK package $PACKAGE (hosted on pub.dev) in $PROJECT_NAME"
+          SDK_HOSTED_PACKAGES+=("$PACKAGE")
+          ;;
+        path)
+          echo "Found SDK package $PACKAGE (local path) in $PROJECT_NAME - skipping version bump"
+          ;;
+        *)
+          echo "Found SDK package $PACKAGE (unknown type) in $PROJECT_NAME"
+          ;;
+      esac
     fi
   done
   
@@ -252,14 +423,43 @@ for PUBSPEC in $PUBSPEC_FILES; do
       fi
     else
       log_info "Running flutter pub upgrade for SDK packages only in $PROJECT_NAME"
-      # Upgrade all SDK packages at once
-      if [ ${#SDK_PACKAGES_FOUND[@]} -gt 0 ]; then
-        log_info "Upgrading packages: ${SDK_PACKAGES_FOUND[*]}"
-        if ! flutter pub upgrade --unlock-transitive ${SDK_PACKAGES_FOUND[@]}; then
-          log_warning "Failed to upgrade packages in $PROJECT_NAME"
+      # Upgrade hosted SDK packages
+      if [ ${#SDK_HOSTED_PACKAGES[@]} -gt 0 ]; then
+        if [ "$UPGRADE_SDK_MAJOR" = true ]; then
+          log_info "Upgrading hosted SDK packages (allowing major): ${SDK_HOSTED_PACKAGES[*]}"
+          # Backup pubspec.yaml to preserve formatting/comments
+          PUBSPEC_BAK_FILE="$PUBSPEC.bak_major"
+          cp "$PUBSPEC" "$PUBSPEC_BAK_FILE"
+          if ! flutter pub upgrade --major-versions "${SDK_HOSTED_PACKAGES[@]}"; then
+            log_warning "Failed to upgrade hosted packages (major) in $PROJECT_NAME"
+            # Restore original pubspec.yaml to retain structure
+            mv -f "$PUBSPEC_BAK_FILE" "$PUBSPEC"
+            rm -f "$PUBSPEC_BAK_FILE" || true
+            PACKAGE_UPDATE_FAILED=true
+          else
+            # Restore original pubspec.yaml to retain structure; later we'll update versions inline
+            mv -f "$PUBSPEC_BAK_FILE" "$PUBSPEC"
+            rm -f "$PUBSPEC_BAK_FILE" || true
+          fi
+        else
+          log_info "Upgrading hosted SDK packages: ${SDK_HOSTED_PACKAGES[*]}"
+          if ! flutter pub upgrade "${SDK_HOSTED_PACKAGES[@]}"; then
+            log_warning "Failed to upgrade hosted packages in $PROJECT_NAME"
+            PACKAGE_UPDATE_FAILED=true
+          fi
+        fi
+      fi
+
+      # Then, upgrade git-based SDK packages to refresh their lock entries
+      if [ ${#SDK_GIT_PACKAGES[@]} -gt 0 ]; then
+        log_info "Upgrading git-based SDK packages: ${SDK_GIT_PACKAGES[*]}"
+        if ! flutter pub upgrade --unlock-transitive "${SDK_GIT_PACKAGES[@]}"; then
+          log_warning "Failed to upgrade git-based packages in $PROJECT_NAME"
           PACKAGE_UPDATE_FAILED=true
         fi
-      else
+      fi
+
+      if [ ${#SDK_HOSTED_PACKAGES[@]} -eq 0 ] && [ ${#SDK_GIT_PACKAGES[@]} -eq 0 ]; then
         log_info "No SDK packages found to upgrade in $PROJECT_NAME"
       fi
     fi
@@ -280,6 +480,18 @@ for PUBSPEC in $PUBSPEC_FILES; do
         fi
         LOCK_AFTER="pubspec.lock"
         
+        # For hosted SDK packages, update pubspec.yaml inline version to match resolved lock version while preserving formatting
+        if [ ${#SDK_HOSTED_PACKAGES[@]} -gt 0 ]; then
+          for HPKG in "${SDK_HOSTED_PACKAGES[@]}"; do
+            RESOLVED_VERSION=$(get_package_info_from_lock "$HPKG" "$LOCK_AFTER" | sed -nE 's/.*version: "([^"]+)".*/\1/p')
+            if [ -n "$RESOLVED_VERSION" ]; then
+              update_hosted_dependency_version_inline "$HPKG" "$PUBSPEC" "$RESOLVED_VERSION" || true
+            fi
+          done
+        fi
+
+        # Prepare changes file header (only now that changes are known)
+        create_or_update_changes_header
         # Add the project to the changes list
         echo "## $PROJECT_NAME" >> "$CHANGES_FILE"
         echo "" >> "$CHANGES_FILE"
@@ -321,6 +533,8 @@ done
 
 # Add the SDK rolls image at the bottom of the changes file
 if [ "$ROLLS_MADE" = true ]; then
+  # Ensure header exists before appending image
+  create_or_update_changes_header
   echo "![SDK Package Rolls](https://raw.githubusercontent.com/KomodoPlatform/komodo-wallet/aaf19e4605c62854ba176bf1ea75d75b3cb48df9/docs/assets/sdk-rolls.png)" >> "$CHANGES_FILE"
   echo "" >> "$CHANGES_FILE"
   
@@ -339,6 +553,9 @@ if [ -n "${GITHUB_OUTPUT}" ]; then
     echo "updates_found=false" >> $GITHUB_OUTPUT
     log_info "No rolls needed."
     # Exit with special code 100 to indicate no changes needed (not a failure)
+    # Ensure any temporary backups are removed even when no changes are detected
+    find "$REPO_ROOT" -name "*.bak" -type f -delete || true
+    find "$REPO_ROOT" -name "*.bak_major" -type f -delete || true
     exit 100
   fi
 else
@@ -349,6 +566,9 @@ else
   else
     log_info "No rolls needed."
     # Exit with special code 100 to indicate no changes needed (not a failure)
+    # Ensure any temporary backups are removed even when no changes are detected
+    find "$REPO_ROOT" -name "*.bak" -type f -delete || true
+    find "$REPO_ROOT" -name "*.bak_major" -type f -delete || true
     exit 100
   fi
 fi

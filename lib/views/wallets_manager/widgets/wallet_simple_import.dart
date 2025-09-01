@@ -15,6 +15,7 @@ import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
@@ -31,6 +32,7 @@ class WalletSimpleImport extends StatefulWidget {
     required String name,
     required String password,
     required WalletConfig walletConfig,
+    required bool rememberMe,
   })
   onImport;
 
@@ -58,6 +60,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _inProgress = false;
   bool _allowCustomSeed = false;
   bool _isHdMode = false;
+  bool _rememberMe = false;
 
   bool get _isButtonEnabled {
     final isFormValid = _refreshFormValidationState();
@@ -179,15 +182,30 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       case WalletSimpleImportSteps.nameAndSeed:
         return _buildNameAndSeed();
       case WalletSimpleImportSteps.password:
-        return CreationPasswordFields(
+        return _buildPasswordStep();
+    }
+  }
+
+  Widget _buildPasswordStep() {
+    return Column(
+      children: [
+        CreationPasswordFields(
           passwordController: _passwordController,
           onFieldSubmitted: !_isButtonEnabled
               ? null
               : (text) {
                   _onImport();
                 },
-        );
-    }
+        ),
+        const SizedBox(height: 20),
+        QuickLoginSwitch(
+          value: _rememberMe,
+          onChanged: (value) {
+            setState(() => _rememberMe = value);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildImportFileButton() {
@@ -332,6 +350,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         name: _nameController.text.trim(),
         password: _passwordController.text,
         walletConfig: config,
+        rememberMe: _rememberMe,
       );
     });
   }
@@ -370,6 +389,8 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       MnemonicFailedReason.invalidChecksum =>
         LocaleKeys.mnemonicInvalidChecksumError.tr(),
       MnemonicFailedReason.invalidLength =>
+        // TODO: Specify the valid lengths since not all lengths between 12 and
+        // 24 are valid
         LocaleKeys.mnemonicInvalidLengthError.tr(args: ['12', '24']),
     };
   }

@@ -32,6 +32,7 @@ class GeneralSettings extends StatelessWidget {
         const SizedBox(height: 25),
         const HiddenWithoutWallet(
           isHiddenForHw: true,
+          isHiddenElse: false,
           child: SettingsManageWeakPasswords(),
         ),
         const SizedBox(height: 25),

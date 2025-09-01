@@ -128,6 +128,9 @@ abstract class  LocaleKeys {
   static const walletCreationFormatPasswordError = 'walletCreationFormatPasswordError';
   static const walletCreationConfirmPasswordError = 'walletCreationConfirmPasswordError';
   static const incorrectPassword = 'incorrectPassword';
+  static const oneClickLogin = 'oneClickLogin';
+  static const quickLoginTooltip = 'quickLoginTooltip';
+  static const quickLoginSubtitle = 'quickLoginSubtitle';
   static const importSeedEnterSeedPhraseHint = 'importSeedEnterSeedPhraseHint';
   static const passphraseCheckingTitle = 'passphraseCheckingTitle';
   static const passphraseCheckingDescription = 'passphraseCheckingDescription';

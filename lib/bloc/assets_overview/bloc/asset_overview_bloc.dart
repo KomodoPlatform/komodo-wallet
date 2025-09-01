@@ -48,11 +48,8 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
         event.walletId,
       );
 
-      final totalInvestment =
-          await _investmentRepository.calculateTotalInvestment(
-        event.walletId,
-        [event.coin],
-      );
+      final totalInvestment = await _investmentRepository
+          .calculateTotalInvestment(event.walletId, [event.coin]);
 
       final profitAmount = profitLosses.lastOrNull?.profitLoss ?? 0.0;
       // The percent which the user has gained or lost on their investment
@@ -108,18 +105,16 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
             'USDT',
             event.walletId,
           );
-        } catch (e) {
+        } catch (e, s) {
+          _log.shout('Failed to fetch profit/loss for ${coin.id.id}', e, s);
           return Future.value(<ProfitLoss>[]);
         }
       });
 
       final profitLosses = await Future.wait(profitLossesFutures);
 
-      final totalInvestment =
-          await _investmentRepository.calculateTotalInvestment(
-        event.walletId,
-        event.coins,
-      );
+      final totalInvestment = await _investmentRepository
+          .calculateTotalInvestment(event.walletId, event.coins);
 
       final profitAmount = profitLosses.fold(0.0, (sum, item) {
         return sum + (item.lastOrNull?.profitLoss ?? 0.0);
@@ -128,8 +123,10 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
       final double portfolioInvestmentReturnPercentage =
           _calculateInvestmentReturnPercentage(profitAmount, totalInvestment);
       // Total profit / total purchase amount
-      final assetPortionPercentages =
-          _calculateAssetPortionPercentages(profitLosses, profitAmount);
+      final assetPortionPercentages = _calculateAssetPortionPercentages(
+        profitLosses,
+        profitAmount,
+      );
 
       emit(
         PortfolioAssetsOverviewLoadSuccess(
@@ -164,20 +161,12 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
     AssetOverviewSubscriptionRequested event,
     Emitter<AssetOverviewState> emit,
   ) async {
-    add(
-      AssetOverviewLoadRequested(
-        coin: event.coin,
-        walletId: event.walletId,
-      ),
-    );
+    add(AssetOverviewLoadRequested(coin: event.coin, walletId: event.walletId));
 
     _updateTimer?.cancel();
     _updateTimer = Timer.periodic(event.updateFrequency, (_) {
       add(
-        AssetOverviewLoadRequested(
-          coin: event.coin,
-          walletId: event.walletId,
-        ),
+        AssetOverviewLoadRequested(coin: event.coin, walletId: event.walletId),
       );
     });
   }

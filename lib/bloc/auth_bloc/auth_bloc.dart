@@ -24,7 +24,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   /// Handles [AuthBlocEvent]s and emits [AuthBlocState]s.
   /// [_kdfSdk] is an instance of [KomodoDefiSdk] used for authentication.
   AuthBloc(this._kdfSdk, this._walletsRepository, this._settingsRepository)
-      : super(AuthBlocState.initial()) {
+    : super(AuthBlocState.initial()) {
     on<AuthModeChanged>(_onAuthChanged);
     on<AuthStateClearRequested>(_onClearState);
     on<AuthSignOutRequested>(_onLogout);
@@ -64,9 +64,16 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   ) async {
     _log.info('Logging out from a wallet');
     emit(AuthBlocState.loading());
-    await _kdfSdk.auth.signOut();
-    await _authChangesSubscription?.cancel();
-    emit(AuthBlocState.initial());
+    try {
+      await _kdfSdk.auth.signOut();
+    } catch (e, s) {
+      // Do not crash the app on sign-out errors (e.g., KDF not stopping in time).
+      // Log and continue to clear local auth state so UI can recover.
+      _log.shout('Error during sign out, proceeding to reset state', e, s);
+    } finally {
+      await _authChangesSubscription?.cancel();
+      emit(AuthBlocState.initial());
+    }
   }
 
   Future<void> _onLogIn(
@@ -342,8 +349,9 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   void _listenToAuthStateChanges() {
     _authChangesSubscription?.cancel();
     _authChangesSubscription = _kdfSdk.auth.watchCurrentUser().listen((user) {
-      final AuthorizeMode event =
-          user != null ? AuthorizeMode.logIn : AuthorizeMode.noLogin;
+      final AuthorizeMode event = user != null
+          ? AuthorizeMode.logIn
+          : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));
     });
   }

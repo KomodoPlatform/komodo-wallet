@@ -10,6 +10,7 @@ import 'package:web_dex/model/wallets_manager_models.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
@@ -26,7 +27,9 @@ class WalletCreation extends StatefulWidget {
     required String name,
     required String password,
     WalletType? walletType,
-  }) onCreate;
+    required bool rememberMe,
+  })
+  onCreate;
   final void Function() onCancel;
 
   @override
@@ -42,6 +45,7 @@ class _WalletCreationState extends State<WalletCreation> {
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
   bool _isHdMode = true;
+  bool _rememberMe = false;
 
   late final WalletsRepository _walletsRepository;
 
@@ -165,6 +169,14 @@ class _WalletCreationState extends State<WalletCreation> {
             setState(() => _isHdMode = value);
           },
         ),
+        const SizedBox(height: 20),
+        QuickLoginSwitch(
+          key: const Key('checkbox-one-click-login-signup'),
+          value: _rememberMe,
+          onChanged: (value) {
+            setState(() => _rememberMe = value);
+          },
+        ),
       ],
     );
   }
@@ -192,17 +204,21 @@ class _WalletCreationState extends State<WalletCreation> {
     setState(() => _inProgress = true);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // Complete autofill session so password managers can save new credentials
+      TextInput.finishAutofillContext(shouldSave: true);
       widget.onCreate(
         name: _nameController.text.trim(),
         password: _passwordController.text,
         walletType: _isHdMode ? WalletType.hdwallet : WalletType.iguana,
+        rememberMe: _rememberMe,
       );
     });
   }
 
   bool get _isCreateButtonEnabled {
-    final nameError =
-        _walletsRepository.validateWalletName(_nameController.text);
+    final nameError = _walletsRepository.validateWalletName(
+      _nameController.text,
+    );
     final isNameValid = nameError == null;
     return _eulaAndTosChecked && !_inProgress && isNameValid;
   }
