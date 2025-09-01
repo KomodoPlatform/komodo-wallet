@@ -1,9 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/feedback_form/feedback_form_bloc.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/services/feedback/feedback_models.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/views/support/missing_coins_dialog.dart';
