@@ -1,0 +1,37 @@
+name: Build Linux Dekstop in Docker
+# Note: This workflow almost entirely mirrors the existing Jenkins Pipeline.
+
+on:
+  pull_request:
+    branches:
+      [
+        dev,
+        main,
+        release/*,
+        hotfix/*,
+        bugfix/*,
+        feature/*,
+        chore/*,
+        build/*,
+        ci/*,
+      ]
+    paths:
+      - ".docker/**"
+      - "linux/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+  workflow_dispatch:
+
+jobs:
+  build-linux-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Linux Desktop
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x .docker/build.sh
+          sh .docker/build.sh linux release

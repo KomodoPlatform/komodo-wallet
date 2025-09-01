@@ -1,20 +1,21 @@
 import 'package:dragon_charts_flutter/dragon_charts_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
+import 'package:komodo_cex_market_data/komodo_cex_market_data.dart'
+    show SparklineRepository;
+import 'package:komodo_defi_types/komodo_defi_types.dart' show AssetId;
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class CoinSparkline extends StatelessWidget {
-  final String coinId;
-  final SparklineRepository repository = sparklineRepository;
+  const CoinSparkline({required this.coinId, required this.repository});
 
-  CoinSparkline({required this.coinId});
+  final AssetId coinId;
+  final SparklineRepository repository;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<double>?>(
-      future: repository.fetchSparkline(abbr2Ticker(coinId)),
+      future: repository.fetchSparkline(coinId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.hasError) {

@@ -16,6 +16,17 @@ fi
 
 echo "Building with target: $BUILD_TARGET, mode: $BUILD_MODE"
 
+# Ensure submodule is initialized and pinned to the recorded commit
+if command -v git >/dev/null 2>&1; then
+    echo "Ensuring SDK submodule is initialized and pinned..."
+    # Keep local submodule config in sync with .gitmodules (e.g., update=checkout)
+    git submodule sync --recursive || true
+    # Initialize and checkout recorded commits (pinned)
+    git submodule update --init --recursive --checkout || true
+    # Enable on-demand fetch for submodules (helps when switching branches)
+    git config fetch.recurseSubmodules on-demand || true
+fi
+
 if [ "$(uname)" = "Darwin" ]; then
     PLATFORM_FLAG="--platform linux/amd64"
 else

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/model/coin.dart';
 
@@ -28,7 +29,6 @@ import 'package:web_dex/model/coin.dart';
 /// ```
 /// unit tests: [get_fiat_amount_tests]
 double getFiatAmount(Coin coin, Rational amount) {
-  final double usdPrice = coin.usdPrice?.price ?? 0.00;
-  final Rational usdPriceRational = Rational.parse(usdPrice.toString());
-  return (amount * usdPriceRational).toDouble();
+  final Decimal usdPrice = coin.usdPrice?.price ?? Decimal.zero;
+  return (amount * usdPrice.toRational()).toDouble();
 }

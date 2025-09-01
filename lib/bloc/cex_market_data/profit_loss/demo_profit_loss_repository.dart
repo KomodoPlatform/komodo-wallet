@@ -1,4 +1,3 @@
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/generator.dart';
@@ -12,7 +11,6 @@ class MockProfitLossRepository extends ProfitLossRepository {
   MockProfitLossRepository({
     required this.performanceMode,
     required super.transactionHistoryRepo,
-    required super.cexRepository,
     required super.profitLossCacheProvider,
     required super.profitLossCalculator,
     required super.sdk,
@@ -24,21 +22,15 @@ class MockProfitLossRepository extends ProfitLossRepository {
     String cacheTableName = 'mock_profit_loss',
   }) {
     return MockProfitLossRepository(
-      profitLossCacheProvider:
-          HiveLazyBoxProvider<String, ProfitLossCache>(name: cacheTableName),
-      cexRepository: BinanceRepository(
-        binanceProvider: const BinanceProvider(),
+      profitLossCacheProvider: HiveLazyBoxProvider<String, ProfitLossCache>(
+        name: cacheTableName,
       ),
       performanceMode: performanceMode,
       transactionHistoryRepo: MockTransactionHistoryRepo(
         performanceMode: performanceMode,
-        demoDataGenerator: DemoDataCache.withDefaults(),
+        demoDataGenerator: DemoDataCache.withDefaults(sdk),
       ),
-      profitLossCalculator: RealisedProfitLossCalculator(
-        BinanceRepository(
-          binanceProvider: const BinanceProvider(),
-        ),
-      ),
+      profitLossCalculator: RealisedProfitLossCalculator(sdk),
       sdk: sdk,
     );
   }

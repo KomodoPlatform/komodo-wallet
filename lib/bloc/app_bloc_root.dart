@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,6 +50,7 @@ import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_repository.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
+import 'package:web_dex/bloc/version_info/version_info_bloc.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/blocs/orderbook_bloc.dart';
@@ -121,13 +121,12 @@ class AppBlocRoot extends StatelessWidget {
     final transactionsRepo = performanceMode != null
         ? MockTransactionHistoryRepo(
             performanceMode: performanceMode,
-            demoDataGenerator: DemoDataCache.withDefaults(),
+            demoDataGenerator: DemoDataCache.withDefaults(komodoDefiSdk),
           )
         : SdkTransactionHistoryRepository(sdk: komodoDefiSdk);
 
     final profitLossRepo = ProfitLossRepository.withDefaults(
       transactionHistoryRepo: transactionsRepo,
-      cexRepository: binanceRepository,
       // Returns real data if performanceMode is null. Consider changing the
       // other repositories to use this pattern.
       demoMode: performanceMode,
@@ -136,7 +135,6 @@ class AppBlocRoot extends StatelessWidget {
 
     final portfolioGrowthRepo = PortfolioGrowthRepository.withDefaults(
       transactionHistoryRepo: transactionsRepo,
-      cexRepository: binanceRepository,
       demoMode: performanceMode,
       coinsRepository: coinsRepository,
       sdk: komodoDefiSdk,
@@ -187,13 +185,13 @@ class AppBlocRoot extends StatelessWidget {
                 CoinsBloc(komodoDefiSdk, coinsRepository)..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(
-            create: (context) =>
-                PriceChartBloc(binanceRepository, komodoDefiSdk)..add(
-                  const PriceChartStarted(
-                    symbols: ['BTC'],
-                    period: Duration(days: 30),
-                  ),
+            create: (context) => PriceChartBloc(komodoDefiSdk)
+              ..add(
+                const PriceChartStarted(
+                  symbols: ['BTC'],
+                  period: Duration(days: 30),
                 ),
+              ),
           ),
           BlocProvider<AssetOverviewBloc>(
             create: (context) => AssetOverviewBloc(
@@ -290,6 +288,13 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider<FaucetBloc>(
             create: (context) =>
                 FaucetBloc(kdfSdk: context.read<KomodoDefiSdk>()),
+          ),
+          BlocProvider<VersionInfoBloc>(
+            lazy: false,
+            create: (context) =>
+                VersionInfoBloc(mm2Api: mm2Api, komodoDefiSdk: komodoDefiSdk)
+                  ..add(const LoadVersionInfo())
+                  ..add(const StartPeriodicPolling()),
           ),
           BlocProvider<PlatformBloc>(
             lazy: false,
