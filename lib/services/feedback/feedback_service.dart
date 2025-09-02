@@ -11,6 +11,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 import 'package:web_dex/app_config/app_config.dart';
 
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -542,7 +543,21 @@ extension BuildContextShowFeedback on BuildContext {
       // https://github.com/ueman/feedback/issues/322#issuecomment-2384060812
       await Future.delayed(Duration(milliseconds: 500));
       try {
-        final success = await feedbackService.handleFeedback(feedback);
+        // If current UI is marked screenshot-sensitive, replace screenshot with
+        // a minimal transparent PNG to avoid leaking secrets.
+        final bool sensitive = (ScreenshotSensitivity.maybeOf(this)?.isSensitive ?? false);
+        final UserFeedback sanitized = sensitive
+            ? UserFeedback(
+                text: feedback.text,
+                extra: feedback.extra,
+                // 1x1 transparent PNG
+                screenshot: Uint8List.fromList(const <int>[
+                  137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,6,0,0,0,31,21,196,137,0,0,0,10,73,68,65,84,120,156,99,96,0,0,0,2,0,1,226,33,185,120,0,0,0,0,73,69,78,68,174,66,96,130
+                ]),
+              )
+            : feedback;
+
+        final success = await feedbackService.handleFeedback(sanitized);
 
         if (success) {
           // Close the feedback dialog
