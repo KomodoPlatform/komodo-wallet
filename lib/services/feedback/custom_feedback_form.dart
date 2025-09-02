@@ -169,7 +169,7 @@ class _FeedbackTypeDropdown extends StatelessWidget {
     return DropdownButtonFormField<FeedbackType>(
       autofocus: true,
       isExpanded: true,
-      initialValue: selected,
+      value: selected,
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -241,7 +241,7 @@ class _ContactRow extends StatelessWidget {
           width: 130,
           child: DropdownButtonFormField<ContactMethod>(
             isExpanded: true,
-            initialValue: selectedMethod,
+            value: selectedMethod,
             hint: Text(LocaleKeys.feedbackFormSelectContactMethod.tr()),
             decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -270,7 +270,12 @@ class _ContactRow extends StatelessWidget {
             maxLength: contactDetailsMaxLength,
             maxLengthEnforcement: MaxLengthEnforcement.enforced,
             hintText: _getContactHint(selectedMethod).tr(),
-            errorText: contactError,
+            // Suppress error text when the contact row is disabled due to opt-out
+            errorText: (isLoading)
+                ? null
+                : (context.read<FeedbackFormBloc>().state.isContactRowDisabled
+                    ? null
+                    : contactError),
             validationMode: InputValidationMode.eager,
             onChanged: (value) => context.read<FeedbackFormBloc>().add(
               FeedbackFormContactDetailsChanged(value ?? ''),
