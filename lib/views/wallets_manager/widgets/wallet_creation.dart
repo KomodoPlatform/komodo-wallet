@@ -13,6 +13,7 @@ import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletCreation extends StatefulWidget {
   const WalletCreation({
@@ -91,7 +92,7 @@ class _WalletCreationState extends State<WalletCreation> {
         }
       },
       child: AutofillGroup(
-        child: Form(
+        child: ScreenshotSensitive(child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -136,7 +137,7 @@ class _WalletCreationState extends State<WalletCreation> {
               ),
             ],
           ),
-        ),
+        )),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:web_dex/bloc/bitrefill/bloc/bitrefill_bloc.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_button_view.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 /// A button that opens the provided url in an embedded InAppWebview widget.
 /// This widget uses the flutter_inappwebview package to open the url using
@@ -110,12 +111,14 @@ class BitrefillInAppWebviewButtonState
           content: SizedBox(
             width: width,
             height: height,
-            child: InAppWebView(
-              key: const Key('bitrefill-inappwebview'),
-              initialUrlRequest: _createUrlRequest(),
-              initialSettings: settings,
-              onWebViewCreated: _onCreated,
-              onConsoleMessage: _onConsoleMessage,
+            child: ScreenshotSensitive(
+              child: InAppWebView(
+                key: const Key('bitrefill-inappwebview'),
+                initialUrlRequest: _createUrlRequest(),
+                initialSettings: settings,
+                onWebViewCreated: _onCreated,
+                onConsoleMessage: _onConsoleMessage,
+              ),
             ),
           ),
           actions: <Widget>[
@@ -143,12 +146,14 @@ class BitrefillInAppWebviewButtonState
               elevation: 0,
             ),
             body: SafeArea(
-              child: InAppWebView(
-                key: const Key('bitrefill-inappwebview'),
-                initialUrlRequest: _createUrlRequest(),
-                initialSettings: settings,
-                onWebViewCreated: _onCreated,
-                onConsoleMessage: _onConsoleMessage,
+              child: ScreenshotSensitive(
+                child: InAppWebView(
+                  key: const Key('bitrefill-inappwebview'),
+                  initialUrlRequest: _createUrlRequest(),
+                  initialSettings: settings,
+                  onWebViewCreated: _onCreated,
+                  onConsoleMessage: _onConsoleMessage,
+                ),
               ),
             ),
           );

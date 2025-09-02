@@ -16,6 +16,7 @@ import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletFileData {
   const WalletFileData({required this.content, required this.name});
@@ -93,7 +94,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ScreenshotSensitive(child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
@@ -210,7 +211,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
           ),
         ),
       ],
-    );
+    ));
   }
 
   @override

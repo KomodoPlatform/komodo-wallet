@@ -30,6 +30,7 @@ import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/sdk/widgets/window_close_handler.dart';
 import 'package:web_dex/services/feedback/app_feedback_wrapper.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
@@ -137,6 +138,7 @@ class MyApp extends StatelessWidget {
     final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
 
+    final sensitivityController = ScreenshotSensitivityController();
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
@@ -154,9 +156,12 @@ class MyApp extends StatelessWidget {
       child: AppFeedbackWrapper(
         child: AnalyticsLifecycleHandler(
           child: WindowCloseHandler(
-            child: app_bloc_root.AppBlocRoot(
-              storedPrefs: _storedSettings!,
-              komodoDefiSdk: komodoDefiSdk,
+            child: ScreenshotSensitivity(
+              controller: sensitivityController,
+              child: app_bloc_root.AppBlocRoot(
+                storedPrefs: _storedSettings!,
+                komodoDefiSdk: komodoDefiSdk,
+              ),
             ),
           ),
         ),
