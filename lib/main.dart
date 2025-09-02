@@ -62,7 +62,11 @@ Future<void> main() async {
     // Sparkline is dependent on Hive initialization, so we pass it on to the
     // bootstrapper here
     final sparklineRepository = SparklineRepository.defaultInstance();
-    await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api, sparklineRepository);
+    await AppBootstrapper.instance.ensureInitialized(
+      komodoDefiSdk,
+      mm2Api,
+      sparklineRepository,
+    );
 
     final coinsRepo = CoinsRepo(kdfSdk: komodoDefiSdk, mm2: mm2);
     final walletsRepository = WalletsRepository(
@@ -80,11 +84,11 @@ Future<void> main() async {
         path: '$assetsPath/translations',
         child: MultiRepositoryProvider(
           providers: [
-            RepositoryProvider(create: (_) => komodoDefiSdk),
-            RepositoryProvider(create: (_) => mm2Api),
-            RepositoryProvider(create: (_) => coinsRepo),
-            RepositoryProvider(create: (_) => walletsRepository),
-            RepositoryProvider(create: (_) => sparklineRepository),
+            RepositoryProvider.value(value: komodoDefiSdk),
+            RepositoryProvider.value(value: mm2Api),
+            RepositoryProvider.value(value: coinsRepo),
+            RepositoryProvider.value(value: walletsRepository),
+            RepositoryProvider.value(value: sparklineRepository),
           ],
           child: const MyApp(),
         ),

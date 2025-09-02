@@ -1,10 +1,11 @@
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart' show KomodoDefiSdk;
 import 'package:komodo_defi_types/komodo_defi_types.dart'
     show PubkeyInfo, AssetPubkeys;
-import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_ui/komodo_ui.dart' show Debouncer, SourceAddressField;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
@@ -79,6 +80,12 @@ class FiatInputsState extends State<FiatInputs> {
   void didUpdateWidget(FiatInputs oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // Reset _hasUserInput flag when asset or fiat currency changes
+    if (oldWidget.selectedAsset != widget.selectedAsset ||
+        oldWidget.initialFiat != widget.initialFiat) {
+      _hasUserInput = false;
+    }
+
     final Decimal? newFiatAmount = widget.initialFiatAmount;
 
     // Convert the current text to Decimal for comparison
@@ -115,6 +122,8 @@ class FiatInputsState extends State<FiatInputs> {
     _debouncer.run(() {
       if (mounted) {
         widget.onFiatAmountUpdate(newValue);
+        // Reset flag after API call to allow future bloc state updates
+        _hasUserInput = false;
       }
     });
   }
