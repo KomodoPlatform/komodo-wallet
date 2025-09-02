@@ -61,16 +61,33 @@ class CustomFeedbackForm extends StatelessWidget {
 
                         const SizedBox(height: 8),
                         _SectionTitle(
-                          title:
-                              state.feedbackType == FeedbackType.support ||
-                                  state.feedbackType ==
-                                      FeedbackType.missingCoins
+                          title: state.isContactRequired
                               ? LocaleKeys.feedbackFormContactRequired.tr()
                               : LocaleKeys.feedbackFormContactOptional.tr(),
                         ),
                         const SizedBox(height: 4),
+                        if (state.isContactOptOutVisible)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              value: state.contactOptOut,
+                              onChanged: isLoading
+                                  ? null
+                                  : (checked) =>
+                                        context.read<FeedbackFormBloc>().add(
+                                          FeedbackFormContactOptOutChanged(
+                                            checked ?? false,
+                                          ),
+                                        ),
+                              title: Text(
+                                LocaleKeys.feedbackFormContactOptOut.tr(),
+                              ),
+                            ),
+                          ),
                         _ContactRow(
-                          isLoading: isLoading,
+                          isLoading: state.isContactRowDisabled,
                           selectedMethod: state.contactMethod,
                           contactError: state.contactDetailsError,
                         ),

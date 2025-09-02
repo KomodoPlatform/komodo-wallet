@@ -347,6 +347,7 @@ abstract class LocaleKeys {
   static const feedbackFormTelegramHint = 'feedbackFormTelegramHint';
   static const feedbackFormEmailHint = 'feedbackFormEmailHint';
   static const feedbackFormContactHint = 'feedbackFormContactHint';
+  static const feedbackFormContactOptOut = 'feedbackFormContactOptOut';
   static const email = 'email';
   static const emailValidatorError = 'emailValidatorError';
   static const contactRequiredError = 'contactRequiredError';
