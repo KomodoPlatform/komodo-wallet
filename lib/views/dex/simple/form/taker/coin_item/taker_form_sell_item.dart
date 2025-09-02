@@ -50,6 +50,8 @@ class _SellHeader extends StatelessWidget {
       actions: [
         Flexible(child: _AvailableGroup()),
         const SizedBox(width: 8),
+        _ExactButton(),
+        const SizedBox(width: 3),
         _MaxButton(),
         const SizedBox(width: 3),
         _HalfButton(),
@@ -83,5 +85,15 @@ class _MaxButton extends DexSmallButton {
   _MaxButton()
       : super(LocaleKeys.max.tr(), (context) {
           context.read<TakerBloc>().add(TakerAmountButtonClick(1));
+        });
+}
+
+class _ExactButton extends DexSmallButton {
+  _ExactButton()
+      : super(LocaleKeys.exact.tr(), (context) {
+          final state = context.read<TakerBloc>().state;
+          final order = state.selectedOrder;
+          if (order == null) return;
+          context.read<TakerBloc>().add(TakerSetSellAmount(order.maxVolume));
         });
 }
