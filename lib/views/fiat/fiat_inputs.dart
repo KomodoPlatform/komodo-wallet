@@ -58,17 +58,20 @@ class FiatInputs extends StatefulWidget {
 
 class FiatInputsState extends State<FiatInputs> {
   TextEditingController fiatController = TextEditingController();
+  late final Debouncer _debouncer;
+  bool _hasUserInput = false;
 
   @override
   void dispose() {
     fiatController.dispose();
-
+    _debouncer.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _debouncer = Debouncer(duration: const Duration(milliseconds: 300));
     fiatController.text = widget.initialFiatAmount?.toString() ?? '';
   }
 
@@ -82,8 +85,8 @@ class FiatInputsState extends State<FiatInputs> {
     final Decimal currentFiatAmount =
         Decimal.tryParse(fiatController.text) ?? Decimal.zero;
 
-    // Compare using Decimal values
-    if (newFiatAmount != currentFiatAmount) {
+    // Only update if user hasn't made changes or if amounts are different
+    if (!_hasUserInput && newFiatAmount != currentFiatAmount) {
       final newFiatAmountText = newFiatAmount?.toString() ?? '';
       fiatController
         ..text = newFiatAmountText
@@ -106,7 +109,14 @@ class FiatInputsState extends State<FiatInputs> {
   }
 
   void fiatAmountChanged(String? newValue) {
-    widget.onFiatAmountUpdate(newValue);
+    // track if user has made inputs to avoid overwriting them
+    // with stale bloc state updates (e.g. race condition)
+    _hasUserInput = true;
+    _debouncer.run(() {
+      if (mounted) {
+        widget.onFiatAmountUpdate(newValue);
+      }
+    });
   }
 
   @override
