@@ -468,6 +468,7 @@
   "nothingFound": "Nothing found",
   "half": "Half",
   "max": "Max",
+  "exact": "Exact",
   "reactivating": "Reactivating",
   "weFailedCoinActivate": "We failed to activate {} :(",
   "failedActivate": "Failed to activate",

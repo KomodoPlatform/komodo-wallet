@@ -233,6 +233,11 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       autovalidate: switchingCoin ? () => false : null,
     ));
 
+    // Auto-fill the exact maker amount when an order is selected
+    if (event.order != null) {
+      add(TakerSetSellAmount(event.order!.maxVolume));
+    }
+
     if (!state.autovalidate) add(TakerVerifyOrderVolume());
 
     await _autoActivateCoin(state.selectedOrder?.coin);
