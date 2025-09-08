@@ -205,11 +205,17 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     Emitter<AuthBlocState> emit,
   ) async {
     try {
-      emit(AuthBlocState.loading());
       if (await _didSignInExistingWallet(event.wallet, event.password)) {
+        add(
+          AuthSignInRequested(wallet: event.wallet, password: event.password),
+        );
+        _log.warning(
+          'Wallet ${event.wallet.name} already exist, attempting sign-in',
+        );
         return;
       }
 
+      emit(AuthBlocState.loading());
       _log.info('Restoring wallet from a seed');
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
       await _kdfSdk.auth.register(
@@ -273,8 +279,6 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       (KdfUser user) => user.walletId.name == wallet.name,
     );
     if (walletExists) {
-      add(AuthSignInRequested(wallet: wallet, password: password));
-      _log.warning('Wallet ${wallet.name} already exist, attempting sign-in');
       return true;
     }
 

@@ -48,20 +48,19 @@ class WalletsRepository {
   }
 
   Future<List<Wallet>> _getLegacyWallets() async {
-    final newVariable =
-        await _legacyWalletStorage.read(allWalletsStorageKey) as List?;
-    final List<Map<String, dynamic>> json =
-        newVariable?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
+    final rawLegacyWallets =
+        (await _legacyWalletStorage.read(allWalletsStorageKey) as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
 
-    return json.map((Map<String, dynamic> w) {
+    return rawLegacyWallets.map((Map<String, dynamic> w) {
       final wallet = Wallet.fromJson(w);
       return wallet.copyWith(
         config: wallet.config.copyWith(
-          // Intentionally set the wallet type to hdwallet when migrating from
-          // legacy to SDK-managed wallets. This ensures that legacy wallets
-          // are treated as HD wallets in the app, now that the HD toggle is
-          // hidden for iguana wallets.
-          type: WalletType.hdwallet,
+          // Wallet type for legacy wallets is iguana, to avoid confusion with
+          // missing/empty balances. Sign into iguana for legacy wallets by
+          // default, but allow for them to be signed into hdwallet if desired.
+          type: WalletType.iguana,
           isLegacyWallet: true,
         ),
       );
