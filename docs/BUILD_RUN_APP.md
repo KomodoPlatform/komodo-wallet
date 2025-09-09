@@ -30,6 +30,55 @@ flutter build ios
 
 ----
 
+## Ruby setup
+
+On macOS, Ruby is required for CocoaPods and Xcode tooling. Install Ruby 3.0+ (recommended: 3.4.5) using one of these version managers:
+
+- rbenv (recommended): lightweight, uses shims. Install via Homebrew and ruby-build.
+
+  ```bash
+  brew install rbenv
+  echo 'eval "$(rbenv init -)"' >> ~/.zshrc  # or ~/.bash_profile
+  source ~/.zshrc || source ~/.bash_profile
+  rbenv install 3.4.5
+  rbenv global 3.4.5
+  ruby -v
+  ```
+
+- RVM: full-featured manager with gemsets.
+
+  ```bash
+  \curl -sSL https://get.rvm.io | bash -s stable --ruby
+  rvm install 3.4.5
+  rvm use 3.4.5 --default
+  ruby -v
+  ```
+
+- chruby (with ruby-install): minimal, simple switching.
+
+  ```bash
+  brew install chruby ruby-install
+  echo 'source /opt/homebrew/opt/chruby/share/chruby/chruby.sh' >> ~/.zshrc
+  echo 'source /opt/homebrew/opt/chruby/share/chruby/auto.sh' >> ~/.zshrc
+  source ~/.zshrc
+  ruby-install ruby 3.4.5
+  chruby 3.4.5
+  ruby -v
+  ```
+
+You may also use alternatives like asdf or mise; ensure Ruby 3.0+.
+
+## CocoaPods installation
+
+CocoaPods 1.15+ is required for iOS/macOS builds with the latest Xcode.
+
+```bash
+sudo gem install cocoapods
+pod --version
+```
+
+If you installed Ruby via a version manager, ensure the selected Ruby is active in your shell before installing CocoaPods.
+
 ## Target platforms
 
 ### Web
@@ -64,6 +113,8 @@ flutter run -d web-server --web-port=8080
 ### macOS desktop
 
 In order to build for macOS, you need to use a macOS host.
+
+Prerequisites (macOS): Ensure Ruby 3.0+ and CocoaPods 1.15+ are installed. See [Ruby setup](#ruby-setup) and [CocoaPods installation](#cocoapods-installation).
 
 Before you begin:
 
@@ -276,6 +327,8 @@ flutter build appbundle
 
 In order to build for iOS/iPadOS, you need to use a macOS host (Apple silicon recommended)
 Physical iPhone or iPad required, simulators are not yet supported.
+
+Prerequisites (macOS): Ensure Ruby 3.0+ and CocoaPods 1.15+ are installed. See [Ruby setup](#ruby-setup) and [CocoaPods installation](#cocoapods-installation).
 
 1. `flutter clean`
 2. `flutter pub get`

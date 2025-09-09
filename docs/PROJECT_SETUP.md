@@ -27,24 +27,26 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
       - `Desktop development with C++` workload required
       - [Nuget CLI](https://www.nuget.org/downloads) required for Windows desktop builds
       - [Enable long paths in Windows registry](BUILD_RUN_APP.md#windows-desktop)
-
- 3. Run `flutter doctor` and make sure all checks (except version) pass
- 4. [Clone project repository](CLONE_REPOSITORY.md)
- 5. **Initialize SDK submodule**: After cloning, initialize the komodo-defi-sdk-flutter submodule:
+ 3. macOS only: Prerequisites
+    - Ruby: 3.0+ (recommended: 3.4.5). See [Ruby setup](BUILD_RUN_APP.md#ruby-setup).
+    - CocoaPods: 1.15+ (assuming latest Xcode). See [CocoaPods installation](BUILD_RUN_APP.md#cocoapods-installation).
+ 4. Run `flutter doctor` and make sure all checks (except version) pass
+ 5. [Clone project repository](CLONE_REPOSITORY.md)
+ 6. **Initialize SDK submodule**: After cloning, initialize the komodo-defi-sdk-flutter submodule:
 
     ```bash
     cd komodo-wallet
     git submodule update --init --recursive
     ```
 
- 6. Build and run the App for each target platform:
+ 7. Build and run the App for each target platform:
     - [Web](BUILD_RUN_APP.md#web)
     - [Android mobile](BUILD_RUN_APP.md#android)
     - [iOS mobile](BUILD_RUN_APP.md#ios) (macOS host only)
     - [macOS desktop](BUILD_RUN_APP.md#macos-desktop) (macOS host only)
     - [Windows desktop](BUILD_RUN_APP.md#windows-desktop) (Windows host only)
     - [Linux desktop](BUILD_RUN_APP.md#linux-desktop) (Linux host only)
- 7. [Build release version](BUILD_RELEASE.md)
+ 8. [Build release version](BUILD_RELEASE.md)
 
 ## Dev Container setup (Web and Android builds only)
 
