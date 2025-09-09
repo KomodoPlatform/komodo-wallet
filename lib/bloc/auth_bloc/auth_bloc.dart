@@ -159,6 +159,12 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     try {
       emit(AuthBlocState.loading());
       if (await _didSignInExistingWallet(event.wallet, event.password)) {
+        add(
+          AuthSignInRequested(wallet: event.wallet, password: event.password),
+        );
+        _log.warning(
+          'Wallet ${event.wallet.name} already exists, attempting sign-in',
+        );
         return;
       }
 
@@ -210,7 +216,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
           AuthSignInRequested(wallet: event.wallet, password: event.password),
         );
         _log.warning(
-          'Wallet ${event.wallet.name} already exist, attempting sign-in',
+          'Wallet ${event.wallet.name} already exists, attempting sign-in',
         );
         return;
       }

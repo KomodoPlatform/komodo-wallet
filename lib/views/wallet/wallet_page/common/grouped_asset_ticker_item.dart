@@ -122,8 +122,11 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                         flex: 2,
                         child: BlocBuilder<CoinsBloc, CoinsState>(
                           builder: (context, state) {
-                            final formattedPrice = price?.price != null
-                                ? priceFormatter.format(price!.price)
+                            // Double conversion required to fix the
+                            // `noSuchMethod` error in the `format` method.
+                            final priceValue = price?.price?.toDouble();
+                            final formattedPrice = priceValue != null
+                                ? priceFormatter.format(priceValue)
                                 : '';
                             return Text(
                               formattedPrice,
