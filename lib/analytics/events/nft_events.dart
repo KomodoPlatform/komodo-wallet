@@ -45,10 +45,10 @@ class NftTransferInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'wallet_type': walletType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'wallet_type': walletType,
+  };
 }
 
 class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
@@ -57,12 +57,12 @@ class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
     required String tokenId,
     required String walletType,
   }) : super(
-          NftTransferInitiatedEventData(
-            collectionName: collectionName,
-            tokenId: tokenId,
-            walletType: walletType,
-          ),
-        );
+         NftTransferInitiatedEventData(
+           collectionName: collectionName,
+           tokenId: tokenId,
+           walletType: walletType,
+         ),
+       );
 }
 
 /// E25: NFT sent successfully
@@ -84,11 +84,11 @@ class NftTransferSuccessEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'fee': fee,
-        'wallet_type': walletType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'fee': fee,
+    'wallet_type': walletType,
+  };
 }
 
 class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
@@ -98,13 +98,13 @@ class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
     required double fee,
     required String walletType,
   }) : super(
-          NftTransferSuccessEventData(
-            collectionName: collectionName,
-            tokenId: tokenId,
-            fee: fee,
-            walletType: walletType,
-          ),
-        );
+         NftTransferSuccessEventData(
+           collectionName: collectionName,
+           tokenId: tokenId,
+           fee: fee,
+           walletType: walletType,
+         ),
+       );
 }
 
 /// E26: NFT send failed
@@ -124,10 +124,10 @@ class NftTransferFailureEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'fail_reason': failReason,
-        'wallet_type': walletType,
-      };
+    'collection_name': collectionName,
+    'fail_reason': failReason,
+    'wallet_type': walletType,
+  };
 }
 
 class AnalyticsNftTransferFailureEvent extends AnalyticsSendDataEvent {
@@ -136,10 +136,10 @@ class AnalyticsNftTransferFailureEvent extends AnalyticsSendDataEvent {
     required String failReason,
     required String walletType,
   }) : super(
-          NftTransferFailureEventData(
-            collectionName: collectionName,
-            failReason: failReason,
-            walletType: walletType,
-          ),
-        );
+         NftTransferFailureEventData(
+           collectionName: collectionName,
+           failReason: failReason,
+           walletType: walletType,
+         ),
+       );
 }

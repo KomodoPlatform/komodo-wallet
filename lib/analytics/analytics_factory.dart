@@ -537,10 +537,10 @@ class NftTransferInitiatedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'wallet_type': walletType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'wallet_type': walletType,
+  };
 }
 
 class NftTransferSuccessEvent extends AnalyticsEventData {
@@ -561,11 +561,11 @@ class NftTransferSuccessEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'fee': fee,
-        'wallet_type': walletType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'fee': fee,
+    'wallet_type': walletType,
+  };
 }
 
 class NftTransferFailureEvent extends AnalyticsEventData {
@@ -584,10 +584,10 @@ class NftTransferFailureEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'fail_reason': failReason,
-        'wallet_type': walletType,
-      };
+    'collection_name': collectionName,
+    'fail_reason': failReason,
+    'wallet_type': walletType,
+  };
 }
 
 class MarketbotSetupStartEvent extends AnalyticsEventData {

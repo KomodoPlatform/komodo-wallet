@@ -182,18 +182,18 @@ class _MarketMakerBotFormContentState extends State<MarketMakerBotFormContent> {
     final tradeForm = context.read<MarketMakerTradeFormBloc>().state;
     final pairsCount =
         tradeForm.sellCoin.value != null && tradeForm.buyCoin.value != null
-            ? 1
-            : 0;
+        ? 1
+        : 0;
     context.read<AnalyticsBloc>().logEvent(
-          MarketbotSetupStartedEventData(
-            strategyType: 'simple',
-            pairsCount: pairsCount,
-          ),
-        );
+      MarketbotSetupStartedEventData(
+        strategyType: 'simple',
+        pairsCount: pairsCount,
+      ),
+    );
 
-    context
-        .read<MarketMakerTradeFormBloc>()
-        .add(const MarketMakerConfirmationPreviewRequested());
+    context.read<MarketMakerTradeFormBloc>().add(
+      const MarketMakerConfirmationPreviewRequested(),
+    );
   }
 
   void _setSellCoinToDefaultCoin() {
