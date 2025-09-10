@@ -58,5 +58,3 @@ Matomo Analytics Event: <event_name>; Parameters: { ... }
 - Verify the site ID exists and is active in your Matomo instance.
 - Confirm `ANALYTICS_DISABLED` is not set to `true` for local runs.
 - In CI, analytics will be disabled by default due to the `CI` flag.
-
-
