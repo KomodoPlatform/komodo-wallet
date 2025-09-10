@@ -75,7 +75,9 @@ class TransactionTable extends StatelessWidget {
         if (state.error != null) {
           return SliverToBoxAdapter(
             child: _ErrorMessage(
-              text: LocaleKeys.connectionToServersFailing.tr(args: [coin.name]),
+              text: LocaleKeys.connectionToServersFailing.tr(
+                args: [coin.displayName],
+              ),
               textColor: theme.currentGlobal.colorScheme.error,
             ),
           );

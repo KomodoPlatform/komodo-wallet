@@ -151,7 +151,10 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Coin name - using headlineMedium for bold 16px text
-              Text(widget.coin.name, style: theme.textTheme.headlineMedium),
+              Text(
+                widget.coin.displayName,
+                style: theme.textTheme.headlineMedium,
+              ),
               // Crypto balance - using bodySmall for 12px secondary text
               Text(
                 '${doubleToString(widget.coin.balance(context.sdk) ?? 0)} ${widget.coin.abbr}',

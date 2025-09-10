@@ -318,7 +318,7 @@ class AddressListItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${address.balance.spendable} ${coin.name} available',
+                  '${address.balance.spendable} ${coin.displayName} available',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(
                       context,

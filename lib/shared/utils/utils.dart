@@ -138,9 +138,11 @@ Rational? fract2rat(Map<String, dynamic>? fract, [bool willLog = true]) {
   if (fract == null) return null;
 
   try {
+    final String numerStr = fract['numer'].toString();
+    final String denomStr = fract['denom'].toString();
     final rat = Rational(
-      BigInt.from(double.parse(fract['numer'])),
-      BigInt.from(double.parse(fract['denom'])),
+      BigInt.parse(numerStr),
+      BigInt.parse(denomStr),
     );
     return rat;
   } catch (e) {

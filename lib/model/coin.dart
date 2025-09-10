@@ -75,6 +75,11 @@ class Coin extends Equatable {
   final CoinMode mode;
   final CoinState state;
 
+  // Cache for expensive computed properties
+  String? _cachedTypeName;
+  bool? _cachedisParent;
+  String? _cachedDisplayName;
+
   bool get walletOnly => _walletOnly || appWalletOnlyAssetList.contains(abbr);
 
   String? get swapContractAddress =>
@@ -89,8 +94,23 @@ class Coin extends Equatable {
   )
   double sendableBalance = 0;
 
-  String get typeName => getCoinTypeName(type);
+  String get typeName {
+    return _cachedTypeName ??= getCoinTypeName(type, abbr);
+  }
+
+  bool get isParent {
+    return _cachedisParent ??= isParentCoin(type, abbr);
+  }
+
   String get typeNameWithTestnet => typeName + (isTestCoin ? ' (TESTNET)' : '');
+
+  /// Display-friendly name that disambiguates parent coins on different EVM networks.
+  ///
+  /// For example, for a parent coin with abbreviation 'ETH-ARB20', this returns
+  /// 'Ethereum (ARB20)' so that it is visually distinct from 'Ethereum' (ERC20).
+  String get displayName {
+    return _cachedDisplayName ??= id.displayName;
+  }
 
   bool get isIrisToken => protocolType == 'TENDERMINTTOKEN';
 

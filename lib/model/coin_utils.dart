@@ -135,7 +135,7 @@ Iterable<Coin> filterCoinsByPhrase(Iterable<Coin> coins, String phrase) {
 }
 
 bool compareCoinByPhrase(Coin coin, String phrase) {
-  final String compareName = coin.name.toLowerCase();
+  final String compareName = coin.displayName.toLowerCase();
   final String compareAbbr = abbr2Ticker(coin.abbr).toLowerCase();
   final lowerCasePhrase = phrase.toLowerCase();
 
@@ -144,7 +144,11 @@ bool compareCoinByPhrase(Coin coin, String phrase) {
       compareAbbr.contains(lowerCasePhrase);
 }
 
-String getCoinTypeName(CoinType type) {
+String getCoinTypeName(CoinType type, [String? symbol]) {
+  // Override for parent chain coins like ETH, AVAX etc.
+  if (symbol != null && isParentCoin(type, symbol)) {
+    return 'Native';
+  }
   switch (type) {
     case CoinType.erc20:
       return 'ERC-20';
@@ -184,6 +188,38 @@ String getCoinTypeName(CoinType type) {
       return 'Tendermint Token';
     case CoinType.slp:
       return 'SLP';
+  }
+}
+
+bool isParentCoin(CoinType type, String symbol) {
+  switch (type) {
+    case CoinType.utxo:
+    case CoinType.tendermint:
+      return true;
+    case CoinType.erc20:
+      return symbol == 'ETH';
+    case CoinType.bep20:
+      return symbol == 'BNB';
+    case CoinType.avx20:
+      return symbol == 'AVAX';
+    case CoinType.etc:
+      return symbol == 'ETC';
+    case CoinType.ftm20:
+      return symbol == 'FTM';
+    case CoinType.arb20:
+      return symbol == 'ETH-ARB20';
+    case CoinType.hrc20:
+      return symbol == 'ONE';
+    case CoinType.plg20:
+      return symbol == 'MATIC';
+    case CoinType.mvr20:
+      return symbol == 'MOVR';
+    case CoinType.krc20:
+      return symbol == 'KCS';
+    case CoinType.qrc20:
+      return symbol == 'QTUM';
+    default:
+      return false;
   }
 }
 

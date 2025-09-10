@@ -34,7 +34,7 @@ class CoinItemTitle extends StatelessWidget {
         Flexible(
           child: amount == null
               ? CoinName(
-                  text: coin?.name,
+                  text: coin?.displayName,
                   style: TextStyle(fontSize: size.titleFontSize, height: 1),
                 )
               : coin?.mode == CoinMode.segwit

@@ -9,7 +9,11 @@ final class AppBootstrapper {
 
   bool _isInitialized = false;
 
-  Future<void> ensureInitialized(KomodoDefiSdk kdfSdk, Mm2Api mm2Api) async {
+  Future<void> ensureInitialized(
+    KomodoDefiSdk kdfSdk,
+    Mm2Api mm2Api,
+    SparklineRepository sparklineRepository,
+  ) async {
     if (_isInitialized) return;
 
     // Register core services with GetIt
@@ -22,7 +26,7 @@ final class AppBootstrapper {
     log('AppBootstrapper: Log initialized in ${timer.elapsedMilliseconds}ms');
     timer.reset();
 
-    await _warmUpInitializers().awaitAll();
+    await _warmUpInitializers(sparklineRepository).awaitAll();
     log(
       'AppBootstrapper: Warm-up initializers completed in ${timer.elapsedMilliseconds}ms',
     );
@@ -40,7 +44,9 @@ final class AppBootstrapper {
 
   /// A list of futures that should be completed before the app starts
   /// ([runApp]) which do not depend on each other.
-  List<Future<void>> _warmUpInitializers() {
+  List<Future<void>> _warmUpInitializers(
+    SparklineRepository sparklineRepository,
+  ) {
     return [
       app_bloc_root.loadLibrary(),
       packageInformation.init(),

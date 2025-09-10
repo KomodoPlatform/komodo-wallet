@@ -502,6 +502,7 @@ abstract class LocaleKeys {
   static const nothingFound = 'nothingFound';
   static const half = 'half';
   static const max = 'max';
+  static const exact = 'exact';
   static const reactivating = 'reactivating';
   static const weFailedCoinActivate = 'weFailedCoinActivate';
   static const failedActivate = 'failedActivate';

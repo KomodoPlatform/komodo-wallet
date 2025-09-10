@@ -111,7 +111,7 @@ class GroupedListView<T> extends StatelessWidget {
     final Map<String, List<T>> grouped = {};
     for (final item in list) {
       final coin = getCoin(context, item);
-      grouped.putIfAbsent(coin.name, () => []).add(item);
+      grouped.putIfAbsent(coin.displayName, () => []).add(item);
     }
     return grouped;
   }

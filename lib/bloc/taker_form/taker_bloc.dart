@@ -231,6 +231,11 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       ),
     );
 
+    // Auto-fill the exact maker amount when an order is selected
+    if (event.order != null) {
+      add(TakerSetSellAmount(event.order!.maxVolume));
+    }
+
     if (!state.autovalidate) add(TakerVerifyOrderVolume());
 
     await _autoActivateCoin(state.selectedOrder?.coin);

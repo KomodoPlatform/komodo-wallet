@@ -76,7 +76,7 @@ class TransactionDetails extends StatelessWidget {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 6),
-                            child: SelectableText(coin.name),
+                            child: SelectableText(coin.displayName),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 16),

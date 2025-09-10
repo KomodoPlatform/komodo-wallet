@@ -59,7 +59,14 @@ Future<void> main() async {
     // is the only/primary API/repository for KDF
     final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
     final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
-    await AppBootstrapper.instance.ensureInitialized(komodoDefiSdk, mm2Api);
+    // Sparkline is dependent on Hive initialization, so we pass it on to the
+    // bootstrapper here
+    final sparklineRepository = SparklineRepository.defaultInstance();
+    await AppBootstrapper.instance.ensureInitialized(
+      komodoDefiSdk,
+      mm2Api,
+      sparklineRepository,
+    );
 
     final coinsRepo = CoinsRepo(kdfSdk: komodoDefiSdk, mm2: mm2);
     final walletsRepository = WalletsRepository(
@@ -77,13 +84,11 @@ Future<void> main() async {
         path: '$assetsPath/translations',
         child: MultiRepositoryProvider(
           providers: [
-            RepositoryProvider(create: (_) => komodoDefiSdk),
-            RepositoryProvider(create: (_) => mm2Api),
-            RepositoryProvider(create: (_) => coinsRepo),
-            RepositoryProvider(create: (_) => walletsRepository),
-            // TODO: Refactor in SDK to avoid use of this global variable.
-            // This is necessary for now for CoinSparkline.
-            RepositoryProvider(create: (_) => sparklineRepository),
+            RepositoryProvider.value(value: komodoDefiSdk),
+            RepositoryProvider.value(value: mm2Api),
+            RepositoryProvider.value(value: coinsRepo),
+            RepositoryProvider.value(value: walletsRepository),
+            RepositoryProvider.value(value: sparklineRepository),
           ],
           child: const MyApp(),
         ),

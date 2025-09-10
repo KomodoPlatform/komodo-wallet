@@ -44,24 +44,23 @@ class FiatSelectButton extends StatelessWidget {
                           ? LocaleKeys.selectFiat.tr()
                           : LocaleKeys.selectCoin.tr()),
                   style: DefaultTextStyle.of(context).style.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: enabled
-                        ? foregroundColor
-                        : foregroundColor.withValues(alpha: 0.5),
-                  ),
+                        fontWeight: FontWeight.w500,
+                        color: enabled
+                            ? foregroundColor
+                            : foregroundColor.withValues(alpha: 0.5),
+                      ),
                 ),
                 if (!isFiat && currency != null)
                   Text(
                     (currency! as CryptoCurrency).isCrypto
                         ? getCoinTypeName(
-                            (currency! as CryptoCurrency).chainType,
-                          )
+                            (currency! as CryptoCurrency).chainType)
                         : '',
                     style: DefaultTextStyle.of(context).style.copyWith(
-                      color: enabled
-                          ? foregroundColor.withValues(alpha: 0.5)
-                          : foregroundColor.withValues(alpha: 0.25),
-                    ),
+                          color: enabled
+                              ? foregroundColor.withValues(alpha: 0.5)
+                              : foregroundColor.withValues(alpha: 0.25),
+                        ),
                   ),
               ],
             ),

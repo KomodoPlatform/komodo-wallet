@@ -41,7 +41,7 @@ class BridgeTickersListItem extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: AutoScrollText(
-                        text: coin.name,
+                        text: coin.displayName,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
