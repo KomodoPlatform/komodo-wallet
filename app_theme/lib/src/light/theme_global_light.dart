@@ -55,19 +55,19 @@ ThemeData get themeGlobalLight {
   );
 
   SnackBarThemeData snackBarThemeLight() => SnackBarThemeData(
-        elevation: 12.0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: colorScheme.primaryContainer,
-        contentTextStyle: textTheme.bodyLarge!.copyWith(
-          color: colorScheme.onPrimaryContainer,
-        ),
-        actionTextColor: colorScheme.onPrimaryContainer,
-        showCloseIcon: true,
-        closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
-      );
+    elevation: 12.0,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    ),
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: colorScheme.primaryContainer,
+    contentTextStyle: textTheme.bodyLarge!.copyWith(
+      color: colorScheme.onPrimaryContainer,
+    ),
+    actionTextColor: colorScheme.onPrimaryContainer,
+    showCloseIcon: true,
+    closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
+  );
 
   final customTheme = ThemeCustomLight();
   final theme = ThemeData(
@@ -163,22 +163,22 @@ ThemeData get themeGlobalLight {
       ),
     ),
     switchTheme: SwitchThemeData(
-      trackColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary.withOpacity(0.5);
-          }
-          return const Color(0xFFD1D1D1);
-        },
-      ),
-      thumbColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary;
-          }
-          return Colors.white;
-        },
-      ),
+      trackColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary.withOpacity(0.5);
+        }
+        return const Color(0xFFD1D1D1);
+      }),
+      thumbColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary;
+        }
+        return Colors.white;
+      }),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: SegmentedButton.styleFrom(

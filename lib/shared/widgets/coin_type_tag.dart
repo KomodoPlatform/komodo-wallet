@@ -27,12 +27,15 @@ class CoinTypeTag extends StatelessWidget {
         ),
       ),
       child: Center(
-          child: Text(_protocolName,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                color: Colors.white,
-              ))),
+        child: Text(
+          _protocolName,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 

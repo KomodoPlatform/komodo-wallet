@@ -27,8 +27,9 @@ Future<void> testFiatFormInputs(WidgetTester tester) async {
 
 Future<void> _textSubmit(WidgetTester tester) async {
   print('🔍 FIAT FORM TEST: Testing form submission');
-  final Finder submitFinder =
-      find.byKey(const Key('fiat-onramp-submit-button'));
+  final Finder submitFinder = find.byKey(
+    const Key('fiat-onramp-submit-button'),
+  );
   final Finder webviewFinder = find.byKey(const Key('flutter-in-app-webview'));
 
   expect(submitFinder, findsOneWidget, reason: 'Submit button not found');
@@ -41,8 +42,9 @@ Future<void> _textSubmit(WidgetTester tester) async {
 
 Future<void> _testFiatAmountField(WidgetTester tester) async {
   print('🔍 FIAT FORM TEST: Testing fiat amount field');
-  final Finder fiatAmountFinder =
-      find.byKey(const Key('fiat-amount-form-field'));
+  final Finder fiatAmountFinder = find.byKey(
+    const Key('fiat-amount-form-field'),
+  );
 
   await tester.tapAndPump(fiatAmountFinder);
   await tester.enterText(fiatAmountFinder, '50');
@@ -55,12 +57,15 @@ Future<void> _testFiatAmountField(WidgetTester tester) async {
 
 Future<void> _testFiatSelection(WidgetTester tester) async {
   print('🔍 FIAT FORM TEST: Testing fiat currency selection');
-  final Finder fiatDropdownFinder =
-      find.byKey(const Key('fiat-onramp-fiat-dropdown'));
-  final Finder usdIconFinder =
-      find.byKey(const Key('fiat-onramp-currency-item-USD'));
-  final Finder eurIconFinder =
-      find.byKey(const Key('fiat-onramp-currency-item-EUR'));
+  final Finder fiatDropdownFinder = find.byKey(
+    const Key('fiat-onramp-fiat-dropdown'),
+  );
+  final Finder usdIconFinder = find.byKey(
+    const Key('fiat-onramp-currency-item-USD'),
+  );
+  final Finder eurIconFinder = find.byKey(
+    const Key('fiat-onramp-currency-item-EUR'),
+  );
 
   await tester.tapAndPump(fiatDropdownFinder);
   expect(usdIconFinder, findsOneWidget, reason: 'USD icon not found');
@@ -73,12 +78,15 @@ Future<void> _testFiatSelection(WidgetTester tester) async {
 
 Future<void> _testCoinSelection(WidgetTester tester) async {
   print('🔍 FIAT FORM TEST: Testing coin selection');
-  final Finder coinDropdownFinder =
-      find.byKey(const Key('fiat-onramp-coin-dropdown'));
-  final Finder btcIconFinder =
-      find.byKey(const Key('fiat-onramp-currency-item-BTC'));
-  final Finder maticIconFinder =
-      find.byKey(const Key('fiat-onramp-currency-item-LTC'));
+  final Finder coinDropdownFinder = find.byKey(
+    const Key('fiat-onramp-coin-dropdown'),
+  );
+  final Finder btcIconFinder = find.byKey(
+    const Key('fiat-onramp-currency-item-BTC'),
+  );
+  final Finder maticIconFinder = find.byKey(
+    const Key('fiat-onramp-currency-item-LTC'),
+  );
 
   await tester.tapAndPump(coinDropdownFinder);
   expect(btcIconFinder, findsOneWidget, reason: 'BTC icon not found');
@@ -109,10 +117,12 @@ Future<void> _tapCurrencyItem(WidgetTester tester, Finder asset) async {
 
 Future<void> _testPaymentMethodSelection(WidgetTester tester) async {
   print('🔍 FIAT FORM TEST: Testing payment method selection');
-  final Finder rampPaymentMethodFinder =
-      find.byKey(const Key('fiat-payment-method-ramp-0'));
-  final Finder banxaPaymentMethodFinder =
-      find.byKey(const Key('fiat-payment-method-banxa-0'));
+  final Finder rampPaymentMethodFinder = find.byKey(
+    const Key('fiat-payment-method-ramp-0'),
+  );
+  final Finder banxaPaymentMethodFinder = find.byKey(
+    const Key('fiat-payment-method-banxa-0'),
+  );
 
   expect(
     rampPaymentMethodFinder,
@@ -132,18 +142,14 @@ Future<void> _testPaymentMethodSelection(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
-    'Run fiat form tests:',
-    (WidgetTester tester) async {
-      tester.testTextInput.register();
-      await app.main();
-      await tester.pumpAndSettle();
-      await acceptAlphaWarning(tester);
-      await restoreWalletToTest(tester);
-      await testFiatFormInputs(tester);
+  testWidgets('Run fiat form tests:', (WidgetTester tester) async {
+    tester.testTextInput.register();
+    await app.main();
+    await tester.pumpAndSettle();
+    await acceptAlphaWarning(tester);
+    await restoreWalletToTest(tester);
+    await testFiatFormInputs(tester);
 
-      print('END fiat form TESTS');
-    },
-    semanticsEnabled: false,
-  );
+    print('END fiat form TESTS');
+  }, semanticsEnabled: false);
 }

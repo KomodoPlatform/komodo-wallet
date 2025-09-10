@@ -1,12 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/services/platform_info/platform_info.dart';
 
-enum PlatformBlocStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum PlatformBlocStatus { initial, loading, success, failure }
 
 class PlatformState extends Equatable {
   const PlatformState({

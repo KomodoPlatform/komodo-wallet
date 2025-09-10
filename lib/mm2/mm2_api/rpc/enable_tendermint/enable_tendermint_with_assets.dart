@@ -10,7 +10,10 @@ class EnableTendermintWithAssetsRequest
     required List<CoinNode> rpcUrls,
     List<TendermintTokenParamsItem> tokensParams = const [],
   }) : params = EnableTendermintWithAssetsRequestParams(
-            ticker: ticker, tokensParams: tokensParams, rpcUrls: rpcUrls);
+         ticker: ticker,
+         tokensParams: tokensParams,
+         rpcUrls: rpcUrls,
+       );
   @override
   late String userpass;
   @override

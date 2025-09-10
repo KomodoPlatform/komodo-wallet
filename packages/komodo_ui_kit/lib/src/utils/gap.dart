@@ -30,29 +30,22 @@ class Gap extends StatelessWidget {
   ///
   /// The [mainAxisExtent] must not be null and must be positive.
   /// The [crossAxisExtent] must be either null or positive.
-  const Gap(
-    this.mainAxisExtent, {
-    Key? key,
-    this.crossAxisExtent,
-    this.color,
-  })  : assert(mainAxisExtent >= 0 && mainAxisExtent < double.infinity),
-        assert(crossAxisExtent == null || crossAxisExtent >= 0),
-        super(key: key);
+  const Gap(this.mainAxisExtent, {Key? key, this.crossAxisExtent, this.color})
+    : assert(mainAxisExtent >= 0 && mainAxisExtent < double.infinity),
+      assert(crossAxisExtent == null || crossAxisExtent >= 0),
+      super(key: key);
 
   /// Creates a widget that takes a fixed [mainAxisExtent] of space in the
   /// direction of its parent and expands in the cross axis direction.
   ///
   /// The [mainAxisExtent] must not be null and must be positive.
-  const Gap.expand(
-    double mainAxisExtent, {
-    Key? key,
-    Color? color,
-  }) : this(
-          mainAxisExtent,
-          key: key,
-          crossAxisExtent: double.infinity,
-          color: color,
-        );
+  const Gap.expand(double mainAxisExtent, {Key? key, Color? color})
+    : this(
+        mainAxisExtent,
+        key: key,
+        crossAxisExtent: double.infinity,
+        color: color,
+      );
 
   /// The amount of space this widget takes in the direction of its parent.
   ///
@@ -82,8 +75,9 @@ class Gap extends StatelessWidget {
   Widget build(BuildContext context) {
     final scrollableState = Scrollable.maybeOf(context);
     final AxisDirection? axisDirection = scrollableState?.axisDirection;
-    final Axis? fallbackDirection =
-        axisDirection == null ? null : axisDirectionToAxis(axisDirection);
+    final Axis? fallbackDirection = axisDirection == null
+        ? null
+        : axisDirectionToAxis(axisDirection);
 
     return _RawGap(
       mainAxisExtent,
@@ -124,16 +118,13 @@ class MaxGap extends StatelessWidget {
   ///
   /// The [mainAxisExtent] must not be null and must be positive.
   /// The [crossAxisExtent] must be either null or positive.
-  const MaxGap.expand(
-    double mainAxisExtent, {
-    Key? key,
-    Color? color,
-  }) : this(
-          mainAxisExtent,
-          key: key,
-          crossAxisExtent: double.infinity,
-          color: color,
-        );
+  const MaxGap.expand(double mainAxisExtent, {Key? key, Color? color})
+    : this(
+        mainAxisExtent,
+        key: key,
+        crossAxisExtent: double.infinity,
+        color: color,
+      );
 
   /// The amount of space this widget takes in the direction of the parent.
   ///
@@ -176,9 +167,9 @@ class _RawGap extends LeafRenderObjectWidget {
     this.crossAxisExtent,
     this.color,
     this.fallbackDirection,
-  })  : assert(mainAxisExtent >= 0 && mainAxisExtent < double.infinity),
-        assert(crossAxisExtent == null || crossAxisExtent >= 0),
-        super(key: key);
+  }) : assert(mainAxisExtent >= 0 && mainAxisExtent < double.infinity),
+       assert(crossAxisExtent == null || crossAxisExtent >= 0),
+       super(key: key);
 
   final double mainAxisExtent;
 
@@ -225,10 +216,10 @@ class RenderGap extends RenderBox {
     double? crossAxisExtent,
     Axis? fallbackDirection,
     Color? color,
-  })  : _mainAxisExtent = mainAxisExtent,
-        _crossAxisExtent = crossAxisExtent,
-        _color = color,
-        _fallbackDirection = fallbackDirection;
+  }) : _mainAxisExtent = mainAxisExtent,
+       _crossAxisExtent = crossAxisExtent,
+       _color = color,
+       _fallbackDirection = fallbackDirection;
 
   double get mainAxisExtent => _mainAxisExtent;
   double _mainAxisExtent;

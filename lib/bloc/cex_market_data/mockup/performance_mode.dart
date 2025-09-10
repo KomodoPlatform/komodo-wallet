@@ -1,5 +1,1 @@
-enum PerformanceMode {
-  good,
-  mediocre,
-  veryBad,
-}
+enum PerformanceMode { good, mediocre, veryBad }

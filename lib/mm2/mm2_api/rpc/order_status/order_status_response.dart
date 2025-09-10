@@ -10,8 +10,9 @@ class OrderStatusResponse {
   });
 
   factory OrderStatusResponse.fromJson(Map<dynamic, dynamic> json) {
-    final TradeSide type =
-        json['type'] == 'Taker' ? TradeSide.taker : TradeSide.maker;
+    final TradeSide type = json['type'] == 'Taker'
+        ? TradeSide.taker
+        : TradeSide.maker;
     return OrderStatusResponse(
       type: type,
       order: type == TradeSide.taker

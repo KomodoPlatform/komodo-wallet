@@ -10,15 +10,13 @@ import 'package:web_dex/views/nfts/common/widgets/nft_failure.dart';
 class NftMainFailure extends StatelessWidget {
   final BaseError error;
 
-  const NftMainFailure({
-    super.key,
-    required this.error,
-  });
+  const NftMainFailure({super.key, required this.error});
 
   @override
   Widget build(BuildContext context) {
     final String? chain = context.select<NftMainBloc, String?>(
-        (bloc) => bloc.state.selectedChain.coinAbbr());
+      (bloc) => bloc.state.selectedChain.coinAbbr(),
+    );
     return NftFailure(
       title: LocaleKeys.loadingError.tr(),
       subtitle: LocaleKeys.unableRetrieveNftData.tr(args: [chain ?? '']),

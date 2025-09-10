@@ -67,8 +67,9 @@ class Transaction {
     } else if (timestamp == 0 && confirmations > 0) {
       return 'confirmed';
     } else {
-      return DateFormat('dd MMM yyyy HH:mm')
-          .format(DateTime.fromMillisecondsSinceEpoch(timestamp * 1000));
+      return DateFormat(
+        'dd MMM yyyy HH:mm',
+      ).format(DateTime.fromMillisecondsSinceEpoch(timestamp * 1000));
     }
   }
 

@@ -54,9 +54,9 @@ String durationFormat(
 /// unit test: [testNumberWithoutExponent]
 String getNumberWithoutExponent(String value) {
   try {
-    return Rational.parse(value)
-        .toDecimal(scaleOnInfinitePrecision: 10)
-        .toString();
+    return Rational.parse(
+      value,
+    ).toDecimal(scaleOnInfinitePrecision: 10).toString();
   } catch (_) {
     return value;
   }
@@ -128,10 +128,7 @@ class DecimalTextInputFormatter extends TextInputFormatter {
       );
     }
 
-    return TextEditingValue(
-      text: truncated,
-      selection: newSelection,
-    );
+    return TextEditingValue(text: truncated, selection: newSelection);
   }
 }
 
@@ -145,8 +142,10 @@ String getFormattedDate(int timestamp, [bool isUtc = false]) {
       timestampMilliseconds > _maxTimestampMillisecond) {
     return 'Date is out of the range';
   }
-  final dateTime =
-      DateTime.fromMillisecondsSinceEpoch(timestampMilliseconds, isUtc: isUtc);
+  final dateTime = DateTime.fromMillisecondsSinceEpoch(
+    timestampMilliseconds,
+    isUtc: isUtc,
+  );
   if (dateTime.year < 0) {
     return '${DateFormat('dd MMM yyyy, HH:mm', 'en_US').format(dateTime)} BC';
   }
@@ -308,9 +307,11 @@ void formatAmountInput(TextEditingController controller, Rational? value) {
 
   final newText = value == null
       ? ''
-      : cutTrailingZeros(value
-          .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision)
-          .toStringAsFixed(8));
+      : cutTrailingZeros(
+          value
+              .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision)
+              .toStringAsFixed(8),
+        );
   controller.value = TextEditingValue(
     text: newText,
     selection: TextSelection.collapsed(offset: newText.length),

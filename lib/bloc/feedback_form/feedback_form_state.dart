@@ -53,13 +53,13 @@ class FeedbackFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        feedbackType,
-        feedbackText,
-        feedbackTextError,
-        contactMethod,
-        contactDetails,
-        contactDetailsError,
-        status,
-        errorMessage,
-      ];
+    feedbackType,
+    feedbackText,
+    feedbackTextError,
+    contactMethod,
+    contactDetails,
+    contactDetailsError,
+    status,
+    errorMessage,
+  ];
 }

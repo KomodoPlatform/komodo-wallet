@@ -31,9 +31,10 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
   }
 
   Future<void> addActivatedCoins(Iterable<String> coins) async {
-    final existingCoins = (await auth.currentUser)
-            ?.metadata
-            .valueOrNull<List<String>>('activated_coins') ??
+    final existingCoins =
+        (await auth.currentUser)?.metadata.valueOrNull<List<String>>(
+          'activated_coins',
+        ) ??
         [];
 
     final mergedCoins = <dynamic>{...existingCoins, ...coins}.toList();
@@ -41,9 +42,10 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
   }
 
   Future<void> removeActivatedCoins(List<String> coins) async {
-    final existingCoins = (await auth.currentUser)
-            ?.metadata
-            .valueOrNull<List<String>>('activated_coins') ??
+    final existingCoins =
+        (await auth.currentUser)?.metadata.valueOrNull<List<String>>(
+          'activated_coins',
+        ) ??
         [];
 
     existingCoins.removeWhere((coin) => coins.contains(coin));

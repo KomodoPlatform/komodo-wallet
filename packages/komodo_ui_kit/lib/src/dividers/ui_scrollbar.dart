@@ -60,8 +60,9 @@ class DexScrollbarState extends State<DexScrollbar> {
                 thickness: 5,
                 controller: widget.scrollController,
                 child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context)
-                      .copyWith(scrollbars: false),
+                  behavior: ScrollConfiguration.of(
+                    context,
+                  ).copyWith(scrollbars: false),
                   child: Padding(
                     padding: const EdgeInsets.only(right: 10),
                     child: widget.child,

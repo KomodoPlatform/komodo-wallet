@@ -2,9 +2,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/shared/constants.dart';
 
 class UpdateNftRequest implements BaseRequest {
-  UpdateNftRequest({
-    required this.chains,
-  });
+  UpdateNftRequest({required this.chains});
 
   final List<String> chains;
   @override
@@ -24,7 +22,7 @@ class UpdateNftRequest implements BaseRequest {
         "url": moralisProxyUrl,
         "url_antispam": nftAntiSpamUrl,
         "komodo_proxy": false,
-      }
+      },
     };
   }
 }

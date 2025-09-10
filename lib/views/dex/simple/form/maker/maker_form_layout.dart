@@ -39,8 +39,9 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
 
     if (routingState.dexState.orderType != 'taker') {
       if (routingState.dexState.fromCurrency.isNotEmpty) {
-        final Coin? sellCoin =
-            coinsRepository.getCoin(routingState.dexState.fromCurrency);
+        final Coin? sellCoin = coinsRepository.getCoin(
+          routingState.dexState.fromCurrency,
+        );
 
         if (sellCoin != null) {
           makerFormBloc.sellCoin = sellCoin;
@@ -52,8 +53,9 @@ class _MakerFormLayoutState extends State<MakerFormLayout> {
       }
 
       if (routingState.dexState.toCurrency.isNotEmpty) {
-        final Coin? buyCoin =
-            coinsRepository.getCoin(routingState.dexState.toCurrency);
+        final Coin? buyCoin = coinsRepository.getCoin(
+          routingState.dexState.toCurrency,
+        );
 
         if (buyCoin != null) {
           makerFormBloc.buyCoin = buyCoin;
@@ -105,7 +107,8 @@ class _MakerFormDesktopLayout extends StatefulWidget {
   const _MakerFormDesktopLayout();
 
   @override
-  State<_MakerFormDesktopLayout> createState() => _MakerFormDesktopLayoutState();
+  State<_MakerFormDesktopLayout> createState() =>
+      _MakerFormDesktopLayoutState();
 }
 
 class _MakerFormDesktopLayoutState extends State<_MakerFormDesktopLayout> {
@@ -146,8 +149,9 @@ class _MakerFormDesktopLayoutState extends State<_MakerFormDesktopLayout> {
               key: const Key('maker-form-layout-scroll'),
               controller: _mainScrollController,
               child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+                constraints: BoxConstraints(
+                  maxWidth: theme.custom.dexFormWidth,
+                ),
                 child: const Stack(
                   clipBehavior: Clip.none,
                   children: [

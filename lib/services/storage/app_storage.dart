@@ -33,12 +33,7 @@ class AppStorage implements BaseStorage {
         return value;
       }
     } catch (e, s) {
-      log(
-        e.toString(),
-        path: 'web_storage => read',
-        trace: s,
-        isError: true,
-      );
+      log(e.toString(), path: 'web_storage => read', trace: s, isError: true);
       return null;
     }
   }

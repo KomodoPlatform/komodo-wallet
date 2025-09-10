@@ -278,14 +278,18 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
     // Find common prefix
     int start = 0;
-    while (start < before.length && start < after.length && before[start] == after[start]) {
+    while (start < before.length &&
+        start < after.length &&
+        before[start] == after[start]) {
       start++;
     }
 
     // Find common suffix
     int endBefore = before.length - 1;
     int endAfter = after.length - 1;
-    while (endBefore >= start && endAfter >= start && before[endBefore] == after[endAfter]) {
+    while (endBefore >= start &&
+        endAfter >= start &&
+        before[endBefore] == after[endAfter]) {
       endBefore--;
       endAfter--;
     }

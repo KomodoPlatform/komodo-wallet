@@ -30,12 +30,12 @@ class SettingsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        themeMode,
-        mmBotSettings,
-        testCoinsEnabled,
-        weakPasswordsAllowed,
-        hideZeroBalanceAssets,
-      ];
+    themeMode,
+    mmBotSettings,
+    testCoinsEnabled,
+    weakPasswordsAllowed,
+    hideZeroBalanceAssets,
+  ];
 
   SettingsState copyWith({
     ThemeMode? mode,

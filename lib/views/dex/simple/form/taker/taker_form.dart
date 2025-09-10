@@ -49,12 +49,14 @@ class _TakerFormState extends State<TakerForm> {
         Coin? sellCoin = fromCurrency.isNotEmpty
             ? coinsRepository.getCoin(fromCurrency)
             : null;
-        Coin? buyCoin =
-            toCurrency.isNotEmpty ? coinsRepository.getCoin(toCurrency) : null;
+        Coin? buyCoin = toCurrency.isNotEmpty
+            ? coinsRepository.getCoin(toCurrency)
+            : null;
 
         if (sellCoin != null || buyCoin != null) {
           takerBloc.add(
-              TakerSetSellCoin(sellCoin, autoSelectOrderAbbr: buyCoin?.abbr));
+            TakerSetSellCoin(sellCoin, autoSelectOrderAbbr: buyCoin?.abbr),
+          );
 
           if (fromAmount.isNotEmpty) {
             Rational? sellAmount;

@@ -1,9 +1,7 @@
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 
 class ShowPrivKeyRequest implements BaseRequest {
-  ShowPrivKeyRequest({
-    required this.coin,
-  });
+  ShowPrivKeyRequest({required this.coin});
   @override
   late String userpass;
   @override
@@ -12,8 +10,8 @@ class ShowPrivKeyRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'method': method,
-        'userpass': userpass,
-        'coin': coin,
-      };
+    'method': method,
+    'userpass': userpass,
+    'coin': coin,
+  };
 }

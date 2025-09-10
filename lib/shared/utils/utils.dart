@@ -44,7 +44,8 @@ Future<void> copyToClipBoard(
     await Clipboard.setData(ClipboardData(text: payload));
 
     if (!context.mounted) return;
-    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context) ??
+    final scaffoldMessenger =
+        ScaffoldMessenger.maybeOf(context) ??
         ScaffoldMessenger.of(scaffoldKey.currentContext!);
     scaffoldMessenger.showSnackBar(
       SnackBar(
@@ -57,9 +58,7 @@ Future<void> copyToClipBoard(
               color: themeData.colorScheme.onPrimaryContainer,
             ),
             const SizedBox(width: 12.0),
-            Text(
-              message ?? LocaleKeys.clipBoard.tr(),
-            ),
+            Text(message ?? LocaleKeys.clipBoard.tr()),
           ],
         ),
         duration: const Duration(seconds: 2),
@@ -196,8 +195,8 @@ String getTxExplorerUrl(Coin coin, String txHash) {
 
   final hash =
       coin.type == CoinType.tendermint || coin.type == CoinType.tendermintToken
-          ? txHash.toUpperCase()
-          : txHash;
+      ? txHash.toUpperCase()
+      : txHash;
 
   return coin.need0xPrefixForTxHash && !hash.startsWith('0x')
       ? '$explorerUrl${explorerTxUrl}0x$hash'
@@ -245,8 +244,8 @@ Future<void> openUrl(Uri uri, {bool? inSeparateTab}) async {
     mode: inSeparateTab == null
         ? LaunchMode.platformDefault
         : inSeparateTab == true
-            ? LaunchMode.externalApplication
-            : LaunchMode.inAppWebView,
+        ? LaunchMode.externalApplication
+        : LaunchMode.inAppWebView,
   );
 }
 
@@ -259,8 +258,8 @@ Future<void> launchURLString(String url, {bool? inSeparateTab}) async {
       mode: inSeparateTab == null
           ? LaunchMode.platformDefault
           : inSeparateTab == true
-              ? LaunchMode.externalApplication
-              : LaunchMode.inAppWebView,
+          ? LaunchMode.externalApplication
+          : LaunchMode.inAppWebView,
     );
   } else {
     throw 'Could not launch $url';
@@ -561,10 +560,7 @@ Future<void> pauseWhile(
   }
 }
 
-enum HashExplorerType {
-  address,
-  tx,
-}
+enum HashExplorerType { address, tx }
 
 Future<bool> confirmParentCoinDisable(
   BuildContext context, {
@@ -605,8 +601,9 @@ Future<bool> confirmCoinDisableWithOrders(
     builder: (context) => AlertDialog(
       title: Text(LocaleKeys.disable.tr()),
       content: Text(
-        LocaleKeys.coinDisableOpenOrdersWarning
-            .tr(args: [ordersCount.toString(), coin]),
+        LocaleKeys.coinDisableOpenOrdersWarning.tr(
+          args: [ordersCount.toString(), coin],
+        ),
       ),
       actions: [
         TextButton(
@@ -628,27 +625,28 @@ void confirmBeforeDisablingCoin(
   BuildContext context, {
   void Function()? onConfirm,
 }) {
-  final tradingEntitiesBloc =
-      RepositoryProvider.of<TradingEntitiesBloc>(context);
+  final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+    context,
+  );
   final bloc = context.read<CoinsBloc>();
 
   final childCoins = bloc.state.walletCoins.values
       .where((c) => c.parentCoin?.abbr == coin.abbr)
       .toList();
 
-  final hasSwap = tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
+  final hasSwap =
+      tradingEntitiesBloc.hasActiveSwap(coin.abbr) ||
       childCoins.any((c) => tradingEntitiesBloc.hasActiveSwap(c.abbr));
 
   if (hasSwap) {
-    InformationPopup(
-      context: context,
-    )
+    InformationPopup(context: context)
       ..text = LocaleKeys.coinDisableSpan1.tr(args: [coin.abbr])
       ..show();
     return;
   }
 
-  final int openOrders = tradingEntitiesBloc.openOrdersCount(coin.abbr) +
+  final int openOrders =
+      tradingEntitiesBloc.openOrdersCount(coin.abbr) +
       childCoins.fold<int>(
         0,
         (sum, c) => sum + tradingEntitiesBloc.openOrdersCount(c.abbr),

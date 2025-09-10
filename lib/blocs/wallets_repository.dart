@@ -20,8 +20,8 @@ class WalletsRepository {
     this._legacyWalletStorage, {
     EncryptionTool? encryptionTool,
     FileLoader? fileLoader,
-  })  : _encryptionTool = encryptionTool ?? EncryptionTool(),
-        _fileLoader = fileLoader ?? FileLoader.fromPlatform();
+  }) : _encryptionTool = encryptionTool ?? EncryptionTool(),
+       _fileLoader = fileLoader ?? FileLoader.fromPlatform();
 
   final KomodoDefiSdk _kdfSdk;
   final Mm2Api _mm2Api;
@@ -53,15 +53,14 @@ class WalletsRepository {
         newVariable?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
 
     return json
-        .map((Map<String, dynamic> w) =>
-            Wallet.fromJson(w)..config.isLegacyWallet = true)
+        .map(
+          (Map<String, dynamic> w) =>
+              Wallet.fromJson(w)..config.isLegacyWallet = true,
+        )
         .toList();
   }
 
-  Future<void> deleteWallet(
-    Wallet wallet, {
-    required String password,
-  }) async {
+  Future<void> deleteWallet(Wallet wallet, {required String password}) async {
     log(
       'Deleting a wallet ${wallet.id}',
       path: 'wallet_bloc => deleteWallet',
@@ -82,9 +81,11 @@ class WalletsRepository {
       _cachedWallets?.removeWhere((w) => w.name == wallet.name);
       return;
     } catch (e) {
-      log('Failed to delete wallet: $e',
-              path: 'wallet_bloc => deleteWallet', isError: true)
-          .ignore();
+      log(
+        'Failed to delete wallet: $e',
+        path: 'wallet_bloc => deleteWallet',
+        isError: true,
+      ).ignore();
       rethrow;
     }
   }
@@ -99,14 +100,14 @@ class WalletsRepository {
       getWallets().ignore();
       return null;
     }
-    
+
     final trimmedName = name.trim();
-    
+
     // Check if the trimmed name is empty (prevents space-only names)
     if (trimmedName.isEmpty) {
       return LocaleKeys.walletCreationNameLengthError.tr();
     }
-    
+
     // Check if trimmed name exceeds length limit
     if (trimmedName.length > 40) {
       return LocaleKeys.walletCreationNameLengthError.tr();
@@ -122,8 +123,9 @@ class WalletsRepository {
   }
 
   Future<void> resetSpecificWallet(Wallet wallet) async {
-    final coinsToDeactivate = wallet.config.activatedCoins
-        .where((coin) => !enabledByDefaultCoins.contains(coin));
+    final coinsToDeactivate = wallet.config.activatedCoins.where(
+      (coin) => !enabledByDefaultCoins.contains(coin),
+    );
     for (final coin in coinsToDeactivate) {
       await _mm2Api.disableCoin(coin);
     }
@@ -140,8 +142,10 @@ class WalletsRepository {
         );
       }
       final String data = jsonEncode(wallet.config);
-      final String encryptedData =
-          await _encryptionTool.encryptData(password, data);
+      final String encryptedData = await _encryptionTool.encryptData(
+        password,
+        data,
+      );
       final String sanitizedFileName = _sanitizeFileName(wallet.name);
       await _fileLoader.save(
         fileName: sanitizedFileName,

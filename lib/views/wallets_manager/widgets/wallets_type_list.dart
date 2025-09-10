@@ -4,7 +4,7 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_type_list_item.dart
 
 class WalletsTypeList extends StatelessWidget {
   const WalletsTypeList({Key? key, required this.onWalletTypeClick})
-      : super(key: key);
+    : super(key: key);
   final void Function(WalletType) onWalletTypeClick;
 
   @override
@@ -12,14 +12,16 @@ class WalletsTypeList extends StatelessWidget {
     return Column(
       children: WalletType.values
           .where((type) => type != WalletType.hdwallet)
-          .map((type) => Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: WalletTypeListItem(
-                  key: Key('wallet-type-list-item-${type.name}'),
-                  type: type,
-                  onClick: onWalletTypeClick,
-                ),
-              ))
+          .map(
+            (type) => Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: WalletTypeListItem(
+                key: Key('wallet-type-list-item-${type.name}'),
+                type: type,
+                onClick: onWalletTypeClick,
+              ),
+            ),
+          )
           .toList(),
     );
   }

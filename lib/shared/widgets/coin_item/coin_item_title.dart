@@ -38,11 +38,8 @@ class CoinItemTitle extends StatelessWidget {
                   style: TextStyle(fontSize: size.titleFontSize, height: 1),
                 )
               : coin?.mode == CoinMode.segwit
-                  ? SegwitIcon(height: size.segwitIconSize)
-                  : CoinProtocolName(
-                      text: coin?.typeNameWithTestnet,
-                      size: size,
-                    ),
+              ? SegwitIcon(height: size.segwitIconSize)
+              : CoinProtocolName(text: coin?.typeNameWithTestnet, size: size),
         ),
       ],
     );

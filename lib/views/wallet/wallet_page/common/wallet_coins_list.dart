@@ -22,9 +22,10 @@ class KnownAssetsList extends StatelessWidget {
             ? Theme.of(context).colorScheme.surface
             : Theme.of(context).colorScheme.onSurface;
         return AssetListItem(
-            assetId: asset,
-            backgroundColor: backgroundColor,
-            onTap: (assetId) => onAssetItemTap(assetId));
+          assetId: asset,
+          backgroundColor: backgroundColor,
+          onTap: (assetId) => onAssetItemTap(assetId),
+        );
       },
       separatorBuilder: (BuildContext context, int index) {
         return const SizedBox(height: 8);

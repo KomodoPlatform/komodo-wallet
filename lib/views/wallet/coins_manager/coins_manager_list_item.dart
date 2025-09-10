@@ -106,8 +106,10 @@ class _CoinsManagerListItemDesktop extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 10,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       color: protocolColor,
@@ -123,7 +125,9 @@ class _CoinsManagerListItemDesktop extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: theme
-                            .custom.coinsManagerTheme.listItemProtocolTextColor,
+                            .custom
+                            .coinsManagerTheme
+                            .listItemProtocolTextColor,
                       ),
                     ),
                   ),
@@ -253,7 +257,9 @@ class _CoinsManagerListItemMobile extends StatelessWidget {
               onChanged: (_) => onSelect(),
             ),
             const SizedBox(width: 8),
-            Expanded(child: CoinItem(coin: coin, size: CoinItemSize.large)),
+            Expanded(
+              child: CoinItem(coin: coin, size: CoinItemSize.large),
+            ),
             if (!isAddAssets)
               Column(
                 mainAxisSize: MainAxisSize.min,

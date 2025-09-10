@@ -5,9 +5,7 @@ class EnableTendermintTokenRequest
         BaseRequest,
         BaseRequestWithParams<EnableTendermintTokenRequestParams> {
   EnableTendermintTokenRequest({required String ticker})
-      : params = EnableTendermintTokenRequestParams(
-          ticker: ticker,
-        );
+    : params = EnableTendermintTokenRequestParams(ticker: ticker);
   @override
   late String userpass;
   @override

@@ -10,8 +10,8 @@ class OrderStatusRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'userpass': userpass,
-        'method': method,
-        'uuid': uuid,
-      };
+    'userpass': userpass,
+    'method': method,
+    'uuid': uuid,
+  };
 }

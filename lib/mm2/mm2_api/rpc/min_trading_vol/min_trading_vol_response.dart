@@ -1,8 +1,5 @@
 class MinTradingVolResponse {
-  MinTradingVolResponse({
-    required this.coin,
-    required this.result,
-  });
+  MinTradingVolResponse({required this.coin, required this.result});
 
   factory MinTradingVolResponse.fromJson(Map<String, dynamic> json) =>
       MinTradingVolResponse(
@@ -15,10 +12,7 @@ class MinTradingVolResponse {
 }
 
 class MinTradingVolResponseResult {
-  MinTradingVolResponseResult({
-    required this.numer,
-    required this.denom,
-  });
+  MinTradingVolResponseResult({required this.numer, required this.denom});
 
   factory MinTradingVolResponseResult.fromJson(Map<String, dynamic> json) {
     return MinTradingVolResponseResult(
@@ -31,7 +25,7 @@ class MinTradingVolResponseResult {
   final String numer;
 
   Map<String, String> toJson() => <String, String>{
-        'denom': denom,
-        'numer': numer,
-      };
+    'denom': denom,
+    'numer': numer,
+  };
 }

@@ -20,17 +20,14 @@ class BridgeProtocolLabel extends StatelessWidget {
     final Color borderColor = coin.type == CoinType.utxo
         ? getProtocolColor(coin.type)
         : coin.type == CoinType.smartChain
-            ? theme.custom.smartchainLabelBorderColor
-            : backgroundColor;
+        ? theme.custom.smartchainLabelBorderColor
+        : backgroundColor;
 
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          width: 1,
-          color: borderColor,
-        ),
+        border: Border.all(width: 1, color: borderColor),
       ),
       padding: const EdgeInsets.fromLTRB(3, 3, 10, 3),
       child: Row(
@@ -51,7 +48,8 @@ class BridgeProtocolLabel extends StatelessWidget {
           ? coin.abbr
           : getCoinTypeName(coin.type).toUpperCase(),
       style: TextStyle(
-        color: ThemeData.estimateBrightnessForColor(protocolColor) ==
+        color:
+            ThemeData.estimateBrightnessForColor(protocolColor) ==
                 Brightness.dark
             ? Colors.white
             : Colors.black,

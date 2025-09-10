@@ -33,8 +33,9 @@ class _DexListWrapperState extends State<DexListWrapper> {
   bool _isFilterShown = false;
   DexListType? previouseType;
 
-  final TradingKindBloc tradingKindBloc =
-      TradingKindBloc(TradingKindState.initial());
+  final TradingKindBloc tradingKindBloc = TradingKindBloc(
+    TradingKindState.initial(),
+  );
 
   @override
   void initState() {
@@ -55,8 +56,9 @@ class _DexListWrapperState extends State<DexListWrapper> {
       if (type.isNotEmpty ||
           (routingState.dexState.fromCurrency.isNotEmpty ||
               routingState.dexState.toCurrency.isNotEmpty)) {
-        tradingKindBloc
-            .setKind(type == 'taker' ? TradingKind.taker : TradingKind.maker);
+        tradingKindBloc.setKind(
+          type == 'taker' ? TradingKind.taker : TradingKind.maker,
+        );
       }
     }
   }
@@ -133,9 +135,7 @@ class _DexListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (type) {
       case DexListType.orders:
-        return OrdersList(
-          entitiesFilterData: filter,
-        );
+        return OrdersList(entitiesFilterData: filter);
       case DexListType.inProgress:
         return InProgressList(
           entitiesFilterData: filter,
@@ -178,9 +178,7 @@ class _MobileWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 16),
-          Flexible(
-            child: child,
-          ),
+          Flexible(child: child),
         ],
       );
     } else {

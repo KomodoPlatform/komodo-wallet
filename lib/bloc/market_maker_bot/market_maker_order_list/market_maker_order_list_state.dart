@@ -24,10 +24,10 @@ class MarketMakerOrderListState extends Equatable {
   });
 
   MarketMakerOrderListState.initial()
-      : this(
-          status: MarketMakerOrderListStatus.initial,
-          sortData: initialSortState(),
-        );
+    : this(
+        status: MarketMakerOrderListStatus.initial,
+        sortData: initialSortState(),
+      );
 
   MarketMakerOrderListState copyWith({
     List<TradePair>? makerBotOrders,

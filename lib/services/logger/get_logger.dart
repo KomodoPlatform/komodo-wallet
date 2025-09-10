@@ -34,7 +34,7 @@ Future<void> initializeLogger(Mm2Api mm2Api) async {
   final platformInfo = PlatformInfo.getInstance();
   final localeName =
       await getStorage().read('locale').catchError((_) => null) as String? ??
-          '';
+      '';
   DragonLogs.setSessionMetadata({
     'appVersion': packageInformation.packageVersion,
     'mm2Version': await mm2Api.version(),

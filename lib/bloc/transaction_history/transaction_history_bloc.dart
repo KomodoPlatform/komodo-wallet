@@ -15,10 +15,9 @@ import 'package:web_dex/shared/utils/utils.dart';
 
 class TransactionHistoryBloc
     extends Bloc<TransactionHistoryEvent, TransactionHistoryState> {
-  TransactionHistoryBloc({
-    required KomodoDefiSdk sdk,
-  })  : _sdk = sdk,
-        super(const TransactionHistoryState.initial()) {
+  TransactionHistoryBloc({required KomodoDefiSdk sdk})
+    : _sdk = sdk,
+      super(const TransactionHistoryState.initial()) {
     on<TransactionHistorySubscribe>(_onSubscribe, transformer: restartable());
     on<TransactionHistoryStartedLoading>(_onStartedLoading);
     on<TransactionHistoryUpdated>(_onUpdated);
@@ -73,47 +72,52 @@ class TransactionHistoryBloc
       final myAddresses = pubkeys.keys.map((p) => p.address).toSet();
 
       // Subscribe to historical transactions
-      _historySubscription =
-          _sdk.transactions.getTransactionsStreamed(asset).listen(
-        (newTransactions) {
-          // Filter out any transactions we've already processed
-          final uniqueTransactions = newTransactions.where((tx) {
-            final isNew = !_processedTxIds.contains(tx.internalId);
-            if (isNew) {
-              _processedTxIds.add(tx.internalId);
-            }
-            return isNew;
-          }).toList();
+      _historySubscription = _sdk.transactions
+          .getTransactionsStreamed(asset)
+          .listen(
+            (newTransactions) {
+              // Filter out any transactions we've already processed
+              final uniqueTransactions = newTransactions.where((tx) {
+                final isNew = !_processedTxIds.contains(tx.internalId);
+                if (isNew) {
+                  _processedTxIds.add(tx.internalId);
+                }
+                return isNew;
+              }).toList();
 
-          if (uniqueTransactions.isEmpty) return;
+              if (uniqueTransactions.isEmpty) return;
 
-          final sanitized =
-              uniqueTransactions.map((tx) => tx.sanitize(myAddresses)).toList();
-          final updatedTransactions = List<Transaction>.of(state.transactions)
-            ..addAll(sanitized)
-            ..sort(_sortTransactions);
+              final sanitized = uniqueTransactions
+                  .map((tx) => tx.sanitize(myAddresses))
+                  .toList();
+              final updatedTransactions =
+                  List<Transaction>.of(state.transactions)
+                    ..addAll(sanitized)
+                    ..sort(_sortTransactions);
 
-          if (event.coin.isErcType) {
-            _flagTransactions(updatedTransactions, event.coin);
-          }
+              if (event.coin.isErcType) {
+                _flagTransactions(updatedTransactions, event.coin);
+              }
 
-          add(TransactionHistoryUpdated(transactions: updatedTransactions));
-        },
-        onError: (error) {
-          add(
-            TransactionHistoryFailure(
-              error: TextError(error: LocaleKeys.somethingWrong.tr()),
-            ),
+              add(TransactionHistoryUpdated(transactions: updatedTransactions));
+            },
+            onError: (error) {
+              add(
+                TransactionHistoryFailure(
+                  error: TextError(error: LocaleKeys.somethingWrong.tr()),
+                ),
+              );
+            },
+            onDone: () {
+              if (state.error == null && state.loading) {
+                add(
+                  TransactionHistoryUpdated(transactions: state.transactions),
+                );
+              }
+              // Once historical load is complete, start watching for new transactions
+              _subscribeToNewTransactions(asset, event.coin, myAddresses);
+            },
           );
-        },
-        onDone: () {
-          if (state.error == null && state.loading) {
-            add(TransactionHistoryUpdated(transactions: state.transactions));
-          }
-          // Once historical load is complete, start watching for new transactions
-          _subscribeToNewTransactions(asset, event.coin, myAddresses);
-        },
-      );
     } catch (e, s) {
       log(
         'Error loading transaction history: $e',
@@ -130,45 +134,44 @@ class TransactionHistoryBloc
   }
 
   void _subscribeToNewTransactions(
-      Asset asset, Coin coin, Set<String> myAddresses) {
-    _newTransactionsSubscription =
-        _sdk.transactions.watchTransactions(asset).listen(
-      (newTransaction) {
-        if (_processedTxIds.contains(newTransaction.internalId)) return;
+    Asset asset,
+    Coin coin,
+    Set<String> myAddresses,
+  ) {
+    _newTransactionsSubscription = _sdk.transactions
+        .watchTransactions(asset)
+        .listen(
+          (newTransaction) {
+            if (_processedTxIds.contains(newTransaction.internalId)) return;
 
-        _processedTxIds.add(newTransaction.internalId);
+            _processedTxIds.add(newTransaction.internalId);
 
-        final sanitized = newTransaction.sanitize(myAddresses);
-        final updatedTransactions = List<Transaction>.of(state.transactions)
-          ..add(sanitized)
-          ..sort(_sortTransactions);
+            final sanitized = newTransaction.sanitize(myAddresses);
+            final updatedTransactions = List<Transaction>.of(state.transactions)
+              ..add(sanitized)
+              ..sort(_sortTransactions);
 
-        if (coin.isErcType) {
-          _flagTransactions(updatedTransactions, coin);
-        }
+            if (coin.isErcType) {
+              _flagTransactions(updatedTransactions, coin);
+            }
 
-        add(TransactionHistoryUpdated(transactions: updatedTransactions));
-      },
-      onError: (error) {
-        add(
-          TransactionHistoryFailure(
-            error: TextError(error: LocaleKeys.somethingWrong.tr()),
-          ),
+            add(TransactionHistoryUpdated(transactions: updatedTransactions));
+          },
+          onError: (error) {
+            add(
+              TransactionHistoryFailure(
+                error: TextError(error: LocaleKeys.somethingWrong.tr()),
+              ),
+            );
+          },
         );
-      },
-    );
   }
 
   void _onUpdated(
     TransactionHistoryUpdated event,
     Emitter<TransactionHistoryState> emit,
   ) {
-    emit(
-      state.copyWith(
-        transactions: event.transactions,
-        loading: false,
-      ),
-    );
+    emit(state.copyWith(transactions: event.transactions, loading: false));
   }
 
   void _onStartedLoading(
@@ -182,12 +185,7 @@ class TransactionHistoryBloc
     TransactionHistoryFailure event,
     Emitter<TransactionHistoryState> emit,
   ) {
-    emit(
-      state.copyWith(
-        loading: false,
-        error: event.error,
-      ),
-    );
+    emit(state.copyWith(loading: false, error: event.error));
   }
 }
 
@@ -202,22 +200,20 @@ int _sortTransactions(Transaction tx1, Transaction tx2) {
 
 void _flagTransactions(List<Transaction> transactions, Coin coin) {
   if (!coin.isErcType) return;
-  transactions
-      .removeWhere((tx) => tx.balanceChanges.totalAmount.toDouble() == 0.0);
+  transactions.removeWhere(
+    (tx) => tx.balanceChanges.totalAmount.toDouble() == 0.0,
+  );
 }
 
 class Pagination {
-  Pagination({
-    this.fromId,
-    this.pageNumber,
-  });
+  Pagination({this.fromId, this.pageNumber});
   final String? fromId;
   final int? pageNumber;
 
   Map<String, dynamic> toJson() => {
-        if (fromId != null) 'FromId': fromId,
-        if (pageNumber != null) 'PageNumber': pageNumber,
-      };
+    if (fromId != null) 'FromId': fromId,
+    if (pageNumber != null) 'PageNumber': pageNumber,
+  };
 }
 
 /// Represents different ways to paginate transaction history
@@ -230,10 +226,7 @@ sealed class TransactionPagination {
 
 /// Standard page-based pagination
 class PagePagination extends TransactionPagination {
-  const PagePagination({
-    required this.pageNumber,
-    required this.itemsPerPage,
-  });
+  const PagePagination({required this.pageNumber, required this.itemsPerPage});
 
   final int pageNumber;
   final int itemsPerPage;

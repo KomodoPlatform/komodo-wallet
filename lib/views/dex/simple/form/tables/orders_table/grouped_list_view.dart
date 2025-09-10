@@ -29,7 +29,8 @@ class GroupedListView<T> extends StatelessWidget {
 
     // Add right padding to the last column if there are grouped items
     // to align the grouped and non-grouped
-    final areGroupedItemsPresent = groupedItems.isNotEmpty &&
+    final areGroupedItemsPresent =
+        groupedItems.isNotEmpty &&
         groupedItems.entries
             .where((element) => element.value.length > 1)
             .isNotEmpty;
@@ -60,8 +61,9 @@ class GroupedListView<T> extends StatelessWidget {
                         coin: _createHeaderCoinData(context, group.value),
                         onSelect: onSelect,
                         isGroupHeader: true,
-                        subtitleText: LocaleKeys.nNetworks
-                            .tr(args: [group.value.length.toString()]),
+                        subtitleText: LocaleKeys.nNetworks.tr(
+                          args: [group.value.length.toString()],
+                        ),
                       ),
                       children: group.value
                           .map((item) => buildItem(context, item, onSelect))

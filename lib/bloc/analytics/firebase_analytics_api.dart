@@ -140,8 +140,9 @@ class FirebaseAnalyticsApi implements AnalyticsApi {
 
     // Log the event in debug mode with formatted parameters for better readability
     if (kDebugMode) {
-      final formattedParams =
-          const JsonEncoder.withIndent('  ').convert(sanitizedParameters);
+      final formattedParams = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(sanitizedParameters);
       log(
         'Firebase Analytics Event: ${event.name}; Parameters: $formattedParams',
         path: 'analytics -> FirebaseAnalyticsApi -> sendEvent',
@@ -239,10 +240,7 @@ class FirebaseAnalyticsApi implements AnalyticsApi {
 
       // Convert events to a serializable format
       final serializedEvents = _eventQueue.map((event) {
-        return {
-          'name': event.name,
-          'parameters': event.parameters,
-        };
+        return {'name': event.name, 'parameters': event.parameters};
       }).toList();
 
       // Serialize and store
@@ -294,10 +292,12 @@ class FirebaseAnalyticsApi implements AnalyticsApi {
 
       // Create PersistedAnalyticsEventData instances
       for (final eventMap in decodedList) {
-        _eventQueue.add(PersistedAnalyticsEventData(
-          name: eventMap['name'],
-          parameters: Map<String, dynamic>.from(eventMap['parameters']),
-        ));
+        _eventQueue.add(
+          PersistedAnalyticsEventData(
+            name: eventMap['name'],
+            parameters: Map<String, dynamic>.from(eventMap['parameters']),
+          ),
+        );
       }
 
       if (kDebugMode) {

@@ -10,9 +10,7 @@ class NftTxnEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return isMobile
-        ? const Center(
-            child: _NothingShow(),
-          )
+        ? const Center(child: _NothingShow())
         : Container(
             alignment: Alignment.topCenter,
             padding: const EdgeInsets.only(top: 72.0),
@@ -30,10 +28,7 @@ class _NothingShow extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          LocaleKeys.transactionsEmptyTitle.tr(),
-          style: textTheme.heading1,
-        ),
+        Text(LocaleKeys.transactionsEmptyTitle.tr(), style: textTheme.heading1),
         const SizedBox(height: 16),
         Text(
           LocaleKeys.transactionsEmptyDescription.tr(),

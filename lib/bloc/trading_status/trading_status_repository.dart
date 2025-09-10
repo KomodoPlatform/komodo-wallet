@@ -6,8 +6,8 @@ import 'package:web_dex/shared/constants.dart';
 
 class TradingStatusRepository {
   TradingStatusRepository({http.Client? httpClient, Duration? timeout})
-      : _httpClient = httpClient ?? http.Client(),
-        _timeout = timeout ?? const Duration(seconds: 10);
+    : _httpClient = httpClient ?? http.Client(),
+      _timeout = timeout ?? const Duration(seconds: 10);
 
   final http.Client _httpClient;
   final Duration _timeout;
@@ -38,8 +38,9 @@ class TradingStatusRepository {
         headers['X-KW-KEY'] = apiKey;
       }
 
-      final res =
-          await _httpClient.post(uri, headers: headers).timeout(_timeout);
+      final res = await _httpClient
+          .post(uri, headers: headers)
+          .timeout(_timeout);
 
       if (shouldFail) {
         return res.statusCode == 200;

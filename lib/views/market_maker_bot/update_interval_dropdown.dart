@@ -35,8 +35,9 @@ class UpdateIntervalDropdown extends StatelessWidget {
                   (interval) => DropdownMenuItem(
                     value: interval,
                     alignment: Alignment.center,
-                    child:
-                        Text('${interval.minutes} ${LocaleKeys.minutes.tr()}'),
+                    child: Text(
+                      '${interval.minutes} ${LocaleKeys.minutes.tr()}',
+                    ),
                   ),
                 )
                 .toList(),

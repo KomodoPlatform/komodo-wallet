@@ -17,18 +17,23 @@ List<Coin> sortByName(List<Coin> coins, SortDirection sortDirection) {
 List<Coin> sortByProtocol(List<Coin> coins, SortDirection sortDirection) {
   if (sortDirection == SortDirection.none) return coins;
   if (sortDirection == SortDirection.increase) {
-    coins
-        .sort((a, b) => a.typeNameWithTestnet.compareTo(b.typeNameWithTestnet));
+    coins.sort(
+      (a, b) => a.typeNameWithTestnet.compareTo(b.typeNameWithTestnet),
+    );
     return coins;
   } else {
-    coins
-        .sort((a, b) => b.typeNameWithTestnet.compareTo(a.typeNameWithTestnet));
+    coins.sort(
+      (a, b) => b.typeNameWithTestnet.compareTo(a.typeNameWithTestnet),
+    );
     return coins;
   }
 }
 
 List<Coin> sortByLastKnownUsdBalance(
-    List<Coin> coins, SortDirection sortDirection, KomodoDefiSdk sdk) {
+  List<Coin> coins,
+  SortDirection sortDirection,
+  KomodoDefiSdk sdk,
+) {
   if (sortDirection == SortDirection.none) return coins;
   if (sortDirection == SortDirection.increase) {
     coins.sort((a, b) {
@@ -50,7 +55,10 @@ List<Coin> sortByLastKnownUsdBalance(
 }
 
 List<Coin> sortByUsdBalance(
-    List<Coin> coins, SortDirection sortDirection, KomodoDefiSdk sdk) {
+  List<Coin> coins,
+  SortDirection sortDirection,
+  KomodoDefiSdk sdk,
+) {
   if (sortDirection == SortDirection.none) return coins;
 
   final List<({Coin coin, double balance})> coinsWithBalances = List.generate(

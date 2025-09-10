@@ -37,10 +37,7 @@ class WalletTypeListItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (type != WalletType.iguana && type != WalletType.hdwallet)
-                SvgPicture.asset(
-                  _iconPath,
-                  width: 25,
-                ),
+                SvgPicture.asset(_iconPath, width: 25),
               Padding(
                 padding: const EdgeInsets.only(left: 8),
                 child: Column(
@@ -56,10 +53,10 @@ class WalletTypeListItem extends StatelessWidget {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }

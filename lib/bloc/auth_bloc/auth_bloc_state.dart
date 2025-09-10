@@ -11,20 +11,21 @@ class AuthBlocState extends Equatable {
   factory AuthBlocState.initial() =>
       const AuthBlocState(mode: AuthorizeMode.noLogin);
   factory AuthBlocState.loading() => const AuthBlocState(
-        mode: AuthorizeMode.noLogin,
-        authenticationState:
-            AuthenticationState(status: AuthenticationStatus.initializing),
-      );
+    mode: AuthorizeMode.noLogin,
+    authenticationState: AuthenticationState(
+      status: AuthenticationStatus.initializing,
+    ),
+  );
   factory AuthBlocState.error(AuthException authError) => AuthBlocState(
-        mode: AuthorizeMode.noLogin,
-        authenticationState: AuthenticationState.error(authError.toString()),
-        authError: authError,
-      );
+    mode: AuthorizeMode.noLogin,
+    authenticationState: AuthenticationState.error(authError.toString()),
+    authError: authError,
+  );
   factory AuthBlocState.loggedIn(KdfUser user) => AuthBlocState(
-        mode: AuthorizeMode.logIn,
-        authenticationState: AuthenticationState.completed(user),
-        currentUser: user,
-      );
+    mode: AuthorizeMode.logIn,
+    authenticationState: AuthenticationState.completed(user),
+    currentUser: user,
+  );
   factory AuthBlocState.trezorInitializing({String? message, int? taskId}) =>
       AuthBlocState(
         mode: AuthorizeMode.noLogin,
@@ -34,41 +35,45 @@ class AuthBlocState extends Equatable {
           message: message,
         ),
       );
-  factory AuthBlocState.trezorAwaitingConfirmation(
-          {String? message, int? taskId}) =>
-      AuthBlocState(
-        mode: AuthorizeMode.noLogin,
-        authenticationState: AuthenticationState(
-          status: AuthenticationStatus.waitingForDeviceConfirmation,
-          taskId: taskId,
-          message: message,
-        ),
-      );
-  factory AuthBlocState.trezorPinRequired(
-          {String? message, required int taskId}) =>
-      AuthBlocState(
-        mode: AuthorizeMode.noLogin,
-        authenticationState: AuthenticationState(
-          status: AuthenticationStatus.pinRequired,
-          taskId: taskId,
-          message: message,
-        ),
-      );
-  factory AuthBlocState.trezorPassphraseRequired(
-          {String? message, required int taskId}) =>
-      AuthBlocState(
-        mode: AuthorizeMode.noLogin,
-        authenticationState: AuthenticationState(
-          status: AuthenticationStatus.passphraseRequired,
-          taskId: taskId,
-          message: message,
-        ),
-      );
+  factory AuthBlocState.trezorAwaitingConfirmation({
+    String? message,
+    int? taskId,
+  }) => AuthBlocState(
+    mode: AuthorizeMode.noLogin,
+    authenticationState: AuthenticationState(
+      status: AuthenticationStatus.waitingForDeviceConfirmation,
+      taskId: taskId,
+      message: message,
+    ),
+  );
+  factory AuthBlocState.trezorPinRequired({
+    String? message,
+    required int taskId,
+  }) => AuthBlocState(
+    mode: AuthorizeMode.noLogin,
+    authenticationState: AuthenticationState(
+      status: AuthenticationStatus.pinRequired,
+      taskId: taskId,
+      message: message,
+    ),
+  );
+  factory AuthBlocState.trezorPassphraseRequired({
+    String? message,
+    required int taskId,
+  }) => AuthBlocState(
+    mode: AuthorizeMode.noLogin,
+    authenticationState: AuthenticationState(
+      status: AuthenticationStatus.passphraseRequired,
+      taskId: taskId,
+      message: message,
+    ),
+  );
   factory AuthBlocState.trezorReady() => const AuthBlocState(
-        mode: AuthorizeMode.noLogin,
-        authenticationState:
-            AuthenticationState(status: AuthenticationStatus.cancelled),
-      );
+    mode: AuthorizeMode.noLogin,
+    authenticationState: AuthenticationState(
+      status: AuthenticationStatus.cancelled,
+    ),
+  );
 
   final KdfUser? currentUser;
   final AuthorizeMode mode;
@@ -84,6 +89,11 @@ class AuthBlocState extends Equatable {
   bool get isError => status == AuthenticationStatus.error;
 
   @override
-  List<Object?> get props =>
-      [mode, currentUser, status, authError, authenticationState];
+  List<Object?> get props => [
+    mode,
+    currentUser,
+    status,
+    authError,
+    authenticationState,
+  ];
 }

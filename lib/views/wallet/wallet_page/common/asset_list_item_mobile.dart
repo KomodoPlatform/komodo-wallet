@@ -24,17 +24,11 @@ class AssetListItemMobile extends StatelessWidget {
       onTap: () => onTap(assetId),
       child: Container(
         color: backgroundColor,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 8.0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Row(
           children: [
             Expanded(
-              child: AssetItem(
-                assetId: assetId,
-                size: AssetItemSize.medium,
-              ),
+              child: AssetItem(assetId: assetId, size: AssetItemSize.medium),
             ),
             const Icon(Icons.chevron_right),
           ],

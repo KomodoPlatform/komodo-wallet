@@ -64,8 +64,9 @@ extension ChartExtension on ChartData {
   ChartData filterToPeriod(Duration period) {
     final startDate = DateTime.now().subtract(period);
     return where(
-      (element) => DateTime.fromMillisecondsSinceEpoch(element.x.floor())
-          .isAfter(startDate),
+      (element) => DateTime.fromMillisecondsSinceEpoch(
+        element.x.floor(),
+      ).isAfter(startDate),
     ).toList();
   }
 
@@ -76,29 +77,23 @@ extension ChartExtension on ChartData {
     }
 
     if (startAt != null && endAt != null) {
-      return where(
-        (element) {
-          final date = DateTime.fromMillisecondsSinceEpoch(element.x.floor());
-          return date.isAfter(startAt) && date.isBefore(endAt);
-        },
-      ).toList();
+      return where((element) {
+        final date = DateTime.fromMillisecondsSinceEpoch(element.x.floor());
+        return date.isAfter(startAt) && date.isBefore(endAt);
+      }).toList();
     }
 
     if (startAt != null) {
-      return where(
-        (element) {
-          final date = DateTime.fromMillisecondsSinceEpoch(element.x.floor());
-          return date.isAfter(startAt);
-        },
-      ).toList();
+      return where((element) {
+        final date = DateTime.fromMillisecondsSinceEpoch(element.x.floor());
+        return date.isAfter(startAt);
+      }).toList();
     }
 
-    return where(
-      (element) {
-        final date = DateTime.fromMillisecondsSinceEpoch(element.x.floor());
-        return date.isBefore(endAt!);
-      },
-    ).toList();
+    return where((element) {
+      final date = DateTime.fromMillisecondsSinceEpoch(element.x.floor());
+      return date.isBefore(endAt!);
+    }).toList();
   }
 }
 
@@ -133,8 +128,10 @@ class Charts {
 
       switch (mergeType) {
         case MergeType.fullOuterJoin:
-          combinedChart =
-              _fullOuterJoinMerge(combinedChart, charts.elementAt(i));
+          combinedChart = _fullOuterJoinMerge(
+            combinedChart,
+            charts.elementAt(i),
+          );
           break;
         case MergeType.leftJoin:
           combinedChart = _leftJoinMerge(combinedChart, charts.elementAt(i));
@@ -191,14 +188,12 @@ class Charts {
   /// Merges two charts together, adding the y values of points with the
   /// matching x values. Adds any points that are not present in the first
   /// chart to the resulting chart.
-  static ChartData _fullOuterJoinMerge(
-    ChartData chart1,
-    ChartData chart2,
-  ) {
+  static ChartData _fullOuterJoinMerge(ChartData chart1, ChartData chart2) {
     final ChartData combinedChart = [...chart1];
     for (final point in chart2) {
-      final existingPointIndex =
-          combinedChart.indexWhere((p) => p.x == point.x);
+      final existingPointIndex = combinedChart.indexWhere(
+        (p) => p.x == point.x,
+      );
       if (existingPointIndex > -1) {
         combinedChart[existingPointIndex] = Point<double>(
           combinedChart[existingPointIndex].x,
@@ -208,12 +203,7 @@ class Charts {
         // use the last point in the combined chart to calculate the next point
         final nearestIndex = chart1.indexWhere((p) => p.x >= point.x);
         if (nearestIndex > -1) {
-          combinedChart.add(
-            Point(
-              point.x,
-              chart1[nearestIndex].y + point.y,
-            ),
-          );
+          combinedChart.add(Point(point.x, chart1[nearestIndex].y + point.y));
         } else {
           combinedChart.add(point);
         }
@@ -300,12 +290,7 @@ class Charts {
         }
       }
 
-      portfolioBalance.add(
-        Point<double>(
-          spot.x,
-          runningTotal * spot.y,
-        ),
-      );
+      portfolioBalance.add(Point<double>(spot.x, runningTotal * spot.y));
     }
     return portfolioBalance;
   }
@@ -320,10 +305,7 @@ class Charts {
   /// [chartToMerge] The chart to merge with
   ///
   /// Returns a new chart with the combined values
-  static ChartData _leftJoinMerge(
-    ChartData baseChart,
-    ChartData chartToMerge,
-  ) {
+  static ChartData _leftJoinMerge(ChartData baseChart, ChartData chartToMerge) {
     final List<Point<double>> mergedChart = <Point<double>>[];
     int mergeIndex = 0;
     double cumulativeChange = 0;
@@ -342,10 +324,7 @@ class Charts {
 
       // Add the cumulative change to the base chart value
       mergedChart.add(
-        Point<double>(
-          basePoint.x,
-          basePoint.y + cumulativeChange,
-        ),
+        Point<double>(basePoint.x, basePoint.y + cumulativeChange),
       );
     }
 

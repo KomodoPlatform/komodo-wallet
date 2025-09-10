@@ -54,10 +54,9 @@ class NftFailure extends StatelessWidget {
               const SizedBox(height: 15),
               Text(
                 title,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(color: colorScheme.error),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: colorScheme.error),
               ),
               const SizedBox(height: 12),
               Text(
@@ -73,24 +72,24 @@ class NftFailure extends StatelessWidget {
                 ),
               const SizedBox(height: 12),
               Container(
-                  constraints: const BoxConstraints(maxWidth: 324),
-                  decoration: BoxDecoration(
-                      color: theme.custom.subCardBackgroundColor,
-                      borderRadius: BorderRadius.circular(18)),
-                  child: SelectableText(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyS.copyWith(color: colorScheme.s70),
-                  )),
+                constraints: const BoxConstraints(maxWidth: 324),
+                decoration: BoxDecoration(
+                  color: theme.custom.subCardBackgroundColor,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: SelectableText(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyS.copyWith(color: colorScheme.s70),
+                ),
+              ),
               const SizedBox(height: 24),
               UiPrimaryButton(
                 text: LocaleKeys.retryButtonText.tr(),
                 width: 324,
                 prefix: isSpinnerShown
                     ? null
-                    : UiSpinner(
-                        color: colorScheme.primary,
-                      ),
+                    : UiSpinner(color: colorScheme.primary),
                 onPressed: isSpinnerShown ? null : onTryAgain,
               ),
               const SizedBox(height: 20),

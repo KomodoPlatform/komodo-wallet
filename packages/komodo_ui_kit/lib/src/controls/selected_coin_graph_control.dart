@@ -34,9 +34,7 @@ class SelectedCoinGraphControl extends StatelessWidget {
     // assert(onCoinSelected != null || emptySelectAllowed);
 
     // If onCoinSelected is non-null, then availableCoins must be non-null
-    assert(
-      onCoinSelected == null || availableCoins != null,
-    );
+    assert(onCoinSelected == null || availableCoins != null);
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWideScreen = constraints.maxWidth > 600;
@@ -95,8 +93,10 @@ class SelectedCoinGraphControl extends StatelessWidget {
                             ],
                           ],
                         )
-                      : Text('All',
-                          style: Theme.of(context).textTheme.bodyLarge),
+                      : Text(
+                          'All',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                 ),
                 if (isWideScreen)
                   Text(
@@ -105,9 +105,9 @@ class SelectedCoinGraphControl extends StatelessWidget {
                           ..minimumFractionDigits = 2)
                         .format(centreAmount),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          // TODO: Incorporate into theme and remove duplication accross charts
-                          fontWeight: FontWeight.w600,
-                        ),
+                      // TODO: Incorporate into theme and remove duplication accross charts
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 Row(
                   mainAxisSize: MainAxisSize.min,

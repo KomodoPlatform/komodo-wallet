@@ -31,7 +31,7 @@ class ProfitLossCache extends Equatable
   /// HD and non-HD wallets, but the profit/loss data will be different.
   final bool isHdWallet;
 
-  /// The timestamp of the last update in seconds since epoch. 
+  /// The timestamp of the last update in seconds since epoch.
   /// (e.g. [DateTime.now().millisecondsSinceEpoch ~/ 1000])
   final DateTime lastUpdated;
 
@@ -40,19 +40,18 @@ class ProfitLossCache extends Equatable
 
   @override
   String get primaryKey => getPrimaryKey(
-        coinId: coinId,
-        fiatCurrency: fiatCoinId,
-        walletId: walletId,
-        isHdWallet: isHdWallet,
-      );
+    coinId: coinId,
+    fiatCurrency: fiatCoinId,
+    walletId: walletId,
+    isHdWallet: isHdWallet,
+  );
 
   static String getPrimaryKey({
     required String coinId,
     required String fiatCurrency,
     required String walletId,
     required bool isHdWallet,
-  }) =>
-      '$coinId-$fiatCurrency-$walletId-$isHdWallet';
+  }) => '$coinId-$fiatCurrency-$walletId-$isHdWallet';
 
   @override
   List<Object?> get props => [coinId, fiatCoinId, lastUpdated, profitLosses];

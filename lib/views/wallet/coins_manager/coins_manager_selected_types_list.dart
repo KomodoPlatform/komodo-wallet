@@ -33,73 +33,76 @@ class CoinsManagerSelectedTypesList extends StatelessWidget {
               isMobile: isMobile,
               scrollController: scrollController,
               child: ListView.builder(
-                  controller: scrollController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: types.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final type = types[index];
-                    final Color protocolColor = getProtocolColor(type);
-                    if (index == 0) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: CoinsManagerFilterTypeLabel(
-                              text: LocaleKeys.resetAll.tr(),
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
-                                color: themeData.textTheme.labelLarge?.color,
-                              ),
-                              backgroundColor: themeData.colorScheme.surface,
-                              border: Border.all(
-                                  color:
-                                      theme.custom.specificButtonBorderColor),
-                              onTap: () {
-                                context.read<CoinsManagerBloc>().add(
-                                    const CoinsManagerSelectedTypesReset());
-                              },
+                controller: scrollController,
+                scrollDirection: Axis.horizontal,
+                itemCount: types.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final type = types[index];
+                  final Color protocolColor = getProtocolColor(type);
+                  if (index == 0) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: CoinsManagerFilterTypeLabel(
+                            text: LocaleKeys.resetAll.tr(),
+                            textStyle: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              color: themeData.textTheme.labelLarge?.color,
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: CoinsManagerFilterTypeLabel(
-                              text: getCoinTypeName(type),
-                              backgroundColor: protocolColor,
-                              border: Border.all(
-                                color: type == CoinType.smartChain
-                                    ? theme.custom.smartchainLabelBorderColor
-                                    : protocolColor,
-                              ),
-                              onTap: () {
-                                context.read<CoinsManagerBloc>().add(
-                                    CoinsManagerCoinTypeSelect(type: type));
-                              },
+                            backgroundColor: themeData.colorScheme.surface,
+                            border: Border.all(
+                              color: theme.custom.specificButtonBorderColor,
                             ),
+                            onTap: () {
+                              context.read<CoinsManagerBloc>().add(
+                                const CoinsManagerSelectedTypesReset(),
+                              );
+                            },
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                      );
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: CoinsManagerFilterTypeLabel(
-                        text: getCoinTypeName(type),
-                        backgroundColor: protocolColor,
-                        border: Border.all(
-                          color: type == CoinType.smartChain
-                              ? theme.custom.smartchainLabelBorderColor
-                              : protocolColor,
                         ),
-                        onTap: () {
-                          context
-                              .read<CoinsManagerBloc>()
-                              .add(CoinsManagerCoinTypeSelect(type: type));
-                        },
-                      ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: CoinsManagerFilterTypeLabel(
+                            text: getCoinTypeName(type),
+                            backgroundColor: protocolColor,
+                            border: Border.all(
+                              color: type == CoinType.smartChain
+                                  ? theme.custom.smartchainLabelBorderColor
+                                  : protocolColor,
+                            ),
+                            onTap: () {
+                              context.read<CoinsManagerBloc>().add(
+                                CoinsManagerCoinTypeSelect(type: type),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
                     );
-                  }),
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: CoinsManagerFilterTypeLabel(
+                      text: getCoinTypeName(type),
+                      backgroundColor: protocolColor,
+                      border: Border.all(
+                        color: type == CoinType.smartChain
+                            ? theme.custom.smartchainLabelBorderColor
+                            : protocolColor,
+                      ),
+                      onTap: () {
+                        context.read<CoinsManagerBloc>().add(
+                          CoinsManagerCoinTypeSelect(type: type),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         );

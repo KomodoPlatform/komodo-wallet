@@ -22,8 +22,10 @@ class BridgeRepository {
     final List<OrderBookDepth>? depths = await _getDepths(tickers);
     if (depths == null) return null;
 
-    final CoinsByTicker sellCoins =
-        tickers.entries.fold({}, (previousValue, entry) {
+    final CoinsByTicker sellCoins = tickers.entries.fold({}, (
+      previousValue,
+      entry,
+    ) {
       final List<Coin> coins = previousValue[entry.key] ?? [];
       final List<OrderBookDepth> tickerDepths = depths
           .where(
@@ -58,11 +60,13 @@ class BridgeRepository {
     coins = removeSuspended(coins, await _kdfSdk.auth.isSignedIn());
 
     final CoinsByTicker coinsByTicker = convertToCoinsByTicker(coins);
-    final CoinsByTicker multiProtocolCoins =
-        removeSingleProtocol(coinsByTicker);
+    final CoinsByTicker multiProtocolCoins = removeSingleProtocol(
+      coinsByTicker,
+    );
 
-    final List<OrderBookDepth>? orderBookDepths =
-        await _getDepths(multiProtocolCoins);
+    final List<OrderBookDepth>? orderBookDepths = await _getDepths(
+      multiProtocolCoins,
+    );
 
     if (orderBookDepths == null || orderBookDepths.isEmpty) {
       return multiProtocolCoins;
@@ -77,8 +81,9 @@ class BridgeRepository {
   Future<List<OrderBookDepth>?> _getDepths(CoinsByTicker coinsByTicker) async {
     final List<List<String>> depthsPairs = _getDepthsPairs(coinsByTicker);
 
-    List<OrderBookDepth>? orderBookDepths =
-        await _getNotEmptyDepths(depthsPairs);
+    List<OrderBookDepth>? orderBookDepths = await _getNotEmptyDepths(
+      depthsPairs,
+    );
     if (orderBookDepths?.isEmpty ?? true) {
       orderBookDepths = await _frequentRequestDepth(depthsPairs);
     }
@@ -110,8 +115,8 @@ class BridgeRepository {
   Future<List<OrderBookDepth>?> _getNotEmptyDepths(
     List<List<String>> pairs,
   ) async {
-    final OrderBookDepthResponse? depthResponse =
-        await _mm2Api.getOrderBookDepth(pairs, _coinsRepository);
+    final OrderBookDepthResponse? depthResponse = await _mm2Api
+        .getOrderBookDepth(pairs, _coinsRepository);
 
     return depthResponse?.list
         .where((d) => d.bids != 0 || d.asks != 0)
@@ -119,13 +124,10 @@ class BridgeRepository {
   }
 
   List<List<String>> _getDepthsPairs(CoinsByTicker coins) {
-    return coins.values.fold<List<List<String>>>(
-      [],
-      (previousValue, entry) {
-        previousValue.addAll(_createPairs(entry));
-        return previousValue;
-      },
-    );
+    return coins.values.fold<List<List<String>>>([], (previousValue, entry) {
+      previousValue.addAll(_createPairs(entry));
+      return previousValue;
+    });
   }
 
   List<List<String>> _createPairs(List<Coin> group) {

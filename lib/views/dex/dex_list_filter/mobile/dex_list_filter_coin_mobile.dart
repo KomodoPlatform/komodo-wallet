@@ -55,8 +55,10 @@ class DexListFilterCoinMobile extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Icon(Icons.expand_more,
-                    color: themeData.inputDecorationTheme.labelStyle?.color)
+                Icon(
+                  Icons.expand_more,
+                  color: themeData.inputDecorationTheme.labelStyle?.color,
+                ),
               ],
             ),
           ),

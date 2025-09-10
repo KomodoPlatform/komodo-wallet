@@ -66,9 +66,9 @@ class _SettingsDownloadLogsState extends State<SettingsDownloadLogs> {
   Future<void> _downloadLogs() async {
     setState(() => _isDownloadFile = true);
 
-    await logger
-        .getLogFile()
-        .whenComplete(() => setState(() => _isDownloadFile = false));
+    await logger.getLogFile().whenComplete(
+      () => setState(() => _isDownloadFile = false),
+    );
   }
 
   Future<void> _runDebugFloodLogs() async {

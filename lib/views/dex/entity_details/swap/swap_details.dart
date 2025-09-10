@@ -7,9 +7,11 @@ import 'package:web_dex/views/dex/entity_details/trading_details_coin_pair.dart'
 import 'package:web_dex/views/dex/entity_details/trading_details_total_time.dart';
 
 class SwapDetails extends StatelessWidget {
-  const SwapDetails(
-      {Key? key, required this.swapStatus, required this.isFailed})
-      : super(key: key);
+  const SwapDetails({
+    Key? key,
+    required this.swapStatus,
+    required this.isFailed,
+  }) : super(key: key);
   final Swap swapStatus;
   final bool isFailed;
 
@@ -25,9 +27,7 @@ class SwapDetails extends StatelessWidget {
           if (swapStatus.recoverable)
             Padding(
               padding: const EdgeInsets.only(bottom: 20),
-              child: SwapRecoverButton(
-                uuid: swapStatus.uuid,
-              ),
+              child: SwapRecoverButton(uuid: swapStatus.uuid),
             ),
           TradingDetailsCoinPair(
             baseCoin: swapStatus.isTaker
@@ -62,7 +62,7 @@ class SwapDetails extends StatelessWidget {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

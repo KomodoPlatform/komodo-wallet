@@ -55,7 +55,8 @@ Widget _buildDialogContent(BuildContext context) {
 
 Future<void> _launchHelpUrl() async {
   final url = Uri.parse(
-      'https://komodoplatform.com/en/blog/komodo-wallet-v0-9-0-is-now-live/#note-for-web-wallet-users-with-existing-wallets-before-the-latest-release');
+    'https://komodoplatform.com/en/blog/komodo-wallet-v0-9-0-is-now-live/#note-for-web-wallet-users-with-existing-wallets-before-the-latest-release',
+  );
   if (await canLaunchUrl(url)) {
     await launchUrl(url);
   }

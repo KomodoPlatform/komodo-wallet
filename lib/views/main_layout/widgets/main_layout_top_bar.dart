@@ -21,10 +21,7 @@ class MainLayoutTopBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: AppBar(
@@ -53,7 +50,9 @@ class MainLayoutTopBar extends StatelessWidget {
 
   double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
     double total = coins.fold(
-        0, (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0));
+      0,
+      (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0),
+    );
 
     if (total > 0.01) {
       return total;
@@ -66,29 +65,27 @@ class MainLayoutTopBar extends StatelessWidget {
     final languageCodes = localeList.map((e) => e.languageCode).toList();
     final langCode2flags = {
       for (var loc in languageCodes)
-        loc: SvgPicture.asset(
-          '$assetsPath/flags/$loc.svg',
-        ),
+        loc: SvgPicture.asset('$assetsPath/flags/$loc.svg'),
     };
 
     return [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          if (showLanguageSwitcher) ...[
-            LanguageSwitcher(
-              currentLocale: context.locale.toString(),
-              languageCodes: languageCodes,
-              flags: langCode2flags,
-            ),
-            const SizedBox(width: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (showLanguageSwitcher) ...[
+              LanguageSwitcher(
+                currentLocale: context.locale.toString(),
+                languageCodes: languageCodes,
+                flags: langCode2flags,
+              ),
+              const SizedBox(width: 16),
+            ],
+            SizedBox(height: 40, child: const AccountSwitcher()),
           ],
-          SizedBox(
-            height: 40,
-            child: const AccountSwitcher(),
-          ),
-        ]),
-      )
+        ),
+      ),
     ];
   }
 }

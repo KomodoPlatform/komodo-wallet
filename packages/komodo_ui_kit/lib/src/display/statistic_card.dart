@@ -43,10 +43,7 @@ class StatisticCard extends StatelessWidget {
       end: Alignment.bottomLeft,
       colors: (theme.brightness == Brightness.light)
           ? [cardColor, cardColor]
-          : [
-              Color.fromRGBO(23, 24, 28, 1),
-              theme.cardColor,
-            ],
+          : [Color.fromRGBO(23, 24, 28, 1), theme.cardColor],
       stops: const [0.0, 1.0],
     );
   }
@@ -59,10 +56,7 @@ class StatisticCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: containerGradient(Theme.of(context)),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
       ),
       child: InkWell(
         onTap: onTap,
@@ -83,9 +77,9 @@ class StatisticCard extends StatelessWidget {
                     AutoScrollText(
                       text: _valueFormatter.format(value),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDarkMode ? Colors.white : null,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Colors.white : null,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     // Caption

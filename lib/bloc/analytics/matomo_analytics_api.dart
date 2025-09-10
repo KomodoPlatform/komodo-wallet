@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:matomo_tracker/matomo_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'analytics_api.dart';
 import 'analytics_repo.dart';
@@ -58,19 +59,49 @@ class MatomoAnalyticsApi implements AnalyticsApi {
       // Load any previously saved events
       await _loadPersistedQueue();
 
-      // Initialize Matomo
+      // Initialize Matomo (only if enabled and configuration provided)
+      if (!matomoEnabled) {
+        if (kDebugMode) {
+          log(
+            'Matomo disabled by MATOMO_ENABLED=false',
+            path: 'analytics -> MatomoAnalyticsApi -> _initialize',
+          );
+        }
+        _isInitialized = false;
+        _isEnabled = false;
+        if (!_initCompleter.isCompleted) {
+          _initCompleter.complete();
+        }
+        return;
+      }
+
+      final bool hasConfig = matomoUrl.isNotEmpty && matomoSiteId.isNotEmpty;
+      if (!hasConfig && !kDebugMode) {
+        // In non-debug builds, do not initialize Matomo without explicit configuration
+        if (kDebugMode) {
+          log(
+            'Matomo configuration missing in non-debug build. Disabling Matomo.',
+            path: 'analytics -> MatomoAnalyticsApi -> _initialize',
+          );
+        }
+        _isInitialized = false;
+        _isEnabled = false;
+        if (!_initCompleter.isCompleted) {
+          _initCompleter.complete();
+        }
+        return;
+      }
+
       await MatomoTracker.instance.initialize(
-        siteId: kDebugMode
-            ? '1'
-            : '2', // Use different site IDs for debug/production
-        url: kDebugMode
-            ? 'https://demo.matomo.cloud/' // Demo instance for development
-            : 'https://your-matomo-instance.com/', // Replace with your actual Matomo URL
+        siteId: hasConfig ? matomoSiteId : '1',
+        url: hasConfig ? matomoUrl : 'https://demo.matomo.cloud/',
       );
       _instance = MatomoTracker.instance;
 
       _isInitialized = true;
-      _isEnabled = settings.isSendAllowed;
+      // Disable analytics in CI or when analyticsDisabled flag is set
+      final bool shouldDisable = analyticsDisabled || isCiEnvironment;
+      _isEnabled = settings.isSendAllowed && !shouldDisable;
 
       if (kDebugMode) {
         log(
@@ -143,8 +174,9 @@ class MatomoAnalyticsApi implements AnalyticsApi {
 
     // Log the event in debug mode with formatted parameters for better readability
     if (kDebugMode) {
-      final formattedParams =
-          const JsonEncoder.withIndent('  ').convert(sanitizedParameters);
+      final formattedParams = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(sanitizedParameters);
       log(
         'Matomo Analytics Event: ${event.name}; Parameters: $formattedParams',
         path: 'analytics -> MatomoAnalyticsApi -> sendEvent',
@@ -305,10 +337,7 @@ class MatomoAnalyticsApi implements AnalyticsApi {
 
       // Convert events to a serializable format
       final serializedEvents = _eventQueue.map((event) {
-        return {
-          'name': event.name,
-          'parameters': event.parameters,
-        };
+        return {'name': event.name, 'parameters': event.parameters};
       }).toList();
 
       // Serialize and store
@@ -360,10 +389,12 @@ class MatomoAnalyticsApi implements AnalyticsApi {
 
       // Create PersistedAnalyticsEventData instances
       for (final eventMap in decodedList) {
-        _eventQueue.add(PersistedAnalyticsEventData(
-          name: eventMap['name'],
-          parameters: Map<String, dynamic>.from(eventMap['parameters']),
-        ));
+        _eventQueue.add(
+          PersistedAnalyticsEventData(
+            name: eventMap['name'],
+            parameters: Map<String, dynamic>.from(eventMap['parameters']),
+          ),
+        );
       }
 
       if (kDebugMode) {

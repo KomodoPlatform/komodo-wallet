@@ -35,8 +35,9 @@ class NftTxnDesktopFilters extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             color: colorScheme?.surfContHighest,
           ),
-          child: Row(children: [
-            Flexible(
+          child: Row(
+            children: [
+              Flexible(
                 flex: 3,
                 child: SizedBox(
                   height: 40,
@@ -45,9 +46,9 @@ class NftTxnDesktopFilters extends StatelessWidget {
                         ? TextEditingController()
                         : null,
                     onSubmitted: (value) {
-                      context
-                          .read<NftTransactionsBloc>()
-                          .add(NftTxnEventSearchChanged(value));
+                      context.read<NftTransactionsBloc>().add(
+                        NftTxnEventSearchChanged(value),
+                      );
                     },
                     style: Theme.of(context).textTheme.bodySmall,
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -72,97 +73,104 @@ class NftTxnDesktopFilters extends StatelessWidget {
                       size: 18,
                     ),
                     onSuffixTap: () {
-                      context
-                          .read<NftTransactionsBloc>()
-                          .add(const NftTxnEventSearchChanged(''));
+                      context.read<NftTransactionsBloc>().add(
+                        const NftTxnEventSearchChanged(''),
+                      );
                     },
                   ),
-                )),
-            const SizedBox(width: 24),
-            MultiSelectDropdownButton<NftTransactionStatuses>(
-              title: 'Status',
-              items: NftTransactionStatuses.values,
-              displayItem: (p0) => p0.toString(),
-              selectedItems: state.filters.statuses,
-              onChanged: (value) {
-                context
-                    .read<NftTransactionsBloc>()
-                    .add(NftTxnEventStatusesChanged(value));
-              },
-              colorScheme: chipColorScheme,
-            ),
-            const SizedBox(width: 8),
-            MultiSelectDropdownButton<NftBlockchains>(
-              title: 'Blockchain',
-              items: NftBlockchains.values,
-              displayItem: (p0) => p0.toString(),
-              selectedItems: state.filters.blockchain,
-              onChanged: (value) {
-                context
-                    .read<NftTransactionsBloc>()
-                    .add(NftTxnEventBlockchainChanged(value));
-              },
-              colorScheme: chipColorScheme,
-            ),
-            const SizedBox(width: 8),
-            ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxWidth: 120, maxHeight: _itemHeight),
-              child: UiDatePicker(
-                formatter: DateFormat('dd.MM.yyyy').format,
-                date: state.filters.dateFrom,
-                text: LocaleKeys.fromDate.tr(),
-                endDate: state.filters.dateTo,
-                onDateSelect: (time) {
-                  context
-                      .read<NftTransactionsBloc>()
-                      .add(NftTxnEventStartDateChanged(time));
-                },
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxWidth: 120, maxHeight: _itemHeight),
-              child: UiDatePicker(
-                formatter: DateFormat('dd.MM.yyyy').format,
-                date: state.filters.dateTo,
-                text: LocaleKeys.toDate.tr(),
-                startDate: state.filters.dateFrom,
-                onDateSelect: (time) {
-                  context
-                      .read<NftTransactionsBloc>()
-                      .add(NftTxnEventEndDateChanged(time));
+              const SizedBox(width: 24),
+              MultiSelectDropdownButton<NftTransactionStatuses>(
+                title: 'Status',
+                items: NftTransactionStatuses.values,
+                displayItem: (p0) => p0.toString(),
+                selectedItems: state.filters.statuses,
+                onChanged: (value) {
+                  context.read<NftTransactionsBloc>().add(
+                    NftTxnEventStatusesChanged(value),
+                  );
                 },
+                colorScheme: chipColorScheme,
               ),
-            ),
-            const SizedBox(width: 24),
-            const Flex(direction: Axis.horizontal),
-            state.filters.isEmpty
-                ? UiSecondaryButton(
-                    height: _itemHeight,
-                    width: 72,
-                    text: LocaleKeys.reset.tr(),
-                    borderColor: colorScheme?.s70,
-                    textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme?.s70,
-                          fontSize: 14,
-                        ),
-                    onPressed: null,
-                  )
-                : UiPrimaryButton(
-                    width: 72,
-                    height: _itemHeight,
-                    text: LocaleKeys.reset.tr(),
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      context
-                          .read<NftTransactionsBloc>()
-                          .add(const NftTxnClearFilters());
-                    },
-                  ),
-          ]),
+              const SizedBox(width: 8),
+              MultiSelectDropdownButton<NftBlockchains>(
+                title: 'Blockchain',
+                items: NftBlockchains.values,
+                displayItem: (p0) => p0.toString(),
+                selectedItems: state.filters.blockchain,
+                onChanged: (value) {
+                  context.read<NftTransactionsBloc>().add(
+                    NftTxnEventBlockchainChanged(value),
+                  );
+                },
+                colorScheme: chipColorScheme,
+              ),
+              const SizedBox(width: 8),
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 120,
+                  maxHeight: _itemHeight,
+                ),
+                child: UiDatePicker(
+                  formatter: DateFormat('dd.MM.yyyy').format,
+                  date: state.filters.dateFrom,
+                  text: LocaleKeys.fromDate.tr(),
+                  endDate: state.filters.dateTo,
+                  onDateSelect: (time) {
+                    context.read<NftTransactionsBloc>().add(
+                      NftTxnEventStartDateChanged(time),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 120,
+                  maxHeight: _itemHeight,
+                ),
+                child: UiDatePicker(
+                  formatter: DateFormat('dd.MM.yyyy').format,
+                  date: state.filters.dateTo,
+                  text: LocaleKeys.toDate.tr(),
+                  startDate: state.filters.dateFrom,
+                  onDateSelect: (time) {
+                    context.read<NftTransactionsBloc>().add(
+                      NftTxnEventEndDateChanged(time),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 24),
+              const Flex(direction: Axis.horizontal),
+              state.filters.isEmpty
+                  ? UiSecondaryButton(
+                      height: _itemHeight,
+                      width: 72,
+                      text: LocaleKeys.reset.tr(),
+                      borderColor: colorScheme?.s70,
+                      textStyle: Theme.of(context).textTheme.labelLarge
+                          ?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme?.s70,
+                            fontSize: 14,
+                          ),
+                      onPressed: null,
+                    )
+                  : UiPrimaryButton(
+                      width: 72,
+                      height: _itemHeight,
+                      text: LocaleKeys.reset.tr(),
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        context.read<NftTransactionsBloc>().add(
+                          const NftTxnClearFilters(),
+                        );
+                      },
+                    ),
+            ],
+          ),
         );
       },
     );

@@ -32,11 +32,11 @@ class NftTxnMobileAppBar extends StatelessWidget
           icon: badges.Badge(
             showBadge: !filters.isEmpty,
             position: badges.BadgePosition.topEnd(top: -5, end: -5),
-            badgeContent: Text('${filters.count}',
-                style: textScheme?.bodyXXS.copyWith(color: colorScheme.surf)),
-            badgeStyle: badges.BadgeStyle(
-              badgeColor: colorScheme.primary,
+            badgeContent: Text(
+              '${filters.count}',
+              style: textScheme?.bodyXXS.copyWith(color: colorScheme.surf),
             ),
+            badgeStyle: badges.BadgeStyle(badgeColor: colorScheme.primary),
             child: SvgPicture.asset(
               '$assetsPath/custom_icons/filter.svg',
               width: 24,
@@ -50,7 +50,7 @@ class NftTxnMobileAppBar extends StatelessWidget
           onPressed: onSettingsPressed,
           color: colorScheme.secondary,
           iconSize: 20,
-        )
+        ),
       ],
     );
   }

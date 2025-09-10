@@ -14,9 +14,7 @@ import 'package:web_dex/views/nfts/nft_transactions/desktop/widgets/nft_txn_desk
 import 'package:web_dex/views/nfts/nft_transactions/desktop/widgets/nft_txn_desktop_header.dart';
 
 class NftTxnDesktopPage extends StatelessWidget {
-  const NftTxnDesktopPage({
-    super.key,
-  });
+  const NftTxnDesktopPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +48,9 @@ class NftTxnDesktopPage extends StatelessWidget {
                     return NftTxnFailurePage(
                       message: state.errorMessage ?? '--',
                       onReload: () {
-                        context
-                            .read<NftTransactionsBloc>()
-                            .add(const NftTxnReceiveEvent());
+                        context.read<NftTransactionsBloc>().add(
+                          const NftTxnReceiveEvent(),
+                        );
                       },
                     );
                   }
@@ -81,9 +79,9 @@ class NftTxnDesktopPage extends StatelessWidget {
                             key: Key(txKey),
                             transaction: data,
                             onPressed: () {
-                              context
-                                  .read<NftTransactionsBloc>()
-                                  .add(NftTxReceiveDetailsEvent(data));
+                              context.read<NftTransactionsBloc>().add(
+                                NftTxReceiveDetailsEvent(data),
+                              );
                             },
                           );
                         },

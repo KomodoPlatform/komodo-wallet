@@ -19,9 +19,7 @@ const EdgeInsets headerActionsPadding = EdgeInsets.fromLTRB(38, 18, 0, 0);
 final _languageCodes = localeList.map((e) => e.languageCode).toList();
 final _langCode2flags = {
   for (var loc in _languageCodes)
-    loc: SvgPicture.asset(
-      '$assetsPath/flags/$loc.svg',
-    ),
+    loc: SvgPicture.asset('$assetsPath/flags/$loc.svg'),
 };
 List<Widget>? getHeaderActions(BuildContext context) {
   return <Widget>[
@@ -53,17 +51,16 @@ List<Widget>? getHeaderActions(BuildContext context) {
         },
       ),
     ),
-    const Padding(
-      padding: headerActionsPadding,
-      child: AccountSwitcher(),
-    ),
+    const Padding(padding: headerActionsPadding, child: AccountSwitcher()),
     if (!isWideScreen) const SizedBox(width: mainLayoutPadding),
   ];
 }
 
 double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
-  double total =
-      coins.fold(0, (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0));
+  double total = coins.fold(
+    0,
+    (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0),
+  );
 
   if (total > 0.01) {
     return total;

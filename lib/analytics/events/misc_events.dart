@@ -4,10 +4,7 @@ import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 
 /// E34: External DApp connection
 class DappConnectEventData implements AnalyticsEventData {
-  const DappConnectEventData({
-    required this.dappName,
-    required this.network,
-  });
+  const DappConnectEventData({required this.dappName, required this.network});
 
   final String dappName;
   final String network;
@@ -16,22 +13,12 @@ class DappConnectEventData implements AnalyticsEventData {
   String get name => 'dapp_connect';
 
   @override
-  JsonMap get parameters => {
-        'dapp_name': dappName,
-        'network': network,
-      };
+  JsonMap get parameters => {'dapp_name': dappName, 'network': network};
 }
 
 class AnalyticsDappConnectEvent extends AnalyticsSendDataEvent {
-  AnalyticsDappConnectEvent({
-    required String dappName,
-    required String network,
-  }) : super(
-          DappConnectEventData(
-            dappName: dappName,
-            network: network,
-          ),
-        );
+  AnalyticsDappConnectEvent({required String dappName, required String network})
+    : super(DappConnectEventData(dappName: dappName, network: network));
 }
 
 /// E35: Setting toggled
@@ -49,9 +36,9 @@ class SettingsChangeEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'setting_name': settingName,
-        'new_value': newValue,
-      };
+    'setting_name': settingName,
+    'new_value': newValue,
+  };
 }
 
 class AnalyticsSettingsChangeEvent extends AnalyticsSendDataEvent {
@@ -59,11 +46,8 @@ class AnalyticsSettingsChangeEvent extends AnalyticsSendDataEvent {
     required String settingName,
     required String newValue,
   }) : super(
-          SettingsChangeEventData(
-            settingName: settingName,
-            newValue: newValue,
-          ),
-        );
+         SettingsChangeEventData(settingName: settingName, newValue: newValue),
+       );
 }
 
 /// E36: Error dialog shown
@@ -81,9 +65,9 @@ class ErrorDisplayedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'error_code': errorCode,
-        'screen_context': screenContext,
-      };
+    'error_code': errorCode,
+    'screen_context': screenContext,
+  };
 }
 
 class AnalyticsErrorDisplayedEvent extends AnalyticsSendDataEvent {
@@ -91,11 +75,11 @@ class AnalyticsErrorDisplayedEvent extends AnalyticsSendDataEvent {
     required String errorCode,
     required String screenContext,
   }) : super(
-          ErrorDisplayedEventData(
-            errorCode: errorCode,
-            screenContext: screenContext,
-          ),
-        );
+         ErrorDisplayedEventData(
+           errorCode: errorCode,
+           screenContext: screenContext,
+         ),
+       );
 }
 
 /// E37: App / referral shared
@@ -108,16 +92,12 @@ class AppShareEventData implements AnalyticsEventData {
   String get name => 'app_share';
 
   @override
-  JsonMap get parameters => {
-        'channel': channel,
-      };
+  JsonMap get parameters => {'channel': channel};
 }
 
 class AnalyticsAppShareEvent extends AnalyticsSendDataEvent {
   AnalyticsAppShareEvent({required String channel})
-      : super(
-          AppShareEventData(channel: channel),
-        );
+    : super(AppShareEventData(channel: channel));
 }
 
 /// E40: User scroll attempt outside content
@@ -135,9 +115,9 @@ class ScrollAttemptOutsideContentEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'screen_context': screenContext,
-        'scroll_delta': scrollDelta,
-      };
+    'screen_context': screenContext,
+    'scroll_delta': scrollDelta,
+  };
 }
 
 class AnalyticsScrollAttemptOutsideContentEvent extends AnalyticsSendDataEvent {
@@ -145,19 +125,16 @@ class AnalyticsScrollAttemptOutsideContentEvent extends AnalyticsSendDataEvent {
     required String screenContext,
     required double scrollDelta,
   }) : super(
-          ScrollAttemptOutsideContentEventData(
-            screenContext: screenContext,
-            scrollDelta: scrollDelta,
-          ),
-        );
+         ScrollAttemptOutsideContentEventData(
+           screenContext: screenContext,
+           scrollDelta: scrollDelta,
+         ),
+       );
 }
 
 /// E42: Searchbar input submitted
 class SearchbarInputEventData implements AnalyticsEventData {
-  const SearchbarInputEventData({
-    required this.queryLength,
-    this.assetSymbol,
-  });
+  const SearchbarInputEventData({required this.queryLength, this.assetSymbol});
 
   final int queryLength;
   final String? assetSymbol;
@@ -167,21 +144,19 @@ class SearchbarInputEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'query_length': queryLength,
-        if (assetSymbol != null) 'asset_symbol': assetSymbol!,
-      };
+    'query_length': queryLength,
+    if (assetSymbol != null) 'asset_symbol': assetSymbol!,
+  };
 }
 
 class AnalyticsSearchbarInputEvent extends AnalyticsSendDataEvent {
-  AnalyticsSearchbarInputEvent({
-    required int queryLength,
-    String? assetSymbol,
-  }) : super(
-          SearchbarInputEventData(
-            queryLength: queryLength,
-            assetSymbol: assetSymbol,
-          ),
-        );
+  AnalyticsSearchbarInputEvent({required int queryLength, String? assetSymbol})
+    : super(
+        SearchbarInputEventData(
+          queryLength: queryLength,
+          assetSymbol: assetSymbol,
+        ),
+      );
 }
 
 /// E43: Theme selected
@@ -194,14 +169,10 @@ class ThemeSelectedEventData implements AnalyticsEventData {
   String get name => 'theme_selected';
 
   @override
-  JsonMap get parameters => {
-        'theme_name': themeName,
-      };
+  JsonMap get parameters => {'theme_name': themeName};
 }
 
 class AnalyticsThemeSelectedEvent extends AnalyticsSendDataEvent {
   AnalyticsThemeSelectedEvent({required String themeName})
-      : super(
-          ThemeSelectedEventData(themeName: themeName),
-        );
+    : super(ThemeSelectedEventData(themeName: themeName));
 }

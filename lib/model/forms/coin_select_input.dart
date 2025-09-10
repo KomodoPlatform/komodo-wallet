@@ -25,7 +25,7 @@ enum CoinSelectValidationError {
 /// Formz input for selecting a coin.
 class CoinSelectInput extends FormzInput<Coin?, CoinSelectValidationError> {
   const CoinSelectInput.pure({this.minBalance = 0, this.minGasBalance = 0})
-      : super.pure(null);
+    : super.pure(null);
   const CoinSelectInput.dirty([
     super.value,
     this.minBalance = 0,

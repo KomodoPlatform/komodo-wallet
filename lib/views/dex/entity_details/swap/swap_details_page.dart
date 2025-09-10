@@ -19,9 +19,7 @@ class SwapDetailsPage extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TradingDetailsHeader(
-          title: _headerText,
-        ),
+        TradingDetailsHeader(title: _headerText),
         SwapProgressStatus(progress: _progress, isFailed: _isFailed),
         SwapDetails(swapStatus: swapStatus, isFailed: _isFailed),
       ],
@@ -45,7 +43,8 @@ class SwapDetailsPage extends StatelessWidget {
 
   bool get _isFailed {
     return swapStatus.events.firstWhereOrNull(
-            (event) => swapStatus.errorEvents.contains(event.event.type)) !=
+          (event) => swapStatus.errorEvents.contains(event.event.type),
+        ) !=
         null;
   }
 
@@ -53,10 +52,8 @@ class SwapDetailsPage extends StatelessWidget {
     // successEvents has MakerPaymentSpent and MakerPaymentSpentByWatcher
     // But events can have only one of them so we have -1 here
     return min(
-            100,
-            100 *
-                swapStatus.events.length /
-                (swapStatus.successEvents.length - 1))
-        .ceil();
+      100,
+      100 * swapStatus.events.length / (swapStatus.successEvents.length - 1),
+    ).ceil();
   }
 }

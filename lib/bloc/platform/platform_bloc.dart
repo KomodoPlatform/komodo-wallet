@@ -6,10 +6,9 @@ import 'package:web_dex/bloc/platform/platform_state.dart';
 import 'package:web_dex/services/platform_info/platform_info.dart';
 
 class PlatformBloc extends Bloc<PlatformEvent, PlatformState> {
-  PlatformBloc({
-    PlatformInfo? platformInfo,
-  })  : _platformInfo = platformInfo ?? PlatformInfo.getInstance(),
-        super(const PlatformState()) {
+  PlatformBloc({PlatformInfo? platformInfo})
+    : _platformInfo = platformInfo ?? PlatformInfo.getInstance(),
+      super(const PlatformState()) {
     on<PlatformInitRequested>(_onPlatformInitRequested);
   }
 

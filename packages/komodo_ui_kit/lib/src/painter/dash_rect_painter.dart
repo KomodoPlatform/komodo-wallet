@@ -29,17 +29,9 @@ class DashRectPainter extends CustomPainter {
       gap,
     );
 
-    final rightPath = getDashedPath(
-      math.Point(x, 0),
-      math.Point(x, y),
-      gap,
-    );
+    final rightPath = getDashedPath(math.Point(x, 0), math.Point(x, y), gap);
 
-    final bottomPath = getDashedPath(
-      math.Point(0, y),
-      math.Point(x, y),
-      gap,
-    );
+    final bottomPath = getDashedPath(math.Point(0, y), math.Point(x, y), gap);
 
     final leftPath = getDashedPath(
       const math.Point(0, 0),
@@ -54,11 +46,7 @@ class DashRectPainter extends CustomPainter {
       ..drawPath(leftPath, dashedPaint);
   }
 
-  Path getDashedPath(
-    math.Point<double> a,
-    math.Point<double> b,
-    double gap,
-  ) {
+  Path getDashedPath(math.Point<double> a, math.Point<double> b, double gap) {
     final size = Size(b.x - a.x, b.y - a.y);
     final path = Path()..moveTo(a.x, a.y);
     var shouldDraw = true;
@@ -79,10 +67,7 @@ class DashRectPainter extends CustomPainter {
           ? path.lineTo(currentPoint.x, currentPoint.y)
           : path.moveTo(currentPoint.x, currentPoint.y);
       shouldDraw = !shouldDraw;
-      currentPoint = math.Point(
-        currentPoint.x + dx,
-        currentPoint.y + dy,
-      );
+      currentPoint = math.Point(currentPoint.x + dx, currentPoint.y + dy);
     }
     return path;
   }

@@ -67,10 +67,12 @@ class _UiPrimaryButtonState extends State<UiPrimaryButton> {
           padding: widget.padding,
         ),
         child: DefaultTextStyle(
-          style: _defaultTextStyle(context) ??
+          style:
+              _defaultTextStyle(context) ??
               widget.textStyle ??
               const TextStyle(),
-          child: widget.child ??
+          child:
+              widget.child ??
               _ButtonContent(
                 text: widget.text,
                 textStyle: widget.textStyle,
@@ -100,17 +102,16 @@ class _UiPrimaryButtonState extends State<UiPrimaryButton> {
   }
 
   OutlinedBorder get _shape => RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.all(Radius.circular(widget.borderRadius ?? 18)),
-      );
+    borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 18)),
+  );
 }
 
 TextStyle? _defaultTextStyle(BuildContext context) {
   return Theme.of(context).textTheme.labelLarge?.copyWith(
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-        color: theme.custom.defaultGradientButtonTextColor,
-      );
+    fontWeight: FontWeight.bold,
+    fontSize: 14,
+    color: theme.custom.defaultGradientButtonTextColor,
+  );
 }
 
 class _ButtonContent extends StatelessWidget {

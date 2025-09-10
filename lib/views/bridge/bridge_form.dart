@@ -37,8 +37,9 @@ class BridgeForm extends StatelessWidget {
                 return const BridgeConfirmation();
               case BridgeStep.form:
                 return ConstrainedBox(
-                  constraints:
-                      BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+                  constraints: BoxConstraints(
+                    maxWidth: theme.custom.dexFormWidth,
+                  ),
                   child: const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -88,9 +89,9 @@ class _TickerDropdown extends StatelessWidget {
 
         return BridgeTickersList(
           onSelect: (Coin coin) {
-            context
-                .read<BridgeBloc>()
-                .add(BridgeTickerChanged(abbr2Ticker(coin.abbr)));
+            context.read<BridgeBloc>().add(
+              BridgeTickerChanged(abbr2Ticker(coin.abbr)),
+            );
           },
         );
       },
@@ -116,9 +117,9 @@ class _SourceDropdown extends StatelessWidget {
             onSelect: (Coin coin) =>
                 context.read<BridgeBloc>().add(BridgeSetSellCoin(coin)),
             onClose: () {
-              context
-                  .read<BridgeBloc>()
-                  .add(const BridgeShowSourceDropdown(false));
+              context.read<BridgeBloc>().add(
+                const BridgeShowSourceDropdown(false),
+              );
             },
           ),
         );
@@ -145,9 +146,9 @@ class _TargetDropdown extends StatelessWidget {
             onSelect: (BestOrder order) {
               context.read<BridgeBloc>().add(BridgeSelectBestOrder(order));
             },
-            onClose: () => context
-                .read<BridgeBloc>()
-                .add(const BridgeShowTargetDropdown(false)),
+            onClose: () => context.read<BridgeBloc>().add(
+              const BridgeShowTargetDropdown(false),
+            ),
           ),
         );
       },

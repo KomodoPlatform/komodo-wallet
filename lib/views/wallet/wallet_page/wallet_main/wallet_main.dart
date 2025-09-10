@@ -253,9 +253,9 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
   }
 
   void _onShowCoinsWithBalanceClick(bool value) {
-    context
-        .read<SettingsBloc>()
-        .add(HideZeroBalanceAssetsChanged(hideZeroBalanceAssets: value));
+    context.read<SettingsBloc>().add(
+      HideZeroBalanceAssetsChanged(hideZeroBalanceAssets: value),
+    );
   }
 
   void _onSearchChange(String searchKey) {
@@ -276,11 +276,8 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
 
   void _onAssetStatisticsTap(AssetId assetId, Duration period) {
     context.read<PriceChartBloc>().add(
-          PriceChartStarted(
-            symbols: [assetId.symbol.configSymbol],
-            period: period,
-          ),
-        );
+      PriceChartStarted(symbols: [assetId.symbol.configSymbol], period: period),
+    );
     _tabController.animateTo(1);
   }
 
@@ -291,8 +288,10 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverSearchBarDelegate(
-              withBalance:
-                  context.watch<SettingsBloc>().state.hideZeroBalanceAssets,
+              withBalance: context
+                  .watch<SettingsBloc>()
+                  .state
+                  .hideZeroBalanceAssets,
               onSearchChange: _onSearchChange,
               onWithBalanceChange: _onShowCoinsWithBalanceClick,
               mode: mode,
@@ -302,8 +301,10 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
           CoinListView(
             mode: mode,
             searchPhrase: _searchKey,
-            withBalance:
-                context.watch<SettingsBloc>().state.hideZeroBalanceAssets,
+            withBalance: context
+                .watch<SettingsBloc>()
+                .state
+                .hideZeroBalanceAssets,
             onActiveCoinItemTap: _onActiveCoinItemTap,
             onAssetItemTap: _onAssetItemTap,
             onAssetStatisticsTap: _onAssetStatisticsTap,
@@ -345,11 +346,11 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
       _walletHalfLogged = true;
       final coinsCount = context.read<CoinsBloc>().state.walletCoins.length;
       context.read<AnalyticsBloc>().logEvent(
-            WalletListHalfViewportReachedEventData(
-              timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
-              walletSize: coinsCount,
-            ),
-          );
+        WalletListHalfViewportReachedEventData(
+          timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
+          walletSize: coinsCount,
+        ),
+      );
     }
   }
 
@@ -362,11 +363,11 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
 
     if (newOffset == _scrollController.offset) {
       context.read<AnalyticsBloc>().logEvent(
-            ScrollAttemptOutsideContentEventData(
-              screenContext: 'wallet_page',
-              scrollDelta: event.scrollDelta.dy,
-            ),
-          );
+        ScrollAttemptOutsideContentEventData(
+          screenContext: 'wallet_page',
+          scrollDelta: event.scrollDelta.dy,
+        ),
+      );
       return;
     }
 
@@ -437,8 +438,8 @@ class CoinListView extends StatelessWidget {
           searchPhrase: searchPhrase,
           onAssetItemTap: (assetId) => onAssetItemTap(
             context.read<CoinsBloc>().state.coins.values.firstWhere(
-                  (coin) => coin.assetId == assetId,
-                ),
+              (coin) => coin.assetId == assetId,
+            ),
           ),
           onStatisticsTap: onAssetStatisticsTap,
         );
@@ -471,8 +472,10 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     // Apply collapse progress on both mobile and desktop
-    final collapseProgress =
-        (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    final collapseProgress = (shrinkOffset / (maxExtent - minExtent)).clamp(
+      0.0,
+      1.0,
+    );
 
     return SizedBox(
       height: (maxExtent - shrinkOffset).clamp(minExtent, maxExtent),

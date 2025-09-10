@@ -16,8 +16,9 @@ class FiatPriceInfo extends Equatable {
       coinAmount: _safeParseDecimal(json['coin_amount']),
       fiatCode: json['fiat_code'] as String? ?? '',
       coinCode: json['coin_code'] as String? ?? '',
-      spotPriceIncludingFee:
-          _safeParseDecimal(json['spot_price_including_fee']),
+      spotPriceIncludingFee: _safeParseDecimal(
+        json['spot_price_including_fee'],
+      ),
     );
   }
 
@@ -72,10 +73,10 @@ class FiatPriceInfo extends Equatable {
 
   @override
   List<Object?> get props => [
-        fiatAmount,
-        coinAmount,
-        fiatCode,
-        coinCode,
-        spotPriceIncludingFee,
-      ];
+    fiatAmount,
+    coinAmount,
+    fiatCode,
+    coinCode,
+    spotPriceIncludingFee,
+  ];
 }

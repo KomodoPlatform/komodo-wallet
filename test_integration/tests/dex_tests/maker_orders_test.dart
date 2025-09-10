@@ -27,18 +27,22 @@ Future<void> testMakerOrder(WidgetTester tester) async {
 
   final Finder dexSectionButton = find.byKey(const Key('main-menu-dex'));
   final Finder makeOrderTab = find.byKey(const Key('make-order-tab'));
-  final Finder sellCoinSelectButton =
-      find.byKey(const Key('maker-form-sell-switcher'));
+  final Finder sellCoinSelectButton = find.byKey(
+    const Key('maker-form-sell-switcher'),
+  );
   final Finder sellCoinSearchField = find.descendant(
     of: find.byKey(const Key('maker-sell-coins-table')),
     matching: find.byKey(const Key('search-field')),
   );
-  final Finder sellCoinItem =
-      find.byKey(const Key('Coin-table-item-$sellCoin'));
-  final Finder sellAmountField =
-      find.byKey(const Key('maker-sell-amount-input'));
-  final Finder buyCoinSelectButton =
-      find.byKey(const Key('maker-form-buy-switcher'));
+  final Finder sellCoinItem = find.byKey(
+    const Key('Coin-table-item-$sellCoin'),
+  );
+  final Finder sellAmountField = find.byKey(
+    const Key('maker-sell-amount-input'),
+  );
+  final Finder buyCoinSelectButton = find.byKey(
+    const Key('maker-form-buy-switcher'),
+  );
   final Finder buyCoinSearchField = find.descendant(
     of: find.byKey(const Key('maker-buy-coins-table')),
     matching: find.byKey(const Key('search-field')),
@@ -46,8 +50,9 @@ Future<void> testMakerOrder(WidgetTester tester) async {
   final Finder buyCoinItem = find.byKey(const Key('Coin-table-item-$buyCoin'));
   final Finder buyAmountField = find.byKey(const Key('maker-buy-amount-input'));
   final Finder makeOrderButton = find.byKey(const Key('make-order-button'));
-  final Finder makeOrderConfirmButton =
-      find.byKey(const Key('make-order-confirm-button'));
+  final Finder makeOrderConfirmButton = find.byKey(
+    const Key('make-order-confirm-button'),
+  );
   final Finder orderListItem = find.byType(OrderItem);
   final Finder orderUuidWidget = find.byKey(const Key('maker-order-uuid'));
 
@@ -126,10 +131,7 @@ Future<void> testMakerOrder(WidgetTester tester) async {
   // Open order details page
   expect(orderListItem, findsOneWidget);
   await tester.tap(
-    find.descendant(
-      of: orderListItem,
-      matching: find.byType(FocusableWidget),
-    ),
+    find.descendant(of: orderListItem, matching: find.byType(FocusableWidget)),
   );
   print('🔍 MAKER ORDER: Opened order details');
   await tester.pumpAndSettle();
@@ -215,24 +217,20 @@ Future<void> useFaucetIfBalanceInsufficient(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
-    'Run maker order tests:',
-    (WidgetTester tester) async {
-      print('🔍 MAIN: Starting maker order test suite');
-      tester.testTextInput.register();
-      await app.main();
-      await tester.pumpAndSettle();
+  testWidgets('Run maker order tests:', (WidgetTester tester) async {
+    print('🔍 MAIN: Starting maker order test suite');
+    tester.testTextInput.register();
+    await app.main();
+    await tester.pumpAndSettle();
 
-      print('🔍 MAIN: Accepting alpha warning');
-      await acceptAlphaWarning(tester);
+    print('🔍 MAIN: Accepting alpha warning');
+    await acceptAlphaWarning(tester);
 
-      await restoreWalletToTest(tester);
-      print('🔍 MAIN: Wallet restored');
-      await tester.pumpAndSettle();
+    await restoreWalletToTest(tester);
+    print('🔍 MAIN: Wallet restored');
+    await tester.pumpAndSettle();
 
-      await testMakerOrder(tester);
-      print('🔍 MAIN: Maker order test completed successfully');
-    },
-    semanticsEnabled: false,
-  );
+    await testMakerOrder(tester);
+    print('🔍 MAIN: Maker order test completed successfully');
+  }, semanticsEnabled: false);
 }

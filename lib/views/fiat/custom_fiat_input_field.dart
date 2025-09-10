@@ -28,18 +28,19 @@ class CustomFiatInputField extends StatelessWidget {
     final textColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     final inputStyle = Theme.of(context).textTheme.headlineLarge?.copyWith(
-          fontSize: 18,
-          fontWeight: FontWeight.w300,
-          color: textColor,
-          letterSpacing: 1.1,
-        );
+      fontSize: 18,
+      fontWeight: FontWeight.w300,
+      color: textColor,
+      letterSpacing: 1.1,
+    );
 
     final InputDecoration inputDecoration = InputDecoration(
       label: label,
       labelStyle: inputStyle,
       fillColor: Theme.of(context).colorScheme.onSurface,
-      floatingLabelStyle:
-          Theme.of(context).inputDecorationTheme.floatingLabelStyle,
+      floatingLabelStyle: Theme.of(
+        context,
+      ).inputDecorationTheme.floatingLabelStyle,
       floatingLabelBehavior: FloatingLabelBehavior.always,
       contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       hintText: hintText,
@@ -73,12 +74,7 @@ class CustomFiatInputField extends StatelessWidget {
           ],
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
         ),
-        Positioned(
-          right: 16,
-          bottom: 26,
-          top: 2,
-          child: assetButton,
-        ),
+        Positioned(right: 16, bottom: 26, top: 2, child: assetButton),
       ],
     );
   }

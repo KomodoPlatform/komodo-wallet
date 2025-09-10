@@ -19,22 +19,21 @@ class _AppHeaderState extends State<AppHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: theme.currentGlobal.colorScheme.surface,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: maxScreenWidth,
-            ),
-            child: AppBar(
-              centerTitle: false,
-              titleSpacing: 0,
-              title: _buildTitle(),
-              elevation: 0,
-              actions: getHeaderActions(context),
-              backgroundColor: Colors.transparent,
-            ),
+      color: theme.currentGlobal.colorScheme.surface,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: maxScreenWidth),
+          child: AppBar(
+            centerTitle: false,
+            titleSpacing: 0,
+            title: _buildTitle(),
+            elevation: 0,
+            actions: getHeaderActions(context),
+            backgroundColor: Colors.transparent,
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildTitle() {
@@ -49,9 +48,7 @@ class _AppHeaderState extends State<AppHeader> {
         onTap: () {
           routingState.selectedMenu = MainMenuValue.wallet;
         },
-        child: SvgPicture.asset(
-          '$assetsPath/logo/logo$themeAssetPostfix.svg',
-        ),
+        child: SvgPicture.asset('$assetsPath/logo/logo$themeAssetPostfix.svg'),
       ),
     );
   }

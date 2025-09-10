@@ -14,8 +14,8 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
     this._systemClockRepository,
     this._api, {
     Duration checkInterval = const Duration(seconds: 60),
-  })  : _checkInterval = checkInterval,
-        super(SystemHealthInitial()) {
+  }) : _checkInterval = checkInterval,
+       super(SystemHealthInitial()) {
     on<SystemHealthCheckRequested>(
       _onSystemHealthCheckRequested,
       transformer: restartable(),
@@ -62,8 +62,8 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
   ) async {
     emit(SystemHealthLoadInProgress());
     try {
-      final bool systemClockValid =
-          await _systemClockRepository.isSystemClockValid();
+      final bool systemClockValid = await _systemClockRepository
+          .isSystemClockValid();
 
       emit(SystemHealthLoadSuccess(systemClockValid));
     } on Exception catch (_) {
@@ -78,8 +78,9 @@ class SystemHealthBloc extends Bloc<SystemHealthEvent, SystemHealthState> {
   // ignore: unused_element
   Future<bool> _arePeersConnected() async {
     try {
-      final directlyConnectedPeers =
-          await _api.getDirectlyConnectedPeers(GetDirectlyConnectedPeers());
+      final directlyConnectedPeers = await _api.getDirectlyConnectedPeers(
+        GetDirectlyConnectedPeers(),
+      );
       final connectedPeersHealthy = directlyConnectedPeers.peers.length >= 2;
       return connectedPeersHealthy;
     } on Exception catch (_) {

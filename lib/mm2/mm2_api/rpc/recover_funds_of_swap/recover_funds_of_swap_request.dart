@@ -11,10 +11,8 @@ class RecoverFundsOfSwapRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'userpass': userpass,
-        'method': method,
-        'params': {
-          'uuid': uuid,
-        },
-      };
+    'userpass': userpass,
+    'method': method,
+    'params': {'uuid': uuid},
+  };
 }

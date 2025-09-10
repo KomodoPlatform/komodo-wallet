@@ -17,10 +17,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 
 class TotalFees extends StatefulWidget {
-  const TotalFees({
-    Key? key,
-    required this.preimage,
-  }) : super(key: key);
+  const TotalFees({Key? key, required this.preimage}) : super(key: key);
 
   final TradePreimage? preimage;
 
@@ -34,8 +31,10 @@ class _TotalFeesState extends State<TotalFees> {
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     return Row(
       children: [
-        Text(LocaleKeys.totalFees.tr(),
-            style: theme.custom.tradingFormDetailsLabel),
+        Text(
+          LocaleKeys.totalFees.tr(),
+          style: theme.custom.tradingFormDetailsLabel,
+        ),
         const SizedBox(width: 7),
         widget.preimage == null
             ? const SizedBox.shrink()
@@ -56,7 +55,9 @@ class _TotalFeesState extends State<TotalFees> {
             alignment: Alignment.centerRight,
             child: AutoScrollText(
               text: getTotalFee(
-                  widget.preimage?.totalFees, coinsRepository.getCoin),
+                widget.preimage?.totalFees,
+                coinsRepository.getCoin,
+              ),
               style: theme.custom.tradingFormDetailsContent,
             ),
           ),
@@ -104,9 +105,7 @@ class _TotalFeesState extends State<TotalFees> {
               '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.baseCoinFee.amount) ?? 0))} '
               '${preimage.baseCoinFee.coin} '
               '(${getFormattedFiatAmount(context, preimage.baseCoinFee.coin, preimage.baseCoinFee.amountRational, 8)}): '
-              '${LocaleKeys.swapFeeDetailsSendCoinTxFee.tr(args: [
-                    preimage.baseCoinFee.coin
-                  ])}',
+              '${LocaleKeys.swapFeeDetailsSendCoinTxFee.tr(args: [preimage.baseCoinFee.coin])}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -117,9 +116,7 @@ class _TotalFeesState extends State<TotalFees> {
               '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.relCoinFee.amount) ?? 0))} '
               '${preimage.relCoinFee.coin} '
               '(${getFormattedFiatAmount(context, preimage.relCoinFee.coin, preimage.relCoinFee.amountRational, 8)}): '
-              '${LocaleKeys.swapFeeDetailsReceiveCoinTxFee.tr(args: [
-                    preimage.relCoinFee.coin
-                  ])}',
+              '${LocaleKeys.swapFeeDetailsReceiveCoinTxFee.tr(args: [preimage.relCoinFee.coin])}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -159,69 +156,75 @@ class _TotalFeesState extends State<TotalFees> {
     final List<Widget> items = [];
 
     if (preimage.baseCoinFee.paidFromTradingVol) {
-      items.add(Container(
-        padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
-        child: SelectableText(
-          '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.baseCoinFee.amount) ?? 0))} '
-          '${preimage.baseCoinFee.coin} '
-          '(${getFormattedFiatAmount(context, preimage.baseCoinFee.coin, preimage.baseCoinFee.amountRational, 8)}): '
-          '${LocaleKeys.swapFeeDetailsSendCoinTxFee.tr(args: [
-                preimage.baseCoinFee.coin
-              ])}',
-          style: Theme.of(context).textTheme.bodySmall,
+      items.add(
+        Container(
+          padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
+          child: SelectableText(
+            '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.baseCoinFee.amount) ?? 0))} '
+            '${preimage.baseCoinFee.coin} '
+            '(${getFormattedFiatAmount(context, preimage.baseCoinFee.coin, preimage.baseCoinFee.amountRational, 8)}): '
+            '${LocaleKeys.swapFeeDetailsSendCoinTxFee.tr(args: [preimage.baseCoinFee.coin])}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
-      ));
+      );
     }
 
     if (preimage.relCoinFee.paidFromTradingVol) {
-      items.add(Container(
-        padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
-        child: SelectableText(
-          '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.relCoinFee.amount) ?? 0))} '
-          '${preimage.relCoinFee.coin} '
-          '(${getFormattedFiatAmount(context, preimage.relCoinFee.coin, preimage.relCoinFee.amountRational, 8)}): '
-          '${LocaleKeys.swapFeeDetailsReceiveCoinTxFee.tr(args: [
-                preimage.relCoinFee.coin
-              ])}',
-          style: Theme.of(context).textTheme.bodySmall,
+      items.add(
+        Container(
+          padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
+          child: SelectableText(
+            '• ${cutTrailingZeros(formatAmt(double.tryParse(preimage.relCoinFee.amount) ?? 0))} '
+            '${preimage.relCoinFee.coin} '
+            '(${getFormattedFiatAmount(context, preimage.relCoinFee.coin, preimage.relCoinFee.amountRational, 8)}): '
+            '${LocaleKeys.swapFeeDetailsReceiveCoinTxFee.tr(args: [preimage.relCoinFee.coin])}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
-      ));
+      );
     }
 
     if (takerFee != null && takerFee.paidFromTradingVol) {
-      items.add(Container(
-        padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
-        child: SelectableText(
-          '• ${cutTrailingZeros(formatAmt(double.tryParse(takerFee.amount) ?? 0))} '
-          '${takerFee.coin} '
-          '(${getFormattedFiatAmount(context, takerFee.coin, takerFee.amountRational, 8)}): '
-          '${LocaleKeys.swapFeeDetailsTradingFee.tr()}',
-          style: Theme.of(context).textTheme.bodySmall,
+      items.add(
+        Container(
+          padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
+          child: SelectableText(
+            '• ${cutTrailingZeros(formatAmt(double.tryParse(takerFee.amount) ?? 0))} '
+            '${takerFee.coin} '
+            '(${getFormattedFiatAmount(context, takerFee.coin, takerFee.amountRational, 8)}): '
+            '${LocaleKeys.swapFeeDetailsTradingFee.tr()}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
-      ));
+      );
     }
 
     if (feeToSendTakerFee != null && feeToSendTakerFee.paidFromTradingVol) {
-      items.add(Container(
-        padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
-        child: SelectableText(
-          '• ${cutTrailingZeros(formatAmt(double.tryParse(feeToSendTakerFee.amount) ?? 0))} '
-          '${feeToSendTakerFee.coin} '
-          '(${getFormattedFiatAmount(context, feeToSendTakerFee.coin, feeToSendTakerFee.amountRational, 8)}): '
-          '${LocaleKeys.swapFeeDetailsSendTradingFeeTxFee.tr()}',
-          style: Theme.of(context).textTheme.bodySmall,
+      items.add(
+        Container(
+          padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
+          child: SelectableText(
+            '• ${cutTrailingZeros(formatAmt(double.tryParse(feeToSendTakerFee.amount) ?? 0))} '
+            '${feeToSendTakerFee.coin} '
+            '(${getFormattedFiatAmount(context, feeToSendTakerFee.coin, feeToSendTakerFee.amountRational, 8)}): '
+            '${LocaleKeys.swapFeeDetailsSendTradingFeeTxFee.tr()}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
-      ));
+      );
     }
 
     if (items.isEmpty) {
-      items.add(Container(
-        padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
-        child: SelectableText(
-          '• ${LocaleKeys.swapFeeDetailsNone.tr()}',
-          style: Theme.of(context).textTheme.bodySmall,
+      items.add(
+        Container(
+          padding: const EdgeInsets.fromLTRB(8, 2, 4, 2),
+          child: SelectableText(
+            '• ${LocaleKeys.swapFeeDetailsNone.tr()}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ),
-      ));
+      );
     }
 
     return Column(

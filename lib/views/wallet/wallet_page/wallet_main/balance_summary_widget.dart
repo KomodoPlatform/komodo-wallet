@@ -48,19 +48,19 @@ class BalanceSummaryWidget extends StatelessWidget {
             TrendPercentageText(
               percentage: changePercentage,
               upColor: Theme.of(context).brightness == Brightness.dark
-                  ? Theme.of(context)
-                      .extension<ThemeCustomDark>()!
-                      .increaseColor
-                  : Theme.of(context)
-                      .extension<ThemeCustomLight>()!
-                      .increaseColor,
+                  ? Theme.of(
+                      context,
+                    ).extension<ThemeCustomDark>()!.increaseColor
+                  : Theme.of(
+                      context,
+                    ).extension<ThemeCustomLight>()!.increaseColor,
               downColor: Theme.of(context).brightness == Brightness.dark
-                  ? Theme.of(context)
-                      .extension<ThemeCustomDark>()!
-                      .decreaseColor
-                  : Theme.of(context)
-                      .extension<ThemeCustomLight>()!
-                      .decreaseColor,
+                  ? Theme.of(
+                      context,
+                    ).extension<ThemeCustomDark>()!.decreaseColor
+                  : Theme.of(
+                      context,
+                    ).extension<ThemeCustomLight>()!.decreaseColor,
               value: changeAmount,
               valueFormatter: (value) =>
                   NumberFormat.currency(symbol: '\$').format(value),

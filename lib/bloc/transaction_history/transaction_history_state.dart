@@ -17,9 +17,9 @@ final class TransactionHistoryState extends Equatable {
   List<Object?> get props => [transactions, loading, error];
 
   const TransactionHistoryState.initial()
-      : transactions = const [],
-        loading = false,
-        error = null;
+    : transactions = const [],
+      loading = false,
+      error = null;
 
   TransactionHistoryState copyWith({
     List<Transaction>? transactions,

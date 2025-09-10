@@ -11,12 +11,13 @@ class MakerFormErrorList extends StatelessWidget {
   Widget build(BuildContext context) {
     final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<List<DexFormError>>(
-        initialData: makerFormBloc.getFormErrors(),
-        stream: makerFormBloc.outFormErrors,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const SizedBox.shrink();
+      initialData: makerFormBloc.getFormErrors(),
+      stream: makerFormBloc.outFormErrors,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
 
-          return DexFormErrorList(errors: snapshot.data!);
-        });
+        return DexFormErrorList(errors: snapshot.data!);
+      },
+    );
   }
 }

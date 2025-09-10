@@ -23,15 +23,20 @@ class BridgeTargetProtocolRow extends StatelessWidget {
           title: LocaleKeys.selectProtocol.tr(),
           onTap: () {
             if (state.sellCoin == null) {
-              context.read<BridgeBloc>().add(BridgeSetError(DexFormError(
+              context.read<BridgeBloc>().add(
+                BridgeSetError(
+                  DexFormError(
                     error: LocaleKeys.bridgeSelectFromProtocolError.tr(),
-                  )));
+                  ),
+                ),
+              );
               return;
             }
 
             final bridgeBloc = context.read<BridgeBloc>();
             bridgeBloc.add(
-                BridgeShowTargetDropdown(!bridgeBloc.state.showTargetDropdown));
+              BridgeShowTargetDropdown(!bridgeBloc.state.showTargetDropdown),
+            );
           },
         );
       },

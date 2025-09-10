@@ -23,8 +23,9 @@ void main() {
       expect(repo.isEnabled, false);
     });
 
-    testWidgets('AnalyticsRepository can send test event',
-        (WidgetTester tester) async {
+    testWidgets('AnalyticsRepository can send test event', (
+      WidgetTester tester,
+    ) async {
       final repo = AnalyticsRepository(testSettings);
 
       // Create a test event
@@ -42,7 +43,7 @@ class TestAnalyticsEvent implements AnalyticsEventData {
 
   @override
   Map<String, dynamic> get parameters => {
-        'test_parameter': 'test_value',
-        'timestamp': DateTime.now().toIso8601String(),
-      };
+    'test_parameter': 'test_value',
+    'timestamp': DateTime.now().toIso8601String(),
+  };
 }

@@ -11,7 +11,9 @@ class _BridgeRouteParser implements BaseRouteParser {
       if (uri.pathSegments[1] == 'trading_details' &&
           uri.pathSegments[2].isNotEmpty) {
         return BridgeRoutePath.swapDetails(
-            BridgeAction.tradingDetails, uri.pathSegments[2]);
+          BridgeAction.tradingDetails,
+          uri.pathSegments[2],
+        );
       }
     }
 

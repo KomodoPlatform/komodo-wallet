@@ -21,16 +21,12 @@ class MessageServiceConfig extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'telegram': telegram?.toJson(),
-      }..removeWhere((key, value) => value == null);
+  Map<String, dynamic> toJson() =>
+      {'telegram': telegram?.toJson()}
+        ..removeWhere((key, value) => value == null);
 
-  MessageServiceConfig copyWith({
-    TelegramServiceConfig? telegram,
-  }) {
-    return MessageServiceConfig(
-      telegram: telegram ?? this.telegram,
-    );
+  MessageServiceConfig copyWith({TelegramServiceConfig? telegram}) {
+    return MessageServiceConfig(telegram: telegram ?? this.telegram);
   }
 
   @override

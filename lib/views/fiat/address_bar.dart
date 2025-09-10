@@ -3,10 +3,7 @@ import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class AddressBar extends StatelessWidget {
-  const AddressBar({
-    required this.receiveAddress,
-    super.key,
-  });
+  const AddressBar({required this.receiveAddress, super.key});
 
   final String? receiveAddress;
 
@@ -34,9 +31,7 @@ class AddressBar extends StatelessWidget {
                   ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    truncateMiddleSymbols(receiveAddress ?? ''),
-                  ),
+                  child: Text(truncateMiddleSymbols(receiveAddress ?? '')),
                 ),
               ],
             ),

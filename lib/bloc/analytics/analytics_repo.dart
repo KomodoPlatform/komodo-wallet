@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'analytics_api.dart';
 import 'firebase_analytics_api.dart';
 import 'matomo_analytics_api.dart';
@@ -15,10 +16,7 @@ abstract class AnalyticsEventData {
 
 /// A simple implementation of AnalyticsEventData for persisted events
 class PersistedAnalyticsEventData implements AnalyticsEventData {
-  PersistedAnalyticsEventData({
-    required this.name,
-    required this.parameters,
-  });
+  PersistedAnalyticsEventData({required this.name, required this.parameters});
 
   @override
   final String name;
@@ -111,20 +109,31 @@ class AnalyticsRepository implements AnalyticsRepo {
       final firebaseProvider = FirebaseAnalyticsApi();
       _providers.add(firebaseProvider);
 
-      // Add Matomo Analytics provider
-      final matomoProvider = MatomoAnalyticsApi();
-      _providers.add(matomoProvider);
+      // Add Matomo Analytics provider when enabled
+      if (matomoEnabled) {
+        final matomoProvider = MatomoAnalyticsApi();
+        _providers.add(matomoProvider);
+      } else if (kDebugMode) {
+        log(
+          'Matomo provider not registered: MATOMO_ENABLED=false',
+          path: 'analytics -> AnalyticsRepository -> _initializeProviders',
+        );
+      }
 
       // Initialize all providers
-      final initFutures =
-          _providers.map((provider) => provider.initialize(settings));
+      final initFutures = _providers.map(
+        (provider) => provider.initialize(settings),
+      );
       await Future.wait(initFutures, eagerError: false);
 
       // Check if at least one provider is initialized successfully
-      final initializedProviders =
-          _providers.where((p) => p.isInitialized).toList();
+      final initializedProviders = _providers
+          .where((p) => p.isInitialized)
+          .toList();
       _isInitialized = initializedProviders.isNotEmpty;
-      _isEnabled = settings.isSendAllowed;
+      // Disable analytics in CI or when analyticsDisabled flag is set
+      final bool shouldDisable = analyticsDisabled || isCiEnvironment;
+      _isEnabled = settings.isSendAllowed && !shouldDisable;
 
       if (kDebugMode) {
         log(
@@ -170,7 +179,9 @@ class AnalyticsRepository implements AnalyticsRepo {
   }
 
   Future<void> _sendToProvider(
-      AnalyticsApi provider, AnalyticsEventData event) async {
+    AnalyticsApi provider,
+    AnalyticsEventData event,
+  ) async {
     try {
       await provider.sendEvent(event);
     } catch (e) {
@@ -300,8 +311,9 @@ class AnalyticsRepository implements AnalyticsRepo {
     await Future.wait(retryFutures, eagerError: false);
 
     // Update initialization status
-    final initializedProviders =
-        _providers.where((p) => p.isInitialized).toList();
+    final initializedProviders = _providers
+        .where((p) => p.isInitialized)
+        .toList();
     _isInitialized = initializedProviders.isNotEmpty;
   }
 
