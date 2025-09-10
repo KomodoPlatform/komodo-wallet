@@ -33,23 +33,21 @@ class BridgeTickersListItem extends StatelessWidget {
                       width: 30,
                       alignment: const Alignment(0, 0),
                       decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: AssetIcon.ofTicker(
-                        coin.abbr,
-                        size: 26,
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(15),
                       ),
+                      child: AssetIcon.ofTicker(coin.abbr, size: 26),
                     ),
-                    const SizedBox(
-                      width: 4,
-                    ),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: AutoScrollText(
-                        text: coin.name,
+                        text: coin.displayName,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w500, fontSize: 14),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
