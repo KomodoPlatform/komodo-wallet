@@ -115,6 +115,8 @@ class CustomTokenImportBloc
         ),
       );
 
+      // Activate to get balance, then deactivate to avoid confusion if the user
+      // does not proceed with the import (exits the dialog).
       await _coinsRepo.deactivateCoinsSync([tokenData.toCoin()]);
     } catch (e, s) {
       _log.severe('Error fetching custom token', e, s);

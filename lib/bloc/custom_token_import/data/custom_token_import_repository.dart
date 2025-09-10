@@ -6,12 +6,21 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
+/// Abstraction for fetching and importing custom tokens.
+///
+/// Implementations should resolve token metadata and activate tokens so they
+/// become available to the user within the wallet.
 abstract class ICustomTokenImportRepository {
+  /// Fetch an [Asset] for a custom token on [network] using [address].
+  ///
+  /// May return an existing known asset or construct a new one when absent.
   Future<Asset> fetchCustomToken(CoinSubClass network, String address);
+
+  /// Import the provided custom token [asset] into the wallet (e.g. activate it).
   Future<void> importCustomToken(Asset asset);
 }
 
@@ -20,6 +29,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _kdfSdk;
+  final _log = Logger('KdfCustomTokenImportRepository');
 
   @override
   Future<Asset> fetchCustomToken(CoinSubClass network, String address) async {
@@ -36,7 +46,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
           asset.id.subClass == network,
     );
     if (knownCoin == null) {
-      return await _createNewCoin(contractAddress, network, address);
+      return _createNewCoin(contractAddress, network, address);
     }
 
     return knownCoin;
@@ -47,10 +57,12 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     CoinSubClass network,
     String address,
   ) async {
+    _log.info('Creating new coin for $contractAddress on $network');
     final response = await _kdfSdk.client.rpc.utility.getTokenInfo(
       contractAddress: contractAddress,
       platform: network.ticker,
-      protocolType: CoinSubClass.erc20.ticker,
+      // TODO: add something similar to the Enum or obtain from platform Asset
+      protocolType: CoinSubClass.erc20.name.toUpperCase(),
     );
 
     final platformAssets = _kdfSdk.assets.findAssetsByConfigId(network.ticker);
@@ -60,6 +72,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         'results returned.',
       );
     }
+
     final platformAsset = platformAssets.single;
     final platformConfig = platformAsset.protocol.config;
     final String ticker = response.info.symbol;
@@ -67,12 +80,13 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     final platformChainId = int.parse(
       platformAsset.id.chainId.formattedChainId,
     );
-
     final coinId = '$ticker-${network.ticker}';
     final logoImageUrl =
         tokenApi?['image']?['large'] ??
         tokenApi?['image']?['small'] ??
         tokenApi?['image']?['thumb'];
+
+    _log.info('Creating new coin for $coinId on $network');
     final newCoin = Asset(
       signMessagePrefix: null,
       id: AssetId(
@@ -89,7 +103,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       ),
       isWalletOnly: false,
       protocol: Erc20Protocol.fromJson({
-        'type': network.formatted,
+        'type': network.ticker,
         'chain_id': platformChainId,
         'nodes': [],
         'swap_contract_address': platformConfig.valueOrNull<String>(
@@ -102,7 +116,6 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
           'protocol_data': {
             'platform': network.ticker,
             'contract_address': address,
-            'chain_id': platformChainId,
           },
         },
         'logo_image_url': logoImageUrl,
@@ -129,6 +142,14 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   @override
   Future<void> importCustomToken(Asset asset) async {
+    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+    if (activatedAssets.any((a) => a.id == asset.id)) {
+      _log.info(
+        'Asset ${asset.id.id} is already activated. Skipping activation.',
+      );
+      return;
+    }
+
     await _coinsRepo.activateAssetsSync([asset]);
   }
 
@@ -138,7 +159,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   ) async {
     final platform = getNetworkApiName(coinType);
     if (platform == null) {
-      log('Unsupported Image URL Network: $coinType');
+      _log.warning('Unsupported Image URL Network: $coinType');
       return null;
     }
 
@@ -151,8 +172,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       final response = await http.get(url);
       final data = jsonDecode(response.body);
       return data;
-    } catch (e) {
-      log('Error fetching token data from $url: $e');
+    } catch (e, s) {
+      _log.severe('Error fetching token data from $url', e, s);
       return null;
     }
   }
