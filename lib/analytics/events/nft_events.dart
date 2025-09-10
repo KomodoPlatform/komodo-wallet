@@ -33,36 +33,36 @@ class NftTransferInitiatedEventData implements AnalyticsEventData {
   const NftTransferInitiatedEventData({
     required this.collectionName,
     required this.tokenId,
-    required this.hdType,
+    required this.walletType,
   });
 
   final String collectionName;
   final String tokenId;
-  final String hdType;
+  final String walletType;
 
   @override
   String get name => 'nft_transfer_initiated';
 
   @override
   JsonMap get parameters => {
-    'collection_name': collectionName,
-    'token_id': tokenId,
-    'hd_type': hdType,
-  };
+        'collection_name': collectionName,
+        'token_id': tokenId,
+        'wallet_type': walletType,
+      };
 }
 
 class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
   AnalyticsNftTransferInitiatedEvent({
     required String collectionName,
     required String tokenId,
-    required String hdType,
+    required String walletType,
   }) : super(
-         NftTransferInitiatedEventData(
-           collectionName: collectionName,
-           tokenId: tokenId,
-           hdType: hdType,
-         ),
-       );
+          NftTransferInitiatedEventData(
+            collectionName: collectionName,
+            tokenId: tokenId,
+            walletType: walletType,
+          ),
+        );
 }
 
 /// E25: NFT sent successfully
@@ -71,24 +71,24 @@ class NftTransferSuccessEventData implements AnalyticsEventData {
     required this.collectionName,
     required this.tokenId,
     required this.fee,
-    required this.hdType,
+    required this.walletType,
   });
 
   final String collectionName;
   final String tokenId;
   final double fee;
-  final String hdType;
+  final String walletType;
 
   @override
   String get name => 'nft_transfer_success';
 
   @override
   JsonMap get parameters => {
-    'collection_name': collectionName,
-    'token_id': tokenId,
-    'fee': fee,
-    'hd_type': hdType,
-  };
+        'collection_name': collectionName,
+        'token_id': tokenId,
+        'fee': fee,
+        'wallet_type': walletType,
+      };
 }
 
 class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
@@ -96,15 +96,15 @@ class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
     required String collectionName,
     required String tokenId,
     required double fee,
-    required String hdType,
+    required String walletType,
   }) : super(
-         NftTransferSuccessEventData(
-           collectionName: collectionName,
-           tokenId: tokenId,
-           fee: fee,
-           hdType: hdType,
-         ),
-       );
+          NftTransferSuccessEventData(
+            collectionName: collectionName,
+            tokenId: tokenId,
+            fee: fee,
+            walletType: walletType,
+          ),
+        );
 }
 
 /// E26: NFT send failed
@@ -112,34 +112,34 @@ class NftTransferFailureEventData implements AnalyticsEventData {
   const NftTransferFailureEventData({
     required this.collectionName,
     required this.failReason,
-    required this.hdType,
+    required this.walletType,
   });
 
   final String collectionName;
   final String failReason;
-  final String hdType;
+  final String walletType;
 
   @override
   String get name => 'nft_transfer_failure';
 
   @override
   JsonMap get parameters => {
-    'collection_name': collectionName,
-    'fail_reason': failReason,
-    'hd_type': hdType,
-  };
+        'collection_name': collectionName,
+        'fail_reason': failReason,
+        'wallet_type': walletType,
+      };
 }
 
 class AnalyticsNftTransferFailureEvent extends AnalyticsSendDataEvent {
   AnalyticsNftTransferFailureEvent({
     required String collectionName,
     required String failReason,
-    required String hdType,
+    required String walletType,
   }) : super(
-         NftTransferFailureEventData(
-           collectionName: collectionName,
-           failReason: failReason,
-           hdType: hdType,
-         ),
-       );
+          NftTransferFailureEventData(
+            collectionName: collectionName,
+            failReason: failReason,
+            walletType: walletType,
+          ),
+        );
 }

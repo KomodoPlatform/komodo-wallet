@@ -263,12 +263,12 @@ class AnalyticsEvents {
   static NftTransferInitiatedEvent nftTransferInitiated({
     required String collectionName,
     required String tokenId,
-    required String hdType,
+    required String walletType,
   }) {
     return NftTransferInitiatedEvent(
       collectionName: collectionName,
       tokenId: tokenId,
-      hdType: hdType,
+      walletType: walletType,
     );
   }
 
@@ -277,13 +277,13 @@ class AnalyticsEvents {
     required String collectionName,
     required String tokenId,
     required double fee,
-    required String hdType,
+    required String walletType,
   }) {
     return NftTransferSuccessEvent(
       collectionName: collectionName,
       tokenId: tokenId,
       fee: fee,
-      hdType: hdType,
+      walletType: walletType,
     );
   }
 
@@ -291,12 +291,12 @@ class AnalyticsEvents {
   static NftTransferFailureEvent nftTransferFailure({
     required String collectionName,
     required String failReason,
-    required String hdType,
+    required String walletType,
   }) {
     return NftTransferFailureEvent(
       collectionName: collectionName,
       failReason: failReason,
-      hdType: hdType,
+      walletType: walletType,
     );
   }
 
@@ -525,7 +525,7 @@ class NftTransferInitiatedEvent extends AnalyticsEventData {
   NftTransferInitiatedEvent({
     required this.collectionName,
     required this.tokenId,
-    required this.hdType,
+    required this.walletType,
   });
 
   @override
@@ -533,14 +533,14 @@ class NftTransferInitiatedEvent extends AnalyticsEventData {
 
   final String collectionName;
   final String tokenId;
-  final String hdType;
+  final String walletType;
 
   @override
   JsonMap get parameters => {
-    'collection_name': collectionName,
-    'token_id': tokenId,
-    'hd_type': hdType,
-  };
+        'collection_name': collectionName,
+        'token_id': tokenId,
+        'wallet_type': walletType,
+      };
 }
 
 class NftTransferSuccessEvent extends AnalyticsEventData {
@@ -548,7 +548,7 @@ class NftTransferSuccessEvent extends AnalyticsEventData {
     required this.collectionName,
     required this.tokenId,
     required this.fee,
-    required this.hdType,
+    required this.walletType,
   });
 
   @override
@@ -557,22 +557,22 @@ class NftTransferSuccessEvent extends AnalyticsEventData {
   final String collectionName;
   final String tokenId;
   final double fee;
-  final String hdType;
+  final String walletType;
 
   @override
   JsonMap get parameters => {
-    'collection_name': collectionName,
-    'token_id': tokenId,
-    'fee': fee,
-    'hd_type': hdType,
-  };
+        'collection_name': collectionName,
+        'token_id': tokenId,
+        'fee': fee,
+        'wallet_type': walletType,
+      };
 }
 
 class NftTransferFailureEvent extends AnalyticsEventData {
   NftTransferFailureEvent({
     required this.collectionName,
     required this.failReason,
-    required this.hdType,
+    required this.walletType,
   });
 
   @override
@@ -580,14 +580,14 @@ class NftTransferFailureEvent extends AnalyticsEventData {
 
   final String collectionName;
   final String failReason;
-  final String hdType;
+  final String walletType;
 
   @override
   JsonMap get parameters => {
-    'collection_name': collectionName,
-    'fail_reason': failReason,
-    'hd_type': hdType,
-  };
+        'collection_name': collectionName,
+        'fail_reason': failReason,
+        'wallet_type': walletType,
+      };
 }
 
 class MarketbotSetupStartEvent extends AnalyticsEventData {
