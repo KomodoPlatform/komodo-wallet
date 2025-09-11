@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -27,7 +25,6 @@ import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
-import 'package:web_dex/shared/constants.dart';
 
 class CoinsRepo {
   CoinsRepo({required KomodoDefiSdk kdfSdk, required MM2 mm2})
@@ -270,7 +267,7 @@ class CoinsRepo {
     List<Asset> assets, {
     bool notify = true,
     bool addToWalletMetadata = true,
-    int maxRetryAttempts = 30,
+    int maxRetryAttempts = 15,
     Duration initialRetryDelay = const Duration(milliseconds: 500),
     Duration maxRetryDelay = const Duration(seconds: 10),
   }) async {

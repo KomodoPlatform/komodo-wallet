@@ -44,14 +44,12 @@ class CustomTokenImportBloc
     final availableCoinTypes = CoinType.values.map(
       (CoinType type) => type.toCoinSubClass(),
     );
-    final items =
-        CoinSubClass.values
-            .where(
-              (CoinSubClass type) =>
-                  type.isEvmProtocol() && availableCoinTypes.contains(type),
-            )
-            .toList()
-          ..sort((a, b) => a.name.compareTo(b.name));
+    final items = CoinSubClass.values.where((CoinSubClass type) {
+      final isEvm = type.isEvmProtocol();
+      final isAvailable = availableCoinTypes.contains(type);
+      final isSupported = _repository.getNetworkApiName(type) != null;
+      return isEvm && isAvailable && isSupported;
+    }).toList()..sort((a, b) => a.name.compareTo(b.name));
 
     emit(
       state.copyWith(
@@ -93,13 +91,15 @@ class CustomTokenImportBloc
         throw Exception('Network asset ${state.network.formatted} not found');
       }
 
+      // Network (parent) asset must be active before attempting to fetch the
+      // custom token data
       await _coinsRepo.activateCoinsSync([networkAsset]);
+
       final tokenData = await _repository.fetchCustomToken(
-        state.network,
+        networkAsset.id,
         state.address,
       );
-      await _coinsRepo.activateAssetsSync([tokenData]);
-
+      await _coinsRepo.activateAssetsSync([tokenData], maxRetryAttempts: 5);
       await _waitForCustomTokenPropogation(tokenData);
 
       final balanceInfo = await _coinsRepo.tryGetBalanceInfo(tokenData.id);

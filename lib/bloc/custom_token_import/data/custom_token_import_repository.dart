@@ -18,10 +18,13 @@ abstract class ICustomTokenImportRepository {
   /// Fetch an [Asset] for a custom token on [network] using [address].
   ///
   /// May return an existing known asset or construct a new one when absent.
-  Future<Asset> fetchCustomToken(CoinSubClass network, String address);
+  Future<Asset> fetchCustomToken(AssetId networkId, String address);
 
   /// Import the provided custom token [asset] into the wallet (e.g. activate it).
   Future<void> importCustomToken(Asset asset);
+
+  /// Get the API name for the given coin subclass.
+  String? getNetworkApiName(CoinSubClass coinType);
 }
 
 class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
@@ -32,21 +35,22 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   final _log = Logger('KdfCustomTokenImportRepository');
 
   @override
-  Future<Asset> fetchCustomToken(CoinSubClass network, String address) async {
+  Future<Asset> fetchCustomToken(AssetId networkId, String address) async {
+    final networkSubclass = networkId.subClass;
     final convertAddressResponse = await _kdfSdk.client.rpc.address
         .convertAddress(
           from: address,
-          coin: network.ticker,
+          coin: networkSubclass.ticker,
           toFormat: AddressFormat.fromCoinSubClass(CoinSubClass.erc20),
         );
     final contractAddress = convertAddressResponse.address;
     final knownCoin = _kdfSdk.assets.available.values.firstWhereOrNull(
       (asset) =>
           asset.contractAddress == contractAddress &&
-          asset.id.subClass == network,
+          asset.id.subClass == networkSubclass,
     );
     if (knownCoin == null) {
-      return _createNewCoin(contractAddress, network, address);
+      return _createNewCoin(contractAddress, networkId);
     }
 
     return knownCoin;
@@ -54,9 +58,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   Future<Asset> _createNewCoin(
     String contractAddress,
-    CoinSubClass network,
-    String address,
+    AssetId networkId,
   ) async {
+    final network = networkId.subClass;
     _log.info('Creating new coin for $contractAddress on $network');
     final response = await _kdfSdk.client.rpc.utility.getTokenInfo(
       contractAddress: contractAddress,
@@ -91,6 +95,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       signMessagePrefix: null,
       id: AssetId(
         id: coinId,
+        parentId: networkId,
         name: tokenApi?['name'] ?? ticker,
         symbol: AssetSymbol(
           assetConfigId: coinId,
@@ -104,9 +109,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       isWalletOnly: false,
       protocol: Erc20Protocol.fromJson(platformConfig).copyWithProtocolData(
         coin: coinId,
-        type: network.ticker,
+        type: network.tokenStandardSuffix,
         chainId: platformChainId,
-        contractAddress: address,
+        contractAddress: contractAddress,
         platform: network.ticker,
         logoImageUrl: logoImageUrl,
         isCustomToken: true,
@@ -153,10 +158,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     }
   }
 
-  // this does not appear to match the coingecko id field in the coins config.
-  // notable differences are bep20, matic, and hrc20
-  // these could possibly be mapped with another field, or it should be changed
-  // to the subclass formatted/ticker fields
+  // TODO: when migrating to the API, change this to fetch the coingecko 
+  // asset_platforms: https://api.coingecko.com/api/v3/asset_platforms
+  @override
   String? getNetworkApiName(CoinSubClass coinType) {
     switch (coinType) {
       case CoinSubClass.erc20:
@@ -204,6 +208,7 @@ extension on Erc20Protocol {
       if (chainId != null) 'chain_id': chainId,
       if (logoImageUrl != null) 'logo_image_url': logoImageUrl,
       if (isCustomToken != null) 'is_custom_token': isCustomToken,
+      if (platform != null) 'parent_coin': platform,
       if (contractAddress != null || platform != null)
         'protocol': {
           'protocol_data': {
