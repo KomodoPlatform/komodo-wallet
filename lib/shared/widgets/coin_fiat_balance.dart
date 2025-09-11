@@ -35,9 +35,10 @@ class CoinFiatBalance extends StatelessWidget {
           return const SizedBox();
         }
 
-        final balanceStr = formatUsdValue(
+        final formattedBalance = formatUsdValue(
           coin.lastKnownUsdBalance(context.sdk),
         );
+        final balanceStr = ' ($formattedBalance)';
 
         if (isAutoScrollEnabled) {
           return AutoScrollText(

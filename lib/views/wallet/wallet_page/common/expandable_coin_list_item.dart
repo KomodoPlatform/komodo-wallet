@@ -1,5 +1,7 @@
 // lib/src/defi/asset/coin_list_item.dart
 
+import 'package:app_theme/src/dark/theme_custom_dark.dart';
+import 'package:app_theme/src/light/theme_custom_light.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,8 +18,6 @@ import 'package:web_dex/shared/widgets/coin_balance.dart';
 import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:app_theme/src/dark/theme_custom_dark.dart';
-import 'package:app_theme/src/light/theme_custom_light.dart';
 import 'package:web_dex/views/wallet/common/address_icon.dart';
 
 /// Widget for showing an authenticated user's balance and anddresses for a
@@ -176,8 +176,13 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
               // Trend percentage
               BlocBuilder<CoinsBloc, CoinsState>(
                 builder: (context, state) {
-                  final usdBalance =
-                      widget.coin.lastKnownUsdBalance(context.sdk) ?? 0.0;
+                  final usdBalance = widget.coin.lastKnownUsdBalance(
+                    context.sdk,
+                  );
+                  if (usdBalance == null) {
+                    return const SizedBox.shrink();
+                  }
+
                   final change24hPercent = usdBalance == 0.0
                       ? 0.0
                       : state.get24hChangeForAsset(widget.coin.id);
@@ -191,10 +196,10 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
                       ? Theme.of(context).extension<ThemeCustomDark>()!
                       : Theme.of(context).extension<ThemeCustomLight>()!;
                   return TrendPercentageText(
-                    percentage: change24hPercent ?? 0.0,
+                    percentage: change24hPercent,
+                    value: change24hValue,
                     upColor: themeCustom.increaseColor,
                     downColor: themeCustom.decreaseColor,
-                    value: change24hValue,
                     valueFormatter: (value) =>
                         NumberFormat.currency(symbol: '\$').format(value),
                     iconSize: 12,
@@ -225,8 +230,10 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
           CoinBalance(coin: widget.coin),
           BlocBuilder<CoinsBloc, CoinsState>(
             builder: (context, state) {
-              final usdBalance =
-                  widget.coin.lastKnownUsdBalance(context.sdk) ?? 0.0;
+              final usdBalance = widget.coin.lastKnownUsdBalance(context.sdk);
+              if (usdBalance == null) {
+                return const SizedBox.shrink();
+              }
 
               final change24hPercent = usdBalance == 0.0
                   ? 0.0
@@ -243,9 +250,9 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
                   : Theme.of(context).extension<ThemeCustomLight>()!;
               return TrendPercentageText(
                 percentage: change24hPercent,
+                value: change24hValue,
                 upColor: themeCustom.increaseColor,
                 downColor: themeCustom.decreaseColor,
-                value: change24hValue,
                 valueFormatter: (value) =>
                     NumberFormat.currency(symbol: '\$').format(value),
               );
