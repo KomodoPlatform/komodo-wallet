@@ -13,6 +13,7 @@ import 'package:web_dex/model/typedef.dart';
 import 'package:web_dex/shared/ui/borderless_search_field.dart';
 import 'package:web_dex/shared/ui/ui_flat_button.dart';
 import 'package:web_dex/views/bridge/bridge_ticker_selector.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/views/bridge/bridge_tickers_list_item.dart';
 import 'package:web_dex/views/dex/simple/form/tables/nothing_found.dart';
 
@@ -109,6 +110,14 @@ class _BridgeTickersListState extends State<BridgeTickersList> {
           previousValue.add(element.value.first);
           return previousValue;
         });
+
+        // Apply privacy coin gating
+        final tradingStatus = context.read<TradingStatusBloc>().state;
+        final bool privacyCoinsBlocked =
+            tradingStatus.disallowedFeatures.contains('PRIVACY_COINS');
+        if (privacyCoinsBlocked) {
+          coinsList.removeWhere((c) => c.isPrivacyCoin);
+        }
 
         if (_searchTerm != null && _searchTerm!.isNotEmpty) {
           final String searchTerm = _searchTerm!.toLowerCase();

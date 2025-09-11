@@ -57,6 +57,8 @@ class BridgeRepository {
     coins = removeWalletOnly(coins);
     coins = removeSuspended(coins, await _kdfSdk.auth.isSignedIn());
 
+    // Privacy coin gating is applied at the UI layer for tickers and orders
+
     final CoinsByTicker coinsByTicker = convertToCoinsByTicker(coins);
     final CoinsByTicker multiProtocolCoins =
         removeSingleProtocol(coinsByTicker);

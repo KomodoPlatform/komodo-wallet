@@ -22,6 +22,12 @@ extension AssetCoinExtension on Asset {
       contractAddress: contractAddress ?? '',
     );
 
+    final bool isPrivacyCoin =
+        (config.valueOrNull<bool>('is_privacy_coin') ??
+            config.valueOrNull<bool>('isPrivacyCoin') ??
+            false) ||
+        _fallbackPrivacyCoins.contains(id.id);
+
     return Coin(
       type: protocol.subClass.toCoinType(),
       abbr: id.id,
@@ -46,6 +52,7 @@ extension AssetCoinExtension on Asset {
       mode: id.isSegwit ? CoinMode.segwit : CoinMode.standard,
       derivationPath: id.derivationPath,
       decimals: id.chainId.decimals ?? 8,
+      isPrivacyCoin: isPrivacyCoin,
     );
   }
 
@@ -54,6 +61,11 @@ extension AssetCoinExtension on Asset {
   String? get platform =>
       protocol.config.valueOrNull('protocol', 'protocol_data', 'platform');
 }
+
+// Fallback list for privacy coins until all configs include the flag
+const Set<String> _fallbackPrivacyCoins = {
+  'ARRR',
+};
 
 extension CoinTypeExtension on CoinSubClass {
   CoinType toCoinType() {

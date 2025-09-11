@@ -31,6 +31,7 @@ class Coin extends Equatable {
     this.coinpaprikaId,
     this.activeByDefault = false,
     this.isCustomCoin = false,
+    this.isPrivacyCoin = false,
     required String? swapContractAddress,
     required bool walletOnly,
     required this.mode,
@@ -60,6 +61,7 @@ class Coin extends Equatable {
 
   final bool isTestCoin;
   bool isCustomCoin;
+  final bool isPrivacyCoin;
 
   @Deprecated(
     '$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.',
@@ -195,6 +197,7 @@ class Coin extends Equatable {
     String? address,
     double? sendableBalance,
     bool? isCustomCoin,
+    bool? isPrivacyCoin,
   }) {
     return Coin(
         type: type ?? this.type,
@@ -222,6 +225,7 @@ class Coin extends Equatable {
         walletOnly: walletOnly ?? _walletOnly,
         mode: mode ?? this.mode,
         isCustomCoin: isCustomCoin ?? this.isCustomCoin,
+        isPrivacyCoin: isPrivacyCoin ?? this.isPrivacyCoin,
       )
       ..address = address ?? this.address
       ..sendableBalance = sendableBalance ?? this.sendableBalance;

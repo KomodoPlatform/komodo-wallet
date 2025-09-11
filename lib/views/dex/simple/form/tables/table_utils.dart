@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
@@ -21,6 +22,13 @@ List<Coin> prepareCoinsForTable(
   if (!testCoinsEnabled) coins = removeTestCoins(coins);
   coins = removeWalletOnly(coins);
   coins = removeSuspended(coins, authBloc.state.isSignedIn);
+  // Apply privacy coin gating if disallowed by geo bouncer
+  final tradingStatus = context.read<TradingStatusBloc>().state;
+  final bool privacyCoinsBlocked =
+      tradingStatus.disallowedFeatures.contains('PRIVACY_COINS');
+  if (privacyCoinsBlocked) {
+    coins.removeWhere((coin) => coin.isPrivacyCoin);
+  }
   coins = sortByPriorityAndBalance(coins, GetIt.I<KomodoDefiSdk>());
   coins = filterCoinsByPhrase(coins, searchString ?? '').toList();
   return coins;
@@ -47,6 +55,19 @@ List<BestOrder> prepareOrdersForTable(
 
   removeWalletOnlyCoinOrders(sorted, context);
   if (sorted.isEmpty) return [];
+
+  // Apply privacy coin gating to orders as well
+  final tradingStatus = context.read<TradingStatusBloc>().state;
+  final bool privacyCoinsBlocked =
+      tradingStatus.disallowedFeatures.contains('PRIVACY_COINS');
+  if (privacyCoinsBlocked) {
+    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    sorted.removeWhere((order) {
+      final coin = coinsRepository.getCoin(order.coin);
+      return coin?.isPrivacyCoin == true;
+    });
+    if (sorted.isEmpty) return [];
+  }
 
   final String? filter = searchString?.toLowerCase();
   if (filter == null || filter.isEmpty) {

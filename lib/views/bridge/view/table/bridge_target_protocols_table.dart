@@ -16,6 +16,7 @@ import 'package:web_dex/views/bridge/bridge_group.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_nothing_found.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_protocol_table_order_item.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_table_column_heads.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 
 class BridgeTargetProtocolsTable extends StatefulWidget {
   const BridgeTargetProtocolsTable({
@@ -109,6 +110,14 @@ class _TargetProtocolItems extends StatelessWidget {
     if (sellCoin == null) return BridgeNothingFound();
 
     final targetsList = bloc.prepareTargetsList(bestOrders);
+    // Apply privacy coin gating to target orders
+    final tradingStatus = context.read<TradingStatusBloc>().state;
+    if (tradingStatus.disallowedFeatures.contains('PRIVACY_COINS')) {
+      targetsList.removeWhere((order) {
+        final coin = RepositoryProvider.of<CoinsRepo>(context).getCoin(order.coin);
+        return coin?.isPrivacyCoin == true;
+      });
+    }
     if (targetsList.isEmpty) return BridgeNothingFound();
 
     final scrollController = ScrollController();

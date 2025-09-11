@@ -20,8 +20,12 @@ class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
   ) async {
     emit(TradingStatusLoadInProgress());
     try {
-      final enabled = await _repository.isTradingEnabled();
-      emit(enabled ? TradingEnabled() : TradingDisabled());
+      // Prefer the new disallowed features API
+      final features = await _repository.fetchDisallowedFeatures();
+      final enabled = !features.contains('TRADING');
+      emit(enabled
+          ? TradingEnabled(disallowedFeatures: features)
+          : TradingDisabled(disallowedFeatures: features));
 
       // This catch will never be triggered by the repository. This will require
       // changes to meet the "TODO" above.
