@@ -32,13 +32,13 @@ flutter build ios
 
 ## Ruby setup
 
-On macOS, Ruby is required for CocoaPods and Xcode tooling. Install Ruby 3.0+ (recommended: 3.4.5) using one of these version managers:
+On macOS, Ruby is required for CocoaPods and Xcode tooling. Install Ruby 3.0+ (recommended: 3.4.x) using one of these version managers:
 
 - rbenv (recommended): lightweight, uses shims. Install via Homebrew and ruby-build.
 
   ```bash
   brew install rbenv
-  echo 'eval "$(rbenv init -)"' >> ~/.zshrc  # or ~/.bash_profile
+  rbenv init # detects current shell and adds init command to shell config
   source ~/.zshrc || source ~/.bash_profile
   rbenv install 3.4.5
   rbenv global 3.4.5
@@ -72,8 +72,10 @@ You may also use alternatives like asdf or mise; ensure Ruby 3.0+.
 
 CocoaPods 1.15+ is required for iOS/macOS builds with the latest Xcode.
 
+NOTE: preferably do not install CocoaPods using `sudo`, as it may lead to permission issues.
+
 ```bash
-sudo gem install cocoapods
+gem install cocoapods
 pod --version
 ```
 

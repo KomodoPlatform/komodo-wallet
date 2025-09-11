@@ -13,22 +13,22 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
  1. [Install Flutter, pin Flutter version](INSTALL_FLUTTER.md)
  2. Install IDEs
     - [VS Code](https://code.visualstudio.com/)
-      - install and enable `Dart` and `Flutter` extensions
-      - enable `Dart: Use recommended settings` via the Command Pallette
+      - Install and enable `Dart` and `Flutter` extensions
+      - Enable `Dart: Use recommended settings` via the Command Palette
     - [Android Studio](https://developer.android.com/studio)
       - Install and enable `Dart` and `Flutter` plugins
       - Ensure that the following tools are installed and updated in SDK Manager -> SDK Tools:
-        - [x] Android SDK Build-Tools
-        - [x] NDK (Side by side)
-        - [x] Android command line tools
-        - [x] CMake
-    - [xCode](https://developer.apple.com/xcode/) (latest, macOS only)
-    - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) (latest, Windows only)
+        - Android SDK Build-Tools
+        - NDK (Side by side)
+        - Android command line tools
+        - CMake
+    - (macOS only) [xCode](https://developer.apple.com/xcode/)
+    - (Windows only) [Visual Studio](https://visualstudio.microsoft.com/vs/community/)
       - `Desktop development with C++` workload required
       - [Nuget CLI](https://www.nuget.org/downloads) required for Windows desktop builds
       - [Enable long paths in Windows registry](BUILD_RUN_APP.md#windows-desktop)
- 3. macOS only: Prerequisites
-    - Ruby: 3.0+ (recommended: 3.4.5). See [Ruby setup](BUILD_RUN_APP.md#ruby-setup).
+ 3. (macOS only) CocoaPods and Ruby setup:
+    - Ruby: 3.0+ (recommended: 3.4.x). See [Ruby setup](BUILD_RUN_APP.md#ruby-setup).
     - CocoaPods: 1.15+ (assuming latest Xcode). See [CocoaPods installation](BUILD_RUN_APP.md#cocoapods-installation).
  4. Run `flutter doctor` and make sure all checks (except version) pass
  5. [Clone project repository](CLONE_REPOSITORY.md)
@@ -54,8 +54,8 @@ Komodo Wallet is a cross-platform application, meaning it can be built for multi
       - Linux: Install [Docker for your distribution](https://docs.docker.com/install/#supported-platforms) and add your user to the group by using terminal to run: `sudo usermod -aG docker $USER`.
       - Windows/macOS: Install [Docker Desktop for Windows/macOS](https://www.docker.com/products/docker-desktop), and if you are using WSL in Windows, please ensure that the [WSL 2 back-end](https://aka.ms/vscode-remote/containers/docker-wsl2) is installed and configured.
 2. Install [VS Code](https://code.visualstudio.com/)
-      - install and enable `Dart` and `Flutter` extensions
-      - enable `Dart: Use recommended settings` via the Command Pallette
+      - Install and enable `Dart` and `Flutter` extensions
+      - Enable `Dart: Use recommended settings` via the Command Palette
 3. Install the VSCode [Dev Container extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 4. Open the command palette (Ctrl+Shift+P) and run `Remote-Containers: Reopen in Container`
 
@@ -74,7 +74,7 @@ export GITHUB_API_PUBLIC_READONLY_TOKEN=<TOKEN>
 Example of the 403 error message (more likely after multiple repeated builds):
 
 ```bash
-test@test komodo-wallet % flutter build web 
+test@test komodo-wallet % flutter build web
 
 Expected to find fonts for (MaterialIcons, packages/komodo_ui_kit/Custom, packages/cupertino_icons/CupertinoIcons), but found (MaterialIcons, packages/komodo_ui_kit/Custom). This usually means you are referring to font families in an IconData class but not including them in the assets section of your pubspec.yaml, are missing the package that would include
 them, or are missing "uses-material-design: true".
