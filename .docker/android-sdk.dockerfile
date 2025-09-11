@@ -26,11 +26,11 @@ ENV ANDROID_SDK_ROOT=$ANDROID_HOME \
 ENV ANDROID_SDK_TOOLS_VERSION=11076708
 
 # https://developer.android.com/studio/releases/build-tools
-ENV ANDROID_PLATFORM_VERSION=35
+ENV ANDROID_PLATFORM_VERSION=36
 ENV ANDROID_BUILD_TOOLS_VERSION=35.0.1
 
 # https://developer.android.com/ndk/downloads
-ENV ANDROID_NDK_VERSION=27.2.12479018
+ENV ANDROID_NDK_VERSION=27.3.13750724
 
 RUN set -o xtrace \
     && sudo chown -R $USER:$USER /opt \
