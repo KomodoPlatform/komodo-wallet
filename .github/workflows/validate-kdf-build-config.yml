@@ -1,0 +1,35 @@
+name: Validate KDF build_config.json on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-kdf-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Flutter and dependencies
+        uses: ./.github/actions/flutter-deps
+
+      - name: Build web assets (to generate build_config.json)
+        uses: ./.github/actions/generate-assets
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_COMMAND: "flutter build web --no-pub --release"
+
+      - name: Validate web build contents
+        uses: ./.github/actions/validate-build
+
+      - name: Validate that build_config.json points to KDF GitHub Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x .github/scripts/validate-kdf-build-config.sh
+          .github/scripts/validate-kdf-build-config.sh
+
