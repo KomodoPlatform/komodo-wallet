@@ -8,7 +8,8 @@ enum MarketMakerBotTabType implements ITabTypeEnum {
   marketMaker,
   inProgress,
   orders,
-  history;
+  history,
+  aiTrading;
 
   @override
   String name(DexTabBarState bloc) {
@@ -21,6 +22,8 @@ enum MarketMakerBotTabType implements ITabTypeEnum {
         return '${LocaleKeys.inProgress.tr()} (${bloc.inProgressCount})';
       case history:
         return '${LocaleKeys.history.tr()} (${bloc.completedCount})';
+      case aiTrading:
+        return 'AI Trading';
     }
   }
 
@@ -35,6 +38,8 @@ enum MarketMakerBotTabType implements ITabTypeEnum {
         return 'market-maker-in-progress-tab';
       case history:
         return 'market-maker-history-tab';
+      case aiTrading:
+        return 'market-maker-ai-trading-tab';
     }
   }
 
@@ -51,6 +56,8 @@ enum MarketMakerBotTabType implements ITabTypeEnum {
         return DexListType.inProgress;
       case history:
         return DexListType.history;
+      case aiTrading:
+        return DexListType.swap;
     }
   }
 }

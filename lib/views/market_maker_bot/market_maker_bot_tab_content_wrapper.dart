@@ -16,6 +16,7 @@ import 'package:web_dex/views/dex/entities_list/in_progress/in_progress_list.dar
 import 'package:web_dex/views/market_maker_bot/market_maker_bot_form.dart';
 import 'package:web_dex/views/market_maker_bot/market_maker_bot_order_list.dart';
 import 'package:web_dex/views/market_maker_bot/market_maker_bot_tab_type.dart';
+import 'package:web_dex/views/market_maker_bot/ai_trading/ai_trading_view.dart';
 
 class MarketMakerBotTabContentWrapper extends StatefulWidget {
   const MarketMakerBotTabContentWrapper(
@@ -124,6 +125,8 @@ class _SelectedTabContent extends StatelessWidget {
         );
       case MarketMakerBotTabType.marketMaker:
         return const MarketMakerBotForm();
+      case MarketMakerBotTabType.aiTrading:
+        return const AiTradingView();
     }
   }
 
@@ -172,7 +175,8 @@ class _MobileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (type == MarketMakerBotTabType.marketMaker) {
+    if (type == MarketMakerBotTabType.marketMaker ||
+        type == MarketMakerBotTabType.aiTrading) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -225,7 +229,8 @@ class _DesktopWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (type == MarketMakerBotTabType.marketMaker) {
+    if (type == MarketMakerBotTabType.marketMaker ||
+        type == MarketMakerBotTabType.aiTrading) {
       return Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
