@@ -19,8 +19,8 @@ Swap order submitted,swap_initiated,Trading (DEX),"from_asset, to_asset, network
 Atomic swap succeeded,swap_success,Trading (DEX),"from_asset, to_asset, amount, fee","Trading volume, fee revenue",High (v0.9.0),TRUE,Swap completion,Send on successful atomic swap completion.
 Swap failed,swap_failure,Trading (DEX),"from_asset, to_asset, fail_stage","Liquidity gaps, tech/UX blockers",High (v0.9.0),TRUE,Swap error,Log when swap fails at any stage.
 Bridge transfer started,bridge_initiated,Cross-Chain,"from_chain, to_chain, asset","Bridge demand, chain pairs",Medium (v0.9.1),TRUE,Bridge transfer start,Emit when cross-chain bridge initiated.
-Bridge completed,bridge_success,Cross-Chain,"from_chain, to_chain, asset, amount","Cross-chain volume, success rate",Medium (v0.9.1),TRUE,Bridge completion,Send when bridge transfer succeeds.
-Bridge failed,bridge_failure,Cross-Chain,"from_chain, to_chain, fail_error","Reliability issues, risk analysis",Medium (v0.9.1),TRUE,Bridge error,Fire when bridge transfer fails.
+Bridge completed,bridge_success,Cross-Chain,"from_chain, to_chain, asset, amount, duration_ms","Cross-chain volume, success rate",Medium (v0.9.1),TRUE,Bridge completion,Send when bridge transfer succeeds.
+Bridge failed,bridge_failure,Cross-Chain,"from_chain, to_chain, fail_error, duration_ms","Reliability issues, risk analysis",Medium (v0.9.1),TRUE,Bridge error,Fire when bridge transfer fails.
 NFT gallery opened (measure load perf),nft_gallery_opened,NFT Wallet,"nft_count, load_time_ms","NFT engagement, gallery performance",Medium (v0.9.1),FALSE,NFT gallery screen,Record load time and count when gallery opened.
 NFT send flow started,nft_transfer_initiated,NFT Wallet,"collection_name, token_id, hd_type","NFT tx funnel start, collection popularity",Medium (v0.9.1),FALSE,NFT send screen,Trigger when user opens NFT transfer flow.
 NFT sent successfully,nft_transfer_success,NFT Wallet,"collection_name, token_id, fee, hd_type","NFT volume, user confidence",Medium (v0.9.1),FALSE,NFT send confirmation,Log when NFT transfer completes successfully.
