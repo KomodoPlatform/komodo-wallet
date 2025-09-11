@@ -6,7 +6,6 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -19,9 +18,7 @@ const EdgeInsets headerActionsPadding = EdgeInsets.fromLTRB(38, 18, 0, 0);
 final _languageCodes = localeList.map((e) => e.languageCode).toList();
 final _langCode2flags = {
   for (var loc in _languageCodes)
-    loc: SvgPicture.asset(
-      '$assetsPath/flags/$loc.svg',
-    ),
+    loc: SvgPicture.asset('$assetsPath/flags/$loc.svg'),
 };
 List<Widget>? getHeaderActions(BuildContext context) {
   return <Widget>[
@@ -36,14 +33,12 @@ List<Widget>? getHeaderActions(BuildContext context) {
       ),
     Padding(
       padding: headerActionsPadding,
-      child: BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
-        builder: (context, pgState) {
-          final coins = context.select<CoinsBloc, Iterable<Coin>>(
-            (bloc) => bloc.state.walletCoins.values,
+      child: BlocBuilder<CoinsBloc, CoinsState>(
+        builder: (context, state) {
+          final totalBalance = _getTotalBalance(
+            state.walletCoins.values,
+            context,
           );
-          final totalBalance = pgState is PortfolioGrowthChartLoadSuccess
-              ? pgState.totalBalance
-              : _getTotalBalance(coins, context);
 
           return ActionTextButton(
             text: LocaleKeys.balance.tr(),
@@ -53,17 +48,16 @@ List<Widget>? getHeaderActions(BuildContext context) {
         },
       ),
     ),
-    const Padding(
-      padding: headerActionsPadding,
-      child: AccountSwitcher(),
-    ),
+    const Padding(padding: headerActionsPadding, child: AccountSwitcher()),
     if (!isWideScreen) const SizedBox(width: mainLayoutPadding),
   ];
 }
 
 double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
-  double total =
-      coins.fold(0, (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0));
+  double total = coins.fold(
+    0,
+    (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0),
+  );
 
   if (total > 0.01) {
     return total;
