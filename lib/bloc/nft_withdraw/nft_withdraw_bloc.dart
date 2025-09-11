@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/analytics/events/nft_events.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_repo.dart';
@@ -19,8 +20,6 @@ import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_event.dart';
-import 'package:web_dex/bloc/nft_withdraw/nft_withdraw_state.dart';
 
 part 'nft_withdraw_event.dart';
 part 'nft_withdraw_state.dart';
@@ -96,10 +95,16 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       return;
     }
 
+    final walletType =
+        (await _kdfSdk.auth.currentUser)
+            ?.walletId
+            .authOptions
+            .derivationMethod
+            .name ??
+        'unknown';
+
     try {
       // Log initiated
-      final walletType =
-          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
       GetIt.I<AnalyticsBloc>().logEvent(
         NftTransferInitiatedEventData(
           collectionName: nft.collectionName ?? nft.symbol ?? 'unknown',
@@ -126,11 +131,10 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       );
     } on ApiError catch (e) {
       // Log failure
-      final walletType =
-          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
       GetIt.I<AnalyticsBloc>().logEvent(
         NftTransferFailureEventData(
-          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          collectionName:
+              state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
           failReason: e.message,
           walletType: walletType,
         ),
@@ -138,11 +142,10 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
       emit(state.copyWith(sendError: () => e, isSending: () => false));
     } on TransportError catch (e) {
-      final walletType =
-          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
       GetIt.I<AnalyticsBloc>().logEvent(
         NftTransferFailureEventData(
-          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          collectionName:
+              state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
           failReason: e.message,
           walletType: walletType,
         ),
@@ -173,13 +176,21 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     );
     final BaseError? responseError = response.error;
     final String? txHash = response.txHash;
+
+    final walletType =
+        (await _kdfSdk.auth.currentUser)
+            ?.walletId
+            .authOptions
+            .derivationMethod
+            .name ??
+        'unknown';
+
     if (txHash == null) {
       // Log failure
-      final walletType =
-          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
       GetIt.I<AnalyticsBloc>().logEvent(
         NftTransferFailureEventData(
-          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          collectionName:
+              state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
           failReason: responseError?.message ?? 'unknown',
           walletType: walletType,
         ),
@@ -194,13 +205,12 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       );
     } else {
       // Log success with fee
-      final walletType =
-          (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
-      final fee = double.tryParse(state.txDetails.feeDetails.feeValue ?? '0') ??
-          0.0;
+      final fee =
+          double.tryParse(state.txDetails.feeDetails.feeValue ?? '0') ?? 0.0;
       GetIt.I<AnalyticsBloc>().logEvent(
         NftTransferSuccessEventData(
-          collectionName: state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
+          collectionName:
+              state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
           tokenId: state.txDetails.tokenId,
           fee: fee,
           walletType: walletType,
