@@ -58,6 +58,8 @@ class FeedbackService {
       feedbackType = extras.valueOrNull<String>('feedback_type');
     }
 
+    final sdk = GetIt.I<KomodoDefiSdk>();
+
     final Map<String, dynamic> metadata = {
       if (contactMethod != null) 'contactMethod': contactMethod,
       if (contactDetails != null) 'contactDetails': contactDetails,
@@ -75,6 +77,9 @@ class FeedbackService {
       'timestamp': DateTime.now().toIso8601String(),
       'wallet':
           (await GetIt.I<KomodoDefiSdk>().auth.currentUser)?.toJson() ?? 'None',
+
+      'coinsCurrentCommit': sdk.assets.currentCoinsCommit,
+      'coinsLatestCommit': sdk.assets.latestCoinsCommit,
     };
 
     try {

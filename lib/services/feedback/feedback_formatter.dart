@@ -46,6 +46,10 @@ class FeedbackFormatter {
         case 'timestamp':
           buildInfo[entry.key] = entry.value;
           break;
+        case 'coinsCurrentCommit':
+        case 'coinsLatestCommit':
+          buildInfo[entry.key] = entry.value;
+          break;
         case 'wallet':
           walletInfo[entry.key] = entry.value;
           break;
