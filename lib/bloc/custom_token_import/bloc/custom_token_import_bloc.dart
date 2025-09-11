@@ -1,6 +1,9 @@
+import 'dart:async' show TimeoutException;
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart' show poll;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
@@ -97,6 +100,8 @@ class CustomTokenImportBloc
       );
       await _coinsRepo.activateAssetsSync([tokenData]);
 
+      await _waitForCustomTokenPropogation(tokenData);
+
       final balanceInfo = await _coinsRepo.tryGetBalanceInfo(tokenData.id);
       final balance = balanceInfo.spendable;
       final usdBalance = _coinsRepo.getUsdPriceByAmount(
@@ -126,6 +131,29 @@ class CustomTokenImportBloc
           tokenData: () => null,
           formErrorMessage: e.toString(),
         ),
+      );
+    }
+  }
+
+  /// wait for the asset to appear in the known asset list with a 5-second
+  /// timeout using the poll function from sdk type utils package
+  /// and ignore timeout exception
+  Future<void> _waitForCustomTokenPropogation(
+    Asset tokenData, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    try {
+      await poll<bool>(
+        () async {
+          await Future.delayed(const Duration(seconds: 1));
+          return _sdk.assets.available.containsKey(tokenData.id);
+        },
+        isComplete: (assetExists) => assetExists,
+        maxDuration: timeout,
+      );
+    } on TimeoutException catch (_) {
+      _log.warning(
+        'Timeout waiting for asset to appear in the known asset list',
       );
     }
   }

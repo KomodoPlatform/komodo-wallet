@@ -80,7 +80,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     final platformChainId = int.parse(
       platformAsset.id.chainId.formattedChainId,
     );
-    final coinId = '$ticker-${network.ticker}';
+    final coinId = '$ticker-${network.tokenStandardSuffix}';
     final logoImageUrl =
         tokenApi?['image']?['large'] ??
         tokenApi?['image']?['small'] ??
@@ -93,7 +93,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         id: coinId,
         name: tokenApi?['name'] ?? ticker,
         symbol: AssetSymbol(
-          assetConfigId: '$ticker-${network.ticker}',
+          assetConfigId: coinId,
           coinGeckoId: tokenApi?['id'],
           coinPaprikaId: tokenApi?['id'],
         ),
@@ -102,38 +102,21 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         derivationPath: '',
       ),
       isWalletOnly: false,
-      protocol: Erc20Protocol.fromJson({
-        'type': network.ticker,
-        'chain_id': platformChainId,
-        'nodes': [],
-        'swap_contract_address': platformConfig.valueOrNull<String>(
-          'swap_contract_address',
-        ),
-        'fallback_swap_contract': platformConfig.valueOrNull<String>(
-          'fallback_swap_contract',
-        ),
-        'protocol': {
-          'protocol_data': {
-            'platform': network.ticker,
-            'contract_address': address,
-          },
-        },
-        'logo_image_url': logoImageUrl,
-        'explorer_url': platformConfig.valueOrNull<String>('explorer_url'),
-        'explorer_url_tx': platformConfig.valueOrNull<String>(
-          'explorer_url_tx',
-        ),
-        'explorer_url_address': platformConfig.valueOrNull<String>(
-          'explorer_url_address',
-        ),
-      }).copyWith(isCustomToken: true),
+      protocol: Erc20Protocol.fromJson(platformConfig).copyWithProtocolData(
+        coin: coinId,
+        type: network.ticker,
+        chainId: platformChainId,
+        contractAddress: address,
+        platform: network.ticker,
+        logoImageUrl: logoImageUrl,
+        isCustomToken: true,
+      ),
     );
 
     AssetIcon.registerCustomIcon(
       newCoin.id,
       NetworkImage(
-        tokenApi?['image']?['large'] ??
-            'assets/coin_icons/png/${ticker.toLowerCase()}.png',
+        logoImageUrl ?? 'assets/coin_icons/png/${ticker.toLowerCase()}.png',
       ),
     );
 
@@ -142,14 +125,6 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   @override
   Future<void> importCustomToken(Asset asset) async {
-    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
-    if (activatedAssets.any((a) => a.id == asset.id)) {
-      _log.info(
-        'Asset ${asset.id.id} is already activated. Skipping activation.',
-      );
-      return;
-    }
-
     await _coinsRepo.activateAssetsSync([asset]);
   }
 
@@ -209,5 +184,34 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       default:
         return null;
     }
+  }
+}
+
+extension on Erc20Protocol {
+  Erc20Protocol copyWithProtocolData({
+    String? coin,
+    String? type,
+    String? contractAddress,
+    String? platform,
+    String? logoImageUrl,
+    bool? isCustomToken,
+    int? chainId,
+  }) {
+    final currentConfig = JsonMap.from(config);
+    currentConfig.addAll({
+      if (coin != null) 'coin': coin,
+      if (type != null) 'type': type,
+      if (chainId != null) 'chain_id': chainId,
+      if (logoImageUrl != null) 'logo_image_url': logoImageUrl,
+      if (isCustomToken != null) 'is_custom_token': isCustomToken,
+      if (contractAddress != null || platform != null)
+        'protocol': {
+          'protocol_data': {
+            'contract_address': contractAddress ?? this.contractAddress,
+            'platform': platform ?? subClass.ticker,
+          },
+        },
+    });
+    return Erc20Protocol.fromJson(currentConfig);
   }
 }
