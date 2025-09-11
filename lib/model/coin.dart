@@ -34,8 +34,8 @@ class Coin extends Equatable {
     required String? swapContractAddress,
     required bool walletOnly,
     required this.mode,
-  })  : _swapContractAddress = swapContractAddress,
-        _walletOnly = walletOnly;
+  }) : _swapContractAddress = swapContractAddress,
+       _walletOnly = walletOnly;
 
   final String abbr;
   final String name;
@@ -54,14 +54,16 @@ class Coin extends Equatable {
   final int decimals;
 
   @Deprecated(
-      'Use sdk.prices.fiatPrice(id) instead. This value is not updated after initial load and may be inaccurate.')
+    'Use sdk.prices.fiatPrice(id) instead. This value is not updated after initial load and may be inaccurate.',
+  )
   CexPrice? usdPrice;
 
   final bool isTestCoin;
   bool isCustomCoin;
 
   @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.')
+    '$_urgentDeprecationNotice Use the SDK\'s Asset multi-address support instead. The wallet now works with multiple addresses per account.',
+  )
   String? address;
 
   final String? _swapContractAddress;
@@ -73,6 +75,11 @@ class Coin extends Equatable {
   final CoinMode mode;
   final CoinState state;
 
+  // Cache for expensive computed properties
+  String? _cachedTypeName;
+  bool? _cachedisParent;
+  String? _cachedDisplayName;
+
   bool get walletOnly => _walletOnly || appWalletOnlyAssetList.contains(abbr);
 
   String? get swapContractAddress =>
@@ -83,11 +90,27 @@ class Coin extends Equatable {
   bool get isInactive => state == CoinState.inactive;
 
   @Deprecated(
-      '$_urgentDeprecationNotice Use the SDK\'s Asset.sendableBalance instead. This value is not updated after initial load and may be inaccurate.')
+    '$_urgentDeprecationNotice Use the SDK\'s Asset.sendableBalance instead. This value is not updated after initial load and may be inaccurate.',
+  )
   double sendableBalance = 0;
 
-  String get typeName => getCoinTypeName(type);
+  String get typeName {
+    return _cachedTypeName ??= getCoinTypeName(type, abbr);
+  }
+
+  bool get isParent {
+    return _cachedisParent ??= isParentCoin(type, abbr);
+  }
+
   String get typeNameWithTestnet => typeName + (isTestCoin ? ' (TESTNET)' : '');
+
+  /// Display-friendly name that disambiguates parent coins on different EVM networks.
+  ///
+  /// For example, for a parent coin with abbreviation 'ETH-ARB20', this returns
+  /// 'Ethereum (ARB20)' so that it is visually distinct from 'Ethereum' (ERC20).
+  String get displayName {
+    return _cachedDisplayName ??= id.displayName;
+  }
 
   bool get isIrisToken => protocolType == 'TENDERMINTTOKEN';
 
@@ -220,13 +243,10 @@ extension LegacyCoinToSdkAsset on Coin {
 }
 
 class ProtocolData {
-  ProtocolData({
-    required this.platform,
-    required this.contractAddress,
-  });
+  ProtocolData({required this.platform, required this.contractAddress});
 
   factory ProtocolData.fromJson(Map<String, dynamic> json) => ProtocolData(
-        platform: json['platform'],
+    platform: json['platform'],
     contractAddress: json['contract_address'] ?? '',
   );
 
@@ -259,13 +279,7 @@ class CoinNode {
 
 enum CoinMode { segwit, standard, hw }
 
-enum CoinState {
-  inactive,
-  activating,
-  active,
-  suspended,
-  hidden,
-}
+enum CoinState { inactive, activating, active, suspended, hidden }
 
 extension CoinListExtension on List<Coin> {
   Map<String, Coin> toMap() {
