@@ -34,4 +34,25 @@ void testRatToFracAndViseVersa() {
     Rational? result = fract2rat(invalidFract, false);
     expect(result, isNull);
   });
+
+  test('fract2rat handles very large integers without precision loss', () {
+    // 10^50 / 10^20 = 10^30
+    final numer = '100000000000000000000000000000000000000000000000000';
+    final denom = '100000000000000000000';
+    final rat = fract2rat({'numer': numer, 'denom': denom}, false)!;
+    expect(rat.numerator, BigInt.parse(numer));
+    expect(rat.denominator, BigInt.parse(denom));
+    // Ensure round-trip
+    final back = rat2fract(rat, false)!;
+    expect(back['numer'], numer);
+    expect(back['denom'], denom);
+  });
+
+  test('fract2rat correctly parses strings that would overflow double', () {
+    final numer = '340282366920938463463374607431768211457'; // > 2^128
+    final denom = '1';
+    final rat = fract2rat({'numer': numer, 'denom': denom}, false)!;
+    expect(rat.numerator, BigInt.parse(numer));
+    expect(rat.denominator, BigInt.one);
+  });
 }
