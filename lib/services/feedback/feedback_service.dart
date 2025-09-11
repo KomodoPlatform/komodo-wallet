@@ -78,8 +78,8 @@ class FeedbackService {
       'wallet':
           (await GetIt.I<KomodoDefiSdk>().auth.currentUser)?.toJson() ?? 'None',
 
-      'coinsCurrentCommit': sdk.assets.currentCoinsCommit,
-      'coinsLatestCommit': sdk.assets.latestCoinsCommit,
+      'coinsCurrentCommit': await sdk.assets.currentCoinsCommit,
+      'coinsLatestCommit': await sdk.assets.latestCoinsCommit,
     };
 
     try {
