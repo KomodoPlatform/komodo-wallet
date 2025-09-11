@@ -1,0 +1,36 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "dart",
+            "group": {
+                "kind": "build",
+                "isDefault": false,
+            },
+            "label": "Flutter: run unit tests",
+            "command": "flutter",
+            "args": [
+                "test",
+                "test_units/main.dart",
+            ]
+        },
+        {
+            "type": "dart",
+            "group": {
+                "kind": "build",
+                "isDefault": false,
+            },
+            "label": "Flutter: run integration tests",
+            "command": "dart",
+            "args": [
+                "run_integration_tests.dart",
+                "--browser_name=chrome",
+                "-k",
+                "-b",
+                "1600,1024",
+            ]
+        }
+    ]
+}
