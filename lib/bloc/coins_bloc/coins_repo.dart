@@ -538,14 +538,22 @@ class CoinsRepo {
   }
 
   Future<Map<String, CexPrice>?> fetchCurrentPrices() async {
-    // Try to use the SDK's price manager to get prices for active coins
+    // Fetch prices for a broad set of assets so unauthenticated users
+    // also see prices and 24h changes in lists and charts.
+    // Prefer activated assets if available (to limit requests when logged in),
+    // otherwise fall back to all available SDK assets.
     final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+    final Iterable<Asset> targetAssets = activatedAssets.isNotEmpty
+        ? activatedAssets
+        : _kdfSdk.assets.available.values;
+
     // Filter out excluded and testnet assets, as they are not expected
     // to have valid prices available at any of the providers
-    final validActivatedAssets = activatedAssets
+    final validAssets = targetAssets
         .where((asset) => !excludedAssetList.contains(asset.id.id))
         .where((asset) => !asset.protocol.isTestnet);
-    for (final asset in validActivatedAssets) {
+
+    for (final asset in validAssets) {
       try {
         // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
         final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
@@ -560,7 +568,8 @@ class CoinsRepo {
             // Continue without 24h change data
           }
 
-          _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
+          final symbolKey = asset.id.symbol.configSymbol.toUpperCase();
+          _pricesCache[symbolKey] = CexPrice(
             assetId: asset.id,
             price: fiatPrice,
             lastUpdated: DateTime.now(),
