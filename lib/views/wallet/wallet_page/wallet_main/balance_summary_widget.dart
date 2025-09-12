@@ -24,6 +24,9 @@ class BalanceSummaryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final themeCustom = Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).extension<ThemeCustomDark>()!
+        : Theme.of(context).extension<ThemeCustomLight>()!;
 
     return GestureDetector(
       onTap: onTap,
@@ -43,32 +46,20 @@ class BalanceSummaryWidget extends StatelessWidget {
                     '\$${NumberFormat("#,##0.00").format(totalBalance!)}',
                     style: theme.textTheme.headlineSmall,
                   )
-                : _BalancePlaceholder(theme: theme),
+                : _BalancePlaceholder(),
             const SizedBox(height: 12),
 
             // Change indicator using TrendPercentageText or placeholder
             totalBalance != null
                 ? TrendPercentageText(
                     percentage: changePercentage,
-                    upColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(
-                            context,
-                          ).extension<ThemeCustomDark>()!.increaseColor
-                        : Theme.of(
-                            context,
-                          ).extension<ThemeCustomLight>()!.increaseColor,
-                    downColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(
-                            context,
-                          ).extension<ThemeCustomDark>()!.decreaseColor
-                        : Theme.of(
-                            context,
-                          ).extension<ThemeCustomLight>()!.decreaseColor,
+                    upColor: themeCustom.increaseColor,
+                    downColor: themeCustom.decreaseColor,
                     value: changeAmount,
                     valueFormatter: (value) =>
                         NumberFormat.currency(symbol: '\$').format(value),
                   )
-                : _ChangePlaceholder(theme: theme),
+                : _ChangePlaceholder(),
           ],
         ),
       ),
@@ -77,12 +68,12 @@ class BalanceSummaryWidget extends StatelessWidget {
 }
 
 class _BalancePlaceholder extends StatelessWidget {
-  const _BalancePlaceholder({required this.theme});
-
-  final ThemeData theme;
+  const _BalancePlaceholder();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: 32,
       width: 160,
@@ -95,12 +86,12 @@ class _BalancePlaceholder extends StatelessWidget {
 }
 
 class _ChangePlaceholder extends StatelessWidget {
-  const _ChangePlaceholder({required this.theme});
-
-  final ThemeData theme;
+  const _ChangePlaceholder();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: 20,
       width: 100,

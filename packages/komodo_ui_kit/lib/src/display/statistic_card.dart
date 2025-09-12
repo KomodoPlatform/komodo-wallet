@@ -83,7 +83,7 @@ class StatisticCard extends StatelessWidget {
                                   color: isDarkMode ? Colors.white : null,
                                 ),
                           )
-                        : _ValuePlaceholder(context: context),
+                        : _ValuePlaceholder(),
                     const SizedBox(height: 4),
                     // Caption
                     DefaultTextStyle(
@@ -111,9 +111,7 @@ class StatisticCard extends StatelessWidget {
 }
 
 class _ValuePlaceholder extends StatelessWidget {
-  const _ValuePlaceholder({required this.context});
-
-  final BuildContext context;
+  const _ValuePlaceholder();
 
   @override
   Widget build(BuildContext context) {

@@ -49,6 +49,10 @@ class _WalletOverviewState extends State<WalletOverview> {
 
   @override
   Widget build(BuildContext context) {
+    final themeCustom = Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).extension<ThemeCustomDark>()!
+        : Theme.of(context).extension<ThemeCustomLight>()!;
+
     return BlocBuilder<CoinsBloc, CoinsState>(
       builder: (context, state) {
         if (state.coins.isEmpty) return _buildSpinner();
@@ -141,22 +145,8 @@ class _WalletOverviewState extends State<WalletOverview> {
 
                         return TrendPercentageText(
                           percentage: totalChange,
-                          upColor:
-                              Theme.of(context).brightness == Brightness.dark
-                              ? Theme.of(
-                                  context,
-                                ).extension<ThemeCustomDark>()!.increaseColor
-                              : Theme.of(
-                                  context,
-                                ).extension<ThemeCustomLight>()!.increaseColor,
-                          downColor:
-                              Theme.of(context).brightness == Brightness.dark
-                              ? Theme.of(
-                                  context,
-                                ).extension<ThemeCustomDark>()!.decreaseColor
-                              : Theme.of(
-                                  context,
-                                ).extension<ThemeCustomLight>()!.decreaseColor,
+                          upColor: themeCustom.increaseColor,
+                          downColor: themeCustom.decreaseColor,
                           value: totalChange24h,
                           valueFormatter: NumberFormat.currency(
                             symbol: '\$',
@@ -171,7 +161,7 @@ class _WalletOverviewState extends State<WalletOverview> {
             key: const Key('overview-all-time-investment'),
             caption: Text(LocaleKeys.allTimeInvestment.tr()),
             value: totalBalance != null
-                ? (stateWithData?.totalInvestment.value ?? 0)
+                ? (stateWithData?.totalInvestment.value)
                 : null,
             onTap: widget.onPortfolioGrowthPressed,
             onLongPress: totalBalance != null && stateWithData != null
@@ -199,7 +189,7 @@ class _WalletOverviewState extends State<WalletOverview> {
             key: const Key('overview-all-time-profit'),
             caption: Text(LocaleKeys.allTimeProfit.tr()),
             value: totalBalance != null
-                ? (stateWithData?.profitAmount.value ?? 0)
+                ? (stateWithData?.profitAmount.value)
                 : null,
             onTap: widget.onPortfolioProfitLossPressed,
             onLongPress: totalBalance != null && stateWithData != null
@@ -213,20 +203,8 @@ class _WalletOverviewState extends State<WalletOverview> {
             trendWidget: totalBalance != null && stateWithData != null
                 ? TrendPercentageText(
                     percentage: stateWithData.profitIncreasePercentage,
-                    upColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(
-                            context,
-                          ).extension<ThemeCustomDark>()!.increaseColor
-                        : Theme.of(
-                            context,
-                          ).extension<ThemeCustomLight>()!.increaseColor,
-                    downColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(
-                            context,
-                          ).extension<ThemeCustomDark>()!.decreaseColor
-                        : Theme.of(
-                            context,
-                          ).extension<ThemeCustomLight>()!.decreaseColor,
+                    upColor: themeCustom.increaseColor,
+                    downColor: themeCustom.decreaseColor,
                     // Show the total profit amount as the value
                     value: stateWithData.profitAmount.value,
                     valueFormatter: NumberFormat.currency(symbol: '\$').format,
