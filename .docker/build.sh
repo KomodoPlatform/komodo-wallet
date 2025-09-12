@@ -21,6 +21,8 @@ if command -v git >/dev/null 2>&1; then
     echo "Ensuring SDK submodule is initialized and pinned..."
     # Keep local submodule config in sync with .gitmodules (e.g., update=checkout)
     git submodule sync --recursive || true
+    # Clean submodules to discard local changes and untracked files
+    git submodule foreach --recursive "git reset --hard && git clean -fdx" || true
     # Initialize and checkout recorded commits (pinned)
     git submodule update --init --recursive --checkout || true
     # Enable on-demand fetch for submodules (helps when switching branches)
