@@ -168,10 +168,11 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               // Current balance in USD - using headlineMedium for bold 16px text
-              Text(
-                '\$${widget.coin.lastKnownUsdBalance(context.sdk) != null ? NumberFormat("#,##0.00").format(widget.coin.lastKnownUsdBalance(context.sdk)!) : "0.00"}',
-                style: theme.textTheme.headlineMedium,
-              ),
+              if (widget.coin.lastKnownUsdBalance(context.sdk) != null)
+                Text(
+                  '\$${NumberFormat("#,##0.00").format(widget.coin.lastKnownUsdBalance(context.sdk)!)}',
+                  style: theme.textTheme.headlineMedium,
+                ),
               const SizedBox(height: 2),
               // Trend percentage
               BlocBuilder<CoinsBloc, CoinsState>(
