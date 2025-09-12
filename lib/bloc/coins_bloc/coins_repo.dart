@@ -267,7 +267,7 @@ class CoinsRepo {
     List<Asset> assets, {
     bool notify = true,
     bool addToWalletMetadata = true,
-    int maxRetryAttempts = 15,
+    int maxRetryAttempts = 30,
     Duration initialRetryDelay = const Duration(milliseconds: 500),
     Duration maxRetryDelay = const Duration(seconds: 10),
   }) async {

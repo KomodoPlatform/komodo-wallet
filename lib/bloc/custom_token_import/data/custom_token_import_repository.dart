@@ -1,3 +1,4 @@
+import 'dart:async' show TimeoutException;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -28,10 +29,15 @@ abstract class ICustomTokenImportRepository {
 }
 
 class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
-  KdfCustomTokenImportRepository(this._kdfSdk, this._coinsRepo);
+  KdfCustomTokenImportRepository(
+    this._kdfSdk,
+    this._coinsRepo, {
+    http.Client? httpClient,
+  }) : _httpClient = httpClient ?? http.Client();
 
   final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _kdfSdk;
+  final http.Client _httpClient;
   final _log = Logger('KdfCustomTokenImportRepository');
 
   @override
@@ -61,12 +67,14 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     AssetId networkId,
   ) async {
     final network = networkId.subClass;
+
     _log.info('Creating new coin for $contractAddress on $network');
     final response = await _kdfSdk.client.rpc.utility.getTokenInfo(
       contractAddress: contractAddress,
       platform: network.ticker,
-      // TODO: add something similar to the Enum or obtain from platform Asset
-      protocolType: CoinSubClass.erc20.name.toUpperCase(),
+      protocolType:
+          CoinSubClass.erc20.tokenStandardSuffix ??
+          CoinSubClass.erc20.name.toUpperCase(),
     );
 
     final platformAssets = _kdfSdk.assets.findAssetsByConfigId(network.ticker);
@@ -95,7 +103,6 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       signMessagePrefix: null,
       id: AssetId(
         id: coinId,
-        parentId: networkId,
         name: tokenApi?['name'] ?? ticker,
         symbol: AssetSymbol(
           assetConfigId: coinId,
@@ -135,8 +142,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   Future<Map<String, dynamic>?> fetchTokenInfoFromApi(
     CoinSubClass coinType,
-    String contractAddress,
-  ) async {
+    String contractAddress, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
     final platform = getNetworkApiName(coinType);
     if (platform == null) {
       _log.warning('Unsupported Image URL Network: $coinType');
@@ -149,7 +157,14 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     );
 
     try {
-      final response = await http.get(url);
+      final response = await _httpClient
+          .get(url)
+          .timeout(
+            timeout,
+            onTimeout: () {
+              throw TimeoutException('Timeout fetching token data from $url');
+            },
+          );
       final data = jsonDecode(response.body);
       return data;
     } catch (e, s) {
@@ -158,7 +173,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     }
   }
 
-  // TODO: when migrating to the API, change this to fetch the coingecko 
+  // TODO: when migrating to the API, change this to fetch the coingecko
   // asset_platforms: https://api.coingecko.com/api/v3/asset_platforms
   @override
   String? getNetworkApiName(CoinSubClass coinType) {
@@ -208,7 +223,6 @@ extension on Erc20Protocol {
       if (chainId != null) 'chain_id': chainId,
       if (logoImageUrl != null) 'logo_image_url': logoImageUrl,
       if (isCustomToken != null) 'is_custom_token': isCustomToken,
-      if (platform != null) 'parent_coin': platform,
       if (contractAddress != null || platform != null)
         'protocol': {
           'protocol_data': {

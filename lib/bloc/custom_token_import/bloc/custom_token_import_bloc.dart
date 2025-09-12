@@ -85,22 +85,26 @@ class CustomTokenImportBloc
   ) async {
     emit(state.copyWith(formStatus: FormStatus.submitting));
 
+    Asset? tokenData;
     try {
-      final networkAsset = _coinsRepo.getCoin(state.network.ticker);
-      if (networkAsset == null) {
-        throw Exception('Network asset ${state.network.formatted} not found');
-      }
+      final networkAsset = _sdk.getSdkAsset(state.network.ticker);
 
       // Network (parent) asset must be active before attempting to fetch the
       // custom token data
-      await _coinsRepo.activateCoinsSync([networkAsset]);
+      await _coinsRepo.activateAssetsSync([networkAsset]);
 
-      final tokenData = await _repository.fetchCustomToken(
+      tokenData = await _repository.fetchCustomToken(
         networkAsset.id,
         state.address,
       );
-      await _coinsRepo.activateAssetsSync([tokenData], maxRetryAttempts: 5);
-      await _waitForCustomTokenPropogation(tokenData);
+      await _coinsRepo.activateAssetsSync(
+        [tokenData],
+        addToWalletMetadata: false,
+        // The default coin activation is generous, assuming background retries,
+        // but we limit it here to avoid waiting too long in the dialog.
+        maxRetryAttempts: 10,
+      );
+      await _waitForCustomTokenPropagation(tokenData);
 
       final balanceInfo = await _coinsRepo.tryGetBalanceInfo(tokenData.id);
       final balance = balanceInfo.spendable;
@@ -119,10 +123,6 @@ class CustomTokenImportBloc
           formErrorMessage: '',
         ),
       );
-
-      // Activate to get balance, then deactivate to avoid confusion if the user
-      // does not proceed with the import (exits the dialog).
-      await _coinsRepo.deactivateCoinsSync([tokenData.toCoin()]);
     } catch (e, s) {
       _log.severe('Error fetching custom token', e, s);
       emit(
@@ -132,13 +132,19 @@ class CustomTokenImportBloc
           formErrorMessage: e.toString(),
         ),
       );
+    } finally {
+      if (tokenData != null) {
+        // Activate to get balance, then deactivate to avoid confusion if the user
+        // does not proceed with the import (exits the dialog).
+        await _coinsRepo.deactivateCoinsSync([tokenData.toCoin()]);
+      }
     }
   }
 
   /// wait for the asset to appear in the known asset list with a 5-second
   /// timeout using the poll function from sdk type utils package
   /// and ignore timeout exception
-  Future<void> _waitForCustomTokenPropogation(
+  Future<void> _waitForCustomTokenPropagation(
     Asset tokenData, {
     Duration timeout = const Duration(seconds: 10),
   }) async {
