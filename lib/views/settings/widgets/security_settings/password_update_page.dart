@@ -370,7 +370,6 @@ class _PasswordField extends StatelessWidget {
       enableInteractiveSelection: true,
       obscureText: isObscured,
       autofillHints: autofillHints,
-      inputFormatters: [LengthLimitingTextInputFormatter(40)],
       validator: validator,
       errorMaxLines: 6,
       hintText: hintText,
