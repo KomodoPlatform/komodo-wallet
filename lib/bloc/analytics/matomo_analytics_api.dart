@@ -92,9 +92,14 @@ class MatomoAnalyticsApi implements AnalyticsApi {
         return;
       }
 
+      // Ensure URL has trailing slash as required by matomo_tracker
+      final String resolvedUrl = hasConfig
+          ? (matomoUrl.endsWith('/') ? matomoUrl : '${matomoUrl}/')
+          : 'https://demo.matomo.cloud/';
+
       await MatomoTracker.instance.initialize(
         siteId: hasConfig ? matomoSiteId : '1',
-        url: hasConfig ? matomoUrl : 'https://demo.matomo.cloud/',
+        url: resolvedUrl,
       );
       _instance = MatomoTracker.instance;
 
@@ -164,6 +169,11 @@ class MatomoAnalyticsApi implements AnalyticsApi {
 
   @override
   Future<void> sendEvent(AnalyticsEventData event) async {
+    // If not initialized or disabled, enqueue for later
+    if (!_isInitialized || !_isEnabled) {
+      _eventQueue.add(event);
+      return;
+    }
     final sanitizedParameters = event.parameters.map((key, value) {
       if (value == null) return MapEntry(key, "null");
       if (value is Map || value is List) {
@@ -419,7 +429,8 @@ class MatomoAnalyticsApi implements AnalyticsApi {
   }
 
   @override
-  void dispose() {
+  @override
+  Future<void> dispose() async {
     if (_queuePersistenceTimer != null) {
       _queuePersistenceTimer!.cancel();
       _queuePersistenceTimer = null;
@@ -433,6 +444,6 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     }
 
     // Persist any remaining events before disposing
-    _persistQueue();
+    await _persistQueue();
   }
 }

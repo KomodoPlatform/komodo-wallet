@@ -60,6 +60,22 @@ class FirebaseAnalyticsApi implements AnalyticsApi {
       // Load any previously saved events
       await _loadPersistedQueue();
 
+      // Skip unsupported platforms (Linux not supported by Firebase Analytics)
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
+        if (kDebugMode) {
+          log(
+            'Firebase Analytics not supported on Linux; marking as initialized=false and enabled=false',
+            path: 'analytics -> FirebaseAnalyticsApi -> _initialize',
+          );
+        }
+        _isInitialized = false;
+        _isEnabled = false;
+        if (!_initCompleter.isCompleted) {
+          _initCompleter.complete();
+        }
+        return;
+      }
+
       // Initialize Firebase
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
@@ -130,6 +146,11 @@ class FirebaseAnalyticsApi implements AnalyticsApi {
 
   @override
   Future<void> sendEvent(AnalyticsEventData event) async {
+    // If not initialized or disabled, enqueue for later
+    if (!_isInitialized || !_isEnabled) {
+      _eventQueue.add(event);
+      return;
+    }
     final sanitizedParameters = event.parameters.map((key, value) {
       if (value == null) return MapEntry(key, "null");
       if (value is Map || value is List) {
@@ -322,7 +343,8 @@ class FirebaseAnalyticsApi implements AnalyticsApi {
   }
 
   @override
-  void dispose() {
+  @override
+  Future<void> dispose() async {
     if (_queuePersistenceTimer != null) {
       _queuePersistenceTimer!.cancel();
       _queuePersistenceTimer = null;
@@ -336,6 +358,6 @@ class FirebaseAnalyticsApi implements AnalyticsApi {
     }
 
     // Persist any remaining events before disposing
-    _persistQueue();
+    await _persistQueue();
   }
 }

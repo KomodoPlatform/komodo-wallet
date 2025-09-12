@@ -56,7 +56,7 @@ abstract class AnalyticsRepo {
   Future<void> loadPersistedQueue();
 
   /// Cleanup resources used by the repository
-  void dispose();
+  Future<void> dispose();
 }
 
 /// Unified analytics repository that handles multiple analytics providers
@@ -171,8 +171,8 @@ class AnalyticsRepository implements AnalyticsRepo {
       return queueEvent(event);
     }
 
+    // Forward to all providers; individual providers handle enabled/queueing
     final sendFutures = _providers
-        .where((provider) => provider.isInitialized && provider.isEnabled)
         .map((provider) => _sendToProvider(provider, event));
 
     await Future.wait(sendFutures, eagerError: false);
@@ -197,15 +197,10 @@ class AnalyticsRepository implements AnalyticsRepo {
 
   @override
   Future<void> queueEvent(AnalyticsEventData data) async {
-    // Each provider handles its own queueing
-    // This ensures that events are properly queued per provider
+    // Always forward to providers; they are responsible for queuing/persisting
     final queueFutures = _providers.map((provider) async {
       try {
-        // Providers queue events internally when not enabled
-        if (provider.isInitialized && provider.isEnabled) {
-          await provider.sendEvent(data);
-        }
-        // If not enabled, the provider will queue the event internally
+        await provider.sendEvent(data);
       } catch (e) {
         if (kDebugMode) {
           log(
@@ -342,10 +337,10 @@ class AnalyticsRepository implements AnalyticsRepo {
   }
 
   @override
-  void dispose() {
-    for (final provider in _providers) {
+  Future<void> dispose() async {
+    final disposeFutures = _providers.map((provider) async {
       try {
-        provider.dispose();
+        await provider.dispose();
       } catch (e) {
         if (kDebugMode) {
           log(
@@ -355,7 +350,9 @@ class AnalyticsRepository implements AnalyticsRepo {
           );
         }
       }
-    }
+    });
+
+    await Future.wait(disposeFutures, eagerError: false);
 
     _providers.clear();
 

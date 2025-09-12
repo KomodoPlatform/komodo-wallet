@@ -29,5 +29,5 @@ abstract class AnalyticsApi {
   Future<void> retryInitialization(AnalyticsSettings settings);
 
   /// Cleanup resources
-  void dispose();
+  Future<void> dispose();
 }
