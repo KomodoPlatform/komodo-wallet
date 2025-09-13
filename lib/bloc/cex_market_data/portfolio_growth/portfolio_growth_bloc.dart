@@ -21,9 +21,11 @@ part 'portfolio_growth_state.dart';
 class PortfolioGrowthBloc
     extends Bloc<PortfolioGrowthEvent, PortfolioGrowthState> {
   PortfolioGrowthBloc({
-    required this.portfolioGrowthRepository,
-    required this.sdk,
-  }) : super(const PortfolioGrowthInitial()) {
+    required PortfolioGrowthRepository portfolioGrowthRepository,
+    required KomodoDefiSdk sdk,
+  }) : _sdk = sdk,
+       _portfolioGrowthRepository = portfolioGrowthRepository,
+       super(const PortfolioGrowthInitial()) {
     // Use the restartable transformer for period change events to avoid
     // overlapping events if the user rapidly changes the period (i.e. faster
     // than the previous event can complete).
@@ -38,8 +40,8 @@ class PortfolioGrowthBloc
     on<PortfolioGrowthClearRequested>(_onClearPortfolioGrowth);
   }
 
-  final PortfolioGrowthRepository portfolioGrowthRepository;
-  final KomodoDefiSdk sdk;
+  final PortfolioGrowthRepository _portfolioGrowthRepository;
+  final KomodoDefiSdk _sdk;
   final _log = Logger('PortfolioGrowthBloc');
 
   void _onClearPortfolioGrowth(
@@ -120,7 +122,7 @@ class PortfolioGrowthBloc
       // In case most coins are activating on wallet startup, wait for at least
       // 50% of the coins to be enabled before attempting to load the uncached
       // chart.
-      await sdk.waitForEnabledCoinsToPassThreshold(event.coins);
+      await _sdk.waitForEnabledCoinsToPassThreshold(event.coins);
 
       // Only remove inactivate/activating coins after an attempt to load the
       // cached chart, as the cached chart may contain inactive coins.
@@ -143,12 +145,9 @@ class PortfolioGrowthBloc
       // recover at the cost of a longer first loading time.
     }
 
-    final periodicUpdate = Stream<Object?>.periodic(event.updateFrequency)
-        .asyncMap((_) async {
-          // Update prices before fetching chart data
-          await portfolioGrowthRepository.updatePrices();
-          return _fetchPortfolioGrowthChart(event);
-        });
+    final periodicUpdate = Stream<Object?>.periodic(
+      event.updateFrequency,
+    ).asyncMap((_) async => _fetchPortfolioGrowthChart(event));
 
     // Use await for here to allow for the async update handler. The previous
     // implementation awaited the emit.forEach to ensure that cancelling the
@@ -179,7 +178,7 @@ class PortfolioGrowthBloc
   ) async {
     final List<Coin> coins = List.from(event.coins);
     for (final coin in event.coins) {
-      final isCoinSupported = await portfolioGrowthRepository
+      final isCoinSupported = await _portfolioGrowthRepository
           .isCoinChartSupported(coin.id, event.fiatCoinId);
       if (!isCoinSupported) {
         coins.remove(coin);
@@ -193,7 +192,7 @@ class PortfolioGrowthBloc
     PortfolioGrowthLoadRequested event, {
     required bool useCache,
   }) async {
-    final chart = await portfolioGrowthRepository.getPortfolioGrowthChart(
+    final chart = await _portfolioGrowthRepository.getPortfolioGrowthChart(
       coins,
       fiatCoinId: event.fiatCoinId,
       walletId: event.walletId,
@@ -203,10 +202,6 @@ class PortfolioGrowthBloc
     if (useCache && chart.isEmpty) {
       return state;
     }
-
-    // Fetch prices before calculating total change
-    // This ensures we have the latest prices in the cache
-    await portfolioGrowthRepository.updatePrices();
 
     final totalBalance = _calculateTotalBalance(coins);
     final totalChange24h = await _calculateTotalChange24h(coins);
@@ -230,7 +225,7 @@ class PortfolioGrowthBloc
     try {
       final supportedCoins = await _removeUnsupportedCoins(event);
       final coins = await _removeInactiveCoins(supportedCoins);
-      return await portfolioGrowthRepository.getPortfolioGrowthChart(
+      return await _portfolioGrowthRepository.getPortfolioGrowthChart(
         coins,
         fiatCoinId: event.fiatCoinId,
         walletId: event.walletId,
@@ -244,7 +239,7 @@ class PortfolioGrowthBloc
 
   Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
     final coinsCopy = List<Coin>.of(coins);
-    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoins = await _sdk.assets.getActivatedAssets();
     final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
     for (final coin in coins) {
       if (!activeCoinsMap.contains(coin.id)) {
@@ -283,7 +278,7 @@ class PortfolioGrowthBloc
   double _calculateTotalBalance(List<Coin> coins) {
     double total = coins.fold(
       0,
-      (prev, coin) => prev + (coin.lastKnownUsdBalance(sdk) ?? 0),
+      (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0),
     );
 
     // Return at least 0.01 if total is positive but very small
@@ -295,15 +290,14 @@ class PortfolioGrowthBloc
   }
 
   /// Calculate the total 24h change in USD value
+  /// TODO: look into avoiding zero default values here if no data is available
   Future<Rational> _calculateTotalChange24h(List<Coin> coins) async {
     Rational totalChange = Rational.zero;
     for (final coin in coins) {
-      final double usdBalance = coin.lastKnownUsdBalance(sdk) ?? 0.0;
+      final double usdBalance = coin.lastKnownUsdBalance(_sdk) ?? 0.0;
       final usdBalanceDecimal = Decimal.parse(usdBalance.toString());
-      final price = portfolioGrowthRepository.getCachedPrice(
-        coin.id.symbol.configSymbol.toUpperCase(),
-      );
-      final change24h = price?.change24h ?? Decimal.zero;
+      final change24h =
+          await _sdk.marketData.priceChange24h(coin.id) ?? Decimal.zero;
       totalChange += change24h * usdBalanceDecimal / Decimal.fromInt(100);
     }
     return totalChange;
