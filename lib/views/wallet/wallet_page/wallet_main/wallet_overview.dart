@@ -49,6 +49,10 @@ class _WalletOverviewState extends State<WalletOverview> {
 
   @override
   Widget build(BuildContext context) {
+    final themeCustom = Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).extension<ThemeCustomDark>()!
+        : Theme.of(context).extension<ThemeCustomLight>()!;
+
     return BlocBuilder<CoinsBloc, CoinsState>(
       builder: (context, state) {
         if (state.coins.isEmpty) return _buildSpinner();
@@ -66,12 +70,12 @@ class _WalletOverviewState extends State<WalletOverview> {
         // Calculate the total balance from the SDK balances and market data
         // interfaces rather than the PortfolioGrowthBloc - limited coin
         // coverage and dependent on OHLC API request limits.
-        final double totalBalance = _getTotalBalance(
+        final double? totalBalance = _getTotalBalance(
           state.walletCoins.values,
           context,
         );
 
-        if (!_logged && stateWithData != null) {
+        if (!_logged && stateWithData != null && totalBalance != null) {
           context.read<AnalyticsBloc>().logEvent(
             PortfolioViewedEventData(
               totalCoins: assetCount,
@@ -102,12 +106,14 @@ class _WalletOverviewState extends State<WalletOverview> {
                   changeAmount: totalChange24h,
                   changePercentage: percentageChange24h,
                   onTap: widget.onAssetsPressed,
-                  onLongPress: () {
-                    final formattedValue = NumberFormat.currency(
-                      symbol: '\$',
-                    ).format(totalBalance);
-                    copyToClipBoard(context, formattedValue);
-                  },
+                  onLongPress: totalBalance != null
+                      ? () {
+                          final formattedValue = NumberFormat.currency(
+                            symbol: '\$',
+                          ).format(totalBalance);
+                          copyToClipBoard(context, formattedValue);
+                        }
+                      : null,
                 );
               },
             ),
@@ -117,61 +123,55 @@ class _WalletOverviewState extends State<WalletOverview> {
               caption: Text(LocaleKeys.yourBalance.tr()),
               value: totalBalance,
               onTap: widget.onAssetsPressed,
-              onLongPress: () {
-                final formattedValue = NumberFormat.currency(
-                  symbol: '\$',
-                ).format(totalBalance);
-                copyToClipBoard(context, formattedValue);
-              },
-              trendWidget:
-                  BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
-                    builder: (context, state) {
-                      final double totalChange =
-                          state is PortfolioGrowthChartLoadSuccess
-                          ? state.percentageChange24h
-                          : 0.0;
-                      final double totalChange24h =
-                          state is PortfolioGrowthChartLoadSuccess
-                          ? state.totalChange24h
-                          : 0.0;
+              onLongPress: totalBalance != null
+                  ? () {
+                      final formattedValue = NumberFormat.currency(
+                        symbol: '\$',
+                      ).format(totalBalance);
+                      copyToClipBoard(context, formattedValue);
+                    }
+                  : null,
+              trendWidget: totalBalance != null
+                  ? BlocBuilder<PortfolioGrowthBloc, PortfolioGrowthState>(
+                      builder: (context, state) {
+                        final double totalChange =
+                            state is PortfolioGrowthChartLoadSuccess
+                            ? state.percentageChange24h
+                            : 0.0;
+                        final double totalChange24h =
+                            state is PortfolioGrowthChartLoadSuccess
+                            ? state.totalChange24h
+                            : 0.0;
 
-                      return TrendPercentageText(
-                        percentage: totalChange,
-                        upColor: Theme.of(context).brightness == Brightness.dark
-                            ? Theme.of(
-                                context,
-                              ).extension<ThemeCustomDark>()!.increaseColor
-                            : Theme.of(
-                                context,
-                              ).extension<ThemeCustomLight>()!.increaseColor,
-                        downColor:
-                            Theme.of(context).brightness == Brightness.dark
-                            ? Theme.of(
-                                context,
-                              ).extension<ThemeCustomDark>()!.decreaseColor
-                            : Theme.of(
-                                context,
-                              ).extension<ThemeCustomLight>()!.decreaseColor,
-                        value: totalChange24h,
-                        valueFormatter: NumberFormat.currency(
-                          symbol: '\$',
-                        ).format,
-                      );
-                    },
-                  ),
+                        return TrendPercentageText(
+                          percentage: totalChange,
+                          upColor: themeCustom.increaseColor,
+                          downColor: themeCustom.decreaseColor,
+                          value: totalChange24h,
+                          valueFormatter: NumberFormat.currency(
+                            symbol: '\$',
+                          ).format,
+                        );
+                      },
+                    )
+                  : null,
             ),
           ],
           StatisticCard(
             key: const Key('overview-all-time-investment'),
             caption: Text(LocaleKeys.allTimeInvestment.tr()),
-            value: stateWithData?.totalInvestment.value ?? 0,
+            value: totalBalance != null
+                ? (stateWithData?.totalInvestment.value)
+                : null,
             onTap: widget.onPortfolioGrowthPressed,
-            onLongPress: () {
-              final formattedValue = NumberFormat.currency(
-                symbol: '\$',
-              ).format(stateWithData?.totalInvestment.value ?? 0);
-              copyToClipBoard(context, formattedValue);
-            },
+            onLongPress: totalBalance != null && stateWithData != null
+                ? () {
+                    final formattedValue = NumberFormat.currency(
+                      symbol: '\$',
+                    ).format(stateWithData.totalInvestment.value);
+                    copyToClipBoard(context, formattedValue);
+                  }
+                : null,
             trendWidget: ActionChip(
               avatar: Icon(Icons.pie_chart, size: 16),
               onPressed: widget.onAssetsPressed,
@@ -188,36 +188,28 @@ class _WalletOverviewState extends State<WalletOverview> {
           StatisticCard(
             key: const Key('overview-all-time-profit'),
             caption: Text(LocaleKeys.allTimeProfit.tr()),
-            value: stateWithData?.profitAmount.value ?? 0,
+            value: totalBalance != null
+                ? (stateWithData?.profitAmount.value)
+                : null,
             onTap: widget.onPortfolioProfitLossPressed,
-            onLongPress: () {
-              final formattedValue = NumberFormat.currency(
-                symbol: '\$',
-              ).format(stateWithData?.profitAmount.value ?? 0);
-              copyToClipBoard(context, formattedValue);
-            },
-            trendWidget: stateWithData != null
+            onLongPress: totalBalance != null && stateWithData != null
+                ? () {
+                    final formattedValue = NumberFormat.currency(
+                      symbol: '\$',
+                    ).format(stateWithData.profitAmount.value);
+                    copyToClipBoard(context, formattedValue);
+                  }
+                : null,
+            trendWidget: totalBalance != null && stateWithData != null
                 ? TrendPercentageText(
                     percentage: stateWithData.profitIncreasePercentage,
-                    upColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(
-                            context,
-                          ).extension<ThemeCustomDark>()!.increaseColor
-                        : Theme.of(
-                            context,
-                          ).extension<ThemeCustomLight>()!.increaseColor,
-                    downColor: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(
-                            context,
-                          ).extension<ThemeCustomDark>()!.decreaseColor
-                        : Theme.of(
-                            context,
-                          ).extension<ThemeCustomLight>()!.decreaseColor,
+                    upColor: themeCustom.increaseColor,
+                    downColor: themeCustom.decreaseColor,
                     // Show the total profit amount as the value
                     value: stateWithData.profitAmount.value,
                     valueFormatter: NumberFormat.currency(symbol: '\$').format,
                   )
-                : const SizedBox.shrink(),
+                : null,
           ),
         ];
 
@@ -243,7 +235,17 @@ class _WalletOverviewState extends State<WalletOverview> {
   }
 
   // TODO: Migrate these values to a new/existing bloc e.g. PortfolioGrowthBloc
-  double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
+  double? _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
+    // Check if any coins have USD balance data available
+    bool hasAnyUsdBalance = coins.any(
+      (coin) => coin.usdBalance(context.sdk) != null,
+    );
+
+    // If no USD balance data is available, return null to show placeholder
+    if (!hasAnyUsdBalance) {
+      return null;
+    }
+
     double total = coins.fold(
       0,
       (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0),
