@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -27,7 +25,6 @@ import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
-import 'package:web_dex/shared/constants.dart';
 
 class CoinsRepo {
   CoinsRepo({required KomodoDefiSdk kdfSdk, required MM2 mm2})
@@ -542,7 +539,7 @@ class CoinsRepo {
     // also see prices and 24h changes in lists and charts.
     // Prefer activated assets if available (to limit requests when logged in),
     // otherwise fall back to all available SDK assets.
-    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+    final activatedAssets = await _kdfSdk.getWalletAssets();
     final Iterable<Asset> targetAssets = activatedAssets.isNotEmpty
         ? activatedAssets
         : _kdfSdk.assets.available.values;
