@@ -55,6 +55,8 @@ class PortfolioGrowthBloc
     PortfolioGrowthPeriodChanged event,
     Emitter<PortfolioGrowthState> emit,
   ) {
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(event.coins);
     final currentState = state;
     if (currentState is PortfolioGrowthChartLoadSuccess) {
       emit(
@@ -65,6 +67,9 @@ class PortfolioGrowthBloc
           totalBalance: currentState.totalBalance,
           totalChange24h: currentState.totalChange24h,
           percentageChange24h: currentState.percentageChange24h,
+          totalCoins: totalCoins,
+          coinsWithKnownBalance: coinsWithKnownBalance,
+          coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
           isUpdating: true,
         ),
       );
@@ -73,11 +78,19 @@ class PortfolioGrowthBloc
         GrowthChartLoadFailure(
           error: currentState.error,
           selectedPeriod: event.selectedPeriod,
+          totalCoins: totalCoins,
+          coinsWithKnownBalance: coinsWithKnownBalance,
+          coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
         ),
       );
     } else if (currentState is PortfolioGrowthChartUnsupported) {
       emit(
-        PortfolioGrowthChartUnsupported(selectedPeriod: event.selectedPeriod),
+        PortfolioGrowthChartUnsupported(
+          selectedPeriod: event.selectedPeriod,
+          totalCoins: totalCoins,
+          coinsWithKnownBalance: coinsWithKnownBalance,
+          coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
+        ),
       );
     } else {
       emit(const PortfolioGrowthInitial());
@@ -103,8 +116,18 @@ class PortfolioGrowthBloc
       // Charts for individual coins (coin details) are parsed here as well,
       // and should be hidden if not supported.
       if (coins.isEmpty && event.coins.length <= 1) {
+        final (
+          int totalCoins,
+          int coinsWithKnownBalance,
+          int coinsWithKnownBalanceAndFiat,
+        ) = _calculateCoinProgressCounters(event.coins);
         return emit(
-          PortfolioGrowthChartUnsupported(selectedPeriod: event.selectedPeriod),
+          PortfolioGrowthChartUnsupported(
+            selectedPeriod: event.selectedPeriod,
+            totalCoins: totalCoins,
+            coinsWithKnownBalance: coinsWithKnownBalance,
+            coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
+          ),
         );
       }
 
@@ -163,10 +186,18 @@ class PortfolioGrowthBloc
         );
       } catch (error, stackTrace) {
         _log.shout('Failed to load portfolio growth', error, stackTrace);
+        final (
+          int totalCoins,
+          int coinsWithKnownBalance,
+          int coinsWithKnownBalanceAndFiat,
+        ) = _calculateCoinProgressCounters(event.coins);
         emit(
           GrowthChartLoadFailure(
             error: TextError(error: 'Failed to load portfolio growth'),
             selectedPeriod: event.selectedPeriod,
+            totalCoins: totalCoins,
+            coinsWithKnownBalance: coinsWithKnownBalance,
+            coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
           ),
         );
       }
@@ -207,6 +238,9 @@ class PortfolioGrowthBloc
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
 
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(event.coins);
+
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: chart,
       percentageIncrease: chart.percentageIncrease,
@@ -214,6 +248,9 @@ class PortfolioGrowthBloc
       totalBalance: totalBalance,
       totalChange24h: totalChange24h.toDouble(),
       percentageChange24h: percentageChange24h.toDouble(),
+      totalCoins: totalCoins,
+      coinsWithKnownBalance: coinsWithKnownBalance,
+      coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
       isUpdating: false,
     );
   }
@@ -263,6 +300,9 @@ class PortfolioGrowthBloc
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
 
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(coins);
+
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: growthChart,
       percentageIncrease: percentageIncrease,
@@ -270,6 +310,9 @@ class PortfolioGrowthBloc
       totalBalance: totalBalance,
       totalChange24h: totalChange24h.toDouble(),
       percentageChange24h: percentageChange24h.toDouble(),
+      totalCoins: totalCoins,
+      coinsWithKnownBalance: coinsWithKnownBalance,
+      coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
       isUpdating: false,
     );
   }
@@ -318,5 +361,26 @@ class PortfolioGrowthBloc
 
     // Return the percentage change
     return (totalChange / totalBalanceRational) * Rational.fromInt(100);
+  }
+
+  /// Calculate progress counters for balances and fiat prices
+  /// - totalCoins: total coins being considered (input list length)
+  /// - coinsWithKnownBalance: number of coins with a known last balance
+  /// - coinsWithKnownBalanceAndFiat: number of coins with a known last balance and known fiat price
+  (int, int, int) _calculateCoinProgressCounters(List<Coin> coins) {
+    int totalCoins = coins.length;
+    int withBalance = 0;
+    int withBalanceAndFiat = 0;
+    for (final coin in coins) {
+      final balanceKnown = _sdk.balances.lastKnown(coin.id) != null;
+      if (balanceKnown) {
+        withBalance++;
+        final priceKnown = _sdk.marketData.priceIfKnown(coin.id) != null;
+        if (priceKnown) {
+          withBalanceAndFiat++;
+        }
+      }
+    }
+    return (totalCoins, withBalance, withBalanceAndFiat);
   }
 }
