@@ -235,9 +235,11 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       inputFormatters: widget.inputFormatters,
       autofillHints: widget.autofillHints,
       validator: (value) {
-        // Don't update state during build, just return the validation result
+        // Always return the actual validation result so FormState.validate()
+        // correctly blocks submission when input is invalid. Error visibility
+        // is controlled separately via autovalidation and decoration.
         final error = widget.validator?.call(value) ?? widget.errorText;
-        return _shouldValidate ? error : null;
+        return error;
       },
       onChanged: (value) {
         widget.onChanged?.call(value);
