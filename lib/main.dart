@@ -30,6 +30,7 @@ import 'package:web_dex/performance_analytics/performance_analytics.dart';
 import 'package:web_dex/sdk/widgets/window_close_handler.dart';
 import 'package:web_dex/services/feedback/app_feedback_wrapper.dart';
 import 'package:web_dex/services/logger/get_logger.dart';
+import 'package:web_dex/services/logger/print_interceptor.dart';
 import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 import 'package:web_dex/services/storage/get_storage.dart';
 import 'package:web_dex/shared/constants.dart';
@@ -43,24 +44,12 @@ PerformanceMode? _appDemoPerformanceMode;
 PerformanceMode? get appDemoPerformanceMode =>
     _appDemoPerformanceMode ?? _getPerformanceModeFromUrl();
 
-// Buffer early prints until the logger is ready, then flush them
-final List<String> _earlyPrintBuffer = <String>[];
-bool _forwardPrintsToLogger = false;
-
 Future<void> main() async {
   await runZonedGuarded(() async {
     usePathUrlStrategy();
     WidgetsFlutterBinding.ensureInitialized();
-    // Initialize logger as early as possible so intercepted prints are persisted
-    await logger.init();
-    // Flush any early buffered prints (if any) and start forwarding subsequent prints
-    for (final line in _earlyPrintBuffer) {
-      // Ignore returned Future – non-blocking flush
-      // coverage:ignore-line - fire-and-forget
-      logger.write(line, 'print');
-    }
-    _earlyPrintBuffer.clear();
-    _forwardPrintsToLogger = true;
+    // Initialize logger early and flush intercepted prints
+    await PrintInterceptor.initAndFlush(logger);
     Bloc.observer = AppBlocObserver();
     PerformanceAnalytics.init();
 
@@ -108,20 +97,8 @@ Future<void> main() async {
         ),
       ),
     );
-  }, catchUnhandledExceptions, zoneSpecification: ZoneSpecification(
-    print: (self, parent, zone, line) {
-      // Always print to console
-      parent.print(zone, line);
-      // Persist prints to DragonLogs once ready; buffer otherwise
-      if (_forwardPrintsToLogger) {
-        // Fire-and-forget to avoid blocking the zone's print
-        // coverage:ignore-line - fire-and-forget
-        logger.write(line, 'print');
-      } else {
-        _earlyPrintBuffer.add(line);
-      }
-    },
-  ));
+  }, catchUnhandledExceptions,
+      zoneSpecification: PrintInterceptor.createZoneSpec(logger));
 }
 
 void catchUnhandledExceptions(Object error, StackTrace? stack) {
