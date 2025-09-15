@@ -43,10 +43,24 @@ PerformanceMode? _appDemoPerformanceMode;
 PerformanceMode? get appDemoPerformanceMode =>
     _appDemoPerformanceMode ?? _getPerformanceModeFromUrl();
 
+// Buffer early prints until the logger is ready, then flush them
+final List<String> _earlyPrintBuffer = <String>[];
+bool _forwardPrintsToLogger = false;
+
 Future<void> main() async {
   await runZonedGuarded(() async {
     usePathUrlStrategy();
     WidgetsFlutterBinding.ensureInitialized();
+    // Initialize logger as early as possible so intercepted prints are persisted
+    await logger.init();
+    // Flush any early buffered prints (if any) and start forwarding subsequent prints
+    for (final line in _earlyPrintBuffer) {
+      // Ignore returned Future – non-blocking flush
+      // coverage:ignore-line - fire-and-forget
+      logger.write(line, 'print');
+    }
+    _earlyPrintBuffer.clear();
+    _forwardPrintsToLogger = true;
     Bloc.observer = AppBlocObserver();
     PerformanceAnalytics.init();
 
@@ -94,7 +108,20 @@ Future<void> main() async {
         ),
       ),
     );
-  }, catchUnhandledExceptions);
+  }, catchUnhandledExceptions, zoneSpecification: ZoneSpecification(
+    print: (self, parent, zone, line) {
+      // Always print to console
+      parent.print(zone, line);
+      // Persist prints to DragonLogs once ready; buffer otherwise
+      if (_forwardPrintsToLogger) {
+        // Fire-and-forget to avoid blocking the zone's print
+        // coverage:ignore-line - fire-and-forget
+        logger.write(line, 'print');
+      } else {
+        _earlyPrintBuffer.add(line);
+      }
+    },
+  ));
 }
 
 void catchUnhandledExceptions(Object error, StackTrace? stack) {

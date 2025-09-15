@@ -23,6 +23,7 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
   @override
   Future<void> init() async {
     if (_isInitialized || _isBusyInit) return;
+    _isBusyInit = true;
 
     final timer = Stopwatch()..start();
 
