@@ -13,7 +13,6 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
 import 'package:logging/logging.dart';
-import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/mock_portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
@@ -22,7 +21,6 @@ import 'package:web_dex/bloc/cex_market_data/models/models.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/cache_miss_exception.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
-import 'package:web_dex/model/cex_price.dart' show CexPrice;
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
@@ -555,39 +553,4 @@ class PortfolioGrowthRepository {
   }
 
   Future<void> clearCache() => _graphCache.deleteAll();
-
-  /// Calculate the total 24h change in USD value for a list of coins
-  ///
-  /// This method fetches the current prices for all coins and calculates
-  /// the 24h change by multiplying each coin's percentage change by its USD balance
-  Future<Rational> calculateTotalChange24h(List<Coin> coins) async {
-    // Fetch current prices including 24h change data
-    final prices = await _coinsRepository.fetchCurrentPrices() ?? {};
-
-    // Calculate the 24h change by summing the change percentage of each coin
-    // multiplied by its USD balance and divided by 100 (to convert percentage to decimal)
-    Rational totalChange = Rational.zero;
-    for (final coin in coins) {
-      final price = prices[coin.id.symbol.configSymbol.toUpperCase()];
-      final change24h = price?.change24h ?? Decimal.zero;
-      final usdBalance = coin.lastKnownUsdBalance(_sdk) ?? 0.0;
-      final usdBalanceDecimal = Decimal.parse(usdBalance.toString());
-      totalChange += (change24h * usdBalanceDecimal / Decimal.fromInt(100));
-    }
-    return totalChange;
-  }
-
-  /// Get the cached price for a given coin symbol
-  ///
-  /// This is used to avoid fetching prices for every calculation
-  CexPrice? getCachedPrice(String symbol) {
-    return _coinsRepository.getCachedPrice(symbol);
-  }
-
-  /// Update prices for all coins by fetching from market data
-  ///
-  /// This method ensures we have up-to-date price data before calculations
-  Future<void> updatePrices() async {
-    await _coinsRepository.fetchCurrentPrices();
-  }
 }

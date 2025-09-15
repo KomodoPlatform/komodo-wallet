@@ -42,6 +42,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   final WalletsRepository _walletsRepository;
   final SettingsRepository _settingsRepository;
   StreamSubscription<KdfUser?>? _authChangesSubscription;
+  @override
   final _log = Logger('AuthBloc');
 
   @override
@@ -91,11 +92,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
         );
       }
 
-      _log.info('login from a wallet');
       emit(AuthBlocState.loading());
 
+      _log.info('Logging in to an existing wallet.');
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
-
       await _kdfSdk.auth.signIn(
         walletName: event.wallet.name,
         password: event.password,
@@ -111,7 +111,7 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
         return emit(AuthBlocState.error(AuthException.notSignedIn()));
       }
 
-      _log.info('logged in from a wallet');
+      _log.info('Successfully logged in to wallet');
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
@@ -159,13 +159,17 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     try {
       emit(AuthBlocState.loading());
       if (await _didSignInExistingWallet(event.wallet, event.password)) {
+        add(
+          AuthSignInRequested(wallet: event.wallet, password: event.password),
+        );
+        _log.warning(
+          'Wallet ${event.wallet.name} already exists, attempting sign-in',
+        );
         return;
       }
 
-      _log.info('register from a wallet');
-
+      _log.info('Registering a new wallet');
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
-
       await _kdfSdk.auth.register(
         password: event.password,
         walletName: event.wallet.name,
@@ -177,7 +181,9 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
         ),
       );
 
-      _log.info('registered from a wallet');
+      _log.info(
+        'Registered a new wallet, setting up metadata and logging in...',
+      );
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: false);
       await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
@@ -205,15 +211,19 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
     Emitter<AuthBlocState> emit,
   ) async {
     try {
-      emit(AuthBlocState.loading());
       if (await _didSignInExistingWallet(event.wallet, event.password)) {
+        add(
+          AuthSignInRequested(wallet: event.wallet, password: event.password),
+        );
+        _log.warning(
+          'Wallet ${event.wallet.name} already exists, attempting sign-in',
+        );
         return;
       }
 
-      _log.info('restore from a wallet');
-
+      emit(AuthBlocState.loading());
+      _log.info('Restoring wallet from a seed');
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
-
       await _kdfSdk.auth.register(
         password: event.password,
         walletName: event.wallet.name,
@@ -226,27 +236,36 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
         ),
       );
 
-      _log.info('restored from a wallet');
+      _log.info(
+        'Successfully restored wallet from a seed. '
+        'Setting up wallet metadata and logging in...',
+      );
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
       await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
-
-      final currentUser = await _kdfSdk.auth.currentUser;
-      if (currentUser == null) {
-        throw Exception('Registration failed: user is not signed in');
+      if (event.wallet.config.activatedCoins.isNotEmpty) {
+        await _kdfSdk.addActivatedCoins(event.wallet.config.activatedCoins);
       }
-      emit(AuthBlocState.loggedIn(currentUser));
 
       // Delete legacy wallet on successful restoration & login to avoid
       // duplicates in the wallet list
       if (event.wallet.isLegacyWallet) {
-        await _kdfSdk.addActivatedCoins(event.wallet.config.activatedCoins);
+        _log.info(
+          'Migration successful. '
+          'Deleting legacy wallet ${event.wallet.name}',
+        );
         await _walletsRepository.deleteWallet(
           event.wallet,
           password: event.password,
         );
       }
 
+      final currentUser = await _kdfSdk.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('Restoration from seed failed: user is not signed in');
+      }
+
+      emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
       final errorMsg = 'Failed to restore existing wallet ${event.wallet.name}';
@@ -266,8 +285,6 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       (KdfUser user) => user.walletId.name == wallet.name,
     );
     if (walletExists) {
-      add(AuthSignInRequested(wallet: wallet, password: password));
-      _log.warning('Wallet ${wallet.name} already exist, attempting sign-in');
       return true;
     }
 

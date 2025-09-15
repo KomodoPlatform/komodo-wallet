@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:math' show min;
 
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -27,7 +27,6 @@ import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
-import 'package:web_dex/shared/constants.dart';
 
 class CoinsRepo {
   CoinsRepo({required KomodoDefiSdk kdfSdk, required MM2 mm2})
@@ -48,7 +47,7 @@ class CoinsRepo {
   final Map<String, Map<String, String>> _addressCache = {};
 
   // TODO: Remove since this is also being cached in the SDK
-  Map<String, CexPrice> _pricesCache = {};
+  final Map<String, CexPrice> _pricesCache = {};
 
   // Cache structure for storing balance information to reduce SDK calls
   // This is a temporary solution until the full migration to SDK is complete
@@ -204,7 +203,7 @@ class CoinsRepo {
   Coin _assetToCoinWithoutAddress(Asset asset) {
     final coin = asset.toCoin();
     final balanceInfo = _balancesCache[coin.id.id];
-    final price = _pricesCache[coin.id.symbol.configSymbol];
+    final price = _pricesCache[coin.id.symbol.configSymbol.toUpperCase()];
 
     Coin? parentCoin;
     if (asset.id.isChildAsset) {
@@ -537,42 +536,79 @@ class CoinsRepo {
     return parsedAmount * usdPrice;
   }
 
+  /// Fetches current prices for a broad set of assets
+  ///
+  /// This method is used to fetch prices for a broad set of assets so unauthenticated users
+  /// also see prices and 24h changes in lists and charts.
+  ///
+  /// Prefer activated assets if available (to limit requests when logged in),
+  /// otherwise fall back to all available SDK assets.
   Future<Map<String, CexPrice>?> fetchCurrentPrices() async {
-    // Try to use the SDK's price manager to get prices for active coins
-    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+    // NOTE: key assumption here is that the Komodo Prices API supports most
+    // (ideally all) assets being requested, resulting in minimal requests to
+    // 3rd party fallback providers. If this assumption does not hold, then we
+    // will hit rate limits and have reduced market metrics functionality.
+    // This will happen regardless of chunk size. The rate limits are per IP
+    // per hour.
+    final activatedAssets = await _kdfSdk.getWalletAssets();
+    final Iterable<Asset> targetAssets = activatedAssets.isNotEmpty
+        ? activatedAssets
+        : _kdfSdk.assets.available.values;
+
     // Filter out excluded and testnet assets, as they are not expected
     // to have valid prices available at any of the providers
-    final validActivatedAssets = activatedAssets
+    final validAssets = targetAssets
         .where((asset) => !excludedAssetList.contains(asset.id.id))
-        .where((asset) => !asset.protocol.isTestnet);
-    for (final asset in validActivatedAssets) {
-      try {
-        // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
-        final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
-        if (fiatPrice != null) {
-          // Use configSymbol to lookup for backwards compatibility with the old,
-          // string-based price list (and fallback)
-          Decimal? change24h;
-          try {
-            change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
-          } catch (e) {
-            _log.warning('Failed to get 24h change for ${asset.id.id}: $e');
-            // Continue without 24h change data
-          }
+        .where((asset) => !asset.protocol.isTestnet)
+        .toList();
 
-          _pricesCache[asset.id.symbol.configSymbol] = CexPrice(
-            assetId: asset.id,
-            price: fiatPrice,
-            lastUpdated: DateTime.now(),
-            change24h: change24h,
-          );
-        }
-      } catch (e) {
-        _log.warning('Failed to get price for ${asset.id.id}: $e');
-      }
-    }
+    // Process assets with bounded parallelism to avoid overwhelming providers
+    await _fetchAssetPricesInChunks(validAssets);
 
     return _pricesCache;
+  }
+
+  /// Processes assets in chunks with bounded parallelism to avoid
+  /// overloading providers.
+  Future<void> _fetchAssetPricesInChunks(
+    List<Asset> assets, {
+    int chunkSize = 12,
+  }) async {
+    final boundedChunkSize = min(assets.length, chunkSize);
+    final chunks = assets.slices(boundedChunkSize);
+
+    for (final chunk in chunks) {
+      await Future.wait(chunk.map(_fetchAssetPrice), eagerError: false);
+    }
+  }
+
+  /// Fetches price data for a single asset and updates the cache
+  Future<void> _fetchAssetPrice(Asset asset) async {
+    try {
+      // Use maybeFiatPrice to avoid errors for assets not tracked by CEX
+      final fiatPrice = await _kdfSdk.marketData.maybeFiatPrice(asset.id);
+      if (fiatPrice != null) {
+        // Use configSymbol to lookup for backwards compatibility with the old,
+        // string-based price list (and fallback)
+        Decimal? change24h;
+        try {
+          change24h = await _kdfSdk.marketData.priceChange24h(asset.id);
+        } catch (e) {
+          _log.warning('Failed to get 24h change for ${asset.id.id}: $e');
+          // Continue without 24h change data
+        }
+
+        final symbolKey = asset.id.symbol.configSymbol.toUpperCase();
+        _pricesCache[symbolKey] = CexPrice(
+          assetId: asset.id,
+          price: fiatPrice,
+          lastUpdated: DateTime.now(),
+          change24h: change24h,
+        );
+      }
+    } catch (e) {
+      _log.warning('Failed to get price for ${asset.id.id}: $e');
+    }
   }
 
   /// Updates balances for active coins by querying the SDK
@@ -658,12 +694,5 @@ class CoinsRepo {
     );
 
     return BlocResponse(result: withdrawDetails);
-  }
-
-  /// Get a cached price for a given coin symbol
-  ///
-  /// This returns the price from the cache without fetching new data
-  CexPrice? getCachedPrice(String symbol) {
-    return _pricesCache[symbol];
   }
 }
