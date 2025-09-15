@@ -36,8 +36,9 @@ class TradePairListItem extends StatelessWidget {
     final buyCoin = config.relCoinId;
     final buyAmount = order?.relAmountAvailable ?? pair.relCoinAmount;
     final String date = order != null ? getFormattedDate(order.createdAt) : '-';
-    final tradingEntitiesBloc =
-        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+      context,
+    );
     final double fillProgress = order != null
         ? tradingEntitiesBloc.getProgressFillSwap(pair.order!)
         : 0;
@@ -111,8 +112,9 @@ class _OrderItemDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tradingEntitiesBloc =
-        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+      context,
+    );
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
@@ -135,10 +137,7 @@ class _OrderItemDesktop extends StatelessWidget {
                       buyAmount,
                     ),
                   ),
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
           ),
         ),
         Expanded(
@@ -152,20 +151,14 @@ class _OrderItemDesktop extends StatelessWidget {
           flex: 4,
           child: Text(
             updateInterval,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ),
         Expanded(
           flex: 4,
           child: Text(
             date,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ),
         Expanded(
@@ -183,9 +176,7 @@ class _OrderItemDesktop extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 6.0),
                   child: actions.isNotEmpty
-                      ? TableActionsButtonList(
-                          actions: actions,
-                        )
+                      ? TableActionsButtonList(actions: actions)
                       : const SizedBox(width: 80),
                 ),
               ),
@@ -198,10 +189,7 @@ class _OrderItemDesktop extends StatelessWidget {
 }
 
 class TableActionsButtonList extends StatelessWidget {
-  const TableActionsButtonList({
-    super.key,
-    required this.actions,
-  });
+  const TableActionsButtonList({super.key, required this.actions});
 
   final List<Widget> actions;
 
@@ -230,10 +218,7 @@ class TableActionsButtonList extends StatelessWidget {
 }
 
 class _FillPainter extends CustomPainter {
-  _FillPainter({
-    required this.context,
-    required this.fillProgress,
-  });
+  _FillPainter({required this.context, required this.fillProgress});
 
   final BuildContext context;
   final double fillProgress;
@@ -383,8 +368,9 @@ class _OrderItemMobile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 10.0),
                 child: Text(
-                  LocaleKeys.percentFilled
-                      .tr(args: [(fillProgress * 100).toStringAsFixed(0)]),
+                  LocaleKeys.percentFilled.tr(
+                    args: [(fillProgress * 100).toStringAsFixed(0)],
+                  ),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,

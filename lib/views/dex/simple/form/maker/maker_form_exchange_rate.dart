@@ -11,14 +11,15 @@ class MakerFormExchangeRate extends StatelessWidget {
   Widget build(BuildContext context) {
     final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<Rational?>(
-        initialData: makerFormBloc.price,
-        stream: makerFormBloc.outPrice,
-        builder: (context, snapshot) {
-          return ExchangeRate(
-            base: makerFormBloc.sellCoin?.abbr,
-            rel: makerFormBloc.buyCoin?.abbr,
-            rate: snapshot.data,
-          );
-        });
+      initialData: makerFormBloc.price,
+      stream: makerFormBloc.outPrice,
+      builder: (context, snapshot) {
+        return ExchangeRate(
+          base: makerFormBloc.sellCoin?.abbr,
+          rel: makerFormBloc.buyCoin?.abbr,
+          rate: snapshot.data,
+        );
+      },
+    );
   }
 }

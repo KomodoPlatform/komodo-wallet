@@ -8,9 +8,12 @@ import 'package:web_dex/views/bridge/bridge_protocol_label.dart';
 import 'package:web_dex/views/bridge/pick_item.dart';
 
 class BridgeSourceProtocolSelectorTile extends StatefulWidget {
-  const BridgeSourceProtocolSelectorTile(
-      {Key? key, this.coin, required this.title, required this.onTap})
-      : super(key: key);
+  const BridgeSourceProtocolSelectorTile({
+    Key? key,
+    this.coin,
+    required this.title,
+    required this.onTap,
+  }) : super(key: key);
 
   final Coin? coin;
   final String title;
@@ -28,23 +31,24 @@ class _BridgeSourceProtocolSelectorTileState
     final Coin? coin = widget.coin;
 
     return BlocSelector<BridgeBloc, BridgeState, bool>(
-        selector: (state) => state.showSourceDropdown,
-        builder: (context, expanded) {
-          return SizedBox(
-            height: 24,
-            child: coin == null
-                ? PickItem(
-                    title: widget.title,
-                    onTap: widget.onTap,
-                    expanded: expanded,
-                  )
-                : _SelectedProtocolTile(
-                    coin: coin,
-                    onTap: widget.onTap,
-                    expanded: expanded,
-                  ),
-          );
-        });
+      selector: (state) => state.showSourceDropdown,
+      builder: (context, expanded) {
+        return SizedBox(
+          height: 24,
+          child: coin == null
+              ? PickItem(
+                  title: widget.title,
+                  onTap: widget.onTap,
+                  expanded: expanded,
+                )
+              : _SelectedProtocolTile(
+                  coin: coin,
+                  onTap: widget.onTap,
+                  expanded: expanded,
+                ),
+        );
+      },
+    );
   }
 }
 

@@ -1,7 +1,5 @@
 class DisableCoinReq {
-  DisableCoinReq({
-    required this.coin,
-  });
+  DisableCoinReq({required this.coin});
 
   static const String method = 'disable_coin';
   final String coin;

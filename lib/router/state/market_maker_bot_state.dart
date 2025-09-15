@@ -3,9 +3,7 @@ import 'package:web_dex/router/state/menu_state_interface.dart';
 
 class MarketMakerBotState extends ChangeNotifier
     implements IResettableOnLogout {
-  MarketMakerBotState()
-      : _action = MarketMakerBotAction.none,
-        _uuid = '';
+  MarketMakerBotState() : _action = MarketMakerBotAction.none, _uuid = '';
 
   MarketMakerBotAction _action;
   String _uuid;
@@ -47,7 +45,4 @@ class MarketMakerBotState extends ChangeNotifier
   }
 }
 
-enum MarketMakerBotAction {
-  tradingDetails,
-  none,
-}
+enum MarketMakerBotAction { tradingDetails, none }

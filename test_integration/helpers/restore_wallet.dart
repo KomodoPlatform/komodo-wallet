@@ -22,25 +22,32 @@ Future<void> restoreWalletToTest(WidgetTester tester) async {
   final String testSeed = getFundedWif();
   const String walletName = 'my-wallet';
   const String password = 'pppaaasssDDD555444@@@';
-  final Finder importWalletButton =
-      find.byKey(const Key('import-wallet-button'));
+  final Finder importWalletButton = find.byKey(
+    const Key('import-wallet-button'),
+  );
   final Finder nameField = find.byKey(const Key('name-wallet-field'));
   final Finder passwordField = find.byKey(const Key('create-password-field'));
-  final Finder passwordConfirmField =
-      find.byKey(const Key('create-password-field-confirm'));
+  final Finder passwordConfirmField = find.byKey(
+    const Key('create-password-field-confirm'),
+  );
   final Finder importSeedField = find.byKey(const Key('import-seed-field'));
-  final Finder importConfirmButton =
-      find.byKey(const Key('confirm-seed-button'));
+  final Finder importConfirmButton = find.byKey(
+    const Key('confirm-seed-button'),
+  );
   final Finder eulaCheckBox = find.byKey(const Key('checkbox-eula'));
   final Finder tocCheckBox = find.byKey(const Key('checkbox-toc'));
-  final Finder walletsManagerWrapper =
-      find.byKey(const Key('wallets-manager-wrapper'));
-  final Finder allowCustomSeedCheckbox =
-      find.byKey(const Key('checkbox-custom-seed'));
-  final Finder customSeedDialogInput =
-      find.byKey(const Key('custom-seed-dialog-input'));
-  final Finder customSeedDialogOkButton =
-      find.byKey(const Key('custom-seed-dialog-ok-button'));
+  final Finder walletsManagerWrapper = find.byKey(
+    const Key('wallets-manager-wrapper'),
+  );
+  final Finder allowCustomSeedCheckbox = find.byKey(
+    const Key('checkbox-custom-seed'),
+  );
+  final Finder customSeedDialogInput = find.byKey(
+    const Key('custom-seed-dialog-input'),
+  );
+  final Finder customSeedDialogOkButton = find.byKey(
+    const Key('custom-seed-dialog-ok-button'),
+  );
   const String confirmCustomSeedText = 'I Understand';
 
   await tester.pumpAndSettle();

@@ -1,9 +1,7 @@
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 
 class GetNftListRequest implements BaseRequest {
-  GetNftListRequest({
-    required this.chains,
-  });
+  GetNftListRequest({required this.chains});
 
   final List<String> chains;
   @override
@@ -22,8 +20,8 @@ class GetNftListRequest implements BaseRequest {
         "chains": chains,
         "max": true,
         "protect_from_spam": true,
-        "filters": {"exclude_spam": true, "exclude_phishing": true}
-      }
+        "filters": {"exclude_spam": true, "exclude_phishing": true},
+      },
     };
   }
 }

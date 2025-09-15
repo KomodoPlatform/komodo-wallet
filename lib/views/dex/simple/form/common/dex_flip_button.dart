@@ -5,10 +5,7 @@ import 'package:web_dex/common/app_assets.dart';
 class DexFlipButton extends StatefulWidget {
   final Future<bool> Function()? onTap;
 
-  const DexFlipButton({
-    Key? key,
-    this.onTap,
-  }) : super(key: key);
+  const DexFlipButton({Key? key, this.onTap}) : super(key: key);
 
   @override
   DexFlipButtonState createState() => DexFlipButtonState();

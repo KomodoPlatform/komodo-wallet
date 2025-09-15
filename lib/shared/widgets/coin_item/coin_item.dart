@@ -34,11 +34,7 @@ class CoinItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (showNetworkLogo)
-          AssetLogo.ofId(
-            coin.id,
-            size: size.coinLogo,
-          ),
+        if (showNetworkLogo) AssetLogo.ofId(coin.id, size: size.coinLogo),
         if (!showNetworkLogo)
           AssetIcon.ofTicker(coin.id.id, size: size.coinLogo),
         SizedBox(width: size.spacer),

@@ -27,7 +27,8 @@ extension TradeMarginValidationErrorText on TradeMarginValidationError {
 
 extension CoinSelectValidationErrorText on CoinSelectValidationError {
   String? text(Coin? coin) {
-    final balance = coin
+    final balance =
+        coin
             ?.lastKnownBalance(GetIt.I<KomodoDefiSdk>())
             ?.spendable
             .toDouble() ??
@@ -37,14 +38,17 @@ extension CoinSelectValidationErrorText on CoinSelectValidationError {
       case CoinSelectValidationError.inactive:
         return LocaleKeys.postitiveNumberRequired.tr();
       case CoinSelectValidationError.insufficientBalance:
-        return LocaleKeys.dexInsufficientFundsError
-            .tr(args: [balance.toString(), coin?.abbr ?? '']);
+        return LocaleKeys.dexInsufficientFundsError.tr(
+          args: [balance.toString(), coin?.abbr ?? ''],
+        );
       case CoinSelectValidationError.insufficientGasBalance:
-        return LocaleKeys.withdrawNotEnoughBalanceForGasError
-            .tr(args: [coin?.abbr ?? '']);
+        return LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(
+          args: [coin?.abbr ?? ''],
+        );
       case CoinSelectValidationError.parentSuspended:
-        return LocaleKeys.withdrawNoParentCoinError
-            .tr(args: [coin?.abbr ?? '']);
+        return LocaleKeys.withdrawNoParentCoinError.tr(
+          args: [coin?.abbr ?? ''],
+        );
       default:
         return null;
     }
@@ -53,7 +57,8 @@ extension CoinSelectValidationErrorText on CoinSelectValidationError {
 
 extension AmountValidationErrorText on AmountValidationError {
   String? text(Coin? coin) {
-    final balance = coin
+    final balance =
+        coin
             ?.lastKnownBalance(GetIt.I<KomodoDefiSdk>())
             ?.spendable
             .toDouble() ??
@@ -65,8 +70,9 @@ extension AmountValidationErrorText on AmountValidationError {
       case AmountValidationError.invalid:
         return LocaleKeys.postitiveNumberRequired.tr();
       case AmountValidationError.moreThanMaximum:
-        return LocaleKeys.dexInsufficientFundsError
-            .tr(args: [balance.toString(), coin?.abbr ?? '']);
+        return LocaleKeys.dexInsufficientFundsError.tr(
+          args: [balance.toString(), coin?.abbr ?? ''],
+        );
       case AmountValidationError.lessThanMinimum:
         return LocaleKeys.mmBotMinimumTradeVolume.tr(args: ["0.00000001"]);
     }
@@ -75,7 +81,8 @@ extension AmountValidationErrorText on AmountValidationError {
 
 extension MarketMakerTradeFormErrorText on MarketMakerTradeFormError {
   String text(Coin? baseCoin, Coin? relCoin) {
-    final baseBalance = baseCoin
+    final baseBalance =
+        baseCoin
             ?.lastKnownBalance(GetIt.I<KomodoDefiSdk>())
             ?.spendable
             .toDouble() ??
@@ -87,11 +94,13 @@ extension MarketMakerTradeFormErrorText on MarketMakerTradeFormError {
           args: [baseBalance.toString(), baseCoin?.abbr ?? ''],
         );
       case MarketMakerTradeFormError.insufficientBalanceRel:
-        return LocaleKeys.withdrawNotEnoughBalanceForGasError
-            .tr(args: [relCoin?.abbr ?? '']);
+        return LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(
+          args: [relCoin?.abbr ?? ''],
+        );
       case MarketMakerTradeFormError.insufficientBalanceRelParent:
-        return LocaleKeys.withdrawNotEnoughBalanceForGasError
-            .tr(args: [relCoin?.parentCoin?.abbr ?? relCoin?.abbr ?? '']);
+        return LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(
+          args: [relCoin?.parentCoin?.abbr ?? relCoin?.abbr ?? ''],
+        );
       case MarketMakerTradeFormError.insufficientTradeAmount:
         return LocaleKeys.mmBotMinimumTradeVolume.tr(args: ["0.00000001"]);
       default:

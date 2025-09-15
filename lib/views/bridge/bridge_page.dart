@@ -50,17 +50,17 @@ class _BridgePageState extends State<BridgePage> with TickerProviderStateMixin {
           });
         }
       },
-      child: Builder(builder: (context) {
-        final page = _showSwap ? _buildTradingDetails() : _buildBridgePage();
-        return page;
-      }),
+      child: Builder(
+        builder: (context) {
+          final page = _showSwap ? _buildTradingDetails() : _buildBridgePage();
+          return page;
+        },
+      ),
     );
   }
 
   Widget _buildTradingDetails() {
-    return TradingDetails(
-      uuid: routingState.bridgeState.uuid,
-    );
+    return TradingDetails(uuid: routingState.bridgeState.uuid);
   }
 
   Widget _buildBridgePage() {
@@ -78,8 +78,9 @@ class _BridgePageState extends State<BridgePage> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+                constraints: BoxConstraints(
+                  maxWidth: theme.custom.dexFormWidth,
+                ),
                 child: HiddenWithoutWallet(
                   child: BridgeTabBar(
                     currentTabIndex: _activeTabIndex,
@@ -91,11 +92,7 @@ class _BridgePageState extends State<BridgePage> with TickerProviderStateMixin {
                 padding: EdgeInsets.only(top: 12.0),
                 child: ClockWarningBanner(),
               ),
-              Flexible(
-                child: _TabContent(
-                  activeTabIndex: _activeTabIndex,
-                ),
-              ),
+              Flexible(child: _TabContent(activeTabIndex: _activeTabIndex)),
             ],
           ),
         ),
@@ -128,7 +125,7 @@ class _BridgePageState extends State<BridgePage> with TickerProviderStateMixin {
 class _TabContent extends StatelessWidget {
   final int _activeTabIndex;
   const _TabContent({required int activeTabIndex})
-      : _activeTabIndex = activeTabIndex;
+    : _activeTabIndex = activeTabIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +134,9 @@ class _TabContent extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.only(top: 20),
         child: InProgressList(
-            filter: _bridgeSwapsFilter, onItemClick: _onSwapItemClick),
+          filter: _bridgeSwapsFilter,
+          onItemClick: _onSwapItemClick,
+        ),
       ),
       Padding(
         padding: const EdgeInsets.only(top: 20),

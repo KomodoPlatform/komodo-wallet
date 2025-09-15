@@ -51,7 +51,9 @@ extension WidgetTesterPumpExtension on WidgetTester {
   }) async {
     bool timerDone = false;
     final timer = Timer(
-        timeout, () => throw TimeoutException('Pump until has timed out'));
+      timeout,
+      () => throw TimeoutException('Pump until has timed out'),
+    );
     while (timerDone != true) {
       await pumpAndSettle();
 

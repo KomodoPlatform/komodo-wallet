@@ -42,10 +42,10 @@ final class PriceChartState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        data,
-        error,
-        selectedPeriod,
-        availableCoins,
-      ];
+    status,
+    data,
+    error,
+    selectedPeriod,
+    availableCoins,
+  ];
 }

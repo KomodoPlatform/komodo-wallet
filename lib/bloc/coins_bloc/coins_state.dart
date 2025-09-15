@@ -9,15 +9,15 @@ class CoinsState extends Equatable {
     required Map<String, Coin> walletCoins,
     required this.pubkeys,
     required this.prices,
-  })  : coins = _filterExcludedAssets(coins),
-        walletCoins = _filterExcludedAssets(walletCoins);
+  }) : coins = _filterExcludedAssets(coins),
+       walletCoins = _filterExcludedAssets(walletCoins);
 
   factory CoinsState.initial() => CoinsState(
-        coins: const {},
-        walletCoins: const {},
-        pubkeys: const {},
-        prices: const {},
-      );
+    coins: const {},
+    walletCoins: const {},
+    pubkeys: const {},
+    prices: const {},
+  );
 
   final Map<String, Coin> coins;
   final Map<String, Coin> walletCoins;
@@ -25,8 +25,7 @@ class CoinsState extends Equatable {
   final Map<String, CexPrice> prices;
 
   @override
-  List<Object> get props =>
-      [coins, walletCoins, pubkeys, prices];
+  List<Object> get props => [coins, walletCoins, pubkeys, prices];
 
   /// Creates a copy of the current state with the option to update
   /// specific fields.
@@ -41,10 +40,12 @@ class CoinsState extends Equatable {
     // Filtering is required to avoid including "NFT_*" assets in the coins
     // or walletCoins maps. The user should not see these assets, as they are
     // only needed to support the NFT feature.
-    final walletCoinsWithoutExcludedCoins =
-        _filterExcludedAssets(walletCoins ?? this.walletCoins);
-    final coinsWithoutExcludedCoins =
-        _filterExcludedAssets(coins ?? this.coins);
+    final walletCoinsWithoutExcludedCoins = _filterExcludedAssets(
+      walletCoins ?? this.walletCoins,
+    );
+    final coinsWithoutExcludedCoins = _filterExcludedAssets(
+      coins ?? this.coins,
+    );
 
     return CoinsState(
       coins: coinsWithoutExcludedCoins,

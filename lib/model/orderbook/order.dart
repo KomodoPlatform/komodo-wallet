@@ -29,11 +29,14 @@ class Order {
       uuid: json['uuid'],
       pubkey: json['pubkey'],
       price: fract2rat(json['price_fraction']) ?? Rational.parse(json['price']),
-      maxVolume: fract2rat(json['base_max_volume_fraction']) ??
+      maxVolume:
+          fract2rat(json['base_max_volume_fraction']) ??
           Rational.parse(json['base_max_volume']),
-      minVolume: fract2rat(json['base_min_volume_fraction']) ??
+      minVolume:
+          fract2rat(json['base_min_volume_fraction']) ??
           Rational.parse(json['base_min_volume']),
-      minVolumeRel: fract2rat(json['rel_min_volume_fraction']) ??
+      minVolumeRel:
+          fract2rat(json['rel_min_volume_fraction']) ??
           Rational.parse(json['rel_min_volume']),
     );
   }

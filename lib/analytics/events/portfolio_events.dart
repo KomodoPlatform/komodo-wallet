@@ -22,9 +22,9 @@ class PortfolioViewedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'total_coins': totalCoins,
-        'total_value_usd': totalValueUsd,
-      };
+    'total_coins': totalCoins,
+    'total_value_usd': totalValueUsd,
+  };
 }
 
 /// E07: Portfolio overview opened
@@ -33,11 +33,11 @@ class AnalyticsPortfolioViewedEvent extends AnalyticsSendDataEvent {
     required int totalCoins,
     required double totalValueUsd,
   }) : super(
-          PortfolioViewedEventData(
-            totalCoins: totalCoins,
-            totalValueUsd: totalValueUsd,
-          ),
-        );
+         PortfolioViewedEventData(
+           totalCoins: totalCoins,
+           totalValueUsd: totalValueUsd,
+         ),
+       );
 }
 
 // E08: Growth chart opened
@@ -59,10 +59,7 @@ class PortfolioGrowthViewedEventData implements AnalyticsEventData {
   String get name => 'portfolio_growth_viewed';
 
   @override
-  JsonMap get parameters => {
-        'period': period,
-        'growth_pct': growthPct,
-      };
+  JsonMap get parameters => {'period': period, 'growth_pct': growthPct};
 }
 
 /// E08: Growth chart opened
@@ -71,11 +68,8 @@ class AnalyticsPortfolioGrowthViewedEvent extends AnalyticsSendDataEvent {
     required String period,
     required double growthPct,
   }) : super(
-          PortfolioGrowthViewedEventData(
-            period: period,
-            growthPct: growthPct,
-          ),
-        );
+         PortfolioGrowthViewedEventData(period: period, growthPct: growthPct),
+       );
 }
 
 // E09: P&L breakdown viewed
@@ -100,10 +94,10 @@ class PortfolioPnlViewedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'timeframe': timeframe,
-        'realized_pnl': realizedPnl,
-        'unrealized_pnl': unrealizedPnl,
-      };
+    'timeframe': timeframe,
+    'realized_pnl': realizedPnl,
+    'unrealized_pnl': unrealizedPnl,
+  };
 }
 
 /// E09: P&L breakdown viewed
@@ -113,12 +107,12 @@ class AnalyticsPortfolioPnlViewedEvent extends AnalyticsSendDataEvent {
     required double realizedPnl,
     required double unrealizedPnl,
   }) : super(
-          PortfolioPnlViewedEventData(
-            timeframe: timeframe,
-            realizedPnl: realizedPnl,
-            unrealizedPnl: unrealizedPnl,
-          ),
-        );
+         PortfolioPnlViewedEventData(
+           timeframe: timeframe,
+           realizedPnl: realizedPnl,
+           unrealizedPnl: unrealizedPnl,
+         ),
+       );
 }
 
 // E10: Custom token added
@@ -143,10 +137,10 @@ class AssetAddedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E10: Custom token added
@@ -156,12 +150,12 @@ class AnalyticsAssetAddedEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetAddedEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetAddedEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E11: Asset detail viewed
@@ -186,10 +180,10 @@ class AssetViewedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E11: Asset detail viewed
@@ -199,12 +193,12 @@ class AnalyticsAssetViewedEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetViewedEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetViewedEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E12: Existing asset toggled on / made visible
@@ -229,10 +223,10 @@ class AssetEnabledEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E12: Existing asset toggled on / made visible
@@ -242,12 +236,12 @@ class AnalyticsAssetEnabledEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetEnabledEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetEnabledEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E13: Token toggled off / hidden
@@ -272,10 +266,10 @@ class AssetDisabledEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E13: Token toggled off / hidden
@@ -285,10 +279,10 @@ class AnalyticsAssetDisabledEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetDisabledEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetDisabledEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }

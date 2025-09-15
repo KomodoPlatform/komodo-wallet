@@ -10,13 +10,15 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class CreationPasswordFields extends StatefulWidget {
   const CreationPasswordFields({
-    Key? key,
+    super.key,
     required this.passwordController,
     this.onFieldSubmitted,
-  }) : super(key: key);
+    this.onValidityChanged,
+  });
 
   final TextEditingController passwordController;
   final void Function(String)? onFieldSubmitted;
+  final void Function(bool)? onValidityChanged;
 
   @override
   State<CreationPasswordFields> createState() => _CreationPasswordFieldsState();
@@ -51,6 +53,10 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       widget.passwordController.text = '';
     }
     super.initState();
+    // Ensure initial validity is reported
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _notifyValidityChanged(),
+    );
   }
 
   Widget _buildPasswordConfirmationField() {
@@ -61,10 +67,11 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       autocorrect: false,
       obscureText: _isObscured,
       enableInteractiveSelection: true,
-      validationMode: InputValidationMode.eager,
+      validationMode: InputValidationMode.lazy,
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
       validator: _validateConfirmPasswordField,
       onFieldSubmitted: widget.onFieldSubmitted,
+      onChanged: (_) => _notifyValidityChanged(),
       errorMaxLines: 6,
       autofillHints: const [AutofillHints.newPassword],
       hintText: LocaleKeys.walletCreationConfirmPasswordHint.tr(),
@@ -79,8 +86,10 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       autocorrect: false,
       enableInteractiveSelection: true,
       obscureText: _isObscured,
+      validationMode: InputValidationMode.lazy,
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
       validator: _validatePasswordField,
+      onChanged: (_) => _notifyValidityChanged(),
       errorMaxLines: 6,
       autofillHints: const [AutofillHints.newPassword],
       hintText: LocaleKeys.walletCreationPasswordHint.tr(),
@@ -92,6 +101,22 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
         },
       ),
     );
+  }
+
+  void _notifyValidityChanged() {
+    final allowWeakPassword = context
+        .read<SettingsBloc>()
+        .state
+        .weakPasswordsAllowed;
+    final password = widget.passwordController.text;
+    final confirm = _confirmPasswordController.text;
+
+    final isPasswordValid = allowWeakPassword
+        ? true
+        : validatePassword(password) == null;
+    final isConfirmValid = validateConfirmPassword(password, confirm) == null;
+
+    widget.onValidityChanged?.call(isPasswordValid && isConfirmValid);
   }
 
   String? _validatePasswordField(String? passwordFieldInput) {

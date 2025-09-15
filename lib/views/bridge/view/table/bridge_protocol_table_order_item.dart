@@ -38,9 +38,7 @@ class BridgeProtocolTableOrderItem extends StatelessWidget {
           child: Row(
             children: [
               BridgeProtocolLabel(coin),
-              const Expanded(
-                child: SizedBox(),
-              ),
+              const Expanded(child: SizedBox()),
               Text(
                 formatDexAmt(balance),
                 style: TextStyle(

@@ -10,18 +10,15 @@ import 'package:web_dex/views/support/missing_coins_dialog.dart';
 
 /// A form that prompts the user for feedback using BLoC for state management.
 class CustomFeedbackForm extends StatelessWidget {
-  const CustomFeedbackForm({
-    super.key,
-    required this.scrollController,
-  });
+  const CustomFeedbackForm({super.key, required this.scrollController});
 
   final ScrollController? scrollController;
 
   static FeedbackBuilder get feedbackBuilder =>
       (context, onSubmit, scrollController) => BlocProvider(
-            create: (_) => FeedbackFormBloc(onSubmit),
-            child: CustomFeedbackForm(scrollController: scrollController),
-          );
+        create: (_) => FeedbackFormBloc(onSubmit),
+        child: CustomFeedbackForm(scrollController: scrollController),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +80,8 @@ class CustomFeedbackForm extends StatelessWidget {
                                     showMissingCoinsDialog(context);
                                   }
                                   context.read<FeedbackFormBloc>().add(
-                                      FeedbackFormTypeChanged(feedbackType));
+                                    FeedbackFormTypeChanged(feedbackType),
+                                  );
                                 },
                         ),
                         const SizedBox(height: 16),
@@ -132,17 +130,19 @@ class CustomFeedbackForm extends StatelessWidget {
                                     .map(
                                       (method) =>
                                           DropdownMenuItem<ContactMethod>(
-                                        value: method,
-                                        child: Text(method.label),
-                                      ),
+                                            value: method,
+                                            child: Text(method.label),
+                                          ),
                                     )
                                     .toList(),
                                 onChanged: isLoading
                                     ? null
-                                    : (method) => context
-                                        .read<FeedbackFormBloc>()
-                                        .add(FeedbackFormContactMethodChanged(
-                                            method)),
+                                    : (method) =>
+                                          context.read<FeedbackFormBloc>().add(
+                                            FeedbackFormContactMethodChanged(
+                                              method,
+                                            ),
+                                          ),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -155,10 +155,12 @@ class CustomFeedbackForm extends StatelessWidget {
                                 hintText: _getContactHint(state.contactMethod),
                                 errorText: state.contactDetailsError,
                                 validationMode: InputValidationMode.eager,
-                                onChanged: (value) => context
-                                    .read<FeedbackFormBloc>()
-                                    .add(FeedbackFormContactDetailsChanged(
-                                        value ?? '')),
+                                onChanged: (value) =>
+                                    context.read<FeedbackFormBloc>().add(
+                                      FeedbackFormContactDetailsChanged(
+                                        value ?? '',
+                                      ),
+                                    ),
                               ),
                             ),
                           ],
@@ -184,9 +186,9 @@ class CustomFeedbackForm extends StatelessWidget {
                       ),
                     TextButton(
                       onPressed: formValid
-                          ? () => context
-                              .read<FeedbackFormBloc>()
-                              .add(const FeedbackFormSubmitted())
+                          ? () => context.read<FeedbackFormBloc>().add(
+                              const FeedbackFormSubmitted(),
+                            )
                           : null,
                       child: const Text('SUBMIT'),
                     ),

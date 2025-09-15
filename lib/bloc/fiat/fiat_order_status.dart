@@ -66,8 +66,9 @@ enum FiatOrderStatus {
         // to avoid alarming users with "Payment failed" popup messages
         // unless we are sure that the payment has failed.
         // Ideally, this section should not be reached.
-        Logger('FiatOrderStatus')
-            .warning('Unknown status: $status, defaulting to in progress');
+        Logger(
+          'FiatOrderStatus',
+        ).warning('Unknown status: $status, defaulting to in progress');
         return FiatOrderStatus.inProgress;
     }
   }

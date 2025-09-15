@@ -27,8 +27,9 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
     try {
       await DragonLogs.init();
 
-      initialised_logger
-          .log('Logger initialized in ${timer.elapsedMilliseconds}ms');
+      initialised_logger.log(
+        'Logger initialized in ${timer.elapsedMilliseconds}ms',
+      );
 
       _isInitialized = true;
     } catch (e) {
@@ -86,8 +87,9 @@ class UniversalLogger with LoggerMetadataMixin implements LoggerInterface {
       return;
     }
 
-    final String date =
-        DateFormat('dd.MM.yyyy_HH-mm-ss').format(DateTime.now());
+    final String date = DateFormat(
+      'dd.MM.yyyy_HH-mm-ss',
+    ).format(DateTime.now());
     final String filename = 'komodo_wallet_log_$date';
 
     await FileLoader.fromPlatform().save(

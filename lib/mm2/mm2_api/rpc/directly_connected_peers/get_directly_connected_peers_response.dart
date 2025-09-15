@@ -1,7 +1,5 @@
 class GetDirectlyConnectedPeersResponse {
-  GetDirectlyConnectedPeersResponse({
-    required this.peers,
-  });
+  GetDirectlyConnectedPeersResponse({required this.peers});
 
   factory GetDirectlyConnectedPeersResponse.fromJson(
     Map<String, dynamic> json,
@@ -22,10 +20,7 @@ class GetDirectlyConnectedPeersResponse {
 }
 
 class DirectlyConnectedPeer {
-  DirectlyConnectedPeer({
-    required this.peerId,
-    required this.peerAddresses,
-  });
+  DirectlyConnectedPeer({required this.peerId, required this.peerAddresses});
 
   factory DirectlyConnectedPeer.fromJson(Map<String, dynamic> json) {
     return DirectlyConnectedPeer(

@@ -95,11 +95,7 @@ class _MobileContentLayout extends StatelessWidget {
             backText: '',
             onBackButtonPressed: _onBackButtonPressed,
           ),
-          content: Flexible(
-            child: SettingsContentWrapper(
-              child: content,
-            ),
-          ),
+          content: Flexible(child: SettingsContentWrapper(child: content)),
         );
       case SettingsMenuValue.none:
         throw Error();
@@ -115,7 +111,8 @@ class _DesktopLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTopSpace = selectedMenu != SettingsMenuValue.security &&
+    final isTopSpace =
+        selectedMenu != SettingsMenuValue.security &&
         selectedMenu != SettingsMenuValue.support;
 
     return PageLayout(

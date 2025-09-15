@@ -2,11 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class ActionButton extends StatefulWidget {
-  const ActionButton({
-    required this.child,
-    required this.onTap,
-    super.key,
-  });
+  const ActionButton({required this.child, required this.onTap, super.key});
 
   final void Function(Offset, Size) onTap;
   final Widget child;

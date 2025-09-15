@@ -55,11 +55,4 @@ List<SortHeaderItemData<OrderListSortType>> _headerItems = [
   ),
 ];
 
-enum OrderListSortType {
-  send,
-  receive,
-  price,
-  date,
-  orderType,
-  none,
-}
+enum OrderListSortType { send, receive, price, date, orderType, none }

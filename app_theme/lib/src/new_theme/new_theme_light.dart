@@ -44,12 +44,15 @@ final ThemeData newThemeDataLight = theme.global.light.copyWith(
   colorScheme: _colorScheme,
   textTheme: _textTheme,
   inputDecorationTheme: theme.global.light.inputDecorationTheme.copyWith(
-    hintStyle: _textThemeExtension.bodySBold
-        .copyWith(color: _colorSchemeExtension.s50),
-    labelStyle: _textThemeExtension.bodyXSBold
-        .copyWith(color: _colorSchemeExtension.primary),
-    errorStyle:
-        _textThemeExtension.bodyS.copyWith(color: _colorSchemeExtension.error),
+    hintStyle: _textThemeExtension.bodySBold.copyWith(
+      color: _colorSchemeExtension.s50,
+    ),
+    labelStyle: _textThemeExtension.bodyXSBold.copyWith(
+      color: _colorSchemeExtension.primary,
+    ),
+    errorStyle: _textThemeExtension.bodyS.copyWith(
+      color: _colorSchemeExtension.error,
+    ),
     enabledBorder: _outlineBorderLight(_colorSchemeExtension.secondary),
     disabledBorder: _outlineBorderLight(_colorSchemeExtension.secondary),
     focusedBorder: _outlineBorderLight(_colorSchemeExtension.primary),
@@ -61,6 +64,6 @@ final ThemeData newThemeDataLight = theme.global.light.copyWith(
 );
 
 OutlineInputBorder _outlineBorderLight(Color accentColor) => OutlineInputBorder(
-      borderSide: BorderSide(color: accentColor, width: 2),
-      borderRadius: BorderRadius.circular(12),
-    );
+  borderSide: BorderSide(color: accentColor, width: 2),
+  borderRadius: BorderRadius.circular(12),
+);

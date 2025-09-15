@@ -60,7 +60,7 @@ class MaxMakerVolResponseValue {
   final String denom;
 
   Map<String, String> toFractionalJson() => <String, String>{
-        'numer': numer,
-        'denom': denom,
-      };
+    'numer': numer,
+    'denom': denom,
+  };
 }

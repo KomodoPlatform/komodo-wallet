@@ -20,26 +20,34 @@ class Orderbook {
       base: json['base'],
       rel: json['rel'],
       asks: json['asks']
-          .map<Order>((dynamic item) => Order.fromJson(
-                item,
-                direction: OrderDirection.ask,
-                otherCoin: json['rel'],
-              ))
+          .map<Order>(
+            (dynamic item) => Order.fromJson(
+              item,
+              direction: OrderDirection.ask,
+              otherCoin: json['rel'],
+            ),
+          )
           .toList(),
       bids: json['bids']
-          .map<Order>((dynamic item) => Order.fromJson(
-                item,
-                direction: OrderDirection.bid,
-                otherCoin: json['base'],
-              ))
+          .map<Order>(
+            (dynamic item) => Order.fromJson(
+              item,
+              direction: OrderDirection.bid,
+              otherCoin: json['base'],
+            ),
+          )
           .toList(),
-      bidsBaseVolTotal: fract2rat(json['total_bids_base_vol_fraction']) ??
+      bidsBaseVolTotal:
+          fract2rat(json['total_bids_base_vol_fraction']) ??
           Rational.parse(json['total_bids_base_vol']),
-      bidsRelVolTotal: fract2rat(json['total_bids_rel_vol_fraction']) ??
+      bidsRelVolTotal:
+          fract2rat(json['total_bids_rel_vol_fraction']) ??
           Rational.parse(json['total_bids_rel_vol']),
-      asksBaseVolTotal: fract2rat(json['total_asks_base_vol_fraction']) ??
+      asksBaseVolTotal:
+          fract2rat(json['total_asks_base_vol_fraction']) ??
           Rational.parse(json['total_asks_base_vol']),
-      asksRelVolTotal: fract2rat(json['total_asks_rel_vol_fraction']) ??
+      asksRelVolTotal:
+          fract2rat(json['total_asks_rel_vol_fraction']) ??
           Rational.parse(json['total_asks_rel_vol']),
       timestamp: json['timestamp'],
     );

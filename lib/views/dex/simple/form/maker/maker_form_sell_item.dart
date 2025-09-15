@@ -8,9 +8,7 @@ import 'package:web_dex/views/dex/simple/form/maker/maker_form_sell_switcher.dar
 import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.dart';
 
 class MakerFormSellItem extends StatefulWidget {
-  const MakerFormSellItem({
-    Key? key,
-  }) : super(key: key);
+  const MakerFormSellItem({Key? key}) : super(key: key);
   @override
   State<MakerFormSellItem> createState() => _MakerFormSellItemState();
 }
@@ -29,26 +27,27 @@ class _MakerFormSellItemState extends State<MakerFormSellItem> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: StreamBuilder<bool>(
-                initialData: makerFormBloc.showSellCoinSelect,
-                stream: makerFormBloc.outShowSellCoinSelect,
-                builder: (context, isOpenSnapshot) {
-                  final bool isOpen = isOpenSnapshot.data == true;
+              initialData: makerFormBloc.showSellCoinSelect,
+              stream: makerFormBloc.outShowSellCoinSelect,
+              builder: (context, isOpenSnapshot) {
+                final bool isOpen = isOpenSnapshot.data == true;
 
-                  return Column(
-                    children: [
-                      const MakerFormSellHeader(),
-                      const SizedBox(height: 16),
-                      MakerFormSellSwitcher(
-                        controller: TradeCoinController(
-                            coin: coin,
-                            onTap: () =>
-                                makerFormBloc.showSellCoinSelect = !isOpen,
-                            isOpened: isOpen,
-                            isEnabled: coin != null),
+                return Column(
+                  children: [
+                    const MakerFormSellHeader(),
+                    const SizedBox(height: 16),
+                    MakerFormSellSwitcher(
+                      controller: TradeCoinController(
+                        coin: coin,
+                        onTap: () => makerFormBloc.showSellCoinSelect = !isOpen,
+                        isOpened: isOpen,
+                        isEnabled: coin != null,
                       ),
-                    ],
-                  );
-                }),
+                    ),
+                  ],
+                );
+              },
+            ),
           );
         },
       ),

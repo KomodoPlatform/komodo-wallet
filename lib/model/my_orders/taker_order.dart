@@ -18,7 +18,8 @@ class TakerOrder {
           ? null
           : Map<String, dynamic>.from(json['matches']).map(
               (String k, dynamic v) =>
-                  MapEntry<String, Matches>(k, Matches.fromJson(v))),
+                  MapEntry<String, Matches>(k, Matches.fromJson(v)),
+            ),
       request: json['request'] == null
           ? MatchRequest(baseAmount: Rational.zero, relAmount: Rational.zero)
           : MatchRequest.fromJson(json['request']),
@@ -39,9 +40,9 @@ class TakerOrder {
       'matches': matches == null
           ? null
           : Map<String, Matches>.from(matches).map<String, dynamic>(
-              (String k, Matches v) =>
-                  MapEntry<String, dynamic>(k, v.toJson())),
-      'request': request.toJson()
+              (String k, Matches v) => MapEntry<String, dynamic>(k, v.toJson()),
+            ),
+      'request': request.toJson(),
     };
   }
 }

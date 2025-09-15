@@ -38,13 +38,15 @@ class CoinAddressesState extends Equatable {
           : createAddressStatus(),
       errorMessage: errorMessage == null ? this.errorMessage : errorMessage(),
       addresses: addresses == null ? this.addresses : addresses(),
-      hideZeroBalance:
-          hideZeroBalance == null ? this.hideZeroBalance : hideZeroBalance(),
+      hideZeroBalance: hideZeroBalance == null
+          ? this.hideZeroBalance
+          : hideZeroBalance(),
       cantCreateNewAddressReasons: cantCreateNewAddressReasons == null
           ? this.cantCreateNewAddressReasons
           : cantCreateNewAddressReasons(),
-      newAddressState:
-          newAddressState == null ? this.newAddressState : newAddressState(),
+      newAddressState: newAddressState == null
+          ? this.newAddressState
+          : newAddressState(),
     );
   }
 
@@ -74,12 +76,12 @@ class CoinAddressesState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        createAddressStatus,
-        errorMessage,
-        addresses,
-        hideZeroBalance,
-        cantCreateNewAddressReasons,
-        newAddressState,
-      ];
+    status,
+    createAddressStatus,
+    errorMessage,
+    addresses,
+    hideZeroBalance,
+    cantCreateNewAddressReasons,
+    newAddressState,
+  ];
 }

@@ -97,7 +97,8 @@ class ChromeConfigManager {
           ..deleteSync();
       } else {
         print(
-            'No backup file found at $backupPath. Attempting to clean configurations.');
+          'No backup file found at $backupPath. Attempting to clean configurations.',
+        );
         _clearArgumentsFromFile(configPath, _argsAppended);
       }
     }

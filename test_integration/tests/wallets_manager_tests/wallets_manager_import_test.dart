@@ -17,8 +17,9 @@ Future<void> testImportWallet(WidgetTester tester) async {
   const String walletName = 'my-wallet-restored';
   const String password = 'pppaaasssDDD555444@@@';
   const String customSeed = 'my-custom-seed';
-  final Finder importWalletButton =
-      find.byKey(const Key('import-wallet-button'));
+  final Finder importWalletButton = find.byKey(
+    const Key('import-wallet-button'),
+  );
 
   await tapOnMobileConnectWallet(tester, WalletType.iguana);
 
@@ -37,15 +38,20 @@ Future<void> _enterPassword(
   required String walletName,
 }) async {
   final Finder passwordField = find.byKey(const Key('create-password-field'));
-  final Finder passwordConfirmField =
-      find.byKey(const Key('create-password-field-confirm'));
-  final Finder importConfirmButton =
-      find.byKey(const Key('confirm-seed-button'));
+  final Finder passwordConfirmField = find.byKey(
+    const Key('create-password-field-confirm'),
+  );
+  final Finder importConfirmButton = find.byKey(
+    const Key('confirm-seed-button'),
+  );
 
-  final Finder authorizedWalletButton =
-      find.widgetWithText(AccountSwitcher, walletName);
-  final Finder walletsManagerWrapper =
-      find.byKey(const Key('wallets-manager-wrapper'));
+  final Finder authorizedWalletButton = find.widgetWithText(
+    AccountSwitcher,
+    walletName,
+  );
+  final Finder walletsManagerWrapper = find.byKey(
+    const Key('wallets-manager-wrapper'),
+  );
 
   await tester.enterText(passwordField, password);
   await tester.pumpNFrames(10);
@@ -64,17 +70,21 @@ Future<void> _createWallet(
 }) async {
   final Finder nameField = find.byKey(const Key('name-wallet-field'));
   final Finder importSeedField = find.byKey(const Key('import-seed-field'));
-  final Finder allowCustomSeedCheckbox =
-      find.byKey(const Key('checkbox-custom-seed'));
-  final Finder customSeedDialogInput =
-      find.byKey(const Key('custom-seed-dialog-input'));
-  final Finder customSeedDialogOkButton =
-      find.byKey(const Key('custom-seed-dialog-ok-button'));
+  final Finder allowCustomSeedCheckbox = find.byKey(
+    const Key('checkbox-custom-seed'),
+  );
+  final Finder customSeedDialogInput = find.byKey(
+    const Key('custom-seed-dialog-input'),
+  );
+  final Finder customSeedDialogOkButton = find.byKey(
+    const Key('custom-seed-dialog-ok-button'),
+  );
   const String confirmCustomSeedText = 'I Understand';
   final Finder eulaCheckbox = find.byKey(const Key('checkbox-eula'));
   final Finder tocCheckbox = find.byKey(const Key('checkbox-toc'));
-  final Finder importConfirmButton =
-      find.byKey(const Key('confirm-seed-button'));
+  final Finder importConfirmButton = find.byKey(
+    const Key('confirm-seed-button'),
+  );
 
   await tester.tapAndPump(nameField);
   await tester.enterText(nameField, walletName);
@@ -92,19 +102,15 @@ Future<void> _createWallet(
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
-    'Run Wallet Import tests:',
-    (WidgetTester tester) async {
-      tester.testTextInput.register();
-      await app.main();
-      await tester.pumpAndSettle();
-      print('ACCEPT ALPHA WARNING');
-      await acceptAlphaWarning(tester);
-      await testImportWallet(tester);
-      await tester.pumpAndSettle();
+  testWidgets('Run Wallet Import tests:', (WidgetTester tester) async {
+    tester.testTextInput.register();
+    await app.main();
+    await tester.pumpAndSettle();
+    print('ACCEPT ALPHA WARNING');
+    await acceptAlphaWarning(tester);
+    await testImportWallet(tester);
+    await tester.pumpAndSettle();
 
-      print('END WALLET IMPORT TESTS');
-    },
-    semanticsEnabled: false,
-  );
+    print('END WALLET IMPORT TESTS');
+  }, semanticsEnabled: false);
 }

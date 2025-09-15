@@ -11,8 +11,8 @@ import 'package:web_dex/shared/utils/utils.dart';
 
 class NftTxnRepository {
   NftTxnRepository({required Mm2ApiNft api, required CoinsRepo coinsRepo})
-      : _api = api,
-        _coinsRepo = coinsRepo;
+    : _api = api,
+      _coinsRepo = coinsRepo;
   final Mm2ApiNft _api;
   final CoinsRepo _coinsRepo;
   final Map<String, double?> _abbrToUsdPrices = {};
@@ -21,15 +21,13 @@ class NftTxnRepository {
   Future<NftTxsResponse> getNftTransactions([
     List<NftBlockchains>? chains,
   ]) async {
-    final List<String> allChains =
-        (chains ?? NftBlockchains.values).map((e) => e.toApiRequest()).toList();
+    final List<String> allChains = (chains ?? NftBlockchains.values)
+        .map((e) => e.toApiRequest())
+        .toList();
     await getUsdPricesOfCoins(
       (chains ?? NftBlockchains.values).map((e) => e.coinAbbr()),
     );
-    final request = NftTransactionsRequest(
-      chains: allChains,
-      max: true,
-    );
+    final request = NftTransactionsRequest(chains: allChains, max: true);
 
     try {
       final json = await _api.getNftTxs(request, false);
@@ -46,8 +44,9 @@ class NftTxnRepository {
         throw ApiError(message: LocaleKeys.somethingWrong.tr());
       }
       try {
-        final NftTxsResponse nftTransactionsResponse =
-            NftTxsResponse.fromJson(json);
+        final NftTxsResponse nftTransactionsResponse = NftTxsResponse.fromJson(
+          json,
+        );
 
         return nftTransactionsResponse;
       } catch (e) {

@@ -20,12 +20,13 @@ class NftList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<NftToken>? nftList =
-        context.select<NftMainBloc, List<NftToken>?>(
-      (bloc) => bloc.state.nfts[bloc.state.selectedChain],
+    final List<NftToken>? nftList = context
+        .select<NftMainBloc, List<NftToken>?>(
+          (bloc) => bloc.state.nfts[bloc.state.selectedChain],
+        );
+    final bool isInitialized = context.select<NftMainBloc, bool>(
+      (bloc) => bloc.state.isInitialized,
     );
-    final bool isInitialized =
-        context.select<NftMainBloc, bool>((bloc) => bloc.state.isInitialized);
     final List<NftToken> list = nftList ?? [];
 
     if (list.isEmpty && isInitialized) {
@@ -54,11 +55,7 @@ class NftList extends StatelessWidget {
             );
     }
 
-    return _Layout(
-      nftList: list,
-      onTap: _onNftTap,
-      onSendTap: _onSendNftTap,
-    );
+    return _Layout(nftList: list, onTap: _onNftTap, onSendTap: _onSendNftTap);
   }
 
   void _onNftTap(String uuid) {
@@ -155,10 +152,7 @@ class _NothingShow extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          LocaleKeys.noCollectibles.tr(),
-          style: textTheme.heading1,
-        ),
+        Text(LocaleKeys.noCollectibles.tr(), style: textTheme.heading1),
         Text(
           LocaleKeys.tryReceiveNft.tr(args: [chain ?? '']),
           style: textTheme.bodyM,

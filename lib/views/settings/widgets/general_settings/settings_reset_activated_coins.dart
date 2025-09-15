@@ -61,22 +61,21 @@ class _SettingsResetActivatedCoinsState
               ),
             )
           : SingleChildScrollView(
-              child: Column(children: [
-                Text(
-                  LocaleKeys.selectWalletToReset.tr(),
-                  style: textStyle,
-                ),
-                const SizedBox(height: 8),
-                ...List.generate(wallets.length, (index) {
-                  return ListTile(
-                    title: AutoScrollText(
-                      text: wallets[index].name,
-                      style: textStyle,
-                    ),
-                    onTap: () => _showConfirmationDialog(wallets[index]),
-                  );
-                }),
-              ]),
+              child: Column(
+                children: [
+                  Text(LocaleKeys.selectWalletToReset.tr(), style: textStyle),
+                  const SizedBox(height: 8),
+                  ...List.generate(wallets.length, (index) {
+                    return ListTile(
+                      title: AutoScrollText(
+                        text: wallets[index].name,
+                        style: textStyle,
+                      ),
+                      onTap: () => _showConfirmationDialog(wallets[index]),
+                    );
+                  }),
+                ],
+              ),
             ),
     );
   }
@@ -88,9 +87,7 @@ class _SettingsResetActivatedCoinsState
         title: Text(LocaleKeys.resetWalletTitle.tr()),
         content: SizedBox(
           width: 500,
-          child: Text(
-            LocaleKeys.resetWalletContent.tr(args: [wallet.name]),
-          ),
+          child: Text(LocaleKeys.resetWalletContent.tr(args: [wallet.name])),
         ),
         actions: [
           TextButton(

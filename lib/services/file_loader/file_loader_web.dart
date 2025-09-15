@@ -28,8 +28,10 @@ class FileLoaderWeb implements FileLoader {
     required String data,
   }) async {
     final dataArray = web.TextEncoder().encode(data);
-    final blob =
-        web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
+    final blob = web.Blob(
+      [dataArray].toJS,
+      web.BlobPropertyBag(type: 'text/plain'),
+    );
 
     final url = web.URL.createObjectURL(blob);
 
@@ -62,8 +64,10 @@ class FileLoaderWeb implements FileLoader {
 
       final encoder = web.TextEncoder();
       final dataArray = encoder.encode(data);
-      final blob =
-          web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
+      final blob = web.Blob(
+        [dataArray].toJS,
+        web.BlobPropertyBag(type: 'text/plain'),
+      );
 
       final response = web.Response(blob);
       final compressedResponse = web.Response(

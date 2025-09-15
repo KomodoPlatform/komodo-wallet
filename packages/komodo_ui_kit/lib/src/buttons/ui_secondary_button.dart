@@ -55,17 +55,15 @@ class _UiSecondaryButtonState extends State<UiSecondaryButton> {
         key: widget.buttonKey,
         style: ElevatedButton.styleFrom(
           shape: _shape,
-          side: BorderSide(
-            color: _borderColor,
-            width: 1,
-          ),
+          side: BorderSide(color: _borderColor, width: 1),
           shadowColor: _shadowColor,
           elevation: 1,
           backgroundColor: Colors.transparent,
           foregroundColor: _borderColor,
           padding: EdgeInsets.zero,
         ),
-        child: widget.child ??
+        child:
+            widget.child ??
             _ButtonContent(
               text: widget.text,
               textStyle: widget.textStyle,
@@ -86,8 +84,8 @@ class _UiSecondaryButtonState extends State<UiSecondaryButton> {
   }
 
   OutlinedBorder get _shape => const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(18)),
-      );
+    borderRadius: BorderRadius.all(Radius.circular(18)),
+  );
 }
 
 class _ButtonContent extends StatelessWidget {
@@ -114,9 +112,9 @@ class _ButtonContent extends StatelessWidget {
 
   TextStyle? _defaultTextStyle(BuildContext context) {
     return Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          color: Theme.of(context).colorScheme.secondary,
-        );
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+      color: Theme.of(context).colorScheme.secondary,
+    );
   }
 }

@@ -115,9 +115,9 @@ class WalletManageSection extends StatelessWidget {
   }
 
   void _onAddAssetsPress(BuildContext context) {
-    context
-        .read<CoinsManagerBloc>()
-        .add(const CoinsManagerCoinsListReset(CoinsManagerAction.add));
+    context.read<CoinsManagerBloc>().add(
+      const CoinsManagerCoinsListReset(CoinsManagerAction.add),
+    );
     routingState.walletState.action = coinsManagerRouteAction.addAssets;
   }
 }
@@ -142,10 +142,7 @@ class CoinsWithBalanceCheckbox extends StatelessWidget {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          side: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
         child: Container(
           alignment: Alignment.center,

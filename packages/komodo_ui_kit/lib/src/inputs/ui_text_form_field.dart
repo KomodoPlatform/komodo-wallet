@@ -104,9 +104,7 @@ class UiTextFormField extends StatefulWidget {
 
 class _UiTextFormFieldState extends State<UiTextFormField> {
   String? _errorText;
-  String? _displayedErrorText;
   late FocusNode _focusNode;
-  bool _hasFocusExitedOnce = false;
   bool _shouldValidate = false;
   TextEditingController? _controller;
 
@@ -116,11 +114,10 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialValue);
     _errorText = widget.errorText;
-    _displayedErrorText = widget.errorText;
+    // Keep internal error for validation return, but rely on FormField decoration
 
     if (_errorText?.isNotEmpty == true ||
         widget.validationMode == InputValidationMode.aggressive) {
-      _hasFocusExitedOnce = true;
       _shouldValidate = true;
     }
 
@@ -132,12 +129,12 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
   void didUpdateWidget(covariant UiTextFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final error = widget.validator?.call(_controller?.text) ?? widget.errorText;
-    if (error != oldWidget.errorText) {
+    // Only react to explicit errorText prop changes. Avoid running validators
+    // during rebuilds (e.g., parent setState) to prevent premature error display.
+    if (widget.errorText != oldWidget.errorText) {
       _errorText = widget.errorText;
-      _displayedErrorText = widget.errorText;
+      // Sync internal error text when external errorText updates
       if (_errorText?.isNotEmpty == true) {
-        _hasFocusExitedOnce = true;
         _shouldValidate = true;
       }
     }
@@ -151,12 +148,12 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
   void _handleFocusChange() {
     if (!mounted) return;
 
-    final shouldUpdate = !_focusNode.hasFocus &&
+    final shouldUpdate =
+        !_focusNode.hasFocus &&
         (widget.validationMode == InputValidationMode.eager ||
             widget.validationMode == InputValidationMode.passive);
 
     if (shouldUpdate) {
-      _hasFocusExitedOnce = true;
       _shouldValidate = true;
       // Schedule validation for the next frame
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -184,8 +181,6 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
   String? _validateAndUpdateError(String? value) {
     final error = widget.validator?.call(value) ?? widget.errorText;
     _errorText = error;
-    _displayedErrorText =
-        _hasFocusExitedOnce || _focusNode.hasFocus ? _errorText : null;
     return error;
   }
 
@@ -200,7 +195,8 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     );
     final style = widget.style?.merge(defaultStyle) ?? defaultStyle;
 
-    final defaultLabelStyle = theme.inputDecorationTheme.labelStyle ??
+    final defaultLabelStyle =
+        theme.inputDecorationTheme.labelStyle ??
         TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -209,7 +205,8 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     final labelStyle =
         widget.labelStyle?.merge(defaultLabelStyle) ?? defaultLabelStyle;
 
-    final defaultHintStyle = theme.inputDecorationTheme.hintStyle ??
+    final defaultHintStyle =
+        theme.inputDecorationTheme.hintStyle ??
         TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
@@ -218,11 +215,9 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     final hintStyle =
         widget.hintTextStyle?.merge(defaultHintStyle) ?? defaultHintStyle;
 
-    final defaultErrorStyle = theme.inputDecorationTheme.errorStyle ??
-        TextStyle(
-          fontSize: 12,
-          color: theme.colorScheme.error,
-        );
+    final defaultErrorStyle =
+        theme.inputDecorationTheme.errorStyle ??
+        TextStyle(fontSize: 12, color: theme.colorScheme.error);
     final errorStyle =
         widget.errorStyle?.merge(defaultErrorStyle) ?? defaultErrorStyle;
 
@@ -274,13 +269,16 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
         filled: fillColor != null,
         hintText: widget.hintText,
         hintStyle: hintStyle,
-        contentPadding: widget.inputContentPadding ??
+        contentPadding:
+            widget.inputContentPadding ??
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         counterText: widget.counterText,
         labelText: widget.labelText ?? widget.hintText,
         labelStyle: labelStyle,
         helperText: widget.helperText,
-        errorText: _displayedErrorText,
+        // Let FormField's own validation state control error display by default.
+        // If caller explicitly provides errorText, it will override.
+        errorText: widget.errorText,
         errorStyle: errorStyle,
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,

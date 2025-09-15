@@ -36,10 +36,10 @@ class NftReceiveLoadSuccess extends NftReceiveState {
 
   @override
   List<Object> get props => [
-        asset,
-        pubkeys,
-        if (selectedAddress != null) selectedAddress!,
-      ];
+    asset,
+    pubkeys,
+    if (selectedAddress != null) selectedAddress!,
+  ];
 }
 
 class NftReceiveLoadFailure extends NftReceiveState {

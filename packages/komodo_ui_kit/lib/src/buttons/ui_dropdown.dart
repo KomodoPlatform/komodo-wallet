@@ -43,7 +43,7 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
         _switcherOffset = renderObject.localToGlobal(Offset.zero);
       }
       _tooltipWrapper = _buildTooltipWrapper();
-      
+
       if (widget.isOpen) _open();
     });
 
@@ -118,10 +118,7 @@ class _UiDropdownState extends State<UiDropdown> with WidgetsBindingObserver {
           Positioned(
             top: (_top ?? 0) + 10,
             right: _right,
-            child: Material(
-              color: Colors.transparent,
-              child: widget.dropdown,
-            ),
+            child: Material(color: Colors.transparent, child: widget.dropdown),
           ),
         ],
       ),

@@ -133,9 +133,9 @@ class MakerFormBloc implements BlocBase {
     _inBuyCoin.add(_buyCoin);
     if (coin == sellCoin && coin != null) sellCoin = null;
 
-    _autoActivate(buyCoin)
-        .then((_) => _updatePreimage())
-        .then((_) => _reValidate());
+    _autoActivate(
+      buyCoin,
+    ).then((_) => _updatePreimage()).then((_) => _reValidate());
   }
 
   Rational? _sellAmount;
@@ -250,8 +250,9 @@ class MakerFormBloc implements BlocBase {
     isMaxActive = false;
 
     await _updateMaxSellAmount();
-    _maxSellAmountTimer =
-        Timer.periodic(const Duration(seconds: 10), (_) async {
+    _maxSellAmountTimer = Timer.periodic(const Duration(seconds: 10), (
+      _,
+    ) async {
       await _updateMaxSellAmount();
     });
   }
@@ -376,35 +377,33 @@ class MakerFormBloc implements BlocBase {
     if (error is TradePreimageNotSufficientBalanceError) {
       _setFormErrors([
         DexFormError(
-          error: LocaleKeys.dexBalanceNotSufficientError.tr(args: [
-            error.coin,
-            formatAmt(double.parse(error.required)),
-            error.coin,
-          ]),
-        )
+          error: LocaleKeys.dexBalanceNotSufficientError.tr(
+            args: [
+              error.coin,
+              formatAmt(double.parse(error.required)),
+              error.coin,
+            ],
+          ),
+        ),
       ]);
     } else if (error is TradePreimageNotSufficientBaseCoinBalanceError) {
       _setFormErrors([
         DexFormError(
-          error: LocaleKeys.dexBalanceNotSufficientError.tr(args: [
-            error.coin,
-            formatAmt(double.parse(error.required)),
-            error.coin,
-          ]),
-        )
+          error: LocaleKeys.dexBalanceNotSufficientError.tr(
+            args: [
+              error.coin,
+              formatAmt(double.parse(error.required)),
+              error.coin,
+            ],
+          ),
+        ),
       ]);
     } else if (error is TradePreimageTransportError) {
       _setFormErrors([
-        DexFormError(
-          error: LocaleKeys.notEnoughBalanceForGasError.tr(),
-        )
+        DexFormError(error: LocaleKeys.notEnoughBalanceForGasError.tr()),
       ]);
     } else {
-      _setFormErrors([
-        DexFormError(
-          error: error.message,
-        )
-      ]);
+      _setFormErrors([DexFormError(error: error.message)]);
     }
 
     return false;
@@ -429,13 +428,14 @@ class MakerFormBloc implements BlocBase {
       return DexFormError(error: LocaleKeys.dexSelectBuyCoinError.tr());
     } else if (buyCoin.isSuspended) {
       return DexFormError(
-          error: LocaleKeys.dexCoinSuspendedError.tr(args: [buyCoin.abbr]));
+        error: LocaleKeys.dexCoinSuspendedError.tr(args: [buyCoin.abbr]),
+      );
     } else {
       final Coin? parentCoin = buyCoin.parentCoin;
       if (parentCoin != null && parentCoin.isSuspended) {
         return DexFormError(
-            error:
-                LocaleKeys.dexCoinSuspendedError.tr(args: [parentCoin.abbr]));
+          error: LocaleKeys.dexCoinSuspendedError.tr(args: [parentCoin.abbr]),
+        );
       }
     }
 
@@ -458,13 +458,15 @@ class MakerFormBloc implements BlocBase {
       return DexFormError(error: LocaleKeys.dexSelectSellCoinError.tr());
     } else if (sellCoin.isSuspended) {
       return DexFormError(
-          error: LocaleKeys.dexCoinSuspendedError.tr(args: [sellCoin.abbr]));
+        error: LocaleKeys.dexCoinSuspendedError.tr(args: [sellCoin.abbr]),
+      );
     }
 
     final Coin? parentCoin = sellCoin.parentCoin;
     if (parentCoin != null && parentCoin.isSuspended) {
       return DexFormError(
-          error: LocaleKeys.dexCoinSuspendedError.tr(args: [parentCoin.abbr]));
+        error: LocaleKeys.dexCoinSuspendedError.tr(args: [parentCoin.abbr]),
+      );
     }
 
     final Rational? sellAmount = this.sellAmount;
@@ -480,14 +482,16 @@ class MakerFormBloc implements BlocBase {
           return DexFormError(error: LocaleKeys.notEnoughFundsError.tr());
         } else if (sellAmount > maxAmount) {
           return DexFormError(
-            error: LocaleKeys.dexMaxSellAmountError
-                .tr(args: [formatAmt(maxAmount.toDouble()), sellCoin.abbr]),
+            error: LocaleKeys.dexMaxSellAmountError.tr(
+              args: [formatAmt(maxAmount.toDouble()), sellCoin.abbr],
+            ),
             type: DexFormErrorType.largerMaxSellVolume,
             action: DexFormErrorAction(
-                text: LocaleKeys.setMax.tr(),
-                callback: () async {
-                  await setMaxSellAmount();
-                }),
+              text: LocaleKeys.setMax.tr(),
+              callback: () async {
+                await setMaxSellAmount();
+              },
+            ),
           );
         }
       }
@@ -499,8 +503,10 @@ class MakerFormBloc implements BlocBase {
   Future<void> _autoActivate(Coin? coin) async {
     if (coin == null || !await kdfSdk.auth.isSignedIn()) return;
     inProgress = true;
-    final List<DexFormError> activationErrors =
-        await activateCoinIfNeeded(coin.abbr, coinsRepository);
+    final List<DexFormError> activationErrors = await activateCoinIfNeeded(
+      coin.abbr,
+      coinsRepository,
+    );
     inProgress = false;
     if (activationErrors.isNotEmpty) {
       _setFormErrors(activationErrors);
@@ -508,13 +514,15 @@ class MakerFormBloc implements BlocBase {
   }
 
   Future<TextError?> makeOrder() async {
-    final Map<String, dynamic>? response = await api.setprice(SetPriceRequest(
-      base: sellCoin!.abbr,
-      rel: buyCoin!.abbr,
-      volume: sellAmount!,
-      price: price!,
-      max: isMaxActive,
-    ));
+    final Map<String, dynamic>? response = await api.setprice(
+      SetPriceRequest(
+        base: sellCoin!.abbr,
+        rel: buyCoin!.abbr,
+        volume: sellAmount!,
+        price: price!,
+        max: isMaxActive,
+      ),
+    );
 
     if (response == null) {
       return TextError(error: LocaleKeys.somethingWrong.tr());

@@ -13,10 +13,7 @@ enum MarketMakerTradeFormStatus { initial, loading, success, error }
 // Usually this would be a dedicated tab contoller/ui flow bloc, but because
 // there is only two stages (initial and confirmationRequired), and for the
 // sake of simplicity, we are using the form state to manage the form stages.
-enum MarketMakerTradeFormStage {
-  initial,
-  confirmationRequired,
-}
+enum MarketMakerTradeFormStage { initial, confirmationRequired }
 
 /// The state of the market maker trade form. The state is a formz mixin
 /// which allows the form to be validated and checked for errors.
@@ -37,18 +34,18 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
   });
 
   MarketMakerTradeFormState.initial()
-      : sellCoin = const CoinSelectInput.pure(),
-        buyCoin = const CoinSelectInput.pure(),
-        minimumTradeVolume = const TradeVolumeInput.pure(0.1),
-        maximumTradeVolume = const TradeVolumeInput.pure(0.9),
-        sellAmount = const CoinTradeAmountInput.pure(),
-        buyAmount = const CoinTradeAmountInput.pure(),
-        tradeMargin = const TradeMarginInput.pure(),
-        updateInterval = const UpdateIntervalInput.pure(),
-        status = MarketMakerTradeFormStatus.initial,
-        stage = MarketMakerTradeFormStage.initial,
-        tradePreImageError = null,
-        tradePreImage = null;
+    : sellCoin = const CoinSelectInput.pure(),
+      buyCoin = const CoinSelectInput.pure(),
+      minimumTradeVolume = const TradeVolumeInput.pure(0.1),
+      maximumTradeVolume = const TradeVolumeInput.pure(0.9),
+      sellAmount = const CoinTradeAmountInput.pure(),
+      buyAmount = const CoinTradeAmountInput.pure(),
+      tradeMargin = const TradeMarginInput.pure(),
+      updateInterval = const UpdateIntervalInput.pure(),
+      status = MarketMakerTradeFormStatus.initial,
+      stage = MarketMakerTradeFormStage.initial,
+      tradePreImageError = null,
+      tradePreImage = null;
 
   /// The coin being sold in the trade pair (base coin).
   final CoinSelectInput sellCoin;
@@ -201,13 +198,13 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
 
   @override
   List<FormzInput<dynamic, dynamic>> get inputs => [
-        sellCoin,
-        buyCoin,
-        minimumTradeVolume,
-        maximumTradeVolume,
-        tradeMargin,
-        updateInterval,
-      ];
+    sellCoin,
+    buyCoin,
+    minimumTradeVolume,
+    maximumTradeVolume,
+    tradeMargin,
+    updateInterval,
+  ];
 
   @override
   bool get isValid {
@@ -218,17 +215,17 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
 
   @override
   List<Object?> get props => [
-        sellCoin,
-        buyCoin,
-        minimumTradeVolume,
-        maximumTradeVolume,
-        sellAmount,
-        buyAmount,
-        tradeMargin,
-        updateInterval,
-        tradePreImageError,
-        stage,
-        status,
-        tradePreImage,
-      ];
+    sellCoin,
+    buyCoin,
+    minimumTradeVolume,
+    maximumTradeVolume,
+    sellAmount,
+    buyAmount,
+    tradeMargin,
+    updateInterval,
+    tradePreImageError,
+    stage,
+    status,
+    tradePreImage,
+  ];
 }

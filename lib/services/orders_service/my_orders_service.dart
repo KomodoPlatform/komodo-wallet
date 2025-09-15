@@ -34,7 +34,8 @@ class MyOrdersService {
           takerOrderStatus: TakerOrderStatus(
             order: mapMyOrderResponseTakerOrderToOrder(order, uuid),
             cancellationReason: _getTakerOrderCancellationReason(
-                response.cancellationReason ?? ''),
+              response.cancellationReason ?? '',
+            ),
           ),
         );
       } else {
@@ -42,7 +43,8 @@ class MyOrdersService {
           makerOrderStatus: MakerOrderStatus(
             order: mapMyOrderResponseMakerOrderToOrder(order, uuid),
             cancellationReason: _getMakerOrderCancellationReason(
-                response.cancellationReason ?? ''),
+              response.cancellationReason ?? '',
+            ),
           ),
         );
       }
@@ -52,8 +54,9 @@ class MyOrdersService {
   }
 
   Future<String?> cancelOrder(String uuid) async {
-    final Map<String, dynamic> response =
-        await _mm2Api.cancelOrder(CancelOrderRequest(uuid: uuid));
+    final Map<String, dynamic> response = await _mm2Api.cancelOrder(
+      CancelOrderRequest(uuid: uuid),
+    );
     return response['error'];
   }
 

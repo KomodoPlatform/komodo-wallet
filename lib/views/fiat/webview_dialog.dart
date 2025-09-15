@@ -39,18 +39,23 @@ class WebViewDialog {
     double width = 700,
     double height = 700,
   }) async {
-    final webviewSettings = settings ??
-        InAppWebViewSettings(isInspectable: kDebugMode, iframeSandbox: {
-          Sandbox.ALLOW_SAME_ORIGIN,
-          Sandbox.ALLOW_SCRIPTS,
-          Sandbox.ALLOW_FORMS,
-          Sandbox.ALLOW_POPUPS,
-        });
+    final webviewSettings =
+        settings ??
+        InAppWebViewSettings(
+          isInspectable: kDebugMode,
+          iframeSandbox: {
+            Sandbox.ALLOW_SAME_ORIGIN,
+            Sandbox.ALLOW_SCRIPTS,
+            Sandbox.ALLOW_FORMS,
+            Sandbox.ALLOW_POPUPS,
+          },
+        );
 
     final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
     final bool isWeb = (kIsWeb || kIsWasm) && !isMobile;
-    final WebViewDialogMode defaultMode =
-        isWeb ? WebViewDialogMode.dialog : WebViewDialogMode.fullscreen;
+    final WebViewDialogMode defaultMode = isWeb
+        ? WebViewDialogMode.dialog
+        : WebViewDialogMode.fullscreen;
     final WebViewDialogMode resolvedMode = mode ?? defaultMode;
 
     // If on Linux, always use newTab mode (open in external browser)
@@ -120,11 +125,11 @@ class InAppWebviewDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 40.0,
+        vertical: 24.0,
       ),
-      insetPadding:
-          const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
       child: SizedBox(
         width: width,
         height: height,

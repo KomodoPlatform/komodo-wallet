@@ -28,8 +28,8 @@ class _CopyableLinkState extends State<CopyableLink> {
     final bgIconColor = isPressed
         ? colorScheme.surfCont
         : isHovered
-            ? colorScheme.s40
-            : colorScheme.surfContHighest;
+        ? colorScheme.s40
+        : colorScheme.surfContHighest;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -66,7 +66,7 @@ class _CopyableLinkState extends State<CopyableLink> {
               color: colorScheme.secondary,
             ),
           ),
-        )
+        ),
       ],
     );
   }

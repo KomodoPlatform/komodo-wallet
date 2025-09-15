@@ -65,7 +65,9 @@ class ColorSchemeExtension extends ThemeExtension<ColorSchemeExtension> {
 
   @override
   ThemeExtension<ColorSchemeExtension> lerp(
-      covariant ThemeExtension<ColorSchemeExtension>? other, double t) {
+    covariant ThemeExtension<ColorSchemeExtension>? other,
+    double t,
+  ) {
     return this;
   }
 }

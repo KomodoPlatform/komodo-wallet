@@ -50,9 +50,9 @@ class _BitrefillButtonState extends State<BitrefillButton> {
 
   @override
   void initState() {
-    context
-        .read<BitrefillBloc>()
-        .add(BitrefillLoadRequested(coin: widget.coin));
+    context.read<BitrefillBloc>().add(
+      BitrefillLoadRequested(coin: widget.coin),
+    );
     super.initState();
   }
 
@@ -96,7 +96,10 @@ class _BitrefillButtonState extends State<BitrefillButton> {
               url: url,
               enabled: isEnabled,
               tooltip: _getTooltipMessage(
-                  hasNonZeroBalance, isEnabled, isCoinSupported),
+                hasNonZeroBalance,
+                isEnabled,
+                isCoinSupported,
+              ),
               onMessage: handleMessage,
               onPressed: () async =>
                   _handleButtonPress(context, hasNonZeroBalance),
@@ -109,7 +112,10 @@ class _BitrefillButtonState extends State<BitrefillButton> {
 
   /// Gets the appropriate tooltip message based on balance and coin status
   String? _getTooltipMessage(
-      bool hasNonZeroBalance, bool isEnabled, bool isCoinSupported) {
+    bool hasNonZeroBalance,
+    bool isEnabled,
+    bool isCoinSupported,
+  ) {
     if (widget.tooltip != null) {
       return widget.tooltip;
     }
@@ -160,11 +166,11 @@ class _BitrefillButtonState extends State<BitrefillButton> {
 
         // Reload Bitrefill with new address
         context.read<BitrefillBloc>().add(
-              BitrefillLoadRequested(
-                coin: widget.coin,
-                refundAddress: _selectedRefundAddress,
-              ),
-            );
+          BitrefillLoadRequested(
+            coin: widget.coin,
+            refundAddress: _selectedRefundAddress,
+          ),
+        );
       }
     }
     // If single address or no address selection needed, the button will work with existing URL
@@ -182,9 +188,9 @@ class _BitrefillButtonState extends State<BitrefillButton> {
     final BitrefillWidgetEvent bitrefillEvent =
         BitrefillEventFactory.createEvent(decodedEvent);
     if (bitrefillEvent is BitrefillPaymentIntentEvent) {
-      context
-          .read<BitrefillBloc>()
-          .add(BitrefillPaymentIntentReceived(bitrefillEvent));
+      context.read<BitrefillBloc>().add(
+        BitrefillPaymentIntentReceived(bitrefillEvent),
+      );
     }
   }
 }

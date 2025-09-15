@@ -5,16 +5,17 @@ class TruncatedMiddleText extends StatelessWidget {
   final TextStyle style;
   final int level;
 
-  const TruncatedMiddleText(this.string,
-      {this.style = const TextStyle(), this.level = 6, super.key});
+  const TruncatedMiddleText(
+    this.string, {
+    this.style = const TextStyle(),
+    this.level = 6,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (string.length < level) {
-      return Text(
-        string,
-        style: style,
-      );
+      return Text(string, style: style);
     }
     return Row(
       mainAxisSize: MainAxisSize.max,

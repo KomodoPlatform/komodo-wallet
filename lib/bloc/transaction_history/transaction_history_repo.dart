@@ -11,9 +11,7 @@ abstract class TransactionHistoryRepo {
 }
 
 class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
-  SdkTransactionHistoryRepository({
-    required KomodoDefiSdk sdk,
-  }) : _sdk = sdk;
+  SdkTransactionHistoryRepository({required KomodoDefiSdk sdk}) : _sdk = sdk;
   final KomodoDefiSdk _sdk;
 
   @override
@@ -33,10 +31,7 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
                 // adopt a pagination strategy. Migrate form
                 itemsPerPage: 2000,
               )
-            : TransactionBasedPagination(
-                fromId: fromId,
-                itemCount: 2000,
-              ),
+            : TransactionBasedPagination(fromId: fromId, itemCount: 2000),
       );
       return transactionHistory.transactions;
     } catch (e) {

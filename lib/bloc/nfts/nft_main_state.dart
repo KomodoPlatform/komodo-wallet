@@ -12,13 +12,13 @@ class NftMainState extends Equatable {
   });
 
   factory NftMainState.initial() => const NftMainState(
-        nfts: {},
-        isInitialized: false,
-        updatingChains: {},
-        selectedChain: NftBlockchains.eth,
-        nftCount: {},
-        sortedChains: [],
-      );
+    nfts: {},
+    isInitialized: false,
+    updatingChains: {},
+    selectedChain: NftBlockchains.eth,
+    nftCount: {},
+    sortedChains: [],
+  );
 
   final Map<NftBlockchains, List<NftToken>?> nfts;
   final NftBlockchains selectedChain;
@@ -30,14 +30,14 @@ class NftMainState extends Equatable {
 
   @override
   List<Object?> get props => [
-        nfts,
-        selectedChain,
-        nftCount,
-        sortedChains,
-        error,
-        updatingChains,
-        isInitialized,
-      ];
+    nfts,
+    selectedChain,
+    nftCount,
+    sortedChains,
+    error,
+    updatingChains,
+    isInitialized,
+  ];
 
   NftMainState copyWith({
     Map<NftBlockchains, List<NftToken>?> Function()? nfts,
@@ -50,15 +50,18 @@ class NftMainState extends Equatable {
   }) {
     return NftMainState(
       nfts: nfts != null ? nfts() : this.nfts,
-      selectedChain:
-          selectedChain != null ? selectedChain() : this.selectedChain,
+      selectedChain: selectedChain != null
+          ? selectedChain()
+          : this.selectedChain,
       nftCount: nftCount != null ? nftCount() : this.nftCount,
       sortedChains: sortedChains != null ? sortedChains() : this.sortedChains,
-      isInitialized:
-          isInitialized != null ? isInitialized() : this.isInitialized,
+      isInitialized: isInitialized != null
+          ? isInitialized()
+          : this.isInitialized,
       error: error != null ? error() : this.error,
-      updatingChains:
-          updatingChains != null ? updatingChains() : this.updatingChains,
+      updatingChains: updatingChains != null
+          ? updatingChains()
+          : this.updatingChains,
     );
   }
 }

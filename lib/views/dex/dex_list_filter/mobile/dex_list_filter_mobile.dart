@@ -190,11 +190,9 @@ class _DexListFilterMobileState extends State<DexListFilterMobile> {
     );
   }
 
-  void _applyFiltersData() => widget.onApplyFilter(
-        _filterData,
-      );
+  void _applyFiltersData() => widget.onApplyFilter(_filterData);
 
   void _update() => setState(() {
-        _filterData = TradingEntitiesFilter.from(widget.filterData);
-      });
+    _filterData = TradingEntitiesFilter.from(widget.filterData);
+  });
 }

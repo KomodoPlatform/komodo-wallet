@@ -28,7 +28,8 @@ enum PaymentStatusType {
         (element) => element.value == typeValue,
         orElse: () {
           throw ArgumentError(
-              'Unknown RampWidgetStatusEvents value: $typeValue');
+            'Unknown RampWidgetStatusEvents value: $typeValue',
+          );
         },
       );
     } catch (e) {
@@ -45,7 +46,8 @@ enum PaymentStatusType {
 
   /// Checks if a string is a valid Ramp widget event
   static bool isValidEvent(String eventType) {
-    return PaymentStatusType.values
-        .any((element) => element.value == eventType);
+    return PaymentStatusType.values.any(
+      (element) => element.value == eventType,
+    );
   }
 }

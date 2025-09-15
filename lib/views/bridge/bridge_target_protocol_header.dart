@@ -8,8 +8,6 @@ class TargetProtocolHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DexFormGroupHeader(
-      title: LocaleKeys.to.tr().toUpperCase(),
-    );
+    return DexFormGroupHeader(title: LocaleKeys.to.tr().toUpperCase());
   }
 }

@@ -72,8 +72,9 @@ class MarketMakerBotSettings extends Equatable {
       'is_market_maker_bot_enabled': isMMBotEnabled,
       'price_url': priceUrl,
       'bot_refresh_rate': botRefreshRate,
-      'trade_coin_pair_configs':
-          tradeCoinPairConfigs.map((e) => e.toJson()).toList(),
+      'trade_coin_pair_configs': tradeCoinPairConfigs
+          .map((e) => e.toJson())
+          .toList(),
       if (messageServiceConfig != null)
         'message_service_config': messageServiceConfig?.toJson(),
     };
@@ -97,10 +98,10 @@ class MarketMakerBotSettings extends Equatable {
 
   @override
   List<Object?> get props => [
-        isMMBotEnabled,
-        priceUrl,
-        botRefreshRate,
-        tradeCoinPairConfigs,
-        messageServiceConfig,
-      ];
+    isMMBotEnabled,
+    priceUrl,
+    botRefreshRate,
+    tradeCoinPairConfigs,
+    messageServiceConfig,
+  ];
 }

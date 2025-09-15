@@ -30,7 +30,7 @@ class RefreshNftMetadataRequest implements BaseRequest {
         "url": moralisProxyUrl,
         "url_antispam": nftAntiSpamUrl,
         "komodo_proxy": false,
-      }
+      },
     };
   }
 }

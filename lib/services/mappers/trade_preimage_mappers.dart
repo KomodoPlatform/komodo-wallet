@@ -3,7 +3,9 @@ import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.d
 import 'package:web_dex/model/trade_preimage.dart';
 
 TradePreimage mapTradePreimageResponseResultToTradePreimage(
-    TradePreimageResponseResult result, TradePreimageRequest request) {
+  TradePreimageResponseResult result,
+  TradePreimageRequest request,
+) {
   return TradePreimage(
     baseCoinFee: result.baseCoinFee,
     relCoinFee: result.relCoinFee,

@@ -27,8 +27,8 @@ class CustomTokenImportState extends Equatable {
     this.importErrorMessage = '',
     this.coin,
     this.evmNetworks = const [],
-  })  : coinBalance = Decimal.zero,
-        coinBalanceUsd = Decimal.zero;
+  }) : coinBalance = Decimal.zero,
+       coinBalanceUsd = Decimal.zero;
 
   final FormStatus formStatus;
   final FormStatus importStatus;
@@ -69,14 +69,14 @@ class CustomTokenImportState extends Equatable {
 
   @override
   List<Object?> get props => [
-        formStatus,
-        importStatus,
-        network,
-        address,
-        formErrorMessage,
-        importErrorMessage,
-        coin,
-        coinBalance,
-        evmNetworks,
-      ];
+    formStatus,
+    importStatus,
+    network,
+    address,
+    formErrorMessage,
+    importErrorMessage,
+    coin,
+    coinBalance,
+    evmNetworks,
+  ];
 }

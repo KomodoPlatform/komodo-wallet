@@ -53,28 +53,19 @@ class _BridgeFormErrorListState extends State<BridgeFormErrorList> {
     assert(error.type == DexFormErrorType.largerMaxSellVolume);
     assert(error.action != null);
 
-    return DexFormErrorWithAction(
-      error: error,
-      action: error.action!,
-    );
+    return DexFormErrorWithAction(error: error, action: error.action!);
   }
 
   Widget _buildLargerMaxBuyVolumeError(DexFormError error) {
     assert(error.type == DexFormErrorType.largerMaxBuyVolume);
 
-    return DexFormErrorWithAction(
-      error: error,
-      action: error.action!,
-    );
+    return DexFormErrorWithAction(error: error, action: error.action!);
   }
 
   Widget _buildLessMinVolumeError(DexFormError error) {
     assert(error.type == DexFormErrorType.lessMinVolume);
     assert(error.action != null);
 
-    return DexFormErrorWithAction(
-      error: error,
-      action: error.action!,
-    );
+    return DexFormErrorWithAction(error: error, action: error.action!);
   }
 }

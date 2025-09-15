@@ -13,15 +13,19 @@ Future<void> testThemeSwitcher(WidgetTester tester) async {
   print('🔍 THEME TEST: Starting theme switcher test');
 
   final themeSwitcherFinder = find.byKey(const Key('theme-switcher'));
-  final themeSettingsSwitcherLight =
-      find.byKey(const Key('theme-settings-switcher-Light'));
-  final themeSettingsSwitcherDark =
-      find.byKey(const Key('theme-settings-switcher-Dark'));
+  final themeSettingsSwitcherLight = find.byKey(
+    const Key('theme-settings-switcher-Light'),
+  );
+  final themeSettingsSwitcherDark = find.byKey(
+    const Key('theme-settings-switcher-Dark'),
+  );
 
-  final currentBrightness =
-      Theme.of(tester.element(themeSwitcherFinder)).brightness;
+  final currentBrightness = Theme.of(
+    tester.element(themeSwitcherFinder),
+  ).brightness;
   print(
-      '🔍 THEME TEST: Initial brightness: $currentBrightness, expected: ${Brightness.dark}');
+    '🔍 THEME TEST: Initial brightness: $currentBrightness, expected: ${Brightness.dark}',
+  );
   expect(
     Theme.of(tester.element(themeSwitcherFinder)).brightness,
     equals(Brightness.dark),
@@ -61,19 +65,15 @@ Future<void> testThemeSwitcher(WidgetTester tester) async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets(
-    'Run design tests:',
-    (WidgetTester tester) async {
-      tester.testTextInput.register();
-      await app.main();
-      await tester.pumpAndSettle();
-      await acceptAlphaWarning(tester);
-      print('ACCEPT ALPHA WARNING');
-      await tester.pumpAndSettle();
-      await testThemeSwitcher(tester);
+  testWidgets('Run design tests:', (WidgetTester tester) async {
+    tester.testTextInput.register();
+    await app.main();
+    await tester.pumpAndSettle();
+    await acceptAlphaWarning(tester);
+    print('ACCEPT ALPHA WARNING');
+    await tester.pumpAndSettle();
+    await testThemeSwitcher(tester);
 
-      print('END THEME SWITCH TESTS');
-    },
-    semanticsEnabled: false,
-  );
+    print('END THEME SWITCH TESTS');
+  }, semanticsEnabled: false);
 }

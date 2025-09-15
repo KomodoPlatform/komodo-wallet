@@ -13,16 +13,13 @@ abstract class EntityWithValue extends Equatable {
 }
 
 class FiatValue extends EntityWithValue {
-  FiatValue({
-    required this.currency,
-    required this.value,
-  });
+  FiatValue({required this.currency, required this.value});
 
   FiatValue.fromJson(Map<String, dynamic> json)
-      : this(
-          currency: json['currency'] ?? '',
-          value: (json['value'] as num).toDouble(),
-        );
+    : this(
+        currency: json['currency'] ?? '',
+        value: (json['value'] as num).toDouble(),
+      );
 
   FiatValue.usd(double value) : this(currency: 'USD', value: value);
 
@@ -31,10 +28,7 @@ class FiatValue extends EntityWithValue {
   final double value;
 
   Map<String, dynamic> toJson() {
-    return {
-      'currency': currency,
-      'value': value,
-    };
+    return {'currency': currency, 'value': value};
   }
 
   void _validateCurrencyPair(FiatValue other) {
@@ -70,10 +64,7 @@ class FiatValue extends EntityWithValue {
 }
 
 class CoinValue extends EntityWithValue {
-  CoinValue({
-    required this.coinId,
-    required this.value,
-  });
+  CoinValue({required this.coinId, required this.value});
 
   factory CoinValue.fromJson(Map<String, dynamic> json) {
     return CoinValue(
@@ -87,10 +78,7 @@ class CoinValue extends EntityWithValue {
   final double value;
 
   Map<String, dynamic> toJson() {
-    return {
-      'coinId': coinId,
-      'value': value,
-    };
+    return {'coinId': coinId, 'value': value};
   }
 
   @override

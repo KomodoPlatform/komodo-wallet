@@ -25,12 +25,7 @@ class CoinProtocolName extends StatelessWidget {
         fontWeight: FontWeight.w700,
         fontSize: 11,
         color: theme.custom.dexCoinProtocolColor,
-      ).merge(
-        TextStyle(
-          fontSize: size?.subtitleFontSize,
-          height: 1,
-        ),
-      ),
+      ).merge(TextStyle(fontSize: size?.subtitleFontSize, height: 1)),
     );
   }
 }

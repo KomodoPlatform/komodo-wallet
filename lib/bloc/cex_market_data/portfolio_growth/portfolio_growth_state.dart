@@ -11,7 +11,7 @@ sealed class PortfolioGrowthState extends Equatable {
 
 final class PortfolioGrowthInitial extends PortfolioGrowthState {
   const PortfolioGrowthInitial()
-      : super(selectedPeriod: const Duration(hours: 1));
+    : super(selectedPeriod: const Duration(hours: 1));
 }
 
 final class PortfolioGrowthChartLoadSuccess extends PortfolioGrowthState {
@@ -34,14 +34,14 @@ final class PortfolioGrowthChartLoadSuccess extends PortfolioGrowthState {
 
   @override
   List<Object> get props => <Object>[
-        portfolioGrowth,
-        percentageIncrease,
-        selectedPeriod,
-        totalBalance,
-        totalChange24h,
-        percentageChange24h,
-        isUpdating,
-      ];
+    portfolioGrowth,
+    percentageIncrease,
+    selectedPeriod,
+    totalBalance,
+    totalChange24h,
+    percentageChange24h,
+    isUpdating,
+  ];
 }
 
 final class GrowthChartLoadFailure extends PortfolioGrowthState {
@@ -58,5 +58,5 @@ final class GrowthChartLoadFailure extends PortfolioGrowthState {
 
 final class PortfolioGrowthChartUnsupported extends PortfolioGrowthState {
   const PortfolioGrowthChartUnsupported({required Duration selectedPeriod})
-      : super(selectedPeriod: selectedPeriod);
+    : super(selectedPeriod: selectedPeriod);
 }

@@ -42,8 +42,9 @@ class _DexPageState extends State<DexPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tradingEntitiesBloc =
-        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+      context,
+    );
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final myOrdersService = RepositoryProvider.of<MyOrdersService>(context);
 
@@ -70,9 +71,7 @@ class _DexPageState extends State<DexPage> {
   }
 
   void _onRouteChange() {
-    setState(
-      () => isTradingDetails = routingState.dexState.isTradingDetails,
-    );
+    setState(() => isTradingDetails = routingState.dexState.isTradingDetails);
   }
 }
 

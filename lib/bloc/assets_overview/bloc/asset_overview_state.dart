@@ -30,11 +30,11 @@ class AssetOverviewLoadSuccess extends AssetOverviewState {
 
   @override
   List<Object?> get props => [
-        totalValue,
-        totalInvestment,
-        profitAmount,
-        investmentReturnPercentage,
-      ];
+    totalValue,
+    totalInvestment,
+    profitAmount,
+    investmentReturnPercentage,
+  ];
 }
 
 class AssetOverviewLoadFailure extends AssetOverviewState {
@@ -67,11 +67,11 @@ class PortfolioAssetsOverviewLoadSuccess extends AssetOverviewState {
 
   @override
   List<Object?> get props => [
-        selectedAssetIds,
-        assetPortionPercentages,
-        totalInvestment,
-        totalValue,
-        profitAmount,
-        profitIncreasePercentage,
-      ];
+    selectedAssetIds,
+    assetPortionPercentages,
+    totalInvestment,
+    totalValue,
+    profitAmount,
+    profitIncreasePercentage,
+  ];
 }

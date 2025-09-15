@@ -11,10 +11,7 @@ class FaucetRequested extends FaucetEvent {
   final String coinAbbr;
   final String address;
 
-  const FaucetRequested({
-    required this.coinAbbr,
-    required this.address,
-  });
+  const FaucetRequested({required this.coinAbbr, required this.address});
 
   @override
   List<Object> get props => [coinAbbr, address];

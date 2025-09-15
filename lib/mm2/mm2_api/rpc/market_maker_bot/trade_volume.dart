@@ -27,27 +27,21 @@ class TradeVolume extends Equatable {
     }
 
     return TradeVolume(
-      type:
-          percentage != null ? TradeVolumeType.percentage : TradeVolumeType.usd,
+      type: percentage != null
+          ? TradeVolumeType.percentage
+          : TradeVolumeType.usd,
       // null check is done above, so value is not null
       value: (percentage ?? usd)!,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'percentage':
-            type == TradeVolumeType.percentage ? value.toString() : null,
-        'usd': type == TradeVolumeType.usd ? value.toString() : null,
-      }..removeWhere((_, value) => value == null);
+    'percentage': type == TradeVolumeType.percentage ? value.toString() : null,
+    'usd': type == TradeVolumeType.usd ? value.toString() : null,
+  }..removeWhere((_, value) => value == null);
 
-  TradeVolume copyWith({
-    double? value,
-    TradeVolumeType? type,
-  }) {
-    return TradeVolume(
-      value: value ?? this.value,
-      type: type ?? this.type,
-    );
+  TradeVolume copyWith({double? value, TradeVolumeType? type}) {
+    return TradeVolume(value: value ?? this.value, type: type ?? this.type);
   }
 
   @override

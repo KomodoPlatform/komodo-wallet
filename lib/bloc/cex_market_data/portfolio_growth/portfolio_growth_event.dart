@@ -28,12 +28,12 @@ class PortfolioGrowthLoadRequested extends PortfolioGrowthEvent {
 
   @override
   List<Object> get props => [
-        coins,
-        fiatCoinId,
-        selectedPeriod,
-        walletId,
-        updateFrequency,
-      ];
+    coins,
+    fiatCoinId,
+    selectedPeriod,
+    walletId,
+    updateFrequency,
+  ];
 }
 
 class PortfolioGrowthPeriodChanged extends PortfolioGrowthEvent {

@@ -42,22 +42,12 @@ class GeneralSettings extends StatelessWidget {
             child: SettingsManageTradingBot(),
           ),
         const SizedBox(height: 25),
-        const HiddenWithoutWallet(
-          child: SettingsDownloadLogs(),
-        ),
+        const HiddenWithoutWallet(child: SettingsDownloadLogs()),
         const SizedBox(height: 25),
-        const HiddenWithWallet(
-          child: SettingsResetActivatedCoins(),
-        ),
+        const HiddenWithWallet(child: SettingsResetActivatedCoins()),
         const SizedBox(height: 25),
-        const HiddenWithoutWallet(
-          isHiddenForHw: true,
-          child: ShowSwapData(),
-        ),
-        const HiddenWithoutWallet(
-          isHiddenForHw: true,
-          child: ImportSwaps(),
-        ),
+        const HiddenWithoutWallet(isHiddenForHw: true, child: ShowSwapData()),
+        const HiddenWithoutWallet(isHiddenForHw: true, child: ImportSwaps()),
       ],
     );
   }

@@ -25,9 +25,9 @@ class TradingEntitiesBloc implements BlocBase {
     KomodoDefiSdk kdfSdk,
     Mm2Api mm2Api,
     MyOrdersService myOrdersService,
-  )   : _mm2Api = mm2Api,
-        _myOrdersService = myOrdersService,
-        _kdfSdk = kdfSdk;
+  ) : _mm2Api = mm2Api,
+      _myOrdersService = myOrdersService,
+      _kdfSdk = kdfSdk;
 
   final KomodoDefiSdk _kdfSdk;
   final MyOrdersService _myOrdersService;
@@ -55,8 +55,10 @@ class TradingEntitiesBloc implements BlocBase {
   Stream<List<Swap>> get outSwaps => _swapsController.stream;
   List<Swap> get swaps => _swaps;
   set swaps(List<Swap> swapList) {
-    swapList.sort((first, second) =>
-        (second.myInfo?.startedAt ?? 0) - (first.myInfo?.startedAt ?? 0));
+    swapList.sort(
+      (first, second) =>
+          (second.myInfo?.startedAt ?? 0) - (first.myInfo?.startedAt ?? 0),
+    );
     _swaps = swapList;
     _inSwaps.add(_swaps);
   }
@@ -89,10 +91,7 @@ class TradingEntitiesBloc implements BlocBase {
         if (e is StateError && e.message.contains('disposed')) {
           _closed = true;
         } else {
-          await log(
-            'fetch error: $e',
-            path: 'TradingEntitiesBloc.fetch',
-          );
+          await log('fetch error: $e', path: 'TradingEntitiesBloc.fetch');
         }
       } finally {
         updateInProgress = false;
@@ -101,8 +100,9 @@ class TradingEntitiesBloc implements BlocBase {
   }
 
   Future<String?> cancelOrder(String uuid) async {
-    final Map<String, dynamic> response =
-        await _mm2Api.cancelOrder(CancelOrderRequest(uuid: uuid));
+    final Map<String, dynamic> response = await _mm2Api.cancelOrder(
+      CancelOrderRequest(uuid: uuid),
+    );
     return response['error'];
   }
 
@@ -161,8 +161,10 @@ class TradingEntitiesBloc implements BlocBase {
         .map((id) => getSwap(id))
         .whereType<Swap>()
         .toList();
-    final double swapFill = swaps.fold(0,
-        (previousValue, swap) => previousValue + (swap.myInfo?.myAmount ?? 0));
+    final double swapFill = swaps.fold(
+      0,
+      (previousValue, swap) => previousValue + (swap.myInfo?.myAmount ?? 0),
+    );
     return swapFill / order.baseAmount.toDouble();
   }
 
@@ -172,8 +174,9 @@ class TradingEntitiesBloc implements BlocBase {
   }
 
   Future<List<Swap>?> getRecentSwaps(MyRecentSwapsRequest request) async {
-    final MyRecentSwapsResponse? response =
-        await _mm2Api.getMyRecentSwaps(request);
+    final MyRecentSwapsResponse? response = await _mm2Api.getMyRecentSwaps(
+      request,
+    );
     if (response == null) {
       return null;
     }
@@ -182,10 +185,11 @@ class TradingEntitiesBloc implements BlocBase {
   }
 
   Future<RecoverFundsOfSwapResponse?> recoverFundsOfSwap(String uuid) async {
-    final RecoverFundsOfSwapRequest request =
-        RecoverFundsOfSwapRequest(uuid: uuid);
-    final RecoverFundsOfSwapResponse? response =
-        await _mm2Api.recoverFundsOfSwap(request);
+    final RecoverFundsOfSwapRequest request = RecoverFundsOfSwapRequest(
+      uuid: uuid,
+    );
+    final RecoverFundsOfSwapResponse? response = await _mm2Api
+        .recoverFundsOfSwap(request);
     if (response != null) {
       log(
         response.toJson().toString(),
@@ -196,8 +200,9 @@ class TradingEntitiesBloc implements BlocBase {
   }
 
   Future<Rational?> getMaxTakerVolume(String coinAbbr) async {
-    final MaxTakerVolResponse? response =
-        await _mm2Api.getMaxTakerVolume(MaxTakerVolRequest(coin: coinAbbr));
+    final MaxTakerVolResponse? response = await _mm2Api.getMaxTakerVolume(
+      MaxTakerVolRequest(coin: coinAbbr),
+    );
     if (response == null) {
       return null;
     }

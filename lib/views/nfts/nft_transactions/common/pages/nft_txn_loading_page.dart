@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NftTxnLoading extends StatelessWidget {
-  const NftTxnLoading({
-    super.key,
-  });
+  const NftTxnLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
