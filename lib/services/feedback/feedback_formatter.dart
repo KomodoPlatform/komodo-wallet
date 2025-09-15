@@ -97,6 +97,10 @@ class FeedbackFormatter {
 
   // Convert camel case to separate words
   static String _formatKey(String key) {
+    // Special-case certain keys for clearer labeling in reports
+    if (key == 'commitHash') {
+      return 'KDF commit hash';
+    }
     return key
         .replaceAllMapped(
           RegExp(r'([a-z])([A-Z])'),
