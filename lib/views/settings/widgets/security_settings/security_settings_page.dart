@@ -24,6 +24,7 @@ import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/s
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_show.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 
 /// Security settings page that manages both seed phrase and private key backup flows.
 ///
@@ -180,7 +181,16 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         return const SeedConfirmSuccess();
 
       case SecuritySettingsStep.privateKeyShow:
-        return PrivateKeyShow(privateKeys: _sdkPrivateKeys ?? {});
+        final tradingState = context.read<TradingStatusBloc>().state;
+        final Set<String> blockedSymbols = switch (tradingState) {
+          TradingEnabled s => s.disallowedAssets,
+          TradingDisabled s => s.disallowedAssets,
+          _ => <String>{},
+        };
+        return PrivateKeyShow(
+          privateKeys: _sdkPrivateKeys ?? {},
+          blockedAssetSymbols: blockedSymbols,
+        );
 
       case SecuritySettingsStep.passwordUpdate:
         _clearAllSensitiveData(); // Clear data when changing password

@@ -723,6 +723,7 @@
   "trend7d": "7d trend",
   "tradingDisabledTooltip": "Trading features are currently disabled",
   "tradingDisabled": "Trading unavailable in your location",
+  "includeBlockedAssets": "Include blocked assets",
   "unbanPubkeysResults": "Unban Pubkeys Results",
   "unbannedPubkeys": {
     "zero": "{} Unbanned Pubkeys",

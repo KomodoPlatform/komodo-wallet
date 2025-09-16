@@ -11,8 +11,32 @@ class TradingStatusInitial extends TradingStatusState {}
 
 class TradingStatusLoadInProgress extends TradingStatusState {}
 
-class TradingEnabled extends TradingStatusState {}
+class TradingEnabled extends TradingStatusState {
+  TradingEnabled({
+    Set<String>? disallowedAssets,
+    Set<String>? disallowedFeatures,
+  })  : disallowedAssets = disallowedAssets ?? const <String>{},
+        disallowedFeatures = disallowedFeatures ?? const <String>{};
 
-class TradingDisabled extends TradingStatusState {}
+  final Set<String> disallowedAssets;
+  final Set<String> disallowedFeatures;
+
+  @override
+  List<Object?> get props => [disallowedAssets, disallowedFeatures];
+}
+
+class TradingDisabled extends TradingStatusState {
+  TradingDisabled({
+    Set<String>? disallowedAssets,
+    Set<String>? disallowedFeatures,
+  })  : disallowedAssets = disallowedAssets ?? const <String>{},
+        disallowedFeatures = disallowedFeatures ?? const <String>{};
+
+  final Set<String> disallowedAssets;
+  final Set<String> disallowedFeatures;
+
+  @override
+  List<Object?> get props => [disallowedAssets, disallowedFeatures];
+}
 
 class TradingStatusLoadFailure extends TradingStatusState {}

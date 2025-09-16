@@ -20,8 +20,18 @@ class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
   ) async {
     emit(TradingStatusLoadInProgress());
     try {
-      final enabled = await _repository.isTradingEnabled();
-      emit(enabled ? TradingEnabled() : TradingDisabled());
+      final status = await _repository.fetchStatus();
+      if (status.tradingEnabled) {
+        emit(TradingEnabled(
+          disallowedAssets: status.disallowedAssets,
+          disallowedFeatures: status.disallowedFeatures,
+        ));
+      } else {
+        emit(TradingDisabled(
+          disallowedAssets: status.disallowedAssets,
+          disallowedFeatures: status.disallowedFeatures,
+        ));
+      }
 
       // This catch will never be triggered by the repository. This will require
       // changes to meet the "TODO" above.
