@@ -9,7 +9,6 @@ import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
-import 'package:web_dex/shared/constants.dart';
 
 class WalletDeleting extends StatefulWidget {
   const WalletDeleting({super.key, required this.wallet, required this.close});
@@ -211,8 +210,6 @@ class _PasswordFieldState extends State<_PasswordField> {
       autofocus: true,
       autocorrect: false,
       obscureText: _isObscured,
-      maxLength: passwordMaxLength,
-      counterText: '',
       errorText: widget.errorText,
       validator: widget.validator,
       validationMode: InputValidationMode.eager,

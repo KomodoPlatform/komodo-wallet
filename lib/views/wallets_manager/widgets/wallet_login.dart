@@ -310,8 +310,6 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           autocorrect: false,
           controller: widget.controller,
           obscureText: _isPasswordObscured,
-          maxLength: passwordMaxLength,
-          counterText: '',
           errorText: widget.errorText,
           autofillHints: widget.autofillHints ?? const [AutofillHints.password],
           maxLength: passwordMaxLength,
