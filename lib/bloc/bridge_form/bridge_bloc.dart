@@ -265,10 +265,10 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       ),
     );
 
-    /// Unsupported coins like ARRR cause downstream errors, so we need to
-    /// remove them from the list here
+    /// Unsupported and geo-disallowed coins can cause downstream errors,
+    /// so we need to remove them from the list here
     bestOrders.result?.removeWhere(
-      (coinId, _) => excludedAssetList.contains(coinId),
+      (coinId, _) => isAssetExcluded(coinId),
     );
 
     emit(state.copyWith(bestOrders: () => bestOrders));

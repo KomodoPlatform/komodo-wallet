@@ -58,7 +58,7 @@ class CoinsState extends Equatable {
     return Map.fromEntries(
       coins.entries.where((entry) {
         final coinId = entry.key;
-        return !excludedAssetList.contains(coinId);
+        return !isAssetExcluded(coinId);
       }),
     );
   }

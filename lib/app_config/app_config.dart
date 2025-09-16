@@ -126,6 +126,26 @@ const Set<String> excludedAssetList = {
   'NFT_MATIC',
 };
 
+/// Dynamic list of assets that are disallowed for the current user based on
+/// geo restrictions returned by the bouncer service. This is updated at
+/// runtime and should be considered in addition to [excludedAssetList].
+final Set<String> geoDisallowedAssetList = <String>{};
+
+/// Updates the runtime geo-disallowed asset list. Assets are expected to be
+/// provided as their config symbols (e.g. 'ARRR', 'ZOMBIE', 'vARRR').
+void setGeoDisallowedAssets(Iterable<String> assets) {
+  geoDisallowedAssetList
+    ..clear()
+    ..addAll(assets.map((e) => e.toUpperCase()));
+}
+
+/// Returns true if an asset should be excluded from user lists and trading
+/// related flows due to either static exclusions or geo restrictions.
+bool isAssetExcluded(String assetId) {
+  final id = assetId.toUpperCase();
+  return excludedAssetList.contains(id) || geoDisallowedAssetList.contains(id);
+}
+
 /// Some coins returned by the Banxa API are returning errors when attempting
 /// to create an order. This is a temporary workaround to filter out those coins
 /// until the issue is resolved.

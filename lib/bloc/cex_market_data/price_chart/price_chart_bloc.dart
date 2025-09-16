@@ -32,7 +32,7 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
       if (fetchedCexCoins.isEmpty) {
         final Map<AssetId, Asset> allAssets = _sdk.assets.available;
         final entries = allAssets.values
-            .where((asset) => !excludedAssetList.contains(asset.id.id))
+            .where((asset) => !isAssetExcluded(asset.id.id))
             .where((asset) => !asset.protocol.isTestnet)
             .map(
               (asset) => MapEntry(

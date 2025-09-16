@@ -327,7 +327,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
       final fiatList = await _fiatRepository.getFiatList();
       final coinList = await _fiatRepository.getCoinList();
       coinList.removeWhere(
-        (coin) => excludedAssetList.contains(coin.getAbbr()),
+        (coin) => isAssetExcluded(coin.getAbbr()),
       );
       emit(state.copyWith(fiatList: fiatList, coinList: coinList));
     } catch (e, s) {

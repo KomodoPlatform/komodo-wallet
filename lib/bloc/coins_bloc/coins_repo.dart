@@ -12,7 +12,7 @@ import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/app_config/app_config.dart' show excludedAssetList;
+import 'package:web_dex/app_config/app_config.dart' show excludedAssetList, isAssetExcluded;
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2.dart';
@@ -126,7 +126,7 @@ class CoinsRepo {
   List<Coin> getKnownCoins({bool excludeExcludedAssets = false}) {
     final assets = Map<AssetId, Asset>.of(_kdfSdk.assets.available);
     if (excludeExcludedAssets) {
-      assets.removeWhere((key, _) => excludedAssetList.contains(key.id));
+      assets.removeWhere((key, _) => isAssetExcluded(key.id));
     }
     return assets.values.map(_assetToCoinWithoutAddress).toList();
   }
@@ -137,7 +137,7 @@ class CoinsRepo {
   Map<String, Coin> getKnownCoinsMap({bool excludeExcludedAssets = false}) {
     final assets = Map<AssetId, Asset>.of(_kdfSdk.assets.available);
     if (excludeExcludedAssets) {
-      assets.removeWhere((key, _) => excludedAssetList.contains(key.id));
+      assets.removeWhere((key, _) => isAssetExcluded(key.id));
     }
     return Map.fromEntries(
       assets.values.map(
@@ -558,7 +558,7 @@ class CoinsRepo {
     // Filter out excluded and testnet assets, as they are not expected
     // to have valid prices available at any of the providers
     final validAssets = targetAssets
-        .where((asset) => !excludedAssetList.contains(asset.id.id))
+        .where((asset) => !isAssetExcluded(asset.id.id))
         .where((asset) => !asset.protocol.isTestnet)
         .toList();
 

@@ -416,7 +416,7 @@ class _MyAppViewState extends State<_MyAppView> {
     try {
       final stopwatch = Stopwatch()..start();
       final availableAssetIds = sdk.assets.available.keys.where(
-        (assetId) => !excludedAssetList.contains(assetId.symbol.configSymbol),
+        (assetId) => !isAssetExcluded(assetId.symbol.configSymbol),
       );
 
       await for (final assetId in Stream.fromIterable(availableAssetIds)) {
