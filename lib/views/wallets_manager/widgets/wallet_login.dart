@@ -15,7 +15,6 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
-import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
 class WalletLogIn extends StatefulWidget {

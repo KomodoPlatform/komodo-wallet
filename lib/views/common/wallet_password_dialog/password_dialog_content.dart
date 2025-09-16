@@ -9,7 +9,6 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 
 // TODO: refactor this widget, and other seed viewing/backup related widgets
