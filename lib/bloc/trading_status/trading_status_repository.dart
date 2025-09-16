@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
 
@@ -9,12 +10,12 @@ import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
 class TradingGeoStatus {
   const TradingGeoStatus({
     required this.tradingEnabled,
-    this.disallowedAssets = const <String>{},
+    this.disallowedAssets = const <AssetId>{},
     this.disallowedFeatures = const <DisallowedFeature>{},
   });
 
   final bool tradingEnabled;
-  final Set<String> disallowedAssets;
+  final Set<AssetId> disallowedAssets;
   final Set<DisallowedFeature> disallowedFeatures;
 }
 
@@ -85,9 +86,12 @@ class TradingStatusRepository {
 
       final List<dynamic>? rawAssets =
           data.valueOrNull<List<dynamic>>('disallowed_assets');
-      final Set<String> disallowedAssets = rawAssets == null
-          ? <String>{}
-          : rawAssets.whereType<String>().toSet();
+      final Set<AssetId> disallowedAssets = rawAssets == null
+          ? <AssetId>{}
+          : rawAssets
+              .whereType<String>()
+              .map((symbol) => AssetId(id: symbol, name: symbol))
+              .toSet();
 
       bool tradingEnabled;
       if (rawFeatures != null) {
