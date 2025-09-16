@@ -7,8 +7,8 @@ class StatisticCard extends StatelessWidget {
   // Text shown under the stat value title. Uses default of bodySmall style.
   final Widget caption;
 
-  // The value of the stat used for the title
-  final double value;
+  // The value of the stat used for the title. If null, shows a skeleton placeholder
+  final double? value;
 
   // The formatter used to format the value for the title
   final NumberFormat _valueFormatter;
@@ -25,7 +25,7 @@ class StatisticCard extends StatelessWidget {
 
   StatisticCard({
     super.key,
-    required this.value,
+    this.value,
     required this.caption,
     this.trendWidget,
     this.actionWidget,
@@ -73,14 +73,17 @@ class StatisticCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Value
-                    AutoScrollText(
-                      text: _valueFormatter.format(value),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isDarkMode ? Colors.white : null,
-                      ),
-                    ),
+                    // Value or skeleton placeholder
+                    value != null
+                        ? AutoScrollText(
+                            text: _valueFormatter.format(value!),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: isDarkMode ? Colors.white : null,
+                                ),
+                          )
+                        : _ValuePlaceholder(),
                     const SizedBox(height: 4),
                     // Caption
                     DefaultTextStyle(
@@ -103,6 +106,25 @@ class StatisticCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ValuePlaceholder extends StatelessWidget {
+  const _ValuePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 24,
+      width: 120,
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const SizedBox.shrink(),
     );
   }
 }

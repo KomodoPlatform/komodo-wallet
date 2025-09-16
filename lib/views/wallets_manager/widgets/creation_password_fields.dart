@@ -7,6 +7,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/utils/validators.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/shared/constants.dart';
 
 class CreationPasswordFields extends StatefulWidget {
   const CreationPasswordFields({
@@ -62,9 +63,10 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       obscureText: _isObscured,
       enableInteractiveSelection: true,
       validationMode: InputValidationMode.eager,
-      inputFormatters: [LengthLimitingTextInputFormatter(40)],
+      maxLength: passwordMaxLength,
       validator: _validateConfirmPasswordField,
       onFieldSubmitted: widget.onFieldSubmitted,
+      counterText: '',
       errorMaxLines: 6,
       autofillHints: const [AutofillHints.newPassword],
       hintText: LocaleKeys.walletCreationConfirmPasswordHint.tr(),
@@ -79,8 +81,9 @@ class _CreationPasswordFieldsState extends State<CreationPasswordFields> {
       autocorrect: false,
       enableInteractiveSelection: true,
       obscureText: _isObscured,
-      inputFormatters: [LengthLimitingTextInputFormatter(40)],
+      maxLength: passwordMaxLength,
       validator: _validatePasswordField,
+      counterText: '',
       errorMaxLines: 6,
       autofillHints: const [AutofillHints.newPassword],
       hintText: LocaleKeys.walletCreationPasswordHint.tr(),

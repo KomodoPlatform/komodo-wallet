@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -30,12 +30,20 @@ class MainLayoutTopBar extends StatelessWidget {
         elevation: 0,
         leading: BlocBuilder<CoinsBloc, CoinsState>(
           builder: (context, state) {
+            final totalBalance = _getTotalBalance(
+              state.walletCoins.values,
+              context,
+            );
+
+            if (totalBalance == null) {
+              return const SizedBox.shrink();
+            }
+
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: ActionTextButton(
                 text: LocaleKeys.balance.tr(),
-                secondaryText:
-                    '\$${formatAmt(_getTotalBalance(state.walletCoins.values, context))}',
+                secondaryText: '\$${formatAmt(totalBalance)}',
                 onTap: null,
               ),
             );
@@ -48,7 +56,15 @@ class MainLayoutTopBar extends StatelessWidget {
     );
   }
 
-  double _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
+  double? _getTotalBalance(Iterable<Coin> coins, BuildContext context) {
+    bool hasAnyUsdBalance = coins.any(
+      (coin) => coin.usdBalance(context.sdk) != null,
+    );
+
+    if (!hasAnyUsdBalance) {
+      return null;
+    }
+
     double total = coins.fold(
       0,
       (prev, coin) => prev + (coin.usdBalance(context.sdk) ?? 0),

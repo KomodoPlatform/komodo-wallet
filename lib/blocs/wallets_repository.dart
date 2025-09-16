@@ -34,9 +34,10 @@ class WalletsRepository {
 
   Future<List<Wallet>> getWallets() async {
     final legacyWallets = await _getLegacyWallets();
+    final sdkWallets = await _kdfSdk.wallets;
 
     // TODO: move wallet filtering logic to the SDK
-    _cachedWallets = (await _kdfSdk.wallets)
+    _cachedWallets = sdkWallets
         .where(
           (wallet) =>
               wallet.config.type != WalletType.trezor &&
@@ -47,17 +48,23 @@ class WalletsRepository {
   }
 
   Future<List<Wallet>> _getLegacyWallets() async {
-    final newVariable =
-        await _legacyWalletStorage.read(allWalletsStorageKey) as List?;
-    final List<Map<String, dynamic>> json =
-        newVariable?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
+    final rawLegacyWallets =
+        (await _legacyWalletStorage.read(allWalletsStorageKey) as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
 
-    return json
-        .map(
-          (Map<String, dynamic> w) =>
-              Wallet.fromJson(w)..config.isLegacyWallet = true,
-        )
-        .toList();
+    return rawLegacyWallets.map((Map<String, dynamic> w) {
+      final wallet = Wallet.fromJson(w);
+      return wallet.copyWith(
+        config: wallet.config.copyWith(
+          // Wallet type for legacy wallets is iguana, to avoid confusion with
+          // missing/empty balances. Sign into iguana for legacy wallets by
+          // default, but allow for them to be signed into hdwallet if desired.
+          type: WalletType.iguana,
+          isLegacyWallet: true,
+        ),
+      );
+    }).toList();
   }
 
   Future<void> deleteWallet(Wallet wallet, {required String password}) async {

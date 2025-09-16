@@ -67,6 +67,18 @@ class Wallet {
   Wallet copy() {
     return Wallet(id: id, name: name, config: config.copy());
   }
+  
+  Wallet copyWith({
+    String? id,
+    String? name,
+    WalletConfig? config,
+  }) {
+    return Wallet(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      config: config ?? this.config.copy(),
+    );
+  }
 }
 
 class WalletConfig {
@@ -117,6 +129,24 @@ class WalletConfig {
       type: type,
       seedPhrase: seedPhrase,
       pubKey: pubKey,
+    );
+  }
+  
+  WalletConfig copyWith({
+    String? seedPhrase,
+    String? pubKey,
+    List<String>? activatedCoins,
+    bool? hasBackup,
+    WalletType? type,
+    bool? isLegacyWallet,
+  }) {
+    return WalletConfig(
+      seedPhrase: seedPhrase ?? this.seedPhrase,
+      pubKey: pubKey ?? this.pubKey,
+      activatedCoins: activatedCoins ?? [...this.activatedCoins],
+      hasBackup: hasBackup ?? this.hasBackup,
+      type: type ?? this.type,
+      isLegacyWallet: isLegacyWallet ?? this.isLegacyWallet,
     );
   }
 }

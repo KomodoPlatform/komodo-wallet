@@ -46,7 +46,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           # NB! Keep up-to-date with the flutter version used for development
-          flutter-version: "3.35.2"
+          flutter-version: "3.35.3"
           channel: "stable"
 
       - name: Determine configuration
@@ -89,7 +89,7 @@ jobs:
             echo "SDK packages were successfully rolled"
           else
             echo "ROLLS_FOUND=false" >> $GITHUB_ENV
-            
+
             if [ -n "${EXIT_CODE}" ] && [ ${EXIT_CODE} -ne 100 ]; then
               echo "::warning::SDK package roll script failed with exit code ${EXIT_CODE}"
             else
