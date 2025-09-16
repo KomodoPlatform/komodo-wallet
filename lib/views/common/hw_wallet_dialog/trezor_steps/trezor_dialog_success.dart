@@ -5,7 +5,7 @@ import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
 
 class TrezorDialogSuccess extends StatelessWidget {
   const TrezorDialogSuccess({Key? key, required this.onClose})
-    : super(key: key);
+      : super(key: key);
 
   final VoidCallback onClose;
 

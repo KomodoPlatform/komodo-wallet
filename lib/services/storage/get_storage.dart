@@ -5,8 +5,7 @@ import 'package:web_dex/services/storage/app_storage.dart';
 import 'package:web_dex/services/storage/base_storage.dart';
 import 'package:web_dex/services/storage/mock_storage.dart';
 
-final BaseStorage _storage =
-    kIsWeb ||
+final BaseStorage _storage = kIsWeb ||
         Platform.isWindows ||
         !Platform.environment.containsKey('FLUTTER_TEST')
     ? AppStorage()

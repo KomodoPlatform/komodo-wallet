@@ -76,13 +76,20 @@ class _MarketMakerBotTabContentWrapperState
 
   void _setFilter(TradingEntitiesFilter? filter) {
     context.read<DexTabBarBloc>().add(
-      FilterChanged(tabType: widget.listType, filter: filter),
-    );
+          FilterChanged(
+            tabType: widget.listType,
+            filter: filter,
+          ),
+        );
   }
 }
 
 class _SelectedTabContent extends StatelessWidget {
-  const _SelectedTabContent({this.filter, required this.type, super.key});
+  const _SelectedTabContent({
+    this.filter,
+    required this.type,
+    super.key,
+  });
 
   // TODO: get the current filter and type from BLoC state
   final TradingEntitiesFilter? filter;
@@ -97,8 +104,10 @@ class _SelectedTabContent extends StatelessWidget {
         return MarketMakerBotOrdersList(
           entitiesFilterData: filter,
           onEdit: (order) => _editTradingBotOrder(context, order),
-          onCancel: (order) =>
-              _deleteTradingBotOrders([order], marketMakerBotBloc),
+          onCancel: (order) => _deleteTradingBotOrders(
+            [order],
+            marketMakerBotBloc,
+          ),
           onCancelAll: (orders) {
             _deleteTradingBotOrders(orders, marketMakerBotBloc);
           },
@@ -132,9 +141,9 @@ class _SelectedTabContent extends StatelessWidget {
   }
 
   void _editTradingBotOrder(BuildContext context, TradePair order) {
-    context.read<MarketMakerTradeFormBloc>().add(
-      MarketMakerTradeFormEditOrderRequested(order),
-    );
+    context
+        .read<MarketMakerTradeFormBloc>()
+        .add(MarketMakerTradeFormEditOrderRequested(order));
     context.read<DexTabBarBloc>().add(const TabChanged(0));
   }
 
@@ -167,7 +176,11 @@ class _MobileWidget extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [Flexible(child: child)],
+        children: [
+          Flexible(
+            child: child,
+          ),
+        ],
       );
     } else {
       return Column(
@@ -216,7 +229,9 @@ class _DesktopWidget extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [Flexible(child: child)],
+        children: [
+          Flexible(child: child),
+        ],
       );
     } else {
       return Column(

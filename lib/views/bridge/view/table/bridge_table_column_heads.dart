@@ -7,7 +7,10 @@ class BridgeTableColumnHeads extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
+    const style = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+    );
 
     return Container(
       padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),

@@ -32,11 +32,8 @@ class TakerOrderbook extends StatelessWidget {
           selectedOrderUuid: state.selectedOrder?.uuid,
           onBidClick: (Order order) {
             if (state.selectedOrder?.uuid == order.uuid) return;
-            context.read<TakerBloc>().add(
-              TakerSelectOrder(
-                BestOrder.fromOrder(order, state.selectedOrder?.coin),
-              ),
-            );
+            context.read<TakerBloc>().add(TakerSelectOrder(
+                BestOrder.fromOrder(order, state.selectedOrder?.coin)));
           },
         );
       },

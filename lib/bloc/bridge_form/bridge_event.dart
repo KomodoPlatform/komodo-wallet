@@ -11,7 +11,9 @@ abstract class BridgeEvent {
 }
 
 class BridgeInit extends BridgeEvent {
-  const BridgeInit({required this.ticker});
+  const BridgeInit({
+    required this.ticker,
+  });
 
   final String ticker;
 }

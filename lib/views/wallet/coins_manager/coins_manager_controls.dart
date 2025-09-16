@@ -12,7 +12,7 @@ import 'package:web_dex/views/wallet/coins_manager/coins_manager_select_all_butt
 
 class CoinsManagerFilters extends StatelessWidget {
   const CoinsManagerFilters({Key? key, required this.isMobile})
-    : super(key: key);
+      : super(key: key);
   final bool isMobile;
 
   @override
@@ -80,10 +80,13 @@ class CoinsManagerFilters extends StatelessWidget {
       prefixIcon: const Icon(Icons.search, size: 18),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
       hintText: LocaleKeys.searchAssets.tr(),
-      hintTextStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-      onChanged: (String? text) => context.read<CoinsManagerBloc>().add(
-        CoinsManagerSearchUpdate(text: text ?? ''),
+      hintTextStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
       ),
+      onChanged: (String? text) => context
+          .read<CoinsManagerBloc>()
+          .add(CoinsManagerSearchUpdate(text: text ?? '')),
     );
   }
 }

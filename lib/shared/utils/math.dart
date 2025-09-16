@@ -1,6 +1,9 @@
 import 'dart:math';
 
-int decimalPlacesForSignificantFigures(double number, int significantFigures) {
+int decimalPlacesForSignificantFigures(
+  double number,
+  int significantFigures,
+) {
   if (number == 0) {
     // For zero, the number of decimal places is simply the number of significant figures minus 1
     return significantFigures - 1;

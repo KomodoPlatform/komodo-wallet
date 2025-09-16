@@ -21,7 +21,10 @@ class BridgeSourceAmountGroup extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [_AmountField(sellCoin), _FiatAmount(sellCoin)],
+          children: [
+            _AmountField(sellCoin),
+            _FiatAmount(sellCoin),
+          ],
         );
       },
     );
@@ -80,9 +83,9 @@ class _AmountFieldState extends State<_AmountField> {
 
         return GestureDetector(
           onTap: !isEnabled
-              ? () => context.read<BridgeBloc>().add(
-                  const BridgeShowSourceDropdown(true),
-                )
+              ? () => context
+                  .read<BridgeBloc>()
+                  .add(const BridgeShowSourceDropdown(true))
               : null,
           child: TradingAmountField(
             controller: _controller,

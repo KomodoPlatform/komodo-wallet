@@ -35,25 +35,25 @@ class NftReceiveFailurePage extends StatelessWidget {
         Center(
           child: Text(
             LocaleKeys.loadingError.tr(),
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(color: ext.error),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: ext.error,
+                ),
           ),
         ),
         Center(
           child: Container(
-            padding: const EdgeInsets.all(20),
-            width: 324,
-            decoration: BoxDecoration(
-              color: theme.custom.subCardBackgroundColor,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: SelectableText.rich(
-              TextSpan(text: message),
-              textAlign: TextAlign.center,
-              style: textTheme?.bodyS,
-            ),
-          ),
+              padding: const EdgeInsets.all(20),
+              width: 324,
+              decoration: BoxDecoration(
+                  color: theme.custom.subCardBackgroundColor,
+                  borderRadius: BorderRadius.circular(18)),
+              child: SelectableText.rich(
+                TextSpan(
+                  text: message,
+                ),
+                textAlign: TextAlign.center,
+                style: textTheme?.bodyS,
+              )),
         ),
         const SizedBox(height: 20),
         Center(

@@ -135,15 +135,15 @@ class ProfitLoss extends Equatable {
 
   @override
   List<Object?> get props => [
-    profitLoss,
-    coin,
-    fiatPrice,
-    internalId,
-    myBalanceChange,
-    receivedAmountFiatPrice,
-    spentAmountFiatPrice,
-    timestamp,
-    totalAmount,
-    txHash,
-  ];
+        profitLoss,
+        coin,
+        fiatPrice,
+        internalId,
+        myBalanceChange,
+        receivedAmountFiatPrice,
+        spentAmountFiatPrice,
+        timestamp,
+        totalAmount,
+        txHash,
+      ];
 }

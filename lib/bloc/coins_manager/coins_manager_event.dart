@@ -20,10 +20,8 @@ class CoinsManagerCoinTypeSelect extends CoinsManagerEvent {
 }
 
 class CoinsManagerCoinsSwitch extends CoinsManagerEvent {
-  @Deprecated(
-    'Switching between add and remove assets was removed, '
-    'so this event and its UI references are no longer used.',
-  )
+  @Deprecated('Switching between add and remove assets was removed, '
+      'so this event and its UI references are no longer used.')
   const CoinsManagerCoinsSwitch();
 }
 

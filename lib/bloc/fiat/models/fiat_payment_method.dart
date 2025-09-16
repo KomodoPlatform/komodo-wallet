@@ -51,9 +51,8 @@ class FiatPaymentMethod extends Equatable {
       priceInfo: FiatPriceInfo.fromJson(
         json['price_info'] as Map<String, dynamic>? ?? {},
       ),
-      relativePercent: Decimal.parse(
-        json['relative_percent'] as String? ?? '0',
-      ),
+      relativePercent:
+          Decimal.parse(json['relative_percent'] as String? ?? '0'),
       providerIconAssetPath: json['provider_icon_asset_path'] as String? ?? '',
       transactionLimits: limits,
       transactionFees: fees,
@@ -109,15 +108,15 @@ class FiatPaymentMethod extends Equatable {
 
   @override
   List<Object?> get props => [
-    providerId,
-    id,
-    name,
-    priceInfo,
-    relativePercent,
-    providerIconAssetPath,
-    transactionLimits,
-    transactionFees,
-  ];
+        providerId,
+        id,
+        name,
+        priceInfo,
+        relativePercent,
+        providerIconAssetPath,
+        transactionLimits,
+        transactionFees,
+      ];
 }
 
 List<FiatPaymentMethod> defaultFiatPaymentMethods = [

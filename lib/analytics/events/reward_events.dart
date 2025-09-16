@@ -17,9 +17,9 @@ class RewardClaimInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'asset': asset,
-    'expected_reward_amount': expectedRewardAmount,
-  };
+        'asset': asset,
+        'expected_reward_amount': expectedRewardAmount,
+      };
 }
 
 class AnalyticsRewardClaimInitiatedEvent extends AnalyticsSendDataEvent {
@@ -27,11 +27,11 @@ class AnalyticsRewardClaimInitiatedEvent extends AnalyticsSendDataEvent {
     required String asset,
     required double expectedRewardAmount,
   }) : super(
-         RewardClaimInitiatedEventData(
-           asset: asset,
-           expectedRewardAmount: expectedRewardAmount,
-         ),
-       );
+          RewardClaimInitiatedEventData(
+            asset: asset,
+            expectedRewardAmount: expectedRewardAmount,
+          ),
+        );
 }
 
 /// E32: KMD reward claim succeeded
@@ -48,7 +48,10 @@ class RewardClaimSuccessEventData implements AnalyticsEventData {
   String get name => 'reward_claim_success';
 
   @override
-  JsonMap get parameters => {'asset': asset, 'reward_amount': rewardAmount};
+  JsonMap get parameters => {
+        'asset': asset,
+        'reward_amount': rewardAmount,
+      };
 }
 
 class AnalyticsRewardClaimSuccessEvent extends AnalyticsSendDataEvent {
@@ -56,8 +59,11 @@ class AnalyticsRewardClaimSuccessEvent extends AnalyticsSendDataEvent {
     required String asset,
     required double rewardAmount,
   }) : super(
-         RewardClaimSuccessEventData(asset: asset, rewardAmount: rewardAmount),
-       );
+          RewardClaimSuccessEventData(
+            asset: asset,
+            rewardAmount: rewardAmount,
+          ),
+        );
 }
 
 /// E33: Reward claim failed
@@ -74,12 +80,20 @@ class RewardClaimFailureEventData implements AnalyticsEventData {
   String get name => 'reward_claim_failure';
 
   @override
-  JsonMap get parameters => {'asset': asset, 'fail_reason': failReason};
+  JsonMap get parameters => {
+        'asset': asset,
+        'fail_reason': failReason,
+      };
 }
 
 class AnalyticsRewardClaimFailureEvent extends AnalyticsSendDataEvent {
   AnalyticsRewardClaimFailureEvent({
     required String asset,
     required String failReason,
-  }) : super(RewardClaimFailureEventData(asset: asset, failReason: failReason));
+  }) : super(
+          RewardClaimFailureEventData(
+            asset: asset,
+            failReason: failReason,
+          ),
+        );
 }

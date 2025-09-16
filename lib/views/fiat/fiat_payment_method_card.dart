@@ -25,12 +25,12 @@ class FiatPaymentMethodCard extends StatefulWidget {
 class FiatPaymentMethodCardState extends State<FiatPaymentMethodCard> {
   @override
   Widget build(BuildContext context) {
-    final bool isSelected =
-        widget.selectedPaymentMethod != null &&
+    final bool isSelected = widget.selectedPaymentMethod != null &&
         widget.selectedPaymentMethod!.id == widget.paymentMethodData.id;
 
     final relativePercent = widget.paymentMethodData.relativePercent;
     final isBestOffer = relativePercent == Decimal.zero;
+
 
     return InkWell(
       onTap: () {
@@ -45,9 +45,9 @@ class FiatPaymentMethodCardState extends State<FiatPaymentMethodCard> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(
-            color: Theme.of(
-              context,
-            ).primaryColor.withValues(alpha: isSelected ? 1 : 0.25),
+            color: Theme.of(context)
+                .primaryColor
+                .withValues(alpha: isSelected ? 1 : 0.25),
           ),
         ),
         child: Padding(

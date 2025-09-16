@@ -18,8 +18,12 @@ Future<void> removeAsset(
   final Finder removeAssetsButton = find.byKey(
     const Key('remove-assets-button'),
   );
-  final Finder list = find.byKey(const Key('coins-manager-list'));
-  final Finder switchButton = find.byKey(const Key('back-button'));
+  final Finder list = find.byKey(
+    const Key('coins-manager-list'),
+  );
+  final Finder switchButton = find.byKey(
+    const Key('back-button'),
+  );
   final Finder searchCoinsField = find.byKey(
     const Key('coins-manager-search-field'),
   );
@@ -70,12 +74,18 @@ Future<void> addAsset(
 }) async {
   print('🔍 ADD ASSET: Starting add asset flow');
 
-  final Finder list = find.byKey(const Key('coins-manager-list'));
-  final Finder addAssetsButton = find.byKey(const Key('add-assets-button'));
+  final Finder list = find.byKey(
+    const Key('coins-manager-list'),
+  );
+  final Finder addAssetsButton = find.byKey(
+    const Key('add-assets-button'),
+  );
   final Finder searchCoinsField = find.byKey(
     const Key('coins-manager-search-field'),
   );
-  final Finder switchButton = find.byKey(const Key('back-button'));
+  final Finder switchButton = find.byKey(
+    const Key('back-button'),
+  );
 
   await goto.walletPage(tester);
   print('🔍 ADD ASSET: Navigated to wallet page');
@@ -101,7 +111,11 @@ Future<void> addAsset(
   await enterText(tester, finder: searchCoinsField, text: search);
   print('🔍 ADD ASSET: Entered search text: $search');
 
-  await tester.dragUntilVisible(asset, list, const Offset(-250, 0));
+  await tester.dragUntilVisible(
+    asset,
+    list,
+    const Offset(-250, 0),
+  );
   print('🔍 ADD ASSET: Scrolled to make asset visible');
   await tester.tapAndPump(asset);
   print('🔍 ADD ASSET: Tapped on asset');

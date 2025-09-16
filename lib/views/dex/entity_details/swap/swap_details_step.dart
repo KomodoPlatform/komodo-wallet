@@ -72,10 +72,8 @@ class SwapDetailsStep extends StatelessWidget {
             Container(
               width: 20,
               height: 20,
-              decoration: BoxDecoration(
-                color: _circleColor,
-                shape: BoxShape.circle,
-              ),
+              decoration:
+                  BoxDecoration(color: _circleColor, shape: BoxShape.circle),
               child: Padding(
                 padding: const EdgeInsets.all(2),
                 child: DecoratedBox(
@@ -94,10 +92,9 @@ class SwapDetailsStep extends StatelessWidget {
                 width: 1,
                 color: isProcessedStep
                     ? theme.custom.progressBarPassedColor
-                    : themeData.textTheme.bodyMedium?.color?.withValues(
-                            alpha: 0.3,
-                          ) ??
-                          Colors.transparent,
+                    : themeData.textTheme.bodyMedium?.color
+                            ?.withValues(alpha: 0.3) ??
+                        Colors.transparent,
               ),
           ],
         ),
@@ -147,7 +144,10 @@ class SwapDetailsStep extends StatelessWidget {
                         child: Tooltip(
                           message: LocaleKeys.viewOnExplorer.tr(),
                           child: InkWell(
-                            child: const Icon(Icons.open_in_browser, size: 20),
+                            child: const Icon(
+                              Icons.open_in_browser,
+                              size: 20,
+                            ),
                             onTap: () =>
                                 launchURLString(getTxExplorerUrl(coin, txHash)),
                           ),

@@ -67,9 +67,8 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
   }
 
   Widget _buildSwapCoinList() {
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
-      context,
-    );
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<Swap>>(
       stream: tradingEntitiesBloc.outSwaps,
       initialData: tradingEntitiesBloc.swaps,
@@ -87,9 +86,8 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
   }
 
   Widget _buildOrderCoinList() {
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
-      context,
-    );
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return StreamBuilder<List<MyOrder>>(
       stream: tradingEntitiesBloc.outMyOrders,
       initialData: tradingEntitiesBloc.myOrders,
@@ -104,15 +102,14 @@ class _DexListFilterCoinsListState extends State<DexListFilterCoinsList> {
   }
 
   Widget _buildCoinList(Map<String, List<String>> coinAbbrMap) {
-    final List<String> coinAbbrList =
-        (_searchPhrase.isEmpty
-                ? coinAbbrMap.keys.toList()
-                : coinAbbrMap.keys.where(
-                    (String coinAbbr) =>
-                        coinAbbr.toLowerCase().contains(_searchPhrase),
-                  ))
-            .where((abbr) => abbr != widget.anotherCoin)
-            .toList();
+    final List<String> coinAbbrList = (_searchPhrase.isEmpty
+            ? coinAbbrMap.keys.toList()
+            : coinAbbrMap.keys.where(
+                (String coinAbbr) =>
+                    coinAbbr.toLowerCase().contains(_searchPhrase),
+              ))
+        .where((abbr) => abbr != widget.anotherCoin)
+        .toList();
 
     final int lastIndex = coinAbbrList.length - 1;
 

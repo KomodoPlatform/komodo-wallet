@@ -1,13 +1,14 @@
 import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/transaction.dart';
 
 class MyTxHistoryResponse {
-  MyTxHistoryResponse({required this.result});
+  MyTxHistoryResponse({
+    required this.result,
+  });
 
   factory MyTxHistoryResponse.fromJson(Map<String, dynamic> json) =>
       MyTxHistoryResponse(
         result: TransactionHistoryResponseResult.fromJson(
-          json['result'] ?? <String, dynamic>{},
-        ),
+            json['result'] ?? <String, dynamic>{}),
       );
 
   TransactionHistoryResponseResult result;
@@ -25,22 +26,21 @@ class TransactionHistoryResponseResult {
   });
 
   factory TransactionHistoryResponseResult.fromJson(
-    Map<String, dynamic> json,
-  ) => TransactionHistoryResponseResult(
-    fromId: json['from_id'] ?? '',
-    limit: json['limit'] ?? 0,
-    skipped: json['skipped'] ?? 0,
-    total: json['total'] ?? 0,
-    currentBlock: json['current_block'] ?? 0,
-    syncStatus: json['sync_status'] == null
-        ? SyncStatus()
-        : SyncStatus.fromJson(json['sync_status']),
-    transactions: json['transactions'] is List
-        ? List<Transaction>.from(
-            json['transactions'].map((dynamic x) => Transaction.fromJson(x)),
-          )
-        : [],
-  );
+          Map<String, dynamic> json) =>
+      TransactionHistoryResponseResult(
+        fromId: json['from_id'] ?? '',
+        limit: json['limit'] ?? 0,
+        skipped: json['skipped'] ?? 0,
+        total: json['total'] ?? 0,
+        currentBlock: json['current_block'] ?? 0,
+        syncStatus: json['sync_status'] == null
+            ? SyncStatus()
+            : SyncStatus.fromJson(json['sync_status']),
+        transactions: json['transactions'] is List
+            ? List<Transaction>.from(json['transactions']
+                .map((dynamic x) => Transaction.fromJson(x)))
+            : [],
+      );
 
   final String fromId;
   final int currentBlock;
@@ -52,14 +52,16 @@ class TransactionHistoryResponseResult {
 }
 
 class SyncStatus {
-  SyncStatus({this.state, this.additionalInfo});
+  SyncStatus({
+    this.state,
+    this.additionalInfo,
+  });
 
   factory SyncStatus.fromJson(Map<String, dynamic> json) => SyncStatus(
-    additionalInfo: json['additional_info'] == null
-        ? null
-        : AdditionalInfo.fromJson(json['additional_info']),
-    state: _convertSyncStatusState(json['state']),
-  );
+      additionalInfo: json['additional_info'] == null
+          ? null
+          : AdditionalInfo.fromJson(json['additional_info']),
+      state: _convertSyncStatusState(json['state']));
 
   AdditionalInfo? additionalInfo;
   SyncStatusState? state;
@@ -74,11 +76,11 @@ class AdditionalInfo {
   });
 
   factory AdditionalInfo.fromJson(Map<String, dynamic> json) => AdditionalInfo(
-    code: json['code'] ?? 0,
-    message: json['message'] ?? '',
-    transactionsLeft: json['transactions_left'] ?? 0,
-    blocksLeft: json['blocks_left'] ?? 0,
-  );
+        code: json['code'] ?? 0,
+        message: json['message'] ?? '',
+        transactionsLeft: json['transactions_left'] ?? 0,
+        blocksLeft: json['blocks_left'] ?? 0,
+      );
 
   int code;
   String message;
@@ -86,11 +88,11 @@ class AdditionalInfo {
   int blocksLeft;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'code': code,
-    'message': message,
-    'transactions_left': transactionsLeft,
-    'blocks_left': blocksLeft,
-  };
+        'code': code,
+        'message': message,
+        'transactions_left': transactionsLeft,
+        'blocks_left': blocksLeft,
+      };
 }
 
 SyncStatusState? _convertSyncStatusState(String? state) {

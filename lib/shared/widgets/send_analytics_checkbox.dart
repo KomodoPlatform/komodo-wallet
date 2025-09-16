@@ -38,10 +38,10 @@ class SendAnalyticsCheckbox extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 10.0),
                 child: Text(
                   LocaleKeys.sendToAnalytics.tr(),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ),
             ),

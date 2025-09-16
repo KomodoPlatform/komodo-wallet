@@ -69,7 +69,10 @@ class _HistoryListState extends State<HistoryList>
       mainAxisSize: MainAxisSize.min,
       children: [
         if (!isMobile)
-          HistoryListHeader(sortData: _sortData, onSortChange: _onSortChange),
+          HistoryListHeader(
+            sortData: _sortData,
+            onSortChange: _onSortChange,
+          ),
         Expanded(
           child: Padding(
             padding: EdgeInsets.only(top: isMobile ? 0 : 10.0),
@@ -106,24 +109,21 @@ class _HistoryListState extends State<HistoryList>
   }
 
   StreamSubscription<List<Swap>> listenForSwaps() {
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
-      context,
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    return tradingEntitiesBloc.outSwaps.where((swaps) {
+      final didSwapsChange = !areSwapsSame(swaps, _unprocessedSwaps);
+
+      _unprocessedSwaps = swaps;
+
+      return didSwapsChange;
+    }).listen(
+      _processSwapFilters,
+      onError: (e) {
+        setState(() => error = e.toString());
+      },
+      cancelOnError: false,
     );
-    return tradingEntitiesBloc.outSwaps
-        .where((swaps) {
-          final didSwapsChange = !areSwapsSame(swaps, _unprocessedSwaps);
-
-          _unprocessedSwaps = swaps;
-
-          return didSwapsChange;
-        })
-        .listen(
-          _processSwapFilters,
-          onError: (e) {
-            setState(() => error = e.toString());
-          },
-          cancelOnError: false,
-        );
   }
 
   /// Clears the error message and triggers rebuild only if there was an error.
@@ -156,8 +156,7 @@ class _HistoryListState extends State<HistoryList>
   void didUpdateWidget(covariant HistoryList oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final didFiltersChange =
-        oldWidget.filter != widget.filter ||
+    final didFiltersChange = oldWidget.filter != widget.filter ||
         oldWidget.entitiesFilterData != widget.entitiesFilterData;
 
     if (didFiltersChange) {

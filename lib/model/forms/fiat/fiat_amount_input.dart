@@ -20,7 +20,7 @@ enum FiatAmountValidationError {
 class FiatAmountInput extends FormzInput<String, FiatAmountValidationError> {
   const FiatAmountInput.pure({this.minValue, this.maxValue}) : super.pure('');
   const FiatAmountInput.dirty(super.value, {this.minValue, this.maxValue})
-    : super.dirty();
+      : super.dirty();
 
   final Decimal? minValue;
   final Decimal? maxValue;
@@ -52,7 +52,7 @@ class FiatAmountInput extends FormzInput<String, FiatAmountValidationError> {
   }
 }
 
-/// Normalizes and parses a decimal string value that might use different
+/// Normalizes and parses a decimal string value that might use different 
 /// locale formats
 // TODO: refactor into sdk or extension class for Decimal
 Decimal? parseLocaleAwareDecimal(String value) {
@@ -79,7 +79,7 @@ Decimal? parseLocaleAwareDecimal(String value) {
 
     // Check if this looks like a European format number:
     // - Has a comma
-    // - Either no period, or all periods appear before the last comma
+    // - Either no period, or all periods appear before the last comma 
     // (as thousand separators)
     if (lastPeriodIndex == -1 || lastPeriodIndex < lastCommaIndex) {
       final europeanFormat = value.replaceAll('.', '').replaceAll(',', '.');

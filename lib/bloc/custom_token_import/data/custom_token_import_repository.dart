@@ -23,18 +23,22 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   @override
   Future<Asset> fetchCustomToken(CoinSubClass network, String address) async {
-    final convertAddressResponse = await _kdfSdk.client.rpc.address
-        .convertAddress(
-          from: address,
-          coin: network.ticker,
-          toFormat: AddressFormat.fromCoinSubClass(CoinSubClass.erc20),
-        );
+    final convertAddressResponse =
+        await _kdfSdk.client.rpc.address.convertAddress(
+      from: address,
+      coin: network.ticker,
+      toFormat: AddressFormat.fromCoinSubClass(CoinSubClass.erc20),
+    );
     final contractAddress = convertAddressResponse.address;
     final knownCoin = _kdfSdk.assets.available.values.firstWhereOrNull(
       (asset) => asset.contractAddress == contractAddress,
     );
     if (knownCoin == null) {
-      return await _createNewCoin(contractAddress, network, address);
+      return await _createNewCoin(
+        contractAddress,
+        network,
+        address,
+      );
     }
 
     return knownCoin;
@@ -53,10 +57,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
     final platformAssets = _kdfSdk.assets.findAssetsByConfigId(network.ticker);
     if (platformAssets.length != 1) {
-      throw Exception(
-        'Platform asset not found. ${platformAssets.length} '
-        'results returned.',
-      );
+      throw Exception('Platform asset not found. ${platformAssets.length} '
+          'results returned.');
     }
     final platformAsset = platformAssets.single;
     final platformConfig = platformAsset.protocol.config;
@@ -64,8 +66,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     final tokenApi = await fetchTokenInfoFromApi(network, contractAddress);
 
     final coinId = '$ticker-${network.ticker}';
-    final logoImageUrl =
-        tokenApi?['image']?['large'] ??
+    final logoImageUrl = tokenApi?['image']?['large'] ??
         tokenApi?['image']?['small'] ??
         tokenApi?['image']?['thumb'];
     final newCoin = Asset(
@@ -87,12 +88,10 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         'type': network.formatted,
         'chain_id': 0,
         'nodes': [],
-        'swap_contract_address': platformConfig.valueOrNull<String>(
-          'swap_contract_address',
-        ),
-        'fallback_swap_contract': platformConfig.valueOrNull<String>(
-          'fallback_swap_contract',
-        ),
+        'swap_contract_address':
+            platformConfig.valueOrNull<String>('swap_contract_address'),
+        'fallback_swap_contract':
+            platformConfig.valueOrNull<String>('fallback_swap_contract'),
         'protocol': {
           'protocol_data': {
             'platform': network.ticker,
@@ -101,12 +100,10 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         },
         'logo_image_url': logoImageUrl,
         'explorer_url': platformConfig.valueOrNull<String>('explorer_url'),
-        'explorer_url_tx': platformConfig.valueOrNull<String>(
-          'explorer_url_tx',
-        ),
-        'explorer_url_address': platformConfig.valueOrNull<String>(
-          'explorer_url_address',
-        ),
+        'explorer_url_tx':
+            platformConfig.valueOrNull<String>('explorer_url_tx'),
+        'explorer_url_address':
+            platformConfig.valueOrNull<String>('explorer_url_address'),
       }).copyWith(isCustomToken: true),
     );
 
@@ -158,27 +155,27 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
   String? getNetworkApiName(CoinSubClass coinType) {
     switch (coinType) {
       case CoinSubClass.erc20:
-        return 'ethereum'; // https://api.coingecko.com/api/v3/coins/ethereum/contract/0x56072C95FAA701256059aa122697B133aDEd9279
+        return 'ethereum';        // https://api.coingecko.com/api/v3/coins/ethereum/contract/0x56072C95FAA701256059aa122697B133aDEd9279
       case CoinSubClass.bep20:
-        return 'bsc'; // https://api.coingecko.com/api/v3/coins/bsc/contract/0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0
+        return 'bsc';             // https://api.coingecko.com/api/v3/coins/bsc/contract/0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0
       case CoinSubClass.arbitrum:
-        return 'arbitrum-one'; // https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/0xCBeb19549054CC0a6257A77736FC78C367216cE7
+        return 'arbitrum-one';    // https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/0xCBeb19549054CC0a6257A77736FC78C367216cE7
       case CoinSubClass.avx20:
-        return 'avalanche'; // https://api.coingecko.com/api/v3/coins/avalanche/contract/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E
+        return 'avalanche';       // https://api.coingecko.com/api/v3/coins/avalanche/contract/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E
       case CoinSubClass.moonriver:
-        return 'moonriver'; // https://api.coingecko.com/api/v3/coins/moonriver/contract/0x0caE51e1032e8461f4806e26332c030E34De3aDb
+        return 'moonriver';       // https://api.coingecko.com/api/v3/coins/moonriver/contract/0x0caE51e1032e8461f4806e26332c030E34De3aDb
       case CoinSubClass.matic:
-        return 'polygon-pos'; // https://api.coingecko.com/api/v3/coins/polygon-pos/contract/0xdF7837DE1F2Fa4631D716CF2502f8b230F1dcc32
+        return 'polygon-pos';     // https://api.coingecko.com/api/v3/coins/polygon-pos/contract/0xdF7837DE1F2Fa4631D716CF2502f8b230F1dcc32
       case CoinSubClass.krc20:
-        return 'kcc'; // https://api.coingecko.com/api/v3/coins/kcc/contract/0x0039f574ee5cc39bdd162e9a88e3eb1f111baf48
+        return 'kcc';             // https://api.coingecko.com/api/v3/coins/kcc/contract/0x0039f574ee5cc39bdd162e9a88e3eb1f111baf48
       case CoinSubClass.qrc20:
-        return null; // Unable to find working url
+        return null;              // Unable to find working url
       case CoinSubClass.ftm20:
-        return null; // Unable to find working url
+        return null;              // Unable to find working url
       case CoinSubClass.hecoChain:
-        return null; // Unable to find working url
+        return null;              // Unable to find working url
       case CoinSubClass.hrc20:
-        return null; // Unable to find working url
+        return null;              // Unable to find working url
       default:
         return null;
     }

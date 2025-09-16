@@ -55,9 +55,15 @@ class _BridgeExchangeFormState extends State<BridgeExchangeForm> {
         children: [
           BridgeTickerSelector(),
           SizedBox(height: 30),
-          BridgeGroup(header: SourceProtocolHeader(), child: SourceProtocol()),
+          BridgeGroup(
+            header: SourceProtocolHeader(),
+            child: SourceProtocol(),
+          ),
           SizedBox(height: 19),
-          BridgeGroup(header: TargetProtocolHeader(), child: TargetProtocol()),
+          BridgeGroup(
+            header: TargetProtocolHeader(),
+            child: TargetProtocol(),
+          ),
           SizedBox(height: 12),
           BridgeFormErrorList(),
           SizedBox(height: 12),
@@ -111,16 +117,15 @@ class _ExchangeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
-      builder: (context, systemHealthState) {
-        // Determine if system clock is valid
-        final isSystemClockValid =
-            systemHealthState is SystemHealthLoadSuccess &&
-            systemHealthState.isValid;
+        builder: (context, systemHealthState) {
+      // Determine if system clock is valid
+      final isSystemClockValid = systemHealthState is SystemHealthLoadSuccess &&
+          systemHealthState.isValid;
 
-        final tradingStatusState = context.watch<TradingStatusBloc>().state;
-        final tradingEnabled = tradingStatusState.isEnabled;
+      final tradingStatusState = context.watch<TradingStatusBloc>().state;
+      final tradingEnabled = tradingStatusState.isEnabled;
 
-        return BlocSelector<BridgeBloc, BridgeState, bool>(
+      return BlocSelector<BridgeBloc, BridgeState, bool>(
           selector: (state) => state.inProgress,
           builder: (context, inProgress) {
             final isDisabled = inProgress || !isSystemClockValid;
@@ -146,10 +151,8 @@ class _ExchangeButton extends StatelessWidget {
                 ),
               ),
             );
-          },
-        );
-      },
-    );
+          });
+    });
   }
 
   void _onPressed(BuildContext context) {

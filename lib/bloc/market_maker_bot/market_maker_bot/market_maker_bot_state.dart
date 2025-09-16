@@ -14,34 +14,37 @@ final class MarketMakerBotState extends Equatable {
   /// The initial state of the bot. Defaults [status] to stopped
   /// and [errorMessage] to null.
   const MarketMakerBotState.initial()
-    : this(status: MarketMakerBotStatus.stopped);
+      : this(status: MarketMakerBotStatus.stopped);
 
   /// The bot is starting. Defaults [status] to starting
   /// and [errorMessage] to null.
   const MarketMakerBotState.starting()
-    : this(status: MarketMakerBotStatus.starting);
+      : this(status: MarketMakerBotStatus.starting);
 
   /// The bot is stopping. Defaults [status] to stopping
   /// and [errorMessage] to null.
   const MarketMakerBotState.stopping()
-    : this(status: MarketMakerBotStatus.stopping);
+      : this(status: MarketMakerBotStatus.stopping);
 
   /// The bot is running. Defaults [status] to running
   /// and [errorMessage] to null.
   const MarketMakerBotState.running()
-    : this(status: MarketMakerBotStatus.running);
+      : this(status: MarketMakerBotStatus.running);
 
   /// The bot is stopped. Defaults [status] to stopped
   /// and [errorMessage] to null.
   const MarketMakerBotState.stopped()
-    : this(status: MarketMakerBotStatus.stopped);
+      : this(status: MarketMakerBotStatus.stopped);
 
   bool get isRunning => status == MarketMakerBotStatus.running;
   bool get isUpdating =>
       status == MarketMakerBotStatus.starting ||
       status == MarketMakerBotStatus.stopping;
 
-  MarketMakerBotState copyWith({MarketMakerBotStatus? status, String? error}) {
+  MarketMakerBotState copyWith({
+    MarketMakerBotStatus? status,
+    String? error,
+  }) {
     return MarketMakerBotState(
       status: status ?? this.status,
       errorMessage: error,

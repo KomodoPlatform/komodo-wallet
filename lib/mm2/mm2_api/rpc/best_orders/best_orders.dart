@@ -8,7 +8,10 @@ import 'package:web_dex/model/orderbook/order.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 // Define the AddressType enum
-enum AddressType { transparent, shielded }
+enum AddressType {
+  transparent,
+  shielded,
+}
 
 class BestOrders {
   BestOrders({this.result, this.error});
@@ -20,9 +23,8 @@ class BestOrders {
       final bestOrders = <BestOrder>[];
       final bestOrdersJson = orders[key] as List<dynamic>;
       for (final dynamic result in bestOrdersJson) {
-        bestOrders.add(
-          BestOrder.fromJson(result as Map<String, dynamic>? ?? {}),
-        );
+        bestOrders
+            .add(BestOrder.fromJson(result as Map<String, dynamic>? ?? {}));
       }
       ordersMap.putIfAbsent(key, () => bestOrders);
     }
@@ -59,16 +61,13 @@ class BestOrder {
 
   factory BestOrder.fromJson(Map<String, dynamic> json) {
     return BestOrder(
-      price:
-          fract2rat(json['price']['fraction'] as Map<String, dynamic>?) ??
+      price: fract2rat(json['price']['fraction'] as Map<String, dynamic>?) ??
           Rational.parse(json['price']['decimal'] as String? ?? ''),
-      maxVolume:
-          fract2rat(
+      maxVolume: fract2rat(
             json['base_max_volume']['fraction'] as Map<String, dynamic>?,
           ) ??
           Rational.parse(json['base_max_volume']['decimal'] as String? ?? ''),
-      minVolume:
-          fract2rat(
+      minVolume: fract2rat(
             json['base_min_volume']['fraction'] as Map<String, dynamic>?,
           ) ??
           Rational.parse(json['base_min_volume']['decimal'] as String? ?? ''),
@@ -92,13 +91,22 @@ class BestOrder {
 }
 
 class OrderAddress extends Equatable {
-  const OrderAddress({required this.addressType, required this.addressData});
+  const OrderAddress({
+    required this.addressType,
+    required this.addressData,
+  });
 
   const OrderAddress.transparent(String? addressData)
-    : this(addressType: AddressType.transparent, addressData: addressData);
+      : this(
+          addressType: AddressType.transparent,
+          addressData: addressData,
+        );
 
   const OrderAddress.shielded()
-    : this(addressType: AddressType.shielded, addressData: null);
+      : this(
+          addressType: AddressType.shielded,
+          addressData: null,
+        );
 
   factory OrderAddress.fromJson(Map<String, dynamic> json) {
     // Only [addressType] is required, since shielded addresses don't have

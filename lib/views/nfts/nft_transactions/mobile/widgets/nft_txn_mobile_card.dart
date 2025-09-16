@@ -65,7 +65,9 @@ class _NftTxnMobileCardState extends State<NftTxnMobileCard>
                   blockchain: widget.transaction.chain,
                   width: 75,
                 ),
-                NftTxnDate(blockTimestamp: widget.transaction.blockTimestamp),
+                NftTxnDate(
+                  blockTimestamp: widget.transaction.blockTimestamp,
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -98,30 +100,26 @@ class _NftTxnMobileCardState extends State<NftTxnMobileCard>
                       ),
                       _AdditionalInfoLine(
                         title: LocaleKeys.confirmations.tr(),
-                        successChild: Builder(
-                          builder: (context) {
-                            bool isConfirmed =
-                                widget.transaction.confirmations != null;
-                            return Row(
-                              children: [
-                                Icon(
-                                  isConfirmed
-                                      ? Icons.check_circle_outline_rounded
-                                      : Icons.warning,
-                                  color: isConfirmed
-                                      ? colorScheme?.green
-                                      : colorScheme?.yellow,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  widget.transaction.confirmations.toString(),
-                                  style: textScheme?.bodyXSBold,
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                        successChild: Builder(builder: (context) {
+                          bool isConfirmed =
+                              widget.transaction.confirmations != null;
+                          return Row(
+                            children: [
+                              Icon(
+                                isConfirmed
+                                    ? Icons.check_circle_outline_rounded
+                                    : Icons.warning,
+                                color: isConfirmed
+                                    ? colorScheme?.green
+                                    : colorScheme?.yellow,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(widget.transaction.confirmations.toString(),
+                                  style: textScheme?.bodyXSBold),
+                            ],
+                          );
+                        }),
                         status: widget.transaction.detailsFetchStatus,
                       ),
                     ],
@@ -149,8 +147,7 @@ class _NftTxnMobileCardState extends State<NftTxnMobileCard>
                             const SizedBox(height: 4),
                             Text(
                               NftTxFormatter.getUsdPriceOfFee(
-                                widget.transaction,
-                              ),
+                                  widget.transaction),
                               style: textScheme?.bodyXSBold,
                             ),
                           ],
@@ -171,9 +168,8 @@ class _NftTxnMobileCardState extends State<NftTxnMobileCard>
                       _AdditionalInfoLine(
                         title: LocaleKeys.blockHeight.tr(),
                         successChild: Text(
-                          widget.transaction.blockNumber.toString(),
-                          style: textScheme?.bodyXSBold,
-                        ),
+                            widget.transaction.blockNumber.toString(),
+                            style: textScheme?.bodyXSBold),
                       ),
                     ],
                   ),
@@ -220,27 +216,25 @@ class _AdditionalInfoLine extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Builder(
-            builder: (context) {
-              switch (status) {
-                case NftTxnDetailsStatus.initial:
-                  return const UiSpinner(
-                    height: iconSize,
-                    width: iconSize,
-                    strokeWidth: 1,
-                  );
-                case NftTxnDetailsStatus.success:
-                  return successChild;
+          Builder(builder: (context) {
+            switch (status) {
+              case NftTxnDetailsStatus.initial:
+                return const UiSpinner(
+                  height: iconSize,
+                  width: iconSize,
+                  strokeWidth: 1,
+                );
+              case NftTxnDetailsStatus.success:
+                return successChild;
 
-                case NftTxnDetailsStatus.failure:
-                  return Icon(
-                    Icons.error_outline_outlined,
-                    color: colorScheme?.error,
-                    size: iconSize,
-                  );
-              }
-            },
-          ),
+              case NftTxnDetailsStatus.failure:
+                return Icon(
+                  Icons.error_outline_outlined,
+                  color: colorScheme?.error,
+                  size: iconSize,
+                );
+            }
+          }),
         ],
       ),
     );

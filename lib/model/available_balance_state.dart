@@ -1,1 +1,7 @@
-enum AvailableBalanceState { initial, loading, success, failure, unavailable }
+enum AvailableBalanceState {
+  initial,
+  loading,
+  success,
+  failure,
+  unavailable,
+}

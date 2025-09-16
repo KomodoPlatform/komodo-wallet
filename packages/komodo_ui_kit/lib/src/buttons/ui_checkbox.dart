@@ -48,8 +48,7 @@ class UiCheckbox extends StatelessWidget {
                       : theme.custom.noColor,
                   borderRadius: borderRadius,
                   border: Border.all(
-                    color:
-                        borderColor ??
+                    color: borderColor ??
                         (value
                             ? theme.custom.defaultCheckboxColor
                             : theme.custom.borderCheckboxColor),
@@ -69,11 +68,12 @@ class UiCheckbox extends StatelessWidget {
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8, right: 2),
-                    child:
-                        textWidget ??
+                    child: textWidget ??
                         Text(
                           text,
-                          style: Theme.of(context).textTheme.labelLarge
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
                               ?.copyWith(fontSize: 14, color: textColor),
                         ),
                   ),

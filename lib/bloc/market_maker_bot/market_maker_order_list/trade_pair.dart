@@ -8,8 +8,8 @@ class TradePair {
     this.order, {
     Rational? baseCoinAmount,
     Rational? relCoinAmount,
-  }) : baseCoinAmount = baseCoinAmount ?? Rational.zero,
-       relCoinAmount = relCoinAmount ?? Rational.zero;
+  })  : baseCoinAmount = baseCoinAmount ?? Rational.zero,
+        relCoinAmount = relCoinAmount ?? Rational.zero;
 
   final TradeCoinPairConfig config;
   final MyOrder? order;
@@ -20,17 +20,23 @@ class TradePair {
   final Rational relCoinAmount;
 
   MyOrder get orderPreview => MyOrder(
-    base: config.baseCoinId,
-    rel: config.relCoinId,
-    baseAmount: Rational.zero,
-    relAmount: Rational.zero,
-    cancelable: false,
-    createdAt: DateTime.now().millisecondsSinceEpoch,
-    uuid: '',
-    orderType: TradeSide.maker,
-  );
+        base: config.baseCoinId,
+        rel: config.relCoinId,
+        baseAmount: Rational.zero,
+        relAmount: Rational.zero,
+        cancelable: false,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        uuid: '',
+        orderType: TradeSide.maker,
+      );
 
-  TradePair copyWith({TradeCoinPairConfig? config, MyOrder? order}) {
-    return TradePair(config ?? this.config, order ?? this.order);
+  TradePair copyWith({
+    TradeCoinPairConfig? config,
+    MyOrder? order,
+  }) {
+    return TradePair(
+      config ?? this.config,
+      order ?? this.order,
+    );
   }
 }

@@ -82,7 +82,7 @@ class _Switcher extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),
@@ -109,34 +109,32 @@ class _Dropdown extends StatelessWidget {
         final bool isLongListTypes = listTypes.length > 2;
 
         return Container(
-          constraints: BoxConstraints(
-            maxWidth: isLongListTypes ? 320.0 : 140.0,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: Border.all(color: theme.custom.specificButtonBorderColor),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [theme.custom.coinsManagerTheme.filtersPopupShadow],
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: listTypes
-                .map(
-                  (type) => FractionallySizedBox(
-                    widthFactor: isLongListTypes ? 0.5 : 1,
-                    child: _DropdownItem(
-                      type: type,
-                      isSelected: selectedCoinTypes.contains(type),
-                      onTap: onTap,
-                      isFirst: listTypes.indexOf(type) == 0,
-                      isWide: !isLongListTypes,
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        );
+            constraints:
+                BoxConstraints(maxWidth: isLongListTypes ? 320.0 : 140.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: Border.all(color: theme.custom.specificButtonBorderColor),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                theme.custom.coinsManagerTheme.filtersPopupShadow,
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: listTypes
+                  .map((type) => FractionallySizedBox(
+                        widthFactor: isLongListTypes ? 0.5 : 1,
+                        child: _DropdownItem(
+                          type: type,
+                          isSelected: selectedCoinTypes.contains(type),
+                          onTap: onTap,
+                          isFirst: listTypes.indexOf(type) == 0,
+                          isWide: !isLongListTypes,
+                        ),
+                      ))
+                  .toList(),
+            ));
       },
     );
   }
@@ -147,14 +145,12 @@ class _Dropdown extends StatelessWidget {
     switch (currentWallet?.config.type) {
       case WalletType.iguana:
       case WalletType.hdwallet:
-        return coinsBloc.state.coins.values.firstWhereOrNull(
-              (coin) => coin.type == type,
-            ) !=
+        return coinsBloc.state.coins.values
+                .firstWhereOrNull((coin) => coin.type == type) !=
             null;
       case WalletType.trezor:
-        return coinsBloc.state.coins.values.firstWhereOrNull(
-              (coin) => coin.type == type,
-            ) !=
+        return coinsBloc.state.coins.values
+                .firstWhereOrNull((coin) => coin.type == type) !=
             null;
       case WalletType.metamask:
       case WalletType.keplr:
@@ -202,11 +198,8 @@ class _DropdownItem extends StatelessWidget {
             border: isSelected
                 ? Border.all(
                     color: theme
-                        .custom
-                        .coinsManagerTheme
-                        .filterPopupItemBorderColor,
-                    width: 2,
-                  )
+                        .custom.coinsManagerTheme.filterPopupItemBorderColor,
+                    width: 2)
                 : null,
           ),
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 15),

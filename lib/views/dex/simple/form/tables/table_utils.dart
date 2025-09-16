@@ -64,9 +64,7 @@ List<BestOrder> prepareOrdersForTable(
 }
 
 List<BestOrder> _sortBestOrders(
-  BuildContext context,
-  Map<String, List<BestOrder>> unsorted,
-) {
+    BuildContext context, Map<String, List<BestOrder>> unsorted) {
   if (unsorted.isEmpty) return [];
 
   final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);

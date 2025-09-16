@@ -38,10 +38,8 @@ class NftWithdrawRepo {
         path: 'nft_main_repo => getNfts',
         isError: true,
       ).ignore();
-      final BaseError error = withdrawErrorFactory.getError(
-        json,
-        nft.parentCoin.abbr,
-      );
+      final BaseError error =
+          withdrawErrorFactory.getError(json, nft.parentCoin.abbr);
       throw ApiError(message: error.message);
     }
 
@@ -79,10 +77,8 @@ class NftWithdrawRepo {
     String address,
   ) async {
     try {
-      final Map<String, dynamic>? responseRaw = await _api.validateAddress(
-        coin.abbr,
-        address,
-      );
+      final Map<String, dynamic>? responseRaw =
+          await _api.validateAddress(coin.abbr, address);
       if (responseRaw == null) {
         throw ApiError(message: LocaleKeys.somethingWrong.tr());
       }

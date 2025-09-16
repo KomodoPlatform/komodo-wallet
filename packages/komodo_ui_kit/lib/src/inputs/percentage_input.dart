@@ -86,9 +86,8 @@ class _PercentageInputState extends State<PercentageInput> {
               Expanded(
                 child: UiTextFormField(
                   controller: _controller,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(
                       RegExp(
@@ -110,7 +109,10 @@ class _PercentageInputState extends State<PercentageInput> {
               const SizedBox(width: 8),
               Padding(
                 padding: const EdgeInsets.only(top: 16),
-                child: Text('%', style: Theme.of(context).textTheme.bodyLarge),
+                child: Text(
+                  '%',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
               ),
             ],
           ),
@@ -146,8 +148,7 @@ class _DecimalInputFormatter extends TextInputFormatter {
       formattedText += '.${parts[1]}';
     }
 
-    int cursorOffset =
-        newValue.selection.baseOffset -
+    int cursorOffset = newValue.selection.baseOffset -
         (newValue.text.length - formattedText.length);
     cursorOffset = cursorOffset.clamp(0, formattedText.length);
 

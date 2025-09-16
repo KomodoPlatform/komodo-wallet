@@ -19,16 +19,19 @@ class MarketMakerBotTabBar extends StatelessWidget {
           constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
           child: UiTabBar(
             currentTabIndex: state.tabIndex,
-            tabs: List.generate(tabBarEntries.length, (index) {
-              final tab = tabBarEntries[index];
-              return UiTab(
-                key: Key(tab.key),
-                text: tab.name(state),
-                isSelected: state.tabIndex == index,
-                onClick: () =>
-                    context.read<DexTabBarBloc>().add(TabChanged(index)),
-              );
-            }),
+            tabs: List.generate(
+              tabBarEntries.length,
+              (index) {
+                final tab = tabBarEntries[index];
+                return UiTab(
+                  key: Key(tab.key),
+                  text: tab.name(state),
+                  isSelected: state.tabIndex == index,
+                  onClick: () =>
+                      context.read<DexTabBarBloc>().add(TabChanged(index)),
+                );
+              },
+            ),
           ),
         );
       },

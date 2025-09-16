@@ -71,9 +71,8 @@ class UpdatePopUp extends StatelessWidget {
                             p: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodyMedium?.color,
+                              color:
+                                  Theme.of(context).textTheme.bodyMedium?.color,
                             ),
                           ),
                           data: versionInfo.changelog,
@@ -116,7 +115,7 @@ class UpdatePopUp extends StatelessWidget {
               ),
             ],
           ),
-        ),
+        )
       ],
     );
   }

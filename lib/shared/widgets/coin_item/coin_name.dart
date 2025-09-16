@@ -2,7 +2,11 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class CoinName extends StatelessWidget {
-  const CoinName({required this.text, super.key, this.style});
+  const CoinName({
+    required this.text,
+    super.key,
+    this.style,
+  });
 
   final String? text;
   final TextStyle? style;

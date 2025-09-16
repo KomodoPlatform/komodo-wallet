@@ -8,9 +8,8 @@ Future<void> openAddAssetsView(WidgetTester tester) async {
   await tester.tap(addAssetsButton);
   await tester.pumpAndSettle();
 
-  final Finder searchCoinsField = find.byKey(
-    const Key('coins-manager-search-field'),
-  );
+  final Finder searchCoinsField =
+      find.byKey(const Key('coins-manager-search-field'));
   expect(
     searchCoinsField,
     findsOneWidget,
@@ -22,15 +21,13 @@ Future<void> openAddAssetsView(WidgetTester tester) async {
 Future<void> openRemoveAssetsView(WidgetTester tester) async {
   await tester.pumpAndSettle();
 
-  final Finder removeAssetsButton = find.byKey(
-    const Key('remove-assets-button'),
-  );
+  final Finder removeAssetsButton =
+      find.byKey(const Key('remove-assets-button'));
   await tester.tap(removeAssetsButton);
   await tester.pumpAndSettle();
 
-  final Finder searchCoinsField = find.byKey(
-    const Key('coins-manager-search-field'),
-  );
+  final Finder searchCoinsField =
+      find.byKey(const Key('coins-manager-search-field'));
   expect(
     searchCoinsField,
     findsOneWidget,

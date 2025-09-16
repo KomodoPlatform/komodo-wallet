@@ -35,13 +35,12 @@ class UiSimpleBorderButton extends StatelessWidget {
           opacity: inProgress ? 0 : 1,
           child: Container(
             decoration: BoxDecoration(
-              color: theme.custom.specificButtonBackgroundColor,
-              border: Border.all(
-                width: 1,
-                color: theme.custom.specificButtonBorderColor,
-              ),
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
+                color: theme.custom.specificButtonBackgroundColor,
+                border: Border.all(
+                  width: 1,
+                  color: theme.custom.specificButtonBorderColor,
+                ),
+                borderRadius: BorderRadius.circular(borderRadius)),
             child: Material(
               type: MaterialType.transparency,
               child: InkWell(
@@ -49,7 +48,10 @@ class UiSimpleBorderButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(borderRadius),
                 child: Padding(
                   padding: effectivePadding,
-                  child: DefaultTextStyle(style: effectiveStyle, child: child),
+                  child: DefaultTextStyle(
+                    style: effectiveStyle,
+                    child: child,
+                  ),
                 ),
               ),
             ),
@@ -68,7 +70,7 @@ class UiSimpleBorderButton extends StatelessWidget {
                 strokeWidth: effectiveStyle.fontSize! * 0.12,
               ),
             ),
-          ),
+          )
       ],
     );
   }

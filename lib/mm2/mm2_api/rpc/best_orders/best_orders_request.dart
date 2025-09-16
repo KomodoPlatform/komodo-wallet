@@ -8,10 +8,8 @@ class BestOrdersRequest {
     this.type = BestOrdersRequestType.volume,
     this.volume,
     this.number,
-  }) : assert(
-         (type == BestOrdersRequestType.number && number != null) ||
-             (type == BestOrdersRequestType.volume && volume != null),
-       );
+  }) : assert((type == BestOrdersRequestType.number && number != null) ||
+            (type == BestOrdersRequestType.volume && volume != null));
 
   late String userpass;
   final String method;
@@ -22,15 +20,18 @@ class BestOrdersRequest {
   final int? number;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'method': method,
-    'userpass': userpass,
-    'mmrpc': '2.0',
-    'params': <String, dynamic>{
-      'coin': coin,
-      'action': 'sell',
-      'request_by': <String, dynamic>{'type': _typeJson, 'value': _valueJson},
-    },
-  };
+        'method': method,
+        'userpass': userpass,
+        'mmrpc': '2.0',
+        'params': <String, dynamic>{
+          'coin': coin,
+          'action': 'sell',
+          'request_by': <String, dynamic>{
+            'type': _typeJson,
+            'value': _valueJson
+          }
+        },
+      };
 
   dynamic get _valueJson {
     switch (type) {

@@ -19,12 +19,20 @@ class DexFlipButtonOverlapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Column(children: [topWidget, const SizedBox(height: 12), bottomWidget]),
+        Column(
+          children: [
+            topWidget,
+            const SizedBox(height: 12),
+            bottomWidget,
+          ],
+        ),
         Positioned(
           top: offsetTop,
           left: 0,
           right: 0,
-          child: DexFlipButton(onTap: onTap),
+          child: DexFlipButton(
+            onTap: onTap,
+          ),
         ),
       ],
     );

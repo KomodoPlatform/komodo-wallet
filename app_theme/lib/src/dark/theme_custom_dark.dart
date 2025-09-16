@@ -20,9 +20,7 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
 
   @override
   ThemeExtension<ThemeCustomDark> lerp(
-    ThemeExtension<ThemeCustomDark>? other,
-    double t,
-  ) {
+      ThemeExtension<ThemeCustomDark>? other, double t) {
     if (other is! ThemeCustomDark) return this;
     return this;
   }
@@ -58,12 +56,8 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color buttonColorDefaultHover = const Color.fromRGBO(76, 128, 233, 1);
   @override
-  final Color buttonTextColorDefaultHover = const Color.fromRGBO(
-    245,
-    249,
-    255,
-    1,
-  );
+  final Color buttonTextColorDefaultHover =
+      const Color.fromRGBO(245, 249, 255, 1);
   @override
   final Color noColor = Colors.transparent;
   @override
@@ -77,26 +71,14 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color zebraHoverColor = const Color(0xFF1A1A1A);
   @override
-  final Color passwordButtonSuccessColor = const Color.fromRGBO(
-    90,
-    230,
-    205,
-    1,
-  );
+  final Color passwordButtonSuccessColor =
+      const Color.fromRGBO(90, 230, 205, 1);
   @override
-  final Color simpleButtonBackgroundColor = const Color.fromRGBO(
-    136,
-    146,
-    235,
-    0.2,
-  );
+  final Color simpleButtonBackgroundColor =
+      const Color.fromRGBO(136, 146, 235, 0.2);
   @override
-  final Color disabledButtonBackgroundColor = const Color.fromRGBO(
-    90,
-    104,
-    230,
-    0.3,
-  );
+  final Color disabledButtonBackgroundColor =
+      const Color.fromRGBO(90, 104, 230, 0.3);
   @override
   final Gradient authorizePageBackgroundColor = const RadialGradient(
     center: Alignment.bottomCenter,
@@ -120,32 +102,23 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   final Color settingsMenuItemBackgroundColor = const Color(0xFF141414);
   @override
   final Gradient userRewardBoxColor = const LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color.fromRGBO(18, 20, 32, 1), Color.fromRGBO(22, 25, 39, 1)],
-    stops: [0.05, 0.33],
-  );
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [Color.fromRGBO(18, 20, 32, 1), Color.fromRGBO(22, 25, 39, 1)],
+      stops: [0.05, 0.33]);
   @override
   final Color rewardBoxShadowColor = const Color.fromRGBO(0, 0, 0, 0.1);
   @override
   final Color defaultBorderButtonBorder = const Color(0xFF00D4FF);
   @override
-  final Color defaultBorderButtonBackground = const Color.fromRGBO(
-    22,
-    25,
-    39,
-    1,
-  );
+  final Color defaultBorderButtonBackground =
+      const Color.fromRGBO(22, 25, 39, 1);
   @override
   final Color successColor = const Color.fromRGBO(0, 192, 88, 1);
 
   @override
-  final Color defaultCircleButtonBackground = const Color.fromRGBO(
-    222,
-    235,
-    255,
-    0.56,
-  );
+  final Color defaultCircleButtonBackground =
+      const Color.fromRGBO(222, 235, 255, 0.56);
   @override
   final TradingDetailsTheme tradingDetailsTheme = const TradingDetailsTheme();
   @override
@@ -220,49 +193,30 @@ class ThemeCustomDark extends ThemeExtension<ThemeCustomDark>
   @override
   final Color progressBarPassedColor = const Color.fromRGBO(137, 147, 236, 1);
   @override
-  final Color progressBarNotPassedColor = const Color.fromRGBO(
-    194,
-    203,
-    210,
-    1,
-  );
+  final Color progressBarNotPassedColor =
+      const Color.fromRGBO(194, 203, 210, 1);
   @override
   final Color dexSubTitleColor = const Color.fromRGBO(255, 255, 255, 1);
   @override
-  final Color selectedMenuBackgroundColor = const Color.fromRGBO(
-    46,
-    52,
-    112,
-    1,
-  );
+  final Color selectedMenuBackgroundColor =
+      const Color.fromRGBO(46, 52, 112, 1);
   @override
   final Color tabBarShadowColor = const Color.fromRGBO(255, 255, 255, 0.08);
   @override
   final Color smartchainLabelBorderColor = const Color.fromRGBO(32, 22, 49, 1);
   @override
-  final Color mainMenuSelectedItemBackgroundColor = const Color.fromRGBO(
-    0,
-    212,
-    170,
-    0.12,
-  );
+  final Color mainMenuSelectedItemBackgroundColor =
+      const Color.fromRGBO(0, 212, 170, 0.12);
   @override
   final Color searchFieldMobile = const Color.fromRGBO(42, 47, 62, 1);
   @override
-  final Color walletEditButtonsBackgroundColor = const Color.fromRGBO(
-    29,
-    33,
-    53,
-    1,
-  );
+  final Color walletEditButtonsBackgroundColor =
+      const Color.fromRGBO(29, 33, 53, 1);
   @override
   final Color swapButtonColor = const Color.fromRGBO(64, 146, 219, 1);
   @override
   final bridgeFormHeader = const TextStyle(
-    fontSize: 11,
-    fontWeight: FontWeight.w500,
-    letterSpacing: 3.5,
-  );
+      fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 3.5);
   @override
   final Color keyPadColor = const Color(0xFF000000);
   @override

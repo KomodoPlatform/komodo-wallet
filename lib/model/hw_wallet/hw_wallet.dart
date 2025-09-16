@@ -1,1 +1,4 @@
-enum WalletBrand { trezor, ledger }
+enum WalletBrand {
+  trezor,
+  ledger,
+}

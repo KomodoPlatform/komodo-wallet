@@ -8,19 +8,19 @@ class PriceStampedTransaction extends Transaction {
     required Transaction transaction,
     required this.fiatValue,
   }) : super(
-         id: transaction.id,
-         internalId: transaction.internalId,
-         assetId: transaction.assetId,
-         timestamp: transaction.timestamp,
-         confirmations: transaction.confirmations,
-         blockHeight: transaction.blockHeight,
-         from: transaction.from,
-         to: transaction.to,
-         fee: transaction.fee,
-         txHash: transaction.txHash,
-         memo: transaction.memo,
-         balanceChanges: transaction.balanceChanges,
-       );
+          id: transaction.id,
+          internalId: transaction.internalId,
+          assetId: transaction.assetId,
+          timestamp: transaction.timestamp,
+          confirmations: transaction.confirmations,
+          blockHeight: transaction.blockHeight,
+          from: transaction.from,
+          to: transaction.to,
+          fee: transaction.fee,
+          txHash: transaction.txHash,
+          memo: transaction.memo,
+          balanceChanges: transaction.balanceChanges,
+        );
 }
 
 class UsdPriceStampedTransaction extends PriceStampedTransaction {
@@ -30,5 +30,8 @@ class UsdPriceStampedTransaction extends PriceStampedTransaction {
   double get balanceChangeUsd => amount.toDouble() * fiatValue.value;
 
   UsdPriceStampedTransaction(Transaction transaction, double priceUsd)
-    : super(transaction: transaction, fiatValue: FiatValue.usd(priceUsd));
+      : super(
+          transaction: transaction,
+          fiatValue: FiatValue.usd(priceUsd),
+        );
 }

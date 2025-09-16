@@ -40,7 +40,10 @@ class UiSortListButton<T> extends StatelessWidget {
   void _onClick() {
     if (sortData.sortType != value) {
       onClick(
-        SortData<T>(sortType: value, sortDirection: SortDirection.increase),
+        SortData<T>(
+          sortType: value,
+          sortDirection: SortDirection.increase,
+        ),
       );
       return;
     }
@@ -48,12 +51,18 @@ class UiSortListButton<T> extends StatelessWidget {
     switch (sortData.sortDirection) {
       case SortDirection.decrease:
         onClick(
-          SortData<T>(sortType: value, sortDirection: SortDirection.none),
+          SortData<T>(
+            sortType: value,
+            sortDirection: SortDirection.none,
+          ),
         );
         return;
       case SortDirection.increase:
         onClick(
-          SortData<T>(sortType: value, sortDirection: SortDirection.decrease),
+          SortData<T>(
+            sortType: value,
+            sortDirection: SortDirection.decrease,
+          ),
         );
         return;
       case SortDirection.none:
@@ -152,10 +161,17 @@ class SortListIconItem extends StatelessWidget {
   }
 }
 
-enum SortDirection { increase, decrease, none }
+enum SortDirection {
+  increase,
+  decrease,
+  none,
+}
 
 class SortData<T> {
-  const SortData({required this.sortDirection, required this.sortType});
+  const SortData({
+    required this.sortDirection,
+    required this.sortType,
+  });
   final T sortType;
   final SortDirection sortDirection;
 }

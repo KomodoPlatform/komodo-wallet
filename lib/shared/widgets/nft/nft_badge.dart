@@ -23,8 +23,7 @@ class BlockchainBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSmallFont = blockchain.toString().length > 5;
-    final style =
-        textStyle ??
+    final style = textStyle ??
         TextStyle(
           fontSize: isSmallFont ? 9 : 10,
           fontWeight: FontWeight.w600,
@@ -41,25 +40,26 @@ class BlockchainBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SvgPicture.asset(
-            '$assetsPath/blockchain_icons/svg/32px/${blockchain.toApiRequest().toLowerCase()}.svg',
-            colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-            height: iconSize,
-            width: iconSize,
-          ),
+              '$assetsPath/blockchain_icons/svg/32px/${blockchain.toApiRequest().toLowerCase()}.svg',
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+              height: iconSize,
+              width: iconSize),
           const SizedBox(width: 2),
           Flexible(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
-                  child: Text(blockchain.toString(), style: style),
+              child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(
+                  blockchain.toString(),
+                  style: style,
                 ),
-                const SizedBox(width: 1),
-              ],
-            ),
-          ),
+              ),
+              const SizedBox(width: 1),
+            ],
+          )),
         ],
       ),
     );

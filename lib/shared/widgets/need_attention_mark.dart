@@ -12,9 +12,8 @@ class NeedAttentionMark extends StatelessWidget {
       width: 4,
       height: 25,
       decoration: BoxDecoration(
-        color: needAttention ? theme.custom.warningColor : Colors.transparent,
-        borderRadius: const BorderRadius.all(Radius.circular(18)),
-      ),
+          color: needAttention ? theme.custom.warningColor : Colors.transparent,
+          borderRadius: const BorderRadius.all(Radius.circular(18))),
     );
   }
 }

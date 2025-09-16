@@ -48,7 +48,10 @@ class UiTable extends StatelessWidget {
                     (column) => TableCell(
                       child: Padding(
                         padding: cellPadding,
-                        child: Align(alignment: headerAlignment, child: column),
+                        child: Align(
+                          alignment: headerAlignment,
+                          child: column,
+                        ),
                       ),
                     ),
                   )
@@ -56,13 +59,18 @@ class UiTable extends StatelessWidget {
             ),
             ...rows.map(
               (row) => TableRow(
-                decoration: BoxDecoration(color: rowColor),
+                decoration: BoxDecoration(
+                  color: rowColor,
+                ),
                 children: row
                     .map(
                       (cell) => TableCell(
                         child: Padding(
                           padding: cellPadding,
-                          child: Align(alignment: cellAlignment, child: cell),
+                          child: Align(
+                            alignment: cellAlignment,
+                            child: cell,
+                          ),
                         ),
                       ),
                     )

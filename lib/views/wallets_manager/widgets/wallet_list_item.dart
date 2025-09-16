@@ -5,7 +5,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class WalletListItem extends StatelessWidget {
   const WalletListItem({Key? key, required this.wallet, required this.onClick})
-    : super(key: key);
+      : super(key: key);
   final Wallet wallet;
   final void Function(Wallet, WalletsManagerExistWalletAction) onClick;
 

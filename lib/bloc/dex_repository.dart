@@ -54,12 +54,9 @@ class DexRepository {
       swapMethod: swapMethod,
       max: max,
     );
-    final ApiResponse<
-      TradePreimageRequest,
-      TradePreimageResponseResult,
-      Map<String, dynamic>
-    >
-    response = await _mm2Api.getTradePreimage(request);
+    final ApiResponse<TradePreimageRequest, TradePreimageResponseResult,
+            Map<String, dynamic>> response =
+        await _mm2Api.getTradePreimage(request);
 
     final Map<String, dynamic>? error = response.error;
     final TradePreimageResponseResult? result = response.result;
@@ -91,9 +88,8 @@ class DexRepository {
   }
 
   Future<Rational?> getMaxTakerVolume(String coinAbbr) async {
-    final MaxTakerVolResponse? response = await _mm2Api.getMaxTakerVolume(
-      MaxTakerVolRequest(coin: coinAbbr),
-    );
+    final MaxTakerVolResponse? response =
+        await _mm2Api.getMaxTakerVolume(MaxTakerVolRequest(coin: coinAbbr));
     if (response == null) {
       return null;
     }
@@ -102,9 +98,8 @@ class DexRepository {
   }
 
   Future<Rational?> getMaxMakerVolume(String coinAbbr) async {
-    final MaxMakerVolResponse? response = await _mm2Api.getMaxMakerVolume(
-      MaxMakerVolRequest(coin: coinAbbr),
-    );
+    final MaxMakerVolResponse? response =
+        await _mm2Api.getMaxMakerVolume(MaxMakerVolRequest(coin: coinAbbr));
     if (response == null) {
       return null;
     }
@@ -113,9 +108,8 @@ class DexRepository {
   }
 
   Future<Rational?> getMinTradingVolume(String coinAbbr) async {
-    final MinTradingVolResponse? response = await _mm2Api.getMinTradingVol(
-      MinTradingVolRequest(coin: coinAbbr),
-    );
+    final MinTradingVolResponse? response =
+        await _mm2Api.getMinTradingVol(MinTradingVolRequest(coin: coinAbbr));
     if (response == null) {
       return null;
     }
@@ -162,9 +156,8 @@ class DexRepository {
   }
 
   Future<Swap> getSwapStatus(String swapUuid) async {
-    final response = await _mm2Api.getSwapStatus(
-      MySwapStatusReq(uuid: swapUuid),
-    );
+    final response =
+        await _mm2Api.getSwapStatus(MySwapStatusReq(uuid: swapUuid));
 
     if (response['error'] != null) {
       throw TextError(error: response['error']);

@@ -50,7 +50,10 @@ class _BridgeTargetProtocolSelectorTileState
             onTap: widget.disabled ? null : widget.onTap,
             expanded: context.read<BridgeBloc>().state.showTargetDropdown,
           )
-        : _SelectedProtocolTile(coin: coin!, onTap: widget.onTap);
+        : _SelectedProtocolTile(
+            coin: coin!,
+            onTap: widget.onTap,
+          );
   }
 }
 
@@ -78,11 +81,10 @@ class _SelectedProtocolTile extends StatelessWidget {
             BridgeProtocolLabel(coin),
             const SizedBox(width: 6),
             Icon(
-              context.read<BridgeBloc>().state.showTargetDropdown
-                  ? Icons.expand_less
-                  : Icons.expand_more,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-            ),
+                context.read<BridgeBloc>().state.showTargetDropdown
+                    ? Icons.expand_less
+                    : Icons.expand_more,
+                color: Theme.of(context).textTheme.bodyLarge?.color),
           ],
         ),
       ),

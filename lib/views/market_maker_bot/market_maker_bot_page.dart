@@ -41,9 +41,8 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
-      context,
-    );
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final myOrdersService = RepositoryProvider.of<MyOrdersService>(context);
 
@@ -81,9 +80,9 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
       child: BlocListener<AuthBloc, AuthBlocState>(
         listener: (context, state) {
           if (state.mode == AuthorizeMode.noLogin) {
-            context.read<MarketMakerBotBloc>().add(
-              const MarketMakerBotStopRequested(),
-            );
+            context
+                .read<MarketMakerBotBloc>()
+                .add(const MarketMakerBotStopRequested());
           }
         },
         child: isTradingDetails

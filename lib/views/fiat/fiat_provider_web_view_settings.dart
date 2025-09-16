@@ -39,13 +39,19 @@ class FiatProviderWebViewSettings {
       contentBlockers: [
         // Block all content by default
         ContentBlocker(
-          trigger: ContentBlockerTrigger(urlFilter: '.*'),
-          action: ContentBlockerAction(type: ContentBlockerActionType.BLOCK),
+          trigger: ContentBlockerTrigger(
+            urlFilter: '.*',
+          ),
+          action: ContentBlockerAction(
+            type: ContentBlockerActionType.BLOCK,
+          ),
         ),
         // Allow the specific domains we trust
         ...trustedDomainFilters.map(
           (urlFilter) => ContentBlocker(
-            trigger: ContentBlockerTrigger(urlFilter: urlFilter),
+            trigger: ContentBlockerTrigger(
+              urlFilter: urlFilter,
+            ),
             action: ContentBlockerAction(
               type: ContentBlockerActionType.IGNORE_PREVIOUS_RULES,
             ),

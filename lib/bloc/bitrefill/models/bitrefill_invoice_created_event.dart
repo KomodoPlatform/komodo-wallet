@@ -50,14 +50,14 @@ class BitrefillInvoiceCreatedEvent extends Equatable
   final String? paymentAddress;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'event': event,
-    'invoiceId': invoiceId,
-    'paymentUri': paymentUri,
-    'paymentMethod': paymentMethod,
-    'paymentAmount': paymentAmount,
-    'paymentCurrency': paymentCurrency,
-    'paymentAddress': paymentAddress,
-  };
+        'event': event,
+        'invoiceId': invoiceId,
+        'paymentUri': paymentUri,
+        'paymentMethod': paymentMethod,
+        'paymentAmount': paymentAmount,
+        'paymentCurrency': paymentCurrency,
+        'paymentAddress': paymentAddress,
+      };
 
   @override
   List<Object?> get props {

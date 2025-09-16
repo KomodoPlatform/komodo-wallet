@@ -24,19 +24,15 @@ class BridgeSourceProtocolRow extends StatelessWidget {
           title: LocaleKeys.selectProtocol.tr(),
           onTap: () {
             if (state.selectedTicker == null) {
-              context.read<BridgeBloc>().add(
-                BridgeSetError(
-                  DexFormError(
+              context.read<BridgeBloc>().add(BridgeSetError(DexFormError(
                     error: LocaleKeys.bridgeSelectTokenFirstError.tr(),
-                  ),
-                ),
-              );
+                  )));
               return;
             }
 
-            context.read<BridgeBloc>().add(
-              BridgeShowSourceDropdown(!state.showSourceDropdown),
-            );
+            context
+                .read<BridgeBloc>()
+                .add(BridgeShowSourceDropdown(!state.showSourceDropdown));
           },
         );
       },

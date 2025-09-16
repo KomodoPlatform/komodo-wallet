@@ -17,11 +17,9 @@ class MatchRequest {
   });
 
   factory MatchRequest.fromJson(Map<String, dynamic> json) {
-    final Rational baseAmount =
-        fract2rat(json['base_amount_fraction']) ??
+    final Rational baseAmount = fract2rat(json['base_amount_fraction']) ??
         Rational.parse(json['base_amount'] ?? '0');
-    final Rational relAmount =
-        fract2rat(json['rel_amount_fraction']) ??
+    final Rational relAmount = fract2rat(json['rel_amount_fraction']) ??
         Rational.parse(json['rel_amount'] ?? '0');
 
     return MatchRequest(
@@ -52,18 +50,18 @@ class MatchRequest {
   String takerOrderUuid;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'action': action,
-    'base': base,
-    'base_amount': baseAmount.toDouble().toString(),
-    'base_amount_fraction': rat2fract(baseAmount),
-    'dest_pub_key': destPubKey,
-    'method': method,
-    'rel': rel,
-    'rel_amount': relAmount.toDouble().toString(),
-    'rel_amount_fraction': rat2fract(relAmount),
-    'sender_pubkey': senderPubkey,
-    'uuid': uuid,
-    'maker_order_uuid': makerOrderUuid,
-    'taker_order_uuid': takerOrderUuid,
-  };
+        'action': action,
+        'base': base,
+        'base_amount': baseAmount.toDouble().toString(),
+        'base_amount_fraction': rat2fract(baseAmount),
+        'dest_pub_key': destPubKey,
+        'method': method,
+        'rel': rel,
+        'rel_amount': relAmount.toDouble().toString(),
+        'rel_amount_fraction': rat2fract(relAmount),
+        'sender_pubkey': senderPubkey,
+        'uuid': uuid,
+        'maker_order_uuid': makerOrderUuid,
+        'taker_order_uuid': takerOrderUuid,
+      };
 }

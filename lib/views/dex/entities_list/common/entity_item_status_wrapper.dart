@@ -25,9 +25,7 @@ class EntityItemStatusWrapper extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       constraints: BoxConstraints.tightFor(width: width),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(9),
-        color: backgroundColor,
-      ),
+          borderRadius: BorderRadius.circular(9), color: backgroundColor),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -59,9 +59,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
   @override
   Widget build(BuildContext context) {
     final InputBorder border = OutlineInputBorder(
-      borderSide: BorderSide.none,
-      borderRadius: BorderRadius.circular(18),
-    );
+        borderSide: BorderSide.none, borderRadius: BorderRadius.circular(18));
 
     return SizedBox(
       height: widget.height,
@@ -71,9 +69,11 @@ class _AmountInputFieldState extends State<AmountInputField> {
         controller: _controller,
         enabled: widget.isEnabled,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.copyWith(fontSize: 14).merge(widget.textStyle),
+        style: Theme.of(context)
+            .textTheme
+            .titleSmall
+            ?.copyWith(fontSize: 14)
+            .merge(widget.textStyle),
         textInputAction: TextInputAction.done,
         onChanged: widget.onChanged,
         textAlign: widget.textAlign ?? TextAlign.left,
@@ -99,9 +99,8 @@ class _AmountInputFieldState extends State<AmountInputField> {
     final String newText = value == null ? '' : formatDexAmt(value);
 
     _controller.value = TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-      composing: TextRange.empty,
-    );
+        text: newText,
+        selection: TextSelection.collapsed(offset: newText.length),
+        composing: TextRange.empty);
   }
 }

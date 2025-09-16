@@ -33,24 +33,26 @@ class NftDataRow extends StatelessWidget {
         .copyWith(color: colorScheme.secondary, height: 1)
         .merge(this.valueStyle);
 
-    assert(
-      value == null && valueWidget != null ||
-          value != null && valueWidget == null,
-    );
-    assert(
-      title == null && titleWidget != null ||
-          title != null && titleWidget == null,
-    );
+    assert(value == null && valueWidget != null ||
+        value != null && valueWidget == null);
+    assert(title == null && titleWidget != null ||
+        title != null && titleWidget == null);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (title != null)
-          Text(title, style: titleStyle)
+          Text(
+            title,
+            style: titleStyle,
+          )
         else if (titleWidget != null)
           titleWidget,
         if (value != null)
-          Text(value, style: valueStyle)
+          Text(
+            value,
+            style: valueStyle,
+          )
         else if (valueWidget != null)
           valueWidget,
       ],

@@ -4,7 +4,10 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class CoinsListHeader extends StatelessWidget {
-  const CoinsListHeader({super.key, required this.isAuth});
+  const CoinsListHeader({
+    super.key,
+    required this.isAuth,
+  });
 
   final bool isAuth;
 
@@ -17,14 +20,15 @@ class CoinsListHeader extends StatelessWidget {
 }
 
 class _CoinsListHeaderDesktop extends StatelessWidget {
-  const _CoinsListHeaderDesktop({required this.isAuth});
+  const _CoinsListHeaderDesktop({
+    required this.isAuth,
+  });
 
   final bool isAuth;
 
   @override
   Widget build(BuildContext context) {
-    final style =
-        Theme.of(context).textTheme.labelSmall ??
+    final style = Theme.of(context).textTheme.labelSmall ??
         DefaultTextStyle.of(context).style;
 
     if (isAuth) {

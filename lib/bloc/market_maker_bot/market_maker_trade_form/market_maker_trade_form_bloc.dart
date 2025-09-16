@@ -42,9 +42,9 @@ class MarketMakerTradeFormBloc
   MarketMakerTradeFormBloc({
     required DexRepository dexRepo,
     required CoinsRepo coinsRepo,
-  }) : _dexRepository = dexRepo,
-       _coinsRepo = coinsRepo,
-       super(MarketMakerTradeFormState.initial()) {
+  })  : _dexRepository = dexRepo,
+        _coinsRepo = coinsRepo,
+        super(MarketMakerTradeFormState.initial()) {
     on<MarketMakerTradeFormSellCoinChanged>(_onSellCoinChanged);
     on<MarketMakerTradeFormBuyCoinChanged>(_onBuyCoinChanged);
     on<MarketMakerTradeFormTradeVolumeChanged>(_onTradeVolumeChanged);
@@ -172,10 +172,9 @@ class MarketMakerTradeFormBloc
     final maximumTradeVolume =
         double.tryParse(event.maximumTradeVolume.toString()) ?? 0.0;
     final newSellAmount = CoinTradeAmountInput.dirty(
-      (maximumTradeVolume * spendableBalance).toString(),
-      0,
-      spendableBalance,
-    );
+        (maximumTradeVolume * spendableBalance).toString(),
+        0,
+        spendableBalance);
 
     final newBuyAmount = _getBuyAmountFromSellAmount(
       newSellAmount.value,
@@ -203,9 +202,8 @@ class MarketMakerTradeFormBloc
       emit(
         state.copyWith(
           preImageError: preImageError,
-          sellAmount: CoinTradeAmountInput.dirty(
-            newSellAmountFromPreImage.toString(),
-          ),
+          sellAmount:
+              CoinTradeAmountInput.dirty(newSellAmountFromPreImage.toString()),
         ),
       );
     }
@@ -251,7 +249,9 @@ class MarketMakerTradeFormBloc
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
     emit(
-      state.copyWith(tradeMargin: TradeMarginInput.dirty(event.tradeMargin)),
+      state.copyWith(
+        tradeMargin: TradeMarginInput.dirty(event.tradeMargin),
+      ),
     );
 
     if (state.buyCoin.value != null) {
@@ -458,8 +458,7 @@ class MarketMakerTradeFormBloc
 
       final requiredAmount = double.tryParse(preImageError.required) ?? 0;
       final sellCoinBalance = balance ?? BalanceInfo.zero();
-      final newSellAmount =
-          sellAmountValue -
+      final newSellAmount = sellAmountValue -
           (requiredAmount - sellCoinBalance.spendable.toDouble());
       return newSellAmount;
     }

@@ -22,10 +22,10 @@ class NftTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    final ColorSchemeExtension colorScheme = themeData
-        .extension<ColorSchemeExtension>()!;
-    final TextThemeExtension textTheme = themeData
-        .extension<TextThemeExtension>()!;
+    final ColorSchemeExtension colorScheme =
+        themeData.extension<ColorSchemeExtension>()!;
+    final TextThemeExtension textTheme =
+        themeData.extension<TextThemeExtension>()!;
 
     return BlocSelector<NftMainBloc, NftMainState, NftBlockchains>(
       selector: (state) {
@@ -132,17 +132,14 @@ class _NftCount extends StatelessWidget {
       },
       builder: (context, nftCount) {
         final int? count = nftCount[chain];
-        final ColorSchemeExtension colorScheme = Theme.of(
-          context,
-        ).extension<ColorSchemeExtension>()!;
-        final TextThemeExtension textTheme = Theme.of(
-          context,
-        ).extension<TextThemeExtension>()!;
+        final ColorSchemeExtension colorScheme =
+            Theme.of(context).extension<ColorSchemeExtension>()!;
+        final TextThemeExtension textTheme =
+            Theme.of(context).extension<TextThemeExtension>()!;
         return Text(
-          count != null ? LocaleKeys.nItems.tr(args: [count.toString()]) : '',
-          style: textTheme.bodyXXSBold.copyWith(color: colorScheme.s40),
-          key: Key('ntf-tab-count-$chain'),
-        );
+            count != null ? LocaleKeys.nItems.tr(args: [count.toString()]) : '',
+            style: textTheme.bodyXXSBold.copyWith(color: colorScheme.s40),
+            key: Key('ntf-tab-count-$chain'));
       },
     );
   }

@@ -173,12 +173,11 @@ class _TargetProtocolErrorMessage extends StatelessWidget {
               const Icon(Icons.warning_amber, size: 14, color: Colors.orange),
               const SizedBox(width: 4),
               Flexible(
-                child: SelectableText(
-                  error.message,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
+                  child: SelectableText(
+                error.message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              )),
               const SizedBox(height: 4),
               UiSimpleButton(
                 onPressed: onRetry,
@@ -186,7 +185,7 @@ class _TargetProtocolErrorMessage extends StatelessWidget {
                   LocaleKeys.retryButtonText.tr(),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-              ),
+              )
             ],
           ),
         ],

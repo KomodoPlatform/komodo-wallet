@@ -20,10 +20,10 @@ class BackupCompletedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'backup_time': backupTime,
-    'method': method,
-    'wallet_type': walletType,
-  };
+        'backup_time': backupTime,
+        'method': method,
+        'wallet_type': walletType,
+      };
 }
 
 /// E05: Seed backup finished
@@ -33,12 +33,12 @@ class AnalyticsBackupCompletedEvent extends AnalyticsSendDataEvent {
     required String method,
     required String walletType,
   }) : super(
-         BackupCompletedEventData(
-           backupTime: backupTime,
-           method: method,
-           walletType: walletType,
-         ),
-       );
+          BackupCompletedEventData(
+            backupTime: backupTime,
+            method: method,
+            walletType: walletType,
+          ),
+        );
 }
 
 /// E06: Backup skipped / postponed
@@ -57,9 +57,9 @@ class BackupSkippedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'stage_skipped': stageSkipped,
-    'wallet_type': walletType,
-  };
+        'stage_skipped': stageSkipped,
+        'wallet_type': walletType,
+      };
 }
 
 /// E06: Backup skipped / postponed
@@ -68,9 +68,9 @@ class AnalyticsBackupSkippedEvent extends AnalyticsSendDataEvent {
     required String stageSkipped,
     required String walletType,
   }) : super(
-         BackupSkippedEventData(
-           stageSkipped: stageSkipped,
-           walletType: walletType,
-         ),
-       );
+          BackupSkippedEventData(
+            stageSkipped: stageSkipped,
+            walletType: walletType,
+          ),
+        );
 }

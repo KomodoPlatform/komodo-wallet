@@ -7,11 +7,13 @@ class SystemClockRepository {
     Duration? maxAllowedDifference,
     Duration? apiTimeout,
     Logger? logger,
-  }) : _maxAllowedDifference =
-           maxAllowedDifference ?? const Duration(seconds: 60),
-       _providerRegistry =
-           providerRegistry ?? TimeProviderRegistry(apiTimeout: apiTimeout),
-       _logger = logger ?? Logger('SystemClockRepository');
+  })  : _maxAllowedDifference =
+            maxAllowedDifference ?? const Duration(seconds: 60),
+        _providerRegistry = providerRegistry ??
+            TimeProviderRegistry(
+              apiTimeout: apiTimeout,
+            ),
+        _logger = logger ?? Logger('SystemClockRepository');
 
   final Duration _maxAllowedDifference;
   final TimeProviderRegistry _providerRegistry;
@@ -39,9 +41,8 @@ class SystemClockRepository {
             _logger.info('System clock validated by ${provider.name} provider');
           } else {
             _logger.warning(
-              'System clock differs by ${difference.inSeconds}s from '
-              '${provider.name} provider',
-            );
+                'System clock differs by ${difference.inSeconds}s from '
+                '${provider.name} provider');
           }
 
           return isValid;

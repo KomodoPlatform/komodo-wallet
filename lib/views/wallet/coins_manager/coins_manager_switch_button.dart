@@ -31,9 +31,9 @@ class CoinsManagerSwitchButton extends StatelessWidget {
           : LocaleKeys.removeAssets.tr(),
       width: 260,
       onPressed: state.selectedCoins.isNotEmpty
-          ? () => context.read<CoinsManagerBloc>().add(
-              const CoinsManagerCoinsSwitch(),
-            )
+          ? () => context
+              .read<CoinsManagerBloc>()
+              .add(const CoinsManagerCoinsSwitch())
           : null,
     );
   }

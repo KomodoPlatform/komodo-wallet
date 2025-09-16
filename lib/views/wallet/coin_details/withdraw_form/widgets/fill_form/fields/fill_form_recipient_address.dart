@@ -23,9 +23,8 @@ class FillFormRecipientAddress extends StatefulWidget {
 
 class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
   final TextEditingController _addressController = TextEditingController();
-  TextSelection _previousTextSelection = const TextSelection.collapsed(
-    offset: 0,
-  );
+  TextSelection _previousTextSelection =
+      const TextSelection.collapsed(offset: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +53,9 @@ class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
                     setState(() {
                       _previousTextSelection = _addressController.selection;
                     });
-                    context.read<WithdrawFormBloc>().add(
-                      WithdrawFormRecipientChanged(address ?? ''),
-                    );
+                    context
+                        .read<WithdrawFormBloc>()
+                        .add(WithdrawFormRecipientChanged(address ?? ''));
                   },
                   validator: (String? value) {
                     if (addressError?.message.isEmpty ?? true) return null;
@@ -72,8 +71,8 @@ class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
-                  suffixIcon:
-                      (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+                  suffixIcon: (!kIsWeb &&
+                          (Platform.isAndroid || Platform.isIOS))
                       ? IconButton(
                           icon: const Icon(Icons.qr_code_scanner),
                           onPressed: () async {
@@ -87,15 +86,17 @@ class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
 
                             if (context.mounted) {
                               context.read<WithdrawFormBloc>().add(
-                                WithdrawFormRecipientChanged(address ?? ''),
-                              );
+                                    WithdrawFormRecipientChanged(address ?? ''),
+                                  );
                             }
                           },
                         )
                       : null,
                 ),
                 if (addressError is MixedCaseAddressError)
-                  _ErrorAddressRow(error: addressError),
+                  _ErrorAddressRow(
+                    error: addressError,
+                  ),
               ],
             );
           },

@@ -6,19 +6,19 @@ class BitrefillProvider {
   /// coin names. The keys are the coin abbreviations used in the app, and the
   /// values are the coin names used in the Bitrefill widget.
   Map<String, String> get supportedCoinAbbrMap => <String, String>{
-    'BTC': 'bitcoin',
-    'BTC-segwit': 'bitcoin',
-    'DASH': 'dash',
-    'DOGE': 'dogecoin',
-    'ETH': 'ethereum',
-    'LTC': 'litecoin',
-    'LTC-segwit': 'litecoin',
-    'USDT-ERC20': 'usdt_erc20',
-    'USDT-TRC20': 'usdt_trc20',
-    'USDT-PLG20': 'usdt_polygon',
-    'USDC-ERC20': 'usdc_erc20',
-    'USDC-PLG20': 'usdc_polygon',
-  };
+        'BTC': 'bitcoin',
+        'BTC-segwit': 'bitcoin',
+        'DASH': 'dash',
+        'DOGE': 'dogecoin',
+        'ETH': 'ethereum',
+        'LTC': 'litecoin',
+        'LTC-segwit': 'litecoin',
+        'USDT-ERC20': 'usdt_erc20',
+        'USDT-TRC20': 'usdt_trc20',
+        'USDT-PLG20': 'usdt_polygon',
+        'USDC-ERC20': 'usdc_erc20',
+        'USDC-PLG20': 'usdc_polygon',
+      };
 
   /// A list of supported Bitrefill coin abbreviations for payments.
   List<String> get supportedCoinAbbrs => supportedCoinAbbrMap.keys.toList();
@@ -42,9 +42,8 @@ class BitrefillProvider {
   /// The widget's HTML file is located at `assets/web_pages/bitrefill_widget.html`.
   String embeddedBitrefillUrl({String? coinAbbr, String? refundAddress}) {
     final String baseUrl = baseEmbeddedBitrefillUrl();
-    final String? coinName = coinAbbr != null
-        ? supportedCoinAbbrMap[coinAbbr]
-        : null;
+    final String? coinName =
+        coinAbbr != null ? supportedCoinAbbrMap[coinAbbr] : null;
     final EmbeddedBitrefillUrl embeddedBitrefillUrl = EmbeddedBitrefillUrl(
       baseUrl: baseUrl,
       paymentMethods: coinName != null ? <String>[coinName] : null,

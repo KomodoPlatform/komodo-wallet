@@ -22,12 +22,17 @@ class NftTxnStatus extends StatelessWidget {
           statusIconPath,
           width: 16,
           height: 16,
-          colorFilter: ColorFilter.mode(colorScheme.secondary, BlendMode.srcIn),
+          colorFilter: ColorFilter.mode(
+            colorScheme.secondary,
+            BlendMode.srcIn,
+          ),
         ),
         const SizedBox(width: 4),
         Text(
           status.toString(),
-          style: textScheme.bodyXS.copyWith(color: colorScheme.secondary),
+          style: textScheme.bodyXS.copyWith(
+            color: colorScheme.secondary,
+          ),
         ),
       ],
     );

@@ -7,12 +7,10 @@ class NftNoLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorSchemeExtension colorScheme = Theme.of(
-      context,
-    ).extension<ColorSchemeExtension>()!;
-    final TextThemeExtension textTheme = Theme.of(
-      context,
-    ).extension<TextThemeExtension>()!;
+    final ColorSchemeExtension colorScheme =
+        Theme.of(context).extension<ColorSchemeExtension>()!;
+    final TextThemeExtension textTheme =
+        Theme.of(context).extension<TextThemeExtension>()!;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -20,15 +18,21 @@ class NftNoLogin extends StatelessWidget {
           width: 124,
           height: 124,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: colorScheme.surfCont,
-            boxShadow: [
-              BoxShadow(color: colorScheme.secondary, blurRadius: 24),
-            ],
-          ),
+              shape: BoxShape.circle,
+              color: colorScheme.surfCont,
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.secondary,
+                  blurRadius: 24,
+                )
+              ]),
         ),
         const SizedBox(height: 32),
-        Text(text, style: textTheme.bodySBold, textAlign: TextAlign.center),
+        Text(
+          text,
+          style: textTheme.bodySBold,
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }

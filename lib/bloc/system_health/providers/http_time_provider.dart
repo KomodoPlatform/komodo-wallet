@@ -15,10 +15,10 @@ class HttpTimeProvider extends TimeProvider {
     http.Client? httpClient,
     Duration? apiTimeout,
     Logger? logger,
-  }) : _httpClient = httpClient ?? http.Client(),
-       _apiTimeout = apiTimeout ?? const Duration(seconds: 2),
-       name = providerName,
-       _logger = logger ?? Logger(providerName);
+  })  : _httpClient = httpClient ?? http.Client(),
+        _apiTimeout = apiTimeout ?? const Duration(seconds: 2),
+        name = providerName,
+        _logger = logger ?? Logger(providerName);
 
   /// The URL of the time API
   final String url;
@@ -111,5 +111,5 @@ enum TimeFormat {
   iso8601,
 
   /// Custom format that may require special parsing
-  custom,
+  custom
 }

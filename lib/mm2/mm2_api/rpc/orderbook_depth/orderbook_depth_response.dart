@@ -47,11 +47,7 @@ class OrderBookDepth {
     if (source == null || target == null) return null;
 
     return OrderBookDepth(
-      source,
-      target,
-      depth['asks'] ?? 0,
-      depth['bids'] ?? 0,
-    );
+        source, target, depth['asks'] ?? 0, depth['bids'] ?? 0);
   }
 
   @override

@@ -5,7 +5,7 @@ import 'package:web_dex/views/dex/simple/form/taker/coin_item/trade_controller.d
 
 class MakerFormBuySwitcher extends StatelessWidget {
   const MakerFormBuySwitcher({required this.controller, Key? key})
-    : super(key: key);
+      : super(key: key);
 
   final TradeCoinController controller;
 

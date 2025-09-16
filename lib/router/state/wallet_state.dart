@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:web_dex/router/state/menu_state_interface.dart';
 
 class WalletState extends ChangeNotifier implements IResettableOnLogout {
-  WalletState() : _selectedCoin = '', _action = '';
+  WalletState()
+      : _selectedCoin = '',
+        _action = '';
 
   String _selectedCoin;
   String _action;
@@ -61,4 +63,8 @@ class CoinsManagerRouteAction {
 final CoinsManagerRouteAction coinsManagerRouteAction =
     CoinsManagerRouteAction();
 
-enum CoinsManagerAction { add, remove, none }
+enum CoinsManagerAction {
+  add,
+  remove,
+  none,
+}

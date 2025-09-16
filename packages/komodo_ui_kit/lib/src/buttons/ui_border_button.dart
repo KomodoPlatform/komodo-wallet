@@ -134,18 +134,24 @@ class _ButtonText extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (prefix != null) ...[prefix, const SizedBox(width: 9)],
+        if (prefix != null) ...[
+          prefix,
+          const SizedBox(width: 9),
+        ],
         Flexible(
           child: Text(
             text,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: textColor,
-              fontWeight: fontWeight,
-              fontSize: fontSize,
-            ),
+                  color: textColor,
+                  fontWeight: fontWeight,
+                  fontSize: fontSize,
+                ),
           ),
         ),
-        if (suffix != null) ...[const SizedBox(width: 9), suffix],
+        if (suffix != null) ...[
+          const SizedBox(width: 9),
+          suffix,
+        ],
       ],
     );
   }

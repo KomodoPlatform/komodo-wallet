@@ -21,7 +21,10 @@ class CoinsManagerListHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 5),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(width: 1, color: Theme.of(context).dividerColor),
+          bottom: BorderSide(
+            width: 1,
+            color: Theme.of(context).dividerColor,
+          ),
         ),
       ),
       child: Padding(

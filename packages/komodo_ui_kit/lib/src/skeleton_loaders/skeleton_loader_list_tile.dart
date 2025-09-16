@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class SkeletonListTile extends StatefulWidget {
-  const SkeletonListTile({super.key, this.height = 122});
+  const SkeletonListTile({
+    super.key,
+    this.height = 122,
+  });
 
   final double height;
 
@@ -17,16 +20,13 @@ class _SkeletonListTileState extends State<SkeletonListTile>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-    _gradientPosition =
-        Tween<double>(begin: -3, end: 10).animate(
-          CurvedAnimation(parent: _controller, curve: Curves.linear),
-        )..addListener(() {
-          setState(() {});
-        });
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _gradientPosition = Tween<double>(begin: -3, end: 10)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.linear))
+      ..addListener(() {
+        setState(() {});
+      });
 
     _controller.repeat();
   }
@@ -44,7 +44,11 @@ class _SkeletonListTileState extends State<SkeletonListTile>
     return LinearGradient(
       begin: Alignment(_gradientPosition.value, 0),
       end: const Alignment(-1, 0),
-      colors: [backgroundColor, highlightColor, backgroundColor],
+      colors: [
+        backgroundColor,
+        highlightColor,
+        backgroundColor,
+      ],
     );
   }
 

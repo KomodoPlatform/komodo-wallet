@@ -90,7 +90,9 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
                   const TakerFormTotalFees(),
                   const SizedBox(height: 24),
                   _buildError(),
-                  Flexible(child: _buildButtons()),
+                  Flexible(
+                    child: _buildButtons(),
+                  )
                 ],
               ),
             ),
@@ -117,9 +119,13 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
   Widget _buildButtons() {
     return Row(
       children: [
-        Flexible(child: _buildBackButton()),
+        Flexible(
+          child: _buildBackButton(),
+        ),
         const SizedBox(width: 23),
-        Flexible(child: _buildConfirmButton()),
+        Flexible(
+          child: _buildConfirmButton(),
+        ),
       ],
     );
   }
@@ -134,25 +140,24 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
         return Opacity(
           opacity: inProgress ? 0.8 : 1,
           child: UiPrimaryButton(
-            key: const Key('take-order-confirm-button'),
-            prefix: inProgress
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: UiSpinner(
-                      width: 10,
-                      height: 10,
-                      strokeWidth: 1,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
-                    ),
-                  )
-                : null,
-            onPressed: inProgress || !tradingEnabled
-                ? null
-                : () => _startSwap(context),
-            text: tradingEnabled
-                ? LocaleKeys.confirm.tr()
-                : LocaleKeys.tradingDisabled.tr(),
-          ),
+              key: const Key('take-order-confirm-button'),
+              prefix: inProgress
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: UiSpinner(
+                        width: 10,
+                        height: 10,
+                        strokeWidth: 1,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                      ),
+                    )
+                  : null,
+              onPressed: inProgress || !tradingEnabled
+                  ? null
+                  : () => _startSwap(context),
+              text: tradingEnabled
+                  ? LocaleKeys.confirm.tr()
+                  : LocaleKeys.tradingDisabled.tr()),
         );
       },
     );
@@ -169,9 +174,10 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
           child: Text(
             message,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.error,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Theme.of(context).colorScheme.error),
           ),
         );
       },
@@ -207,14 +213,12 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
       children: [
         FiatAmount(coin: buyCoin, amount: buyAmount),
         if (percentage != null)
-          Text(
-            ' (${percentage > 0 ? '+' : ''}${formatAmt(percentage)}%)',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontSize: 11,
-              color: color,
-              fontWeight: FontWeight.w200,
-            ),
-          ),
+          Text(' (${percentage > 0 ? '+' : ''}${formatAmt(percentage)}%)',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.w200,
+                  )),
       ],
     );
   }
@@ -222,9 +226,8 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
   Widget _buildFiatSend(Coin coin, Rational? amount) {
     if (amount == null) return const SizedBox();
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 0, 2, 0),
-      child: FiatAmount(coin: coin, amount: amount),
-    );
+        padding: const EdgeInsets.fromLTRB(0, 0, 2, 0),
+        child: FiatAmount(coin: coin, amount: amount));
   }
 
   Widget _buildReceive(Coin coin, Rational? amount) {
@@ -232,22 +235,24 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
       children: [
         SelectableText(
           LocaleKeys.swapConfirmationYouReceive.tr(),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: theme.custom.dexSubTitleColor),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: theme.custom.dexSubTitleColor,
+              ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SelectableText(
-              '${formatDexAmt(amount)} ',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-            ),
+            SelectableText('${formatDexAmt(amount)} ',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                )),
             SelectableText(
               Coin.normalizeAbbr(coin.abbr),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: theme.custom.balanceColor,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: theme.custom.balanceColor),
             ),
             if (coin.mode == CoinMode.segwit)
               const Padding(
@@ -262,7 +267,10 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
 
   Widget _buildSend(Coin coin, Rational? amount) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      padding: const EdgeInsets.symmetric(
+        vertical: 14,
+        horizontal: 16,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
         color: theme.custom.subCardBackgroundColor,
@@ -274,8 +282,8 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
           SelectableText(
             LocaleKeys.swapConfirmationYouSending.tr(),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: theme.custom.dexSubTitleColor,
-            ),
+                  color: theme.custom.dexSubTitleColor,
+                ),
           ),
           const SizedBox(height: 10),
           Row(
@@ -291,9 +299,9 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
                   SelectableText(
                     formatDexAmt(amount),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w500,
-                    ),
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                   _buildFiatSend(coin, amount),
                 ],
@@ -325,13 +333,13 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     final networks =
         '${sellCoinObj.protocolType},${buyCoinObj?.protocolType ?? ''}';
     context.read<AnalyticsBloc>().logEvent(
-      SwapInitiatedEventData(
-        fromAsset: sellCoin,
-        toAsset: buyCoin,
-        networks: networks,
-        walletType: walletType,
-      ),
-    );
+          SwapInitiatedEventData(
+            fromAsset: sellCoin,
+            toAsset: buyCoin,
+            networks: networks,
+            walletType: walletType,
+          ),
+        );
     context.read<TakerBloc>().add(TakerStartSwap());
   }
 
@@ -342,9 +350,8 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     context.read<TakerBloc>().add(TakerClear());
     routingState.dexState.setDetailsAction(uuid);
 
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
-      context,
-    );
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     await tradingEntitiesBloc.fetch();
   }
 }

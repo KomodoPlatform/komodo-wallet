@@ -38,20 +38,23 @@ class AssetsList extends StatelessWidget {
     final filteredAssets = _filterAssets();
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        final asset = filteredAssets[index];
-        final Color backgroundColor = index.isEven
-            ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.onSurface;
+      delegate: SliverChildBuilderDelegate(
+        (BuildContext context, int index) {
+          final asset = filteredAssets[index];
+          final Color backgroundColor = index.isEven
+              ? Theme.of(context).colorScheme.surface
+              : Theme.of(context).colorScheme.onSurface;
 
-        return AssetListItem(
-          assetId: asset,
-          backgroundColor: backgroundColor,
-          onTap: onAssetItemTap,
-          onStatisticsTap: onStatisticsTap,
-          priceChangePercentage24h: priceChangePercentages[asset.id],
-        );
-      }, childCount: filteredAssets.length),
+          return AssetListItem(
+            assetId: asset,
+            backgroundColor: backgroundColor,
+            onTap: onAssetItemTap,
+            onStatisticsTap: onStatisticsTap,
+            priceChangePercentage24h: priceChangePercentages[asset.id],
+          );
+        },
+        childCount: filteredAssets.length,
+      ),
     );
   }
 

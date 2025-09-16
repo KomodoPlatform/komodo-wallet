@@ -14,12 +14,11 @@ class WithdrawNotSufficientBalanceError implements BaseError {
     required String coin,
     required String availableAmount,
     required String requiredAmount,
-  }) : _coin = coin,
-       _availableAmount = availableAmount,
-       _requiredAmount = requiredAmount;
+  })  : _coin = coin,
+        _availableAmount = availableAmount,
+        _requiredAmount = requiredAmount;
   factory WithdrawNotSufficientBalanceError.fromJson(
-    Map<String, dynamic> json,
-  ) {
+      Map<String, dynamic> json) {
     return WithdrawNotSufficientBalanceError(
       coin: json['error_data']['coin'],
       availableAmount: json['error_data']['available'],
@@ -35,9 +34,8 @@ class WithdrawNotSufficientBalanceError implements BaseError {
 
   @override
   String get message {
-    return LocaleKeys.withdrawNotSufficientBalanceError.tr(
-      args: [_coin, _availableAmount, _requiredAmount],
-    );
+    return LocaleKeys.withdrawNotSufficientBalanceError
+        .tr(args: [_coin, _availableAmount, _requiredAmount]);
   }
 }
 
@@ -45,8 +43,8 @@ class WithdrawZeroBalanceToWithdrawMaxError
     implements BaseError, ErrorNeedsSetCoinAbbr {
   WithdrawZeroBalanceToWithdrawMaxError();
   factory WithdrawZeroBalanceToWithdrawMaxError.fromJson(
-    Map<String, dynamic> json,
-  ) => WithdrawZeroBalanceToWithdrawMaxError();
+          Map<String, dynamic> json) =>
+      WithdrawZeroBalanceToWithdrawMaxError();
 
   late String _coin;
 
@@ -64,9 +62,11 @@ class WithdrawZeroBalanceToWithdrawMaxError
 }
 
 class WithdrawAmountTooLowError implements BaseError, ErrorNeedsSetCoinAbbr {
-  WithdrawAmountTooLowError({required String amount, required String threshold})
-    : _amount = amount,
-      _threshold = threshold;
+  WithdrawAmountTooLowError({
+    required String amount,
+    required String threshold,
+  })  : _amount = amount,
+        _threshold = threshold;
 
   factory WithdrawAmountTooLowError.fromJson(Map<String, dynamic> json) =>
       WithdrawAmountTooLowError(
@@ -81,9 +81,8 @@ class WithdrawAmountTooLowError implements BaseError, ErrorNeedsSetCoinAbbr {
 
   @override
   String get message {
-    return LocaleKeys.withdrawAmountTooLowError.tr(
-      args: [_amount, _coin, _threshold, _coin],
-    );
+    return LocaleKeys.withdrawAmountTooLowError
+        .tr(args: [_amount, _coin, _threshold, _coin]);
   }
 
   @override
@@ -93,10 +92,14 @@ class WithdrawAmountTooLowError implements BaseError, ErrorNeedsSetCoinAbbr {
 }
 
 class WithdrawInvalidAddressError implements BaseError {
-  WithdrawInvalidAddressError({required String error}) : _error = error;
+  WithdrawInvalidAddressError({
+    required String error,
+  }) : _error = error;
 
   factory WithdrawInvalidAddressError.fromJson(Map<String, dynamic> json) =>
-      WithdrawInvalidAddressError(error: json['error']);
+      WithdrawInvalidAddressError(
+        error: json['error'],
+      );
 
   static const String type = 'InvalidAddress';
   String _error;
@@ -108,9 +111,13 @@ class WithdrawInvalidAddressError implements BaseError {
 }
 
 class WithdrawInvalidFeePolicyError implements BaseError {
-  WithdrawInvalidFeePolicyError({required String error}) : _error = error;
+  WithdrawInvalidFeePolicyError({
+    required String error,
+  }) : _error = error;
   factory WithdrawInvalidFeePolicyError.fromJson(Map<String, dynamic> json) =>
-      WithdrawInvalidFeePolicyError(error: json['error']);
+      WithdrawInvalidFeePolicyError(
+        error: json['error'],
+      );
 
   String _error;
   static const String type = 'InvalidFeePolicy';
@@ -125,7 +132,9 @@ class WithdrawNoSuchCoinError implements BaseError {
   WithdrawNoSuchCoinError({required String coin}) : _coin = coin;
 
   factory WithdrawNoSuchCoinError.fromJson(Map<String, dynamic> json) =>
-      WithdrawNoSuchCoinError(coin: json['error_data']['coin']);
+      WithdrawNoSuchCoinError(
+        coin: json['error_data']['coin'],
+      );
 
   String _coin;
 
@@ -140,12 +149,16 @@ class WithdrawNoSuchCoinError implements BaseError {
 class WithdrawTransportError
     with ErrorWithDetails
     implements BaseError, ErrorNeedsSetCoinAbbr {
-  WithdrawTransportError({required String error, String? feeCoin})
-    : _error = error,
-      _feeCoin = feeCoin;
+  WithdrawTransportError({
+    required String error,
+    String? feeCoin,
+  })  : _error = error,
+        _feeCoin = feeCoin;
 
   factory WithdrawTransportError.fromJson(Map<String, dynamic> json) {
-    return WithdrawTransportError(error: json['error'] ?? '');
+    return WithdrawTransportError(
+      error: json['error'] ?? '',
+    );
   }
 
   final String _error;
@@ -158,15 +171,16 @@ class WithdrawTransportError
     final hasFeeCoin = _feeCoin != null && _feeCoin!.isNotEmpty;
 
     if (isGasPaymentError && hasFeeCoin) {
-      return '${LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(args: [_feeCoin!])}.';
+      return '${LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(args: [
+            _feeCoin!
+          ])}.';
     }
 
     if (_error.isNotEmpty &&
         _error.contains('insufficient funds for transfer') &&
         hasFeeCoin) {
-      return LocaleKeys.withdrawNotEnoughBalanceForGasError.tr(
-        args: [_feeCoin!],
-      );
+      return LocaleKeys.withdrawNotEnoughBalanceForGasError
+          .tr(args: [_feeCoin!]);
     }
 
     return LocaleKeys.somethingWrong.tr();
@@ -188,7 +202,8 @@ class WithdrawTransportError
 
   @override
   void setCoinAbbr(String coinAbbr) {
-    final maybeCoin = GetIt.I<KomodoDefiSdk>().assets
+    final maybeCoin = GetIt.I<KomodoDefiSdk>()
+        .assets
         .findAssetsByConfigId(coinAbbr)
         .singleOrNull;
 
@@ -202,10 +217,14 @@ class WithdrawTransportError
 }
 
 class WithdrawInternalError with ErrorWithDetails implements BaseError {
-  WithdrawInternalError({required String error}) : _error = error;
+  WithdrawInternalError({
+    required String error,
+  }) : _error = error;
 
   factory WithdrawInternalError.fromJson(Map<String, dynamic> json) =>
-      WithdrawInternalError(error: json['error']);
+      WithdrawInternalError(
+        error: json['error'],
+      );
 
   String _error;
 

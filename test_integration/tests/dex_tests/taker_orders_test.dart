@@ -35,8 +35,7 @@ Future<void> testTakerOrder(WidgetTester tester) async {
     onTimeout: () {
       print('❌ TAKER ORDER: Swap timeout - exceeded 15 minutes');
       throw Exception(
-        'Test error: DOC->MARTY taker Swap took more than 15 minutes',
-      );
+          'Test error: DOC->MARTY taker Swap took more than 15 minutes');
     },
   );
 
@@ -82,11 +81,8 @@ Future<void> _testSwapHistoryTable(
   print('🔍 HISTORY CHECK: Opened history tab');
 
   await tester.pump(timeout);
-  expect(
-    find.byType(HistoryItem),
-    findsOneWidget,
-    reason: 'Test error: Swap history item not found',
-  );
+  expect(find.byType(HistoryItem), findsOneWidget,
+      reason: 'Test error: Swap history item not found');
   print('🔍 HISTORY CHECK: Found history item successfully');
 }
 
@@ -94,21 +90,16 @@ Future<void> _expectSwapSuccess(WidgetTester tester) async {
   print('🔍 SWAP VERIFY: Starting swap verification process');
 
   final Finder tradingDetailsScrollable = find.byType(Scrollable);
-  final Finder takerFeeSentEventStep = find.byKey(
-    const Key('swap-details-step-TakerFeeSent'),
-  );
-  final Finder makerPaymentReceivedEventStep = find.byKey(
-    const Key('swap-details-step-MakerPaymentReceived'),
-  );
-  final Finder takerPaymentSentEventStep = find.byKey(
-    const Key('swap-details-step-TakerPaymentSent'),
-  );
-  final Finder takerPaymentSpentEventStep = find.byKey(
-    const Key('swap-details-step-TakerPaymentSpent'),
-  );
-  final Finder makerPaymentSpentEventStep = find.byKey(
-    const Key('swap-details-step-MakerPaymentSpent'),
-  );
+  final Finder takerFeeSentEventStep =
+      find.byKey(const Key('swap-details-step-TakerFeeSent'));
+  final Finder makerPaymentReceivedEventStep =
+      find.byKey(const Key('swap-details-step-MakerPaymentReceived'));
+  final Finder takerPaymentSentEventStep =
+      find.byKey(const Key('swap-details-step-TakerPaymentSent'));
+  final Finder takerPaymentSpentEventStep =
+      find.byKey(const Key('swap-details-step-TakerPaymentSpent'));
+  final Finder makerPaymentSpentEventStep =
+      find.byKey(const Key('swap-details-step-MakerPaymentSpent'));
   final Finder swapSuccess = find.byKey(const Key('swap-status-success'));
   final Finder backButton = find.byKey(const Key('return-button'));
 
@@ -116,68 +107,44 @@ Future<void> _expectSwapSuccess(WidgetTester tester) async {
   print('🔍 SWAP VERIFY: Found success status');
 
   expect(
-    find.descendant(
-      of: takerFeeSentEventStep,
-      matching: find.byType(CopiedText),
-    ),
-    findsOneWidget,
-  );
+      find.descendant(
+          of: takerFeeSentEventStep, matching: find.byType(CopiedText)),
+      findsOneWidget);
   print('🔍 SWAP VERIFY: Taker fee sent verified');
 
   expect(
-    find.descendant(
-      of: makerPaymentReceivedEventStep,
-      matching: find.byType(CopiedText),
-    ),
-    findsOneWidget,
-  );
+      find.descendant(
+          of: makerPaymentReceivedEventStep, matching: find.byType(CopiedText)),
+      findsOneWidget);
   print('🔍 SWAP VERIFY: Maker payment received verified');
 
-  await tester.dragUntilVisible(
-    takerPaymentSentEventStep,
-    tradingDetailsScrollable,
-    const Offset(0, -10),
-  );
+  await tester.dragUntilVisible(takerPaymentSentEventStep,
+      tradingDetailsScrollable, const Offset(0, -10));
   print('🔍 SWAP VERIFY: Scrolled to taker payment sent');
   expect(
     find.descendant(
-      of: takerPaymentSentEventStep,
-      matching: find.byType(CopiedText),
-    ),
+        of: takerPaymentSentEventStep, matching: find.byType(CopiedText)),
     findsOneWidget,
   );
 
-  await tester.dragUntilVisible(
-    takerPaymentSpentEventStep,
-    tradingDetailsScrollable,
-    const Offset(0, -10),
-  );
+  await tester.dragUntilVisible(takerPaymentSpentEventStep,
+      tradingDetailsScrollable, const Offset(0, -10));
   expect(
     find.descendant(
-      of: takerPaymentSpentEventStep,
-      matching: find.byType(CopiedText),
-    ),
+        of: takerPaymentSpentEventStep, matching: find.byType(CopiedText)),
     findsOneWidget,
   );
 
-  await tester.dragUntilVisible(
-    makerPaymentSpentEventStep,
-    tradingDetailsScrollable,
-    const Offset(0, -10),
-  );
+  await tester.dragUntilVisible(makerPaymentSpentEventStep,
+      tradingDetailsScrollable, const Offset(0, -10));
   expect(
     find.descendant(
-      of: makerPaymentSpentEventStep,
-      matching: find.byType(CopiedText),
-    ),
+        of: makerPaymentSpentEventStep, matching: find.byType(CopiedText)),
     findsOneWidget,
   );
 
   await tester.dragUntilVisible(
-    backButton,
-    tradingDetailsScrollable,
-    const Offset(0, 10),
-  );
+      backButton, tradingDetailsScrollable, const Offset(0, 10));
   print('🔍 SWAP VERIFY: All swap steps verified successfully');
 }
 
@@ -185,15 +152,11 @@ Future<void> _createTakerOrder(WidgetTester tester) async {
   print('🔍 CREATE ORDER: Starting order creation');
 
   final Finder takeOrderButton = find.byKey(const Key('take-order-button'));
-  final Finder takeOrderConfirmButton = find.byKey(
-    const Key('take-order-confirm-button'),
-  );
+  final Finder takeOrderConfirmButton =
+      find.byKey(const Key('take-order-confirm-button'));
 
-  await tester.dragUntilVisible(
-    takeOrderButton,
-    find.byKey(const Key('taker-form-layout-scroll')),
-    const Offset(0, -150),
-  );
+  await tester.dragUntilVisible(takeOrderButton,
+      find.byKey(const Key('taker-form-layout-scroll')), const Offset(0, -150));
   print('🔍 CREATE ORDER: Scrolled to take order button');
   await tester.waitForButtonEnabled(
     takeOrderButton,
@@ -208,10 +171,9 @@ Future<void> _createTakerOrder(WidgetTester tester) async {
   await pause(sec: 2);
 
   await tester.dragUntilVisible(
-    takeOrderConfirmButton,
-    find.byKey(const Key('taker-order-confirmation-scroll')),
-    const Offset(0, -150),
-  );
+      takeOrderConfirmButton,
+      find.byKey(const Key('taker-order-confirmation-scroll')),
+      const Offset(0, -150));
   print('🔍 CREATE ORDER: Scrolled to confirm button');
   await tester.tapAndPump(takeOrderConfirmButton);
   print('🔍 CREATE ORDER: Order confirmed');
@@ -238,9 +200,8 @@ Future<void> _selectSellCoin(
   required String sellAmount,
 }) async {
   print('🔍 SELL CONFIG: Setting up sell parameters');
-  final Finder sellCoinSelectButton = find.byKey(
-    const Key('taker-form-sell-switcher'),
-  );
+  final Finder sellCoinSelectButton =
+      find.byKey(const Key('taker-form-sell-switcher'));
   final Finder sellCoinSearchField = find.descendant(
     of: find.byKey(const Key('taker-sell-coins-table')),
     matching: find.byKey(const Key('search-field')),
@@ -266,15 +227,12 @@ Future<void> _selectSellCoin(
   await tester.pumpNFrames(10);
 }
 
-Future<void> _selectBuyCoin(
-  WidgetTester tester, {
-  required String buyCoin,
-}) async {
+Future<void> _selectBuyCoin(WidgetTester tester,
+    {required String buyCoin}) async {
   print('🔍 BUY CONFIG: Setting up buy parameters');
 
-  final Finder buyCoinSelectButton = find.byKey(
-    const Key('taker-form-buy-switcher'),
-  );
+  final Finder buyCoinSelectButton =
+      find.byKey(const Key('taker-form-buy-switcher'));
   final Finder buyCoinSearchField = find.descendant(
     of: find.byKey(const Key('taker-orders-table')),
     matching: find.byKey(const Key('search-field')),

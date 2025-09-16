@@ -6,8 +6,8 @@ class ActiveSwapsRequest {
   final bool includeStatus = true;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'userpass': userpass,
-    'method': method,
-    'include_status': true,
-  };
+        'userpass': userpass,
+        'method': method,
+        'include_status': true
+      };
 }

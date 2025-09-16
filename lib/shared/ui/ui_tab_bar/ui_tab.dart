@@ -30,28 +30,27 @@ class UiTab extends StatelessWidget {
       ),
       child: ElevatedButton(
         onPressed: onClick == null ? null : () => onClick!(),
-        style:
-            ElevatedButton.styleFrom(
-              shadowColor: Colors.transparent,
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(36.0),
-              ),
-            ).copyWith(
-              backgroundColor: WidgetStateProperty.all(Colors.transparent),
-            ),
+        style: ElevatedButton.styleFrom(
+          shadowColor: Colors.transparent,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(36.0),
+          ),
+        ).copyWith(
+          backgroundColor: WidgetStateProperty.all(Colors.transparent),
+        ),
         child: Center(
           child: Text(
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).primaryTextTheme.bodyMedium?.copyWith(
-              // Use the same color scheme as in `dex_text_button.dart`
-              // for now
-              color: isSelected
-                  ? Theme.of(context).primaryTextTheme.labelLarge?.color
-                  : Theme.of(context).textTheme.labelLarge?.color,
-            ),
+                  // Use the same color scheme as in `dex_text_button.dart`
+                  // for now
+                  color: isSelected
+                      ? Theme.of(context).primaryTextTheme.labelLarge?.color
+                      : Theme.of(context).textTheme.labelLarge?.color,
+                ),
           ),
         ),
       ),

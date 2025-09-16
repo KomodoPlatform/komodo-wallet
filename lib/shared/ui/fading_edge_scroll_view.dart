@@ -44,9 +44,9 @@ class FadingEdgeScrollView extends StatefulWidget {
     required this.gradientFractionOnStart,
     required this.gradientFractionOnEnd,
     required this.shouldDisposeScrollController,
-  }) : assert(gradientFractionOnStart >= 0 && gradientFractionOnStart <= 1),
-       assert(gradientFractionOnEnd >= 0 && gradientFractionOnEnd <= 1),
-       super(key: key);
+  })  : assert(gradientFractionOnStart >= 0 && gradientFractionOnStart <= 1),
+        assert(gradientFractionOnEnd >= 0 && gradientFractionOnEnd <= 1),
+        super(key: key);
 
   /// Constructor for creating [FadingEdgeScrollView] with [ScrollView] as child
   /// child must have [ScrollView.controller] set
@@ -292,26 +292,24 @@ class _FadingEdgeScrollViewState extends State<FadingEdgeScrollView>
     }
 
     return ShaderMask(
-      shaderCallback: (bounds) =>
-          LinearGradient(
-            begin: _gradientStart,
-            end: _gradientEnd,
-            stops: [
-              0,
-              widget.gradientFractionOnStart * 0.5,
-              1 - widget.gradientFractionOnEnd * 0.5,
-              1,
-            ],
-            colors: _getColors(
-              context,
-              widget.gradientFractionOnStart > 0 &&
-                  !(_isScrolledToStart ?? true),
-              widget.gradientFractionOnEnd > 0 && !(_isScrolledToEnd ?? false),
-            ),
-          ).createShader(
-            bounds.shift(Offset(-bounds.left, -bounds.top)),
-            textDirection: Directionality.of(context),
-          ),
+      shaderCallback: (bounds) => LinearGradient(
+        begin: _gradientStart,
+        end: _gradientEnd,
+        stops: [
+          0,
+          widget.gradientFractionOnStart * 0.5,
+          1 - widget.gradientFractionOnEnd * 0.5,
+          1,
+        ],
+        colors: _getColors(
+          context,
+          widget.gradientFractionOnStart > 0 && !(_isScrolledToStart ?? true),
+          widget.gradientFractionOnEnd > 0 && !(_isScrolledToEnd ?? false),
+        ),
+      ).createShader(
+        bounds.shift(Offset(-bounds.left, -bounds.top)),
+        textDirection: Directionality.of(context),
+      ),
       blendMode: BlendMode.dstIn,
       child: widget.child,
     );
@@ -319,8 +317,8 @@ class _FadingEdgeScrollViewState extends State<FadingEdgeScrollView>
 
   AlignmentGeometry get _gradientStart =>
       widget.scrollDirection == Axis.vertical
-      ? _verticalStart
-      : _horizontalStart;
+          ? _verticalStart
+          : _horizontalStart;
 
   AlignmentGeometry get _gradientEnd =>
       widget.scrollDirection == Axis.vertical ? _verticalEnd : _horizontalEnd;
@@ -340,10 +338,7 @@ class _FadingEdgeScrollViewState extends State<FadingEdgeScrollView>
       : AlignmentDirectional.centerEnd;
 
   List<Color> _getColors(
-    BuildContext context,
-    bool isStartEnabled,
-    bool isEndEnabled,
-  ) {
+      BuildContext context, bool isStartEnabled, bool isEndEnabled) {
     final fadeColor = Theme.of(context).scaffoldBackgroundColor;
     return [
       if (isStartEnabled) Colors.transparent else fadeColor,

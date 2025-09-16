@@ -27,10 +27,8 @@ extension SdkAuthActivationExtension on KomodoDefiSdk {
     final walletCoinIds = walletCoins.map((e) => e.id).toSet();
     final stopwatch = Stopwatch()..start();
     while (true) {
-      final isAboveThreshold = await _areEnabledCoinsAboveThreshold(
-        walletCoinIds,
-        threshold,
-      );
+      final isAboveThreshold =
+          await _areEnabledCoinsAboveThreshold(walletCoinIds, threshold);
       if (isAboveThreshold) {
         log.fine(
           'Enabled coins have passed the threshold in '

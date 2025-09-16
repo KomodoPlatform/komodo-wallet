@@ -76,16 +76,16 @@ class _AvailableGroup extends StatelessWidget {
 
 class _HalfButton extends DexSmallButton {
   _HalfButton()
-    : super(LocaleKeys.half.tr(), (context) {
-        context.read<TakerBloc>().add(TakerAmountButtonClick(0.5));
-      });
+      : super(LocaleKeys.half.tr(), (context) {
+          context.read<TakerBloc>().add(TakerAmountButtonClick(0.5));
+        });
 }
 
 class _MaxButton extends DexSmallButton {
   _MaxButton()
-    : super(LocaleKeys.max.tr(), (context) {
-        context.read<TakerBloc>().add(TakerAmountButtonClick(1));
-      });
+      : super(LocaleKeys.max.tr(), (context) {
+          context.read<TakerBloc>().add(TakerAmountButtonClick(1));
+        });
 }
 
 class _ExactButton extends DexSmallButton {

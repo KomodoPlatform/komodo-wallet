@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:web_dex/model/dex_form_error.dart';
 
 class DexFormErrorSimple extends StatelessWidget {
-  const DexFormErrorSimple({Key? key, required this.error}) : super(key: key);
+  const DexFormErrorSimple({
+    Key? key,
+    required this.error,
+  }) : super(key: key);
   final DexFormError error;
 
   @override

@@ -8,10 +8,8 @@ class HiddenWithWallet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthBlocState>(
-      builder: (context, state) {
-        return state.currentUser == null ? child : const SizedBox.shrink();
-      },
-    );
+    return BlocBuilder<AuthBloc, AuthBlocState>(builder: (context, state) {
+      return state.currentUser == null ? child : const SizedBox.shrink();
+    });
   }
 }

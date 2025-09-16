@@ -79,12 +79,17 @@ class _OrderbookViewState extends State<OrderbookView> {
         }
 
         if (response.error != null) {
-          return OrderbookErrorMessage(response, onReloadClick: _model.reload);
+          return OrderbookErrorMessage(
+            response,
+            onReloadClick: _model.reload,
+          );
         }
 
         final Orderbook? orderbook = response.result;
         if (orderbook == null) {
-          return Center(child: Text(LocaleKeys.orderBookEmpty.tr()));
+          return Center(
+            child: Text(LocaleKeys.orderBookEmpty.tr()),
+          );
         }
 
         return GradientBorder(
@@ -92,10 +97,8 @@ class _OrderbookViewState extends State<OrderbookView> {
           gradient: dexPageColors.formPlateGradient,
           child: Container(
             constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 16.0,
-            ),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,

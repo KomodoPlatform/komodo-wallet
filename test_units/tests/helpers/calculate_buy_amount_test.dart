@@ -99,7 +99,10 @@ void testCalculateBuyAmount() {
     );
     expect(calculateBuyAmount(sellAmount: null, selectedOrder: null), isNull);
     expect(
-      calculateBuyAmount(sellAmount: Rational.fromInt(2), selectedOrder: null),
+      calculateBuyAmount(
+        sellAmount: Rational.fromInt(2),
+        selectedOrder: null,
+      ),
       isNull,
     );
     expect(

@@ -15,19 +15,19 @@ class MakerFormTradeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
-      builder: (context, systemHealthState) {
-        // Determine if system clock is valid
-        final bool isSystemClockValid =
-            systemHealthState is SystemHealthLoadSuccess &&
-            systemHealthState.isValid;
+        builder: (context, systemHealthState) {
+      // Determine if system clock is valid
+      final bool isSystemClockValid =
+          systemHealthState is SystemHealthLoadSuccess &&
+              systemHealthState.isValid;
 
-        final tradingState = context.watch<TradingStatusBloc>().state;
-        final isTradingEnabled = tradingState.isEnabled;
+      final tradingState = context.watch<TradingStatusBloc>().state;
+      final isTradingEnabled = tradingState.isEnabled;
 
-        final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-        final authBloc = context.watch<AuthBloc>();
+      final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+      final authBloc = context.watch<AuthBloc>();
 
-        return StreamBuilder<bool>(
+      return StreamBuilder<bool>(
           initialData: makerFormBloc.inProgress,
           stream: makerFormBloc.outInProgress,
           builder: (context, snapshot) {
@@ -57,8 +57,7 @@ class MakerFormTradeButton extends StatelessWidget {
                     : () async {
                         while (!authBloc.state.isSignedIn) {
                           await Future<dynamic>.delayed(
-                            const Duration(milliseconds: 300),
-                          );
+                              const Duration(milliseconds: 300));
                         }
                         final bool isValid = await makerFormBloc.validate();
                         if (!isValid) return;
@@ -68,9 +67,7 @@ class MakerFormTradeButton extends StatelessWidget {
                 height: 40,
               ),
             );
-          },
-        );
-      },
-    );
+          });
+    });
   }
 }

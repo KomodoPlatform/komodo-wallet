@@ -31,9 +31,8 @@ class CustomFeedback {
   String toFormattedDescription() {
     final buffer = StringBuffer();
     buffer.writeln('═══════════════════════════════════════');
-    buffer.writeln(
-      '📋 ${feedbackType?.description ?? 'Unknown'}'.toUpperCase(),
-    );
+    buffer
+        .writeln('📋 ${feedbackType?.description ?? 'Unknown'}'.toUpperCase());
     buffer.writeln('═══════════════════════════════════════');
     buffer.writeln();
     buffer.writeln('💬 USER FEEDBACK:');
@@ -64,8 +63,7 @@ class CustomFeedback {
           break;
         case ContactMethod.telegram:
           buffer.writeln(
-            '   📱 Telegram: ${contact.startsWith('@') ? contact : '@$contact'}',
-          );
+              '   📱 Telegram: ${contact.startsWith('@') ? contact : '@$contact'}');
           break;
         case ContactMethod.matrix:
           buffer.writeln('   🔗 Matrix: $contact');
@@ -74,23 +72,27 @@ class CustomFeedback {
       if (feedbackType == FeedbackType.support ||
           feedbackType == FeedbackType.missingCoins) {
         buffer.writeln(
-          '   ⚠️  PRIORITY: Contact details provided for support request',
-        );
+            '   ⚠️  PRIORITY: Contact details provided for support request');
       }
     } else {
       buffer.writeln('   ❌ No contact information provided');
       if (feedbackType == FeedbackType.support ||
           feedbackType == FeedbackType.missingCoins) {
         buffer.writeln(
-          '   ⚠️  WARNING: Support request without contact details!',
-        );
+            '   ⚠️  WARNING: Support request without contact details!');
       }
     }
     return buffer.toString();
   }
 }
 
-enum FeedbackType { missingCoins, bugReport, featureRequest, support, other }
+enum FeedbackType {
+  missingCoins,
+  bugReport,
+  featureRequest,
+  support,
+  other;
+}
 
 extension FeedbackTypeDescription on FeedbackType {
   String get description {
@@ -109,7 +111,12 @@ extension FeedbackTypeDescription on FeedbackType {
   }
 }
 
-enum ContactMethod { discord, matrix, telegram, email }
+enum ContactMethod {
+  discord,
+  matrix,
+  telegram,
+  email;
+}
 
 extension ContactMethodLabel on ContactMethod {
   String get label {

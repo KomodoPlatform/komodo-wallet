@@ -42,11 +42,12 @@ class _WalletManagerSearchFieldState extends State<WalletManagerSearchField> {
       decoration: InputDecoration(
         filled: true,
         hintText: LocaleKeys.search.tr(),
-        prefixIcon: Icon(Icons.search, size: 20),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
+        prefixIcon: Icon(
+          Icons.search,
+          size: 20,
         ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

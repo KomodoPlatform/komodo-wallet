@@ -39,7 +39,10 @@ class TakerFormBuyItem extends StatelessWidget {
 
         return FrontPlate(
           child: Column(
-            children: [_BuyHeader(), TakerFormBuySwitcher(controller)],
+            children: [
+              _BuyHeader(),
+              TakerFormBuySwitcher(controller),
+            ],
           ),
         );
       },
@@ -49,6 +52,7 @@ class TakerFormBuyItem extends StatelessWidget {
 
 class _BuyHeader extends StatelessWidget {
   @override
-  Widget build(BuildContext context) =>
-      DexFormGroupHeader(title: LocaleKeys.buy.tr());
+  Widget build(BuildContext context) => DexFormGroupHeader(
+        title: LocaleKeys.buy.tr(),
+      );
 }

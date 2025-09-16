@@ -77,9 +77,8 @@ class GroupedAssetsList extends StatelessWidget {
 
     return assets.where((asset) {
       final searchLower = searchPhrase.toLowerCase();
-      final isFound = asset.toJson().toJsonString().toLowerCase().contains(
-        searchLower,
-      );
+      final isFound =
+          asset.toJson().toJsonString().toLowerCase().contains(searchLower);
 
       return isFound;
     });

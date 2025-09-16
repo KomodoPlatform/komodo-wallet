@@ -44,10 +44,8 @@ class FileLoaderNativeAndroid implements FileLoader {
     required String fileName,
     required String data,
   }) async {
-    final Uint8List compressedBytes = createZipOfSingleFile(
-      fileName: fileName,
-      fileContent: data,
-    );
+    final Uint8List compressedBytes =
+        createZipOfSingleFile(fileName: fileName, fileContent: data);
     final String? fileFullPath = await FilePicker.platform.saveFile(
       fileName: '$fileName.zip',
       bytes: compressedBytes,

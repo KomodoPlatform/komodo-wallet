@@ -43,14 +43,14 @@ class _CoinDetailsState extends State<CoinDetails> {
       _txHistoryBloc.add(TransactionHistorySubscribe(coin: widget.coin));
       final walletType =
           context.read<AuthBloc>().state.currentUser?.wallet.config.type.name ??
-          '';
+              '';
       context.read<AnalyticsBloc>().logEvent(
-        AssetViewedEventData(
-          assetSymbol: widget.coin.abbr,
-          assetNetwork: widget.coin.protocolType,
-          walletType: walletType,
-        ),
-      );
+            AssetViewedEventData(
+              assetSymbol: widget.coin.abbr,
+              assetNetwork: widget.coin.protocolType,
+              walletType: walletType,
+            ),
+          );
     });
     super.initState();
   }

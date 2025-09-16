@@ -57,8 +57,8 @@ class CoinSelectItemWidget extends StatelessWidget {
                 builder: (context) {
                   final themeCustom =
                       Theme.of(context).brightness == Brightness.dark
-                      ? Theme.of(context).extension<ThemeCustomDark>()!
-                      : Theme.of(context).extension<ThemeCustomLight>()!;
+                          ? Theme.of(context).extension<ThemeCustomDark>()!
+                          : Theme.of(context).extension<ThemeCustomLight>()!;
                   return TrendPercentageText(
                     percentage: trendPercentage,
                     upColor: themeCustom.increaseColor,
@@ -80,7 +80,10 @@ class CoinSelectItemWidget extends StatelessWidget {
       child: Row(
         children: [
           if (leading != null)
-            Padding(padding: const EdgeInsets.only(right: 12), child: leading!)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: leading!,
+            )
           else
             Padding(
               padding: const EdgeInsets.only(right: 12),
@@ -95,7 +98,10 @@ class CoinSelectItemWidget extends StatelessWidget {
             ),
           ),
           if (trailing != null)
-            Padding(padding: const EdgeInsets.only(left: 8), child: trailing!),
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: trailing!,
+            ),
         ],
       ),
     );

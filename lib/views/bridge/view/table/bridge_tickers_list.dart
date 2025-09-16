@@ -17,7 +17,10 @@ import 'package:web_dex/views/bridge/bridge_tickers_list_item.dart';
 import 'package:web_dex/views/dex/simple/form/tables/nothing_found.dart';
 
 class BridgeTickersList extends StatefulWidget {
-  const BridgeTickersList({required this.onSelect, Key? key}) : super(key: key);
+  const BridgeTickersList({
+    required this.onSelect,
+    Key? key,
+  }) : super(key: key);
 
   final Function(Coin) onSelect;
 
@@ -50,7 +53,7 @@ class _BridgeTickersListState extends State<BridgeTickersList> {
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 4),
-          ),
+          )
         ],
       ),
       child: Column(
@@ -83,9 +86,9 @@ class _BridgeTickersListState extends State<BridgeTickersList> {
                 UiFlatButton(
                   text: LocaleKeys.close.tr(),
                   height: 40,
-                  onPressed: () => context.read<BridgeBloc>().add(
-                    const BridgeShowTickerDropdown(false),
-                  ),
+                  onPressed: () => context
+                      .read<BridgeBloc>()
+                      .add(const BridgeShowTickerDropdown(false)),
                 ),
               ],
             ),
@@ -101,10 +104,8 @@ class _BridgeTickersListState extends State<BridgeTickersList> {
       builder: (context, tickers) {
         if (tickers == null) return const UiSpinnerList();
 
-        final Coins coinsList = tickers.entries.fold([], (
-          previousValue,
-          element,
-        ) {
+        final Coins coinsList =
+            tickers.entries.fold([], (previousValue, element) {
           previousValue.add(element.value.first);
           return previousValue;
         });

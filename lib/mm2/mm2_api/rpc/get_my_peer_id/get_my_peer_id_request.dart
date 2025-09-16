@@ -10,6 +10,9 @@ class GetMyPeerIdRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{'method': method, 'userpass': userpass};
+    return <String, dynamic>{
+      'method': method,
+      'userpass': userpass,
+    };
   }
 }

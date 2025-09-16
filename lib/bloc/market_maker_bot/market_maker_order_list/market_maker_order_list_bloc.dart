@@ -18,8 +18,8 @@ class MarketMakerOrderListBloc
     extends Bloc<MarketMakerOrderListEvent, MarketMakerOrderListState> {
   MarketMakerOrderListBloc(
     MarketMakerBotOrderListRepository orderListRepository,
-  ) : _orderListRepository = orderListRepository,
-      super(MarketMakerOrderListState.initial()) {
+  )   : _orderListRepository = orderListRepository,
+        super(MarketMakerOrderListState.initial()) {
     on<MarketMakerOrderListRequested>(_onOrderListRequested);
     on<MarketMakerOrderListSortChanged>(_onOrderListSortChanged);
     on<MarketMakerOrderListFilterChanged>(_onOrderListFilterChanged);
@@ -47,9 +47,8 @@ class MarketMakerOrderListBloc
       );
 
       return await emit.forEach(
-        Stream.periodic(
-          event.updateInterval,
-        ).asyncMap((_) => _orderListRepository.getTradePairs()),
+        Stream.periodic(event.updateInterval)
+            .asyncMap((_) => _orderListRepository.getTradePairs()),
         onData: (orders) {
           _sortOrders(orders, state.sortData);
           if (state.filterData != null) {
@@ -100,7 +99,10 @@ class MarketMakerOrderListBloc
     }
 
     emit(
-      state.copyWith(makerBotOrders: filteredOrders, filterData: filterData),
+      state.copyWith(
+        makerBotOrders: filteredOrders,
+        filterData: filterData,
+      ),
     );
   }
 
@@ -126,25 +128,23 @@ class MarketMakerOrderListBloc
 // Define a map that associates each sort type with a sorting function.
 final sortFunctions =
     <MarketMakerBotOrderListType, int Function(TradePair, TradePair)>{
-      MarketMakerBotOrderListType.date: (a, b) =>
-          a.order?.createdAt.compareTo(b.order?.createdAt ?? 0) ?? 0,
-      MarketMakerBotOrderListType.margin: (a, b) =>
-          double.tryParse(
-            a.config.spread,
-          )?.compareTo(double.tryParse(b.config.spread) ?? 0) ??
-          0,
-      MarketMakerBotOrderListType.receive: (a, b) =>
-          a.config.relCoinId.compareTo(b.config.relCoinId),
-      MarketMakerBotOrderListType.send: (a, b) =>
-          a.config.baseCoinId.compareTo(b.config.baseCoinId),
-      MarketMakerBotOrderListType.updateInterval: (a, b) =>
-          a.config.priceElapsedValidity?.compareTo(
-            b.config.priceElapsedValidity ?? 0,
-          ) ??
-          0,
-      MarketMakerBotOrderListType.price: (a, b) =>
-          (a.order?.price ?? 0).compareTo(b.order?.price ?? 0),
-    };
+  MarketMakerBotOrderListType.date: (a, b) =>
+      a.order?.createdAt.compareTo(b.order?.createdAt ?? 0) ?? 0,
+  MarketMakerBotOrderListType.margin: (a, b) =>
+      double.tryParse(a.config.spread)
+          ?.compareTo(double.tryParse(b.config.spread) ?? 0) ??
+      0,
+  MarketMakerBotOrderListType.receive: (a, b) =>
+      a.config.relCoinId.compareTo(b.config.relCoinId),
+  MarketMakerBotOrderListType.send: (a, b) =>
+      a.config.baseCoinId.compareTo(b.config.baseCoinId),
+  MarketMakerBotOrderListType.updateInterval: (a, b) =>
+      a.config.priceElapsedValidity
+          ?.compareTo(b.config.priceElapsedValidity ?? 0) ??
+      0,
+  MarketMakerBotOrderListType.price: (a, b) =>
+      (a.order?.price ?? 0).compareTo(b.order?.price ?? 0),
+};
 
 List<TradePair> _applyFilters(
   TradingEntitiesFilter filters,

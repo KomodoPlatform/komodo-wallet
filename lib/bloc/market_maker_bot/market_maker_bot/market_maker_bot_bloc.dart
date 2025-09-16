@@ -25,9 +25,9 @@ class MarketMakerBotBloc
   MarketMakerBotBloc(
     MarketMakerBotRepository marketMaketBotRepository,
     MarketMakerBotOrderListRepository orderRepository,
-  ) : _botRepository = marketMaketBotRepository,
-      _orderRepository = orderRepository,
-      super(const MarketMakerBotState.initial()) {
+  )   : _botRepository = marketMaketBotRepository,
+        _orderRepository = orderRepository,
+        super(const MarketMakerBotState.initial()) {
     on<MarketMakerBotStartRequested>(
       _onStartRequested,
       transformer: restartable(),
@@ -94,9 +94,8 @@ class MarketMakerBotBloc
         MarketbotErrorEventData(errorCode: 'stop_failed', strategyType: 'simple'),
       );
       emit(
-        const MarketMakerBotState.stopped().copyWith(
-          error: 'Failed to stop the bot',
-        ),
+        const MarketMakerBotState.stopped()
+            .copyWith(error: 'Failed to stop the bot'),
       );
     }
   }
@@ -115,8 +114,8 @@ class MarketMakerBotBloc
       // Cancel the order immediately to provide feedback to the user that
       // the bot is being updated, since the restart process may take some time.
       await _orderRepository.cancelOrders([event.tradePair]);
-      final Stream<MarketMakerBotStatus> botStatusStream = _botRepository
-          .updateOrder(event.tradePair, botId: event.botId);
+      final Stream<MarketMakerBotStatus> botStatusStream =
+          _botRepository.updateOrder(event.tradePair, botId: event.botId);
       await for (final botStatus in botStatusStream) {
         emit(state.copyWith(status: botStatus));
       }
@@ -128,9 +127,8 @@ class MarketMakerBotBloc
         return;
       }
 
-      final stoppingState = const MarketMakerBotState.stopping().copyWith(
-        error: e.toString(),
-      );
+      final stoppingState =
+          const MarketMakerBotState.stopping().copyWith(error: e.toString());
       emit(stoppingState);
       // Log bot error
       GetIt.I<AnalyticsBloc>().logEvent(
@@ -161,9 +159,8 @@ class MarketMakerBotBloc
       // Remove the trade pairs from the stored settings after the orders have
       // been cancelled to prevent the lag between the orders being cancelled
       // and the trade pairs being removed from the settings.
-      await _botRepository.removeTradePairsFromStoredSettings(
-        event.tradePairs.toList(),
-      );
+      await _botRepository
+          .removeTradePairsFromStoredSettings(event.tradePairs.toList());
     } catch (e) {
       final isAlreadyStarted =
           e is RpcException && e.error.errorType == RpcErrorType.alreadyStarted;
@@ -172,9 +169,8 @@ class MarketMakerBotBloc
         return;
       }
 
-      final stoppingState = const MarketMakerBotState.stopping().copyWith(
-        error: e.toString(),
-      );
+      final stoppingState =
+          const MarketMakerBotState.stopping().copyWith(error: e.toString());
       emit(stoppingState);
       // Log bot error
       GetIt.I<AnalyticsBloc>().logEvent(

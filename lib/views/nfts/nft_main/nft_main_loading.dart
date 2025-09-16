@@ -9,9 +9,8 @@ class NftMainLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorSchemeExtension colorScheme = Theme.of(
-      context,
-    ).extension<ColorSchemeExtension>()!;
+    final ColorSchemeExtension colorScheme =
+        Theme.of(context).extension<ColorSchemeExtension>()!;
     final textTheme = Theme.of(context).extension<TextThemeExtension>()!;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -26,7 +25,7 @@ class NftMainLoading extends StatelessWidget {
             style: textTheme.bodyMBold.copyWith(color: colorScheme.secondary),
           ),
         ),
-        const UiSpinnerList(),
+        const UiSpinnerList()
       ],
     );
   }

@@ -1,3 +1,11 @@
-enum WalletsManagerAction { create, import, none }
+enum WalletsManagerAction {
+  create,
+  import,
+  none,
+}
 
-enum WalletsManagerExistWalletAction { logIn, delete, none }
+enum WalletsManagerExistWalletAction {
+  logIn,
+  delete,
+  none,
+}

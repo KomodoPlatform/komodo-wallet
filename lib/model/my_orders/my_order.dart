@@ -29,8 +29,7 @@ class MyOrder {
   double? minVolume;
   List<String>? startedSwaps;
   int get orderMatchingTime {
-    final resetTimeInSeconds =
-        30 -
+    final resetTimeInSeconds = 30 -
         DateTime.now()
             .subtract(Duration(milliseconds: createdAt * 1000))
             .second;

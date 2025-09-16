@@ -18,7 +18,9 @@ void main() {
   walletsWidgetTests();
 }
 
-void walletsWidgetTests({bool skip = false}) {
+void walletsWidgetTests({
+  bool skip = false,
+}) {
   return testWidgets(
     'Run wallet tests:',
     (WidgetTester tester) async {

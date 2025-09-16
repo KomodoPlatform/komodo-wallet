@@ -20,9 +20,10 @@ class AssetItemTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTextStyle.merge(
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontSize: size.title, height: 1),
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontSize: size.title,
+            height: 1,
+          ),
       child: Text(assetId?.name ?? 'Unknown Asset'),
     );
   }

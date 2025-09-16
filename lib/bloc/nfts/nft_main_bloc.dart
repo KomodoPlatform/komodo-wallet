@@ -17,14 +17,14 @@ part 'nft_main_event.dart';
 part 'nft_main_state.dart';
 
 class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
-  NftMainBloc({required NftsRepo repo, required KomodoDefiSdk sdk})
-    : _repo = repo,
-      _sdk = sdk,
-      super(NftMainState.initial()) {
-    on<NftMainChainUpdateRequested>(
-      _onChainNftsUpdateRequested,
-      transformer: restartable(),
-    );
+  NftMainBloc({
+    required NftsRepo repo,
+    required KomodoDefiSdk sdk,
+  })  : _repo = repo,
+        _sdk = sdk,
+        super(NftMainState.initial()) {
+    on<NftMainChainUpdateRequested>(_onChainNftsUpdateRequested,
+        transformer: restartable());
     on<NftMainTabChanged>(_onTabChanged);
     on<NftMainResetRequested>(_onReset);
     on<NftMainChainNftsRefreshed>(_onRefreshForChain);
@@ -54,8 +54,7 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     emit(state.copyWith(selectedChain: () => event.chain));
     if (!await _sdk.auth.isSignedIn() || !state.isInitialized) {
       _log.warning(
-        'User is not signed in or state is not initialized. Cannot change NFT tab.',
-      );
+          'User is not signed in or state is not initialized. Cannot change NFT tab.');
       return;
     }
 
@@ -63,10 +62,8 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
       _log.info('Changing NFT tab to ${event.chain}');
       final List<NftToken> nftList = await _repo.getNfts([event.chain]);
 
-      final (newNftS, newNftCount) = _recalculateNftsForChain(
-        nftList,
-        event.chain,
-      );
+      final (newNftS, newNftCount) =
+          _recalculateNftsForChain(nftList, event.chain);
       emit(
         state.copyWith(
           nfts: () => newNftS,
@@ -112,8 +109,7 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
 
       final totalNfts = counts.values.fold(0, (sum, count) => sum + count);
       _log.info(
-        'Updated all NFT chains, found $totalNfts NFTs across ${sortedChains.length} chains',
-      );
+          'Updated all NFT chains, found $totalNfts NFTs across ${sortedChains.length} chains');
     } on BaseError catch (e) {
       _log.warning('Error updating NFT chains: ${e.message}');
       emit(state.copyWith(error: () => e));
@@ -145,10 +141,8 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
       _log.info('Refreshing NFTs for chain ${event.chain}');
       final List<NftToken> nftList = await _repo.getNfts([event.chain]);
 
-      final (newNftS, newNftCount) = _recalculateNftsForChain(
-        nftList,
-        event.chain,
-      );
+      final (newNftS, newNftCount) =
+          _recalculateNftsForChain(nftList, event.chain);
       emit(
         state.copyWith(
           nfts: () => newNftS,
@@ -159,8 +153,7 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
       _log.info('Refreshed ${nftList.length} NFTs for chain ${event.chain}');
     } on BaseError catch (e) {
       _log.warning(
-        'Error refreshing NFTs for chain ${event.chain}: ${e.message}',
-      );
+          'Error refreshing NFTs for chain ${event.chain}: ${e.message}');
       emit(state.copyWith(error: () => e));
     } catch (e, s) {
       _log.severe('Unexpected error refreshing NFTs', e, s);
@@ -172,17 +165,13 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   }
 
   void _onStopUpdate(
-    NftMainUpdateNftsStopped event,
-    Emitter<NftMainState> emit,
-  ) {
+      NftMainUpdateNftsStopped event, Emitter<NftMainState> emit) {
     _log.info('Stopping NFT update timer');
     _stopUpdate();
   }
 
   void _onStartUpdate(
-    NftMainUpdateNftsStarted event,
-    Emitter<NftMainState> emit,
-  ) {
+      NftMainUpdateNftsStarted event, Emitter<NftMainState> emit) {
     _log.info('Starting NFT update timer (1 minute interval)');
     _stopUpdate();
     _updateTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
@@ -197,26 +186,25 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
       await retry<void>(
         () async => await _repo.updateNft(chains),
         maxAttempts: 3,
-        backoffStrategy: ExponentialBackoff(
-          initialDelay: const Duration(seconds: 1),
-        ),
+        backoffStrategy:
+            ExponentialBackoff(initialDelay: const Duration(seconds: 1)),
       );
     } catch (e, s) {
       _log.severe('Error updating NFTs for chains $chains', e, s);
     }
     final List<NftToken> list = await _repo.getNfts(chains);
 
-    final Map<NftBlockchains, List<NftToken>> nfts = list
-        .fold<Map<NftBlockchains, List<NftToken>>>(
-          <NftBlockchains, List<NftToken>>{},
-          (prev, element) {
-            final List<NftToken> chainList = prev[element.chain] ?? []
-              ..add(element);
-            prev[element.chain] = chainList;
+    final Map<NftBlockchains, List<NftToken>> nfts =
+        list.fold<Map<NftBlockchains, List<NftToken>>>(
+      <NftBlockchains, List<NftToken>>{},
+      (prev, element) {
+        final List<NftToken> chainList = prev[element.chain] ?? []
+          ..add(element);
+        prev[element.chain] = chainList;
 
-            return prev;
-          },
-        );
+        return prev;
+      },
+    );
 
     return nfts;
   }
@@ -242,8 +230,10 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     _updateTimer = null;
   }
 
-  (Map<NftBlockchains, List<NftToken>?>, Map<NftBlockchains, int?>)
-  _recalculateNftsForChain(List<NftToken> newNftList, NftBlockchains chain) {
+  (
+    Map<NftBlockchains, List<NftToken>?>,
+    Map<NftBlockchains, int?>
+  ) _recalculateNftsForChain(List<NftToken> newNftList, NftBlockchains chain) {
     final Map<NftBlockchains, int?> nftCount = {...state.nftCount};
     final Map<NftBlockchains, List<NftToken>?> nfts = {...state.nfts};
     nfts[chain] = newNftList;

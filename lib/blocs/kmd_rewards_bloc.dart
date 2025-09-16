@@ -36,17 +36,22 @@ class KmdRewardsBloc implements BlocBase {
       final BaseError error =
           withdraw.error ?? TextError(error: LocaleKeys.somethingWrong.tr());
       _claimInProgress = false;
-      return BlocResponse(error: error);
+      return BlocResponse(
+        error: error,
+      );
     }
 
-    final tx = await _mm2Api.sendRawTransaction(
-      SendRawTransactionRequest(coin: 'KMD', txHex: withdrawDetails.txHex),
-    );
+    final tx = await _mm2Api.sendRawTransaction(SendRawTransactionRequest(
+      coin: 'KMD',
+      txHex: withdrawDetails.txHex,
+    ));
     if (tx.error != null) {
       final BaseError error =
           tx.error ?? TextError(error: LocaleKeys.somethingWrong.tr());
       _claimInProgress = false;
-      return BlocResponse(error: error);
+      return BlocResponse(
+        error: error,
+      );
     }
     _claimInProgress = false;
     return BlocResponse(result: withdrawDetails.myBalanceChange);
@@ -56,14 +61,12 @@ class KmdRewardsBloc implements BlocBase {
   void dispose() {}
 
   Future<List<KmdRewardItem>> getInfo() async {
-    final Map<String, dynamic>? response = await _mm2Api.getRewardsInfo(
-      KmdRewardsInfoRequest(),
-    );
+    final Map<String, dynamic>? response =
+        await _mm2Api.getRewardsInfo(KmdRewardsInfoRequest());
     if (response != null && response['result'] != null) {
       return response['result']
           .map<KmdRewardItem>(
-            (dynamic reward) => KmdRewardItem.fromJson(reward),
-          )
+              (dynamic reward) => KmdRewardItem.fromJson(reward))
           .toList();
     }
     return [];
@@ -83,17 +86,17 @@ class KmdRewardsBloc implements BlocBase {
     final Coin? kmdCoin = _coinsBlocRepository.getCoin('KMD');
     if (kmdCoin == null) {
       return BlocResponse(
-        error: TextError(error: LocaleKeys.plsActivateKmd.tr()),
-      );
+          error: TextError(error: LocaleKeys.plsActivateKmd.tr()));
     }
     if (kmdCoin.address == null) {
       return BlocResponse(
-        error: TextError(error: LocaleKeys.noKmdAddress.tr()),
-      );
+          error: TextError(error: LocaleKeys.noKmdAddress.tr()));
     }
 
-    return await _coinsBlocRepository.withdraw(
-      WithdrawRequest(coin: 'KMD', max: true, to: kmdCoin.address!),
-    );
+    return await _coinsBlocRepository.withdraw(WithdrawRequest(
+      coin: 'KMD',
+      max: true,
+      to: kmdCoin.address!,
+    ));
   }
 }

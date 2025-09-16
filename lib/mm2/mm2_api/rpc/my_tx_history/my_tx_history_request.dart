@@ -22,12 +22,12 @@ class MyTxHistoryRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'method': method,
-    'userpass': userpass,
-    'coin': coin,
-    'max': max,
-    if (fromId != null) 'from_id': fromId,
-    if (pageNumber != null) 'page_number': pageNumber,
-    if (limit != null) 'limit': limit,
-  };
+        'method': method,
+        'userpass': userpass,
+        'coin': coin,
+        'max': max,
+        if (fromId != null) 'from_id': fromId,
+        if (pageNumber != null) 'page_number': pageNumber,
+        if (limit != null) 'limit': limit,
+      };
 }

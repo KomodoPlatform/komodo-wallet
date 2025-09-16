@@ -63,9 +63,8 @@ class _ImportSwapsState extends State<ImportSwaps> {
         _showData ? Icons.arrow_drop_up : Icons.arrow_drop_down,
         size: 14,
       ),
-      onPressed: _inProgress
-          ? null
-          : () => setState(() => _showData = !_showData),
+      onPressed:
+          _inProgress ? null : () => setState(() => _showData = !_showData),
     );
   }
 
@@ -81,7 +80,10 @@ class _ImportSwapsState extends State<ImportSwaps> {
           ),
         ),
         const SizedBox(height: 10),
-        UiLightButton(text: LocaleKeys.import.tr(), onPressed: _onImport),
+        UiLightButton(
+          text: LocaleKeys.import.tr(),
+          onPressed: _onImport,
+        ),
         const SizedBox(width: 10),
       ],
     );
@@ -99,8 +101,8 @@ class _ImportSwapsState extends State<ImportSwaps> {
           color: _success
               ? theme.custom.successColor
               : _error == null
-              ? null
-              : theme.currentGlobal.colorScheme.error,
+                  ? null
+                  : theme.currentGlobal.colorScheme.error,
         ),
       ),
     );

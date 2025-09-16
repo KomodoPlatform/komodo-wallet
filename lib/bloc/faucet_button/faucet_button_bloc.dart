@@ -6,8 +6,7 @@ import 'package:web_dex/bloc/faucet_button/faucet_button_event.dart';
 import 'package:web_dex/bloc/faucet_button/faucet_button_state.dart';
 import 'package:logging/logging.dart';
 
-class FaucetBloc extends Bloc<FaucetEvent, FaucetState>
-    implements StateStreamable<FaucetState> {
+class FaucetBloc extends Bloc<FaucetEvent, FaucetState> implements StateStreamable<FaucetState> {
   final KomodoDefiSdk kdfSdk;
   final _log = Logger('FaucetBloc');
 
@@ -32,16 +31,12 @@ class FaucetBloc extends Bloc<FaucetEvent, FaucetState>
       final response = await api.callFaucet(event.coinAbbr, event.address);
 
       if (response.status == FaucetStatus.success) {
-        emit(
-          FaucetRequestSuccess(
-            FaucetResponse(
-              status: response.status,
-              address: event.address,
-              message: response.message,
-              coin: event.coinAbbr,
-            ),
-          ),
-        );
+        emit(FaucetRequestSuccess(FaucetResponse(
+          status: response.status,
+          address: event.address,
+          message: response.message,
+          coin: event.coinAbbr,
+        )));
       } else {
         emit(FaucetRequestError("Faucet request failed: ${response.message}"));
       }

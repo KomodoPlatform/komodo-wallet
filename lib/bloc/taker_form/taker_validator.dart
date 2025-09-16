@@ -28,11 +28,11 @@ class TakerValidator {
     required CoinsRepo coinsRepo,
     required DexRepository dexRepo,
     required KomodoDefiSdk sdk,
-  }) : _bloc = bloc,
-       _coinsRepo = coinsRepo,
-       _dexRepo = dexRepo,
-       _sdk = sdk,
-       add = bloc.add;
+  })  : _bloc = bloc,
+        _coinsRepo = coinsRepo,
+        _dexRepo = dexRepo,
+        _sdk = sdk,
+        add = bloc.add;
 
   final TakerBloc _bloc;
   final CoinsRepo _coinsRepo;
@@ -71,32 +71,32 @@ class TakerValidator {
   }
 
   DexFormError? _parsePreimageError(
-    DataFromService<TradePreimage, BaseError> preimageData,
-  ) {
+      DataFromService<TradePreimage, BaseError> preimageData) {
     final BaseError? error = preimageData.error;
 
     if (error is TradePreimageNotSufficientBalanceError) {
       return _insufficientBalanceError(
-        Rational.parse(error.required),
-        error.coin,
-      );
+          Rational.parse(error.required), error.coin);
     } else if (error is TradePreimageNotSufficientBaseCoinBalanceError) {
       return _insufficientBalanceError(
-        Rational.parse(error.required),
-        error.coin,
-      );
+          Rational.parse(error.required), error.coin);
     } else if (error is TradePreimageTransportError) {
-      return DexFormError(error: LocaleKeys.notEnoughBalanceForGasError.tr());
+      return DexFormError(
+        error: LocaleKeys.notEnoughBalanceForGasError.tr(),
+      );
     } else if (error is TradePreimageVolumeTooLowError) {
       return DexFormError(
-        error: LocaleKeys.lowTradeVolumeError.tr(
-          args: [formatAmt(double.parse(error.threshold)), error.coin],
-        ),
+        error: LocaleKeys.lowTradeVolumeError
+            .tr(args: [formatAmt(double.parse(error.threshold)), error.coin]),
       );
     } else if (error != null) {
-      return DexFormError(error: error.message);
+      return DexFormError(
+        error: error.message,
+      );
     } else if (preimageData.data == null) {
-      return DexFormError(error: LocaleKeys.somethingWrong.tr());
+      return DexFormError(
+        error: LocaleKeys.somethingWrong.tr(),
+      );
     }
 
     return null;
@@ -175,17 +175,17 @@ class TakerValidator {
     if (availableBalance < maxOrderVolume && sellAmount > availableBalance) {
       final Rational minAmount = maxRational([
         state.minSellAmount ?? Rational.zero,
-        state.selectedOrder!.minVolume,
+        state.selectedOrder!.minVolume
       ])!;
 
       if (availableBalance < minAmount) {
-        add(
-          TakerAddError(
-            _insufficientBalanceError(minAmount, state.sellCoin!.abbr),
-          ),
-        );
+        add(TakerAddError(
+          _insufficientBalanceError(minAmount, state.sellCoin!.abbr),
+        ));
       } else {
-        add(TakerAddError(_setMaxError(availableBalance)));
+        add(TakerAddError(
+          _setMaxError(availableBalance),
+        ));
       }
 
       return false;
@@ -206,11 +206,9 @@ class TakerValidator {
     if (sellAmount < minAmount) {
       final Rational available = state.maxSellAmount ?? Rational.zero;
       if (available < minAmount) {
-        add(
-          TakerAddError(
-            _insufficientBalanceError(minAmount, state.sellCoin!.abbr),
-          ),
-        );
+        add(TakerAddError(
+          _insufficientBalanceError(minAmount, state.sellCoin!.abbr),
+        ));
       } else {
         add(TakerAddError(_setMinError(minAmount)));
       }
@@ -310,15 +308,10 @@ class TakerValidator {
         state.sellAmount,
       );
     } catch (e, s) {
-      log(
-        e.toString(),
-        trace: s,
-        path: 'taker_validator::_getPreimageData',
-        isError: true,
-      );
+      log(e.toString(),
+          trace: s, path: 'taker_validator::_getPreimageData', isError: true);
       return DataFromService(
-        error: TextError(error: 'Failed to request trade preimage'),
-      );
+          error: TextError(error: 'Failed to request trade preimage'));
     }
   }
 
@@ -337,17 +330,15 @@ class TakerValidator {
 
   DexFormError _insufficientBalanceError(Rational required, String abbr) {
     return DexFormError(
-      error: LocaleKeys.dexBalanceNotSufficientError.tr(
-        args: [abbr, formatDexAmt(required), abbr],
-      ),
+      error: LocaleKeys.dexBalanceNotSufficientError
+          .tr(args: [abbr, formatDexAmt(required), abbr]),
     );
   }
 
   DexFormError _setOrderMaxError(Rational maxAmount) {
     return DexFormError(
-      error: LocaleKeys.dexMaxOrderVolume.tr(
-        args: [formatDexAmt(maxAmount), state.sellCoin!.abbr],
-      ),
+      error: LocaleKeys.dexMaxOrderVolume
+          .tr(args: [formatDexAmt(maxAmount), state.sellCoin!.abbr]),
       type: DexFormErrorType.largerMaxSellVolume,
       action: DexFormErrorAction(
         text: LocaleKeys.setMax.tr(),
@@ -376,19 +367,19 @@ class TakerValidator {
   DexFormError _setMinError(Rational minAmount) {
     return DexFormError(
       type: DexFormErrorType.lessMinVolume,
-      error: LocaleKeys.dexMinSellAmountError.tr(
-        args: [formatDexAmt(minAmount), state.sellCoin!.abbr],
-      ),
+      error: LocaleKeys.dexMinSellAmountError
+          .tr(args: [formatDexAmt(minAmount), state.sellCoin!.abbr]),
       action: DexFormErrorAction(
-        text: LocaleKeys.setMin.tr(),
-        callback: () async {
-          add(TakerSetSellAmount(minAmount));
-        },
-      ),
+          text: LocaleKeys.setMin.tr(),
+          callback: () async {
+            add(TakerSetSellAmount(minAmount));
+          }),
     );
   }
 
   DexFormError _tradingWithSelfError() {
-    return DexFormError(error: LocaleKeys.dexTradingWithSelfError.tr());
+    return DexFormError(
+      error: LocaleKeys.dexTradingWithSelfError.tr(),
+    );
   }
 }
