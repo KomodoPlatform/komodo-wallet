@@ -14,12 +14,12 @@ class TradingStatusLoadInProgress extends TradingStatusState {}
 class TradingEnabled extends TradingStatusState {
   TradingEnabled({
     Set<String>? disallowedAssets,
-    Set<String>? disallowedFeatures,
+    Set<DisallowedFeature>? disallowedFeatures,
   })  : disallowedAssets = disallowedAssets ?? const <String>{},
-        disallowedFeatures = disallowedFeatures ?? const <String>{};
+        disallowedFeatures = disallowedFeatures ?? const <DisallowedFeature>{};
 
   final Set<String> disallowedAssets;
-  final Set<String> disallowedFeatures;
+  final Set<DisallowedFeature> disallowedFeatures;
 
   @override
   List<Object?> get props => [disallowedAssets, disallowedFeatures];
@@ -28,12 +28,12 @@ class TradingEnabled extends TradingStatusState {
 class TradingDisabled extends TradingStatusState {
   TradingDisabled({
     Set<String>? disallowedAssets,
-    Set<String>? disallowedFeatures,
+    Set<DisallowedFeature>? disallowedFeatures,
   })  : disallowedAssets = disallowedAssets ?? const <String>{},
-        disallowedFeatures = disallowedFeatures ?? const <String>{};
+        disallowedFeatures = disallowedFeatures ?? const <DisallowedFeature>{};
 
   final Set<String> disallowedAssets;
-  final Set<String> disallowedFeatures;
+  final Set<DisallowedFeature> disallowedFeatures;
 
   @override
   List<Object?> get props => [disallowedAssets, disallowedFeatures];

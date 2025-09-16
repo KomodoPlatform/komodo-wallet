@@ -3,18 +3,19 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
 
 /// Structured status returned by the bouncer service.
 class TradingGeoStatus {
   const TradingGeoStatus({
     required this.tradingEnabled,
     this.disallowedAssets = const <String>{},
-    this.disallowedFeatures = const <String>{},
+    this.disallowedFeatures = const <DisallowedFeature>{},
   });
 
   final bool tradingEnabled;
   final Set<String> disallowedAssets;
-  final Set<String> disallowedFeatures;
+  final Set<DisallowedFeature> disallowedFeatures;
 }
 
 class TradingStatusRepository {
@@ -74,9 +75,13 @@ class TradingStatusRepository {
       // Parse disallowed features/assets if present
       final List<dynamic>? rawFeatures =
           data.valueOrNull<List<dynamic>>('disallowed_features');
-      final Set<String> disallowedFeatures = rawFeatures == null
-          ? <String>{}
-          : rawFeatures.whereType<String>().toSet();
+      final Set<DisallowedFeature> disallowedFeatures = rawFeatures == null
+          ? <DisallowedFeature>{}
+          : rawFeatures
+              .whereType<String>()
+              .map(DisallowedFeature.fromString)
+              .whereType<DisallowedFeature>()
+              .toSet();
 
       final List<dynamic>? rawAssets =
           data.valueOrNull<List<dynamic>>('disallowed_assets');
@@ -84,13 +89,12 @@ class TradingStatusRepository {
           ? <String>{}
           : rawAssets.whereType<String>().toSet();
 
-      const String tradingFeature = 'TRADING';
       bool tradingEnabled;
       if (rawFeatures != null) {
-        tradingEnabled = !disallowedFeatures.contains(tradingFeature);
+        tradingEnabled = !disallowedFeatures.contains(DisallowedFeature.trading);
       } else {
-        // Legacy fallback
-        tradingEnabled = !(data.valueOrNull<bool>('blocked') ?? true);
+        // Backwards-breaking change: require features; if missing, block trading
+        tradingEnabled = true;
       }
 
       return TradingGeoStatus(
