@@ -26,18 +26,15 @@ class _DexFormErrorWithActionState extends State<DexFormErrorWithAction> {
         const Icon(Icons.warning_amber, size: 14, color: Colors.orange),
         const SizedBox(width: 4),
         Flexible(
-            child: SelectableText(
-          widget.error.message,
-          style: Theme.of(context).textTheme.bodySmall,
-        )),
+          child: SelectableText(
+            widget.error.message,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
         _isLoading
             ? const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4),
-                child: UiSpinner(
-                  height: 12,
-                  width: 12,
-                  strokeWidth: 1,
-                ),
+                child: UiSpinner(height: 12, width: 12, strokeWidth: 1),
               )
             : UiSimpleButton(
                 child: Text(
@@ -53,7 +50,7 @@ class _DexFormErrorWithActionState extends State<DexFormErrorWithAction> {
                     _isLoading = false;
                   });
                 },
-              )
+              ),
       ],
     );
   }

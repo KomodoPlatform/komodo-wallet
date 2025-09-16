@@ -9,7 +9,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class AlphaVersionWarning extends StatelessWidget {
   const AlphaVersionWarning({Key? key, required this.onAccept})
-      : super(key: key);
+    : super(key: key);
   final Function() onAccept;
 
   @override
@@ -39,8 +39,10 @@ class AlphaVersionWarning extends StatelessWidget {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 LocaleKeys.alphaVersionWarningDescription.tr(),
-                style: appTheme.textTheme.bodyMedium
-                    ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+                style: appTheme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
                 textAlign: TextAlign.justify,
               ),
             ),
@@ -53,8 +55,8 @@ class AlphaVersionWarning extends StatelessWidget {
                 onPressed: () {
                   onAccept();
                   context.read<AnalyticsBloc>().add(
-                        const AnalyticsActivateEvent(),
-                      );
+                    const AnalyticsActivateEvent(),
+                  );
                   Navigator.of(context).pop();
                 },
               ),

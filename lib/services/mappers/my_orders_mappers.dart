@@ -33,13 +33,16 @@ MyOrder mapMyOrderResponseMakerOrderToOrder(MakerOrder order, String uuid) =>
 
 List<MyOrder> mapMyOrdersResponseToOrders(MyOrdersResponse myOrders) {
   final List<MyOrder> takerOrders = myOrders.result.takerOrders.entries
-      .map<MyOrder>((entry) =>
-          mapMyOrderResponseTakerOrderToOrder(entry.value, entry.key))
+      .map<MyOrder>(
+        (entry) => mapMyOrderResponseTakerOrderToOrder(entry.value, entry.key),
+      )
       .toList();
 
   final List<MyOrder> makerOrders = myOrders.result.makerOrders.entries
-      .map<MyOrder>((MapEntry<String, MakerOrder> entry) =>
-          mapMyOrderResponseMakerOrderToOrder(entry.value, entry.key))
+      .map<MyOrder>(
+        (MapEntry<String, MakerOrder> entry) =>
+            mapMyOrderResponseMakerOrderToOrder(entry.value, entry.key),
+      )
       .toList();
 
   return [...takerOrders, ...makerOrders];

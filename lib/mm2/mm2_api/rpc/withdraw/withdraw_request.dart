@@ -30,13 +30,13 @@ class WithdrawRequest
     String? memo,
     FeeRequest? fee,
   }) : params = WithdrawRequestParams(
-          amount: amount,
-          to: to,
-          coin: coin,
-          max: max,
-          fee: fee,
-          memo: memo,
-        );
+         amount: amount,
+         to: to,
+         coin: coin,
+         max: max,
+         fee: fee,
+         memo: memo,
+       );
 
   @override
   final String method = 'withdraw';

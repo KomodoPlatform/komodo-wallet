@@ -18,12 +18,10 @@ class AnalyticsSettings {
       return AnalyticsSettings.initial();
     }
 
-    return AnalyticsSettings(
-      isSendAllowed: json['send_allowed'] ?? false,
-    );
+    return AnalyticsSettings(isSendAllowed: json['send_allowed'] ?? false);
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'send_allowed': isSendAllowed,
-      };
+    'send_allowed': isSendAllowed,
+  };
 }

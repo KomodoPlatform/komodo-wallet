@@ -26,14 +26,14 @@ class MyRecentSwapsRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'userpass': userpass,
-        'method': method,
-        'from_uuid': fromUuid,
-        if (limit != null) 'limit': limit,
-        if (pageNumber != null) 'page_number': pageNumber,
-        'my_coin': myCoin,
-        'other_coin': otherCoin,
-        'from_timestamp': fromTimestamp,
-        'to_timestamp': toTimestamp,
-      };
+    'userpass': userpass,
+    'method': method,
+    'from_uuid': fromUuid,
+    if (limit != null) 'limit': limit,
+    if (pageNumber != null) 'page_number': pageNumber,
+    'my_coin': myCoin,
+    'other_coin': otherCoin,
+    'from_timestamp': fromTimestamp,
+    'to_timestamp': toTimestamp,
+  };
 }

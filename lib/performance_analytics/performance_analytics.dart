@@ -28,13 +28,10 @@ class PerformanceAnalytics {
   }
 
   void _start() {
-    _summaryTimer = Timer.periodic(
-      kPerformanceLogInterval,
-      (timer) {
-        final summary = _metricsSummary();
-        print(summary);
-      },
-    );
+    _summaryTimer = Timer.periodic(kPerformanceLogInterval, (timer) {
+      final summary = _metricsSummary();
+      print(summary);
+    });
   }
 
   String _metricsSummary() {

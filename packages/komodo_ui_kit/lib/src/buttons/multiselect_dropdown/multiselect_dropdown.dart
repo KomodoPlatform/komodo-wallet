@@ -38,10 +38,9 @@ class _MultiSelectDropdownButtonState<T>
 
   TextStyle get _textStyle =>
       widget.style ??
-      Theme.of(context)
-          .textTheme
-          .bodySmall
-          ?.copyWith(color: Theme.of(context).colorScheme.secondary) ??
+      Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: Theme.of(context).colorScheme.secondary,
+      ) ??
       TextStyle(
         fontSize: 12,
         color: Theme.of(context).colorScheme.secondary,
@@ -85,8 +84,9 @@ class _MultiSelectDropdownButtonState<T>
       return;
     }
     for (int itemIndex = 0; itemIndex < widget.items!.length; itemIndex++) {
-      if (widget.selectedItems!
-          .contains(widget.items![itemIndex] == widget.selectedItems)) {
+      if (widget.selectedItems!.contains(
+        widget.items![itemIndex] == widget.selectedItems,
+      )) {
         _selectedIndexes.add(itemIndex);
       }
     }
@@ -196,10 +196,7 @@ class _MultiSelectDropdownItemState<T>
             },
           ),
         ),
-        Text(
-          widget.title,
-          style: widget.textStyle,
-        ),
+        Text(widget.title, style: widget.textStyle),
       ],
     );
   }

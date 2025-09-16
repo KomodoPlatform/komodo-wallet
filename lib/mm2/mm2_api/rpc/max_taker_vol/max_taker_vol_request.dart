@@ -1,9 +1,7 @@
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 
 class MaxTakerVolRequest implements BaseRequest {
-  MaxTakerVolRequest({
-    required this.coin,
-  });
+  MaxTakerVolRequest({required this.coin});
   @override
   late String userpass;
   @override
@@ -12,8 +10,8 @@ class MaxTakerVolRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'method': method,
-        'userpass': userpass,
-        'coin': coin,
-      };
+    'method': method,
+    'userpass': userpass,
+    'coin': coin,
+  };
 }

@@ -15,32 +15,30 @@ class MainLayoutRouterDelegate extends RouterDelegate<AppRoutePath>
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (context) {
-      switch (screenType) {
-        case ScreenType.mobile:
-          return Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: maxScreenWidth,
+    return Builder(
+      builder: (context) {
+        switch (screenType) {
+          case ScreenType.mobile:
+            return Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: maxScreenWidth),
+                child: _MobileLayout(),
               ),
-              child: _MobileLayout(),
-            ),
-          );
-        case ScreenType.tablet:
-          return Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: maxScreenWidth,
+            );
+          case ScreenType.tablet:
+            return Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: maxScreenWidth),
+                child: _TabletLayout(),
               ),
-              child: _TabletLayout(),
-            ),
-          );
-        case ScreenType.desktop:
-          return _DesktopLayout();
-      }
-    });
+            );
+          case ScreenType.desktop:
+            return _DesktopLayout();
+        }
+      },
+    );
   }
 
   @override
@@ -75,8 +73,12 @@ class _DesktopLayout extends StatelessWidget {
               // Main content
               Expanded(
                 child: Container(
-                  padding:
-                      const EdgeInsets.fromLTRB(24, 0, mainLayoutPadding, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                    24,
+                    0,
+                    mainLayoutPadding,
+                    0,
+                  ),
                   child: PageContentRouter(),
                 ),
               ),

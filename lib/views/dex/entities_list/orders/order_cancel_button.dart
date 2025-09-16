@@ -9,10 +9,7 @@ import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class OrderCancelButton extends StatefulWidget {
-  const OrderCancelButton({
-    Key? key,
-    required this.order,
-  }) : super(key: key);
+  const OrderCancelButton({Key? key, required this.order}) : super(key: key);
 
   final MyOrder order;
 
@@ -46,8 +43,9 @@ class _OrderCancelButtonState extends State<OrderCancelButton> {
     setState(() {
       _isCancelling = true;
     });
-    final tradingEntitiesBloc =
-        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+      context,
+    );
     final String? error = await tradingEntitiesBloc.cancelOrder(order.uuid);
     setState(() {
       _isCancelling = false;

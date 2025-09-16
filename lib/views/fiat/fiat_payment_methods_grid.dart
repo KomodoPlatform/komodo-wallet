@@ -22,11 +22,7 @@ class FiatPaymentMethodsGrid extends StatelessWidget {
     final isLoading = state.isLoading;
     if (isLoading) {
       return simpleSpinner
-          ? const UiSpinner(
-              width: 36,
-              height: 36,
-              strokeWidth: 4,
-            )
+          ? const UiSpinner(width: 36, height: 36, strokeWidth: 4)
           : GridView(
               shrinkWrap: true,
               gridDelegate: _gridDelegate,
@@ -52,8 +48,9 @@ class FiatPaymentMethodsGrid extends StatelessWidget {
         ),
       );
     } else {
-      final groupedPaymentMethods =
-          groupPaymentMethodsByProviderId(state.paymentMethods.toList());
+      final groupedPaymentMethods = groupPaymentMethodsByProviderId(
+        state.paymentMethods.toList(),
+      );
       return Column(
         children: [
           for (final entry in groupedPaymentMethods.entries) ...[

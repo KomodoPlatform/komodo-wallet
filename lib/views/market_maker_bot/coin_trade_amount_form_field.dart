@@ -105,8 +105,8 @@ class _CoinTradeAmountFormFieldState extends State<CoinTradeAmountFormField> {
               child: AutoScrollText(
                 text: widget.errorText!,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                  color: Theme.of(context).colorScheme.error,
+                ),
               ),
             )
           else
@@ -129,7 +129,10 @@ class TradeAmountFiatPriceText extends StatelessWidget {
       coin == null
           ? r'≈$0'
           : getFormattedFiatAmount(
-              context, coin!.abbr, amount ?? Rational.zero),
+              context,
+              coin!.abbr,
+              amount ?? Rational.zero,
+            ),
       style: Theme.of(context).textTheme.bodySmall,
       overflow: TextOverflow.ellipsis,
     );
@@ -160,14 +163,15 @@ class TradeAmountTextFormField extends StatelessWidget {
               textInputAction: TextInputAction.done,
               textAlign: TextAlign.end,
               inputFormatters: currencyInputFormatters,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: dexPageColors.activeText,
-                    decoration: TextDecoration.none,
-                  ),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: dexPageColors.activeText,
+                decoration: TextDecoration.none,
+              ),
               decoration: const InputDecoration(
                 hintText: '0.00',
                 contentPadding: EdgeInsets.zero,

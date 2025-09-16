@@ -58,19 +58,19 @@ ThemeData get themeGlobalDark {
   );
 
   SnackBarThemeData snackBarThemeLight() => SnackBarThemeData(
-        elevation: 12.0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: colorScheme.primaryContainer,
-        contentTextStyle: textTheme.bodyLarge!.copyWith(
-          color: colorScheme.onPrimaryContainer,
-        ),
-        actionTextColor: colorScheme.onPrimaryContainer,
-        showCloseIcon: true,
-        closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
-      );
+    elevation: 12.0,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    ),
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: colorScheme.primaryContainer,
+    contentTextStyle: textTheme.bodyLarge!.copyWith(
+      color: colorScheme.onPrimaryContainer,
+    ),
+    actionTextColor: colorScheme.onPrimaryContainer,
+    showCloseIcon: true,
+    closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
+  );
 
   final customTheme = ThemeCustomDark();
   final theme = ThemeData(
@@ -198,22 +198,22 @@ ThemeData get themeGlobalDark {
       ),
     ),
     switchTheme: SwitchThemeData(
-      trackColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary.withOpacity(0.5);
-          }
-          return const Color(0xFF444444);
-        },
-      ),
-      thumbColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary;
-          }
-          return Colors.white;
-        },
-      ),
+      trackColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary.withOpacity(0.5);
+        }
+        return const Color(0xFF444444);
+      }),
+      thumbColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary;
+        }
+        return Colors.white;
+      }),
     ),
     extensions: [customTheme],
   );

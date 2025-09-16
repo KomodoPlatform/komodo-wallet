@@ -40,10 +40,7 @@ class SeedWordButton extends StatelessWidget {
                 children: [
                   Container(
                     alignment: Alignment.center,
-                    child: _Text(
-                      text: text,
-                      isSelected: isSelected,
-                    ),
+                    child: _Text(text: text, isSelected: isSelected),
                   ),
                   if (isSelected)
                     Container(
@@ -54,7 +51,7 @@ class SeedWordButton extends StatelessWidget {
                         size: 13,
                         color: theme.custom.headerIconColor,
                       ),
-                    )
+                    ),
                 ],
               ),
             ),
@@ -78,10 +75,10 @@ class _Text extends StatelessWidget {
         Text(
           text,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: theme.custom.headerIconColor,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
+            color: theme.custom.headerIconColor,
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
         ),
       ],
     );

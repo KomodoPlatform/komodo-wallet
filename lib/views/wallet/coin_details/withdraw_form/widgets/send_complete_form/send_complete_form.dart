@@ -101,9 +101,7 @@ class _SendCompleteError extends StatelessWidget {
       child: Text(
         error.message,
         textAlign: TextAlign.left,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.error,
-        ),
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
       ),
     );
   }

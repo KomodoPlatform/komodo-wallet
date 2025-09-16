@@ -59,8 +59,10 @@ class OrderbookModel {
     response = null;
     if (base == null || rel == null) return;
 
-    final stream =
-        orderBookRepository.getOrderbookStream(base!.abbr, rel!.abbr);
+    final stream = orderBookRepository.getOrderbookStream(
+      base!.abbr,
+      rel!.abbr,
+    );
     _orderbookListener = stream.listen((resp) => response = resp);
   }
 

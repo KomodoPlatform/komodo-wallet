@@ -6,8 +6,8 @@ class MySwapStatusReq {
   final String uuid;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'method': method,
-        'params': {'uuid': uuid},
-        'userpass': userpass,
-      };
+    'method': method,
+    'params': {'uuid': uuid},
+    'userpass': userpass,
+  };
 }

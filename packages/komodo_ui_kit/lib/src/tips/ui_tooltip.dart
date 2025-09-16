@@ -2,11 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class UiTooltip extends StatelessWidget {
-  const UiTooltip({
-    required this.message,
-    required this.child,
-    super.key,
-  });
+  const UiTooltip({required this.message, required this.child, super.key});
 
   final String message;
   final Widget child;

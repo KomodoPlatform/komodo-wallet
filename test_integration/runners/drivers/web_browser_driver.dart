@@ -18,8 +18,9 @@ abstract class WebBrowserDriver {
     }
 
     if (Platform.environment['PATH'] != null) {
-      for (final path
-          in Platform.environment['PATH']!.split(Platform.pathSeparator)) {
+      for (final path in Platform.environment['PATH']!.split(
+        Platform.pathSeparator,
+      )) {
         if (File('$path/$driverName').existsSync()) {
           return '$path/$driverName';
         }
@@ -36,8 +37,10 @@ abstract class WebBrowserDriver {
       return whereResult.stdout.toString().trim();
     }
 
-    throw Exception('$driverName not found. Please install it and add it to '
-        'PATH or the current directory.');
+    throw Exception(
+      '$driverName not found. Please install it and add it to '
+      'PATH or the current directory.',
+    );
   }
 }
 
@@ -62,15 +65,9 @@ WebBrowserDriver? createWebBrowserDriver({
         logFilePath: logFilePath,
       );
     case WebBrowser.safari:
-      return SafariDriver(
-        port: port,
-        verbose: true,
-      );
+      return SafariDriver(port: port, verbose: true);
     case WebBrowser.firefox:
-      return FirefoxDriver(
-        port: port,
-        verbose: !silent,
-      );
+      return FirefoxDriver(port: port, verbose: !silent);
     // ignore: no_default_cases
     default:
       return null;

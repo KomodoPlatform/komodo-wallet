@@ -1,9 +1,6 @@
 import 'package:web_dex/model/my_orders/my_order.dart';
 
-enum TradingStatus {
-  successful,
-  failed,
-}
+enum TradingStatus { successful, failed }
 
 class TradingEntitiesFilter {
   TradingEntitiesFilter({

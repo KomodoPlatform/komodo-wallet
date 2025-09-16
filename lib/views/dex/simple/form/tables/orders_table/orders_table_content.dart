@@ -83,11 +83,12 @@ class _ErrorMessage extends StatelessWidget {
               const Icon(Icons.warning_amber, size: 14, color: Colors.orange),
               const SizedBox(width: 4),
               Flexible(
-                  child: SelectableText(
-                error.message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
-              )),
+                child: SelectableText(
+                  error.message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
               const SizedBox(height: 4),
               UiSimpleButton(
                 child: Text(
@@ -96,7 +97,7 @@ class _ErrorMessage extends StatelessWidget {
                 ),
                 onPressed: () =>
                     context.read<TakerBloc>().add(TakerUpdateBestOrders()),
-              )
+              ),
             ],
           ),
         ],

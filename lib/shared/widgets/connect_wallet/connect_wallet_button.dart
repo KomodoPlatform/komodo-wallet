@@ -23,8 +23,8 @@ class ConnectWalletButton extends StatefulWidget {
     this.withText = true,
     this.withIcon = false,
     Size? buttonSize,
-  })  : buttonSize = buttonSize ?? const Size(double.infinity, 40),
-        super(key: key);
+  }) : buttonSize = buttonSize ?? const Size(double.infinity, 40),
+       super(key: key);
   final Size buttonSize;
   final bool withIcon;
   final bool withText;
@@ -60,15 +60,17 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
                     child: SvgPicture.asset(
                       walletIconPath,
                       colorFilter: ColorFilter.mode(
-                          theme.custom.defaultGradientButtonTextColor,
-                          BlendMode.srcIn),
+                        theme.custom.defaultGradientButtonTextColor,
+                        BlendMode.srcIn,
+                      ),
                       width: 15,
                       height: 15,
                     ),
                   )
                 : null,
-            text: LocaleKeys.connectSomething
-                .tr(args: [LocaleKeys.wallet.tr().toLowerCase()]),
+            text: LocaleKeys.connectSomething.tr(
+              args: [LocaleKeys.wallet.tr().toLowerCase()],
+            ),
             onPressed: onButtonPressed,
           )
         : ElevatedButton(
@@ -85,7 +87,9 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
             child: SvgPicture.asset(
               walletIconPath,
               colorFilter: ColorFilter.mode(
-                  theme.custom.defaultGradientButtonTextColor, BlendMode.srcIn),
+                theme.custom.defaultGradientButtonTextColor,
+                BlendMode.srcIn,
+              ),
               width: 20,
             ),
           );

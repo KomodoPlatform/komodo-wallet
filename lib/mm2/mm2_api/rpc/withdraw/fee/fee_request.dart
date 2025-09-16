@@ -7,12 +7,12 @@ class FeeRequest {
     this.gas,
   });
   factory FeeRequest.fromJson(Map<String, dynamic> json) => FeeRequest(
-        type: json['type'],
-        amount: json['amount'],
-        gasPrice: json['gas_price'],
-        gasLimit: json['gas_limit'],
-        gas: json['gas'],
-      );
+    type: json['type'],
+    amount: json['amount'],
+    gasPrice: json['gas_price'],
+    gasLimit: json['gas_limit'],
+    gas: json['gas'],
+  );
 
   /// type of transaction fee.
   /// Possible values:[UtxoFixed, UtxoPerKbyte, EthGas, CosmosGas, Qrc20Gas]
@@ -40,10 +40,10 @@ class FeeRequest {
   String getFeeAmount() => amount == null ? '' : amount!;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': type,
-        'amount': amount,
-        'gas_price': gasPrice,
-        'gas': gas,
-        'gas_limit': gasLimit,
-      };
+    'type': type,
+    'amount': amount,
+    'gas_price': gasPrice,
+    'gas': gas,
+    'gas_limit': gasLimit,
+  };
 }

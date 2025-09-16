@@ -3,13 +3,13 @@ import 'package:web_dex/router/state/menu_state_interface.dart';
 
 class DexState extends ChangeNotifier implements IResettableOnLogout {
   DexState()
-      : _action = DexAction.none,
-        _uuid = '',
-        _fromCurrency = '',
-        _fromAmount = '',
-        _toCurrency = '',
-        _toAmount = '',
-        _orderType = '';
+    : _action = DexAction.none,
+      _uuid = '',
+      _fromCurrency = '',
+      _fromAmount = '',
+      _toCurrency = '',
+      _toAmount = '',
+      _orderType = '';
 
   DexAction _action;
   String _uuid;
@@ -95,7 +95,4 @@ class DexState extends ChangeNotifier implements IResettableOnLogout {
   }
 }
 
-enum DexAction {
-  tradingDetails,
-  none,
-}
+enum DexAction { tradingDetails, none }

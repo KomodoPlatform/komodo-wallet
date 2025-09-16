@@ -110,10 +110,7 @@ class _Text extends StatelessWidget {
           switchInCurve: Curves.easeInOutCubic,
           switchOutCurve: Curves.easeInOutCubic,
           transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+            return FadeTransition(opacity: animation, child: child);
           },
           child: Padding(
             key: Key(_isDarkTheme ? _textKey1 : _textKey2),
@@ -177,9 +174,7 @@ class _Thumb extends StatelessWidget {
           switchInCurve: style.curve,
           switchOutCurve: style.curve,
           child: Icon(
-            key: Key(
-              isDarkTheme ? _iconKey1 : _iconKey2,
-            ),
+            key: Key(isDarkTheme ? _iconKey1 : _iconKey2),
             isDarkTheme ? Icons.dark_mode_sharp : Icons.light_mode_sharp,
             color: style.textColor,
             size: 24,

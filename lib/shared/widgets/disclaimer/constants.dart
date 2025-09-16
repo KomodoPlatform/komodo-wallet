@@ -54,8 +54,7 @@ const String disclaimerEulaParagraph8 =
 
 const String disclaimerEulaTitle3 = "Restrictions\n\n";
 
-const String disclaimerEulaParagraph9 =
-    "You are not permitted to:\n\n";
+const String disclaimerEulaParagraph9 = "You are not permitted to:\n\n";
 
 const String disclaimerEulaParagraph10 =
     "• Edit, alter, modify, adapt, translate or otherwise change the whole or any part of the Software nor permit the whole or any part of the Software to be combined with or become incorporated in any other software, nor decompile, disassemble or reverse engineer the Software or attempt to do any such things\n\n";

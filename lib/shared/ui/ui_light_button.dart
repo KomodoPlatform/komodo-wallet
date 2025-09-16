@@ -24,13 +24,8 @@ class UiLightButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? style = Theme.of(context)
-        .textTheme
-        .labelLarge
-        ?.copyWith(
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
-        )
+    final TextStyle? style = Theme.of(context).textTheme.labelLarge
+        ?.copyWith(fontWeight: FontWeight.w500, fontSize: 14)
         .merge(textStyle);
 
     return Container(
@@ -44,11 +39,11 @@ class UiLightButton extends StatelessWidget {
         style: ButtonStyle(
           padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
           shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0),
-          )),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+          ),
           backgroundColor: WidgetStateProperty.all<Color?>(
-              backgroundColor ?? Theme.of(context).colorScheme.surface),
+            backgroundColor ?? Theme.of(context).colorScheme.surface,
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -224,28 +224,28 @@ class TradeCoinPairConfig extends Equatable {
       priceElapsedValidity: priceElapsedValidity ?? this.priceElapsedValidity,
       checkLastBidirectionalTradeThreshHold:
           checkLastBidirectionalTradeThreshHold ??
-              this.checkLastBidirectionalTradeThreshHold,
+          this.checkLastBidirectionalTradeThreshHold,
     );
   }
 
   @override
   List<Object?> get props => [
-        name,
-        baseCoinId,
-        relCoinId,
-        maxBalancePerTrade,
-        minVolume,
-        maxVolume,
-        minBasePriceUsd,
-        minRelPriceUsd,
-        minPairPrice,
-        spread,
-        baseConfs,
-        baseNota,
-        relConfs,
-        relNota,
-        enable,
-        priceElapsedValidity,
-        checkLastBidirectionalTradeThreshHold,
-      ];
+    name,
+    baseCoinId,
+    relCoinId,
+    maxBalancePerTrade,
+    minVolume,
+    maxVolume,
+    minBasePriceUsd,
+    minRelPriceUsd,
+    minPairPrice,
+    spread,
+    baseConfs,
+    baseNota,
+    relConfs,
+    relNota,
+    enable,
+    priceElapsedValidity,
+    checkLastBidirectionalTradeThreshHold,
+  ];
 }

@@ -15,9 +15,7 @@ class FiatTransactionFee extends Equatable {
   final List<FeeDetail> fees;
 
   Map<String, dynamic> toJson() {
-    return {
-      'fees': fees.map((fee) => fee.toJson()).toList(),
-    };
+    return {'fees': fees.map((fee) => fee.toJson()).toList()};
   }
 
   @override
@@ -35,9 +33,7 @@ class FeeDetail extends Equatable {
   final Decimal amount;
 
   Map<String, dynamic> toJson() {
-    return {
-      'amount': amount.toString(),
-    };
+    return {'amount': amount.toString()};
   }
 
   @override

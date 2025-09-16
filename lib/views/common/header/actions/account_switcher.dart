@@ -121,9 +121,7 @@ class _AccountDropdown extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border.all(
-          color: theme.custom.specificButtonBorderColor,
-        ),
+        border: Border.all(color: theme.custom.specificButtonBorderColor),
       ),
       constraints: const BoxConstraints(minWidth: minWidth, maxWidth: maxWidth),
       child: InkWell(
@@ -138,7 +136,9 @@ class _AccountDropdown extends StatelessWidget {
                 child: Text(
                   LocaleKeys.logOut.tr(),
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -158,8 +158,9 @@ class _AccountIcon extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(2.0),
       decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.tertiary),
+        shape: BoxShape.circle,
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
         child: SvgPicture.asset(

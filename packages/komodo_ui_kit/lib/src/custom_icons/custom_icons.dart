@@ -21,6 +21,9 @@ class CustomIcons {
   static const _kFontFam = 'Custom';
   static const String _kFontPkg = 'komodo_ui_kit';
 
-  static const IconData fiatIconCircle =
-      IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData fiatIconCircle = IconData(
+    0xe800,
+    fontFamily: _kFontFam,
+    fontPackage: _kFontPkg,
+  );
 }

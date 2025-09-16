@@ -31,17 +31,10 @@ class _SwapRecoverButtonState extends State<SwapRecoverButton> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(child: SelectableText(LocaleKeys.swapRecoverButtonTitle.tr())),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         Flexible(
           child: _isLoading
-              ? const Center(
-                  child: UiSpinner(
-                    width: 48,
-                    height: 48,
-                  ),
-                )
+              ? const Center(child: UiSpinner(width: 48, height: 48))
               : UiPrimaryButton(
                   text: LocaleKeys.swapRecoverButtonText.tr(),
                   onPressed: () async {
@@ -61,14 +54,14 @@ class _SwapRecoverButtonState extends State<SwapRecoverButton> {
                     await Future<dynamic>.delayed(const Duration(seconds: 1));
                     if (response == null) {
                       setState(() {
-                        _message =
-                            LocaleKeys.swapRecoverButtonErrorMessage.tr();
+                        _message = LocaleKeys.swapRecoverButtonErrorMessage
+                            .tr();
                         _isFailedRecover = true;
                       });
                     } else {
                       setState(() {
-                        _message =
-                            LocaleKeys.swapRecoverButtonSuccessMessage.tr();
+                        _message = LocaleKeys.swapRecoverButtonSuccessMessage
+                            .tr();
                         _recoverResponse = response;
                         _isFailedRecover = false;
                       });

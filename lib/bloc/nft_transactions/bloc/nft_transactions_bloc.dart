@@ -25,11 +25,11 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
     required CoinsRepo coinsRepository,
     required bool isLoggedIn,
     required NftsRepo nftsRepository,
-  })  : _nftTxnRepository = nftTxnRepository,
-        _coinsBloc = coinsRepository,
-        _nftsRepository = nftsRepository,
-        _isLoggedIn = isLoggedIn,
-        super(NftTransactionsInitial()) {
+  }) : _nftTxnRepository = nftTxnRepository,
+       _coinsBloc = coinsRepository,
+       _nftsRepository = nftsRepository,
+       _isLoggedIn = isLoggedIn,
+       super(NftTransactionsInitial()) {
     on<NftTxnReceiveEvent>(_onReceiveTransactions);
     on<NftTxReceiveDetailsEvent>(_onReceiveDetails);
     on<NftTxnEventSearchChanged>(_onSearchChanged);
@@ -80,7 +80,9 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   }
 
   Future<void> _onReceiveTransactions(
-      NftTxnReceiveEvent event, Emitter<NftTxnState> emitter) async {
+    NftTxnReceiveEvent event,
+    Emitter<NftTxnState> emitter,
+  ) async {
     if (!_isLoggedIn) return;
     emitter(state.copyWith(status: NftTxnStatus.loading));
     try {
@@ -112,28 +114,29 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
       );
     } catch (e) {
       return emitter(
-        state.copyWith(
-          filteredTransactions: [],
-          status: NftTxnStatus.failure,
-        ),
+        state.copyWith(filteredTransactions: [], status: NftTxnStatus.failure),
       );
     }
   }
 
   Future<void> _onReceiveDetails(
-      NftTxReceiveDetailsEvent event, Emitter<NftTxnState> emitter) async {
+    NftTxReceiveDetailsEvent event,
+    Emitter<NftTxnState> emitter,
+  ) async {
     if (!_isLoggedIn) return;
 
     final tx = event.tx;
     if (tx.containsAdditionalInfo) return;
 
-    final int index = _transactions
-        .indexWhere((element) => element.getTxKey() == event.tx.getTxKey());
+    final int index = _transactions.indexWhere(
+      (element) => element.getTxKey() == event.tx.getTxKey(),
+    );
     if (tx.detailsFetchStatus != NftTxnDetailsStatus.initial) return;
 
     try {
-      final response =
-          await _nftTxnRepository.getNftTxDetailsByHash(tx: event.tx);
+      final response = await _nftTxnRepository.getNftTxDetailsByHash(
+        tx: event.tx,
+      );
       _transactions[index].confirmations = response.confirmations;
       _transactions[index].feeDetails = response.feeDetails;
       _transactions[index].setDetailsStatus(NftTxnDetailsStatus.success);
@@ -142,19 +145,21 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
     } on BaseError catch (e) {
       if (_transactions[index].detailsFetchStatus ==
           NftTxnDetailsStatus.initial) {
-        final status =
-            await retryReceiveDetails(index, event.tx.transactionHash);
+        final status = await retryReceiveDetails(
+          index,
+          event.tx.transactionHash,
+        );
         _transactions[index].setDetailsStatus(status);
         emitFilteredData(emitter);
       }
-      return emitter(
-        state.copyWith(errorMessage: e.message),
-      );
+      return emitter(state.copyWith(errorMessage: e.message));
     } catch (e) {
       if (_transactions[index].detailsFetchStatus ==
           NftTxnDetailsStatus.initial) {
-        final status =
-            await retryReceiveDetails(index, event.tx.transactionHash);
+        final status = await retryReceiveDetails(
+          index,
+          event.tx.transactionHash,
+        );
         _transactions[index].setDetailsStatus(status);
       }
       return emitFilteredData(emitter);
@@ -162,7 +167,9 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   }
 
   Future<NftTxnDetailsStatus> retryReceiveDetails(
-      int index, String txHash) async {
+    int index,
+    String txHash,
+  ) async {
     int attempt = 5;
     NftTxnDetailsStatus status = NftTxnDetailsStatus.failure;
     while (attempt > 0) {
@@ -170,7 +177,8 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
         await Future.delayed(const Duration(seconds: 2));
         attempt--;
         final response = await _nftTxnRepository.getNftTxDetailsByHash(
-            tx: _transactions[index]);
+          tx: _transactions[index],
+        );
         _transactions[index].confirmations = response.confirmations;
         _transactions[index].feeDetails = response.feeDetails;
         status = NftTxnDetailsStatus.success;
@@ -182,15 +190,13 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   }
 
   void _noLogin(NftTxnEventNoLogin event, Emitter<NftTxnState> emitter) {
-    return emitter(
-      state.copyWith(
-        status: NftTxnStatus.noLogin,
-      ),
-    );
+    return emitter(state.copyWith(status: NftTxnStatus.noLogin));
   }
 
   void _onSearchChanged(
-      NftTxnEventSearchChanged event, Emitter<NftTxnState> emitter) {
+    NftTxnEventSearchChanged event,
+    Emitter<NftTxnState> emitter,
+  ) {
     emitter(
       state.copyWith(
         filters: state.filters.copyWith(searchLine: event.searchLine),
@@ -200,17 +206,19 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   }
 
   void _onStatusesChanged(
-      NftTxnEventStatusesChanged event, Emitter<NftTxnState> emitter) {
+    NftTxnEventStatusesChanged event,
+    Emitter<NftTxnState> emitter,
+  ) {
     emitter(
-      state.copyWith(
-        filters: state.filters.copyWith(statuses: event.statuses),
-      ),
+      state.copyWith(filters: state.filters.copyWith(statuses: event.statuses)),
     );
     emitFilteredData(emitter);
   }
 
   void _onBlockchainChanged(
-      NftTxnEventBlockchainChanged event, Emitter<NftTxnState> emitter) {
+    NftTxnEventBlockchainChanged event,
+    Emitter<NftTxnState> emitter,
+  ) {
     emitter(
       state.copyWith(
         filters: state.filters.copyWith(blockchain: event.blockchains),
@@ -220,27 +228,29 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   }
 
   void _startDateChanged(
-      NftTxnEventStartDateChanged event, Emitter<NftTxnState> emitter) {
+    NftTxnEventStartDateChanged event,
+    Emitter<NftTxnState> emitter,
+  ) {
     emitter(
-      state.copyWith(
-        filters: state.filters.copyWith(dateFrom: event.dateFrom),
-      ),
+      state.copyWith(filters: state.filters.copyWith(dateFrom: event.dateFrom)),
     );
     emitFilteredData(emitter);
   }
 
   void _endDateChanged(
-      NftTxnEventEndDateChanged event, Emitter<NftTxnState> emitter) {
+    NftTxnEventEndDateChanged event,
+    Emitter<NftTxnState> emitter,
+  ) {
     emitter(
-      state.copyWith(
-        filters: state.filters.copyWith(dateTo: event.dateTo),
-      ),
+      state.copyWith(filters: state.filters.copyWith(dateTo: event.dateTo)),
     );
     emitFilteredData(emitter);
   }
 
   void _changeFullFilter(
-      NftTxnEventFullFilterChanged event, Emitter<NftTxnState> emitter) {
+    NftTxnEventFullFilterChanged event,
+    Emitter<NftTxnState> emitter,
+  ) {
     emitter(state.copyWith(filters: event.filter));
 
     emitFilteredData(emitter);
@@ -248,9 +258,7 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
 
   void emitFilteredData(Emitter<NftTxnState> emitter) {
     final filtered = _applyFilter();
-    return emitter(
-      state.copyWith(filteredTransactions: filtered),
-    );
+    return emitter(state.copyWith(filteredTransactions: filtered));
   }
 
   void _cleanFilters(NftTxnClearFilters event, Emitter<NftTxnState> emitter) {
@@ -265,13 +273,15 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
   List<NftTransaction> _applyFilter() {
     final filters = state.filters;
     final filteredTransactions = _transactions.where((transaction) {
-      final includeTokenName = transaction.tokenName
-              ?.toLowerCase()
-              .contains(filters.searchLine.toLowerCase()) ??
+      final includeTokenName =
+          transaction.tokenName?.toLowerCase().contains(
+            filters.searchLine.toLowerCase(),
+          ) ??
           false;
-      final includeTokenCollection = transaction.collectionName
-              ?.toLowerCase()
-              .contains(filters.searchLine.toLowerCase()) ??
+      final includeTokenCollection =
+          transaction.collectionName?.toLowerCase().contains(
+            filters.searchLine.toLowerCase(),
+          ) ??
           false;
       if (filters.searchLine.isNotEmpty &&
           !(includeTokenName || includeTokenCollection)) {

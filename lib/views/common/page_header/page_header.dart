@@ -73,9 +73,9 @@ class _MobileHeader extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
           ),
           if (widget != null) widget,
         ],
@@ -126,10 +126,7 @@ class _DesktopHeader extends StatelessWidget {
                     onPressed: onBackButtonPressed!,
                   ),
             if (actions != null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: actions!,
-              ),
+              Row(mainAxisSize: MainAxisSize.min, children: actions!),
           ],
         ),
         Center(
@@ -141,9 +138,9 @@ class _DesktopHeader extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
                 if (widget != null) widget,
               ],

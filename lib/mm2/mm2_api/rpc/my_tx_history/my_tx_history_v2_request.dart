@@ -4,7 +4,7 @@ import 'package:web_dex/model/wallet.dart';
 class MyTxHistoryV2Request
     implements BaseRequest, BaseRequestWithParams<MyTxHistoryV2ParamsRequest> {
   MyTxHistoryV2Request({required String coin, required WalletType type})
-      : params = MyTxHistoryV2ParamsRequest(coin: coin, type: type);
+    : params = MyTxHistoryV2ParamsRequest(coin: coin, type: type);
   @override
   late String userpass;
 
@@ -16,11 +16,11 @@ class MyTxHistoryV2Request
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'userpass': userpass,
-        'mmrpc': '2.0',
-        'method': method,
-        'params': params.toJson(),
-      };
+    'userpass': userpass,
+    'mmrpc': '2.0',
+    'method': method,
+    'params': params.toJson(),
+  };
 }
 
 class MyTxHistoryV2ParamsRequest {
@@ -33,15 +33,12 @@ class MyTxHistoryV2ParamsRequest {
       return <String, dynamic>{
         'coin': coin,
         'limit': 10000,
-        'target': {
-          'type': 'account_id',
-          'account_id': 0,
-        }
+        'target': {'type': 'account_id', 'account_id': 0},
       };
     }
     return <String, dynamic>{
       'coin': coin,
-      'limit': 10000 // https://github.com/KomodoPlatform/WebDEX/issues/795
+      'limit': 10000, // https://github.com/KomodoPlatform/WebDEX/issues/795
     };
   }
 }

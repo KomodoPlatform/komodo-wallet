@@ -7,7 +7,7 @@ import 'package:web_dex/shared/constants.dart';
 
 class SettingsRepository {
   SettingsRepository({BaseStorage? storage})
-      : _storage = storage ?? getStorage();
+    : _storage = storage ?? getStorage();
 
   final BaseStorage _storage;
 

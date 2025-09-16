@@ -6,11 +6,7 @@ import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 import 'package:web_dex/shared/widgets/html_parser.dart';
 
 class SupportItemData {
-  const SupportItemData({
-    required this.title,
-    this.content,
-    this.onTap,
-  });
+  const SupportItemData({required this.title, this.content, this.onTap});
 
   final String title;
   final String? content;
@@ -19,7 +15,7 @@ class SupportItemData {
 
 class SupportItem extends StatefulWidget {
   const SupportItem({Key? key, required this.data, this.isLast = false})
-      : super(key: key);
+    : super(key: key);
 
   final SupportItemData data;
   final bool isLast;
@@ -49,17 +45,17 @@ class _SupportItemState extends State<SupportItem> {
                   child: Text(
                     widget.data.title,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                if (isMobile)
-                  const SizedBox(
-                    width: 30,
-                  ),
+                if (isMobile) const SizedBox(width: 30),
                 UiGradientIcon(
-                    icon: expanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down)
+                  icon: expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                ),
               ],
             ),
             onTap: () {
@@ -73,21 +69,23 @@ class _SupportItemState extends State<SupportItem> {
             },
           ),
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         if (widget.data.content != null)
           Visibility(
-              visible: expanded,
-              child: HtmlParser(
-                widget.data.content!,
-                linkStyle: TextStyle(
-                    color: theme.custom.headerFloatBoxColor,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14),
-                textStyle:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-              )),
+            visible: expanded,
+            child: HtmlParser(
+              widget.data.content!,
+              linkStyle: TextStyle(
+                color: theme.custom.headerFloatBoxColor,
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+          ),
         const UiDivider(),
       ],
     );

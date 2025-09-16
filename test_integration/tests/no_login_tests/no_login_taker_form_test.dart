@@ -27,8 +27,9 @@ Future<void> testNoLoginTakerForm(WidgetTester tester) async {
   await tester.pumpAndSettle();
 
   print('DOGE COIN SELECTED, CHECK ORDERBOOK IS LOADED');
-  final orderbooksTableContainer =
-      find.byKey(const Key('orderbook-asks-bids-container'));
+  final orderbooksTableContainer = find.byKey(
+    const Key('orderbook-asks-bids-container'),
+  );
   final mainMenuWallet = find.byKey(const Key('main-menu-wallet'));
 
   await tester.ensureVisible(orderbooksTableContainer);

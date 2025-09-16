@@ -17,32 +17,22 @@ Future<void> testCexPrices(WidgetTester tester) async {
   const String docByTicker = 'DOC';
   const String kmdBep20ByTicker = 'KMD';
 
-  final Finder totalAmount = find.byKey(
-    const Key('overview-total-balance'),
-  );
+  final Finder totalAmount = find.byKey(const Key('overview-total-balance'));
 
-  // re-enable with coin details click 
+  // re-enable with coin details click
   // final Finder coinDetailsReturnButton = find.byKey(
   //   const Key('back-button'),
   // );
   final Finder kmdBep20CoinActive = find.byKey(
     const Key('active-coin-item-kmd-bep20'),
   );
-  final Finder kmdBep20Price = find.byKey(
-    const Key('fiat-price-kmd-bep20'),
-  );
-  final Finder list = find.byKey(
-    const Key('wallet-page-coins-list'),
-  );
-  final Finder page = find.byKey(
-    const Key('wallet-page'),
-  );
+  final Finder kmdBep20Price = find.byKey(const Key('fiat-price-kmd-bep20'));
+  final Finder list = find.byKey(const Key('wallet-page-coins-list'));
+  final Finder page = find.byKey(const Key('wallet-page'));
   final Finder kmdBep20Item = find.byKey(
     const Key('coins-manager-list-item-kmd-bep20'),
   );
-  final Finder docItem = find.byKey(
-    const Key('coins-manager-list-item-doc'),
-  );
+  final Finder docItem = find.byKey(const Key('coins-manager-list-item-doc'));
   final Finder searchCoinsField = find.byKey(
     const Key('wallet-page-search-field'),
   );
@@ -118,25 +108,21 @@ Future<void> testCexPrices(WidgetTester tester) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
-    'Run cex prices tests:',
-    (WidgetTester tester) async {
-      print('🔍 MAIN: Starting CEX prices test suite');
-      tester.testTextInput.register();
-      await app.main();
-      await tester.pumpAndSettle();
+  testWidgets('Run cex prices tests:', (WidgetTester tester) async {
+    print('🔍 MAIN: Starting CEX prices test suite');
+    tester.testTextInput.register();
+    await app.main();
+    await tester.pumpAndSettle();
 
-      print('🔍 MAIN: Accepting alpha warning');
-      await acceptAlphaWarning(tester);
+    print('🔍 MAIN: Accepting alpha warning');
+    await acceptAlphaWarning(tester);
 
-      await restoreWalletToTest(tester);
-      print('🔍 MAIN: Wallet restored');
+    await restoreWalletToTest(tester);
+    print('🔍 MAIN: Wallet restored');
 
-      await testCexPrices(tester);
-      await tester.pumpAndSettle();
+    await testCexPrices(tester);
+    await tester.pumpAndSettle();
 
-      print('🔍 MAIN: CEX prices tests completed successfully');
-    },
-    semanticsEnabled: false,
-  );
+    print('🔍 MAIN: CEX prices tests completed successfully');
+  }, semanticsEnabled: false);
 }

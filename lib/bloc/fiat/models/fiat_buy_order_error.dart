@@ -30,11 +30,7 @@ class FiatBuyOrderError extends Equatable {
   final String title;
 
   Map<String, dynamic> toJson() {
-    return {
-      'code': code,
-      'status': status,
-      'title': title,
-    };
+    return {'code': code, 'status': status, 'title': title};
   }
 
   @override

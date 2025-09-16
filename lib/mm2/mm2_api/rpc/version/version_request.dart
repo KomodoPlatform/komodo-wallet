@@ -9,7 +9,7 @@ class VersionRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'method': method,
-        'userpass': userpass,
-      };
+    'method': method,
+    'userpass': userpass,
+  };
 }

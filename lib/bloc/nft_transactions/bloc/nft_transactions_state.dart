@@ -1,11 +1,6 @@
 part of 'nft_transactions_bloc.dart';
 
-enum NftTxnStatus {
-  loading,
-  noLogin,
-  success,
-  failure,
-}
+enum NftTxnStatus { loading, noLogin, success, failure }
 
 class NftTxnState {
   final List<NftTransaction> filteredTransactions;

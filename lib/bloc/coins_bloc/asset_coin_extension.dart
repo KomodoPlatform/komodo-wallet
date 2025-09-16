@@ -15,7 +15,7 @@ extension AssetCoinExtension on Asset {
     final logoImageUrl = config.valueOrNull<String>('logo_image_url');
     final isCustomToken =
         (config.valueOrNull<bool>('is_custom_token') ?? false) ||
-            logoImageUrl != null;
+        logoImageUrl != null;
 
     final ProtocolData protocolData = ProtocolData(
       platform: id.parentId?.id ?? platform ?? '',
@@ -38,8 +38,9 @@ extension AssetCoinExtension on Asset {
       isTestCoin: protocol.isTestnet,
       coingeckoId: id.symbol.coinGeckoId,
       swapContractAddress: config.valueOrNull<String>('swap_contract_address'),
-      fallbackSwapContract:
-          config.valueOrNull<String>('fallback_swap_contract'),
+      fallbackSwapContract: config.valueOrNull<String>(
+        'fallback_swap_contract',
+      ),
       priority: priorityCoinsAbbrMap[id.id] ?? 0,
       state: CoinState.inactive,
       walletOnly: config.valueOrNull<bool>('wallet_only') ?? false,
@@ -49,8 +50,11 @@ extension AssetCoinExtension on Asset {
     );
   }
 
-  String? get contractAddress => protocol.config
-      .valueOrNull('protocol', 'protocol_data', 'contract_address');
+  String? get contractAddress => protocol.config.valueOrNull(
+    'protocol',
+    'protocol_data',
+    'contract_address',
+  );
   String? get platform =>
       protocol.config.valueOrNull('protocol', 'protocol_data', 'platform');
 }
@@ -201,10 +205,7 @@ extension AssetBalanceExtension on Coin {
     KomodoDefiSdk sdk, {
     bool activateIfNeeded = true,
   }) {
-    return sdk.balances.watchBalance(
-      id,
-      activateIfNeeded: activateIfNeeded,
-    );
+    return sdk.balances.watchBalance(id, activateIfNeeded: activateIfNeeded);
   }
 
   /// Get the last-known balance for this coin.

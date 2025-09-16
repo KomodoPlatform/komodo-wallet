@@ -22,10 +22,7 @@ import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/s
 import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
 
 class SeedShow extends StatelessWidget {
-  const SeedShow({
-    required this.seedPhrase,
-    required this.privKeys,
-  });
+  const SeedShow({required this.seedPhrase, required this.privKeys});
   final String seedPhrase;
   final Map<Coin, String> privKeys;
 
@@ -46,19 +43,20 @@ class SeedShow extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: SeedBackButton(() {
                   context.read<AnalyticsBloc>().add(
-                        AnalyticsBackupSkippedEvent(
-                          stageSkipped: 'seed_show',
-                          walletType: context
-                                  .read<AuthBloc>()
-                                  .state
-                                  .currentUser
-                                  ?.wallet
-                                  .config
-                                  .type
-                                  .name ??
-                              '',
-                        ),
-                      );
+                    AnalyticsBackupSkippedEvent(
+                      stageSkipped: 'seed_show',
+                      walletType:
+                          context
+                              .read<AuthBloc>()
+                              .state
+                              .currentUser
+                              ?.wallet
+                              .config
+                              .type
+                              .name ??
+                          '',
+                    ),
+                  );
                   context.read<SecuritySettingsBloc>().add(const ResetEvent());
                 }),
               ),
@@ -246,8 +244,8 @@ class _TitleRow extends StatelessWidget {
                 child: Text(
                   LocaleKeys.copyWarning.tr(),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: theme.custom.warningColor,
-                      ),
+                    color: theme.custom.warningColor,
+                  ),
                 ),
               ),
             ],
@@ -312,9 +310,9 @@ class _ShowingSwitcher extends StatelessWidget {
         SelectableText(
           LocaleKeys.seedPhraseShowingShowPhrase.tr(),
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
         ),
       ],
     );
@@ -398,7 +396,8 @@ class _WordsList extends StatelessWidget {
         children: seedList
             .asMap()
             .map<int, Widget>(
-                (index, w) => _buildSeedWord(index, w, showSeedWords))
+              (index, w) => _buildSeedWord(index, w, showSeedWords),
+            )
             .values
             .toList(),
       ),
@@ -435,8 +434,9 @@ class _SelectableSeedWord extends StatelessWidget {
     final numStyle = TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      color:
-          Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.4),
+      color: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.color?.withValues(alpha: 0.4),
     );
     final text = isSeedShown ? initialValue : '••••••';
 
@@ -450,13 +450,7 @@ class _SelectableSeedWord extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 21,
-              child: Text(
-                '${index + 1}.',
-                style: numStyle,
-              ),
-            ),
+            SizedBox(width: 21, child: Text('${index + 1}.', style: numStyle)),
             Expanded(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 31),

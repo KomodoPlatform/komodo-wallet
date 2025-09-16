@@ -79,10 +79,7 @@ class _SelectedTickerTile extends StatelessWidget {
     final themeData = Theme.of(context);
 
     return ticker == null
-        ? PickItem(
-            title: title,
-            onTap: onTap,
-          )
+        ? PickItem(title: title, onTap: onTap)
         : Material(
             type: MaterialType.transparency,
             child: InkWell(
@@ -98,25 +95,25 @@ class _SelectedTickerTile extends StatelessWidget {
                       width: 30,
                       alignment: const Alignment(0, 0),
                       decoration: BoxDecoration(
-                          color: themeData.cardColor,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: AssetIcon.ofTicker(
-                        ticker!,
-                        size: 26,
+                        color: themeData.cardColor,
+                        borderRadius: BorderRadius.circular(15),
                       ),
+                      child: AssetIcon.ofTicker(ticker!, size: 26),
                     ),
-                    const SizedBox(
-                      width: 4,
-                    ),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: AutoScrollText(
                         text: ticker!,
                         style: themeData.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w500, fontSize: 14),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                    Icon(expanded ? Icons.expand_less : Icons.expand_more,
-                        color: Theme.of(context).textTheme.bodyMedium?.color)
+                    Icon(
+                      expanded ? Icons.expand_less : Icons.expand_more,
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                    ),
                   ],
                 ),
               ),

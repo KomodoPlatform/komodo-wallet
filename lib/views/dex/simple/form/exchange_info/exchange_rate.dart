@@ -111,7 +111,10 @@ class _Rates extends StatelessWidget {
       return getFormattedFiatAmount(context, base ?? '', Rational.zero);
     }
     return getFormattedFiatAmount(
-        context, base ?? '', rate?.inverse ?? Rational.zero);
+      context,
+      base ?? '',
+      rate?.inverse ?? Rational.zero,
+    );
   }
 
   String get price {

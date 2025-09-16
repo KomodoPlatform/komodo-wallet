@@ -13,11 +13,7 @@ class SectionSwitcher extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
-        children: [
-          _TakerBtn(),
-          const SizedBox(width: 12),
-          _MakerBtn(),
-        ],
+        children: [_TakerBtn(), const SizedBox(width: 12), _MakerBtn()],
       ),
     );
   }

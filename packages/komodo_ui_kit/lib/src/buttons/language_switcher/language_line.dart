@@ -33,11 +33,9 @@ class LanguageLine extends StatelessWidget {
           Icon(
             Icons.keyboard_arrow_down_rounded,
             size: 20,
-            color: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.color
-                ?.withValues(alpha: .5),
+            color: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.color?.withValues(alpha: .5),
           ),
       ],
     );

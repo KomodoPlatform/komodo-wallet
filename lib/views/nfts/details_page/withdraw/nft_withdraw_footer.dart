@@ -18,7 +18,7 @@ class NftWithdrawFooter extends StatelessWidget {
       builder: (context, state) {
         final bool isSending =
             (state is NftWithdrawFillState && state.isSending) ||
-                (state is NftWithdrawConfirmState && state.isSending);
+            (state is NftWithdrawConfirmState && state.isSending);
         final isSuccess = state is NftWithdrawSuccessState;
         if (isSuccess) {
           return _buildSuccessFooter(context, state);
@@ -69,9 +69,7 @@ class NftWithdrawFooter extends StatelessWidget {
     final NftWithdrawState state = bloc.state;
 
     if (state is NftWithdrawFillState) {
-      bloc.add(
-        const NftWithdrawSendEvent(),
-      );
+      bloc.add(const NftWithdrawSendEvent());
     } else if (state is NftWithdrawConfirmState) {
       bloc.add(const NftWithdrawConfirmSendEvent());
     }
@@ -106,9 +104,7 @@ class _PrimaryButton extends StatelessWidget {
       prefix: isSending
           ? Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: UiSpinner(
-                color: colorScheme.secondary,
-              ),
+              child: UiSpinner(color: colorScheme.secondary),
             )
           : null,
       height: 40,
@@ -118,10 +114,7 @@ class _PrimaryButton extends StatelessWidget {
 }
 
 class _SecondaryButton extends StatelessWidget {
-  const _SecondaryButton({
-    required this.text,
-    required this.onPressed,
-  });
+  const _SecondaryButton({required this.text, required this.onPressed});
   final String text;
   final VoidCallback onPressed;
 
@@ -129,12 +122,13 @@ class _SecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).extension<ColorSchemeExtension>()!;
     return UiBorderButton(
-        height: 40,
-        text: text,
-        textColor: colorScheme.secondary,
-        borderColor: colorScheme.secondary,
-        backgroundColor: colorScheme.surfContLowest,
-        borderWidth: 2,
-        onPressed: onPressed);
+      height: 40,
+      text: text,
+      textColor: colorScheme.secondary,
+      borderColor: colorScheme.secondary,
+      backgroundColor: colorScheme.surfContLowest,
+      borderWidth: 2,
+      onPressed: onPressed,
+    );
   }
 }

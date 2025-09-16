@@ -11,8 +11,8 @@ part 'bitrefill_state.dart';
 
 class BitrefillBloc extends Bloc<BitrefillEvent, BitrefillState> {
   BitrefillBloc()
-      : _bitrefillRepository = BitrefillRepository(),
-        super(BitrefillInitial()) {
+    : _bitrefillRepository = BitrefillRepository(),
+      super(BitrefillInitial()) {
     on<BitrefillLoadRequested>(_onBitrefillLoadRequested);
     on<BitrefillLaunchRequested>(_onBitrefillLaunchRequested);
     on<BitrefillPaymentIntentReceived>(_onBitrefillPaymentIntentReceived);
