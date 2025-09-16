@@ -13,6 +13,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
@@ -279,14 +280,18 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
     // Find common prefix
     int start = 0;
-    while (start < before.length && start < after.length && before[start] == after[start]) {
+    while (start < before.length &&
+        start < after.length &&
+        before[start] == after[start]) {
       start++;
     }
 
     // Find common suffix
     int endBefore = before.length - 1;
     int endAfter = after.length - 1;
-    while (endBefore >= start && endAfter >= start && before[endBefore] == after[endAfter]) {
+    while (endBefore >= start &&
+        endAfter >= start &&
+        before[endBefore] == after[endAfter]) {
       endBefore--;
       endAfter--;
     }
@@ -309,6 +314,8 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           counterText: '',
           errorText: widget.errorText,
           autofillHints: widget.autofillHints ?? const [AutofillHints.password],
+          maxLength: passwordMaxLength,
+          counterText: '',
           hintText: LocaleKeys.walletCreationPasswordHint.tr(),
           suffixIcon: PasswordVisibilityControl(
             onVisibilityChange: onVisibilityChange,

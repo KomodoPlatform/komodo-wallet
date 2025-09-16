@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// import 'package:web_dex/shared/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
@@ -46,6 +47,7 @@ class _WalletCreationState extends State<WalletCreation> {
   bool _inProgress = false;
   bool _isHdMode = true;
   bool _rememberMe = false;
+  bool _arePasswordsValid = false;
 
   late final WalletsRepository _walletsRepository;
 
@@ -158,6 +160,9 @@ class _WalletCreationState extends State<WalletCreation> {
         const SizedBox(height: 20),
         CreationPasswordFields(
           passwordController: _passwordController,
+          onValidityChanged: (isValid) {
+            if (mounted) setState(() => _arePasswordsValid = isValid);
+          },
           onFieldSubmitted: (_) {
             if (_isCreateButtonEnabled) _onCreate();
           },
@@ -220,6 +225,9 @@ class _WalletCreationState extends State<WalletCreation> {
       _nameController.text,
     );
     final isNameValid = nameError == null;
-    return _eulaAndTosChecked && !_inProgress && isNameValid;
+    return _eulaAndTosChecked &&
+        !_inProgress &&
+        isNameValid &&
+        _arePasswordsValid;
   }
 }
