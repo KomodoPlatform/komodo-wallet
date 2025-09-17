@@ -36,8 +36,7 @@ class GraphCache extends Equatable implements ObjectWithPrimaryKey<String> {
     required GraphType graphType,
     required String walletId,
     required bool isHdWallet,
-  }) =>
-      '$coinId-$fiatCoinId-${graphType.name}-$walletId-$isHdWallet';
+  }) => '$coinId-$fiatCoinId-${graphType.name}-$walletId-$isHdWallet';
 
   /// The komodo coin abbreviation from the coins repository (e.g. BTC, etc.).
   final String coinId;
@@ -94,20 +93,20 @@ class GraphCache extends Equatable implements ObjectWithPrimaryKey<String> {
 
   @override
   List<Object?> get props => [
-        coinId,
-        fiatCoinId,
-        lastUpdated,
-        graph,
-        graphType,
-        walletId,
-      ];
+    coinId,
+    fiatCoinId,
+    lastUpdated,
+    graph,
+    graphType,
+    walletId,
+  ];
 
   @override
   String get primaryKey => GraphCache.getPrimaryKey(
-        coinId: coinId,
-        fiatCoinId: fiatCoinId,
-        graphType: graphType,
-        walletId: walletId,
-        isHdWallet: isHdWallet,
-      );
+    coinId: coinId,
+    fiatCoinId: fiatCoinId,
+    graphType: graphType,
+    walletId: walletId,
+    isHdWallet: isHdWallet,
+  );
 }

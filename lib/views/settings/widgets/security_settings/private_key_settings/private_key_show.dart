@@ -40,7 +40,10 @@ class PrivateKeyShow extends StatelessWidget {
   /// [privateKeys] Map of asset IDs to their corresponding private keys.
   /// **Security Note**: This data should be handled with extreme care and
   /// cleared from memory as soon as possible.
-  const PrivateKeyShow({required this.privateKeys, this.blockedAssetSymbols = const <String>{}});
+  const PrivateKeyShow({
+    required this.privateKeys,
+    this.blockedAssetSymbols = const <String>{},
+  });
 
   /// Private keys organized by asset ID.
   ///
@@ -130,7 +133,8 @@ class PrivateKeyExportSection extends StatefulWidget {
   final Set<String> blockedAssetSymbols;
 
   @override
-  State<PrivateKeyExportSection> createState() => _PrivateKeyExportSectionState();
+  State<PrivateKeyExportSection> createState() =>
+      _PrivateKeyExportSectionState();
 }
 
 class _PrivateKeyExportSectionState extends State<PrivateKeyExportSection> {
@@ -177,11 +181,14 @@ class _PrivateKeyExportSectionState extends State<PrivateKeyExportSection> {
                 padding: const EdgeInsets.only(left: 8.0),
                 child: _IncludeBlockedToggle(
                   value: _includeBlockedAssets,
-                  onChanged: (val) => setState(() => _includeBlockedAssets = val),
+                  onChanged: (val) =>
+                      setState(() => _includeBlockedAssets = val),
                 ),
               ),
             Flexible(
-              child: PrivateKeyActionsWidget(privateKeys: _filteredPrivateKeys()),
+              child: PrivateKeyActionsWidget(
+                privateKeys: _filteredPrivateKeys(),
+              ),
             ),
           ],
         ),
@@ -212,19 +219,13 @@ class _IncludeBlockedToggle extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          UiSwitcher(
-            value: value,
-            onChanged: onChanged,
-            width: 38,
-            height: 21,
-          ),
+          UiSwitcher(value: value, onChanged: onChanged, width: 38, height: 21),
           const SizedBox(width: 8),
           Text(
             LocaleKeys.includeBlockedAssets.tr(),
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(fontWeight: FontWeight.w500),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
           ),
         ],
       ),

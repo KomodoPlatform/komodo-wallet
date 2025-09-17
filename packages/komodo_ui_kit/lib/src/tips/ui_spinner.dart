@@ -21,10 +21,7 @@ class UiSpinner extends StatelessWidget {
       height: height,
       width: width,
       alignment: Alignment.center,
-      child: CircularProgressIndicator(
-        color: color,
-        strokeWidth: strokeWidth,
-      ),
+      child: CircularProgressIndicator(color: color, strokeWidth: strokeWidth),
     );
   }
 }

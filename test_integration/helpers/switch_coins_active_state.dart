@@ -12,8 +12,9 @@ Future<void> switchCoinsActiveState(
 ) async {
   await tester.pumpAndSettle();
 
-  final Finder searchCoinsField =
-      find.byKey(const Key('coins-manager-search-field'));
+  final Finder searchCoinsField = find.byKey(
+    const Key('coins-manager-search-field'),
+  );
 
   for (String coin in coins) {
     final List<String> coinData = coin.split(':');
@@ -24,8 +25,9 @@ Future<void> switchCoinsActiveState(
 
     await tester.enterText(searchCoinsField, searchTerms);
     await tester.pumpAndSettle(const Duration(milliseconds: 250));
-    final Finder inactiveCoinItem =
-        find.byKey(Key('coins-manager-list-item-${abbr.toLowerCase()}'));
+    final Finder inactiveCoinItem = find.byKey(
+      Key('coins-manager-list-item-${abbr.toLowerCase()}'),
+    );
     expect(
       inactiveCoinItem,
       findsOneWidget,
@@ -38,8 +40,7 @@ Future<void> switchCoinsActiveState(
 
   await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
-  final Finder switchButton =
-      find.byKey(const Key('back-button'));
+  final Finder switchButton = find.byKey(const Key('back-button'));
   await tester.tap(switchButton);
   await tester.pumpAndSettle();
 }

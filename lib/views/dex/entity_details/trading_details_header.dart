@@ -9,10 +9,7 @@ import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 
 class TradingDetailsHeader extends StatelessWidget {
-  const TradingDetailsHeader({
-    Key? key,
-    required this.title,
-  }) : super(key: key);
+  const TradingDetailsHeader({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override

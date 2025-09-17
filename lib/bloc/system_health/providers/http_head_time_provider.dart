@@ -20,8 +20,8 @@ class HttpHeadTimeProvider extends TimeProvider {
     this.timeout = const Duration(seconds: 2),
     this.maxRetries = 3,
     Logger? logger,
-  })  : _httpClient = httpClient ?? http.Client(),
-        _logger = logger ?? Logger('HttpHeadTimeProvider');
+  }) : _httpClient = httpClient ?? http.Client(),
+       _logger = logger ?? Logger('HttpHeadTimeProvider');
 
   /// The name of the provider (for logging and identification)
   final Logger _logger;
@@ -47,7 +47,7 @@ class HttpHeadTimeProvider extends TimeProvider {
     // This also avoid a single server being a single point of failure.
     final shuffledServers = List<String>.from(servers)..shuffle(Random());
     _logger.fine('Randomized server order for time retrieval');
-    
+
     for (final serverUrl in shuffledServers) {
       int retries = 0;
 
@@ -64,13 +64,14 @@ class HttpHeadTimeProvider extends TimeProvider {
           _logger.warning('HTTP error with $serverUrl', e, s);
         } on FormatException catch (e, s) {
           _logger.warning('Date header parse error with $serverUrl', e, s);
-        } 
+        }
         retries++;
       }
     }
 
-    _logger
-        .severe('Failed to get time from any server after $maxRetries retries');
+    _logger.severe(
+      'Failed to get time from any server after $maxRetries retries',
+    );
     throw TimeoutException(
       'Failed to get time from any server after $maxRetries retries',
     );

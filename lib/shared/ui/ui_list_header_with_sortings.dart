@@ -19,28 +19,27 @@ class UiListHeaderWithSorting<T> extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(12, 20, 12, 5),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            width: 1,
-            color: Theme.of(context).dividerColor,
-          ),
+          bottom: BorderSide(width: 1, color: Theme.of(context).dividerColor),
         ),
       ),
       child: Row(
         children: items
-            .map((item) => Expanded(
-                  flex: item.flex,
-                  child: item.isEmpty
-                      ? SizedBox(width: item.width)
-                      : SizedBox(
-                          width: item.width,
-                          child: UiSortListButton<T>(
-                            text: item.text,
-                            value: item.value,
-                            sortData: sortData,
-                            onClick: onSortChange,
-                          ),
+            .map(
+              (item) => Expanded(
+                flex: item.flex,
+                child: item.isEmpty
+                    ? SizedBox(width: item.width)
+                    : SizedBox(
+                        width: item.width,
+                        child: UiSortListButton<T>(
+                          text: item.text,
+                          value: item.value,
+                          sortData: sortData,
+                          onClick: onSortChange,
                         ),
-                ))
+                      ),
+              ),
+            )
             .toList(),
       ),
     );

@@ -1,9 +1,7 @@
 import 'package:web_dex/model/swap.dart';
 
 class MyRecentSwapsResponse {
-  MyRecentSwapsResponse({
-    required this.result,
-  });
+  MyRecentSwapsResponse({required this.result});
 
   factory MyRecentSwapsResponse.fromJson(Map<String, dynamic> json) =>
       MyRecentSwapsResponse(
@@ -14,9 +12,7 @@ class MyRecentSwapsResponse {
 
   MyRecentSwapsResponseResult result;
 
-  Map<String, dynamic> get toJson => <String, dynamic>{
-        'result': result.toJson,
-      };
+  Map<String, dynamic> get toJson => <String, dynamic>{'result': result.toJson};
 }
 
 class MyRecentSwapsResponseResult {
@@ -59,12 +55,12 @@ class MyRecentSwapsResponseResult {
   int foundRecords;
 
   Map<String, dynamic> get toJson => <String, dynamic>{
-        'from_uuid': fromUuid,
-        'limit': limit,
-        'skipped': skipped,
-        'swaps': List<dynamic>.from(
-          swaps.map<Map<String, dynamic>>((Swap x) => x.toJson()),
-        ),
-        'total': total,
-      };
+    'from_uuid': fromUuid,
+    'limit': limit,
+    'skipped': skipped,
+    'swaps': List<dynamic>.from(
+      swaps.map<Map<String, dynamic>>((Swap x) => x.toJson()),
+    ),
+    'total': total,
+  };
 }

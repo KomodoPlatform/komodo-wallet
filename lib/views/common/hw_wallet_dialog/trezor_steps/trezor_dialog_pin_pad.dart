@@ -51,10 +51,7 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            LocaleKeys.trezorEnterPinTitle.tr(),
-            style: trezorDialogTitle,
-          ),
+          Text(LocaleKeys.trezorEnterPinTitle.tr(), style: trezorDialogTitle),
           const SizedBox(height: 4),
           Text(
             LocaleKeys.trezorEnterPinHint.tr(),
@@ -83,18 +80,17 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
       readOnly: true,
       obscureText: true,
       style: const TextStyle(fontSize: 36),
-      inputContentPadding:
-          const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      inputContentPadding: const EdgeInsets.symmetric(
+        vertical: 14,
+        horizontal: 12,
+      ),
       suffixIcon: Padding(
         padding: const EdgeInsets.only(right: 12.0),
         child: IconButton(
           hoverColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
-          icon: Icon(
-            Icons.backspace,
-            color: backspaceColor,
-          ),
+          icon: Icon(Icons.backspace, color: backspaceColor),
           onPressed: _pinController.text.isEmpty ? null : _deleteLast,
         ),
       ),
@@ -111,10 +107,7 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
   Widget _buildKeysRow(List<int> keysRow) {
     final List<Widget> children = [];
     for (int value in keysRow) {
-      children.add(Expanded(
-          child: _Key(
-        onTap: () => _onKeyTap(value),
-      )));
+      children.add(Expanded(child: _Key(onTap: () => _onKeyTap(value))));
       final bool isLast = keysRow.indexOf(value) == keysRow.length - 1;
       if (!isLast) {
         children.add(const SizedBox(width: 16));
@@ -183,8 +176,9 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
   void _onKeyTap(int value) {
     if (_pinController.text.length >= 50) return;
 
-    _pinController.value =
-        TextEditingValue(text: _pinController.text + value.toString());
+    _pinController.value = TextEditingValue(
+      text: _pinController.text + value.toString(),
+    );
   }
 
   void _onPinChange() {
@@ -211,7 +205,9 @@ class _Key extends StatelessWidget {
               width: 14,
               height: 14,
               decoration: BoxDecoration(
-                  color: theme.custom.keyPadTextColor, shape: BoxShape.circle),
+                color: theme.custom.keyPadTextColor,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
         ),

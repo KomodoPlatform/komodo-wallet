@@ -1,8 +1,5 @@
 class TrezorTask {
-  TrezorTask({
-    required this.taskId,
-    required this.type,
-  });
+  TrezorTask({required this.taskId, required this.type});
 
   final int taskId;
   final TrezorTaskType type;

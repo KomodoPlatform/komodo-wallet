@@ -57,11 +57,9 @@ import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class Mm2Api {
-  Mm2Api({
-    required MM2 mm2,
-    required KomodoDefiSdk sdk,
-  })  : _sdk = sdk,
-        _mm2 = mm2 {
+  Mm2Api({required MM2 mm2, required KomodoDefiSdk sdk})
+    : _sdk = sdk,
+      _mm2 = mm2 {
     nft = Mm2ApiNft(_mm2.call, sdk);
   }
 
@@ -113,10 +111,7 @@ class Mm2Api {
       denom: rational.denominator.toString(),
     );
 
-    return MaxTakerVolResponse(
-      coin: abbr,
-      result: result,
-    );
+    return MaxTakerVolResponse(coin: abbr, result: result);
   }
 
   Future<Map<String, dynamic>?> getActiveSwaps(
@@ -478,11 +473,7 @@ class Mm2Api {
       denom: rational.denominator.toString(),
     );
 
-    return MaxMakerVolResponse(
-      coin: coinAbbr,
-      volume: result,
-      balance: result,
-    );
+    return MaxMakerVolResponse(coin: coinAbbr, volume: result, balance: result);
   }
 
   Future<MinTradingVolResponse?> getMinTradingVol(
@@ -528,10 +519,7 @@ class Mm2Api {
         isError: true,
       ).ignore();
 
-      return OrderbookResponse(
-        request: request,
-        error: e.toString(),
-      );
+      return OrderbookResponse(request: request, error: e.toString());
     }
   }
 
@@ -557,10 +545,13 @@ class Mm2Api {
   }
 
   Future<
-      ApiResponse<TradePreimageRequest, TradePreimageResponseResult,
-          Map<String, dynamic>>> getTradePreimage(
-    TradePreimageRequest request,
-  ) async {
+    ApiResponse<
+      TradePreimageRequest,
+      TradePreimageResponseResult,
+      Map<String, dynamic>
+    >
+  >
+  getTradePreimage(TradePreimageRequest request) async {
     try {
       final JsonMap responseJson = await _mm2.call(request);
       if (responseJson['error'] != null) {
@@ -577,9 +568,7 @@ class Mm2Api {
         trace: s,
         isError: true,
       ).ignore();
-      return ApiResponse(
-        request: request,
-      );
+      return ApiResponse(request: request);
     }
   }
 
@@ -635,9 +624,7 @@ class Mm2Api {
     await _mm2.call(StopReq());
   }
 
-  Future<ShowPrivKeyResponse?> showPrivKey(
-    ShowPrivKeyRequest request,
-  ) async {
+  Future<ShowPrivKeyResponse?> showPrivKey(ShowPrivKeyRequest request) async {
     try {
       final JsonMap json = await _mm2.call(request);
       if (json['error'] != null) {

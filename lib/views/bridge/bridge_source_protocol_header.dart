@@ -19,7 +19,7 @@ class SourceProtocolHeader extends StatelessWidget {
       actions: const [
         BridgeAvailableBalance(),
         SizedBox(width: 12),
-        _HalfMaxButtons()
+        _HalfMaxButtons(),
       ],
     );
   }
@@ -55,16 +55,16 @@ class _HalfMaxButtons extends StatelessWidget {
 
 class _MaxButton extends DexSmallButton {
   _MaxButton()
-      : super(LocaleKeys.max.tr().toLowerCase(), (context) {
-          final BridgeBloc bridgeBloc = BlocProvider.of<BridgeBloc>(context);
-          bridgeBloc.add(BridgeAmountButtonClick(1));
-        });
+    : super(LocaleKeys.max.tr().toLowerCase(), (context) {
+        final BridgeBloc bridgeBloc = BlocProvider.of<BridgeBloc>(context);
+        bridgeBloc.add(BridgeAmountButtonClick(1));
+      });
 }
 
 class _HalfButton extends DexSmallButton {
   _HalfButton()
-      : super(LocaleKeys.half.tr().toLowerCase(), (context) {
-          final BridgeBloc bridgeBloc = BlocProvider.of<BridgeBloc>(context);
-          bridgeBloc.add(BridgeAmountButtonClick(0.5));
-        });
+    : super(LocaleKeys.half.tr().toLowerCase(), (context) {
+        final BridgeBloc bridgeBloc = BlocProvider.of<BridgeBloc>(context);
+        bridgeBloc.add(BridgeAmountButtonClick(0.5));
+      });
 }

@@ -7,10 +7,8 @@ import 'package:web_dex/bloc/system_health/providers/time_provider.dart';
 
 /// Registry of all available time providers
 class TimeProviderRegistry {
-  TimeProviderRegistry({
-    List<TimeProvider>? providers,
-    Duration? apiTimeout,
-  }) : _apiTimeout = apiTimeout ?? const Duration(seconds: 2) {
+  TimeProviderRegistry({List<TimeProvider>? providers, Duration? apiTimeout})
+    : _apiTimeout = apiTimeout ?? const Duration(seconds: 2) {
     _providers = providers ?? _createDefaultProviders();
   }
 

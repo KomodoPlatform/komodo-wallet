@@ -49,23 +49,20 @@ class _SettingsLogoutButtonState extends State<SettingsLogoutButton> {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(24, 20, 0, 20),
         child: Row(
-          mainAxisAlignment:
-              isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
+          mainAxisAlignment: isMobile
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.start,
           children: [
             Text(
               LocaleKeys.logOut.tr(),
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: theme.custom.warningColor,
-                  ),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: theme.custom.warningColor,
+              ),
             ),
             const SizedBox(width: 6),
-            Icon(
-              Icons.exit_to_app,
-              color: theme.custom.warningColor,
-              size: 18,
-            ),
+            Icon(Icons.exit_to_app, color: theme.custom.warningColor, size: 18),
           ],
         ),
       ),

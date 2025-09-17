@@ -11,10 +11,11 @@ class MakerFormTotalFees extends StatelessWidget {
   Widget build(BuildContext context) {
     final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     return StreamBuilder<TradePreimage?>(
-        initialData: makerFormBloc.preimage,
-        stream: makerFormBloc.outPreimage,
-        builder: (context, snapshot) {
-          return TotalFees(preimage: snapshot.data);
-        });
+      initialData: makerFormBloc.preimage,
+      stream: makerFormBloc.outPreimage,
+      builder: (context, snapshot) {
+        return TotalFees(preimage: snapshot.data);
+      },
+    );
   }
 }

@@ -17,9 +17,9 @@ class MarketbotSetupStartedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'strategy_type': strategyType,
-        'pairs_count': pairsCount,
-      };
+    'strategy_type': strategyType,
+    'pairs_count': pairsCount,
+  };
 }
 
 class AnalyticsMarketbotSetupStartedEvent extends AnalyticsSendDataEvent {
@@ -27,11 +27,11 @@ class AnalyticsMarketbotSetupStartedEvent extends AnalyticsSendDataEvent {
     required String strategyType,
     required int pairsCount,
   }) : super(
-          MarketbotSetupStartedEventData(
-            strategyType: strategyType,
-            pairsCount: pairsCount,
-          ),
-        );
+         MarketbotSetupStartedEventData(
+           strategyType: strategyType,
+           pairsCount: pairsCount,
+         ),
+       );
 }
 
 /// E28: Bot configured & saved
@@ -49,9 +49,9 @@ class MarketbotSetupCompleteEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'strategy_type': strategyType,
-        'base_capital': baseCapital,
-      };
+    'strategy_type': strategyType,
+    'base_capital': baseCapital,
+  };
 }
 
 class AnalyticsMarketbotSetupCompleteEvent extends AnalyticsSendDataEvent {
@@ -59,11 +59,11 @@ class AnalyticsMarketbotSetupCompleteEvent extends AnalyticsSendDataEvent {
     required String strategyType,
     required double baseCapital,
   }) : super(
-          MarketbotSetupCompleteEventData(
-            strategyType: strategyType,
-            baseCapital: baseCapital,
-          ),
-        );
+         MarketbotSetupCompleteEventData(
+           strategyType: strategyType,
+           baseCapital: baseCapital,
+         ),
+       );
 }
 
 /// E29: Bot placed a trade
@@ -83,10 +83,10 @@ class MarketbotTradeExecutedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'pair': pair,
-        'trade_size': tradeSize,
-        'profit_usd': profitUsd,
-      };
+    'pair': pair,
+    'trade_size': tradeSize,
+    'profit_usd': profitUsd,
+  };
 }
 
 class AnalyticsMarketbotTradeExecutedEvent extends AnalyticsSendDataEvent {
@@ -95,12 +95,12 @@ class AnalyticsMarketbotTradeExecutedEvent extends AnalyticsSendDataEvent {
     required double tradeSize,
     required double profitUsd,
   }) : super(
-          MarketbotTradeExecutedEventData(
-            pair: pair,
-            tradeSize: tradeSize,
-            profitUsd: profitUsd,
-          ),
-        );
+         MarketbotTradeExecutedEventData(
+           pair: pair,
+           tradeSize: tradeSize,
+           profitUsd: profitUsd,
+         ),
+       );
 }
 
 /// E30: Bot error encountered
@@ -118,9 +118,9 @@ class MarketbotErrorEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'error_code': errorCode,
-        'strategy_type': strategyType,
-      };
+    'error_code': errorCode,
+    'strategy_type': strategyType,
+  };
 }
 
 class AnalyticsMarketbotErrorEvent extends AnalyticsSendDataEvent {
@@ -128,9 +128,9 @@ class AnalyticsMarketbotErrorEvent extends AnalyticsSendDataEvent {
     required String errorCode,
     required String strategyType,
   }) : super(
-          MarketbotErrorEventData(
-            errorCode: errorCode,
-            strategyType: strategyType,
-          ),
-        );
+         MarketbotErrorEventData(
+           errorCode: errorCode,
+           strategyType: strategyType,
+         ),
+       );
 }

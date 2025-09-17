@@ -2,29 +2,21 @@ import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/model/withdraw_details/fee_details.dart';
 
 class NftTxsResponse {
-  NftTxsResponse({
-    required this.transactions,
-    this.errorMessage,
-  });
+  NftTxsResponse({required this.transactions, this.errorMessage});
 
   factory NftTxsResponse.fromJson(Map<String, dynamic> json) {
     final List<dynamic> transferHistory = json['result']['transfer_history'];
-    final result =
-        transferHistory.map((e) => NftTransaction.fromJson(e)).toList();
-    return NftTxsResponse(
-      transactions: result,
-    );
+    final result = transferHistory
+        .map((e) => NftTransaction.fromJson(e))
+        .toList();
+    return NftTxsResponse(transactions: result);
   }
 
   final List<NftTransaction> transactions;
   final String? errorMessage;
 }
 
-enum NftTxnDetailsStatus {
-  initial,
-  success,
-  failure,
-}
+enum NftTxnDetailsStatus { initial, success, failure }
 
 class NftTransaction {
   NftTransaction({
@@ -88,8 +80,9 @@ class NftTransaction {
     return NftTransaction(
       chain: NftBlockchains.fromApiResponse(json['chain'] as String),
       blockNumber: json['block_number'],
-      blockTimestamp:
-          DateTime.fromMillisecondsSinceEpoch(json['block_timestamp'] * 1000),
+      blockTimestamp: DateTime.fromMillisecondsSinceEpoch(
+        json['block_timestamp'] * 1000,
+      ),
       blockHash: json['block_hash'],
       confirmations: json['confirmations'],
       feeDetails: json['fee_details'] != null

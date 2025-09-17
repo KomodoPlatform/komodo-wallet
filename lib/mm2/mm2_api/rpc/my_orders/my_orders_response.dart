@@ -2,9 +2,7 @@ import 'package:web_dex/model/my_orders/maker_order.dart';
 import 'package:web_dex/model/my_orders/taker_order.dart';
 
 class MyOrdersResponse {
-  MyOrdersResponse({
-    required this.result,
-  });
+  MyOrdersResponse({required this.result});
 
   factory MyOrdersResponse.fromJson(Map<String, dynamic> json) =>
       MyOrdersResponse(
@@ -15,9 +13,7 @@ class MyOrdersResponse {
 
   MyOrdersResponseResult result;
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'result': result.toJson(),
-      };
+  Map<String, dynamic> toJson() => <String, dynamic>{'result': result.toJson()};
 }
 
 class MyOrdersResponseResult {
@@ -42,13 +38,13 @@ class MyOrdersResponseResult {
   Map<String, TakerOrder> takerOrders;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'maker_orders':
-            Map<dynamic, dynamic>.from(makerOrders).map<dynamic, dynamic>(
+    'maker_orders': Map<dynamic, dynamic>.from(makerOrders)
+        .map<dynamic, dynamic>(
           (dynamic k, dynamic v) => MapEntry<String, dynamic>(k, v.toJson()),
         ),
-        'taker_orders':
-            Map<dynamic, dynamic>.from(takerOrders).map<dynamic, dynamic>(
+    'taker_orders': Map<dynamic, dynamic>.from(takerOrders)
+        .map<dynamic, dynamic>(
           (dynamic k, dynamic v) => MapEntry<String, dynamic>(k, v.toJson()),
         ),
-      };
+  };
 }

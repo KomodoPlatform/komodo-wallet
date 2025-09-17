@@ -17,10 +17,7 @@ abstract class AnalyticsEventData {
 
 /// A simple implementation of AnalyticsEventData for persisted events
 class PersistedAnalyticsEventData implements AnalyticsEventData {
-  PersistedAnalyticsEventData({
-    required this.name,
-    required this.parameters,
-  });
+  PersistedAnalyticsEventData({required this.name, required this.parameters});
 
   @override
   final String name;
@@ -229,8 +226,9 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
 
     // Log the event in debug mode with formatted parameters for better readability
     if (kDebugMode) {
-      final formattedParams =
-          const JsonEncoder.withIndent('  ').convert(sanitizedParameters);
+      final formattedParams = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(sanitizedParameters);
       log(
         'Analytics Event: ${event.name}; Parameters: $formattedParams',
         path: 'analytics -> FirebaseAnalyticsService -> sendData',
@@ -256,8 +254,9 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
   Future<void> queueEvent(AnalyticsEventData data) async {
     // Log the queued event in debug mode with formatted parameters
     if (kDebugMode) {
-      final formattedParams =
-          const JsonEncoder.withIndent('  ').convert(data.parameters);
+      final formattedParams = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(data.parameters);
       log(
         'Analytics Event Queued: ${data.name}\nParameters:\n$formattedParams',
         path: 'analytics -> FirebaseAnalyticsService -> queueEvent',
@@ -365,10 +364,7 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
 
       // Convert events to a serializable format
       final serializedEvents = _eventQueue.map((event) {
-        return {
-          'name': event.name,
-          'parameters': event.parameters,
-        };
+        return {'name': event.name, 'parameters': event.parameters};
       }).toList();
 
       // Serialize and store
@@ -421,10 +417,12 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
 
       // Create PersistedAnalyticsEventData instances
       for (final eventMap in decodedList) {
-        _eventQueue.add(PersistedAnalyticsEventData(
-          name: eventMap['name'],
-          parameters: Map<String, dynamic>.from(eventMap['parameters']),
-        ));
+        _eventQueue.add(
+          PersistedAnalyticsEventData(
+            name: eventMap['name'],
+            parameters: Map<String, dynamic>.from(eventMap['parameters']),
+          ),
+        );
       }
 
       if (kDebugMode) {

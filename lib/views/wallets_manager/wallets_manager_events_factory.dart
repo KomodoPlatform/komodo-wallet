@@ -5,7 +5,9 @@ final WalletsManagerEventsFactory walletsManagerEventsFactory =
 
 class WalletsManagerEventsFactory {
   AnalyticsEventData createEvent(
-      WalletsManagerEventType type, WalletsManagerEventMethod method) {
+    WalletsManagerEventType type,
+    WalletsManagerEventMethod method,
+  ) {
     return WalletsManagerEvent(
       name: 'login',
       source: type.name,
@@ -14,22 +16,9 @@ class WalletsManagerEventsFactory {
   }
 }
 
-enum WalletsManagerEventType {
-  header,
-  wallet,
-  fiat,
-  dex,
-  nft,
-  bridge;
-}
+enum WalletsManagerEventType { header, wallet, fiat, dex, nft, bridge }
 
-enum WalletsManagerEventMethod {
-  create,
-  import,
-  loginExisting,
-  nft,
-  hardware;
-}
+enum WalletsManagerEventMethod { create, import, loginExisting, nft, hardware }
 
 class WalletsManagerEvent extends AnalyticsEventData {
   final String source;
@@ -46,8 +35,5 @@ class WalletsManagerEvent extends AnalyticsEventData {
   String get name => _name;
 
   @override
-  Map<String, Object> get parameters => {
-        'source': source,
-        'method': method,
-      };
+  Map<String, Object> get parameters => {'source': source, 'method': method};
 }

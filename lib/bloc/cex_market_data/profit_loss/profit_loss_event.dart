@@ -28,12 +28,12 @@ class ProfitLossPortfolioChartLoadRequested extends ProfitLossEvent {
 
   @override
   List<Object> get props => [
-        coins,
-        fiatCoinId,
-        selectedPeriod,
-        walletId,
-        updateFrequency,
-      ];
+    coins,
+    fiatCoinId,
+    selectedPeriod,
+    walletId,
+    updateFrequency,
+  ];
 }
 
 class ProfitLossPortfolioPeriodChanged extends ProfitLossEvent {

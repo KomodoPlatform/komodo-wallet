@@ -86,23 +86,28 @@ class TakerState {
       step: step == null ? this.step : step(),
       inProgress: inProgress == null ? this.inProgress : inProgress(),
       sellCoin: sellCoin == null ? this.sellCoin : sellCoin(),
-      selectedOrder:
-          selectedOrder == null ? this.selectedOrder : selectedOrder(),
+      selectedOrder: selectedOrder == null
+          ? this.selectedOrder
+          : selectedOrder(),
       bestOrders: bestOrders == null ? this.bestOrders : bestOrders(),
-      showCoinSelector:
-          showCoinSelector == null ? this.showCoinSelector : showCoinSelector(),
+      showCoinSelector: showCoinSelector == null
+          ? this.showCoinSelector
+          : showCoinSelector(),
       showOrderSelector: showOrderSelector == null
           ? this.showOrderSelector
           : showOrderSelector(),
       sellAmount: sellAmount == null ? this.sellAmount : sellAmount(),
       buyAmount: buyAmount == null ? this.buyAmount : buyAmount(),
       errors: errors == null ? this.errors : errors(),
-      tradePreimage:
-          tradePreimage == null ? this.tradePreimage : tradePreimage(),
-      maxSellAmount:
-          maxSellAmount == null ? this.maxSellAmount : maxSellAmount(),
-      minSellAmount:
-          minSellAmount == null ? this.minSellAmount : minSellAmount(),
+      tradePreimage: tradePreimage == null
+          ? this.tradePreimage
+          : tradePreimage(),
+      maxSellAmount: maxSellAmount == null
+          ? this.maxSellAmount
+          : maxSellAmount(),
+      minSellAmount: minSellAmount == null
+          ? this.minSellAmount
+          : minSellAmount(),
       autovalidate: autovalidate == null ? this.autovalidate : autovalidate(),
       swapUuid: swapUuid == null ? this.swapUuid : swapUuid(),
       availableBalanceState: availableBalanceState == null
@@ -112,7 +117,4 @@ class TakerState {
   }
 }
 
-enum TakerStep {
-  form,
-  confirm,
-}
+enum TakerStep { form, confirm }

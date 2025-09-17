@@ -51,27 +51,25 @@ class _SellAmountFiat extends StatelessWidget {
         final amount = snapshot.data ?? Rational.zero;
 
         return StreamBuilder<Coin?>(
-            initialData: makerFormBloc.sellCoin,
-            stream: makerFormBloc.outSellCoin,
-            builder: (context, snapshot) {
-              final Coin? coin = snapshot.data;
-              if (coin == null) return const SizedBox();
+          initialData: makerFormBloc.sellCoin,
+          stream: makerFormBloc.outSellCoin,
+          builder: (context, snapshot) {
+            final Coin? coin = snapshot.data;
+            if (coin == null) return const SizedBox();
 
-              return Text(
-                getFormattedFiatAmount(context, coin.abbr, amount),
-                style: textStyle,
-              );
-            });
+            return Text(
+              getFormattedFiatAmount(context, coin.abbr, amount),
+              style: textStyle,
+            );
+          },
+        );
       },
     );
   }
 }
 
 class _SellAmountInput extends StatelessWidget {
-  _SellAmountInput({
-    Key? key,
-    required this.isEnabled,
-  }) : super(key: key);
+  _SellAmountInput({Key? key, required this.isEnabled}) : super(key: key);
 
   final bool isEnabled;
 
@@ -97,11 +95,11 @@ class _SellAmountInput extends StatelessWidget {
             inputFormatters: currencyInputFormatters,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: dexPageColors.activeText,
-                  decoration: TextDecoration.none,
-                ),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: dexPageColors.activeText,
+              decoration: TextDecoration.none,
+            ),
             onChanged: (String value) {
               makerFormBloc.setSellAmount(value);
             },

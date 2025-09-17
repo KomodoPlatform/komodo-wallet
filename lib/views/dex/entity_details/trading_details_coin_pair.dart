@@ -35,8 +35,6 @@ class TradingDetailsCoinPair extends StatelessWidget {
     final String? swapId = this.swapId;
     final bool isOrder = this.isOrder;
 
-    
-
     if (coinBase == null || coinRel == null) return const SizedBox.shrink();
 
     return Container(
@@ -58,11 +56,7 @@ class TradingDetailsCoinPair extends StatelessWidget {
                 ),
               ),
               Column(
-                children: [
-                  SvgPicture.asset(
-                    '$assetsPath/ui_icons/arrows.svg',
-                  ),
-                ],
+                children: [SvgPicture.asset('$assetsPath/ui_icons/arrows.svg')],
               ),
               Flexible(
                 child: CoinItem(
@@ -78,20 +72,22 @@ class TradingDetailsCoinPair extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-              Flexible(
-                child: CopiedText(
-                  key: Key('uuid-${swapId}'),
-                  text: isOrder ? 'Order UUID: ${swapId}' : 'Swap UUID: ${swapId}',
-                  copiedValue: swapId,
-                  isCopiedValueShown: false,
-                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                  fontSize: 11,
-                  iconSize: 14,
-                  backgroundColor: theme.custom.subCardBackgroundColor,
+                Flexible(
+                  child: CopiedText(
+                    key: Key('uuid-${swapId}'),
+                    text: isOrder
+                        ? 'Order UUID: ${swapId}'
+                        : 'Swap UUID: ${swapId}',
+                    copiedValue: swapId,
+                    isCopiedValueShown: false,
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                    fontSize: 11,
+                    iconSize: 14,
+                    backgroundColor: theme.custom.subCardBackgroundColor,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );

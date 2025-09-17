@@ -50,8 +50,9 @@ class KmdRewardItem {
       return null;
     }
     return Duration(
-        milliseconds:
-            accrueStopAt! * 1000 - DateTime.now().millisecondsSinceEpoch);
+      milliseconds:
+          accrueStopAt! * 1000 - DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   RewardItemError? get error {
@@ -75,12 +76,14 @@ RewardItemError _getError(String errorKey) {
       );
     case 'TransactionInMempool':
       return RewardItemError(
-          short: LocaleKeys.rewardProcessingShort.tr().toLowerCase(),
-          long: LocaleKeys.rewardProcessingLong.tr());
+        short: LocaleKeys.rewardProcessingShort.tr().toLowerCase(),
+        long: LocaleKeys.rewardProcessingLong.tr(),
+      );
     case 'OneHourNotPassedYet':
       return RewardItemError(
-          short: LocaleKeys.rewardOneHourNotPassedShort.tr(),
-          long: LocaleKeys.rewardOneHourNotPassedLong.tr());
+        short: LocaleKeys.rewardOneHourNotPassedShort.tr(),
+        long: LocaleKeys.rewardOneHourNotPassedLong.tr(),
+      );
     default:
       return RewardItemError(short: '?', long: '');
   }

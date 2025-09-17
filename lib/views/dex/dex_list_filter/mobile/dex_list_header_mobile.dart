@@ -28,8 +28,9 @@ class DexListHeaderMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tradingEntitiesBloc =
-        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+      context,
+    );
     final List<Widget> filterElements = _getFilterElements(context);
     final filterData = entitiesFilterData;
     return Column(
@@ -81,10 +82,12 @@ class DexListHeaderMobile extends StatelessWidget {
 
     final DateTime? startDate = filterData?.startDate;
     final DateTime? endDate = filterData?.endDate;
-    final String? startDateString =
-        startDate != null ? DateFormat('dd.MM.yyyy').format(startDate) : null;
-    final String? endDateString =
-        endDate != null ? DateFormat('dd.MM.yyyy').format(endDate) : null;
+    final String? startDateString = startDate != null
+        ? DateFormat('dd.MM.yyyy').format(startDate)
+        : null;
+    final String? endDateString = endDate != null
+        ? DateFormat('dd.MM.yyyy').format(endDate)
+        : null;
 
     final List<TradingStatus>? statuses = filterData?.statuses;
     final List<TradeSide>? shownSides = filterData?.shownSides;
@@ -133,21 +136,22 @@ class DexListHeaderMobile extends StatelessWidget {
       children.addAll(
         statuses.map(
           (s) => _buildManageFilterItem(
-              LocaleKeys.status.tr(),
-              s == TradingStatus.successful
-                  ? LocaleKeys.successful.tr()
-                  : LocaleKeys.failed.tr(),
-              () => onFilterDataChange(
-                    TradingEntitiesFilter(
-                      buyCoin: buyCoin,
-                      sellCoin: sellCoin,
-                      startDate: startDate,
-                      endDate: endDate,
-                      statuses: statuses.where((e) => e != s).toList(),
-                      shownSides: shownSides,
-                    ),
-                  ),
-              context),
+            LocaleKeys.status.tr(),
+            s == TradingStatus.successful
+                ? LocaleKeys.successful.tr()
+                : LocaleKeys.failed.tr(),
+            () => onFilterDataChange(
+              TradingEntitiesFilter(
+                buyCoin: buyCoin,
+                sellCoin: sellCoin,
+                startDate: startDate,
+                endDate: endDate,
+                statuses: statuses.where((e) => e != s).toList(),
+                shownSides: shownSides,
+              ),
+            ),
+            context,
+          ),
         ),
       );
     }
@@ -166,8 +170,9 @@ class DexListHeaderMobile extends StatelessWidget {
                 startDate: startDate,
                 endDate: endDate,
                 statuses: statuses,
-                shownSides:
-                    filterData?.shownSides?.where((e) => e != s).toList(),
+                shownSides: filterData?.shownSides
+                    ?.where((e) => e != s)
+                    .toList(),
               ),
             ),
             context,
@@ -176,38 +181,42 @@ class DexListHeaderMobile extends StatelessWidget {
       );
     }
     if (startDateString != null) {
-      children.add(_buildManageFilterItem(
-        LocaleKeys.fromDate.tr(),
-        startDateString,
-        () => onFilterDataChange(
-          TradingEntitiesFilter(
-            buyCoin: buyCoin,
-            sellCoin: sellCoin,
-            startDate: null,
-            endDate: endDate,
-            statuses: statuses,
-            shownSides: shownSides,
+      children.add(
+        _buildManageFilterItem(
+          LocaleKeys.fromDate.tr(),
+          startDateString,
+          () => onFilterDataChange(
+            TradingEntitiesFilter(
+              buyCoin: buyCoin,
+              sellCoin: sellCoin,
+              startDate: null,
+              endDate: endDate,
+              statuses: statuses,
+              shownSides: shownSides,
+            ),
           ),
+          context,
         ),
-        context,
-      ));
+      );
     }
     if (endDateString != null) {
-      children.add(_buildManageFilterItem(
-        LocaleKeys.toDate.tr(),
-        endDateString,
-        () => onFilterDataChange(
-          TradingEntitiesFilter(
-            buyCoin: buyCoin,
-            sellCoin: sellCoin,
-            startDate: startDate,
-            endDate: null,
-            statuses: statuses,
-            shownSides: shownSides,
+      children.add(
+        _buildManageFilterItem(
+          LocaleKeys.toDate.tr(),
+          endDateString,
+          () => onFilterDataChange(
+            TradingEntitiesFilter(
+              buyCoin: buyCoin,
+              sellCoin: sellCoin,
+              startDate: startDate,
+              endDate: null,
+              statuses: statuses,
+              shownSides: shownSides,
+            ),
           ),
+          context,
         ),
-        context,
-      ));
+      );
     }
 
     if (children.length > 1) {
@@ -232,40 +241,48 @@ class DexListHeaderMobile extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          child: Row(children: [
-            isFilterShown
-                ? Icon(
-                    Icons.close,
-                    color: Theme.of(context).textTheme.labelLarge?.color,
-                    size: 14,
-                  )
-                : SvgPicture.asset(
-                    '$assetsPath/ui_icons/filters.svg',
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).textTheme.labelLarge?.color ??
-                          Colors.white,
-                      BlendMode.srcIn,
+          child: Row(
+            children: [
+              isFilterShown
+                  ? Icon(
+                      Icons.close,
+                      color: Theme.of(context).textTheme.labelLarge?.color,
+                      size: 14,
+                    )
+                  : SvgPicture.asset(
+                      '$assetsPath/ui_icons/filters.svg',
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).textTheme.labelLarge?.color ??
+                            Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                      width: 14,
                     ),
-                    width: 14,
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0),
+                child: Text(
+                  isFilterShown
+                      ? LocaleKeys.close.tr()
+                      : LocaleKeys.filters.tr(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
-            Padding(
-              padding: const EdgeInsets.only(left: 12.0),
-              child: Text(
-                isFilterShown ? LocaleKeys.close.tr() : LocaleKeys.filters.tr(),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
-            )
-          ]),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildManageFilterItem(String text, String value,
-      VoidCallback removeFilter, BuildContext context) {
+  Widget _buildManageFilterItem(
+    String text,
+    String value,
+    VoidCallback removeFilter,
+    BuildContext context,
+  ) {
     return Flexible(
       child: Padding(
         padding: const EdgeInsets.only(right: 6),

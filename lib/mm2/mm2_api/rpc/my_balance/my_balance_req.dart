@@ -1,7 +1,5 @@
 class MyBalanceReq {
-  MyBalanceReq({
-    required this.coin,
-  });
+  MyBalanceReq({required this.coin});
 
   static const String method = 'my_balance';
   final String coin;

@@ -9,10 +9,7 @@ import 'package:web_dex/views/nfts/details_page/withdraw/nft_withdraw_form.dart'
 import 'package:web_dex/views/nfts/details_page/withdraw/nft_withdraw_success.dart';
 
 class NftWithdrawView extends StatefulWidget {
-  const NftWithdrawView({
-    super.key,
-    required this.nft,
-  });
+  const NftWithdrawView({super.key, required this.nft});
   final NftToken nft;
 
   @override
@@ -35,24 +32,26 @@ class _NftWithdrawViewState extends State<NftWithdrawView> {
           return Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              Builder(builder: (context) {
-                switch (state) {
-                  case NftWithdrawFillState():
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 28.0),
-                      child: NftWithdrawForm(state: state),
-                    );
-                  case NftWithdrawConfirmState():
-                    return NftWithdrawConfirmation(state: state);
-                  case NftWithdrawSuccessState():
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 64.0),
-                      child: NftWithdrawSuccess(state: state),
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              }),
+              Builder(
+                builder: (context) {
+                  switch (state) {
+                    case NftWithdrawFillState():
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 28.0),
+                        child: NftWithdrawForm(state: state),
+                      );
+                    case NftWithdrawConfirmState():
+                      return NftWithdrawConfirmation(state: state);
+                    case NftWithdrawSuccessState():
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 64.0),
+                        child: NftWithdrawSuccess(state: state),
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                },
+              ),
               const SizedBox(height: 12),
               const NftWithdrawFooter(),
             ],
@@ -63,18 +62,20 @@ class _NftWithdrawViewState extends State<NftWithdrawView> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             if (state is! NftWithdrawSuccessState) const Spacer(),
-            Builder(builder: (context) {
-              switch (state) {
-                case NftWithdrawFillState():
-                  return NftWithdrawForm(state: state);
-                case NftWithdrawConfirmState():
-                  return NftWithdrawConfirmation(state: state);
-                case NftWithdrawSuccessState():
-                  return NftWithdrawSuccess(state: state);
-                default:
-                  return const SizedBox.shrink();
-              }
-            }),
+            Builder(
+              builder: (context) {
+                switch (state) {
+                  case NftWithdrawFillState():
+                    return NftWithdrawForm(state: state);
+                  case NftWithdrawConfirmState():
+                    return NftWithdrawConfirmation(state: state);
+                  case NftWithdrawSuccessState():
+                    return NftWithdrawSuccess(state: state);
+                  default:
+                    return const SizedBox.shrink();
+                }
+              },
+            ),
             if (state is NftWithdrawSuccessState)
               const Spacer()
             else

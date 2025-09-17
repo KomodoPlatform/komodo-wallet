@@ -20,7 +20,9 @@ class HwDialogInit extends StatelessWidget {
           onSelect: (WalletBrand brand) async {
             if (brand == WalletBrand.trezor &&
                 !context.read<AuthBloc>().state.isLoading) {
-              context.read<AuthBloc>().add(const AuthTrezorInitAndAuthStarted());
+              context.read<AuthBloc>().add(
+                const AuthTrezorInitAndAuthStarted(),
+              );
             }
           },
         ),
@@ -30,7 +32,7 @@ class HwDialogInit extends StatelessWidget {
             text: LocaleKeys.cancel.tr(),
             onPressed: close,
           ),
-        )
+        ),
       ],
     );
   }

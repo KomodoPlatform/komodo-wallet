@@ -15,29 +15,31 @@ class InformationPopup extends PopupDispatcher {
 
   @override
   Widget get popupContent => Container(
-        constraints: isMobile ? null : const BoxConstraints(maxWidth: 360),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+    constraints: isMobile ? null : const BoxConstraints(maxWidth: 360),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14),
+            Flexible(
+              child: UiUnderlineTextButton(
+                text: LocaleKeys.close.tr().toLowerCase(),
+                onPressed: () {
+                  close();
+                },
+              ),
             ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Flexible(
-                    child: UiUnderlineTextButton(
-                        text: LocaleKeys.close.tr().toLowerCase(),
-                        onPressed: () {
-                          close();
-                        })),
-              ],
-            )
           ],
         ),
-      );
+      ],
+    ),
+  );
 }

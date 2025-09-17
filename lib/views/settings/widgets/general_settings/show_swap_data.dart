@@ -28,10 +28,7 @@ class _ShowSwapDataState extends State<ShowSwapData> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSwitcherButton(),
-        if (_showData) ...{
-          const SizedBox(height: 20),
-          _buildData(),
-        },
+        if (_showData) ...{const SizedBox(height: 20), _buildData()},
         const SizedBox(height: 20),
       ],
     );
@@ -76,8 +73,9 @@ class _ShowSwapDataState extends State<ShowSwapData> {
         const SizedBox(width: 10),
         Material(
           child: IconButton(
-              onPressed: () => copyToClipBoard(context, _controller.text),
-              icon: const Icon(Icons.copy)),
+            onPressed: () => copyToClipBoard(context, _controller.text),
+            icon: const Icon(Icons.copy),
+          ),
         ),
         const SizedBox(width: 10),
       ],

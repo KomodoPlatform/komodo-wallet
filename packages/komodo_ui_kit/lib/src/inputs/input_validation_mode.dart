@@ -4,9 +4,4 @@
 /// - `passive`: Validate on focus loss and form submission.
 /// - `lazy`: Validate only on form submission.
 /// - `eager`: Validate on focus loss and subsequent input changes.
-enum InputValidationMode {
-  aggressive,
-  passive,
-  lazy,
-  eager,
-}
+enum InputValidationMode { aggressive, passive, lazy, eager }

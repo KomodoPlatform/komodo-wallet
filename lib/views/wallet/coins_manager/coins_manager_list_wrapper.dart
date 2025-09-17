@@ -95,23 +95,22 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
     context.read<CoinsManagerBloc>().add(CoinsManagerSortChanged(sortData));
   }
 
-  void _onRemovalStateChanged(
-    BuildContext context,
-    CoinsManagerState state,
-  ) {
+  void _onRemovalStateChanged(BuildContext context, CoinsManagerState state) {
     final removalState = state.removalState;
     if (removalState == null) return;
 
     final bloc = context.read<CoinsManagerBloc>();
     final coin = removalState.coin;
-    final childCoinTickers =
-        removalState.childCoins.map((c) => c.abbr).toList();
+    final childCoinTickers = removalState.childCoins
+        .map((c) => c.abbr)
+        .toList();
     final requiresParentConfirmation =
         coin.parentCoin == null && childCoinTickers.isNotEmpty;
 
     if (removalState.hasActiveSwap) {
-      _informationPopup.text =
-          LocaleKeys.coinDisableSpan1.tr(args: [removalState.coin.abbr]);
+      _informationPopup.text = LocaleKeys.coinDisableSpan1.tr(
+        args: [removalState.coin.abbr],
+      );
       _informationPopup.show();
       bloc.add(const CoinsManagerCoinRemovalCancelled());
       return;
@@ -160,10 +159,7 @@ class _CoinsManagerListWrapperState extends State<CoinsManagerListWrapper> {
     }
   }
 
-  void _onErrorMessageChanged(
-    BuildContext context,
-    CoinsManagerState state,
-  ) {
+  void _onErrorMessageChanged(BuildContext context, CoinsManagerState state) {
     final errorMessage = state.errorMessage;
     if (errorMessage != null) {
       _informationPopup.text = errorMessage;

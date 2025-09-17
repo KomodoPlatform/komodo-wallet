@@ -26,7 +26,9 @@ class _DexRouteParser implements BaseRouteParser {
       if (uri.pathSegments[1] == 'trading_details' &&
           uri.pathSegments[2].isNotEmpty) {
         return DexRoutePath.swapDetails(
-            DexAction.tradingDetails, uri.pathSegments[2]);
+          DexAction.tradingDetails,
+          uri.pathSegments[2],
+        );
       }
     }
 

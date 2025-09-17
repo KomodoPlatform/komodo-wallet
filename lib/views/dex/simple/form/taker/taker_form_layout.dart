@@ -22,8 +22,8 @@ class TakerFormLayout extends StatelessWidget {
         return step == TakerStep.confirm
             ? const TakerOrderConfirmation()
             : isMobile
-                ? const _TakerFormMobileLayout()
-                : _TakerFormDesktopLayout();
+            ? const _TakerFormMobileLayout()
+            : _TakerFormDesktopLayout();
       },
     );
   }
@@ -51,8 +51,9 @@ class _TakerFormDesktopLayout extends StatelessWidget {
               key: const Key('taker-form-layout-scroll'),
               controller: scrollController,
               child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+                constraints: BoxConstraints(
+                  maxWidth: theme.custom.dexFormWidth,
+                ),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -76,9 +77,11 @@ class _TakerFormDesktopLayout extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 20),
             child: SingleChildScrollView(
-                controller: ScrollController(), child: const TakerOrderbook()),
+              controller: ScrollController(),
+              child: const TakerOrderbook(),
+            ),
           ),
-        )
+        ),
       ],
     );
   }

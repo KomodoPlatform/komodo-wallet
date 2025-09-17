@@ -1,10 +1,7 @@
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 
 class ImportSwapsResponseResult {
-  ImportSwapsResponseResult({
-    required this.imported,
-    required this.skipped,
-  });
+  ImportSwapsResponseResult({required this.imported, required this.skipped});
 
   factory ImportSwapsResponseResult.fromJson(Map<String, dynamic> json) =>
       ImportSwapsResponseResult(

@@ -12,13 +12,16 @@ class NftRefreshButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorSchemeExtension colorScheme =
-        Theme.of(context).extension<ColorSchemeExtension>()!;
+    final ColorSchemeExtension colorScheme = Theme.of(
+      context,
+    ).extension<ColorSchemeExtension>()!;
     final textTheme = Theme.of(context).extension<TextThemeExtension>()!;
     final selectedChain = context.select<NftMainBloc, NftBlockchains>(
-        (bloc) => bloc.state.selectedChain);
+      (bloc) => bloc.state.selectedChain,
+    );
     final isUpdating = context.select<NftMainBloc, bool>(
-        (bloc) => bloc.state.updatingChains[selectedChain] ?? false);
+      (bloc) => bloc.state.updatingChains[selectedChain] ?? false,
+    );
 
     return UiPrimaryButton(
       width: 200,
@@ -30,11 +33,7 @@ class NftRefreshButton extends StatelessWidget {
         bloc.add(NftMainChainNftsRefreshed(selectedChain));
       },
       text: LocaleKeys.refreshList.tr(args: [selectedChain.coinAbbr()]),
-      child: isUpdating
-          ? UiSpinner(
-              color: colorScheme.primary,
-            )
-          : null,
+      child: isUpdating ? UiSpinner(color: colorScheme.primary) : null,
     );
   }
 }

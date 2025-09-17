@@ -22,9 +22,7 @@ final class BitrefillPaymentInProgress extends BitrefillState {
 
 /// The payment was successful from Komodo Wallet to the Bitrefill address.
 final class BitrefillPaymentSuccess extends BitrefillState {
-  const BitrefillPaymentSuccess({
-    required this.invoiceId,
-  });
+  const BitrefillPaymentSuccess({required this.invoiceId});
 
   /// The Bitrefill invoice ID. This is used to track the payment.
   final String invoiceId;

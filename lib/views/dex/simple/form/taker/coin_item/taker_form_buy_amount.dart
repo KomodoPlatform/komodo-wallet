@@ -64,10 +64,7 @@ class _BuyPriceField extends StatelessWidget {
 }
 
 class _BuyAmountInput extends StatelessWidget {
-  _BuyAmountInput({
-    Key? key,
-    required this.isEnabled,
-  }) : super(key: key);
+  _BuyAmountInput({Key? key, required this.isEnabled}) : super(key: key);
 
   final bool isEnabled;
 

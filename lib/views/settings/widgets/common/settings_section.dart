@@ -14,15 +14,12 @@ class SettingsSection extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 17),
-          child: child,
-        ),
+        Padding(padding: const EdgeInsets.only(top: 17), child: child),
       ],
     );
   }

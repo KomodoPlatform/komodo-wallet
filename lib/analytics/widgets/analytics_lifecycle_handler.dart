@@ -18,10 +18,7 @@ class AnalyticsLifecycleHandler extends StatefulWidget {
   /// Creates an AnalyticsLifecycleHandler.
   ///
   /// The [child] parameter must not be null.
-  const AnalyticsLifecycleHandler({
-    super.key,
-    required this.child,
-  });
+  const AnalyticsLifecycleHandler({super.key, required this.child});
 
   /// The widget below this widget in the tree.
   final Widget child;
@@ -83,10 +80,7 @@ class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
       final appVersion = packageInformation.packageVersion ?? 'unknown';
 
       _analyticsRepo.queueEvent(
-        AppOpenedEventData(
-          platform: platform,
-          appVersion: appVersion,
-        ),
+        AppOpenedEventData(platform: platform, appVersion: appVersion),
       );
 
       // Mark that we've successfully logged the initial open

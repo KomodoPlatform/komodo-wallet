@@ -16,10 +16,7 @@ class NftGalleryOpenedEventData implements AnalyticsEventData {
   String get name => 'nft_gallery_opened';
 
   @override
-  JsonMap get parameters => {
-        'nft_count': nftCount,
-        'load_time_ms': loadTimeMs,
-      };
+  JsonMap get parameters => {'nft_count': nftCount, 'load_time_ms': loadTimeMs};
 }
 
 class AnalyticsNftGalleryOpenedEvent extends AnalyticsSendDataEvent {
@@ -27,11 +24,8 @@ class AnalyticsNftGalleryOpenedEvent extends AnalyticsSendDataEvent {
     required int nftCount,
     required int loadTimeMs,
   }) : super(
-          NftGalleryOpenedEventData(
-            nftCount: nftCount,
-            loadTimeMs: loadTimeMs,
-          ),
-        );
+         NftGalleryOpenedEventData(nftCount: nftCount, loadTimeMs: loadTimeMs),
+       );
 }
 
 /// E24: NFT send flow started
@@ -51,10 +45,10 @@ class NftTransferInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'hd_type': hdType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'hd_type': hdType,
+  };
 }
 
 class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
@@ -63,12 +57,12 @@ class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
     required String tokenId,
     required String hdType,
   }) : super(
-          NftTransferInitiatedEventData(
-            collectionName: collectionName,
-            tokenId: tokenId,
-            hdType: hdType,
-          ),
-        );
+         NftTransferInitiatedEventData(
+           collectionName: collectionName,
+           tokenId: tokenId,
+           hdType: hdType,
+         ),
+       );
 }
 
 /// E25: NFT sent successfully
@@ -90,11 +84,11 @@ class NftTransferSuccessEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'fee': fee,
-        'hd_type': hdType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'fee': fee,
+    'hd_type': hdType,
+  };
 }
 
 class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
@@ -104,13 +98,13 @@ class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
     required double fee,
     required String hdType,
   }) : super(
-          NftTransferSuccessEventData(
-            collectionName: collectionName,
-            tokenId: tokenId,
-            fee: fee,
-            hdType: hdType,
-          ),
-        );
+         NftTransferSuccessEventData(
+           collectionName: collectionName,
+           tokenId: tokenId,
+           fee: fee,
+           hdType: hdType,
+         ),
+       );
 }
 
 /// E26: NFT send failed
@@ -130,10 +124,10 @@ class NftTransferFailureEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'fail_reason': failReason,
-        'hd_type': hdType,
-      };
+    'collection_name': collectionName,
+    'fail_reason': failReason,
+    'hd_type': hdType,
+  };
 }
 
 class AnalyticsNftTransferFailureEvent extends AnalyticsSendDataEvent {
@@ -142,10 +136,10 @@ class AnalyticsNftTransferFailureEvent extends AnalyticsSendDataEvent {
     required String failReason,
     required String hdType,
   }) : super(
-          NftTransferFailureEventData(
-            collectionName: collectionName,
-            failReason: failReason,
-            hdType: hdType,
-          ),
-        );
+         NftTransferFailureEventData(
+           collectionName: collectionName,
+           failReason: failReason,
+           hdType: hdType,
+         ),
+       );
 }

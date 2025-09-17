@@ -11,7 +11,9 @@ class _FiatRouteParser implements BaseRouteParser {
       if (uri.pathSegments[1] == 'trading_details' &&
           uri.pathSegments[2].isNotEmpty) {
         return FiatRoutePath.swapDetails(
-            FiatAction.tradingDetails, uri.pathSegments[2]);
+          FiatAction.tradingDetails,
+          uri.pathSegments[2],
+        );
       }
     }
 

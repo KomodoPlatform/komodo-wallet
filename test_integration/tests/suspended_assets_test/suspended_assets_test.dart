@@ -15,11 +15,12 @@ import '../../helpers/restore_wallet.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets(
-    'Run suspended asset tests:',
-    (WidgetTester tester) async {
-      await runZonedGuarded(() async {
-        FlutterError.onError = (FlutterErrorDetails details) {/** */};
+  testWidgets('Run suspended asset tests:', (WidgetTester tester) async {
+    await runZonedGuarded(
+      () async {
+        FlutterError.onError = (FlutterErrorDetails details) {
+          /** */
+        };
 
         const String suspendedAsset = 'KMD';
         tester.testTextInput.register();
@@ -33,8 +34,9 @@ void main() {
         await tester.pumpAndSettle();
 
         await goto.walletPage(tester);
-        final Finder searchCoinsField =
-            find.byKey(const Key('wallet-page-search-field'));
+        final Finder searchCoinsField = find.byKey(
+          const Key('wallet-page-search-field'),
+        );
         await tester.enterText(searchCoinsField, suspendedAsset);
         await tester.pumpAndSettle();
         final Finder suspendedCoinLabel = isMobile
@@ -43,11 +45,14 @@ void main() {
         expect(
           suspendedCoinLabel,
           findsOneWidget,
-          reason: 'Test error: $suspendedAsset should be suspended,'
+          reason:
+              'Test error: $suspendedAsset should be suspended,'
               ' but corresponding label was not found.',
         );
-      }, (_, __) {/** */});
-    },
-    semanticsEnabled: false,
-  );
+      },
+      (_, __) {
+        /** */
+      },
+    );
+  }, semanticsEnabled: false);
 }

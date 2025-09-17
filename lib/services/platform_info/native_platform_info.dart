@@ -19,8 +19,9 @@ class NativePlatformInfo extends PlatformInfo with MemoizedPlatformInfoMixin {
   @override
   String? computeScreenSize() {
     final currentContext = scaffoldKey.currentContext;
-    final size =
-        currentContext == null ? null : MediaQuery.of(currentContext).size;
+    final size = currentContext == null
+        ? null
+        : MediaQuery.of(currentContext).size;
     return size == null ? '' : '${size.width}:${size.height}';
   }
 

@@ -43,8 +43,9 @@ class _TakerComparedToCex extends StatelessWidget {
         final BestOrder? bestOrder = state.selectedOrder;
         final Coin? sellCoin = state.sellCoin;
         final coinsBloc = RepositoryProvider.of<CoinsRepo>(context);
-        final Coin? buyCoin =
-            bestOrder == null ? null : coinsBloc.getCoin(bestOrder.coin);
+        final Coin? buyCoin = bestOrder == null
+            ? null
+            : coinsBloc.getCoin(bestOrder.coin);
 
         return DexComparedToCex(
           base: sellCoin,

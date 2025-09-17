@@ -9,10 +9,7 @@ import 'package:web_dex/views/wallet/coins_manager/coins_manager_page.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_main.dart';
 
 class WalletPage extends StatelessWidget {
-  const WalletPage({
-    required this.coinAbbr,
-    required this.action,
-  });
+  const WalletPage({required this.coinAbbr, required this.action});
   final String? coinAbbr;
   final CoinsManagerAction action;
 

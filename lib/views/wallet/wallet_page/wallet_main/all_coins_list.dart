@@ -42,9 +42,9 @@ class _AllCoinsListState extends State<AllCoinsList> {
   void _updateDisplayedCoins() {
     final coins = context.read<CoinsBloc>().state.coins.values.toList();
     if (coins.isNotEmpty) {
-      List<Coin> filteredCoins =
-          sortByPriority(filterCoinsByPhrase(coins, widget.searchPhrase))
-              .toList();
+      List<Coin> filteredCoins = sortByPriority(
+        filterCoinsByPhrase(coins, widget.searchPhrase),
+      ).toList();
       if (!context.read<SettingsBloc>().state.testCoinsEnabled) {
         filteredCoins = removeTestCoins(filteredCoins);
       }
@@ -65,23 +65,24 @@ class _AllCoinsListState extends State<AllCoinsList> {
         return state.coins.isEmpty
             ? const SliverToBoxAdapter(child: UiSpinner())
             : displayedCoins.isEmpty
-                ? SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'No coins found',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                  )
-                : KnownAssetsList(
-                    assets: displayedCoins.map((c) => c.id).toList(),
-                    onAssetItemTap: (id) {
-                      final coin =
-                          displayedCoins.firstWhere((coin) => coin.id == id);
-                      widget.onCoinSelected(coin);
-                    },
+            ? SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'No coins found',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              )
+            : KnownAssetsList(
+                assets: displayedCoins.map((c) => c.id).toList(),
+                onAssetItemTap: (id) {
+                  final coin = displayedCoins.firstWhere(
+                    (coin) => coin.id == id,
                   );
+                  widget.onCoinSelected(coin);
+                },
+              );
       },
     );
   }

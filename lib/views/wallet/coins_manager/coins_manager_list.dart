@@ -20,8 +20,10 @@ class CoinsManagerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Coin> selectedCoins =
-        context.watch<CoinsManagerBloc>().state.selectedCoins;
+    final List<Coin> selectedCoins = context
+        .watch<CoinsManagerBloc>()
+        .state
+        .selectedCoins;
 
     return Material(
       color: Colors.transparent,
@@ -40,8 +42,9 @@ class CoinsManagerList extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12.0),
               child: CoinsManagerListItem(
                 coin: coin,
-                isSelected:
-                    selectedCoins.where((c) => c.abbr == coin.abbr).isNotEmpty,
+                isSelected: selectedCoins
+                    .where((c) => c.abbr == coin.abbr)
+                    .isNotEmpty,
                 isMobile: isMobile,
                 isAddAssets: isAddAssets,
                 onSelect: () => onCoinSelect(coin),

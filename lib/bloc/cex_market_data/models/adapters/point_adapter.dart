@@ -12,10 +12,7 @@ class PointAdapter extends TypeAdapter<Point<double>> {
     final Map<int, dynamic> fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Point<double>(
-      fields[0] as double,
-      fields[1] as double,
-    );
+    return Point<double>(fields[0] as double, fields[1] as double);
   }
 
   @override

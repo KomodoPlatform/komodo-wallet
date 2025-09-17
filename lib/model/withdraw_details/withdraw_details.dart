@@ -40,20 +40,20 @@ class WithdrawDetails {
   }
 
   static WithdrawDetails empty() => WithdrawDetails(
-        txHex: '',
-        txHash: '',
-        from: [],
-        to: [],
-        totalAmount: '',
-        spentByMe: '',
-        receivedByMe: '',
-        myBalanceChange: '',
-        blockHeight: 0,
-        timestamp: 0,
-        feeDetails: FeeDetails.empty(),
-        coin: '',
-        internalId: '',
-      );
+    txHex: '',
+    txHash: '',
+    from: [],
+    to: [],
+    totalAmount: '',
+    spentByMe: '',
+    receivedByMe: '',
+    myBalanceChange: '',
+    blockHeight: 0,
+    timestamp: 0,
+    feeDetails: FeeDetails.empty(),
+    coin: '',
+    internalId: '',
+  );
 
   final String txHex;
   final String txHash;

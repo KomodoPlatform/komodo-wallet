@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIChipState {
-  empty,
-  pressed,
-  selected,
-}
+enum UIChipState { empty, pressed, selected }
 
 class UIChipColorScheme {
   final Color? emptyContainerColor;
@@ -51,10 +47,8 @@ class UIChip extends StatelessWidget {
         children: [
           Text(
             title,
-            style:
-                (textStyle ?? Theme.of(context).textTheme.bodySmall)?.copyWith(
-              color: getTextColor(context),
-            ),
+            style: (textStyle ?? Theme.of(context).textTheme.bodySmall)
+                ?.copyWith(color: getTextColor(context)),
           ),
           const SizedBox(width: 4),
           if (showIcon)

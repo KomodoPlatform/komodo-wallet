@@ -32,8 +32,10 @@ class PickItem extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            Icon(expanded ? Icons.expand_less : Icons.expand_more,
-                color: Theme.of(context).textTheme.bodyLarge?.color)
+            Icon(
+              expanded ? Icons.expand_less : Icons.expand_more,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
           ],
         ),
       ),

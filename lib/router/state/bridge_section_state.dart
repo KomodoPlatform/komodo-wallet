@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:web_dex/router/state/menu_state_interface.dart';
 
 class BridgeSectionState extends ChangeNotifier implements IResettableOnLogout {
-  BridgeSectionState()
-      : _action = BridgeAction.none,
-        _uuid = '';
+  BridgeSectionState() : _action = BridgeAction.none, _uuid = '';
 
   BridgeAction _action;
   String _uuid;
@@ -43,7 +41,4 @@ class BridgeSectionState extends ChangeNotifier implements IResettableOnLogout {
   }
 }
 
-enum BridgeAction {
-  tradingDetails,
-  none,
-}
+enum BridgeAction { tradingDetails, none }

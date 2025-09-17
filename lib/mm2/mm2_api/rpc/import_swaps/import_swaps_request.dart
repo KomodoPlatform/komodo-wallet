@@ -10,8 +10,8 @@ class ImportSwapsRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'userpass': userpass,
-        'method': method,
-        'swaps': swaps,
-      };
+    'userpass': userpass,
+    'method': method,
+    'swaps': swaps,
+  };
 }

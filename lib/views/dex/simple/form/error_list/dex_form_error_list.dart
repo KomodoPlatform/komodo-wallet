@@ -4,10 +4,7 @@ import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_simple.d
 import 'package:web_dex/views/dex/simple/form/error_list/dex_form_error_with_action.dart';
 
 class DexFormErrorList extends StatefulWidget {
-  const DexFormErrorList({
-    required this.errors,
-    Key? key,
-  }) : super(key: key);
+  const DexFormErrorList({required this.errors, Key? key}) : super(key: key);
 
   final List<DexFormError> errors;
 
@@ -25,10 +22,12 @@ class _DexFormErrorListState extends State<DexFormErrorList> {
       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: Column(
         children: errorList
-            .map((e) => Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: _errorBuilder(e),
-                ))
+            .map(
+              (e) => Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: _errorBuilder(e),
+              ),
+            )
             .toList(),
       ),
     );
@@ -51,28 +50,19 @@ class _DexFormErrorListState extends State<DexFormErrorList> {
     assert(error.type == DexFormErrorType.largerMaxSellVolume);
     assert(error.action != null);
 
-    return DexFormErrorWithAction(
-      error: error,
-      action: error.action!,
-    );
+    return DexFormErrorWithAction(error: error, action: error.action!);
   }
 
   Widget _buildLargerMaxBuyVolumeError(DexFormError error) {
     assert(error.type == DexFormErrorType.largerMaxBuyVolume);
 
-    return DexFormErrorWithAction(
-      error: error,
-      action: error.action!,
-    );
+    return DexFormErrorWithAction(error: error, action: error.action!);
   }
 
   Widget _buildLessMinVolumeError(DexFormError error) {
     assert(error.type == DexFormErrorType.lessMinVolume);
     assert(error.action != null);
 
-    return DexFormErrorWithAction(
-      error: error,
-      action: error.action!,
-    );
+    return DexFormErrorWithAction(error: error, action: error.action!);
   }
 }

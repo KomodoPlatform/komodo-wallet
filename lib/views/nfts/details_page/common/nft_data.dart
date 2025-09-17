@@ -70,12 +70,13 @@ class NftData extends StatelessWidget {
           ),
           SizedBox(height: spaceBetweenRows),
           NftDataRow(
-              title: LocaleKeys.tokenID.tr(),
-              valueWidget: SimpleCopyableLink(
-                text: truncateMiddleSymbols(nft.tokenId, 6, 7),
-                valueToCopy: nft.tokenId,
-                link: nft.tokenUri,
-              )),
+            title: LocaleKeys.tokenID.tr(),
+            valueWidget: SimpleCopyableLink(
+              text: truncateMiddleSymbols(nft.tokenId, 6, 7),
+              valueToCopy: nft.tokenId,
+              link: nft.tokenUri,
+            ),
+          ),
           SizedBox(height: spaceBetweenRows),
           NftDataRow(
             title: LocaleKeys.tokenStandard.tr(),
@@ -90,8 +91,9 @@ class NftData extends StatelessWidget {
               blockchain: nft.chain,
               iconSize: 10,
               iconColor: colorScheme.surf,
-              textStyle:
-                  textTheme.bodyXXSBold.copyWith(color: colorScheme.surf),
+              textStyle: textTheme.bodyXXSBold.copyWith(
+                color: colorScheme.surf,
+              ),
             ),
           ),
         ],

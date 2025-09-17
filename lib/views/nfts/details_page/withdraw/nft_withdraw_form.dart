@@ -11,10 +11,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/nft.dart';
 
 class NftWithdrawForm extends StatelessWidget {
-  const NftWithdrawForm({
-    super.key,
-    required this.state,
-  });
+  const NftWithdrawForm({super.key, required this.state});
 
   final NftWithdrawFillState state;
 
@@ -30,12 +27,13 @@ class NftWithdrawForm extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Flexible(
-                  flex: 7,
-                  child: _AddressField(
-                    address: state.address,
-                    textInputAction: TextInputAction.next,
-                    error: addressError,
-                  )),
+                flex: 7,
+                child: _AddressField(
+                  address: state.address,
+                  textInputAction: TextInputAction.next,
+                  error: addressError,
+                ),
+              ),
               Flexible(
                 flex: 3,
                 child: Padding(
@@ -58,10 +56,9 @@ class NftWithdrawForm extends StatelessWidget {
           ),
         if (addressError is MixedCaseAddressError)
           Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: _MixedAddressError(
-                error: addressError,
-              )),
+            padding: const EdgeInsets.only(top: 4.0),
+            child: _MixedAddressError(error: addressError),
+          ),
         if (sendError != null)
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
@@ -96,8 +93,9 @@ class _AddressField extends StatefulWidget {
 
 class __AddressFieldState extends State<_AddressField> {
   final TextEditingController _addressController = TextEditingController();
-  TextSelection _previousTextSelection =
-      const TextSelection.collapsed(offset: 0);
+  TextSelection _previousTextSelection = const TextSelection.collapsed(
+    offset: 0,
+  );
   @override
   Widget build(BuildContext context) {
     InputBorder? errorBorder;
@@ -122,9 +120,9 @@ class __AddressFieldState extends State<_AddressField> {
       enableInteractiveSelection: true,
       onChanged: (_) {
         _previousTextSelection = _addressController.selection;
-        context
-            .read<NftWithdrawBloc>()
-            .add(NftWithdrawAddressChanged(_addressController.text));
+        context.read<NftWithdrawBloc>().add(
+          NftWithdrawAddressChanged(_addressController.text),
+        );
       },
       validationMode: InputValidationMode.aggressive,
       inputFormatters: [LengthLimitingTextInputFormatter(256)],
@@ -157,8 +155,9 @@ class _AmountField extends StatefulWidget {
 
 class __AmountFieldState extends State<_AmountField> {
   final TextEditingController _amountController = TextEditingController();
-  TextSelection _previousTextSelection =
-      const TextSelection.collapsed(offset: 0);
+  TextSelection _previousTextSelection = const TextSelection.collapsed(
+    offset: 0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +186,8 @@ class __AmountFieldState extends State<_AmountField> {
         _previousTextSelection = _amountController.selection;
 
         context.read<NftWithdrawBloc>().add(
-            NftWithdrawAmountChanged(int.tryParse(_amountController.text)));
+          NftWithdrawAmountChanged(int.tryParse(_amountController.text)),
+        );
       },
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+$'))],
       keyboardType: TextInputType.number,
@@ -227,9 +227,9 @@ class _MixedAddressError extends StatelessWidget {
             width: 80,
             height: 30,
             textStyle: textTheme.bodyXSBold.copyWith(color: colorScheme.surf),
-            onPressed: () => context
-                .read<NftWithdrawBloc>()
-                .add(const NftWithdrawConvertAddress()),
+            onPressed: () => context.read<NftWithdrawBloc>().add(
+              const NftWithdrawConvertAddress(),
+            ),
           ),
         ),
       ],

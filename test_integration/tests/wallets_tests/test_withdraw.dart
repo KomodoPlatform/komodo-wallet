@@ -60,7 +60,10 @@ Future<Finder> _activateMarty(WidgetTester tester) async {
   print('🔍 ACTIVATE MARTY: Waited for coin to become visible');
 
   await tester.dragUntilVisible(
-      martyCoinActive, coinsList, const Offset(0, -50));
+    martyCoinActive,
+    coinsList,
+    const Offset(0, -50),
+  );
   print('🔍 ACTIVATE MARTY: Scrolled to coin');
 
   await tester.tapAndPump(martyCoinActive);
@@ -75,12 +78,8 @@ Future<Finder> _activateMarty(WidgetTester tester) async {
 Future<void> _testCopyAddressButton(WidgetTester tester) async {
   print('🔍 COPY ADDRESS: Starting copy address test');
 
-  final Finder coinBalance = find.byKey(
-    const Key('coin-details-balance'),
-  );
-  final Finder exitButton = find.byKey(
-    const Key('back-button'),
-  );
+  final Finder coinBalance = find.byKey(const Key('coin-details-balance'));
+  final Finder exitButton = find.byKey(const Key('back-button'));
   final Finder receiveButton = find.byKey(
     const Key('coin-details-receive-button'),
   );
@@ -167,25 +166,21 @@ Future<void> _sendAmountToAddress(
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets(
-    'Run withdraw tests:',
-    (WidgetTester tester) async {
-      print('🔍 MAIN: Starting withdraw test suite');
-      tester.testTextInput.register();
-      await app.main();
-      await tester.pumpAndSettle();
+  testWidgets('Run withdraw tests:', (WidgetTester tester) async {
+    print('🔍 MAIN: Starting withdraw test suite');
+    tester.testTextInput.register();
+    await app.main();
+    await tester.pumpAndSettle();
 
-      print('🔍 MAIN: Accepting alpha warning');
-      await acceptAlphaWarning(tester);
+    print('🔍 MAIN: Accepting alpha warning');
+    await acceptAlphaWarning(tester);
 
-      await restoreWalletToTest(tester);
-      print('🔍 MAIN: Wallet restored');
+    await restoreWalletToTest(tester);
+    print('🔍 MAIN: Wallet restored');
 
-      await testWithdraw(tester);
-      await tester.pumpAndSettle();
+    await testWithdraw(tester);
+    await tester.pumpAndSettle();
 
-      print('🔍 MAIN: Withdraw tests completed successfully');
-    },
-    semanticsEnabled: false,
-  );
+    print('🔍 MAIN: Withdraw tests completed successfully');
+  }, semanticsEnabled: false);
 }

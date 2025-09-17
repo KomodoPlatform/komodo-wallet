@@ -10,18 +10,21 @@ import 'package:web_dex/model/settings_menu_value.dart';
 import '../../helpers/accept_alpha_warning.dart';
 
 Future<void> testNoLoginWalletAccess(WidgetTester tester) async {
-  final Finder walletsManagerWrapper =
-      find.byKey(const Key('wallets-manager-wrapper'));
+  final Finder walletsManagerWrapper = find.byKey(
+    const Key('wallets-manager-wrapper'),
+  );
 
   // App bar
   print('TEST ACCESS FROM APP BAR');
   final Finder connectWalletButton = isMobile
       ? find.byKey(const Key('connect-wallet-dex'))
       : find.byKey(const Key('connect-wallet-header'));
-  final Finder appBarTotalBalance =
-      find.byKey(const Key('app-bar-total-balance'));
-  final Finder appBarAccountButton =
-      find.byKey(const Key('app-bar-account-button'));
+  final Finder appBarTotalBalance = find.byKey(
+    const Key('app-bar-total-balance'),
+  );
+  final Finder appBarAccountButton = find.byKey(
+    const Key('app-bar-account-button'),
+  );
 
   expect(connectWalletButton, findsOneWidget);
   await _openWalletManagerPopupByKey(connectWalletButton, tester);
@@ -35,14 +38,17 @@ Future<void> testNoLoginWalletAccess(WidgetTester tester) async {
   // Wallet page
   print('TEST ACCESS FROM WALLET PAGE');
   final Finder walletMenuButton = find.byKey(const Key('main-menu-wallet'));
-  final Finder coinsWithBalanceCheckbox =
-      find.byKey(const Key('coins-with-balance-checkbox'));
+  final Finder coinsWithBalanceCheckbox = find.byKey(
+    const Key('coins-with-balance-checkbox'),
+  );
   final Finder addAssetsButton = find.byKey(const Key('add-assets-button'));
-  final Finder removeAssetsButton =
-      find.byKey(const Key('remove-assets-button'));
+  final Finder removeAssetsButton = find.byKey(
+    const Key('remove-assets-button'),
+  );
   final coinsList = find.byKey(const Key('wallet-page-coins-list'));
-  final Finder coinListItemKmd =
-      find.byKey(const Key('wallet-coin-list-item-kmd'));
+  final Finder coinListItemKmd = find.byKey(
+    const Key('wallet-coin-list-item-kmd'),
+  );
 
   await tester.tap(walletMenuButton);
   await tester.pumpAndSettle();
@@ -64,10 +70,12 @@ Future<void> testNoLoginWalletAccess(WidgetTester tester) async {
 
   // Dex page
   print('TEST ACCESS FROM DEX PAGE');
-  final Finder connectWalletMakerForm =
-      find.byKey(const Key('connect-wallet-maker-form'));
-  final Finder connectWalletTakerForm =
-      find.byKey(const Key('connect-wallet-taker-form'));
+  final Finder connectWalletMakerForm = find.byKey(
+    const Key('connect-wallet-maker-form'),
+  );
+  final Finder connectWalletTakerForm = find.byKey(
+    const Key('connect-wallet-taker-form'),
+  );
   final Finder dexMenuButton = find.byKey(const Key('main-menu-dex'));
   final Finder makeOrderTab = find.byKey(const Key('make-order-tab'));
   final Finder takeOrderTab = find.byKey(const Key('take-order-tab'));
@@ -97,8 +105,9 @@ Future<void> testNoLoginWalletAccess(WidgetTester tester) async {
 
   // Bridge page
   print('TEST ACCESS FROM BRIDGE PAGE');
-  final Finder connectWalletBridge =
-      find.byKey(const Key('connect-wallet-bridge'));
+  final Finder connectWalletBridge = find.byKey(
+    const Key('connect-wallet-bridge'),
+  );
   final Finder bridgeMenuButton = find.byKey(const Key('main-menu-bridge'));
   final Finder bridgePageTabBar = find.byKey(const Key('bridge-page-tab-bar'));
 
@@ -126,7 +135,9 @@ Future<void> testNoLoginWalletAccess(WidgetTester tester) async {
 }
 
 Future<void> _openWalletManagerPopupByKey(
-    Finder finder, WidgetTester tester) async {
+  Finder finder,
+  WidgetTester tester,
+) async {
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }

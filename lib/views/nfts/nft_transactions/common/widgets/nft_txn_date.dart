@@ -10,9 +10,6 @@ class NftTxnDate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).extension<TextThemeExtension>()?.bodyXS;
-    return Text(
-      formatter.format(blockTimestamp),
-      style: textStyle,
-    );
+    return Text(formatter.format(blockTimestamp), style: textStyle);
   }
 }
