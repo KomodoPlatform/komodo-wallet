@@ -103,6 +103,20 @@ class TradingStatusRepository {
       final featuresParsed = _parseFeatures(data);
       final Set<AssetId> disallowedAssets = _parseAssets(data);
 
+      // If the API omitted the disallowed_features field entirely,
+      // block trading by default to be conservative.
+      if (!featuresParsed.hasFeatures) {
+        debugPrint(
+          'disallowed_features missing in response. Blocking trading.',
+        );
+        return AppGeoStatus(
+          disallowedAssets: disallowedAssets,
+          disallowedFeatures: const <DisallowedFeature>{
+            DisallowedFeature.trading,
+          },
+        );
+      }
+
       return AppGeoStatus(
         disallowedAssets: disallowedAssets,
         disallowedFeatures: featuresParsed.features,
