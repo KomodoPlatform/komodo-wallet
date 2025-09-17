@@ -264,7 +264,7 @@ class _DesktopCoinDetails extends StatelessWidget {
               isMobile: false,
               selectWidget: setPageType,
               onClickSwapButton:
-                  context.watch<TradingStatusBloc>().state is TradingEnabled
+                  context.watch<TradingStatusBloc>().state.isEnabled
                   ? () => _goToSwap(context, coin)
                   : null,
               coin: coin,
@@ -353,7 +353,7 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
               isMobile: true,
               selectWidget: setPageType,
               onClickSwapButton:
-                  context.watch<TradingStatusBloc>().state is TradingEnabled
+                  context.watch<TradingStatusBloc>().state.isEnabled
                   ? () => _goToSwap(context, coin)
                   : null,
               coin: coin,

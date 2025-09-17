@@ -21,8 +21,10 @@ class MainMenuBarMobile extends StatelessWidget {
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         final bool isMMBotEnabled = state.mmBotSettings.isMMBotEnabled;
-        final bool tradingEnabled =
-            context.watch<TradingStatusBloc>().state is TradingEnabled;
+        final bool tradingEnabled = context
+            .watch<TradingStatusBloc>()
+            .state
+            .isEnabled;
         return DecoratedBox(
           decoration: BoxDecoration(
             color: theme.currentGlobal.cardColor,

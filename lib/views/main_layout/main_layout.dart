@@ -54,7 +54,7 @@ class _MainLayoutState extends State<MainLayout> {
       }
 
       if (!mounted) return;
-      final tradingEnabled = tradingStatusBloc.state is TradingEnabled;
+      final tradingEnabled = tradingStatusBloc.state.isEnabled;
       if (tradingEnabled &&
           kShowTradingWarning &&
           !await _hasAgreedNoTrading()) {

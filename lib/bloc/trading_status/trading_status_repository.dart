@@ -1,113 +1,118 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:get_it/get_it.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
 
 /// Structured status returned by the bouncer service.
-class TradingGeoStatus {
-  const TradingGeoStatus({
-    required this.tradingEnabled,
+class AppGeoStatus {
+  const AppGeoStatus({
     this.disallowedAssets = const <AssetId>{},
     this.disallowedFeatures = const <DisallowedFeature>{},
   });
 
-  final bool tradingEnabled;
   final Set<AssetId> disallowedAssets;
   final Set<DisallowedFeature> disallowedFeatures;
+
+  bool get tradingEnabled =>
+      !disallowedFeatures.contains(DisallowedFeature.trading);
 }
 
 class TradingStatusRepository {
   TradingStatusRepository({http.Client? httpClient, Duration? timeout})
-      : _httpClient = httpClient ?? http.Client(),
-        _timeout = timeout ?? const Duration(seconds: 10);
+    : _httpClient = httpClient ?? http.Client(),
+      _timeout = timeout ?? const Duration(seconds: 10);
 
   final http.Client _httpClient;
   final Duration _timeout;
+
+  KomodoDefiSdk get _sdk => GetIt.I<KomodoDefiSdk>();
 
   /// Fetches geo status and computes trading availability.
   ///
   /// Rules:
   /// - If GEO_BLOCK=disabled, trading is enabled.
   /// - Otherwise, trading is disabled if disallowed_features contains 'TRADING'.
-  Future<TradingGeoStatus> fetchStatus({bool? forceFail}) async {
+  Future<AppGeoStatus> fetchStatus({bool? forceFail}) async {
     try {
-      final geoBlock = const String.fromEnvironment('GEO_BLOCK');
-      if (geoBlock == 'disabled') {
+      if (_isGeoBlockDisabled()) {
         debugPrint('GEO_BLOCK is disabled. Trading enabled.');
-        return const TradingGeoStatus(tradingEnabled: true);
+        return const AppGeoStatus();
       }
 
-      final apiKey = const String.fromEnvironment('FEEDBACK_API_KEY');
       final bool shouldFail = forceFail ?? false;
+      final String apiKey = _readFeedbackApiKey();
 
       if (apiKey.isEmpty && !shouldFail) {
         debugPrint('FEEDBACK_API_KEY not found. Trading disabled.');
-        return const TradingGeoStatus(tradingEnabled: false);
+        return const AppGeoStatus(
+          disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
+        );
       }
 
-      late final Uri uri;
-      final headers = <String, String>{};
+      final _RequestConfig request = _buildRequestConfig(
+        shouldFail: shouldFail,
+        apiKey: apiKey,
+      );
 
-      if (shouldFail) {
-        uri = Uri.parse(tradingBlacklistUrl);
-      } else {
-        uri = Uri.parse(geoBlockerApiUrl);
-        headers['X-KW-KEY'] = apiKey;
+      late final http.Response res;
+      try {
+        res = await _postJson(request);
+      } on TimeoutException catch (_) {
+        debugPrint('Trading status request timed out');
+        return const AppGeoStatus(
+          disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
+        );
+      } on http.ClientException catch (e) {
+        debugPrint(
+          'HTTP client error when fetching trading status: ${e.message}',
+        );
+        return const AppGeoStatus(
+          disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
+        );
       }
 
-      final res =
-          await _httpClient.post(uri, headers: headers).timeout(_timeout);
-
       if (shouldFail) {
-        return TradingGeoStatus(tradingEnabled: res.statusCode == 200);
+        return AppGeoStatus(
+          disallowedFeatures: res.statusCode == 200
+              ? const <DisallowedFeature>{}
+              : const <DisallowedFeature>{DisallowedFeature.trading},
+        );
       }
 
       if (res.statusCode != 200) {
-        return const TradingGeoStatus(tradingEnabled: false);
+        debugPrint('Trading status request failed with code ${res.statusCode}');
+        return const AppGeoStatus(
+          disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
+        );
       }
 
-      final JsonMap data = jsonFromString(res.body);
-
-      // Parse disallowed features/assets if present
-      final List<dynamic>? rawFeatures =
-          data.valueOrNull<List<dynamic>>('disallowed_features');
-      final Set<DisallowedFeature> disallowedFeatures = rawFeatures == null
-          ? <DisallowedFeature>{}
-          : rawFeatures
-              .whereType<String>()
-              .map(DisallowedFeature.fromString)
-              .whereType<DisallowedFeature>()
-              .toSet();
-
-      final List<dynamic>? rawAssets =
-          data.valueOrNull<List<dynamic>>('disallowed_assets');
-      final Set<AssetId> disallowedAssets = rawAssets == null
-          ? <AssetId>{}
-          : rawAssets
-              .whereType<String>()
-              .map((symbol) => AssetId(id: symbol, name: symbol))
-              .toSet();
-
-      bool tradingEnabled;
-      if (rawFeatures != null) {
-        tradingEnabled = !disallowedFeatures.contains(DisallowedFeature.trading);
-      } else {
-        // Backwards-breaking change: require features; if missing, block trading
-        tradingEnabled = true;
+      late final JsonMap data;
+      try {
+        data = _decodeBody(res.body);
+      } catch (e) {
+        debugPrint('Failed to parse trading status response: ${e.toString()}');
+        return const AppGeoStatus(
+          disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
+        );
       }
+      final featuresParsed = _parseFeatures(data);
+      final Set<AssetId> disallowedAssets = _parseAssets(data);
 
-      return TradingGeoStatus(
-        tradingEnabled: tradingEnabled,
+      return AppGeoStatus(
         disallowedAssets: disallowedAssets,
-        disallowedFeatures: disallowedFeatures,
+        disallowedFeatures: featuresParsed.features,
       );
     } catch (_) {
-      debugPrint('Network error: Trading status check failed');
+      debugPrint('Unexpected error: Trading status check failed');
       // Block trading features on network failure
-      return const TradingGeoStatus(tradingEnabled: false);
+      return const AppGeoStatus(
+        disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
+      );
     }
   }
 
@@ -117,7 +122,77 @@ class TradingStatusRepository {
     return status.tradingEnabled;
   }
 
+  // --- Configuration helpers -------------------------------------------------
+  String _readGeoBlockFlag() => const String.fromEnvironment('GEO_BLOCK');
+  String _readFeedbackApiKey() =>
+      const String.fromEnvironment('FEEDBACK_API_KEY');
+  bool _isGeoBlockDisabled() => _readGeoBlockFlag() == 'disabled';
+
+  // --- HTTP helpers ----------------------------------------------------------
+  static const String _apiKeyHeader = 'X-KW-KEY';
+
+  _RequestConfig _buildRequestConfig({
+    required bool shouldFail,
+    required String apiKey,
+  }) {
+    if (shouldFail) {
+      return _RequestConfig(
+        uri: Uri.parse(tradingBlacklistUrl),
+        headers: const <String, String>{},
+      );
+    }
+    return _RequestConfig(
+      uri: Uri.parse(geoBlockerApiUrl),
+      headers: <String, String>{_apiKeyHeader: apiKey},
+    );
+  }
+
+  Future<http.Response> _postJson(_RequestConfig request) {
+    return _httpClient
+        .post(request.uri, headers: request.headers)
+        .timeout(_timeout);
+  }
+
+  // --- Parsing helpers -------------------------------------------------------
+  JsonMap _decodeBody(String body) => jsonFromString(body);
+
+  ({Set<DisallowedFeature> features, bool hasFeatures}) _parseFeatures(
+    JsonMap data,
+  ) {
+    final List<String>? raw = data.valueOrNull<List<String>>(
+      'disallowed_features',
+    );
+    final Set<DisallowedFeature> parsed = raw == null
+        ? <DisallowedFeature>{}
+        : raw.map(DisallowedFeature.parse).toSet();
+    return (features: parsed, hasFeatures: raw != null);
+  }
+
+  Set<AssetId> _parseAssets(JsonMap data) {
+    final List<String>? raw = data.valueOrNull<List<String>>(
+      'disallowed_assets',
+    );
+    if (raw == null) return const <AssetId>{};
+
+    final Set<AssetId> out = <AssetId>{};
+    for (final symbol in raw) {
+      try {
+        final assets = _sdk.assets.findAssetsByConfigId(symbol);
+        out.addAll(assets.map((a) => a.id));
+      } catch (e) {
+        debugPrint('Failed to resolve asset "$symbol": ${e.toString()}');
+      }
+    }
+    return out;
+  }
+
   void dispose() {
     _httpClient.close();
   }
+}
+
+class _RequestConfig {
+  const _RequestConfig({required this.uri, required this.headers});
+  final Uri uri;
+  final Map<String, String> headers;
 }

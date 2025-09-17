@@ -36,28 +36,18 @@ class GeneralSettings extends StatelessWidget {
           child: SettingsManageWeakPasswords(),
         ),
         const SizedBox(height: 25),
-        if (context.watch<TradingStatusBloc>().state is TradingEnabled)
+        if (context.watch<TradingStatusBloc>().state.isEnabled)
           const HiddenWithoutWallet(
             isHiddenForHw: true,
             child: SettingsManageTradingBot(),
           ),
         const SizedBox(height: 25),
-        const HiddenWithoutWallet(
-          child: SettingsDownloadLogs(),
-        ),
+        const HiddenWithoutWallet(child: SettingsDownloadLogs()),
         const SizedBox(height: 25),
-        const HiddenWithWallet(
-          child: SettingsResetActivatedCoins(),
-        ),
+        const HiddenWithWallet(child: SettingsResetActivatedCoins()),
         const SizedBox(height: 25),
-        const HiddenWithoutWallet(
-          isHiddenForHw: true,
-          child: ShowSwapData(),
-        ),
-        const HiddenWithoutWallet(
-          isHiddenForHw: true,
-          child: ImportSwaps(),
-        ),
+        const HiddenWithoutWallet(isHiddenForHw: true, child: ShowSwapData()),
+        const HiddenWithoutWallet(isHiddenForHw: true, child: ImportSwaps()),
       ],
     );
   }

@@ -313,7 +313,7 @@ class _AddressRow extends StatelessWidget {
               ),
             ),
             if (isSwapAddress &&
-                context.watch<TradingStatusBloc>().state is TradingEnabled) ...[
+                context.watch<TradingStatusBloc>().state.isEnabled) ...[
               const SizedBox(width: 8),
               // TODO: Refactor to use "DexPill" component from the SDK UI library (not yet created)
               Padding(

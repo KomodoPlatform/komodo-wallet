@@ -39,7 +39,7 @@ class LogOutPopup extends StatelessWidget {
               if (currentWallet?.config.type == WalletType.iguana ||
                   currentWallet?.config.type == WalletType.hdwallet)
                 SelectableText(
-                  context.watch<TradingStatusBloc>().state is! TradingEnabled
+                  !context.watch<TradingStatusBloc>().state.isEnabled
                       ? LocaleKeys.logoutPopupDescriptionWalletOnly.tr()
                       : LocaleKeys.logoutPopupDescription.tr(),
                   style: const TextStyle(

@@ -12,8 +12,10 @@ class ClockWarningBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
       builder: (context, systemHealthState) {
-        final tradingEnabled =
-            context.watch<TradingStatusBloc>().state is TradingEnabled;
+        final tradingEnabled = context
+            .watch<TradingStatusBloc>()
+            .state
+            .isEnabled;
         if (systemHealthState is SystemHealthLoadSuccess &&
             !systemHealthState.isValid &&
             tradingEnabled) {

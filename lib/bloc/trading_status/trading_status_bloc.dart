@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
 import 'trading_status_repository.dart';
 
 part 'trading_status_event.dart';
@@ -21,17 +23,12 @@ class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
     emit(TradingStatusLoadInProgress());
     try {
       final status = await _repository.fetchStatus();
-      if (status.tradingEnabled) {
-        emit(TradingEnabled(
+      emit(
+        TradingStatusLoadSuccess(
           disallowedAssets: status.disallowedAssets,
           disallowedFeatures: status.disallowedFeatures,
-        ));
-      } else {
-        emit(TradingDisabled(
-          disallowedAssets: status.disallowedAssets,
-          disallowedFeatures: status.disallowedFeatures,
-        ));
-      }
+        ),
+      );
 
       // This catch will never be triggered by the repository. This will require
       // changes to meet the "TODO" above.

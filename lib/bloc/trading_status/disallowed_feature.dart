@@ -1,13 +1,12 @@
 enum DisallowedFeature {
   trading;
 
-  static DisallowedFeature? fromString(String value) {
+  static DisallowedFeature parse(String value) {
     switch (value.toUpperCase()) {
       case 'TRADING':
         return DisallowedFeature.trading;
       default:
-        return null;
+        throw ArgumentError.value(value, 'value', 'Invalid disallowed feature');
     }
   }
 }
-

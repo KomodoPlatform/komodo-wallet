@@ -183,8 +183,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       case SecuritySettingsStep.privateKeyShow:
         final tradingState = context.read<TradingStatusBloc>().state;
         final Set<String> blockedSymbols = switch (tradingState) {
-          TradingEnabled s => s.disallowedAssets.map((a) => a.id).toSet(),
-          TradingDisabled s => s.disallowedAssets.map((a) => a.id).toSet(),
+          TradingStatusLoadSuccess s =>
+            s.disallowedAssets.map((a) => a.id).toSet(),
           _ => <String>{},
         };
         return PrivateKeyShow(

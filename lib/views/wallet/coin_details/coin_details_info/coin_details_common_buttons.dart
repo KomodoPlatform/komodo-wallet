@@ -172,7 +172,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
           ),
         ),
         if (!coin.walletOnly &&
-            context.watch<TradingStatusBloc>().state is TradingEnabled)
+            context.watch<TradingStatusBloc>().state.isEnabled)
           Container(
             margin: const EdgeInsets.only(left: 21),
             constraints: const BoxConstraints(maxWidth: 120),
