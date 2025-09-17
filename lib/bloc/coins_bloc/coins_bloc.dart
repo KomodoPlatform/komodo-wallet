@@ -5,6 +5,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -20,10 +21,7 @@ part 'coins_state.dart';
 
 /// Responsible for coin activation, deactivation, syncing, and fiat price
 class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
-  CoinsBloc(
-    this._kdfSdk,
-    this._coinsRepo,
-  ) : super(CoinsState.initial()) {
+  CoinsBloc(this._kdfSdk, this._coinsRepo) : super(CoinsState.initial()) {
     on<CoinsStarted>(_onCoinsStarted, transformer: droppable());
     // TODO: move auth listener to ui layer: bloclistener should fire auth events
     on<CoinsBalanceMonitoringStarted>(_onCoinsBalanceMonitoringStarted);
@@ -75,14 +73,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
 
       // Update state with new pubkeys
-      emit(
-        state.copyWith(
-          pubkeys: {
-            ...state.pubkeys,
-            event.coinId: pubkeys,
-          },
-        ),
-      );
+      emit(state.copyWith(pubkeys: {...state.pubkeys, event.coinId: pubkeys}));
     } catch (e, s) {
       _log.shout('Failed to get pubkeys for ${event.coinId}', e, s);
     }
@@ -207,8 +198,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       final coinUpdates = _syncIguanaCoinsStates();
       await emit.forEach(
         coinUpdates,
-        onData: (coin) => state
-            .copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
+        onData: (coin) => state.copyWith(
+          walletCoins: {...state.walletCoins, coin.id.id: coin},
+        ),
       );
     }
 
@@ -261,8 +253,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Map<String, Coin> currentCoins,
   ) {
     final updatedWalletCoins = Map.fromEntries(
-      currentWalletCoins.entries
-          .where((entry) => !coinsToDisable.contains(entry.key)),
+      currentWalletCoins.entries.where(
+        (entry) => !coinsToDisable.contains(entry.key),
+      ),
     );
     final updatedCoins = Map<String, Coin>.of(currentCoins);
     for (final assetId in coinsToDisable) {
@@ -337,11 +330,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     add(CoinsBalanceMonitoringStopped());
 
-    emit(
-      state.copyWith(
-        walletCoins: {},
-      ),
-    );
+    emit(state.copyWith(walletCoins: {}));
     _coinsRepo.flushCache();
   }
 
@@ -354,16 +343,41 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       return;
     }
 
+    final assetsToActivate = coins.map(
+      (coin) => _kdfSdk.assets.findAssetsByConfigId(coin),
+    );
+
+    final missingAssets = assetsToActivate.where((assets) => assets.isEmpty);
+    if (missingAssets.isNotEmpty) {
+      // poll for a short time to see if assets appear in the SDK - this may happen
+      // because of race conditions with the AssetManager auth listener. This may run
+      // before the auth listener in AssetManager finishes.
+      _log.warning(
+        'Some assets to activate are missing in the SDK, '
+        'waiting briefly to see if they appear: '
+        '${missingAssets.map((a) => a.map((e) => e.id.id).join(', ')).join('; ')}',
+      );
+      await poll<bool>(
+        () async {
+          final stillMissing = coins
+              .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
+              .where((assets) => assets.isEmpty);
+          return stillMissing.isEmpty;
+        },
+        isComplete: (value) => value,
+        maxDuration: Duration(seconds: 1),
+        backoffStrategy: LinearBackoff(),
+      );
+    }
+
     // Filter out assets that are not available in the SDK. This is to avoid activation
     // activation loops for assets not supported by the SDK.this may happen if the wallet
     // has assets that were removed from the SDK or the config has unsupported default
     // assets.
-    final coinsToActivate = coins
+    final enableFutures = coins
         .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
-        .where((assetsSet) => assetsSet.isNotEmpty)
-        .map((assetsSet) => assetsSet.single);
-
-    final enableFutures = coinsToActivate
+        .where((assets) => assets.isNotEmpty)
+        .map((assets) => assets.single)
         .map((asset) => _coinsRepo.activateAssetsSync([asset]))
         .toList();
 
@@ -376,12 +390,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final knownCoins = _coinsRepo.getKnownCoinsMap();
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
-          .map(
-            (coin) {
-              final sdkCoin = knownCoins[coin];
-              return sdkCoin?.copyWith(state: CoinState.activating);
-            },
-          )
+          .map((coin) {
+            final sdkCoin = knownCoins[coin];
+            return sdkCoin?.copyWith(state: CoinState.activating);
+          })
           .where((coin) => coin != null)
           .cast<Coin>(),
       key: (element) => (element as Coin).id.id,
@@ -413,8 +425,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       }
       if (assets.length > 1) {
         final assetIds = assets.map((a) => a.id.id).join(', ');
-        _log.shout('Multiple assets found for activated coin ID: $coinId. '
-            'Expected single asset, found ${assets.length}: $assetIds. ');
+        _log.shout(
+          'Multiple assets found for activated coin ID: $coinId. '
+          'Expected single asset, found ${assets.length}: $assetIds. ',
+        );
       }
 
       // This is expected to throw if there are multiple assets, to stick
@@ -422,8 +436,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       walletAssets.add(assets.single);
     }
 
-    final coinsToSync =
-        _getWalletCoinsNotInState(walletAssets, coinsBlocWalletCoinsState);
+    final coinsToSync = _getWalletCoinsNotInState(
+      walletAssets,
+      coinsBlocWalletCoinsState,
+    );
     if (coinsToSync.isNotEmpty) {
       _log.info(
         'Found ${coinsToSync.length} wallet coins not in state, '
@@ -434,7 +450,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   List<Coin> _getWalletCoinsNotInState(
-      List<Asset> walletAssets, Map<String, Coin> coinsBlocWalletCoinsState) {
+    List<Asset> walletAssets,
+    Map<String, Coin> coinsBlocWalletCoinsState,
+  ) {
     final List<Coin> coinsToSyncToState = [];
 
     final enabledAssetsNotInState = walletAssets

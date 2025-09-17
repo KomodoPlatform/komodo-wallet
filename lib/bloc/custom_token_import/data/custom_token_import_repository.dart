@@ -111,7 +111,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         ),
         chainId: platformAsset.id.chainId,
         subClass: network,
-        derivationPath: '',
+        derivationPath: platformAsset.id.derivationPath,
+        parentId: platformAsset.id,
       ),
       isWalletOnly: false,
       protocol: Erc20Protocol.fromJson(platformConfig).copyWithProtocolData(
@@ -137,7 +138,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
 
   @override
   Future<void> importCustomToken(Asset asset) async {
-    await _coinsRepo.activateAssetsSync([asset]);
+    await _coinsRepo.activateAssetsSync([asset], maxRetryAttempts: 10);
   }
 
   Future<Map<String, dynamic>?> fetchTokenInfoFromApi(
@@ -221,8 +222,10 @@ extension on Erc20Protocol {
       if (coin != null) 'coin': coin,
       if (type != null) 'type': type,
       if (chainId != null) 'chain_id': chainId,
+      if (platform != null) 'parent_coin': platform,
       if (logoImageUrl != null) 'logo_image_url': logoImageUrl,
       if (isCustomToken != null) 'is_custom_token': isCustomToken,
+      if (contractAddress != null) 'contract_address': contractAddress,
       if (contractAddress != null || platform != null)
         'protocol': {
           'protocol_data': {

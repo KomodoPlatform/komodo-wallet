@@ -91,7 +91,11 @@ class CustomTokenImportBloc
 
       // Network (parent) asset must be active before attempting to fetch the
       // custom token data
-      await _coinsRepo.activateAssetsSync([networkAsset]);
+      await _coinsRepo.activateAssetsSync(
+        [networkAsset],
+        notifyListeners: false,
+        addToWalletMetadata: false,
+      );
 
       tokenData = await _repository.fetchCustomToken(
         networkAsset.id,
@@ -100,6 +104,7 @@ class CustomTokenImportBloc
       await _coinsRepo.activateAssetsSync(
         [tokenData],
         addToWalletMetadata: false,
+        notifyListeners: false,
         // The default coin activation is generous, assuming background retries,
         // but we limit it here to avoid waiting too long in the dialog.
         maxRetryAttempts: 10,
