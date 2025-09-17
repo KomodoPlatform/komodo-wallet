@@ -31,9 +31,7 @@ class TradingStatusRepository {
   ///
   /// Rules:
   /// - If GEO_BLOCK=disabled, trading is enabled.
-  /// - Otherwise, when response contains disallowed_features, trading is
-  ///   disabled if it contains 'TRADING'.
-  /// - Fallback to legacy 'blocked' boolean if features are missing.
+  /// - Otherwise, trading is disabled if disallowed_features contains 'TRADING'.
   Future<TradingGeoStatus> fetchStatus({bool? forceFail}) async {
     try {
       final geoBlock = const String.fromEnvironment('GEO_BLOCK');
