@@ -21,9 +21,11 @@ part 'portfolio_growth_state.dart';
 class PortfolioGrowthBloc
     extends Bloc<PortfolioGrowthEvent, PortfolioGrowthState> {
   PortfolioGrowthBloc({
-    required this.portfolioGrowthRepository,
-    required this.sdk,
-  }) : super(const PortfolioGrowthInitial()) {
+    required PortfolioGrowthRepository portfolioGrowthRepository,
+    required KomodoDefiSdk sdk,
+  }) : _sdk = sdk,
+       _portfolioGrowthRepository = portfolioGrowthRepository,
+       super(const PortfolioGrowthInitial()) {
     // Use the restartable transformer for period change events to avoid
     // overlapping events if the user rapidly changes the period (i.e. faster
     // than the previous event can complete).
@@ -38,8 +40,8 @@ class PortfolioGrowthBloc
     on<PortfolioGrowthClearRequested>(_onClearPortfolioGrowth);
   }
 
-  final PortfolioGrowthRepository portfolioGrowthRepository;
-  final KomodoDefiSdk sdk;
+  final PortfolioGrowthRepository _portfolioGrowthRepository;
+  final KomodoDefiSdk _sdk;
   final _log = Logger('PortfolioGrowthBloc');
 
   void _onClearPortfolioGrowth(
@@ -53,6 +55,8 @@ class PortfolioGrowthBloc
     PortfolioGrowthPeriodChanged event,
     Emitter<PortfolioGrowthState> emit,
   ) {
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(event.coins);
     final currentState = state;
     if (currentState is PortfolioGrowthChartLoadSuccess) {
       emit(
@@ -63,6 +67,9 @@ class PortfolioGrowthBloc
           totalBalance: currentState.totalBalance,
           totalChange24h: currentState.totalChange24h,
           percentageChange24h: currentState.percentageChange24h,
+          totalCoins: totalCoins,
+          coinsWithKnownBalance: coinsWithKnownBalance,
+          coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
           isUpdating: true,
         ),
       );
@@ -71,11 +78,19 @@ class PortfolioGrowthBloc
         GrowthChartLoadFailure(
           error: currentState.error,
           selectedPeriod: event.selectedPeriod,
+          totalCoins: totalCoins,
+          coinsWithKnownBalance: coinsWithKnownBalance,
+          coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
         ),
       );
     } else if (currentState is PortfolioGrowthChartUnsupported) {
       emit(
-        PortfolioGrowthChartUnsupported(selectedPeriod: event.selectedPeriod),
+        PortfolioGrowthChartUnsupported(
+          selectedPeriod: event.selectedPeriod,
+          totalCoins: totalCoins,
+          coinsWithKnownBalance: coinsWithKnownBalance,
+          coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
+        ),
       );
     } else {
       emit(const PortfolioGrowthInitial());
@@ -101,8 +116,18 @@ class PortfolioGrowthBloc
       // Charts for individual coins (coin details) are parsed here as well,
       // and should be hidden if not supported.
       if (coins.isEmpty && event.coins.length <= 1) {
+        final (
+          int totalCoins,
+          int coinsWithKnownBalance,
+          int coinsWithKnownBalanceAndFiat,
+        ) = _calculateCoinProgressCounters(event.coins);
         return emit(
-          PortfolioGrowthChartUnsupported(selectedPeriod: event.selectedPeriod),
+          PortfolioGrowthChartUnsupported(
+            selectedPeriod: event.selectedPeriod,
+            totalCoins: totalCoins,
+            coinsWithKnownBalance: coinsWithKnownBalance,
+            coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
+          ),
         );
       }
 
@@ -120,7 +145,7 @@ class PortfolioGrowthBloc
       // In case most coins are activating on wallet startup, wait for at least
       // 50% of the coins to be enabled before attempting to load the uncached
       // chart.
-      await sdk.waitForEnabledCoinsToPassThreshold(event.coins);
+      await _sdk.waitForEnabledCoinsToPassThreshold(event.coins);
 
       // Only remove inactivate/activating coins after an attempt to load the
       // cached chart, as the cached chart may contain inactive coins.
@@ -143,12 +168,9 @@ class PortfolioGrowthBloc
       // recover at the cost of a longer first loading time.
     }
 
-    final periodicUpdate = Stream<Object?>.periodic(event.updateFrequency)
-        .asyncMap((_) async {
-          // Update prices before fetching chart data
-          await portfolioGrowthRepository.updatePrices();
-          return _fetchPortfolioGrowthChart(event);
-        });
+    final periodicUpdate = Stream<Object?>.periodic(
+      event.updateFrequency,
+    ).asyncMap((_) async => _fetchPortfolioGrowthChart(event));
 
     // Use await for here to allow for the async update handler. The previous
     // implementation awaited the emit.forEach to ensure that cancelling the
@@ -164,10 +186,18 @@ class PortfolioGrowthBloc
         );
       } catch (error, stackTrace) {
         _log.shout('Failed to load portfolio growth', error, stackTrace);
+        final (
+          int totalCoins,
+          int coinsWithKnownBalance,
+          int coinsWithKnownBalanceAndFiat,
+        ) = _calculateCoinProgressCounters(event.coins);
         emit(
           GrowthChartLoadFailure(
             error: TextError(error: 'Failed to load portfolio growth'),
             selectedPeriod: event.selectedPeriod,
+            totalCoins: totalCoins,
+            coinsWithKnownBalance: coinsWithKnownBalance,
+            coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
           ),
         );
       }
@@ -179,7 +209,7 @@ class PortfolioGrowthBloc
   ) async {
     final List<Coin> coins = List.from(event.coins);
     for (final coin in event.coins) {
-      final isCoinSupported = await portfolioGrowthRepository
+      final isCoinSupported = await _portfolioGrowthRepository
           .isCoinChartSupported(coin.id, event.fiatCoinId);
       if (!isCoinSupported) {
         coins.remove(coin);
@@ -193,7 +223,7 @@ class PortfolioGrowthBloc
     PortfolioGrowthLoadRequested event, {
     required bool useCache,
   }) async {
-    final chart = await portfolioGrowthRepository.getPortfolioGrowthChart(
+    final chart = await _portfolioGrowthRepository.getPortfolioGrowthChart(
       coins,
       fiatCoinId: event.fiatCoinId,
       walletId: event.walletId,
@@ -204,13 +234,12 @@ class PortfolioGrowthBloc
       return state;
     }
 
-    // Fetch prices before calculating total change
-    // This ensures we have the latest prices in the cache
-    await portfolioGrowthRepository.updatePrices();
-
     final totalBalance = _calculateTotalBalance(coins);
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
+
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(event.coins);
 
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: chart,
@@ -219,6 +248,9 @@ class PortfolioGrowthBloc
       totalBalance: totalBalance,
       totalChange24h: totalChange24h.toDouble(),
       percentageChange24h: percentageChange24h.toDouble(),
+      totalCoins: totalCoins,
+      coinsWithKnownBalance: coinsWithKnownBalance,
+      coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
       isUpdating: false,
     );
   }
@@ -230,7 +262,7 @@ class PortfolioGrowthBloc
     try {
       final supportedCoins = await _removeUnsupportedCoins(event);
       final coins = await _removeInactiveCoins(supportedCoins);
-      return await portfolioGrowthRepository.getPortfolioGrowthChart(
+      return await _portfolioGrowthRepository.getPortfolioGrowthChart(
         coins,
         fiatCoinId: event.fiatCoinId,
         walletId: event.walletId,
@@ -244,7 +276,7 @@ class PortfolioGrowthBloc
 
   Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
     final coinsCopy = List<Coin>.of(coins);
-    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoins = await _sdk.assets.getActivatedAssets();
     final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
     for (final coin in coins) {
       if (!activeCoinsMap.contains(coin.id)) {
@@ -268,6 +300,9 @@ class PortfolioGrowthBloc
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
 
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(coins);
+
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: growthChart,
       percentageIncrease: percentageIncrease,
@@ -275,6 +310,9 @@ class PortfolioGrowthBloc
       totalBalance: totalBalance,
       totalChange24h: totalChange24h.toDouble(),
       percentageChange24h: percentageChange24h.toDouble(),
+      totalCoins: totalCoins,
+      coinsWithKnownBalance: coinsWithKnownBalance,
+      coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
       isUpdating: false,
     );
   }
@@ -283,7 +321,7 @@ class PortfolioGrowthBloc
   double _calculateTotalBalance(List<Coin> coins) {
     double total = coins.fold(
       0,
-      (prev, coin) => prev + (coin.lastKnownUsdBalance(sdk) ?? 0),
+      (prev, coin) => prev + (coin.lastKnownUsdBalance(_sdk) ?? 0),
     );
 
     // Return at least 0.01 if total is positive but very small
@@ -295,15 +333,14 @@ class PortfolioGrowthBloc
   }
 
   /// Calculate the total 24h change in USD value
+  /// TODO: look into avoiding zero default values here if no data is available
   Future<Rational> _calculateTotalChange24h(List<Coin> coins) async {
     Rational totalChange = Rational.zero;
     for (final coin in coins) {
-      final double usdBalance = coin.lastKnownUsdBalance(sdk) ?? 0.0;
+      final double usdBalance = coin.lastKnownUsdBalance(_sdk) ?? 0.0;
       final usdBalanceDecimal = Decimal.parse(usdBalance.toString());
-      final price = portfolioGrowthRepository.getCachedPrice(
-        coin.id.symbol.configSymbol.toUpperCase(),
-      );
-      final change24h = price?.change24h ?? Decimal.zero;
+      final change24h =
+          await _sdk.marketData.priceChange24h(coin.id) ?? Decimal.zero;
       totalChange += change24h * usdBalanceDecimal / Decimal.fromInt(100);
     }
     return totalChange;
@@ -324,5 +361,26 @@ class PortfolioGrowthBloc
 
     // Return the percentage change
     return (totalChange / totalBalanceRational) * Rational.fromInt(100);
+  }
+
+  /// Calculate progress counters for balances and fiat prices
+  /// - totalCoins: total coins being considered (input list length)
+  /// - coinsWithKnownBalance: number of coins with a known last balance
+  /// - coinsWithKnownBalanceAndFiat: number of coins with a known last balance and known fiat price
+  (int, int, int) _calculateCoinProgressCounters(List<Coin> coins) {
+    int totalCoins = coins.length;
+    int withBalance = 0;
+    int withBalanceAndFiat = 0;
+    for (final coin in coins) {
+      final balanceKnown = _sdk.balances.lastKnown(coin.id) != null;
+      if (balanceKnown) {
+        withBalance++;
+        final priceKnown = _sdk.marketData.priceIfKnown(coin.id) != null;
+        if (priceKnown) {
+          withBalanceAndFiat++;
+        }
+      }
+    }
+    return (totalCoins, withBalance, withBalanceAndFiat);
   }
 }

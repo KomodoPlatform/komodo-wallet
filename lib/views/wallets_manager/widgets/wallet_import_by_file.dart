@@ -14,6 +14,7 @@ import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 
@@ -121,6 +122,8 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                   autocorrect: false,
                   enableInteractiveSelection: true,
                   obscureText: _isObscured,
+                  maxLength: passwordMaxLength,
+                  counterText: '',
                   autofillHints: const [AutofillHints.password],
                   validator: (_) {
                     return _filePasswordError;

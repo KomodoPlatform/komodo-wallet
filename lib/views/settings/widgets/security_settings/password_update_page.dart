@@ -15,6 +15,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/validators.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/views/common/page_header/page_header.dart';
 
 class PasswordUpdatePage extends StatefulWidget {
@@ -369,8 +370,9 @@ class _PasswordField extends StatelessWidget {
       autocorrect: false,
       enableInteractiveSelection: true,
       obscureText: isObscured,
+      maxLength: passwordMaxLength,
+      counterText: '',
       autofillHints: autofillHints,
-      inputFormatters: [LengthLimitingTextInputFormatter(40)],
       validator: validator,
       errorMaxLines: 6,
       hintText: hintText,

@@ -4,6 +4,7 @@ import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -26,7 +27,26 @@ class PriceChartBloc extends Bloc<PriceChartEvent, PriceChartState> {
   ) async {
     emit(state.copyWith(status: PriceChartStatus.loading));
     try {
+      // Populate available coins for the selector from SDK assets if empty
       Map<AssetId, CoinPriceInfo> fetchedCexCoins = state.availableCoins;
+      if (fetchedCexCoins.isEmpty) {
+        final Map<AssetId, Asset> allAssets = _sdk.assets.available;
+        final entries = allAssets.values
+            .where((asset) => !excludedAssetList.contains(asset.id.id))
+            .where((asset) => !asset.protocol.isTestnet)
+            .map(
+              (asset) => MapEntry(
+                asset.id,
+                CoinPriceInfo(
+                  ticker: asset.id.symbol.assetConfigId,
+                  selectedPeriodIncreasePercentage: 0.0,
+                  id: asset.id.id,
+                  name: asset.id.name,
+                ),
+              ),
+            );
+        fetchedCexCoins = Map<AssetId, CoinPriceInfo>.fromEntries(entries);
+      }
 
       final List<Future<PriceChartDataSeries?>> futures = event.symbols
           .map((symbol) => _sdk.getSdkAsset(symbol).id)

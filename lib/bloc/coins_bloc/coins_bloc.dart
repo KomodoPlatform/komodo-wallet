@@ -308,6 +308,9 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     try {
+      // Ensure any cached addresses/pubkeys from a previous wallet are cleared
+      // so that UI fetches fresh pubkeys for the newly logged-in wallet.
+      emit(state.copyWith(pubkeys: {}));
       _coinsRepo.flushCache();
       final Wallet currentWallet = event.signedInUser.wallet;
 
@@ -330,7 +333,14 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   ) async {
     add(CoinsBalanceMonitoringStopped());
 
-    emit(state.copyWith(walletCoins: {}));
+    emit(
+      state.copyWith(
+        walletCoins: {},
+        // Clear pubkeys to avoid showing addresses from the previous wallet
+        // after logout or wallet switch.
+        pubkeys: {},
+      ),
+    );
     _coinsRepo.flushCache();
   }
 

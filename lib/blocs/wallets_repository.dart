@@ -20,8 +20,8 @@ class WalletsRepository {
     this._legacyWalletStorage, {
     EncryptionTool? encryptionTool,
     FileLoader? fileLoader,
-  })  : _encryptionTool = encryptionTool ?? EncryptionTool(),
-        _fileLoader = fileLoader ?? FileLoader.fromPlatform();
+  }) : _encryptionTool = encryptionTool ?? EncryptionTool(),
+       _fileLoader = fileLoader ?? FileLoader.fromPlatform();
 
   final KomodoDefiSdk _kdfSdk;
   final Mm2Api _mm2Api;
@@ -34,9 +34,10 @@ class WalletsRepository {
 
   Future<List<Wallet>> getWallets() async {
     final legacyWallets = await _getLegacyWallets();
+    final sdkWallets = await _kdfSdk.wallets;
 
     // TODO: move wallet filtering logic to the SDK
-    _cachedWallets = (await _kdfSdk.wallets)
+    _cachedWallets = sdkWallets
         .where(
           (wallet) =>
               wallet.config.type != WalletType.trezor &&
@@ -47,21 +48,26 @@ class WalletsRepository {
   }
 
   Future<List<Wallet>> _getLegacyWallets() async {
-    final newVariable =
-        await _legacyWalletStorage.read(allWalletsStorageKey) as List?;
-    final List<Map<String, dynamic>> json =
-        newVariable?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
+    final rawLegacyWallets =
+        (await _legacyWalletStorage.read(allWalletsStorageKey) as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
 
-    return json
-        .map((Map<String, dynamic> w) =>
-            Wallet.fromJson(w)..config.isLegacyWallet = true)
-        .toList();
+    return rawLegacyWallets.map((Map<String, dynamic> w) {
+      final wallet = Wallet.fromJson(w);
+      return wallet.copyWith(
+        config: wallet.config.copyWith(
+          // Wallet type for legacy wallets is iguana, to avoid confusion with
+          // missing/empty balances. Sign into iguana for legacy wallets by
+          // default, but allow for them to be signed into hdwallet if desired.
+          type: WalletType.iguana,
+          isLegacyWallet: true,
+        ),
+      );
+    }).toList();
   }
 
-  Future<void> deleteWallet(
-    Wallet wallet, {
-    required String password,
-  }) async {
+  Future<void> deleteWallet(Wallet wallet, {required String password}) async {
     log(
       'Deleting a wallet ${wallet.id}',
       path: 'wallet_bloc => deleteWallet',
@@ -82,9 +88,11 @@ class WalletsRepository {
       _cachedWallets?.removeWhere((w) => w.name == wallet.name);
       return;
     } catch (e) {
-      log('Failed to delete wallet: $e',
-              path: 'wallet_bloc => deleteWallet', isError: true)
-          .ignore();
+      log(
+        'Failed to delete wallet: $e',
+        path: 'wallet_bloc => deleteWallet',
+        isError: true,
+      ).ignore();
       rethrow;
     }
   }
@@ -99,14 +107,14 @@ class WalletsRepository {
       getWallets().ignore();
       return null;
     }
-    
+
     final trimmedName = name.trim();
-    
+
     // Check if the trimmed name is empty (prevents space-only names)
     if (trimmedName.isEmpty) {
       return LocaleKeys.walletCreationNameLengthError.tr();
     }
-    
+
     // Check if trimmed name exceeds length limit
     if (trimmedName.length > 40) {
       return LocaleKeys.walletCreationNameLengthError.tr();
@@ -122,8 +130,9 @@ class WalletsRepository {
   }
 
   Future<void> resetSpecificWallet(Wallet wallet) async {
-    final coinsToDeactivate = wallet.config.activatedCoins
-        .where((coin) => !enabledByDefaultCoins.contains(coin));
+    final coinsToDeactivate = wallet.config.activatedCoins.where(
+      (coin) => !enabledByDefaultCoins.contains(coin),
+    );
     for (final coin in coinsToDeactivate) {
       await _mm2Api.disableCoin(coin);
     }
@@ -140,8 +149,10 @@ class WalletsRepository {
         );
       }
       final String data = jsonEncode(wallet.config);
-      final String encryptedData =
-          await _encryptionTool.encryptData(password, data);
+      final String encryptedData = await _encryptionTool.encryptData(
+        password,
+        data,
+      );
       final String sanitizedFileName = _sanitizeFileName(wallet.name);
       await _fileLoader.save(
         fileName: sanitizedFileName,
