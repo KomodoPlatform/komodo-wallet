@@ -93,7 +93,7 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       platformAsset.id.chainId.formattedChainId,
     );
     final coinId = '$ticker-${network.tokenStandardSuffix}';
-    final logoImageUrl =
+    final String? logoImageUrl =
         tokenApi?['image']?['large'] ??
         tokenApi?['image']?['small'] ??
         tokenApi?['image']?['thumb'];
@@ -126,12 +126,9 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       ),
     );
 
-    AssetIcon.registerCustomIcon(
-      newCoin.id,
-      NetworkImage(
-        logoImageUrl ?? 'assets/coin_icons/png/${ticker.toLowerCase()}.png',
-      ),
-    );
+    if (logoImageUrl != null && logoImageUrl.isNotEmpty) {
+      AssetIcon.registerCustomIcon(newCoin.id, NetworkImage(logoImageUrl));
+    }
 
     return newCoin;
   }
