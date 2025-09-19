@@ -552,7 +552,12 @@ class CoinsRepo {
     // will hit rate limits and have reduced market metrics functionality.
     // This will happen regardless of chunk size. The rate limits are per IP
     // per hour.
-    final activatedAssets = await _kdfSdk.getWalletAssets();
+    final coinIds = await _kdfSdk.getWalletCoinIds();
+    final activatedAssets = coinIds
+        .map((coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId))
+        .where((assets) => assets.isNotEmpty)
+        .map((assets) => assets.single)
+        .toList();
     final Iterable<Asset> targetAssets = activatedAssets.isNotEmpty
         ? activatedAssets
         : _kdfSdk.assets.available.values;

@@ -50,21 +50,6 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
         .toList();
   }
 
-  /// Returns the stored list of wallet assets from asset configuration IDs.
-  ///
-  /// This method retrieves the coin IDs from user metadata and converts them
-  /// to [Asset] objects. Uses `single` to ensure only one asset per configuration ID.
-  ///
-  /// If no user is signed in, returns an empty list.
-  ///
-  /// Throws [StateError] if multiple assets are found with the same configuration ID.
-  Future<Iterable<Asset>> getWalletAssets() async {
-    final coinIds = await getWalletCoinIds();
-    return coinIds
-        .map((coinId) => assets.findAssetsByConfigId(coinId).single)
-        .toList();
-  }
-
   /// Adds new coin/asset IDs to the current user's activated coins list.
   ///
   /// This method merges the provided [coins] with the existing activated coins,

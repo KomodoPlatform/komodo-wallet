@@ -269,38 +269,43 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsPricesUpdated event,
     Emitter<CoinsState> emit,
   ) async {
-    final prices = await _coinsRepo.fetchCurrentPrices();
-    if (prices == null) {
-      _log.severe('Coin prices list empty/null');
-      return;
-    }
-    final didPricesChange = !mapEquals(state.prices, prices);
-    if (!didPricesChange) {
-      _log.info('Coin prices list unchanged');
-      return;
-    }
+    try {
+      final prices = await _coinsRepo.fetchCurrentPrices();
+      if (prices == null) {
+        _log.severe('Coin prices list empty/null');
+        return;
+      }
+      final didPricesChange = !mapEquals(state.prices, prices);
+      if (!didPricesChange) {
+        _log.info('Coin prices list unchanged');
+        return;
+      }
 
-    Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
-      final map = coins.map((key, coin) {
-        // Use configSymbol to lookup for backwards compatibility with the old,
-        // string-based price list (and fallback)
-        final price = prices[coin.id.symbol.configSymbol];
-        if (price != null) {
-          return MapEntry(key, coin.copyWith(usdPrice: price));
-        }
-        return MapEntry(key, coin);
-      });
+      Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
+        final map = coins.map((key, coin) {
+          // Use configSymbol to lookup for backwards compatibility with the old,
+          // string-based price list (and fallback)
+          final price = prices[coin.id.symbol.configSymbol];
+          if (price != null) {
+            return MapEntry(key, coin.copyWith(usdPrice: price));
+          }
+          return MapEntry(key, coin);
+        });
 
-      return Map.of(map).unmodifiable();
+        // .map already returns a new map, so we don't need to create a new map
+        return map.unmodifiable();
+      }
+
+      emit(
+        state.copyWith(
+          prices: prices.unmodifiable(),
+          coins: updateCoinsWithPrices(state.coins),
+          walletCoins: updateCoinsWithPrices(state.walletCoins),
+        ),
+      );
+    } catch (e, s) {
+      _log.shout('Error on prices updated', e, s);
     }
-
-    emit(
-      state.copyWith(
-        prices: prices.unmodifiable(),
-        coins: updateCoinsWithPrices(state.coins),
-        walletCoins: updateCoinsWithPrices(state.walletCoins),
-      ),
-    );
   }
 
   Future<void> _onLogin(
@@ -353,37 +358,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       return;
     }
 
-    final assetsToActivate = coins.map(
-      (coin) => _kdfSdk.assets.findAssetsByConfigId(coin),
-    );
-
-    final missingAssets = assetsToActivate.where((assets) => assets.isEmpty);
-    if (missingAssets.isNotEmpty) {
-      // poll for a short time to see if assets appear in the SDK - this may happen
-      // because of race conditions with the AssetManager auth listener. This may run
-      // before the auth listener in AssetManager finishes.
-      _log.warning(
-        'Some assets to activate are missing in the SDK, '
-        'waiting briefly to see if they appear: '
-        '${missingAssets.map((a) => a.map((e) => e.id.id).join(', ')).join('; ')}',
-      );
-      await poll<bool>(
-        () async {
-          final stillMissing = coins
-              .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
-              .where((assets) => assets.isEmpty);
-          return stillMissing.isEmpty;
-        },
-        isComplete: (value) => value,
-        maxDuration: Duration(seconds: 1),
-        backoffStrategy: LinearBackoff(),
-      );
-    }
-
     // Filter out assets that are not available in the SDK. This is to avoid activation
     // activation loops for assets not supported by the SDK.this may happen if the wallet
     // has assets that were removed from the SDK or the config has unsupported default
     // assets.
+    // This is also important for coin delistings.
     final enableFutures = coins
         .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
         .where((assets) => assets.isNotEmpty)
