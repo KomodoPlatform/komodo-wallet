@@ -11,6 +11,7 @@ import 'package:web_dex/views/bridge/bridge_group.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_nothing_found.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_protocol_table_item.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_table_column_heads.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 
 class BridgeSourceProtocolsTable extends StatefulWidget {
   const BridgeSourceProtocolsTable({
@@ -82,7 +83,11 @@ class _SourceProtocolItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (coins.isEmpty) return BridgeNothingFound();
+    final tradingState = context.read<TradingStatusBloc>().state;
+    final filteredCoins = coins
+        .where((coin) => tradingState.canTradeAssets([coin.id]))
+        .toList();
+    if (filteredCoins.isEmpty) return BridgeNothingFound();
     final scrollController = ScrollController();
 
     return Column(
@@ -99,9 +104,9 @@ class _SourceProtocolItems extends StatelessWidget {
                 controller: scrollController,
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
-                itemCount: coins.length,
+                itemCount: filteredCoins.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final Coin coin = coins[index];
+                  final Coin coin = filteredCoins[index];
 
                   return BridgeProtocolTableItem(
                     index: index,

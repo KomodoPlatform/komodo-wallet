@@ -8,6 +8,7 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -112,18 +113,26 @@ class _ExchangeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
       builder: (context, systemHealthState) {
-        // Determine if system clock is valid
         final isSystemClockValid =
             systemHealthState is SystemHealthLoadSuccess &&
             systemHealthState.isValid;
 
-        final tradingStatusState = context.watch<TradingStatusBloc>().state;
-        final tradingEnabled = tradingStatusState.isEnabled;
+        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
 
-        return BlocSelector<BridgeBloc, BridgeState, bool>(
-          selector: (state) => state.inProgress,
-          builder: (context, inProgress) {
+        return BlocBuilder<BridgeBloc, BridgeState>(
+          builder: (context, bridgeState) {
+            final tradingStatusState = context.watch<TradingStatusBloc>().state;
+            final targetCoin = bridgeState.bestOrder == null
+                ? null
+                : coinsRepo.getCoin(bridgeState.bestOrder!.coin);
+            final tradingEnabled = tradingStatusState.canTradeAssets([
+              bridgeState.sellCoin?.id,
+              targetCoin?.id,
+            ]);
+
+            final inProgress = bridgeState.inProgress;
             final isDisabled = inProgress || !isSystemClockValid;
+
             return SizedBox(
               width: theme.custom.dexFormWidth,
               child: ConnectWalletWrapper(

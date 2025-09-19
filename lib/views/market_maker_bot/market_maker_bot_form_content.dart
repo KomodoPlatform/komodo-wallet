@@ -156,6 +156,8 @@ class _MarketMakerBotFormContentState extends State<MarketMakerBotFormContent> {
                           child: AddMarketMakerBotTradeButton(
                             enabled: state.isValid,
                             onPressed: _onMakeOrderPressed,
+                            sellCoin: state.sellCoin.value,
+                            buyCoin: state.buyCoin.value,
                           ),
                         ),
                       ),

@@ -33,3 +33,23 @@ class TradingStatusLoadSuccess extends TradingStatusState {
 }
 
 class TradingStatusLoadFailure extends TradingStatusState {}
+
+extension TradingStatusStateX on TradingStatusState {
+  Set<AssetId> get disallowedAssetIds => this is TradingStatusLoadSuccess
+      ? (this as TradingStatusLoadSuccess).disallowedAssets
+      : const <AssetId>{};
+
+  bool isAssetBlocked(AssetId? asset) {
+    if (asset == null) return true;
+    if (this is! TradingStatusLoadSuccess) return true;
+    return (this as TradingStatusLoadSuccess).disallowedAssets.contains(asset);
+  }
+
+  bool canTradeAssets(Iterable<AssetId?> assets) {
+    if (!isEnabled) return false;
+    for (final asset in assets) {
+      if (isAssetBlocked(asset)) return false;
+    }
+    return true;
+  }
+}

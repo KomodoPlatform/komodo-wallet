@@ -182,14 +182,13 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
       case SecuritySettingsStep.privateKeyShow:
         final tradingState = context.read<TradingStatusBloc>().state;
-        final Set<String> blockedSymbols = switch (tradingState) {
-          TradingStatusLoadSuccess s =>
-            s.disallowedAssets.map((a) => a.id).toSet(),
-          _ => <String>{},
+        final Set<AssetId> blockedAssets = switch (tradingState) {
+          TradingStatusLoadSuccess s => Set<AssetId>.of(s.disallowedAssets),
+          _ => const <AssetId>{},
         };
         return PrivateKeyShow(
-          privateKeys: _sdkPrivateKeys ?? {},
-          blockedAssetSymbols: blockedSymbols,
+          privateKeys: _sdkPrivateKeys ?? <AssetId, List<PrivateKey>>{},
+          blockedAssetIds: blockedAssets,
         );
 
       case SecuritySettingsStep.passwordUpdate:

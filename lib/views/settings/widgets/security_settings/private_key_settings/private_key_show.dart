@@ -42,7 +42,7 @@ class PrivateKeyShow extends StatelessWidget {
   /// cleared from memory as soon as possible.
   const PrivateKeyShow({
     required this.privateKeys,
-    this.blockedAssetSymbols = const <String>{},
+    this.blockedAssetIds = const <AssetId>{},
   });
 
   /// Private keys organized by asset ID.
@@ -50,7 +50,7 @@ class PrivateKeyShow extends StatelessWidget {
   /// **Security Note**: This data is intentionally passed directly to the UI
   /// rather than stored in BLoC state to minimize memory exposure and lifetime.
   final Map<AssetId, List<PrivateKey>> privateKeys;
-  final Set<String> blockedAssetSymbols;
+  final Set<AssetId> blockedAssetIds;
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +113,7 @@ class PrivateKeyShow extends StatelessWidget {
             const SizedBox(height: 16),
             PrivateKeyExportSection(
               privateKeys: privateKeys,
-              blockedAssetSymbols: blockedAssetSymbols,
+              blockedAssetIds: blockedAssetIds,
             ),
           ],
         ),
@@ -126,11 +126,11 @@ class PrivateKeyExportSection extends StatefulWidget {
   const PrivateKeyExportSection({
     super.key,
     required this.privateKeys,
-    required this.blockedAssetSymbols,
+    required this.blockedAssetIds,
   });
 
   final Map<AssetId, List<PrivateKey>> privateKeys;
-  final Set<String> blockedAssetSymbols;
+  final Set<AssetId> blockedAssetIds;
 
   @override
   State<PrivateKeyExportSection> createState() =>
@@ -147,21 +147,21 @@ class _PrivateKeyExportSectionState extends State<PrivateKeyExportSection> {
   }
 
   bool _hasBlockedAssetsInKeys() {
-    if (widget.blockedAssetSymbols.isEmpty || widget.privateKeys.isEmpty) {
+    if (widget.blockedAssetIds.isEmpty || widget.privateKeys.isEmpty) {
       return false;
     }
     for (final assetId in widget.privateKeys.keys) {
-      if (widget.blockedAssetSymbols.contains(assetId.id)) return true;
+      if (widget.blockedAssetIds.contains(assetId)) return true;
     }
     return false;
   }
 
   Map<AssetId, List<PrivateKey>> _filteredPrivateKeys() {
-    if (_includeBlockedAssets || widget.blockedAssetSymbols.isEmpty) {
+    if (_includeBlockedAssets || widget.blockedAssetIds.isEmpty) {
       return widget.privateKeys;
     }
     final entries = widget.privateKeys.entries.where(
-      (e) => !widget.blockedAssetSymbols.contains(e.key.id),
+      (e) => !widget.blockedAssetIds.contains(e.key),
     );
     return Map<AssetId, List<PrivateKey>>.fromEntries(entries);
   }

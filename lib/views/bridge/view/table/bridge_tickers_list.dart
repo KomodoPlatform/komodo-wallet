@@ -15,6 +15,7 @@ import 'package:web_dex/shared/ui/ui_flat_button.dart';
 import 'package:web_dex/views/bridge/bridge_ticker_selector.dart';
 import 'package:web_dex/views/bridge/bridge_tickers_list_item.dart';
 import 'package:web_dex/views/dex/simple/form/tables/nothing_found.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 
 class BridgeTickersList extends StatefulWidget {
   const BridgeTickersList({required this.onSelect, Key? key}) : super(key: key);
@@ -101,13 +102,19 @@ class _BridgeTickersListState extends State<BridgeTickersList> {
       builder: (context, tickers) {
         if (tickers == null) return const UiSpinnerList();
 
-        final Coins coinsList = tickers.entries.fold([], (
+        final tradingState = context.read<TradingStatusBloc>().state;
+
+        var coinsList = tickers.entries.fold<Coins>([], (
           previousValue,
           element,
         ) {
           previousValue.add(element.value.first);
           return previousValue;
         });
+
+        coinsList = coinsList
+            .where((coin) => tradingState.canTradeAssets([coin.id]))
+            .toList();
 
         if (_searchTerm != null && _searchTerm!.isNotEmpty) {
           final String searchTerm = _searchTerm!.toLowerCase();

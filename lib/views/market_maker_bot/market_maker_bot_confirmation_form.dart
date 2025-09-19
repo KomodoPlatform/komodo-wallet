@@ -125,6 +125,8 @@ class _MarketMakerBotConfirmationFormState
                   child: SwapActionButtons(
                     onCancel: widget.onCancel,
                     onCreateOrder: hasError ? null : widget.onCreateOrder,
+                    sellCoin: state.sellCoin.value,
+                    buyCoin: state.buyCoin.value,
                   ),
                 ),
               ],
@@ -141,16 +143,23 @@ class SwapActionButtons extends StatelessWidget {
     super.key,
     required this.onCancel,
     required this.onCreateOrder,
+    required this.sellCoin,
+    required this.buyCoin,
   });
 
   final VoidCallback onCancel;
   final VoidCallback? onCreateOrder;
+  final Coin? sellCoin;
+  final Coin? buyCoin;
 
   @override
   Widget build(BuildContext context) {
     final tradingStatusBloc = context.watch<TradingStatusBloc>();
 
-    final bool tradingEnabled = tradingStatusBloc.state.isEnabled;
+    final bool tradingEnabled = tradingStatusBloc.state.canTradeAssets([
+      sellCoin?.id,
+      buyCoin?.id,
+    ]);
 
     return Row(
       children: [

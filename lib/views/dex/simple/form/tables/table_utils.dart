@@ -9,6 +9,7 @@ import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/balances_formatter.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 
 List<Coin> prepareCoinsForTable(
   BuildContext context,
@@ -20,6 +21,7 @@ List<Coin> prepareCoinsForTable(
   coins = List.from(coins);
   if (!testCoinsEnabled) coins = removeTestCoins(coins);
   coins = removeWalletOnly(coins);
+  coins = removeDisallowedCoins(context, coins);
   coins = removeSuspended(coins, authBloc.state.isSignedIn);
   coins = sortByPriorityAndBalance(coins, GetIt.I<KomodoDefiSdk>());
   coins = filterCoinsByPhrase(coins, searchString ?? '').toList();
@@ -48,6 +50,9 @@ List<BestOrder> prepareOrdersForTable(
   removeWalletOnlyCoinOrders(sorted, context);
   if (sorted.isEmpty) return [];
 
+  removeDisallowedCoinOrders(sorted, context);
+  if (sorted.isEmpty) return [];
+
   final String? filter = searchString?.toLowerCase();
   if (filter == null || filter.isEmpty) {
     return sorted;
@@ -61,6 +66,26 @@ List<BestOrder> prepareOrdersForTable(
   }).toList();
 
   return filtered;
+}
+
+List<Coin> removeDisallowedCoins(BuildContext context, List<Coin> coins) {
+  final tradingState = context.read<TradingStatusBloc>().state;
+  if (!tradingState.isEnabled) return <Coin>[];
+  return coins.where((coin) => tradingState.canTradeAssets([coin.id])).toList();
+}
+
+void removeDisallowedCoinOrders(List<BestOrder> orders, BuildContext context) {
+  final tradingState = context.read<TradingStatusBloc>().state;
+  if (!tradingState.isEnabled) {
+    orders.clear();
+    return;
+  }
+  final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+  orders.removeWhere((order) {
+    final Coin? coin = coinsRepository.getCoin(order.coin);
+    if (coin == null) return true;
+    return !tradingState.canTradeAssets([coin.id]);
+  });
 }
 
 List<BestOrder> _sortBestOrders(

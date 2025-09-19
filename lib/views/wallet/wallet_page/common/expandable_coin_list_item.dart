@@ -284,6 +284,8 @@ class _AddressRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final tradingState = context.watch<TradingStatusBloc>().state;
+    final canTradeCoin = tradingState.canTradeAssets([coin.id]);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
@@ -312,8 +314,7 @@ class _AddressRow extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
               ),
             ),
-            if (isSwapAddress &&
-                context.watch<TradingStatusBloc>().state.isEnabled) ...[
+            if (isSwapAddress && canTradeCoin) ...[
               const SizedBox(width: 8),
               // TODO: Refactor to use "DexPill" component from the SDK UI library (not yet created)
               Padding(

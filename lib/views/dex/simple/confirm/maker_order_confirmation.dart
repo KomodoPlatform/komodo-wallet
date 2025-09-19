@@ -104,7 +104,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
                     const MakerFormTotalFees(),
                     const SizedBox(height: 24),
                     _buildError(),
-                    Flexible(child: _buildButtons()),
+                    Flexible(child: _buildButtons(sellCoin, buyCoin)),
                   ],
                 ),
               );
@@ -120,19 +120,22 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(Coin sellCoin, Coin buyCoin) {
     return Row(
       children: [
         Flexible(child: _buildBackButton()),
         const SizedBox(width: 23),
-        Flexible(child: _buildConfirmButton()),
+        Flexible(child: _buildConfirmButton(sellCoin, buyCoin)),
       ],
     );
   }
 
-  Widget _buildConfirmButton() {
+  Widget _buildConfirmButton(Coin sellCoin, Coin buyCoin) {
     final tradingState = context.watch<TradingStatusBloc>().state;
-    final bool tradingEnabled = tradingState.isEnabled;
+    final bool tradingEnabled = tradingState.canTradeAssets([
+      sellCoin.id,
+      buyCoin.id,
+    ]);
 
     return Opacity(
       opacity: _inProgress ? 0.8 : 1,

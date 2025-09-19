@@ -19,34 +19,30 @@ class ClockWarningBanner extends StatelessWidget {
         if (systemHealthState is SystemHealthLoadSuccess &&
             !systemHealthState.isValid &&
             tradingEnabled) {
-          return _buildWarningBanner();
+          return Container(
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.warning, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    LocaleKeys.systemTimeWarning.tr(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          );
         }
         return const SizedBox.shrink();
       },
-    );
-  }
-
-  Widget _buildWarningBanner() {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.orange,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.warning, color: Colors.white),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              LocaleKeys.systemTimeWarning.tr(),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
