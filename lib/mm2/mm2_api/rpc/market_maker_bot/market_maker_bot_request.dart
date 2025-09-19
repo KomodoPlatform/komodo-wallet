@@ -33,12 +33,12 @@ class MarketMakerBotRequest implements BaseRequest {
 
   @override
   Map<String, dynamic> toJson() => {
-    'userpass': userpass,
-    'mmrpc': mmrpc,
-    'method': method,
-    'params': params?.toJson() ?? {},
-    'id': id,
-  };
+        'userpass': userpass,
+        'mmrpc': mmrpc,
+        'method': method,
+        'params': params?.toJson() ?? {},
+        'id': id,
+      };
 
   MarketMakerBotRequest copyWith({
     String? mmrpc,

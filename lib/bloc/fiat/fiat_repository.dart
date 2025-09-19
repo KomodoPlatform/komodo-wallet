@@ -18,7 +18,9 @@ class FiatRepository {
   ICurrency? _paymentMethodsCoin;
   List<FiatPaymentMethod>? _paymentMethodsList;
 
-  BaseFiatProvider? _getPaymentMethodProvider(FiatPaymentMethod paymentMethod) {
+  BaseFiatProvider? _getPaymentMethodProvider(
+    FiatPaymentMethod paymentMethod,
+  ) {
     for (final provider in fiatProviders) {
       if (provider.getProviderId() == paymentMethod.providerId) {
         return provider;
@@ -127,7 +129,7 @@ class FiatRepository {
   Decimal? _calculateCoinAmount(
     String fiatAmount,
     Decimal spotPriceIncludingFee,
-  ) {
+    ) {
     if (fiatAmount.isEmpty || spotPriceIncludingFee == Decimal.zero) {
       _log.info('Fiat amount or spot price is zero, returning null');
       return null;
@@ -172,9 +174,8 @@ class FiatRepository {
 
     try {
       return paymentMethodsList.map((method) {
-        final Decimal spotPriceIncludingFee = _calculateSpotPriceIncludingFee(
-          method,
-        );
+        final Decimal spotPriceIncludingFee =
+            _calculateSpotPriceIncludingFee(method);
 
         final coinAmount = _calculateCoinAmount(
           sourceAmount,
@@ -321,11 +322,12 @@ class FiatRepository {
             scaleOnInfinitePrecision: scaleOnInfinitePrecision,
           ),
         );
-      }).toList()..sort((a, b) {
-        if (a.relativePercent == Decimal.zero) return -1;
-        if (b.relativePercent == Decimal.zero) return 1;
-        return b.relativePercent.compareTo(a.relativePercent);
-      });
+      }).toList()
+        ..sort((a, b) {
+          if (a.relativePercent == Decimal.zero) return -1;
+          if (b.relativePercent == Decimal.zero) return 1;
+          return b.relativePercent.compareTo(a.relativePercent);
+        });
     } catch (e, s) {
       _log.shout(
         'Failed to add relative percent field to payment methods list',

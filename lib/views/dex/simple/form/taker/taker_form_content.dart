@@ -88,7 +88,10 @@ class _FormControls extends StatelessWidget {
             child: ConnectWalletWrapper(
               key: const Key('connect-wallet-taker-form'),
               eventType: WalletsManagerEventType.dex,
-              buttonSize: Size(112, isMobile ? 52 : 40),
+              buttonSize: Size(
+                112,
+                isMobile ? 52 : 40,
+              ),
               child: const TradeButton(),
             ),
           ),
@@ -121,7 +124,7 @@ class TradeButton extends StatelessWidget {
       builder: (context, systemHealthState) {
         final bool isSystemClockValid =
             systemHealthState is SystemHealthLoadSuccess &&
-            systemHealthState.isValid;
+                systemHealthState.isValid;
 
         final tradingStatusState = context.watch<TradingStatusBloc>().state;
         final takerState = context.watch<TakerBloc>().state;
@@ -151,7 +154,7 @@ class TradeButton extends StatelessWidget {
                 onPressed: disabled || !isTradingEnabled
                     ? null
                     : () =>
-                          context.read<TakerBloc>().add(TakerFormSubmitClick()),
+                        context.read<TakerBloc>().add(TakerFormSubmitClick()),
                 height: isMobile ? 52 : 40,
               ),
             );

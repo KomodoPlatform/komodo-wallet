@@ -11,7 +11,7 @@ sealed class PortfolioGrowthState extends Equatable {
 
 final class PortfolioGrowthInitial extends PortfolioGrowthState {
   const PortfolioGrowthInitial()
-    : super(selectedPeriod: const Duration(hours: 1));
+      : super(selectedPeriod: const Duration(hours: 1));
 }
 
 final class PortfolioGrowthChartLoadSuccess extends PortfolioGrowthState {
@@ -40,17 +40,17 @@ final class PortfolioGrowthChartLoadSuccess extends PortfolioGrowthState {
 
   @override
   List<Object> get props => <Object>[
-    portfolioGrowth,
-    percentageIncrease,
-    selectedPeriod,
-    totalBalance,
-    totalChange24h,
-    percentageChange24h,
-    totalCoins,
-    coinsWithKnownBalance,
-    coinsWithKnownBalanceAndFiat,
-    isUpdating,
-  ];
+        portfolioGrowth,
+        percentageIncrease,
+        selectedPeriod,
+        totalBalance,
+        totalChange24h,
+        percentageChange24h,
+        totalCoins,
+        coinsWithKnownBalance,
+        coinsWithKnownBalanceAndFiat,
+        isUpdating,
+      ];
 }
 
 final class GrowthChartLoadFailure extends PortfolioGrowthState {
@@ -69,12 +69,12 @@ final class GrowthChartLoadFailure extends PortfolioGrowthState {
 
   @override
   List<Object> get props => <Object>[
-    error,
-    selectedPeriod,
-    totalCoins,
-    coinsWithKnownBalance,
-    coinsWithKnownBalanceAndFiat,
-  ];
+        error,
+        selectedPeriod,
+        totalCoins,
+        coinsWithKnownBalance,
+        coinsWithKnownBalanceAndFiat,
+      ];
 }
 
 final class PortfolioGrowthChartUnsupported extends PortfolioGrowthState {
@@ -91,9 +91,9 @@ final class PortfolioGrowthChartUnsupported extends PortfolioGrowthState {
 
   @override
   List<Object> get props => <Object>[
-    selectedPeriod,
-    totalCoins,
-    coinsWithKnownBalance,
-    coinsWithKnownBalanceAndFiat,
-  ];
+        selectedPeriod,
+        totalCoins,
+        coinsWithKnownBalance,
+        coinsWithKnownBalanceAndFiat,
+      ];
 }

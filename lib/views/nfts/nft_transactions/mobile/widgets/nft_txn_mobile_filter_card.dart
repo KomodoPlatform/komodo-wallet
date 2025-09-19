@@ -34,11 +34,17 @@ class NftTxnMobileFilterCard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: textScheme.bodyS.copyWith(color: color)),
+            Text(
+              title,
+              style: textScheme.bodyS.copyWith(color: color),
+            ),
             const SizedBox(width: 8),
             SvgPicture.asset(
               svgPath,
-              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                color,
+                BlendMode.srcIn,
+              ),
               width: 24,
               height: 24,
             ),

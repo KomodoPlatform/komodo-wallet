@@ -42,29 +42,29 @@ class _SellPriceField extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle? textStyle = Theme.of(context).textTheme.bodySmall;
 
-    return BlocBuilder<TakerBloc, TakerState>(
-      buildWhen: (prev, curr) {
-        if (prev.sellCoin != curr.sellCoin) return true;
-        if (prev.sellAmount != curr.sellAmount) return true;
+    return BlocBuilder<TakerBloc, TakerState>(buildWhen: (prev, curr) {
+      if (prev.sellCoin != curr.sellCoin) return true;
+      if (prev.sellAmount != curr.sellAmount) return true;
 
-        return false;
-      },
-      builder: (context, state) {
-        final coin = state.sellCoin;
-        if (coin == null) return const SizedBox();
+      return false;
+    }, builder: (context, state) {
+      final coin = state.sellCoin;
+      if (coin == null) return const SizedBox();
 
-        final amount = state.sellAmount ?? Rational.zero;
-        return Text(
-          getFormattedFiatAmount(context, coin.abbr, amount),
-          style: textStyle,
-        );
-      },
-    );
+      final amount = state.sellAmount ?? Rational.zero;
+      return Text(
+        getFormattedFiatAmount(context, coin.abbr, amount),
+        style: textStyle,
+      );
+    });
   }
 }
 
 class _SellAmountInput extends StatelessWidget {
-  _SellAmountInput({Key? key, required this.isEnabled}) : super(key: key);
+  _SellAmountInput({
+    Key? key,
+    required this.isEnabled,
+  }) : super(key: key);
 
   final bool isEnabled;
 

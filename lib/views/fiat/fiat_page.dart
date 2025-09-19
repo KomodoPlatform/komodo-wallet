@@ -56,7 +56,10 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
     );
     final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     return BlocProvider(
-      create: (_) => FiatFormBloc(repository: fiatRepository, sdk: sdk),
+      create: (_) => FiatFormBloc(
+        repository: fiatRepository,
+        sdk: sdk,
+      ),
       child: MultiBlocListener(
         listeners: [
           BlocListener<AuthBloc, AuthBlocState>(
@@ -69,8 +72,12 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
           ),
         ],
         child: _showSwap
-            ? TradingDetails(uuid: routingState.fiatState.uuid)
-            : FiatPageLayout(activeTabIndex: _activeTabIndex),
+            ? TradingDetails(
+                uuid: routingState.fiatState.uuid,
+              )
+            : FiatPageLayout(
+                activeTabIndex: _activeTabIndex,
+              ),
       ),
     );
   }
@@ -113,7 +120,10 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
 }
 
 class FiatPageLayout extends StatelessWidget {
-  const FiatPageLayout({required this.activeTabIndex, super.key});
+  const FiatPageLayout({
+    required this.activeTabIndex,
+    super.key,
+  });
 
   final int activeTabIndex;
 
@@ -143,7 +153,11 @@ class FiatPageLayout extends StatelessWidget {
               //     ),
               //   ),
               // ),
-              Flexible(child: _TabContent(activeTabIndex: activeTabIndex)),
+              Flexible(
+                child: _TabContent(
+                  activeTabIndex: activeTabIndex,
+                ),
+              ),
             ],
           ),
         ),

@@ -7,7 +7,7 @@ class AnimatedBotStatusIndicator extends StatefulWidget {
   final MarketMakerBotStatus status;
 
   const AnimatedBotStatusIndicator({Key? key, required this.status})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<AnimatedBotStatusIndicator> createState() =>
@@ -55,9 +55,8 @@ class _AnimatedBotStatusIndicatorState extends State<AnimatedBotStatusIndicator>
               height: 16,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _getStatusColor(
-                  widget.status,
-                ).withValues(alpha: _getOpacity(widget.status)),
+                color: _getStatusColor(widget.status)
+                    .withValues(alpha: _getOpacity(widget.status)),
               ),
             );
           },

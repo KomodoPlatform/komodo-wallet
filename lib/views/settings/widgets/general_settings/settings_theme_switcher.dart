@@ -19,28 +19,26 @@ class SettingsThemeSwitcher extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         constraints: const BoxConstraints(maxWidth: 340),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18.0),
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+            borderRadius: BorderRadius.circular(18.0),
+            color: Theme.of(context).colorScheme.onSurface),
         child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: 6.0),
-                child: _SettingsModeSelector(mode: ThemeMode.light),
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 6.0),
+                  child: _SettingsModeSelector(mode: ThemeMode.light),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: 6.0),
-                child: _SettingsModeSelector(mode: ThemeMode.dark),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 6.0),
+                  child: _SettingsModeSelector(mode: ThemeMode.dark),
+                ),
               ),
-            ),
-          ],
-        ),
+            ]),
       ),
     );
   }
@@ -106,9 +104,7 @@ class _SettingsModeSelector extends StatelessWidget {
                   child: Text(
                     _themeName,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontSize: 14,
-                      color: _getTextColor(mode, context),
-                    ),
+                        fontSize: 14, color: _getTextColor(mode, context)),
                   ),
                 ),
               ),

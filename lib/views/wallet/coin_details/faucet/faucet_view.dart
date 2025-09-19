@@ -36,7 +36,10 @@ class FaucetView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _DialogHeader(title: title(state), onClose: onClose),
-                _StatesOfPage(state: state, onClose: onClose),
+                _StatesOfPage(
+                  state: state,
+                  onClose: onClose,
+                ),
               ],
             );
           },
@@ -74,7 +77,10 @@ class _DialogHeader extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ),
           Positioned(
             right: -8,
@@ -163,9 +169,8 @@ class _FaucetResult extends StatelessWidget {
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 15.0),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(40),
-              border: Border.all(color: color, width: 4),
-            ),
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: color, width: 4)),
             child: Icon(icon, size: 66, color: color),
           ),
         ),

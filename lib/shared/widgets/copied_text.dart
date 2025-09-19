@@ -57,30 +57,32 @@ class CopiedText extends StatelessWidget {
               Container(
                 key: const Key('coin-details-address-field'),
                 child: isTruncated
-                    ? Flexible(
-                        child: TruncatedMiddleText(
-                          showingText,
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontWeight: fontWeight,
-                            color: fontColor,
-                            height: height,
-                          ),
-                        ),
-                      )
-                    : Flexible(
-                        child: AutoScrollText(
-                          text: showingText,
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontWeight: fontWeight,
-                            color: fontColor,
-                            height: height,
-                          ),
+                  ? Flexible(
+                      child: TruncatedMiddleText(
+                        showingText,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: fontWeight,
+                          color: fontColor,
+                          height: height,
                         ),
                       ),
+                    )
+                  : Flexible(
+                      child: AutoScrollText(
+                        text: showingText,
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: fontWeight,
+                          color: fontColor,
+                          height: height,
+                        ),
+                      ),
+                    ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(
+                width: 16,
+              ),
               Icon(
                 Icons.copy_rounded,
                 color: Theme.of(context).textTheme.labelLarge?.color,
@@ -148,19 +150,17 @@ class CopiedTextV2 extends StatelessWidget {
                           copiedValue,
                           level: 4,
                           style: TextStyle(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.w700,
-                            color: textColor ?? const Color(0xFFADAFC4),
-                          ),
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.w700,
+                              color: textColor ?? const Color(0xFFADAFC4)),
                         ),
                       )
                     : AutoScrollText(
                         text: copiedValue,
                         style: TextStyle(
-                          fontSize: fontSize,
-                          fontWeight: FontWeight.w700,
-                          color: textColor ?? const Color(0xFFADAFC4),
-                        ),
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.w700,
+                            color: textColor ?? const Color(0xFFADAFC4)),
                       ),
               ),
               const SizedBox(width: 4),
@@ -173,7 +173,7 @@ class CopiedTextV2 extends StatelessWidget {
             if (showingText != null) ...[
               const SizedBox(width: 10),
               Text(showingText),
-            ],
+            ]
           ],
         ),
       ),

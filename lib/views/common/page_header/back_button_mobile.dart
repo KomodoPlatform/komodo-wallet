@@ -10,16 +10,15 @@ class BackButtonMobile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 12),
       child: IconButton(
-        key: const Key('back-button'),
-        onPressed: onPressed,
-        alignment: Alignment.center,
-        splashRadius: 15,
-        padding: const EdgeInsets.all(0),
-        icon: const DexSvgImage(
-          path: Assets.chevronLeftMobile,
-          colorFilter: ColorFilterEnum.headerIconColor,
-        ),
-      ),
+          key: const Key('back-button'),
+          onPressed: onPressed,
+          alignment: Alignment.center,
+          splashRadius: 15,
+          padding: const EdgeInsets.all(0),
+          icon: const DexSvgImage(
+            path: Assets.chevronLeftMobile,
+            colorFilter: ColorFilterEnum.headerIconColor,
+          )),
     );
   }
 }

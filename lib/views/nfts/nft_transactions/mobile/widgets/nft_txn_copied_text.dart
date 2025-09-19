@@ -32,7 +32,11 @@ class NftTxnCopiedText extends StatelessWidget {
         Text(title, style: textStyle),
         const SizedBox(height: 2),
         if (coin != null)
-          HashExplorerLink(hash: _exploreValue, coin: coin, type: _explorerType)
+          HashExplorerLink(
+            hash: _exploreValue,
+            coin: coin,
+            type: _explorerType,
+          )
         else
           const SizedBox.shrink(),
       ],
@@ -66,4 +70,8 @@ class NftTxnCopiedText extends StatelessWidget {
   }
 }
 
-enum NftTxnExplorerType { tx, from, to }
+enum NftTxnExplorerType {
+  tx,
+  from,
+  to,
+}

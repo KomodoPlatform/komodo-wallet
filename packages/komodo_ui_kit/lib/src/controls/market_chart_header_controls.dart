@@ -17,7 +17,7 @@ class MarketChartHeaderControls extends StatelessWidget {
   final Duration selectedPeriod;
   final void Function(Duration?) onPeriodChanged;
   final DropdownMenuItem<AssetId> Function(AssetId coinId)?
-  customCoinItemBuilder;
+      customCoinItemBuilder;
   final bool emptySelectAllowed;
 
   const MarketChartHeaderControls({
@@ -60,8 +60,14 @@ class MarketChartHeaderControls extends StatelessWidget {
             const Gap(4),
             Row(
               children: [
-                if (leadingIcon != null) ...[leadingIcon!, const Gap(4)],
-                DefaultTextStyle(style: defaultTextStyle!, child: leadingText),
+                if (leadingIcon != null) ...[
+                  leadingIcon!,
+                  const Gap(4),
+                ],
+                DefaultTextStyle(
+                  style: defaultTextStyle!,
+                  child: leadingText,
+                ),
               ],
             ),
           ],

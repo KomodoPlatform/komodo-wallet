@@ -39,15 +39,15 @@ final class PortfolioProfitLossChartLoadSuccess extends ProfitLossState {
 
   @override
   List<Object> get props => [
-    profitLossChart,
-    totalValue,
-    percentageIncrease,
-    coins,
-    fiatCurrency,
-    selectedPeriod,
-    walletId,
-    isUpdating,
-  ];
+        profitLossChart,
+        totalValue,
+        percentageIncrease,
+        coins,
+        fiatCurrency,
+        selectedPeriod,
+        walletId,
+        isUpdating,
+      ];
 }
 
 final class ProfitLossLoadFailure extends ProfitLossState {

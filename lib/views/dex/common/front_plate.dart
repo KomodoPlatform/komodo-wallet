@@ -24,7 +24,10 @@ class FrontPlate extends StatelessWidget {
         borderRadius: borderRadius,
         boxShadow: shadowEnabled ? [shadow] : null,
       ),
-      child: ClipRRect(borderRadius: borderRadius, child: child),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: child,
+      ),
     );
   }
 }

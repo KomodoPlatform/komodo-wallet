@@ -9,7 +9,9 @@ class ItemDecoration extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
       padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: child,
     );
   }

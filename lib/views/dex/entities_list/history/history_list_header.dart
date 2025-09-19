@@ -58,4 +58,12 @@ List<SortHeaderItemData<HistoryListSortType>> _headerItems = [
   ),
 ];
 
-enum HistoryListSortType { status, send, receive, price, date, orderType, none }
+enum HistoryListSortType {
+  status,
+  send,
+  receive,
+  price,
+  date,
+  orderType,
+  none,
+}

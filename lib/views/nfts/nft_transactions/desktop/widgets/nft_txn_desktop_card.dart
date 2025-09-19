@@ -58,7 +58,9 @@ class _NftTxnDesktopCardState extends State<NftTxnDesktopCard>
           mainAxisSize: MainAxisSize.min,
           children: [
             NftTxnDesktopWrapper(
-              firstChild: NftTxnStatus(status: widget.transaction.status),
+              firstChild: NftTxnStatus(
+                status: widget.transaction.status,
+              ),
               secondChild: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -77,12 +79,14 @@ class _NftTxnDesktopCardState extends State<NftTxnDesktopCard>
               fourthChild: NftTxnDate(
                 blockTimestamp: widget.transaction.blockTimestamp,
               ),
-              fifthChild: NftTxnHash(transaction: widget.transaction),
+              fifthChild: NftTxnHash(
+                transaction: widget.transaction,
+              ),
             ),
             _AdditionalTxnData(
               transaction: widget.transaction,
               isShown: isSelected,
-            ),
+            )
           ],
         ),
       ),
@@ -91,7 +95,10 @@ class _NftTxnDesktopCardState extends State<NftTxnDesktopCard>
 }
 
 class _AdditionalTxnData extends StatelessWidget {
-  const _AdditionalTxnData({required this.transaction, required this.isShown});
+  const _AdditionalTxnData({
+    required this.transaction,
+    required this.isShown,
+  });
   final NftTransaction transaction;
   final bool isShown;
 
@@ -128,21 +135,23 @@ class _AdditionalTxnData extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           '${LocaleKeys.confirmations.tr()}:',
-                          style: textScheme?.bodyXS.copyWith(
-                            color: colorScheme?.s70,
-                          ),
+                          style: textScheme?.bodyXS
+                              .copyWith(color: colorScheme?.s70),
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        Icon(null, color: colorScheme?.green, size: 12),
+                        Icon(
+                          null,
+                          color: colorScheme?.green,
+                          size: 12,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${LocaleKeys.blockHeight.tr()}:',
-                          style: textScheme?.bodyXS.copyWith(
-                            color: colorScheme?.s70,
-                          ),
+                          style: textScheme?.bodyXS
+                              .copyWith(color: colorScheme?.s70),
                         ),
                       ],
                     ),
@@ -151,15 +160,16 @@ class _AdditionalTxnData extends StatelessWidget {
                       status: transaction.detailsFetchStatus,
                       defaultSize: _placeholderSizeOfSuccessStatus,
                     ),
-                    _Value(value: transaction.blockNumber.toString()),
+                    _Value(
+                      value: transaction.blockNumber.toString(),
+                    ),
                     true,
                   ),
                   _TableView(
                     Text(
                       '${LocaleKeys.transactionFee.tr()}:',
-                      style: textScheme?.bodyXS.copyWith(
-                        color: colorScheme?.s70,
-                      ),
+                      style:
+                          textScheme?.bodyXS.copyWith(color: colorScheme?.s70),
                     ),
                     const SizedBox(),
                     _Value(
@@ -177,18 +187,22 @@ class _AdditionalTxnData extends StatelessWidget {
                   _TableView(
                     Text(
                       '${LocaleKeys.from.tr()}:',
-                      style: textScheme?.bodyXS.copyWith(
-                        color: colorScheme?.s70,
-                      ),
+                      style:
+                          textScheme?.bodyXS.copyWith(color: colorScheme?.s70),
                     ),
                     Text(
                       '${LocaleKeys.to.tr()}:',
-                      style: textScheme?.bodyXS.copyWith(
-                        color: colorScheme?.s70,
-                      ),
+                      style:
+                          textScheme?.bodyXS.copyWith(color: colorScheme?.s70),
                     ),
-                    Text(transaction.fromAddress, style: textScheme?.bodyXS),
-                    Text(transaction.toAddress, style: textScheme?.bodyXS),
+                    Text(
+                      transaction.fromAddress,
+                      style: textScheme?.bodyXS,
+                    ),
+                    Text(
+                      transaction.toAddress,
+                      style: textScheme?.bodyXS,
+                    ),
                     false,
                   ),
                 ],
@@ -202,15 +216,17 @@ class _AdditionalTxnData extends StatelessWidget {
                     style: textScheme?.bodyXS.copyWith(color: colorScheme?.s70),
                   ),
                   const SizedBox(width: 4),
-                  Text(transaction.transactionHash, style: textScheme?.bodyXS),
+                  Text(
+                    transaction.transactionHash,
+                    style: textScheme?.bodyXS,
+                  ),
                 ],
               ),
             ],
           ),
         ),
-        crossFadeState: !isShown
-            ? CrossFadeState.showFirst
-            : CrossFadeState.showSecond,
+        crossFadeState:
+            !isShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
       ),
     );
   }
@@ -223,33 +239,33 @@ class _TableView extends StatelessWidget {
   final Widget valueTwo;
   final bool isLeftAligned;
 
-  const _TableView(
-    this.titleOne,
-    this.titleTwo,
-    this.valueOne,
-    this.valueTwo,
-    this.isLeftAligned,
-  );
+  const _TableView(this.titleOne, this.titleTwo, this.valueOne, this.valueTwo,
+      this.isLeftAligned);
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: isLeftAligned
-          ? CrossAxisAlignment.start
-          : CrossAxisAlignment.end,
+      crossAxisAlignment:
+          isLeftAligned ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         Row(
-          mainAxisAlignment: isLeftAligned
-              ? MainAxisAlignment.start
-              : MainAxisAlignment.end,
-          children: [titleOne, const SizedBox(width: 4), valueOne],
+          mainAxisAlignment:
+              isLeftAligned ? MainAxisAlignment.start : MainAxisAlignment.end,
+          children: [
+            titleOne,
+            const SizedBox(width: 4),
+            valueOne,
+          ],
         ),
         const SizedBox(height: 4),
         Row(
-          mainAxisAlignment: isLeftAligned
-              ? MainAxisAlignment.start
-              : MainAxisAlignment.end,
-          children: [titleTwo, const SizedBox(width: 4), valueTwo],
+          mainAxisAlignment:
+              isLeftAligned ? MainAxisAlignment.start : MainAxisAlignment.end,
+          children: [
+            titleTwo,
+            const SizedBox(width: 4),
+            valueTwo,
+          ],
         ),
       ],
     );
@@ -279,12 +295,15 @@ class _Value extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const UiSpinner(height: iconSize, width: iconSize, strokeWidth: 1),
+            const UiSpinner(
+              height: iconSize,
+              width: iconSize,
+              strokeWidth: 1,
+            ),
             if (defaultSize != null)
               SizedBox(
-                width: defaultSize!.width - iconSize,
-                height: defaultSize!.height,
-              ),
+                  width: defaultSize!.width - iconSize,
+                  height: defaultSize!.height),
           ],
         );
       case NftTxnDetailsStatus.success:
@@ -301,9 +320,8 @@ class _Value extends StatelessWidget {
             ),
             if (defaultSize != null)
               SizedBox(
-                width: defaultSize!.width - iconSize,
-                height: defaultSize!.height,
-              ),
+                  width: defaultSize!.width - iconSize,
+                  height: defaultSize!.height),
           ],
         );
     }

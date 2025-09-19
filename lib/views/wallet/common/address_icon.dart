@@ -10,7 +10,11 @@ Color _generateColorFromString(String input) {
 }
 
 class AddressIcon extends StatelessWidget {
-  const AddressIcon({super.key, required this.address, this.radius = 16});
+  const AddressIcon({
+    super.key,
+    required this.address,
+    this.radius = 16,
+  });
 
   final String address;
   final double radius;

@@ -61,10 +61,10 @@ class NftTransactionsFilter extends Equatable {
 
   @override
   List<Object?> get props => [
-    statuses,
-    blockchain,
-    dateFrom,
-    dateTo,
-    searchLine,
-  ];
+        statuses,
+        blockchain,
+        dateFrom,
+        dateTo,
+        searchLine,
+      ];
 }

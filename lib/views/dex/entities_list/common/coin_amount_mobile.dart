@@ -6,11 +6,9 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 
 class CoinAmountMobile extends StatelessWidget {
-  const CoinAmountMobile({
-    Key? key,
-    required this.coinAbbr,
-    required this.amount,
-  }) : super(key: key);
+  const CoinAmountMobile(
+      {Key? key, required this.coinAbbr, required this.amount})
+      : super(key: key);
   final String coinAbbr;
   final Rational amount;
 

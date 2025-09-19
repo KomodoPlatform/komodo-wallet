@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class TosContent extends StatelessWidget {
-  const TosContent({super.key, required this.disclaimerToSText});
+  const TosContent({
+    super.key,
+    required this.disclaimerToSText,
+  });
 
   final List<TextSpan> disclaimerToSText;
 

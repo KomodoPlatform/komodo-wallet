@@ -28,22 +28,22 @@ final class FiatFormState extends Equatable with FormzMixin {
 
   /// Creates an initial state with default values.
   FiatFormState.initial()
-    : selectedFiat = CurrencyInput.dirty(FiatCurrency.usd()),
-      selectedAsset = CurrencyInput.dirty(CryptoCurrency.bitcoin()),
-      fiatAmount = const FiatAmountInput.pure(),
-      selectedAssetAddress = null,
-      selectedPaymentMethod = FiatPaymentMethod.none,
-      checkoutUrl = '',
-      orderId = '',
-      status = FiatFormStatus.initial,
-      paymentMethods = const [],
-      fiatList = const [],
-      coinList = const [],
-      fiatOrderStatus = FiatOrderStatus.initial,
-      fiatMode = FiatMode.onramp,
-      selectedCoinPubkeys = null,
-      webViewMode = WebViewDialogMode.fullscreen,
-      providerError = null;
+      : selectedFiat = CurrencyInput.dirty(FiatCurrency.usd()),
+        selectedAsset = CurrencyInput.dirty(CryptoCurrency.bitcoin()),
+        fiatAmount = const FiatAmountInput.pure(),
+        selectedAssetAddress = null,
+        selectedPaymentMethod = FiatPaymentMethod.none,
+        checkoutUrl = '',
+        orderId = '',
+        status = FiatFormStatus.initial,
+        paymentMethods = const [],
+        fiatList = const [],
+        coinList = const [],
+        fiatOrderStatus = FiatOrderStatus.initial,
+        fiatMode = FiatMode.onramp,
+        selectedCoinPubkeys = null,
+        webViewMode = WebViewDialogMode.fullscreen,
+        providerError = null;
 
   /// The selected fiat currency to use to purchase [selectedAsset].
   final CurrencyInput<FiatCurrency> selectedFiat;
@@ -159,36 +159,35 @@ final class FiatFormState extends Equatable with FormzMixin {
           ? selectedCoinPubkeys()
           : this.selectedCoinPubkeys,
       webViewMode: webViewMode ?? this.webViewMode,
-      providerError: providerError != null
-          ? providerError()
-          : this.providerError,
+      providerError:
+          providerError != null ? providerError() : this.providerError,
     );
   }
 
   @override
   List<FormzInput<dynamic, dynamic>> get inputs => [
-    selectedFiat,
-    selectedAsset,
-    fiatAmount,
-  ];
+        selectedFiat,
+        selectedAsset,
+        fiatAmount,
+      ];
 
   @override
   List<Object?> get props => [
-    selectedFiat,
-    selectedAsset,
-    selectedPaymentMethod,
-    selectedAssetAddress,
-    checkoutUrl,
-    orderId,
-    fiatAmount,
-    status,
-    paymentMethods,
-    fiatList,
-    coinList,
-    fiatOrderStatus,
-    fiatMode,
-    selectedCoinPubkeys,
-    webViewMode,
-    providerError,
-  ];
+        selectedFiat,
+        selectedAsset,
+        selectedPaymentMethod,
+        selectedAssetAddress,
+        checkoutUrl,
+        orderId,
+        fiatAmount,
+        status,
+        paymentMethods,
+        fiatList,
+        coinList,
+        fiatOrderStatus,
+        fiatMode,
+        selectedCoinPubkeys,
+        webViewMode,
+        providerError,
+      ];
 }

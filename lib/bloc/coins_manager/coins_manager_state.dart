@@ -52,17 +52,18 @@ class CoinsManagerState extends Equatable {
     bool? isSwitching,
     CoinRemovalState? removalState,
     String? errorMessage,
-  }) => CoinsManagerState(
-    action: action ?? this.action,
-    coins: coins ?? this.coins,
-    searchPhrase: searchPhrase ?? this.searchPhrase,
-    selectedCoinTypes: selectedCoinTypes ?? this.selectedCoinTypes,
-    selectedCoins: selectedCoins ?? this.selectedCoins,
-    sortData: sortData ?? this.sortData,
-    isSwitching: isSwitching ?? this.isSwitching,
-    removalState: removalState,
-    errorMessage: errorMessage,
-  );
+  }) =>
+      CoinsManagerState(
+        action: action ?? this.action,
+        coins: coins ?? this.coins,
+        searchPhrase: searchPhrase ?? this.searchPhrase,
+        selectedCoinTypes: selectedCoinTypes ?? this.selectedCoinTypes,
+        selectedCoins: selectedCoins ?? this.selectedCoins,
+        sortData: sortData ?? this.sortData,
+        isSwitching: isSwitching ?? this.isSwitching,
+        removalState: removalState,
+        errorMessage: errorMessage,
+      );
 
   bool get isSelectedAllCoinsEnabled {
     if (selectedCoins.isEmpty) return false;
@@ -72,19 +73,23 @@ class CoinsManagerState extends Equatable {
 
   @override
   List<Object?> get props => [
-    action,
-    searchPhrase,
-    selectedCoinTypes,
-    coins,
-    selectedCoins,
-    sortData,
-    isSwitching,
-    removalState,
-    errorMessage,
-  ];
+        action,
+        searchPhrase,
+        selectedCoinTypes,
+        coins,
+        selectedCoins,
+        sortData,
+        isSwitching,
+        removalState,
+        errorMessage,
+      ];
 }
 
-enum CoinRemovalBlockReason { none, activeSwap, openOrders }
+enum CoinRemovalBlockReason {
+  none,
+  activeSwap,
+  openOrders,
+}
 
 class CoinRemovalState extends Equatable {
   const CoinRemovalState({

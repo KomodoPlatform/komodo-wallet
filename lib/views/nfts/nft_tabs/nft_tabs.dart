@@ -14,26 +14,25 @@ class NftTabs extends StatelessWidget {
     onTap(NftBlockchains chain) => _onTap(chain, context);
     final localTabs = tabs.isNotEmpty ? tabs : NftBlockchains.values;
     return FadingEdgeScrollView.fromSingleChildScrollView(
-      gradientFractionOnStart: 0.4,
-      gradientFractionOnEnd: 0.4,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        controller: ScrollController(),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: localTabs
-              .map(
-                (NftBlockchains t) => NftTab(
-                  chain: t,
-                  key: Key('nft-tab-${t.name}'),
-                  isFirst: localTabs.first == t,
-                  onTap: onTap,
-                ),
-              )
-              .toList(),
-        ),
-      ),
-    );
+        gradientFractionOnStart: 0.4,
+        gradientFractionOnEnd: 0.4,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          controller: ScrollController(),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: localTabs
+                .map(
+                  (NftBlockchains t) => NftTab(
+                    chain: t,
+                    key: Key('nft-tab-${t.name}'),
+                    isFirst: localTabs.first == t,
+                    onTap: onTap,
+                  ),
+                )
+                .toList(),
+          ),
+        ));
   }
 
   void _onTap(NftBlockchains chain, BuildContext context) {

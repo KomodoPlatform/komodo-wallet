@@ -30,8 +30,8 @@ class SupportPage extends StatelessWidget {
       margin: isMobile
           ? const EdgeInsets.symmetric(horizontal: 15)
           : isTablet
-          ? const EdgeInsets.all(30)
-          : const EdgeInsets.all(0.0),
+              ? const EdgeInsets.all(30)
+              : const EdgeInsets.all(0.0),
       padding: isMobile
           ? null
           : const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
@@ -47,10 +47,15 @@ class SupportPage extends StatelessWidget {
             visible: !isMobile,
             child: SelectableText(
               LocaleKeys.support.tr(),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(
+            height: 16,
+          ),
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
@@ -78,7 +83,9 @@ class SupportPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(
+                        height: 12,
+                      ),
                       UiBorderButton(
                         backgroundColor: Theme.of(context).colorScheme.surface,
                         prefix: Icon(
@@ -91,7 +98,9 @@ class SupportPage extends StatelessWidget {
                         height: 40,
                         allowMultiline: true,
                         onPressed: () {
-                          launchURLString('https://komodoplatform.com/discord');
+                          launchURLString(
+                            'https://komodoplatform.com/discord',
+                          );
                         },
                       ),
                     ],
@@ -128,7 +137,9 @@ class SupportPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
             child: Column(
               children: supportInfo.asMap().entries.map((entry) {
-                return SupportItem(data: entry.value);
+                return SupportItem(
+                  data: entry.value,
+                );
               }).toList(),
             ),
           ),

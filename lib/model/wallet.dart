@@ -6,15 +6,19 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 
 class Wallet {
-  Wallet({required this.id, required this.name, required this.config});
+  Wallet({
+    required this.id,
+    required this.name,
+    required this.config,
+  });
 
   factory Wallet.fromJson(Map<String, dynamic> json) => Wallet(
-    id: json['id'] as String? ?? '',
-    name: json['name'] as String? ?? '',
-    config: WalletConfig.fromJson(
-      json['config'] as Map<String, dynamic>? ?? {},
-    ),
-  );
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        config: WalletConfig.fromJson(
+          json['config'] as Map<String, dynamic>? ?? {},
+        ),
+      );
 
   /// Creates a wallet from a name and the optional parameters.
   /// [name] - The name of the wallet.
@@ -45,7 +49,11 @@ class Wallet {
     required String name,
     required WalletConfig config,
   }) {
-    return Wallet(id: const Uuid().v1(), name: name, config: config);
+    return Wallet(
+      id: const Uuid().v1(),
+      name: name,
+      config: config,
+    );
   }
 
   String id;
@@ -59,16 +67,24 @@ class Wallet {
       await EncryptionTool().decryptData(password, config.seedPhrase) ?? '';
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'id': id,
-    'name': name,
-    'config': config.toJson(),
-  };
+        'id': id,
+        'name': name,
+        'config': config.toJson(),
+      };
 
   Wallet copy() {
-    return Wallet(id: id, name: name, config: config.copy());
+    return Wallet(
+      id: id,
+      name: name,
+      config: config.copy(),
+    );
   }
-
-  Wallet copyWith({String? id, String? name, WalletConfig? config}) {
+  
+  Wallet copyWith({
+    String? id,
+    String? name,
+    WalletConfig? config,
+  }) {
     return Wallet(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -94,9 +110,9 @@ class WalletConfig {
       ),
       seedPhrase: json['seed_phrase'] as String? ?? '',
       pubKey: json['pub_key'] as String?,
-      activatedCoins: List<String>.from(
-        json['activated_coins'] as List? ?? <String>[],
-      ).toList(),
+      activatedCoins:
+          List<String>.from(json['activated_coins'] as List? ?? <String>[])
+              .toList(),
       hasBackup: json['has_backup'] as bool? ?? false,
     );
   }
@@ -127,7 +143,7 @@ class WalletConfig {
       pubKey: pubKey,
     );
   }
-
+  
   WalletConfig copyWith({
     String? seedPhrase,
     String? pubKey,
@@ -172,9 +188,8 @@ enum WalletType {
 
 extension KdfUserWalletExtension on KdfUser {
   Wallet get wallet {
-    final walletType = WalletType.fromJson(
-      metadata['type'] as String? ?? 'iguana',
-    );
+    final walletType =
+        WalletType.fromJson(metadata['type'] as String? ?? 'iguana');
     return Wallet(
       id: walletId.name,
       name: walletId.name,

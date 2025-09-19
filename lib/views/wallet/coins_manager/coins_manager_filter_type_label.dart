@@ -31,8 +31,7 @@ class CoinsManagerFilterTypeLabel extends StatelessWidget {
           children: [
             Text(
               text,
-              style:
-                  textStyle ??
+              style: textStyle ??
                   const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 12,

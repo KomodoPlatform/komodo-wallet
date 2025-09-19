@@ -102,9 +102,8 @@ class BridgeState {
   }) {
     return BridgeState(
       error: error == null ? this.error : error(),
-      selectedTicker: selectedTicker == null
-          ? this.selectedTicker
-          : selectedTicker(),
+      selectedTicker:
+          selectedTicker == null ? this.selectedTicker : selectedTicker(),
       tickers: tickers == null ? this.tickers : tickers(),
       showTickerDropdown: showTickerDropdown == null
           ? this.showTickerDropdown
@@ -121,12 +120,10 @@ class BridgeState {
       sellCoins: sellCoins == null ? this.sellCoins : sellCoins(),
       bestOrder: bestOrder == null ? this.bestOrder : bestOrder(),
       bestOrders: bestOrders == null ? this.bestOrders : bestOrders(),
-      maxSellAmount: maxSellAmount == null
-          ? this.maxSellAmount
-          : maxSellAmount(),
-      minSellAmount: minSellAmount == null
-          ? this.minSellAmount
-          : minSellAmount(),
+      maxSellAmount:
+          maxSellAmount == null ? this.maxSellAmount : maxSellAmount(),
+      minSellAmount:
+          minSellAmount == null ? this.minSellAmount : minSellAmount(),
       availableBalanceState: availableBalanceState == null
           ? this.availableBalanceState
           : availableBalanceState(),
@@ -139,4 +136,7 @@ class BridgeState {
   }
 }
 
-enum BridgeStep { form, confirm }
+enum BridgeStep {
+  form,
+  confirm;
+}

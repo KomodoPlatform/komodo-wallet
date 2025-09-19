@@ -12,7 +12,10 @@ class RampQuoteResult {
   /// Each payment method contains specific quote details like fees and amounts.
   final Map<String, RampQuoteResultForPaymentMethod> paymentMethods;
 
-  RampQuoteResult({required this.asset, required this.paymentMethods});
+  RampQuoteResult({
+    required this.asset,
+    required this.paymentMethods,
+  });
 
   /// Creates a [RampQuoteResult] from a JSON object.
   ///
@@ -45,7 +48,10 @@ class RampQuoteResult {
       throw ArgumentError('No payment methods found in the response');
     }
 
-    return RampQuoteResult(asset: asset, paymentMethods: paymentMethods);
+    return RampQuoteResult(
+      asset: asset,
+      paymentMethods: paymentMethods,
+    );
   }
 
   /// Retrieves quote information for a specific payment method by its ID.

@@ -13,7 +13,10 @@ class NftTxnMobileFilters extends StatefulWidget {
   final NftTransactionsFilter filters;
   final void Function(NftTransactionsFilter?) onApply;
 
-  const NftTxnMobileFilters({required this.filters, required this.onApply});
+  const NftTxnMobileFilters({
+    required this.filters,
+    required this.onApply,
+  });
 
   @override
   State<NftTxnMobileFilters> createState() => _NftTxnMobileFiltersState();
@@ -47,8 +50,7 @@ class _NftTxnMobileFiltersState extends State<NftTxnMobileFilters> {
       mainAxisExtent: 56,
     );
 
-    final bool isButtonDisabled =
-        statuses.isEmpty &&
+    final bool isButtonDisabled = statuses.isEmpty &&
         blockchains.isEmpty &&
         dateFrom == null &&
         dateTo == null;
@@ -57,169 +59,163 @@ class _NftTxnMobileFiltersState extends State<NftTxnMobileFilters> {
       data: Theme.of(context).brightness == Brightness.light
           ? newThemeLight
           : newThemeDark,
-      child: Builder(
-        builder: (context) {
-          final colorScheme = Theme.of(
-            context,
-          ).extension<ColorSchemeExtension>();
-          final textScheme = Theme.of(context).extension<TextThemeExtension>();
-          return Container(
-            decoration: BoxDecoration(
+      child: Builder(builder: (context) {
+        final colorScheme = Theme.of(context).extension<ColorSchemeExtension>();
+        final textScheme = Theme.of(context).extension<TextThemeExtension>();
+        return Container(
+          decoration: BoxDecoration(
               color: colorScheme?.surfContLowest,
               border: Border.all(
-                color: colorScheme?.s40 ?? Colors.transparent,
-                width: 1,
-              ),
+                  color: colorScheme?.s40 ?? Colors.transparent, width: 1),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-              ),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              controller: ScrollController(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 4,
-                    decoration: BoxDecoration(
+                  topLeft: Radius.circular(24), topRight: Radius.circular(24))),
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            controller: ScrollController(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 80,
+                  height: 4,
+                  decoration: BoxDecoration(
                       color: colorScheme?.surf,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20)),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  LocaleKeys.filters.tr(),
+                  style: textScheme?.bodyMBold,
+                ),
+                const SizedBox(height: 24),
+                GridView(
+                  gridDelegate: gridDelete,
+                  shrinkWrap: true,
+                  children: [
+                    NftTxnMobileFilterCard(
+                      title: LocaleKeys.send.tr(),
+                      onTap: () {
+                        setState(() {
+                          statuses.contains(NftTransactionStatuses.send)
+                              ? statuses.remove(NftTransactionStatuses.send)
+                              : statuses.add(NftTransactionStatuses.send);
+                        });
+                        widget.onApply(getFilters());
+                      },
+                      isSelected:
+                          statuses.contains(NftTransactionStatuses.send),
+                      svgPath: '$assetsPath/custom_icons/send.svg',
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(LocaleKeys.filters.tr(), style: textScheme?.bodyMBold),
-                  const SizedBox(height: 24),
-                  GridView(
-                    gridDelegate: gridDelete,
-                    shrinkWrap: true,
-                    children: [
-                      NftTxnMobileFilterCard(
-                        title: LocaleKeys.send.tr(),
-                        onTap: () {
-                          setState(() {
-                            statuses.contains(NftTransactionStatuses.send)
-                                ? statuses.remove(NftTransactionStatuses.send)
-                                : statuses.add(NftTransactionStatuses.send);
-                          });
-                          widget.onApply(getFilters());
-                        },
-                        isSelected: statuses.contains(
-                          NftTransactionStatuses.send,
-                        ),
-                        svgPath: '$assetsPath/custom_icons/send.svg',
-                      ),
-                      NftTxnMobileFilterCard(
-                        title: LocaleKeys.receive.tr(),
-                        onTap: () {
-                          setState(() {
-                            statuses.contains(NftTransactionStatuses.receive)
-                                ? statuses.remove(
-                                    NftTransactionStatuses.receive,
-                                  )
-                                : statuses.add(NftTransactionStatuses.receive);
-                          });
-                          widget.onApply(getFilters());
-                        },
-                        isSelected: statuses.contains(
-                          NftTransactionStatuses.receive,
-                        ),
-                        svgPath: '$assetsPath/custom_icons/receive.svg',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Text(LocaleKeys.blockchain.tr(), style: textScheme?.bodyM),
-                  const SizedBox(height: 8),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    gridDelegate: gridDelete,
-                    itemBuilder: (context, index) {
-                      final NftBlockchains blockchain =
-                          NftBlockchains.values[index];
-                      return NftTxnMobileFilterCard(
-                        onTap: () {
-                          setState(() {
-                            blockchains.contains(blockchain)
-                                ? blockchains.remove(blockchain)
-                                : blockchains.add(blockchain);
-                          });
-                          widget.onApply(getFilters());
-                        },
-                        title: blockchain.toString(),
-                        isSelected: blockchains.contains(blockchain),
-                        svgPath:
-                            '$assetsPath/blockchain_icons/svg/32px/${blockchain.toApiRequest().toLowerCase()}.svg',
-                      );
-                    },
-                    itemCount: NftBlockchains.values.length,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(LocaleKeys.date.tr(), style: textScheme?.bodyM),
-                  const SizedBox(height: 8),
-                  GridView(
-                    gridDelegate: gridDelete,
-                    shrinkWrap: true,
-                    children: [
-                      UiDatePicker(
-                        formatter: dateFormatter.format,
-                        isMobileAlternative: true,
-                        date: dateFrom,
-                        text: LocaleKeys.fromDate.tr(),
-                        endDate: dateTo,
-                        onDateSelect: (time) {
-                          setState(() {
-                            dateFrom = time;
-                          });
-                          widget.onApply(getFilters());
-                        },
-                      ),
-                      UiDatePicker(
-                        formatter: dateFormatter.format,
-                        isMobileAlternative: true,
-                        date: dateTo,
-                        text: LocaleKeys.toDate.tr(),
-                        startDate: dateFrom,
-                        onDateSelect: (time) {
-                          setState(() {
-                            dateTo = time;
-                          });
-                          widget.onApply(getFilters());
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Flexible(
-                    child: UiPrimaryButton(
-                      border: Border.all(
+                    NftTxnMobileFilterCard(
+                      title: LocaleKeys.receive.tr(),
+                      onTap: () {
+                        setState(() {
+                          statuses.contains(NftTransactionStatuses.receive)
+                              ? statuses.remove(NftTransactionStatuses.receive)
+                              : statuses.add(NftTransactionStatuses.receive);
+                        });
+                        widget.onApply(getFilters());
+                      },
+                      isSelected:
+                          statuses.contains(NftTransactionStatuses.receive),
+                      svgPath: '$assetsPath/custom_icons/receive.svg',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  LocaleKeys.blockchain.tr(),
+                  style: textScheme?.bodyM,
+                ),
+                const SizedBox(height: 8),
+                GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: gridDelete,
+                  itemBuilder: (context, index) {
+                    final NftBlockchains blockchain =
+                        NftBlockchains.values[index];
+                    return NftTxnMobileFilterCard(
+                      onTap: () {
+                        setState(() {
+                          blockchains.contains(blockchain)
+                              ? blockchains.remove(blockchain)
+                              : blockchains.add(blockchain);
+                        });
+                        widget.onApply(getFilters());
+                      },
+                      title: blockchain.toString(),
+                      isSelected: blockchains.contains(blockchain),
+                      svgPath:
+                          '$assetsPath/blockchain_icons/svg/32px/${blockchain.toApiRequest().toLowerCase()}.svg',
+                    );
+                  },
+                  itemCount: NftBlockchains.values.length,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  LocaleKeys.date.tr(),
+                  style: textScheme?.bodyM,
+                ),
+                const SizedBox(height: 8),
+                GridView(
+                  gridDelegate: gridDelete,
+                  shrinkWrap: true,
+                  children: [
+                    UiDatePicker(
+                      formatter: dateFormatter.format,
+                      isMobileAlternative: true,
+                      date: dateFrom,
+                      text: LocaleKeys.fromDate.tr(),
+                      endDate: dateTo,
+                      onDateSelect: (time) {
+                        setState(() {
+                          dateFrom = time;
+                        });
+                        widget.onApply(getFilters());
+                      },
+                    ),
+                    UiDatePicker(
+                      formatter: dateFormatter.format,
+                      isMobileAlternative: true,
+                      date: dateTo,
+                      text: LocaleKeys.toDate.tr(),
+                      startDate: dateFrom,
+                      onDateSelect: (time) {
+                        setState(() {
+                          dateTo = time;
+                        });
+                        widget.onApply(getFilters());
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Flexible(
+                  child: UiPrimaryButton(
+                    border: Border.all(
                         color: colorScheme?.secondary ?? Colors.transparent,
-                        width: 2,
-                      ),
-                      backgroundColor: Colors.transparent,
-                      height: 40,
-                      text: LocaleKeys.clearFilter.tr(),
-                      onPressed: isButtonDisabled
-                          ? null
-                          : () {
-                              setState(() {
-                                statuses.clear();
-                                blockchains.clear();
-                                dateFrom = null;
-                                dateTo = null;
-                              });
-                              widget.onApply(getFilters());
-                            },
-                    ),
+                        width: 2),
+                    backgroundColor: Colors.transparent,
+                    height: 40,
+                    text: LocaleKeys.clearFilter.tr(),
+                    onPressed: isButtonDisabled
+                        ? null
+                        : () {
+                            setState(() {
+                              statuses.clear();
+                              blockchains.clear();
+                              dateFrom = null;
+                              dateTo = null;
+                            });
+                            widget.onApply(getFilters());
+                          },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 

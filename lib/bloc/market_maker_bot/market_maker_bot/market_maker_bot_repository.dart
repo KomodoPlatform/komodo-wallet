@@ -223,9 +223,8 @@ class MarketMakerBotRepository {
   ) async {
     final allSettings = await _settingsRepository.loadSettings();
     final settings = allSettings.marketMakerBotSettings;
-    final tradePairs = List<TradeCoinPairConfig>.from(
-      settings.tradeCoinPairConfigs,
-    );
+    final tradePairs =
+        List<TradeCoinPairConfig>.from(settings.tradeCoinPairConfigs);
 
     // remove any existing pairs
     tradePairs.removeWhere(
@@ -251,9 +250,8 @@ class MarketMakerBotRepository {
   ) async {
     final allSettings = await _settingsRepository.loadSettings();
     final settings = allSettings.marketMakerBotSettings;
-    final tradePairs = List<TradeCoinPairConfig>.from(
-      settings.tradeCoinPairConfigs,
-    );
+    final tradePairs =
+        List<TradeCoinPairConfig>.from(settings.tradeCoinPairConfigs);
 
     for (final pair in tradePairsToRemove) {
       tradePairs.removeWhere((e) => e.name == pair.name);

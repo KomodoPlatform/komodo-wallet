@@ -69,7 +69,7 @@ final class FiatFormModeUpdated extends FiatFormEvent {
 
   /// Constructor that creates a mode update event from a tab index.
   FiatFormModeUpdated.fromTabIndex(int tabIndex)
-    : mode = FiatMode.fromTabIndex(tabIndex);
+      : mode = FiatMode.fromTabIndex(tabIndex);
 
   final FiatMode mode;
 

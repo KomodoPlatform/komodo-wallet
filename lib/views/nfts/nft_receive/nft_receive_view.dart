@@ -34,51 +34,49 @@ class NftReceiveView extends StatelessWidget {
             child: SingleChildScrollView(
               controller: scrollController,
               child: BlocBuilder<NftReceiveBloc, NftReceiveState>(
-                builder: (context, state) {
-                  if (state is NftReceiveInitial) {
-                    return const Center(child: UiSpinner());
-                  } else if (state is NftReceiveBackupSuccess) {
-                    return const BackupNotification();
-                  } else if (state is NftReceiveLoadFailure) {
-                    return NftReceiveFailurePage(
-                      message:
-                          state.message ??
-                          LocaleKeys.pleaseTryActivateAssets.tr(),
-                      onReload: () {
-                        context.read<NftReceiveBloc>().add(
-                          const NftReceiveRefreshRequested(),
+                  builder: (context, state) {
+                if (state is NftReceiveInitial) {
+                  return const Center(child: UiSpinner());
+                } else if (state is NftReceiveBackupSuccess) {
+                  return const BackupNotification();
+                } else if (state is NftReceiveLoadFailure) {
+                  return NftReceiveFailurePage(
+                    message: state.message ??
+                        LocaleKeys.pleaseTryActivateAssets.tr(),
+                    onReload: () {
+                      context
+                          .read<NftReceiveBloc>()
+                          .add(const NftReceiveRefreshRequested());
+                    },
+                  );
+                } else if (state is NftReceiveLoadSuccess) {
+                  return isMobile
+                      ? SizedBox(
+                          width: double.maxFinite,
+                          child: NftReceiveCard(
+                            onAddressChanged: (value) =>
+                                _onAddressChanged(value, context),
+                            coin: state.asset,
+                            pubkeys: state.pubkeys,
+                            currentAddress: state.selectedAddress,
+                            qrCodeSize: 260,
+                            maxWidth: double.infinity,
+                          ),
+                        )
+                      : Align(
+                          alignment: Alignment.center,
+                          child: NftReceiveCard(
+                            currentAddress: state.selectedAddress,
+                            pubkeys: state.pubkeys,
+                            qrCodeSize: 200,
+                            onAddressChanged: (value) =>
+                                _onAddressChanged(value, context),
+                            coin: state.asset,
+                          ),
                         );
-                      },
-                    );
-                  } else if (state is NftReceiveLoadSuccess) {
-                    return isMobile
-                        ? SizedBox(
-                            width: double.maxFinite,
-                            child: NftReceiveCard(
-                              onAddressChanged: (value) =>
-                                  _onAddressChanged(value, context),
-                              coin: state.asset,
-                              pubkeys: state.pubkeys,
-                              currentAddress: state.selectedAddress,
-                              qrCodeSize: 260,
-                              maxWidth: double.infinity,
-                            ),
-                          )
-                        : Align(
-                            alignment: Alignment.center,
-                            child: NftReceiveCard(
-                              currentAddress: state.selectedAddress,
-                              pubkeys: state.pubkeys,
-                              qrCodeSize: 200,
-                              onAddressChanged: (value) =>
-                                  _onAddressChanged(value, context),
-                              coin: state.asset,
-                            ),
-                          );
-                  }
-                  return const SizedBox();
-                },
-              ),
+                }
+                return const SizedBox();
+              }),
             ),
           ),
         ),
@@ -87,8 +85,8 @@ class NftReceiveView extends StatelessWidget {
   }
 
   void _onAddressChanged(PubkeyInfo? value, BuildContext context) {
-    context.read<NftReceiveBloc>().add(
-      NftReceiveAddressChanged(address: value),
-    );
+    context
+        .read<NftReceiveBloc>()
+        .add(NftReceiveAddressChanged(address: value));
   }
 }

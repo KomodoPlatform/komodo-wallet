@@ -61,7 +61,9 @@ abstract class BaseFiatProvider {
     // Add `is_test_mode` query param to all requests if we are in debug mode
     final passedQueryParams = <String, dynamic>{}
       ..addAll(queryParams ?? {})
-      ..addAll({'is_test_mode': kDebugMode ? 'true' : 'false'});
+      ..addAll({
+        'is_test_mode': kDebugMode ? 'true' : 'false',
+      });
 
     url = Uri(
       scheme: domainUri.scheme,
@@ -76,7 +78,10 @@ abstract class BaseFiatProvider {
     http.Response response;
     try {
       if (method == 'GET') {
-        response = await http.get(url, headers: headers);
+        response = await http.get(
+          url,
+          headers: headers,
+        );
       } else {
         response = await http.post(
           url,
@@ -268,10 +273,13 @@ abstract class BaseFiatProvider {
   static String successUrl(String accountReference) {
     final baseUrl = checkoutCallbackUrl();
 
-    final queryString =
-        {'account_reference': accountReference, 'status': 'success'}.entries
-            .map<String>((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
-            .join('&');
+    final queryString = {
+      'account_reference': accountReference,
+      'status': 'success',
+    }
+        .entries
+        .map<String>((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
 
     return '$baseUrl?$queryString';
   }

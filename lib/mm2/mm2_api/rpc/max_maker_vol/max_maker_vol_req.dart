@@ -1,5 +1,7 @@
 class MaxMakerVolRequest {
-  MaxMakerVolRequest({required this.coin});
+  MaxMakerVolRequest({
+    required this.coin,
+  });
 
   static const String method = 'max_maker_vol';
   final String coin;
@@ -10,7 +12,9 @@ class MaxMakerVolRequest {
       'method': method,
       'mmrpc': '2.0',
       'userpass': userpass,
-      'params': {'coin': coin},
+      'params': {
+        'coin': coin,
+      },
     };
   }
 }

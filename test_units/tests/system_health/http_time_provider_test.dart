@@ -29,23 +29,22 @@ void testHttpTimeProvider() {
     test('returns DateTime when response is valid', () async {
       final now = DateTime.utc(2025, 5, 7, 12, 34, 56);
       mockClient.mockResponse = http.Response(
-        jsonEncode({'currentDateTime': now.toIso8601String()}),
-        200,
-      );
+          jsonEncode({'currentDateTime': now.toIso8601String()}), 200);
       final result = await provider.getCurrentUtcTime();
       expect(result, equals(now));
     });
 
     test('throws HttpException on non-200 response', () async {
       mockClient.mockResponse = http.Response('error', 500);
-      expect(() => provider.getCurrentUtcTime(), throwsA(isA<HttpException>()));
+      expect(
+        () => provider.getCurrentUtcTime(),
+        throwsA(isA<HttpException>()),
+      );
     });
 
     test('throws FormatException if field missing', () async {
-      mockClient.mockResponse = http.Response(
-        jsonEncode({'other': 'value'}),
-        200,
-      );
+      mockClient.mockResponse =
+          http.Response(jsonEncode({'other': 'value'}), 200);
       expect(
         () => provider.getCurrentUtcTime(),
         throwsA(isA<FormatException>()),
@@ -53,10 +52,8 @@ void testHttpTimeProvider() {
     });
 
     test('throws FormatException on invalid date format', () async {
-      mockClient.mockResponse = http.Response(
-        jsonEncode({'currentDateTime': 'not-a-date'}),
-        200,
-      );
+      mockClient.mockResponse =
+          http.Response(jsonEncode({'currentDateTime': 'not-a-date'}), 200);
       expect(
         () => provider.getCurrentUtcTime(),
         throwsA(isA<FormatException>()),
@@ -65,7 +62,10 @@ void testHttpTimeProvider() {
 
     test('throws HttpException on exception', () async {
       mockClient.shouldThrow = true;
-      expect(() => provider.getCurrentUtcTime(), throwsA(isA<HttpException>()));
+      expect(
+        () => provider.getCurrentUtcTime(),
+        throwsA(isA<HttpException>()),
+      );
     });
   });
 }

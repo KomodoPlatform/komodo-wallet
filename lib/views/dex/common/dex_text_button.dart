@@ -26,7 +26,7 @@ class DexTextButton extends StatelessWidget {
           border: Border.all(
             color: isActive
                 ? (Color.lerp(theme.primaryColor, Colors.white, 0.1) ??
-                      theme.primaryColor)
+                    theme.primaryColor)
                 : theme.disabledColor,
           ),
         ),

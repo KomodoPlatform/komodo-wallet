@@ -38,9 +38,9 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
 
   @override
   void initState() {
-    context.read<MarketMakerOrderListBloc>().add(
-      const MarketMakerOrderListRequested(Duration(seconds: 3)),
-    );
+    context
+        .read<MarketMakerOrderListBloc>()
+        .add(const MarketMakerOrderListRequested(Duration(seconds: 3)));
     super.initState();
   }
 
@@ -53,9 +53,9 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
   @override
   void didUpdateWidget(MarketMakerBotOrdersList oldWidget) {
     if (oldWidget.entitiesFilterData != widget.entitiesFilterData) {
-      context.read<MarketMakerOrderListBloc>().add(
-        MarketMakerOrderListFilterChanged(widget.entitiesFilterData),
-      );
+      context
+          .read<MarketMakerOrderListBloc>()
+          .add(MarketMakerOrderListFilterChanged(widget.entitiesFilterData));
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -84,7 +84,9 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          AnimatedBotStatusIndicator(status: botState.status),
+                          AnimatedBotStatusIndicator(
+                            status: botState.status,
+                          ),
                           const SizedBox(width: 24),
                           UiPrimaryButton(
                             text: botState.isRunning
@@ -93,13 +95,12 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
                             width: 120,
                             height: 32,
                             textStyle: const TextStyle(fontSize: 12),
-                            onPressed:
-                                botState.isUpdating ||
+                            onPressed: botState.isUpdating ||
                                     state.makerBotOrders.isEmpty
                                 ? null
                                 : botState.isRunning
-                                ? _onStopBotPressed
-                                : _onStartBotPressed,
+                                    ? _onStopBotPressed
+                                    : _onStartBotPressed,
                           ),
                           const SizedBox(width: 12),
                           UiPrimaryButton(
@@ -107,14 +108,12 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
                             width: 120,
                             height: 32,
                             textStyle: const TextStyle(fontSize: 12),
-                            onPressed:
-                                botState.isUpdating ||
+                            onPressed: botState.isUpdating ||
                                     !botState.isRunning ||
                                     state.makerBotOrders.isEmpty
                                 ? null
-                                : () => widget.onCancelAll?.call(
-                                    state.makerBotOrders,
-                                  ),
+                                : () => widget.onCancelAll
+                                    ?.call(state.makerBotOrders),
                           ),
                         ],
                       ),
@@ -194,14 +193,14 @@ class _MarketMakerBotOrdersListState extends State<MarketMakerBotOrdersList> {
   }
 
   void _onStartBotPressed() {
-    context.read<MarketMakerBotBloc>().add(
-      const MarketMakerBotStartRequested(),
-    );
+    context
+        .read<MarketMakerBotBloc>()
+        .add(const MarketMakerBotStartRequested());
   }
 
   void _onSortChange(SortData<MarketMakerBotOrderListType> sortData) {
-    context.read<MarketMakerOrderListBloc>().add(
-      MarketMakerOrderListSortChanged(sortData),
-    );
+    context
+        .read<MarketMakerOrderListBloc>()
+        .add(MarketMakerOrderListSortChanged(sortData));
   }
 }

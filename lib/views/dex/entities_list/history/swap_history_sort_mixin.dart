@@ -92,9 +92,8 @@ mixin SwapHistorySortingMixin {
     List<Swap> swaps, {
     required SortDirection sortDirection,
   }) {
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
-      context,
-    );
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     swaps.sort(
       (first, second) => sortByDouble(
         tradingEntitiesBloc.getPriceFromAmount(
@@ -130,8 +129,11 @@ mixin SwapHistorySortingMixin {
     required SortDirection sortDirection,
   }) {
     swaps.sort(
-      (first, second) =>
-          sortByBool(first.isTaker, second.isTaker, sortDirection),
+      (first, second) => sortByBool(
+        first.isTaker,
+        second.isTaker,
+        sortDirection,
+      ),
     );
     return swaps;
   }

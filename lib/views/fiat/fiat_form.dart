@@ -116,9 +116,8 @@ class _FiatFormState extends State<FiatForm> {
                             isLoggedIn: _isLoggedIn,
                             fiatMinAmount: state.minFiatAmount,
                             fiatMaxAmount: state.maxFiatAmount,
-                            boundariesError: state.fiatAmount.error?.text(
-                              state,
-                            ),
+                            boundariesError:
+                                state.fiatAmount.error?.text(state),
                           ),
                           const SizedBox(height: 16),
                           FiatPaymentMethodsGrid(state: state),
@@ -132,17 +131,16 @@ class _FiatFormState extends State<FiatForm> {
                               text: state.fiatOrderStatus.isSubmitting
                                   ? '${LocaleKeys.submitting.tr()}...'
                                   : LocaleKeys.buyNow.tr(),
-                              onPressed: state.canSubmit
-                                  ? _completeOrder
-                                  : null,
+                              onPressed:
+                                  state.canSubmit ? _completeOrder : null,
                             ),
                           ),
                           const SizedBox(height: 16),
                           Text(
                             _isLoggedIn
                                 ? state.fiatOrderStatus.isFailed
-                                      ? LocaleKeys.fiatCantCompleteOrder.tr()
-                                      : LocaleKeys.fiatPriceCanChange.tr()
+                                    ? LocaleKeys.fiatCantCompleteOrder.tr()
+                                    : LocaleKeys.fiatPriceCanChange.tr()
                                 : LocaleKeys.fiatConnectWallet.tr(),
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodySmall,
@@ -210,9 +208,9 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   void _onConsoleMessage(String message) {
-    context.read<FiatFormBloc>().add(
-      FiatFormPaymentStatusMessageReceived(message),
-    );
+    context
+        .read<FiatFormBloc>()
+        .add(FiatFormPaymentStatusMessageReceived(message));
   }
 
   void _onCloseWebView() {
@@ -279,8 +277,7 @@ class _FiatFormState extends State<FiatForm> {
         title = LocaleKeys.fiatPaymentFailedTitle.tr();
         content = LocaleKeys.fiatPaymentFailedMessage.tr();
         if (state.providerError != null && state.providerError!.isNotEmpty) {
-          content =
-              '$content\n\n${LocaleKeys.errorDetails.tr()}: '
+          content = '$content\n\n${LocaleKeys.errorDetails.tr()}: '
               '${state.providerError}';
         }
         icon = const Icon(Icons.error_outline, color: Colors.red);
@@ -309,13 +306,15 @@ extension on FiatAmountValidationError {
     final fiatId = state.selectedFiat.value?.symbol ?? '';
     switch (this) {
       case FiatAmountValidationError.aboveMaximum:
-        return LocaleKeys.fiatMaximumAmount.tr(
-          args: [state.maxFiatAmount?.toString() ?? '', fiatId],
-        );
+        return LocaleKeys.fiatMaximumAmount
+            .tr(args: [state.maxFiatAmount?.toString() ?? '', fiatId]);
       case FiatAmountValidationError.invalid:
       case FiatAmountValidationError.belowMinimum:
         return LocaleKeys.fiatMinimumAmount.tr(
-          args: [state.minFiatAmount?.toStringAsFixed(2) ?? '', fiatId],
+          args: [
+            state.minFiatAmount?.toStringAsFixed(2) ?? '',
+            fiatId,
+          ],
         );
       case FiatAmountValidationError.empty:
         return null;

@@ -59,9 +59,14 @@ class _MobileLayout extends StatelessWidget {
           child: PagePlate(
             noBackground: noBackground,
             padding: padding,
-            child: Column(mainAxisSize: MainAxisSize.max, children: [content]),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                content,
+              ],
+            ),
           ),
-        ),
+        )
       ],
     );
   }
@@ -92,7 +97,10 @@ class _DesktopLayout extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (header != null) ...[const SizedBox(height: 23), header!],
+                if (header != null) ...[
+                  const SizedBox(height: 23),
+                  header!,
+                ],
                 content,
               ],
             ),

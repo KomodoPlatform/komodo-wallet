@@ -29,12 +29,10 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
       event.type,
       state.contactMethod,
     );
-    emit(
-      state.copyWith(
-        feedbackType: event.type,
-        contactDetailsError: contactError,
-      ),
-    );
+    emit(state.copyWith(
+      feedbackType: event.type,
+      contactDetailsError: contactError,
+    ));
   }
 
   void _onMessageChanged(
@@ -42,12 +40,10 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     Emitter<FeedbackFormState> emit,
   ) {
     final text = _sanitizeInput(event.message);
-    emit(
-      state.copyWith(
-        feedbackText: text,
-        feedbackTextError: _validateFeedbackText(text),
-      ),
-    );
+    emit(state.copyWith(
+      feedbackText: text,
+      feedbackTextError: _validateFeedbackText(text),
+    ));
   }
 
   void _onContactMethodChanged(
@@ -59,9 +55,8 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
       state.feedbackType,
       event.method,
     );
-    emit(
-      state.copyWith(contactMethod: event.method, contactDetailsError: error),
-    );
+    emit(state.copyWith(
+        contactMethod: event.method, contactDetailsError: error));
   }
 
   void _onContactDetailsChanged(
@@ -91,12 +86,10 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     if (state.feedbackType == null ||
         feedbackErr != null ||
         contactErr != null) {
-      emit(
-        state.copyWith(
-          feedbackTextError: feedbackErr,
-          contactDetailsError: contactErr,
-        ),
-      );
+      emit(state.copyWith(
+        feedbackTextError: feedbackErr,
+        contactDetailsError: contactErr,
+      ));
       return;
     }
 
@@ -106,16 +99,17 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
         feedbackType: state.feedbackType,
         feedbackText: state.feedbackText,
         contactMethod: state.contactMethod,
-        contactDetails: state.contactDetails.isNotEmpty
-            ? state.contactDetails
-            : null,
+        contactDetails:
+            state.contactDetails.isNotEmpty ? state.contactDetails : null,
       );
-      await _onSubmit(data.toFormattedDescription(), extras: data.toMap());
+      await _onSubmit(
+        data.toFormattedDescription(),
+        extras: data.toMap(),
+      );
       emit(state.copyWith(status: FeedbackFormStatus.success));
     } catch (e) {
-      emit(
-        state.copyWith(status: FeedbackFormStatus.failure, errorMessage: '$e'),
-      );
+      emit(state.copyWith(
+          status: FeedbackFormStatus.failure, errorMessage: '$e'));
     }
   }
 
@@ -193,12 +187,9 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
         .trim()
         .replaceAll(RegExp(r'<[^>]*>'), '')
         .replaceAll(
-          RegExp(
-            r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>',
-            caseSensitive: false,
-          ),
-          '',
-        )
+            RegExp(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>',
+                caseSensitive: false),
+            '')
         .replaceAll(RegExp(r'javascript:', caseSensitive: false), '')
         .replaceAll(RegExp(r'data:[^,]*script[^,]*,', caseSensitive: false), '')
         .replaceAll(RegExp(r'\n{3,}'), '\n\n');

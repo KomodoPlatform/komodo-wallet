@@ -45,24 +45,25 @@ class _OrderbookErrorMessageState extends State<OrderbookErrorMessage> {
               ),
               const SizedBox(width: 8),
               InkWell(
-                onTap: () => setState(() => _isExpanded = !_isExpanded),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      _isExpanded
-                          ? LocaleKeys.close.tr()
-                          : LocaleKeys.details.tr(),
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    Icon(
-                      _isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                      size: 16,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
-                    ),
-                  ],
-                ),
-              ),
+                  onTap: () => setState(() => _isExpanded = !_isExpanded),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _isExpanded
+                            ? LocaleKeys.close.tr()
+                            : LocaleKeys.details.tr(),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      Icon(
+                        _isExpanded
+                            ? Icons.arrow_drop_up
+                            : Icons.arrow_drop_down,
+                        size: 16,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                      ),
+                    ],
+                  )),
             ],
           ),
           if (_isExpanded)

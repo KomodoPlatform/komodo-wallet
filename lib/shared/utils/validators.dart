@@ -11,7 +11,7 @@ enum PasswordValidationError {
   missingUppercase,
   missingSpecialCharacter,
   consecutiveCharacters,
-  none,
+  none
 }
 
 /// Converts a password validation error to a localized error message
@@ -43,9 +43,8 @@ String? validateConfirmPassword(String password, String confirmPassword) {
 }
 
 String? validatePasswordLegacy(String password, String errorText) {
-  final RegExp exp = RegExp(
-    r'^(?:(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])).{12,}$',
-  );
+  final RegExp exp =
+      RegExp(r'^(?:(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])).{12,}$');
   return password.isEmpty || !password.contains(exp) ? errorText : null;
 }
 
@@ -75,9 +74,9 @@ PasswordValidationError checkPasswordRequirements(String password) {
     return PasswordValidationError.tooShort;
   }
 
-  if (password.toLowerCase().contains(
-    RegExp('password', caseSensitive: false, unicode: true),
-  )) {
+  if (password
+      .toLowerCase()
+      .contains(RegExp('password', caseSensitive: false, unicode: true))) {
     return PasswordValidationError.containsPassword;
   }
 

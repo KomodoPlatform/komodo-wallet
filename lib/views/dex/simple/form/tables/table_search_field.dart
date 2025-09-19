@@ -5,15 +5,14 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 
 class TableSearchField extends StatelessWidget {
   const TableSearchField({Key? key, required this.onChanged, this.height = 44})
-    : super(key: key);
+      : super(key: key);
   final Function(String) onChanged;
   final double height;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(
-      context,
-    ).textTheme.bodyMedium?.copyWith(fontSize: 12);
+    final style =
+        Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12);
 
     return SizedBox(
       height: height,

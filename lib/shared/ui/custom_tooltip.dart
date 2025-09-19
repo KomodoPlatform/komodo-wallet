@@ -16,7 +16,7 @@ class CustomTooltip extends StatefulWidget {
         blurRadius: 5,
         spreadRadius: 1,
         offset: Offset(0, 2),
-      ),
+      )
     ],
     this.color,
   }) : super(key: key);
@@ -92,10 +92,9 @@ class _CustomTooltipState extends State<CustomTooltip> {
     final RenderBox childObject =
         _childKey.currentContext?.findRenderObject() as RenderBox;
     final childOffset = childObject.localToGlobal(Offset.zero);
-    final bottom =
-        MediaQueryData.fromView(
-          View.of(_childKey.currentContext!),
-        ).size.height -
+    final bottom = MediaQueryData.fromView(View.of(_childKey.currentContext!))
+            .size
+            .height -
         childOffset.dy;
     final left = childOffset.dx + childObject.size.width;
 
@@ -121,13 +120,14 @@ class _CustomTooltipState extends State<CustomTooltip> {
                     if (_tooltipHasHover) return;
 
                     await Future<dynamic>.delayed(
-                      const Duration(milliseconds: 300),
-                    );
+                        const Duration(milliseconds: 300));
                     if (!_childHasHover) _hide();
                   },
                   child: Container(
                     key: _tooltipKey,
-                    constraints: BoxConstraints(maxWidth: widget.maxWidth),
+                    constraints: BoxConstraints(
+                      maxWidth: widget.maxWidth,
+                    ),
                     decoration: BoxDecoration(
                       color:
                           widget.color ?? Theme.of(context).colorScheme.surface,

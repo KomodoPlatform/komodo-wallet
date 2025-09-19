@@ -46,24 +46,23 @@ class FileLoaderNativeDesktop implements FileLoader {
   }
 
   Future<void> _saveAsTextFile(String fileName, String data) async {
-    final String? fileFullPath = await FilePicker.platform.saveFile(
-      fileName: '$fileName.txt',
-    );
+    final String? fileFullPath =
+        await FilePicker.platform.saveFile(fileName: '$fileName.txt');
     if (fileFullPath == null) return;
     final File file = File(fileFullPath)..createSync(recursive: true);
     await file.writeAsString(data);
   }
 
-  Future<void> _saveAsCompressedFile(String fileName, String data) async {
-    final String? fileFullPath = await FilePicker.platform.saveFile(
-      fileName: '$fileName.zip',
-    );
+  Future<void> _saveAsCompressedFile(
+    String fileName,
+    String data,
+  ) async {
+    final String? fileFullPath =
+        await FilePicker.platform.saveFile(fileName: '$fileName.zip');
     if (fileFullPath == null) return;
 
-    final compressedBytes = createZipOfSingleFile(
-      fileName: fileName,
-      fileContent: data,
-    );
+    final compressedBytes =
+        createZipOfSingleFile(fileName: fileName, fileContent: data);
 
     final File compressedFile = File(fileFullPath);
     await compressedFile.writeAsBytes(compressedBytes);

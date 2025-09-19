@@ -6,8 +6,11 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class LaunchNativeExplorerButton extends StatelessWidget {
-  const LaunchNativeExplorerButton({Key? key, required this.coin, this.address})
-    : super(key: key);
+  const LaunchNativeExplorerButton({
+    Key? key,
+    required this.coin,
+    this.address,
+  }) : super(key: key);
   final Coin coin;
   final String? address;
 

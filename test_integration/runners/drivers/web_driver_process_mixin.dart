@@ -18,10 +18,8 @@ mixin WebDriverProcessMixin {
     ProcessStartMode mode = ProcessStartMode.detachedWithStdio,
   }) async {
     if (await isPortInUse(port)) {
-      print(
-        'Port $port is already in use. Please stop the running $driverName'
-        ' or use a different port.',
-      );
+      print('Port $port is already in use. Please stop the running $driverName'
+          ' or use a different port.');
       print('Continuing tests with the prcoess currently using the port');
       return;
     }
@@ -32,10 +30,8 @@ mixin WebDriverProcessMixin {
       print('Attempting to stop running $driverName with PID $_processId');
       await stopDriver();
       if (isRunning || await _isProcessRunningByName(executableName)) {
-        print(
-          'Failed to stop running $driverName. Please try closing it with '
-          'Task Manager (Windows) or Activity Monitor (macOS)',
-        );
+        print('Failed to stop running $driverName. Please try closing it with '
+            'Task Manager (Windows) or Activity Monitor (macOS)');
         return;
       }
     }
@@ -54,8 +50,7 @@ mixin WebDriverProcessMixin {
     if (!isProcessRunning) {
       _processId = null;
       throw Exception(
-        'Failed to start $driverName. Process $_processId not running',
-      );
+          'Failed to start $driverName. Process $_processId not running');
     }
 
     print('$driverName started on port $port (PID: $_processId)');
@@ -85,18 +80,21 @@ mixin WebDriverProcessMixin {
   Future<void> _killUnixProcess(int pid) async {
     final result = await Process.run('kill', ['-9', pid.toString()]);
     if (result.exitCode != 0) {
-      print('Warning: Failed to kill $driverName process: ${result.stderr}');
+      print(
+        'Warning: Failed to kill $driverName process: ${result.stderr}',
+      );
     }
   }
 
   Future<void> _killWindowsProcess(int pid) async {
-    final result = await Process.run('taskkill', [
-      '/F',
-      '/PID',
-      pid.toString(),
-    ]);
+    final result = await Process.run(
+      'taskkill',
+      ['/F', '/PID', pid.toString()],
+    );
     if (result.exitCode != 0) {
-      print('Warning: Failed to kill $driverName process: ${result.stderr}');
+      print(
+        'Warning: Failed to kill $driverName process: ${result.stderr}',
+      );
     }
   }
 }
@@ -128,7 +126,10 @@ Future<bool> _isProcessRunning(int pid, int port) async {
 }
 
 Future<bool> _isUnixProcessRunning(int pid) async {
-  final result = await Process.run('ps', ['-p', pid.toString()]);
+  final result = await Process.run(
+    'ps',
+    ['-p', pid.toString()],
+  );
   if (result.exitCode != 0) {
     return false;
   }
@@ -137,7 +138,10 @@ Future<bool> _isUnixProcessRunning(int pid) async {
 }
 
 Future<bool> _isWindowsProcessRunning(int pid) async {
-  final result = await Process.run('tasklist', ['/FI', 'PID eq $pid']);
+  final result = await Process.run(
+    'tasklist',
+    ['/FI', 'PID eq $pid'],
+  );
   if (result.exitCode != 0) {
     return false;
   }

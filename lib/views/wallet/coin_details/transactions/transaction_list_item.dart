@@ -79,14 +79,16 @@ class _TransactionListRowState extends State<TransactionListRow> {
   Widget _buildAmountChangesMobile(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [_buildBalanceChanges(), _buildUsdChanges()],
+      children: [
+        _buildBalanceChanges(),
+        _buildUsdChanges(),
+      ],
     );
   }
 
   Widget _buildBalanceChanges() {
-    final String formatted = formatDexAmt(
-      widget.transaction.amount.toDouble().abs(),
-    );
+    final String formatted =
+        formatDexAmt(widget.transaction.amount.toDouble().abs());
 
     return Row(
       children: [
@@ -176,7 +178,9 @@ class _TransactionListRowState extends State<TransactionListRow> {
                 flex: 5,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [_buildBalanceChangesMobile(context)],
+                  children: [
+                    _buildBalanceChangesMobile(context),
+                  ],
                 ),
               ),
               Expanded(
@@ -216,7 +220,10 @@ class _TransactionListRowState extends State<TransactionListRow> {
           width: 60,
           child: Text(
             _isReceived ? LocaleKeys.receive.tr() : LocaleKeys.send.tr(),
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
           ),
         ),
         Expanded(flex: 4, child: _buildBalanceChanges()),

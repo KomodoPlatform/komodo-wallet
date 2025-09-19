@@ -59,7 +59,10 @@ class GradientContainer extends StatelessWidget {
         ),
         borderRadius: borderRadius ?? BorderRadius.circular(12),
         border: showBorder
-            ? Border.all(color: theme.dividerColor, width: borderWidth)
+            ? Border.all(
+                color: theme.dividerColor,
+                width: borderWidth,
+              )
             : null,
       ),
       child: Padding(

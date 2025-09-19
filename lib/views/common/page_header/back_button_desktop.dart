@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 
 class BackButtonDesktop extends StatelessWidget {
-  const BackButtonDesktop({required this.text, required this.onPressed});
+  const BackButtonDesktop({
+    required this.text,
+    required this.onPressed,
+  });
   final String text;
   final VoidCallback onPressed;
 

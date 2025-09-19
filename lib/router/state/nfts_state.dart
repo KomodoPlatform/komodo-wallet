@@ -3,9 +3,9 @@ import 'package:web_dex/router/state/menu_state_interface.dart';
 
 class NFTsState extends ChangeNotifier implements IResettableOnLogout {
   NFTsState()
-    : _selectedNftIndex = '',
-      _uuid = '',
-      _pageState = NFTSelectedState.none;
+      : _selectedNftIndex = '',
+        _uuid = '',
+        _pageState = NFTSelectedState.none;
 
   String _selectedNftIndex;
   String _uuid;
@@ -64,4 +64,10 @@ class NFTsState extends ChangeNotifier implements IResettableOnLogout {
   }
 }
 
-enum NFTSelectedState { details, send, receive, transactions, none }
+enum NFTSelectedState {
+  details,
+  send,
+  receive,
+  transactions,
+  none,
+}

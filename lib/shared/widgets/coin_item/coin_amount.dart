@@ -3,7 +3,11 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 
 class CoinAmount extends StatelessWidget {
-  const CoinAmount({super.key, required this.amount, this.style});
+  const CoinAmount({
+    super.key,
+    required this.amount,
+    this.style,
+  });
 
   final double amount;
   final TextStyle? style;

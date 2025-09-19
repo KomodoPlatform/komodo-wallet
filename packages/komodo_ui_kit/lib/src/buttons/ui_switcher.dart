@@ -30,13 +30,15 @@ class _UiSwitcherState extends State<UiSwitcher>
       value: widget.value ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 200),
     );
-    _toggleAnimation =
-        AlignmentTween(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ).animate(
-          CurvedAnimation(parent: _animationController, curve: Curves.linear),
-        );
+    _toggleAnimation = AlignmentTween(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.linear,
+      ),
+    );
     super.initState();
   }
 
@@ -88,9 +90,8 @@ class _UiSwitcherState extends State<UiSwitcher>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: widget.value ? Colors.white : null,
-                      gradient: widget.value
-                          ? null
-                          : theme.custom.defaultSwitchColor,
+                      gradient:
+                          widget.value ? null : theme.custom.defaultSwitchColor,
                     ),
                   ),
                 ),

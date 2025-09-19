@@ -43,8 +43,8 @@ class EnableTestCoinsSwitcher extends StatelessWidget {
   }
 
   void _onSwitcherChanged(BuildContext context, bool value) {
-    context.read<SettingsBloc>().add(
-      TestCoinsEnabledChanged(testCoinsEnabled: value),
-    );
+    context
+        .read<SettingsBloc>()
+        .add(TestCoinsEnabledChanged(testCoinsEnabled: value));
   }
 }

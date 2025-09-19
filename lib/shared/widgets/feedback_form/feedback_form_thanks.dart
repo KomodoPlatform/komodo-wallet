@@ -31,10 +31,8 @@ class FeedbackFormThanks extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 26),
-            child: Text(
-              LocaleKeys.feedbackFormThanksTitle.tr(),
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
+            child: Text(LocaleKeys.feedbackFormThanksTitle.tr(),
+                style: Theme.of(context).textTheme.headlineSmall),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 11),

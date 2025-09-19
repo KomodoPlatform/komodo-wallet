@@ -31,11 +31,11 @@ class TradingAmountField extends StatelessWidget {
         inputFormatters: currencyInputFormatters,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: dexPageColors.activeText,
-          decoration: TextDecoration.none,
-        ),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: dexPageColors.activeText,
+              decoration: TextDecoration.none,
+            ),
         decoration: InputDecoration(
           hintText: '0.00',
           contentPadding: contentPadding,

@@ -41,8 +41,8 @@ class AllowWeakPasswordsSwitcher extends StatelessWidget {
   }
 
   void _onSwitcherChanged(BuildContext context, bool value) {
-    context.read<SettingsBloc>().add(
-      WeakPasswordsAllowedChanged(weakPasswordsAllowed: value),
-    );
+    context
+        .read<SettingsBloc>()
+        .add(WeakPasswordsAllowedChanged(weakPasswordsAllowed: value));
   }
 }

@@ -22,7 +22,9 @@ class SwapProgressStatus extends StatelessWidget {
       return const _CompletedSwapStatus(key: Key('swap-status-success'));
     }
     return isFailed
-        ? const _FailedSwapStatus(circleSize: circleSize)
+        ? const _FailedSwapStatus(
+            circleSize: circleSize,
+          )
         : _InProgressSwapStatus(progress: progress, circleSize: circleSize);
   }
 }
@@ -51,7 +53,7 @@ class _CompletedSwapStatus extends StatelessWidget {
 
 class _FailedSwapStatus extends StatelessWidget {
   const _FailedSwapStatus({Key? key, required this.circleSize})
-    : super(key: key);
+      : super(key: key);
   final double circleSize;
 
   @override
@@ -65,8 +67,8 @@ class _FailedSwapStatus extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: theme.custom.tradingDetailsTheme.swapFailedStatusColors,
-            ),
+                colors:
+                    theme.custom.tradingDetailsTheme.swapFailedStatusColors),
           ),
           child: Padding(
             padding: const EdgeInsets.all(30),
@@ -99,11 +101,9 @@ class _FailedSwapStatus extends StatelessWidget {
 }
 
 class _InProgressSwapStatus extends StatefulWidget {
-  const _InProgressSwapStatus({
-    Key? key,
-    required this.progress,
-    required this.circleSize,
-  }) : super(key: key);
+  const _InProgressSwapStatus(
+      {Key? key, required this.progress, required this.circleSize})
+      : super(key: key);
   final int progress;
   final double circleSize;
 
@@ -123,13 +123,12 @@ class _InProgressSwapStatusState extends State<_InProgressSwapStatus>
       duration: const Duration(milliseconds: 2500),
     );
     _colorAnimationController.repeat(reverse: true);
-    _colorAnimation =
-        Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn))
-            .animate(_colorAnimationController)
-          ..addListener(() {
-            setState(() {});
-          });
+    _colorAnimation = Tween(begin: 0.0, end: 1.0)
+        .chain(CurveTween(curve: Curves.easeIn))
+        .animate(_colorAnimationController)
+      ..addListener(() {
+        setState(() {});
+      });
     super.initState();
   }
 

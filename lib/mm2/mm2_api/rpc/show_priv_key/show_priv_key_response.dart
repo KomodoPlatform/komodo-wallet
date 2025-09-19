@@ -1,5 +1,8 @@
 class ShowPrivKeyResponse {
-  ShowPrivKeyResponse({required this.coin, required this.privKey});
+  ShowPrivKeyResponse({
+    required this.coin,
+    required this.privKey,
+  });
 
   factory ShowPrivKeyResponse.fromJson(Map<String, dynamic> json) =>
       ShowPrivKeyResponse(

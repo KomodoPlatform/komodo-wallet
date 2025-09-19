@@ -37,17 +37,15 @@ class CustomTokenImportBloc
     ResetFormStatusEvent event,
     Emitter<CustomTokenImportState> emit,
   ) {
-    final availableCoinTypes = CoinType.values.map(
-      (CoinType type) => type.toCoinSubClass(),
-    );
-    final items =
-        CoinSubClass.values
-            .where(
-              (CoinSubClass type) =>
-                  type.isEvmProtocol() && availableCoinTypes.contains(type),
-            )
-            .toList()
-          ..sort((a, b) => a.name.compareTo(b.name));
+    final availableCoinTypes =
+        CoinType.values.map((CoinType type) => type.toCoinSubClass());
+    final items = CoinSubClass.values
+        .where(
+          (CoinSubClass type) =>
+              type.isEvmProtocol() && availableCoinTypes.contains(type),
+        )
+        .toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
 
     emit(
       state.copyWith(
@@ -90,18 +88,14 @@ class CustomTokenImportBloc
       }
 
       await _coinsRepo.activateCoinsSync([networkAsset]);
-      final tokenData = await repository.fetchCustomToken(
-        state.network,
-        state.address,
-      );
+      final tokenData =
+          await repository.fetchCustomToken(state.network, state.address);
       await _coinsRepo.activateAssetsSync([tokenData]);
 
       final balanceInfo = await _coinsRepo.tryGetBalanceInfo(tokenData.id);
       final balance = balanceInfo.spendable;
-      final usdBalance = _coinsRepo.getUsdPriceByAmount(
-        balance.toString(),
-        tokenData.id.id,
-      );
+      final usdBalance =
+          _coinsRepo.getUsdPriceByAmount(balance.toString(), tokenData.id.id);
 
       emit(
         state.copyWith(

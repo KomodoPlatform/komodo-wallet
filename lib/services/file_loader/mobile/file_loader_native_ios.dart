@@ -43,10 +43,8 @@ class FileLoaderNativeIOS implements FileLoader {
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, '$fileName.zip');
 
-    final compressedBytes = createZipOfSingleFile(
-      fileName: fileName,
-      fileContent: data,
-    );
+    final compressedBytes =
+        createZipOfSingleFile(fileName: fileName, fileContent: data);
 
     final File compressedFile = File(filePath);
     await compressedFile.writeAsBytes(compressedBytes);

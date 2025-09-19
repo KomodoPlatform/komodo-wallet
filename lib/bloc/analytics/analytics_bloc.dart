@@ -13,10 +13,10 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
     required AnalyticsRepo analytics,
     required StoredSettings storedData,
     required SettingsRepository repository,
-  }) : _analytics = analytics,
-       _storedData = storedData,
-       _settingsRepo = repository,
-       super(AnalyticsState.fromSettings(storedData.analytics)) {
+  })  : _analytics = analytics,
+        _storedData = storedData,
+        _settingsRepo = repository,
+        super(AnalyticsState.fromSettings(storedData.analytics)) {
     on<AnalyticsActivateEvent>(_onActivate);
     on<AnalyticsDeactivateEvent>(_onDeactivate);
     on<AnalyticsSendDataEvent>(_onSendData);

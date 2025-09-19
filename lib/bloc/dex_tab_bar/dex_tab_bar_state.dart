@@ -11,12 +11,12 @@ class DexTabBarState extends Equatable {
   });
 
   const DexTabBarState.initial()
-    : tabIndex = 0,
-      filters = const {},
-      ordersCount = 0,
-      inProgressCount = 0,
-      completedCount = 0,
-      tradeBotOrdersCount = 0;
+      : tabIndex = 0,
+        filters = const {},
+        ordersCount = 0,
+        inProgressCount = 0,
+        completedCount = 0,
+        tradeBotOrdersCount = 0;
 
   final int tabIndex;
   final Map<ITabTypeEnum, TradingEntitiesFilter?> filters;
@@ -45,11 +45,11 @@ class DexTabBarState extends Equatable {
 
   @override
   List<Object?> get props => [
-    tabIndex,
-    filters,
-    ordersCount,
-    inProgressCount,
-    completedCount,
-    tradeBotOrdersCount,
-  ];
+        tabIndex,
+        filters,
+        ordersCount,
+        inProgressCount,
+        completedCount,
+        tradeBotOrdersCount,
+      ];
 }

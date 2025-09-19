@@ -24,14 +24,14 @@ class RpcError extends Equatable {
   });
 
   factory RpcError.fromJson(Map<String, dynamic> json) => RpcError(
-    mmrpc: json['mmrpc'] as String?,
-    error: json['error'] as String?,
-    errorPath: json['error_path'] as String?,
-    errorTrace: json['error_trace'] as String?,
-    errorType: RpcErrorType.fromString(json['error_type'] as String? ?? ''),
-    errorData: json['error_data'] as String?,
-    id: json['id'] as int?,
-  );
+        mmrpc: json['mmrpc'] as String?,
+        error: json['error'] as String?,
+        errorPath: json['error_path'] as String?,
+        errorTrace: json['error_trace'] as String?,
+        errorType: RpcErrorType.fromString(json['error_type'] as String? ?? ''),
+        errorData: json['error_data'] as String?,
+        id: json['id'] as int?,
+      );
 
   final String? mmrpc;
   final String? error;
@@ -42,14 +42,14 @@ class RpcError extends Equatable {
   final int? id;
 
   Map<String, dynamic> toJson() => {
-    'mmrpc': mmrpc,
-    'error': error,
-    'error_path': errorPath,
-    'error_trace': errorTrace,
-    'error_type': errorType?.toString(),
-    'error_data': errorData,
-    'id': id,
-  };
+        'mmrpc': mmrpc,
+        'error': error,
+        'error_path': errorPath,
+        'error_trace': errorTrace,
+        'error_type': errorType?.toString(),
+        'error_data': errorData,
+        'id': id,
+      };
 
   RpcError copyWith({
     String? mmrpc,
@@ -87,6 +87,14 @@ RpcError: {
 
   @override
   List<Object?> get props {
-    return [mmrpc, error, errorPath, errorTrace, errorType, errorData, id];
+    return [
+      mmrpc,
+      error,
+      errorPath,
+      errorTrace,
+      errorType,
+      errorData,
+      id,
+    ];
   }
 }

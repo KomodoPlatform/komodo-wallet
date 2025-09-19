@@ -20,7 +20,10 @@ part 'coins_state.dart';
 
 /// Responsible for coin activation, deactivation, syncing, and fiat price
 class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
-  CoinsBloc(this._kdfSdk, this._coinsRepo) : super(CoinsState.initial()) {
+  CoinsBloc(
+    this._kdfSdk,
+    this._coinsRepo,
+  ) : super(CoinsState.initial()) {
     on<CoinsStarted>(_onCoinsStarted, transformer: droppable());
     // TODO: move auth listener to ui layer: bloclistener should fire auth events
     on<CoinsBalanceMonitoringStarted>(_onCoinsBalanceMonitoringStarted);
@@ -72,7 +75,14 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
 
       // Update state with new pubkeys
-      emit(state.copyWith(pubkeys: {...state.pubkeys, event.coinId: pubkeys}));
+      emit(
+        state.copyWith(
+          pubkeys: {
+            ...state.pubkeys,
+            event.coinId: pubkeys,
+          },
+        ),
+      );
     } catch (e, s) {
       _log.shout('Failed to get pubkeys for ${event.coinId}', e, s);
     }
@@ -197,9 +207,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       final coinUpdates = _syncIguanaCoinsStates();
       await emit.forEach(
         coinUpdates,
-        onData: (coin) => state.copyWith(
-          walletCoins: {...state.walletCoins, coin.id.id: coin},
-        ),
+        onData: (coin) => state
+            .copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
       );
     }
 
@@ -252,9 +261,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Map<String, Coin> currentCoins,
   ) {
     final updatedWalletCoins = Map.fromEntries(
-      currentWalletCoins.entries.where(
-        (entry) => !coinsToDisable.contains(entry.key),
-      ),
+      currentWalletCoins.entries
+          .where((entry) => !coinsToDisable.contains(entry.key)),
     );
     final updatedCoins = Map<String, Coin>.of(currentCoins);
     for (final assetId in coinsToDisable) {
@@ -374,10 +382,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     final knownCoins = _coinsRepo.getKnownCoinsMap();
     final activatingCoins = Map<String, Coin>.fromIterable(
       coins
-          .map((coin) {
-            final sdkCoin = knownCoins[coin];
-            return sdkCoin?.copyWith(state: CoinState.activating);
-          })
+          .map(
+            (coin) {
+              final sdkCoin = knownCoins[coin];
+              return sdkCoin?.copyWith(state: CoinState.activating);
+            },
+          )
           .where((coin) => coin != null)
           .cast<Coin>(),
       key: (element) => (element as Coin).id.id,
@@ -409,10 +419,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       }
       if (assets.length > 1) {
         final assetIds = assets.map((a) => a.id.id).join(', ');
-        _log.shout(
-          'Multiple assets found for activated coin ID: $coinId. '
-          'Expected single asset, found ${assets.length}: $assetIds. ',
-        );
+        _log.shout('Multiple assets found for activated coin ID: $coinId. '
+            'Expected single asset, found ${assets.length}: $assetIds. ');
       }
 
       // This is expected to throw if there are multiple assets, to stick
@@ -420,10 +428,8 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       walletAssets.add(assets.single);
     }
 
-    final coinsToSync = _getWalletCoinsNotInState(
-      walletAssets,
-      coinsBlocWalletCoinsState,
-    );
+    final coinsToSync =
+        _getWalletCoinsNotInState(walletAssets, coinsBlocWalletCoinsState);
     if (coinsToSync.isNotEmpty) {
       _log.info(
         'Found ${coinsToSync.length} wallet coins not in state, '
@@ -434,9 +440,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   }
 
   List<Coin> _getWalletCoinsNotInState(
-    List<Asset> walletAssets,
-    Map<String, Coin> coinsBlocWalletCoinsState,
-  ) {
+      List<Asset> walletAssets, Map<String, Coin> coinsBlocWalletCoinsState) {
     final List<Coin> coinsToSyncToState = [];
 
     final enabledAssetsNotInState = walletAssets

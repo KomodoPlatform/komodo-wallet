@@ -9,7 +9,7 @@ import 'package:web_dex/views/dex/entity_details/trading_progress_status.dart';
 
 class TakerOrderDetailsPage extends StatefulWidget {
   const TakerOrderDetailsPage(this.takerOrderStatus, {Key? key})
-    : super(key: key);
+      : super(key: key);
 
   final TakerOrderStatus takerOrderStatus;
 
@@ -46,7 +46,7 @@ class _TakerOrderDetailsPageState extends State<TakerOrderDetailsPage> {
   bool get _isFailed {
     return ![
       TakerOrderCancellationReason.none,
-      TakerOrderCancellationReason.fulfilled,
+      TakerOrderCancellationReason.fulfilled
     ].contains(widget.takerOrderStatus.cancellationReason);
   }
 }

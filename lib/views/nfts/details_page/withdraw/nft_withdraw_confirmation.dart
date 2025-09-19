@@ -24,25 +24,20 @@ class NftWithdrawConfirmation extends StatelessWidget {
     return Column(
       children: [
         NftDataRow(
-          titleWidget: Flexible(
-            child: Text(
-              LocaleKeys.recipientAddress.tr(),
-              style: textTheme.bodyS.copyWith(
-                color: colorScheme.s50,
-                height: 1,
+            titleWidget: Flexible(
+              child: Text(
+                LocaleKeys.recipientAddress.tr(),
+                style:
+                    textTheme.bodyS.copyWith(color: colorScheme.s50, height: 1),
               ),
             ),
-          ),
-          valueWidget: Flexible(
-            child: TruncatedMiddleText(
-              txDetails.to.first,
-              style: textTheme.bodySBold.copyWith(
-                color: colorScheme.secondary,
-                height: 1,
+            valueWidget: Flexible(
+              child: TruncatedMiddleText(
+                txDetails.to.first,
+                style: textTheme.bodySBold
+                    .copyWith(color: colorScheme.secondary, height: 1),
               ),
-            ),
-          ),
-        ),
+            )),
         const SizedBox(height: 15),
         NftDataRow(
           title: LocaleKeys.tokensAmount.tr(),

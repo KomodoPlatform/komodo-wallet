@@ -18,7 +18,10 @@ class BridgeTargetAmountRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [_TargetAmount(), _FiatAmount()],
+      children: [
+        _TargetAmount(),
+        _FiatAmount(),
+      ],
     );
   }
 }

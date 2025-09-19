@@ -11,9 +11,15 @@ import '../../helpers/accept_alpha_warning.dart';
 import '../../helpers/restore_wallet.dart';
 
 Future<void> testMainMenu(WidgetTester tester) async {
-  final Finder general = find.byKey(const Key('settings-menu-item-general'));
-  final Finder security = find.byKey(const Key('settings-menu-item-security'));
-  final Finder feedback = find.byKey(const Key('settings-menu-item-feedback'));
+  final Finder general = find.byKey(
+    const Key('settings-menu-item-general'),
+  );
+  final Finder security = find.byKey(
+    const Key('settings-menu-item-security'),
+  );
+  final Finder feedback = find.byKey(
+    const Key('settings-menu-item-feedback'),
+  );
 
   await goto.walletPage(tester);
   expect(find.byKey(const Key('wallet-page-coins-list')), findsOneWidget);
@@ -46,16 +52,20 @@ Future<void> testMainMenu(WidgetTester tester) async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Run menu tests:', (WidgetTester tester) async {
-    tester.testTextInput.register();
-    await app.main();
-    await tester.pumpAndSettle();
-    await acceptAlphaWarning(tester);
-    print('ACCEPT ALPHA WARNING');
-    await restoreWalletToTest(tester);
-    await testMainMenu(tester);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Run menu tests:',
+    (WidgetTester tester) async {
+      tester.testTextInput.register();
+      await app.main();
+      await tester.pumpAndSettle();
+      await acceptAlphaWarning(tester);
+      print('ACCEPT ALPHA WARNING');
+      await restoreWalletToTest(tester);
+      await testMainMenu(tester);
+      await tester.pumpAndSettle();
 
-    print('END MAIN MENU TESTS');
-  }, semanticsEnabled: false);
+      print('END MAIN MENU TESTS');
+    },
+    semanticsEnabled: false,
+  );
 }

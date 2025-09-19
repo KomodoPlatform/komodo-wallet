@@ -1,7 +1,10 @@
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 
 class ValidateAddressRequest implements BaseRequest {
-  ValidateAddressRequest({required this.coin, required this.address});
+  ValidateAddressRequest({
+    required this.coin,
+    required this.address,
+  });
 
   @override
   final String method = 'validateaddress';

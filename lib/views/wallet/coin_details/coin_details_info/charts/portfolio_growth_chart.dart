@@ -44,10 +44,10 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
       builder: (BuildContext context, PortfolioGrowthState state) {
         final List<ChartData> chartData =
             (state is PortfolioGrowthChartLoadSuccess)
-            ? state.portfolioGrowth
-                  .map((point) => ChartData(x: point.x, y: point.y))
-                  .toList()
-            : [];
+                ? state.portfolioGrowth
+                    .map((point) => ChartData(x: point.x, y: point.y))
+                    .toList()
+                : [];
 
         final totalValue = _calculateTotalValue(chartData);
 
@@ -56,10 +56,11 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
             : 0.0;
 
         final (dateAxisLabelCount, dateAxisLabelFormat) =
-            PriceChartPage.dateAxisLabelCountFormat(state.selectedPeriod);
+            PriceChartPage.dateAxisLabelCountFormat(
+          state.selectedPeriod,
+        );
 
-        final isChartLoading =
-            (state is! PortfolioGrowthChartLoadSuccess &&
+        final isChartLoading = (state is! PortfolioGrowthChartLoadSuccess &&
                 state is! PortfolioGrowthChartUnsupported) ||
             (state is PortfolioGrowthChartLoadSuccess && state.isUpdating);
 
@@ -84,12 +85,13 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                   ),
                   leadingIcon: _singleCoinOrNull == null
                       ? null
-                      : AssetIcon.ofTicker(_singleCoinOrNull!.abbr, size: 24),
+                      : AssetIcon.ofTicker(
+                          _singleCoinOrNull!.abbr,
+                          size: 24,
+                        ),
                   leadingText: Text(
-                    NumberFormat.currency(
-                      symbol: '\$',
-                      decimalDigits: 2,
-                    ).format(totalValue),
+                    NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                        .format(totalValue),
                   ),
                   availableCoins: widget.initialCoins
                       .map(
@@ -112,12 +114,12 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                     final user = context.read<AuthBloc>().state.currentUser;
                     final walletId = user!.wallet.id;
                     context.read<PortfolioGrowthBloc>().add(
-                      PortfolioGrowthPeriodChanged(
-                        selectedPeriod: selected,
-                        coins: _selectedCoins,
-                        walletId: walletId,
-                      ),
-                    );
+                          PortfolioGrowthPeriodChanged(
+                            selectedPeriod: selected,
+                            coins: _selectedCoins,
+                            walletId: walletId,
+                          ),
+                        );
                   },
                 ),
                 const Gap(16),
@@ -126,8 +128,7 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                     elements: [
                       ChartDataSeries(
                         data: chartData,
-                        color:
-                            (_isSingleCoinSelected
+                        color: (_isSingleCoinSelected
                                 ? getCoinColor(_singleCoinOrNull!.abbr)
                                 : null) ??
                             Theme.of(context).colorScheme.primary,
@@ -138,18 +139,20 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                         count: 5,
                         labelBuilder: (value) =>
                             NumberFormat.compactSimpleCurrency(
-                              // symbol: '\$',
-                              // USD Locale
-                              locale: 'en_US',
-                              // )..maximumFractionDigits = 2
-                            ).format(value),
+                          // symbol: '\$',
+                          // USD Locale
+                          locale: 'en_US',
+                          // )..maximumFractionDigits = 2
+                        ).format(value),
                       ),
                       ChartAxisLabels(
                         isVertical: false,
                         count: dateAxisLabelCount,
                         labelBuilder: (value) {
                           return dateAxisLabelFormat.format(
-                            DateTime.fromMillisecondsSinceEpoch(value.toInt()),
+                            DateTime.fromMillisecondsSinceEpoch(
+                              value.toInt(),
+                            ),
                           );
                         },
                       ),
@@ -198,15 +201,13 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
 
     final walletId = currentWallet!.id;
     context.read<PortfolioGrowthBloc>().add(
-      PortfolioGrowthPeriodChanged(
-        selectedPeriod: context
-            .read<PortfolioGrowthBloc>()
-            .state
-            .selectedPeriod,
-        coins: newCoins,
-        walletId: walletId,
-      ),
-    );
+          PortfolioGrowthPeriodChanged(
+            selectedPeriod:
+                context.read<PortfolioGrowthBloc>().state.selectedPeriod,
+            coins: newCoins,
+            walletId: walletId,
+          ),
+        );
 
     setState(() => _selectedCoins = newCoins);
   }
@@ -225,9 +226,8 @@ class _PortfolioGrowthChartTooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date = DateTime.fromMillisecondsSinceEpoch(
-      dataPoints.first.x.toInt(),
-    );
+    final date =
+        DateTime.fromMillisecondsSinceEpoch(dataPoints.first.x.toInt());
     final isSingleCoinSelected = coins.length == 1;
 
     return ChartTooltipContainer(
@@ -263,18 +263,16 @@ class _PortfolioGrowthChartTooltip extends StatelessWidget {
                   Text(
                     formatAmt(data.y),
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ],
               );
             })
           else
             Text(
-              NumberFormat.currency(
-                symbol: '\$',
-                decimalDigits: 2,
-              ).format(dataPoints.first.y),
+              NumberFormat.currency(symbol: '\$', decimalDigits: 2)
+                  .format(dataPoints.first.y),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
         ],

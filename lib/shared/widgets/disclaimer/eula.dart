@@ -18,116 +18,90 @@ class _EulaState extends State<Eula> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final List<TextSpan> disclaimerToSText = <TextSpan>[
       TextSpan(
-        text: disclaimerEulaTitle1,
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
+          text: disclaimerEulaTitle1,
+          style: Theme.of(context).textTheme.titleLarge),
       TextSpan(
-        text: disclaimerEulaParagraph1,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph1,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph2,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph2,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph3,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph3,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph4,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph4,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph5,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph5,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph6,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph6,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaTitle2,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+          text: disclaimerEulaTitle2,
+          style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-        text: disclaimerEulaParagraph7,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph7,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph8,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph8,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaTitle3,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+          text: disclaimerEulaTitle3,
+          style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-        text: disclaimerEulaParagraph9,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph9,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph10,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph10,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph11,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph11,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph12,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph12,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph13,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph13,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaTitle4,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+          text: disclaimerEulaTitle4,
+          style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-        text: disclaimerEulaParagraph14,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph14,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph15,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph15,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaTitle5,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+          text: disclaimerEulaTitle5,
+          style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-        text: disclaimerEulaParagraph16,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph16,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph17,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph17,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaTitle6,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+          text: disclaimerEulaTitle6,
+          style: Theme.of(context).textTheme.titleSmall),
       TextSpan(
-        text: disclaimerEulaParagraph18,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph18,
+          style: Theme.of(context).textTheme.bodyMedium),
       TextSpan(
-        text: disclaimerEulaParagraph19,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
+          text: disclaimerEulaParagraph19,
+          style: Theme.of(context).textTheme.bodyMedium),
     ];
 
     return Column(
       children: <Widget>[
         SizedBox(
-          height: MediaQuery.of(context).size.height * 2 / 3,
-          child: SingleChildScrollView(
-            controller: ScrollController(),
-            child: TosContent(disclaimerToSText: disclaimerToSText),
-          ),
-        ),
+            height: MediaQuery.of(context).size.height * 2 / 3,
+            child: SingleChildScrollView(
+              controller: ScrollController(),
+              child: TosContent(disclaimerToSText: disclaimerToSText),
+            )),
         const SizedBox(height: 24),
         UiPrimaryButton(
           key: const Key('close-disclaimer'),

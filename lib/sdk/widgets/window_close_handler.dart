@@ -21,7 +21,10 @@ class WindowCloseHandler extends StatefulWidget {
   /// Creates a WindowCloseHandler.
   ///
   /// The [child] parameter must not be null.
-  const WindowCloseHandler({super.key, required this.child});
+  const WindowCloseHandler({
+    super.key,
+    required this.child,
+  });
 
   /// The widget below this widget in the tree.
   final Widget child;
@@ -51,8 +54,7 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
     } else if (kIsWeb) {
       // Web platform: Use beforeunload event
       showMessageBeforeUnload(
-        'This will close Komodo Wallet and stop all trading activities.',
-      );
+          'This will close Komodo Wallet and stop all trading activities.');
     } else {
       // Mobile platforms: Use lifecycle observer
       WidgetsBinding.instance.addObserver(this);
@@ -84,8 +86,7 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
               return AlertDialog(
                 title: const Text('Do you really want to quit?'),
                 content: const Text(
-                  'This will close Komodo Wallet and stop all trading activities.',
-                ),
+                    'This will close Komodo Wallet and stop all trading activities.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),

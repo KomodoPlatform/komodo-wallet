@@ -55,13 +55,8 @@ class PortfolioGrowthBloc
     PortfolioGrowthPeriodChanged event,
     Emitter<PortfolioGrowthState> emit,
   ) {
-    final (
-      int totalCoins,
-      int coinsWithKnownBalance,
-      int coinsWithKnownBalanceAndFiat,
-    ) = _calculateCoinProgressCounters(
-      event.coins,
-    );
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(event.coins);
     final currentState = state;
     if (currentState is PortfolioGrowthChartLoadSuccess) {
       emit(
@@ -125,9 +120,7 @@ class PortfolioGrowthBloc
           int totalCoins,
           int coinsWithKnownBalance,
           int coinsWithKnownBalanceAndFiat,
-        ) = _calculateCoinProgressCounters(
-          event.coins,
-        );
+        ) = _calculateCoinProgressCounters(event.coins);
         return emit(
           PortfolioGrowthChartUnsupported(
             selectedPeriod: event.selectedPeriod,
@@ -197,9 +190,7 @@ class PortfolioGrowthBloc
           int totalCoins,
           int coinsWithKnownBalance,
           int coinsWithKnownBalanceAndFiat,
-        ) = _calculateCoinProgressCounters(
-          event.coins,
-        );
+        ) = _calculateCoinProgressCounters(event.coins);
         emit(
           GrowthChartLoadFailure(
             error: TextError(error: 'Failed to load portfolio growth'),
@@ -247,13 +238,8 @@ class PortfolioGrowthBloc
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
 
-    final (
-      int totalCoins,
-      int coinsWithKnownBalance,
-      int coinsWithKnownBalanceAndFiat,
-    ) = _calculateCoinProgressCounters(
-      event.coins,
-    );
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(event.coins);
 
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: chart,
@@ -314,13 +300,8 @@ class PortfolioGrowthBloc
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
 
-    final (
-      int totalCoins,
-      int coinsWithKnownBalance,
-      int coinsWithKnownBalanceAndFiat,
-    ) = _calculateCoinProgressCounters(
-      coins,
-    );
+    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
+        _calculateCoinProgressCounters(coins);
 
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: growthChart,

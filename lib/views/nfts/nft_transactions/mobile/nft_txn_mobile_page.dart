@@ -32,9 +32,9 @@ class NftTxnMobilePage extends StatelessWidget {
                     return NftTxnFailurePage(
                       message: state.errorMessage ?? '--',
                       onReload: () {
-                        context.read<NftTransactionsBloc>().add(
-                          const NftTxnReceiveEvent(),
-                        );
+                        context
+                            .read<NftTransactionsBloc>()
+                            .add(const NftTxnReceiveEvent());
                       },
                     );
                   }
@@ -54,14 +54,13 @@ class NftTxnMobilePage extends StatelessWidget {
 
                       final txKey = data.getTxKey();
                       return NftTxnMobileCard(
-                        key: Key(txKey),
-                        transaction: data,
-                        onPressed: () {
-                          context.read<NftTransactionsBloc>().add(
-                            NftTxReceiveDetailsEvent(data),
-                          );
-                        },
-                      );
+                          key: Key(txKey),
+                          transaction: data,
+                          onPressed: () {
+                            context
+                                .read<NftTransactionsBloc>()
+                                .add(NftTxReceiveDetailsEvent(data));
+                          });
                     },
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 8),

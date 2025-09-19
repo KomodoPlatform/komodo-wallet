@@ -32,7 +32,12 @@ class NftDetailsPage extends StatelessWidget {
       },
       builder: (context, isInitialized) {
         if (!isInitialized) {
-          return const Center(child: UiSpinner(width: 24, height: 24));
+          return const Center(
+            child: UiSpinner(
+              width: 24,
+              height: 24,
+            ),
+          );
         }
         final nfts = context.read<NftMainBloc>().state.nfts;
         final NftToken? nft = nfts.values

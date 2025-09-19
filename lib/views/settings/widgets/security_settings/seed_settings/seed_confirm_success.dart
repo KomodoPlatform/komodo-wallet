@@ -93,7 +93,9 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       LocaleKeys.seedPhraseSuccessTitle.tr(),
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontSize: 16,
+          ),
     );
   }
 }

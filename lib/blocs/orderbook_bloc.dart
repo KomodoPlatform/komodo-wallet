@@ -79,9 +79,10 @@ class OrderbookBloc implements BlocBase {
 
     final List<String> coins = pair.split('/');
 
-    final OrderbookResponse response = await _api.getOrderbook(
-      OrderbookRequest(base: coins[0], rel: coins[1]),
-    );
+    final OrderbookResponse response = await _api.getOrderbook(OrderbookRequest(
+      base: coins[0],
+      rel: coins[1],
+    ));
 
     subscription.initialData = response;
     subscription.sink.add(response);

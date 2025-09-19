@@ -75,9 +75,8 @@ class TimePeriodSelectorDropdownButton extends StatelessWidget {
         underline: const SizedBox.shrink(),
         alignment: Alignment.center,
         icon: const Icon(Icons.keyboard_arrow_down),
-        selectedItemBuilder: (context) => intervals.map<Widget>((
-          Duration item,
-        ) {
+        selectedItemBuilder: (context) =>
+            intervals.map<Widget>((Duration item) {
           return Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
@@ -88,9 +87,9 @@ class TimePeriodSelectorDropdownButton extends StatelessWidget {
             child: Text(
               selectedPeriod != null ? getDurationCode(selectedPeriod!) : '',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).primaryTextTheme.labelLarge?.color,
-              ),
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).primaryTextTheme.labelLarge?.color,
+                  ),
             ),
           );
         }).toList(),
@@ -125,14 +124,14 @@ class TimePeriodSelectorSegmentedButton extends StatelessWidget {
       width: 160,
       child: SegmentedButton<Duration>(
         style: Theme.of(context).segmentedButtonTheme.style!.copyWith(
-          side: WidgetStateProperty.all(BorderSide.none),
-          padding: WidgetStateProperty.all(
-            const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-          ),
-          backgroundColor: WidgetStateProperty.all(
-            Theme.of(context).colorScheme.surfaceContainerLowest,
-          ),
-        ),
+              side: WidgetStateProperty.all(BorderSide.none),
+              padding: WidgetStateProperty.all(
+                const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+              ),
+              backgroundColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.surfaceContainerLowest,
+              ),
+            ),
         showSelectedIcon: false,
         segments: intervals.map((Duration value) {
           final isSelected = selectedPeriod == value;
@@ -141,10 +140,8 @@ class TimePeriodSelectorSegmentedButton extends StatelessWidget {
             label: !isSelected
                 ? Text(getDurationCode(value))
                 : Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 2,
-                      horizontal: 4,
-                    ),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,

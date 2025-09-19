@@ -19,11 +19,14 @@ class TelegramServiceConfig extends Equatable {
       );
 
   Map<String, dynamic> toJson() => {
-    'api_key': apiKey,
-    'chat_registry': chatRegistry?.toJson(),
-  };
+        'api_key': apiKey,
+        'chat_registry': chatRegistry?.toJson(),
+      };
 
-  TelegramServiceConfig copyWith({String? apiKey, ChatRegistry? chatRegistry}) {
+  TelegramServiceConfig copyWith({
+    String? apiKey,
+    ChatRegistry? chatRegistry,
+  }) {
     return TelegramServiceConfig(
       apiKey: apiKey ?? this.apiKey,
       chatRegistry: chatRegistry ?? this.chatRegistry,

@@ -35,8 +35,7 @@ class PageContentRouterDelegate extends RouterDelegate<AppRoutePath>
         );
       case MainMenuValue.settings:
         return SettingsPage(
-          selectedMenu: routingState.settingsState.selectedMenu,
-        );
+            selectedMenu: routingState.settingsState.selectedMenu);
       case MainMenuValue.support:
         return SupportPage();
       case MainMenuValue.wallet:

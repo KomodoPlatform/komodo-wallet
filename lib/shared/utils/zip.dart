@@ -11,9 +11,8 @@ Uint8List createZipOfSingleFile({
   final originalBytes = utf8.encode(fileContent);
   // use `raw: true` to exclude zlip header and trailer data that causes
   // zip decompression to fail
-  final compressedBytes = Uint8List.fromList(
-    ZLibCodec(raw: true).encode(originalBytes),
-  );
+  final compressedBytes =
+      Uint8List.fromList(ZLibCodec(raw: true).encode(originalBytes));
   final crc32 = _crc32(originalBytes);
 
   final ByteData localFileHeader = _createZipHeader(

@@ -10,7 +10,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class AvailableBalance extends StatelessWidget {
   const AvailableBalance(this.availableBalance, this.state, [Key? key])
-    : super(key: key);
+      : super(key: key);
 
   final Rational? availableBalance;
   final AvailableBalanceState state;
@@ -34,7 +34,10 @@ class AvailableBalance extends StatelessWidget {
         Flexible(
           child: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 38),
-            child: _Balance(availableBalance: availableBalance, state: state),
+            child: _Balance(
+              availableBalance: availableBalance,
+              state: state,
+            ),
           ),
         ),
       ],
@@ -57,7 +60,11 @@ class _Balance extends StatelessWidget {
         if (availableBalance == null) {
           return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 13),
-            child: UiSpinner(height: 12, width: 12, strokeWidth: 1.5),
+            child: UiSpinner(
+              height: 12,
+              width: 12,
+              strokeWidth: 1.5,
+            ),
           );
         }
         break;

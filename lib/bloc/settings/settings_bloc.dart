@@ -10,8 +10,8 @@ import 'package:web_dex/shared/utils/utils.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc(StoredSettings stored, SettingsRepository repository)
-    : _settingsRepo = repository,
-      super(SettingsState.fromStored(stored)) {
+      : _settingsRepo = repository,
+        super(SettingsState.fromStored(stored)) {
     _storedSettings = stored;
     theme.mode = state.themeMode;
 
@@ -65,8 +65,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     await _settingsRepo.updateSettings(
       _storedSettings.copyWith(
-        weakPasswordsAllowed: event.weakPasswordsAllowed,
-      ),
+          weakPasswordsAllowed: event.weakPasswordsAllowed),
     );
     emitter(state.copyWith(weakPasswordsAllowed: event.weakPasswordsAllowed));
   }

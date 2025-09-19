@@ -3,13 +3,17 @@ import 'package:equatable/equatable.dart';
 /// Represents the chat registry configuration - the chat IDs for the
 /// default chat, the maker bot chat, and the swap events chat.
 class ChatRegistry extends Equatable {
-  const ChatRegistry({this.defaultId, this.makerBotId, this.swapEventsId});
+  const ChatRegistry({
+    this.defaultId,
+    this.makerBotId,
+    this.swapEventsId,
+  });
 
   factory ChatRegistry.fromJson(Map<String, dynamic> json) => ChatRegistry(
-    defaultId: json['default'] as String?,
-    makerBotId: json['maker_bot'] as String?,
-    swapEventsId: json['swap_events'] as String?,
-  );
+        defaultId: json['default'] as String?,
+        makerBotId: json['maker_bot'] as String?,
+        swapEventsId: json['swap_events'] as String?,
+      );
 
   /// The default chat ID.
   final String? defaultId;
@@ -21,10 +25,10 @@ class ChatRegistry extends Equatable {
   final String? swapEventsId;
 
   Map<String, dynamic> toJson() => {
-    'default': defaultId,
-    'maker_bot': makerBotId,
-    'swap_events': swapEventsId,
-  };
+        'default': defaultId,
+        'maker_bot': makerBotId,
+        'swap_events': swapEventsId,
+      };
 
   ChatRegistry copyWith({
     String? defaultId,

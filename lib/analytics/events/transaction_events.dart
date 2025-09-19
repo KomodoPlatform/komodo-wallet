@@ -27,11 +27,11 @@ class SendInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
-    'network': network,
-    'amount': amount,
-    'wallet_type': walletType,
-  };
+        'asset_symbol': assetSymbol,
+        'network': network,
+        'amount': amount,
+        'wallet_type': walletType,
+      };
 }
 
 /// E14: Send flow started
@@ -41,14 +41,12 @@ class AnalyticsSendInitiatedEvent extends AnalyticsSendDataEvent {
     required String network,
     required double amount,
     required String walletType,
-  }) : super(
-         SendInitiatedEventData(
-           assetSymbol: assetSymbol,
-           network: network,
-           amount: amount,
-           walletType: walletType,
-         ),
-       );
+  }) : super(SendInitiatedEventData(
+          assetSymbol: assetSymbol,
+          network: network,
+          amount: amount,
+          walletType: walletType,
+        ));
 }
 
 // E15: On-chain send completed
@@ -75,11 +73,11 @@ class SendSucceededEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
-    'network': network,
-    'amount': amount,
-    'wallet_type': walletType,
-  };
+        'asset_symbol': assetSymbol,
+        'network': network,
+        'amount': amount,
+        'wallet_type': walletType,
+      };
 }
 
 /// E15: On-chain send completed
@@ -89,14 +87,12 @@ class AnalyticsSendSucceededEvent extends AnalyticsSendDataEvent {
     required String network,
     required double amount,
     required String walletType,
-  }) : super(
-         SendSucceededEventData(
-           assetSymbol: assetSymbol,
-           network: network,
-           amount: amount,
-           walletType: walletType,
-         ),
-       );
+  }) : super(SendSucceededEventData(
+          assetSymbol: assetSymbol,
+          network: network,
+          amount: amount,
+          walletType: walletType,
+        ));
 }
 
 // E16: Send failed / cancelled
@@ -123,11 +119,11 @@ class SendFailedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
-    'network': network,
-    'fail_reason': failReason,
-    'wallet_type': walletType,
-  };
+        'asset_symbol': assetSymbol,
+        'network': network,
+        'fail_reason': failReason,
+        'wallet_type': walletType,
+      };
 }
 
 /// E16: Send failed / cancelled
@@ -137,14 +133,12 @@ class AnalyticsSendFailedEvent extends AnalyticsSendDataEvent {
     required String network,
     required String failReason,
     required String walletType,
-  }) : super(
-         SendFailedEventData(
-           assetSymbol: assetSymbol,
-           network: network,
-           failReason: failReason,
-           walletType: walletType,
-         ),
-       );
+  }) : super(SendFailedEventData(
+          assetSymbol: assetSymbol,
+          network: network,
+          failReason: failReason,
+          walletType: walletType,
+        ));
 }
 
 // E17: Swap order submitted
@@ -171,11 +165,11 @@ class SwapInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_asset': fromAsset,
-    'to_asset': toAsset,
-    'networks': networks,
-    'wallet_type': walletType,
-  };
+        'from_asset': fromAsset,
+        'to_asset': toAsset,
+        'networks': networks,
+        'wallet_type': walletType,
+      };
 }
 
 /// E17: Swap order submitted
@@ -185,14 +179,12 @@ class AnalyticsSwapInitiatedEvent extends AnalyticsSendDataEvent {
     required String toAsset,
     required String networks,
     required String walletType,
-  }) : super(
-         SwapInitiatedEventData(
-           fromAsset: fromAsset,
-           toAsset: toAsset,
-           networks: networks,
-           walletType: walletType,
-         ),
-       );
+  }) : super(SwapInitiatedEventData(
+          fromAsset: fromAsset,
+          toAsset: toAsset,
+          networks: networks,
+          walletType: walletType,
+        ));
 }
 
 // E18: Atomic swap succeeded
@@ -223,13 +215,13 @@ class SwapSucceededEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_asset': fromAsset,
-    'to_asset': toAsset,
-    'amount': amount,
-    'fee': fee,
-    'wallet_type': walletType,
-    if (durationMs != null) 'duration_ms': durationMs,
-  };
+        'from_asset': fromAsset,
+        'to_asset': toAsset,
+        'amount': amount,
+        'fee': fee,
+        'wallet_type': walletType,
+        if (durationMs != null) 'duration_ms': durationMs,
+      };
 }
 
 /// E18: Atomic swap succeeded
@@ -241,16 +233,14 @@ class AnalyticsSwapSucceededEvent extends AnalyticsSendDataEvent {
     required double fee,
     required String walletType,
     int? durationMs,
-  }) : super(
-         SwapSucceededEventData(
-           fromAsset: fromAsset,
-           toAsset: toAsset,
-           amount: amount,
-           fee: fee,
-           walletType: walletType,
-           durationMs: durationMs,
-         ),
-       );
+  }) : super(SwapSucceededEventData(
+          fromAsset: fromAsset,
+          toAsset: toAsset,
+          amount: amount,
+          fee: fee,
+          walletType: walletType,
+          durationMs: durationMs,
+        ));
 }
 
 // E19: Swap failed
@@ -279,12 +269,12 @@ class SwapFailedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_asset': fromAsset,
-    'to_asset': toAsset,
-    'fail_stage': failStage,
-    'wallet_type': walletType,
-    if (durationMs != null) 'duration_ms': durationMs,
-  };
+        'from_asset': fromAsset,
+        'to_asset': toAsset,
+        'fail_stage': failStage,
+        'wallet_type': walletType,
+        if (durationMs != null) 'duration_ms': durationMs,
+      };
 }
 
 /// E19: Swap failed
@@ -295,13 +285,11 @@ class AnalyticsSwapFailedEvent extends AnalyticsSendDataEvent {
     required String failStage,
     required String walletType,
     int? durationMs,
-  }) : super(
-         SwapFailedEventData(
-           fromAsset: fromAsset,
-           toAsset: toAsset,
-           failStage: failStage,
-           walletType: walletType,
-           durationMs: durationMs,
-         ),
-       );
+  }) : super(SwapFailedEventData(
+          fromAsset: fromAsset,
+          toAsset: toAsset,
+          failStage: failStage,
+          walletType: walletType,
+          durationMs: durationMs,
+        ));
 }

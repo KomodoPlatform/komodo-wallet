@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
 
 class CoinsManagerSelectAllButton extends StatelessWidget {
-  const CoinsManagerSelectAllButton({Key? key}) : super(key: key);
+  const CoinsManagerSelectAllButton({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +15,15 @@ class CoinsManagerSelectAllButton extends StatelessWidget {
     return Checkbox(
       value: true,
       splashRadius: 18,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
       side: isSelectedAllEnabled
           ? null
-          : WidgetStateBorderSide.resolveWith(
-              (states) =>
-                  BorderSide(width: 2.0, color: theme.colorScheme.primary),
-            ),
+          : WidgetStateBorderSide.resolveWith((states) => BorderSide(
+                width: 2.0,
+                color: theme.colorScheme.primary,
+              )),
       checkColor: isSelectedAllEnabled ? null : theme.colorScheme.primary,
       fillColor: isSelectedAllEnabled
           ? null

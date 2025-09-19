@@ -17,9 +17,8 @@ mixin LoggerMetadataMixin {
     if (_locale != null) return _locale;
 
     return Future<String?>(
-      () async => _locale = await environmentStorage
-          .read('locale')
-          .catchError((_) => null),
+      () async => _locale =
+          await environmentStorage.read('locale').catchError((_) => null),
     );
   }
 

@@ -9,11 +9,9 @@ import 'package:web_dex/shared/widgets/disclaimer/eula.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class EulaTosCheckboxes extends StatefulWidget {
-  const EulaTosCheckboxes({
-    Key? key,
-    this.isChecked = false,
-    required this.onCheck,
-  }) : super(key: key);
+  const EulaTosCheckboxes(
+      {Key? key, this.isChecked = false, required this.onCheck})
+      : super(key: key);
 
   final bool isChecked;
   final void Function(bool) onCheck;

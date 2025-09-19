@@ -75,3 +75,4 @@ Flutter SDK not found. Please ensure Flutter is installed and either:
 - Flutter binary is available in PATH
 ''');
 }
+

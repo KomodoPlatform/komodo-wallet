@@ -22,11 +22,11 @@ class BridgeInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_chain': fromChain,
-    'to_chain': toChain,
-    'asset': asset,
-    'wallet_type': walletType,
-  };
+        'from_chain': fromChain,
+        'to_chain': toChain,
+        'asset': asset,
+        'wallet_type': walletType,
+      };
 }
 
 /// E20: Bridge transfer started
@@ -37,13 +37,13 @@ class AnalyticsBridgeInitiatedEvent extends AnalyticsSendDataEvent {
     required String asset,
     required String walletType,
   }) : super(
-         BridgeInitiatedEventData(
-           fromChain: fromChain,
-           toChain: toChain,
-           asset: asset,
-           walletType: walletType,
-         ),
-       );
+          BridgeInitiatedEventData(
+            fromChain: fromChain,
+            toChain: toChain,
+            asset: asset,
+            walletType: walletType,
+          ),
+        );
 }
 
 /// E21: Bridge completed
@@ -68,12 +68,12 @@ class BridgeSucceededEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_chain': fromChain,
-    'to_chain': toChain,
-    'asset': asset,
-    'amount': amount,
-    'wallet_type': walletType,
-  };
+        'from_chain': fromChain,
+        'to_chain': toChain,
+        'asset': asset,
+        'amount': amount,
+        'wallet_type': walletType,
+      };
 }
 
 /// E21: Bridge completed
@@ -85,14 +85,14 @@ class AnalyticsBridgeSucceededEvent extends AnalyticsSendDataEvent {
     required double amount,
     required String walletType,
   }) : super(
-         BridgeSucceededEventData(
-           fromChain: fromChain,
-           toChain: toChain,
-           asset: asset,
-           amount: amount,
-           walletType: walletType,
-         ),
-       );
+          BridgeSucceededEventData(
+            fromChain: fromChain,
+            toChain: toChain,
+            asset: asset,
+            amount: amount,
+            walletType: walletType,
+          ),
+        );
 }
 
 /// E22: Bridge failed
@@ -115,11 +115,11 @@ class BridgeFailedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_chain': fromChain,
-    'to_chain': toChain,
-    'fail_error': failError,
-    'wallet_type': walletType,
-  };
+        'from_chain': fromChain,
+        'to_chain': toChain,
+        'fail_error': failError,
+        'wallet_type': walletType,
+      };
 }
 
 /// E22: Bridge failed
@@ -130,11 +130,11 @@ class AnalyticsBridgeFailedEvent extends AnalyticsSendDataEvent {
     required String failError,
     required String walletType,
   }) : super(
-         BridgeFailedEventData(
-           fromChain: fromChain,
-           toChain: toChain,
-           failError: failError,
-           walletType: walletType,
-         ),
-       );
+          BridgeFailedEventData(
+            fromChain: fromChain,
+            toChain: toChain,
+            failError: failError,
+            walletType: walletType,
+          ),
+        );
 }

@@ -33,9 +33,8 @@ class _MobileButtons extends StatelessWidget {
 
     final txHash = state.result?.txHash;
 
-    final explorerUrl = txHash == null
-        ? null
-        : state.asset.protocol.explorerTxUrl(txHash);
+    final explorerUrl =
+        txHash == null ? null : state.asset.protocol.explorerTxUrl(txHash);
 
     return Row(
       children: [

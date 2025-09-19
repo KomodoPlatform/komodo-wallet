@@ -20,9 +20,8 @@ class BuyPriceMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
-      context,
-    );
+    final tradingEntitiesBloc =
+        RepositoryProvider.of<TradingEntitiesBloc>(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 17),
       decoration: BoxDecoration(
@@ -33,11 +32,17 @@ class BuyPriceMobile extends StatelessWidget {
         children: [
           Text(
             LocaleKeys.buyPrice.tr(),
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
+            ),
           ),
           Text(
             '${formatDexAmt(tradingEntitiesBloc.getPriceFromAmount(sellAmount, buyAmount))} ${Coin.normalizeAbbr(buyCoin)}',
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
           ),
         ],
       ),

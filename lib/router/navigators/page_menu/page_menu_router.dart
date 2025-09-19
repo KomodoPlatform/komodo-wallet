@@ -11,6 +11,8 @@ class _PageMenuRouterState extends State<PageMenuRouter> {
 
   @override
   Widget build(BuildContext context) {
-    return Router(routerDelegate: _routerDelegate);
+    return Router(
+      routerDelegate: _routerDelegate,
+    );
   }
 }

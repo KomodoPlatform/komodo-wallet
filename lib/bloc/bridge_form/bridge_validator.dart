@@ -28,11 +28,11 @@ class BridgeValidator {
     required CoinsRepo coinsRepository,
     required DexRepository dexRepository,
     required KomodoDefiSdk sdk,
-  }) : _bloc = bloc,
-       _coinsRepo = coinsRepository,
-       _dexRepo = dexRepository,
-       _sdk = sdk,
-       _add = bloc.add;
+  })  : _bloc = bloc,
+        _coinsRepo = coinsRepository,
+        _dexRepo = dexRepository,
+        _sdk = sdk,
+        _add = bloc.add;
 
   final BridgeBloc _bloc;
   final CoinsRepo _coinsRepo;
@@ -71,32 +71,32 @@ class BridgeValidator {
   }
 
   DexFormError? _parsePreimageError(
-    DataFromService<TradePreimage, BaseError> preimageData,
-  ) {
+      DataFromService<TradePreimage, BaseError> preimageData) {
     final BaseError? error = preimageData.error;
 
     if (error is TradePreimageNotSufficientBalanceError) {
       return _insufficientBalanceError(
-        Rational.parse(error.required),
-        error.coin,
-      );
+          Rational.parse(error.required), error.coin);
     } else if (error is TradePreimageNotSufficientBaseCoinBalanceError) {
       return _insufficientBalanceError(
-        Rational.parse(error.required),
-        error.coin,
-      );
+          Rational.parse(error.required), error.coin);
     } else if (error is TradePreimageTransportError) {
-      return DexFormError(error: LocaleKeys.notEnoughBalanceForGasError.tr());
+      return DexFormError(
+        error: LocaleKeys.notEnoughBalanceForGasError.tr(),
+      );
     } else if (error is TradePreimageVolumeTooLowError) {
       return DexFormError(
-        error: LocaleKeys.lowTradeVolumeError.tr(
-          args: [formatAmt(double.parse(error.threshold)), error.coin],
-        ),
+        error: LocaleKeys.lowTradeVolumeError
+            .tr(args: [formatAmt(double.parse(error.threshold)), error.coin]),
       );
     } else if (error != null) {
-      return DexFormError(error: error.message);
+      return DexFormError(
+        error: error.message,
+      );
     } else if (preimageData.data == null) {
-      return DexFormError(error: LocaleKeys.somethingWrong.tr());
+      return DexFormError(
+        error: LocaleKeys.somethingWrong.tr(),
+      );
     }
 
     return null;
@@ -128,15 +128,10 @@ class BridgeValidator {
         _state.sellAmount,
       );
     } catch (e, s) {
-      log(
-        e.toString(),
-        trace: s,
-        path: 'bridge_validator::_getPreimageData',
-        isError: true,
-      );
+      log(e.toString(),
+          trace: s, path: 'bridge_validator::_getPreimageData', isError: true);
       return DataFromService(
-        error: TextError(error: 'Failed to request trade preimage'),
-      );
+          error: TextError(error: 'Failed to request trade preimage'));
     }
   }
 
@@ -192,17 +187,17 @@ class BridgeValidator {
     if (availableBalance < maxOrderVolume && sellAmount > availableBalance) {
       final Rational minAmount = maxRational([
         _state.minSellAmount ?? Rational.zero,
-        _state.bestOrder!.minVolume,
+        _state.bestOrder!.minVolume
       ])!;
 
       if (availableBalance < minAmount) {
-        _add(
-          BridgeSetError(
-            _insufficientBalanceError(minAmount, _state.sellCoin!.abbr),
-          ),
-        );
+        _add(BridgeSetError(
+          _insufficientBalanceError(minAmount, _state.sellCoin!.abbr),
+        ));
       } else {
-        _add(BridgeSetError(_setMaxError(availableBalance)));
+        _add(BridgeSetError(
+          _setMaxError(availableBalance),
+        ));
       }
 
       return false;
@@ -223,11 +218,9 @@ class BridgeValidator {
     if (sellAmount < minAmount) {
       final Rational available = _state.maxSellAmount ?? Rational.zero;
       if (available < minAmount) {
-        _add(
-          BridgeSetError(
-            _insufficientBalanceError(minAmount, _state.sellCoin!.abbr),
-          ),
-        );
+        _add(BridgeSetError(
+          _insufficientBalanceError(minAmount, _state.sellCoin!.abbr),
+        ));
       } else {
         _add(BridgeSetError(_setMinError(minAmount)));
       }
@@ -311,9 +304,8 @@ class BridgeValidator {
 
   DexFormError _setOrderMaxError(Rational maxAmount) {
     return DexFormError(
-      error: LocaleKeys.dexMaxOrderVolume.tr(
-        args: [formatDexAmt(maxAmount), _state.sellCoin!.abbr],
-      ),
+      error: LocaleKeys.dexMaxOrderVolume
+          .tr(args: [formatDexAmt(maxAmount), _state.sellCoin!.abbr]),
       type: DexFormErrorType.largerMaxSellVolume,
       action: DexFormErrorAction(
         text: LocaleKeys.setMax.tr(),
@@ -326,9 +318,8 @@ class BridgeValidator {
 
   DexFormError _insufficientBalanceError(Rational required, String abbr) {
     return DexFormError(
-      error: LocaleKeys.dexBalanceNotSufficientError.tr(
-        args: [abbr, formatDexAmt(required), abbr],
-      ),
+      error: LocaleKeys.dexBalanceNotSufficientError
+          .tr(args: [abbr, formatDexAmt(required), abbr]),
     );
   }
 
@@ -350,20 +341,20 @@ class BridgeValidator {
   DexFormError _setMinError(Rational minAmount) {
     return DexFormError(
       type: DexFormErrorType.lessMinVolume,
-      error: LocaleKeys.dexMinSellAmountError.tr(
-        args: [formatDexAmt(minAmount), _state.sellCoin!.abbr],
-      ),
+      error: LocaleKeys.dexMinSellAmountError
+          .tr(args: [formatDexAmt(minAmount), _state.sellCoin!.abbr]),
       action: DexFormErrorAction(
-        text: LocaleKeys.setMin.tr(),
-        callback: () async {
-          _add(BridgeSetSellAmount(minAmount));
-        },
-      ),
+          text: LocaleKeys.setMin.tr(),
+          callback: () async {
+            _add(BridgeSetSellAmount(minAmount));
+          }),
     );
   }
 
   DexFormError _tradingWithSelfError() {
-    return DexFormError(error: LocaleKeys.dexTradingWithSelfError.tr());
+    return DexFormError(
+      error: LocaleKeys.dexTradingWithSelfError.tr(),
+    );
   }
 
   bool get _isSellCoinSelected => _state.sellCoin != null;

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class Hyperlink extends StatefulWidget {
-  const Hyperlink({required this.text, required this.onPressed, super.key});
+  const Hyperlink({
+    required this.text,
+    required this.onPressed,
+    super.key,
+  });
 
   final String text;
   final VoidCallback? onPressed;
@@ -24,13 +28,21 @@ class _HyperlinkState extends State<Hyperlink> {
       },
       onTap: widget.onPressed,
       child: Container(
-        padding: const EdgeInsets.only(bottom: 0.2),
+        padding: const EdgeInsets.only(
+          bottom: 0.2,
+        ),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: hyperlinkTextColor, width: 0.5),
+            bottom: BorderSide(
+              color: hyperlinkTextColor,
+              width: 0.5,
+            ),
           ),
         ),
-        child: Text(widget.text, style: TextStyle(color: hyperlinkTextColor)),
+        child: Text(
+          widget.text,
+          style: TextStyle(color: hyperlinkTextColor),
+        ),
       ), // () => launchURL(widget.url),
     );
   }

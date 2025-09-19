@@ -17,57 +17,52 @@ Future<bool> customSeedDialog(BuildContext context) async {
 
   popupManager = PopupDispatcher(
     context: context,
-    popupContent: StatefulBuilder(
-      builder: (context, setState) {
-        return Container(
-          constraints: isMobile ? null : const BoxConstraints(maxWidth: 360),
-          child: Column(
-            children: [
-              Text(
-                LocaleKeys.customSeedWarningText.tr(),
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                key: const Key('custom-seed-dialog-input'),
-                autofocus: true,
-                onChanged: (String text) {
-                  setState(() {
-                    isConfirmed =
-                        text.trim().toLowerCase() ==
-                        LocaleKeys.customSeedIUnderstand.tr().toLowerCase();
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Flexible(
+    popupContent: StatefulBuilder(builder: (context, setState) {
+      return Container(
+        constraints: isMobile ? null : const BoxConstraints(maxWidth: 360),
+        child: Column(
+          children: [
+            Text(
+              LocaleKeys.customSeedWarningText.tr(),
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              key: const Key('custom-seed-dialog-input'),
+              autofocus: true,
+              onChanged: (String text) {
+                setState(() {
+                  isConfirmed = text.trim().toLowerCase() ==
+                      LocaleKeys.customSeedIUnderstand.tr().toLowerCase();
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Flexible(
                     child: UiUnderlineTextButton(
-                      key: const Key('custom-seed-dialog-cancel-button'),
-                      text: LocaleKeys.cancel.tr(),
-                      onPressed: () {
-                        setState(() => isConfirmed = false);
-                        close();
-                      },
-                    ),
+                        key: const Key('custom-seed-dialog-cancel-button'),
+                        text: LocaleKeys.cancel.tr(),
+                        onPressed: () {
+                          setState(() => isConfirmed = false);
+                          close();
+                        })),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: UiPrimaryButton(
+                    key: const Key('custom-seed-dialog-ok-button'),
+                    text: LocaleKeys.ok.tr(),
+                    onPressed: !isConfirmed ? null : close,
                   ),
-                  const SizedBox(width: 12),
-                  Flexible(
-                    child: UiPrimaryButton(
-                      key: const Key('custom-seed-dialog-ok-button'),
-                      text: LocaleKeys.ok.tr(),
-                      onPressed: !isConfirmed ? null : close,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    ),
+                ),
+              ],
+            )
+          ],
+        ),
+      );
+    }),
   );
 
   isOpen = true;

@@ -34,8 +34,15 @@ class _DetailsDropdownState extends State<DetailsDropdown> {
             ],
           ),
         ),
-        const SizedBox(height: 10),
-        if (isOpen) ...[const SizedBox(height: 10), widget.content],
+        const SizedBox(
+          height: 10,
+        ),
+        if (isOpen) ...[
+          const SizedBox(
+            height: 10,
+          ),
+          widget.content,
+        ],
       ],
     );
   }

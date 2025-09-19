@@ -24,14 +24,14 @@ class NftWithdrawFillState extends NftWithdrawState {
   });
 
   static NftWithdrawFillState initial(NftToken nft) => NftWithdrawFillState(
-    nft: nft,
-    address: '',
-    amount: 1,
-    isSending: false,
-    amountError: null,
-    addressError: null,
-    sendError: null,
-  );
+        nft: nft,
+        address: '',
+        amount: 1,
+        isSending: false,
+        amountError: null,
+        addressError: null,
+        sendError: null,
+      );
 
   NftWithdrawFillState copyWith({
     NftToken Function()? nft,

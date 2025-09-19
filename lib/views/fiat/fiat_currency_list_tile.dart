@@ -23,8 +23,7 @@ class FiatCurrencyListTile extends StatelessWidget {
     final coinType = currency.isCrypto
         ? getCoinTypeName(
             (currency as CryptoCurrency).chainType,
-            (currency as CryptoCurrency).symbol,
-          )
+            (currency as CryptoCurrency).symbol)
         : '';
 
     return ListTile(

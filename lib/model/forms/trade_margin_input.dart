@@ -19,9 +19,9 @@ class TradeMarginInput extends FormzInput<String, TradeMarginValidationError> {
   final double max;
 
   const TradeMarginInput.pure({this.min = 0, this.max = 1000})
-    : super.pure('3');
+      : super.pure('3');
   const TradeMarginInput.dirty(String value, {this.min = 0, this.max = 1000})
-    : super.dirty(value);
+      : super.dirty(value);
 
   double get valueAsDouble => double.tryParse(value) ?? 0;
 

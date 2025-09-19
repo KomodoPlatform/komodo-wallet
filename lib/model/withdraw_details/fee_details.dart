@@ -27,16 +27,16 @@ class FeeDetails {
   }
 
   static FeeDetails empty() => FeeDetails(
-    type: '',
-    coin: '',
-    gas: null,
-    gasLimit: null,
-    minerFee: null,
-    totalGasFee: null,
-    gasPrice: null,
-    totalFee: null,
-    amount: null,
-  );
+        type: '',
+        coin: '',
+        gas: null,
+        gasLimit: null,
+        minerFee: null,
+        totalGasFee: null,
+        gasPrice: null,
+        totalFee: null,
+        amount: null,
+      );
 
   String type;
   String coin;

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:web_dex/router/state/menu_state_interface.dart';
 
 class FiatState extends ChangeNotifier implements IResettableOnLogout {
-  FiatState() : _action = FiatAction.none, _uuid = '';
+  FiatState()
+      : _action = FiatAction.none,
+        _uuid = '';
 
   FiatAction _action;
   String _uuid;
@@ -44,4 +46,7 @@ class FiatState extends ChangeNotifier implements IResettableOnLogout {
   }
 }
 
-enum FiatAction { tradingDetails, none }
+enum FiatAction {
+  tradingDetails,
+  none,
+}
