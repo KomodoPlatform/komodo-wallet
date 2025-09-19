@@ -2,14 +2,13 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
-import 'package:web_dex/shared/constants.dart';
 
 class WalletDeleting extends StatefulWidget {
   const WalletDeleting({super.key, required this.wallet, required this.close});
@@ -211,11 +210,11 @@ class _PasswordFieldState extends State<_PasswordField> {
       autofocus: true,
       autocorrect: false,
       obscureText: _isObscured,
-      maxLength: passwordMaxLength,
-      counterText: '',
       errorText: widget.errorText,
       validator: widget.validator,
       validationMode: InputValidationMode.eager,
+      maxLength: passwordMaxLength,
+      counterText: '',
       hintText: LocaleKeys.walletCreationPasswordHint.tr(),
       onChanged: widget.onChanged,
       suffixIcon: PasswordVisibilityControl(

@@ -103,10 +103,7 @@ class UiTextFormField extends StatefulWidget {
 }
 
 class _UiTextFormFieldState extends State<UiTextFormField> {
-  String? _errorText;
-  String? _displayedErrorText;
   late FocusNode _focusNode;
-  bool _hasFocusExitedOnce = false;
   bool _shouldValidate = false;
   TextEditingController? _controller;
 
@@ -115,12 +112,7 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
     super.initState();
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialValue);
-    _errorText = widget.errorText;
-    _displayedErrorText = widget.errorText;
-
-    if (_errorText?.isNotEmpty == true ||
-        widget.validationMode == InputValidationMode.aggressive) {
-      _hasFocusExitedOnce = true;
+    if (widget.validationMode == InputValidationMode.aggressive) {
       _shouldValidate = true;
     }
 
@@ -131,16 +123,6 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
   @override
   void didUpdateWidget(covariant UiTextFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    final error = widget.validator?.call(_controller?.text) ?? widget.errorText;
-    if (error != oldWidget.errorText) {
-      _errorText = widget.errorText;
-      _displayedErrorText = widget.errorText;
-      if (_errorText?.isNotEmpty == true) {
-        _hasFocusExitedOnce = true;
-        _shouldValidate = true;
-      }
-    }
 
     if (widget.initialValue != oldWidget.initialValue &&
         widget.controller == null) {
@@ -157,16 +139,7 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
             widget.validationMode == InputValidationMode.passive);
 
     if (shouldUpdate) {
-      _hasFocusExitedOnce = true;
       _shouldValidate = true;
-      // Schedule validation for the next frame
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _validateAndUpdateError(_controller?.text);
-          });
-        }
-      });
     }
 
     setState(() {
@@ -179,16 +152,6 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
         _shouldValidate = true;
       }
     });
-  }
-
-  // Separate validation logic from state updates
-  String? _validateAndUpdateError(String? value) {
-    final error = widget.validator?.call(value) ?? widget.errorText;
-    _errorText = error;
-    _displayedErrorText = _hasFocusExitedOnce || _focusNode.hasFocus
-        ? _errorText
-        : null;
-    return error;
   }
 
   @override
@@ -230,6 +193,22 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
 
     final fillColor = widget.fillColor ?? theme.inputDecorationTheme.fillColor;
 
+    final AutovalidateMode autovalidateMode;
+    switch (widget.validationMode) {
+      case InputValidationMode.aggressive:
+        autovalidateMode = AutovalidateMode.always;
+        break;
+      case InputValidationMode.eager:
+      case InputValidationMode.passive:
+        autovalidateMode = _shouldValidate
+            ? AutovalidateMode.always
+            : AutovalidateMode.disabled;
+        break;
+      case InputValidationMode.lazy:
+        autovalidateMode = AutovalidateMode.disabled;
+        break;
+    }
+
     return TextFormField(
       controller: _controller,
       maxLength: widget.maxLength,
@@ -237,30 +216,18 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
       inputFormatters: widget.inputFormatters,
       autofillHints: widget.autofillHints,
       validator: (value) {
-        // Don't update state during build, just return the validation result
+        // Always return the validator result so FormState.validate() reflects correctness
         final error = widget.validator?.call(value) ?? widget.errorText;
-        return _shouldValidate ? error : null;
+        return error;
       },
       onChanged: (value) {
         widget.onChanged?.call(value);
-        if (_shouldValidate) {
-          // Schedule state update for the next frame
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              setState(() {
-                _validateAndUpdateError(value);
-              });
-            }
-          });
-        }
       },
       onFieldSubmitted: widget.onFieldSubmitted,
       enableInteractiveSelection: widget.enableInteractiveSelection,
       textInputAction: widget.textInputAction,
       style: style,
-      autovalidateMode: _shouldValidate
-          ? AutovalidateMode.onUserInteraction
-          : AutovalidateMode.disabled,
+      autovalidateMode: autovalidateMode,
       keyboardType: widget.keyboardType,
       obscureText: widget.obscureText,
       autocorrect: widget.autocorrect,
@@ -281,7 +248,8 @@ class _UiTextFormFieldState extends State<UiTextFormField> {
         labelText: widget.labelText ?? widget.hintText,
         labelStyle: labelStyle,
         helperText: widget.helperText,
-        errorText: _displayedErrorText,
+        // If an external errorText provided, show it; otherwise let Form/validator drive error display
+        errorText: widget.errorText,
         errorStyle: errorStyle,
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,

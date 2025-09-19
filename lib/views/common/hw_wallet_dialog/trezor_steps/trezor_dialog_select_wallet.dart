@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/shared/constants.dart';
 
 class TrezorDialogSelectWallet extends StatelessWidget {
   const TrezorDialogSelectWallet({Key? key, required this.onComplete})
