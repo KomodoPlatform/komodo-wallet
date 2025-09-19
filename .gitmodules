@@ -1,7 +1,7 @@
 [submodule "sdk"]
 	path = sdk
 	url = https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
-	branch = feat/config-custom-token-support
+	branch = dev
 	update = checkout
 	fetchRecurseSubmodules = on-demand
 	ignore = dirty

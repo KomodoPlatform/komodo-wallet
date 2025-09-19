@@ -181,7 +181,10 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
       case CoinSubClass.bep20:
         return 'bsc'; // https://api.coingecko.com/api/v3/coins/bsc/contract/0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0
       case CoinSubClass.arbitrum:
-        return 'arbitrum-one'; // https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/0xCBeb19549054CC0a6257A77736FC78C367216cE7
+        // TODO: re-enable once the ticker->Asset issue is figured out
+        // temporarily disabled to avoid confusion with failed activations
+        return null;
+      // return 'arbitrum-one'; // https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/0xCBeb19549054CC0a6257A77736FC78C367216cE7
       case CoinSubClass.avx20:
         return 'avalanche'; // https://api.coingecko.com/api/v3/coins/avalanche/contract/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E
       case CoinSubClass.moonriver:
