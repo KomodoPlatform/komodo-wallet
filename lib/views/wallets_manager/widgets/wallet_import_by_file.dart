@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:collection/collection.dart';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,12 +9,12 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
-import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_rename_dialog.dart';
@@ -275,18 +275,11 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       String name = widget.fileData.name.split('.').first;
       // ignore: use_build_context_synchronously
       final walletsBloc = RepositoryProvider.of<WalletsRepository>(context);
-      final bool isNameExisted =
-          walletsBloc.wallets!.firstWhereOrNull((w) => w.name == name) != null;
-      if (isNameExisted) {
-        setState(() {
-          _commonError = LocaleKeys.walletCreationExistNameError.tr();
-        });
-        return;
-      }
+
       String? validationError = walletsBloc.validateWalletName(name);
       if (validationError != null) {
-        // ignore: use_build_context_synchronously
         final newName = await walletRenameDialog(
+          // ignore: use_build_context_synchronously
           context,
           initialName: name,
         );
