@@ -18,13 +18,12 @@ class AppGeoStatus extends Equatable {
   /// Whether trading is enabled based on the current geo status.
   bool get tradingEnabled =>
       !disallowedFeatures.contains(DisallowedFeature.trading);
-      
-  bool isAssetBlocked(AssetId? asset) {
-    if (asset == null) return true;
+
+  bool isAssetBlocked(AssetId asset) {
     return disallowedAssets.contains(asset);
   }
-  
-  bool canTradeAssets(Iterable<AssetId?> assets) {
+
+  bool canTradeAssets(Iterable<AssetId> assets) {
     if (!tradingEnabled) return false;
     for (final asset in assets) {
       if (isAssetBlocked(asset)) return false;

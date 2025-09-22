@@ -4,18 +4,16 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/trading_status/app_geo_status.dart';
 import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_api_provider.dart';
 
 class TradingStatusRepository {
-  TradingStatusRepository({
-    required KomodoDefiSdk sdk,
+  TradingStatusRepository(
+    this._sdk, {
     TradingStatusApiProvider? apiProvider,
     Duration? pollingInterval,
-  }) : _sdk = sdk,
-       _apiProvider = apiProvider ?? TradingStatusApiProvider();
+  }) : _apiProvider = apiProvider ?? TradingStatusApiProvider();
 
   final TradingStatusApiProvider _apiProvider;
   final Logger _log = Logger('TradingStatusRepository');
@@ -37,13 +35,6 @@ class TradingStatusRepository {
       final String apiKey = _readFeedbackApiKey();
 
       if (apiKey.isEmpty && !shouldFail) {
-        // TODO!: remvoe after testing
-        final coinIds = {'KMD', 'ETH', 'BTC-segwit'};
-        final assetIds = coinIds.map((e) => _sdk.getSdkAsset(e).id).toSet();
-        return AppGeoStatus(
-          disallowedAssets: assetIds,
-          disallowedFeatures: const {},
-        );
         _log.warning('FEEDBACK_API_KEY not found. Trading disabled.');
         return const AppGeoStatus(
           disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
@@ -101,36 +92,49 @@ class TradingStatusRepository {
   /// poll utility function with fault tolerance.
   ///
   /// The stream yields immediately with the first status check, then continues
-  /// polling at the configured interval. Default interval is 3 minutes.
+  /// polling at the configured interval. Uses exponential backoff for error retry delays.
   Stream<AppGeoStatus> watchTradingStatus({
-    Duration pollingInterval = const Duration(minutes: 3),
-    Duration retryInterval = const Duration(seconds: 30),
+    Duration pollingInterval = const Duration(minutes: 1),
     bool? forceFail,
   }) async* {
     _log.info('Starting trading status polling stream');
 
+    final backoffStrategy = ExponentialBackoff(
+      initialDelay: const Duration(seconds: 1),
+      maxDelay: const Duration(minutes: 5),
+      withJitter: true,
+    );
+
+    var consecutiveFailures = 0;
+    var currentDelay = Duration.zero;
+
     while (true) {
       try {
-        final status = await poll(
-          () => fetchStatus(forceFail: forceFail),
-          isComplete: (_) => false, // Never complete, keep polling
-          maxDuration: pollingInterval,
-          backoffStrategy: const ConstantBackoff(delay: Duration(seconds: 30)),
-          shouldContinueOnError: (error) {
-            _log.warning('Error during status poll, continuing: $error');
-            return true;
-          },
-        );
+        final status = await fetchStatus(forceFail: forceFail);
         yield status;
-      } on TimeoutException catch (_) {
-        _log.fine('Polling interval completed, waiting for next cycle');
+
+        // Reset failure tracking on successful fetch
+        consecutiveFailures = 0;
+        currentDelay = Duration.zero;
+
         await Future<void>.delayed(pollingInterval);
       } catch (e) {
         _log.warning('Unexpected error in polling cycle: $e');
         yield const AppGeoStatus(
           disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
         );
-        await Future<void>.delayed(retryInterval);
+
+        // Calculate exponential backoff delay for consecutive failures
+        currentDelay = backoffStrategy.nextDelay(
+          consecutiveFailures,
+          currentDelay,
+        );
+        consecutiveFailures++;
+
+        _log.info(
+          'Retrying after ${currentDelay.inMilliseconds}ms (attempt $consecutiveFailures)',
+        );
+        await Future<void>.delayed(currentDelay);
       }
     }
   }

@@ -48,6 +48,7 @@ import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_repository.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_service.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/bloc/version_info/version_info_bloc.dart';
@@ -176,13 +177,15 @@ class AppBlocRoot extends StatelessWidget {
         RepositoryProvider(
           create: (_) => KmdRewardsBloc(coinsRepository, mm2Api),
         ),
-        RepositoryProvider(create: (_) => TradingStatusRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) =>
-                CoinsBloc(komodoDefiSdk, coinsRepository)..add(CoinsStarted()),
+            create: (context) => CoinsBloc(
+              komodoDefiSdk,
+              coinsRepository,
+              context.read<TradingStatusService>(),
+            )..add(CoinsStarted()),
           ),
           BlocProvider<PriceChartBloc>(
             create: (context) => PriceChartBloc(komodoDefiSdk)
@@ -268,8 +271,8 @@ class AppBlocRoot extends StatelessWidget {
           BlocProvider<TradingStatusBloc>(
             lazy: false,
             create: (context) =>
-                TradingStatusBloc(context.read<TradingStatusRepository>())
-                  ..add(TradingStatusCheckRequested()),
+                TradingStatusBloc(context.read<TradingStatusService>())
+                  ..add(TradingStatusWatchStarted()),
           ),
           BlocProvider<SystemHealthBloc>(
             create: (_) =>
