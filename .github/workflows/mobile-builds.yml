@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install Flutter and dependencies
         uses: ./.github/actions/flutter-deps
@@ -66,7 +68,6 @@ jobs:
           TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
           FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
           FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
-          FEEDBACK_TEST_URL: ${{ secrets.FEEDBACK_TEST_URL }}
 
       # Flutter build with `--no-pub` flag fails on Android due to a
       # known regression with the build system in 3.32.5.

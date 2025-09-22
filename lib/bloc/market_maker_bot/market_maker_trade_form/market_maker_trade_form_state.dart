@@ -97,7 +97,7 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
         ? baseUsdPrice / relUsdPrice
         : null;
 
-    return price;
+    return price?.toDouble();
   }
 
   /// The price of the trade pair derived from the USD price of the coins

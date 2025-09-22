@@ -7,11 +7,7 @@ import 'package:web_dex/shared/widgets/coin_fiat_balance.dart';
 // TODO! Integrate this widget directly to the SDK and make it subscribe to
 // the balance changes of the coin.
 class CoinBalance extends StatelessWidget {
-  const CoinBalance({
-    super.key,
-    required this.coin,
-    this.isVertical = false,
-  });
+  const CoinBalance({super.key, required this.coin, this.isVertical = false});
 
   final Coin coin;
   final bool isVertical;
@@ -19,9 +15,7 @@ class CoinBalance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseFont = Theme.of(context).textTheme.bodySmall;
-    final balanceStyle = baseFont?.copyWith(
-      fontWeight: FontWeight.w500,
-    );
+    final balanceStyle = baseFont?.copyWith(fontWeight: FontWeight.w500);
 
     final balance =
         context.sdk.balances.lastKnown(coin.id)?.spendable.toDouble() ?? 0.0;
@@ -38,26 +32,12 @@ class CoinBalance extends StatelessWidget {
               textAlign: TextAlign.right,
             ),
           ),
-          Text(
-            ' ${Coin.normalizeAbbr(coin.abbr)}',
-            style: balanceStyle,
-          ),
+          Text(' ${Coin.normalizeAbbr(coin.abbr)}', style: balanceStyle),
         ],
       ),
       ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 100,
-        ),
-        child: Row(
-          children: [
-            Text(' (', style: balanceStyle),
-            CoinFiatBalance(
-              coin,
-              isAutoScrollEnabled: true,
-            ),
-            Text(')', style: balanceStyle),
-          ],
-        ),
+        constraints: const BoxConstraints(maxWidth: 100),
+        child: CoinFiatBalance(coin, isAutoScrollEnabled: true),
       ),
     ];
 

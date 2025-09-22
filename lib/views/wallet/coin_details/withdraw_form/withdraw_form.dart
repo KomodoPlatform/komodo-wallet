@@ -19,6 +19,12 @@ import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
+
+bool _isMemoSupportedProtocol(Asset asset) {
+  final protocol = asset.protocol;
+  return protocol is TendermintProtocol || protocol is ZhtlcProtocol;
+}
 
 class WithdrawForm extends StatefulWidget {
   final Asset asset;
@@ -43,9 +49,12 @@ class _WithdrawFormState extends State<WithdrawForm> {
   @override
   void initState() {
     super.initState();
+    final authBloc = context.read<AuthBloc>();
+    final walletType = authBloc.state.currentUser?.wallet.config.type;
     _formBloc = WithdrawFormBloc(
       asset: widget.asset,
       sdk: _sdk,
+      walletType: walletType,
     );
   }
 
@@ -95,6 +104,31 @@ class _WithdrawFormState extends State<WithdrawForm> {
                       walletType: walletType,
                     ),
                   );
+            },
+          ),
+          BlocListener<WithdrawFormBloc, WithdrawFormState>(
+            listenWhen: (prev, curr) =>
+                prev.isAwaitingTrezorConfirmation !=
+                curr.isAwaitingTrezorConfirmation,
+            listener: (context, state) {
+              if (state.isAwaitingTrezorConfirmation) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => TrezorWithdrawProgressDialog(
+                    message: LocaleKeys.trezorTransactionInProgressMessage.tr(),
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                      context.read<WithdrawFormBloc>().add(const WithdrawFormCancelled());
+                    },
+                  ),
+                );
+              } else {
+                // Dismiss dialog if it's open
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              }
             },
           ),
         ],
@@ -231,7 +265,7 @@ class PreviewWithdrawButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : Text(LocaleKeys.previewWithdrawal.tr()),
+            : Text(LocaleKeys.withdrawPreview.tr()),
       ),
     );
   }
@@ -414,12 +448,14 @@ class WithdrawFormFillSection extends StatelessWidget {
               ],
             ],
             const SizedBox(height: 16),
+            if (_isMemoSupportedProtocol(state.asset)) ...[
             WithdrawMemoField(
               memo: state.memo,
               onChanged: (value) => context
-                  .read<WithdrawFormBloc>()
-                  .add(WithdrawFormMemoChanged(value)),
-            ),
+                    .read<WithdrawFormBloc>()
+                    .add(WithdrawFormMemoChanged(value)),
+              ),
+            ],
             const SizedBox(height: 24),
             // TODO! Refactor to use Formz and replace with the appropriate
             // error state value.

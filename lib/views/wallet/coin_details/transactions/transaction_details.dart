@@ -13,6 +13,7 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/copied_text.dart';
+import 'package:web_dex/views/wallet/common/address_copy_button.dart';
 
 class TransactionDetails extends StatelessWidget {
   const TransactionDetails({
@@ -65,10 +66,9 @@ class TransactionDetails extends StatelessWidget {
                         children: [
                           Text(
                             LocaleKeys.transactionDetailsTitle.tr(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(fontSize: 18),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(fontSize: 18),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 16),
@@ -76,7 +76,7 @@ class TransactionDetails extends StatelessWidget {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 6),
-                            child: SelectableText(coin.name),
+                            child: SelectableText(coin.displayName),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 16),
@@ -85,9 +85,7 @@ class TransactionDetails extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 30,
-                    ),
+                    const SizedBox(height: 30),
                     _buildSimpleData(
                       context,
                       title: LocaleKeys.date.tr(),
@@ -112,9 +110,22 @@ class TransactionDetails extends StatelessWidget {
                       title: LocaleKeys.transactionHash.tr(),
                       value: transaction.txHash ?? '',
                       isCopied: true,
+                      isTruncated: true,
                     ),
-                    const SizedBox(height: 20),
-                    _buildAddresses(isMobile, context),
+                    SizedBox(height: 16),
+                    _buildSimpleData(
+                      context,
+                      title: LocaleKeys.from.tr(),
+                      value: transaction.from.first,
+                      isCopied: true,
+                    ),
+                    _buildSimpleData(
+                      context,
+                      title: LocaleKeys.to.tr(),
+                      value: transaction.to.first,
+                      isCopied: true,
+                    ),
+                    SizedBox(height: 16),
                     _buildControls(context, isMobile),
                   ],
                 ),
@@ -131,27 +142,35 @@ class TransactionDetails extends StatelessWidget {
     required String title,
     required String address,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            title,
-            style:
-                Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
+          // Title with fixed flex
+          Expanded(
+            flex: 2,
+            child: Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontSize: 14),
+            ),
           ),
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 200),
-            child: CopiedText(
-              copiedValue: address,
-              isTruncated: true,
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-                horizontal: 16,
-              ),
-              fontSize: 14,
+          // Address and copy button
+          Expanded(
+            flex: 5,
+            child: Row(
+              children: [
+                Expanded(
+                  child: AutoScrollText(
+                    text: address,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AddressCopyButton(address: address),
+              ],
             ),
           ),
         ],
@@ -163,47 +182,21 @@ class TransactionDetails extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(bottom: 10),
-      child: isMobile
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildAddress(
-                  context,
-                  title: LocaleKeys.from.tr(),
-                  address: transaction.from.first,
-                ),
-                _buildAddress(
-                  context,
-                  title: LocaleKeys.to.tr(),
-                  address: transaction.to.first,
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    child: _buildAddress(
-                      context,
-                      title: LocaleKeys.from.tr(),
-                      address: transaction.from.first,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    child: _buildAddress(
-                      context,
-                      title: LocaleKeys.to.tr(),
-                      address: transaction.to.first,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAddress(
+            context,
+            title: LocaleKeys.from.tr(),
+            address: transaction.from.first,
+          ),
+          _buildAddress(
+            context,
+            title: LocaleKeys.to.tr(),
+            address: transaction.to.first,
+          ),
+        ],
+      ),
     );
   }
 
@@ -211,8 +204,10 @@ class TransactionDetails extends StatelessWidget {
     final String formatted = formatDexAmt(transaction.amount.toDouble().abs());
     final String sign = transaction.amount.toDouble() > 0 ? '+' : '-';
     final coinsBloc = RepositoryProvider.of<CoinsRepo>(context);
-    final double? usd =
-        coinsBloc.getUsdPriceByAmount(formatted, transaction.assetId.id);
+    final double? usd = coinsBloc.getUsdPriceByAmount(
+      formatted,
+      transaction.assetId.id,
+    );
     final String formattedUsd = formatAmt(usd ?? 0);
     final String value =
         '$sign $formatted ${Coin.normalizeAbbr(transaction.assetId.id)} (\$$formattedUsd)';
@@ -220,9 +215,9 @@ class TransactionDetails extends StatelessWidget {
     return SelectableText(
       value,
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: 22,
-            color: theme.custom.balanceColor,
-          ),
+        fontSize: 22,
+        color: theme.custom.balanceColor,
+      ),
     );
   }
 
@@ -238,10 +233,10 @@ class TransactionDetails extends StatelessWidget {
           width: buttonWidth,
           height: buttonHeight,
           textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: fontSize,
-                color: theme.custom.defaultGradientButtonTextColor,
-              ),
+            fontWeight: FontWeight.w700,
+            fontSize: fontSize,
+            color: theme.custom.defaultGradientButtonTextColor,
+          ),
           onPressed: () {
             launchURLString(getTxExplorerUrl(coin, transaction.txHash ?? ''));
           },
@@ -253,9 +248,9 @@ class TransactionDetails extends StatelessWidget {
           height: buttonHeight,
           onPressed: onClose,
           textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w700,
-              ),
+            fontSize: fontSize,
+            fontWeight: FontWeight.w700,
+          ),
           backgroundColor: theme.custom.lightButtonColor,
           text: LocaleKeys.done.tr(),
         ),
@@ -267,8 +262,10 @@ class TransactionDetails extends StatelessWidget {
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
 
     final String formattedFee = transaction.fee?.formatTotal() ?? '';
-    final double? usd =
-        coinsRepository.getUsdPriceByAmount(formattedFee, _feeCoin);
+    final double? usd = coinsRepository.getUsdPriceByAmount(
+      formattedFee,
+      _feeCoin,
+    );
     final String formattedUsd = formatAmt(usd ?? 0);
 
     final String title = LocaleKeys.fees.tr();
@@ -285,8 +282,9 @@ class TransactionDetails extends StatelessWidget {
             flex: 4,
             child: Text(
               title,
-              style:
-                  Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontSize: 14),
             ),
           ),
           Expanded(
@@ -297,10 +295,10 @@ class TransactionDetails extends StatelessWidget {
               child: SelectableText(
                 value,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: theme.custom.decreaseColor,
-                    ),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: theme.custom.decreaseColor,
+                ),
               ),
             ),
           ),
@@ -323,8 +321,9 @@ class TransactionDetails extends StatelessWidget {
             flex: 4,
             child: Text(
               '${LocaleKeys.memo.tr()}: ',
-              style:
-                  Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontSize: 14),
             ),
           ),
           Expanded(
@@ -334,10 +333,9 @@ class TransactionDetails extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: SelectableText(
                 memo,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontSize: 14),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontSize: 14),
               ),
             ),
           ),
@@ -352,6 +350,7 @@ class TransactionDetails extends StatelessWidget {
     required String value,
     bool hasBackground = false,
     bool isCopied = false,
+    bool isTruncated = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
@@ -363,8 +362,9 @@ class TransactionDetails extends StatelessWidget {
             flex: 4,
             child: Text(
               title,
-              style:
-                  Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontSize: 14),
             ),
           ),
           Expanded(
@@ -376,7 +376,7 @@ class TransactionDetails extends StatelessWidget {
                       constraints: const BoxConstraints(maxHeight: 340),
                       child: CopiedText(
                         copiedValue: value,
-                        isTruncated: true,
+                        isTruncated: isTruncated,
                         padding: const EdgeInsets.symmetric(
                           vertical: 8,
                           horizontal: 16,
@@ -386,10 +386,9 @@ class TransactionDetails extends StatelessWidget {
                     )
                   : SelectableText(
                       value,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontSize: 14),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(fontSize: 14),
                     ),
             ),
           ),

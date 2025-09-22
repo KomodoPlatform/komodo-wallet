@@ -112,6 +112,8 @@ abstract class  LocaleKeys {
   static const walletCreationTitle = 'walletCreationTitle';
   static const walletImportTitle = 'walletImportTitle';
   static const walletImportByFileTitle = 'walletImportByFileTitle';
+  static const invalidWalletNameError = 'invalidWalletNameError';
+  static const invalidWalletFileNameError = 'invalidWalletFileNameError';
   static const walletImportCreatePasswordTitle = 'walletImportCreatePasswordTitle';
   static const walletImportByFileDescription = 'walletImportByFileDescription';
   static const walletLogInTitle = 'walletLogInTitle';
@@ -129,6 +131,9 @@ abstract class  LocaleKeys {
   static const walletCreationFormatPasswordError = 'walletCreationFormatPasswordError';
   static const walletCreationConfirmPasswordError = 'walletCreationConfirmPasswordError';
   static const incorrectPassword = 'incorrectPassword';
+  static const oneClickLogin = 'oneClickLogin';
+  static const quickLoginTooltip = 'quickLoginTooltip';
+  static const quickLoginSubtitle = 'quickLoginSubtitle';
   static const importSeedEnterSeedPhraseHint = 'importSeedEnterSeedPhraseHint';
   static const passphraseCheckingTitle = 'passphraseCheckingTitle';
   static const passphraseCheckingDescription = 'passphraseCheckingDescription';
@@ -204,7 +209,8 @@ abstract class  LocaleKeys {
   static const walletCreationBip39SeedError = 'walletCreationBip39SeedError';
   static const walletCreationHdBip39SeedError = 'walletCreationHdBip39SeedError';
   static const walletPageNoSuchAsset = 'walletPageNoSuchAsset';
-  static const swapCoin = 'swapCoin';
+  static const swap = 'swap';
+  static const dexAddress = 'dexAddress';
   static const fiatBalance = 'fiatBalance';
   static const yourBalance = 'yourBalance';
   static const all = 'all';
@@ -267,7 +273,6 @@ abstract class  LocaleKeys {
   static const buyPrice = 'buyPrice';
   static const inProgress = 'inProgress';
   static const orders = 'orders';
-  static const swap = 'swap';
   static const percentFilled = 'percentFilled';
   static const orderType = 'orderType';
   static const recover = 'recover';
@@ -322,7 +327,6 @@ abstract class  LocaleKeys {
   static const exchange = 'exchange';
   static const connectSomething = 'connectSomething';
   static const hardwareWallet = 'hardwareWallet';
-  static const komodoWalletSeed = 'komodoWalletSeed';
   static const metamask = 'metamask';
   static const comingSoon = 'comingSoon';
   static const walletsTypeListTitle = 'walletsTypeListTitle';
@@ -354,6 +358,7 @@ abstract class  LocaleKeys {
   static const trezorSelectTitle = 'trezorSelectTitle';
   static const trezorSelectSubTitle = 'trezorSelectSubTitle';
   static const trezorBrowserUnsupported = 'trezorBrowserUnsupported';
+  static const trezorTransactionInProgressMessage = 'trezorTransactionInProgressMessage';
   static const mixedCaseError = 'mixedCaseError';
   static const addressConvertedToMixedCase = 'addressConvertedToMixedCase';
   static const invalidAddressChecksum = 'invalidAddressChecksum';
@@ -378,6 +383,9 @@ abstract class  LocaleKeys {
   static const dexErrorMessage = 'dexErrorMessage';
   static const seedConfirmInitialText = 'seedConfirmInitialText';
   static const seedConfirmIncorrectText = 'seedConfirmIncorrectText';
+  static const mnemonicInvalidWordError = 'mnemonicInvalidWordError';
+  static const mnemonicInvalidChecksumError = 'mnemonicInvalidChecksumError';
+  static const mnemonicInvalidLengthError = 'mnemonicInvalidLengthError';
   static const usedSamePassword = 'usedSamePassword';
   static const passwordNotAccepted = 'passwordNotAccepted';
   static const confirmNewPassword = 'confirmNewPassword';
@@ -460,6 +468,7 @@ abstract class  LocaleKeys {
   static const nothingFound = 'nothingFound';
   static const half = 'half';
   static const max = 'max';
+  static const exact = 'exact';
   static const reactivating = 'reactivating';
   static const weFailedCoinActivate = 'weFailedCoinActivate';
   static const failedActivate = 'failedActivate';
@@ -501,7 +510,7 @@ abstract class  LocaleKeys {
   static const enterPassphraseHiddenWalletDescription = 'enterPassphraseHiddenWalletDescription';
   static const skip = 'skip';
   static const activateToSeeFunds = 'activateToSeeFunds';
-  static const allowCustomFee = 'allowCustomFee';
+  static const useCustomSeedOrWif = 'useCustomSeedOrWif';
   static const cancelOrder = 'cancelOrder';
   static const version = 'version';
   static const copyAddressToClipboard = 'copyAddressToClipboard';
@@ -516,6 +525,23 @@ abstract class  LocaleKeys {
   static const logs = 'logs';
   static const resetActivatedCoinsTitle = 'resetActivatedCoinsTitle';
   static const privateKeys = 'privateKeys';
+  static const exportPrivateKeys = 'exportPrivateKeys';
+  static const exportPrivateKeysDescription = 'exportPrivateKeysDescription';
+  static const privateKeyExportTitle = 'privateKeyExportTitle';
+  static const privateKeyExportDescription = 'privateKeyExportDescription';
+  static const showPrivateKeys = 'showPrivateKeys';
+  static const copyAllKeys = 'copyAllKeys';
+  static const downloadAllKeys = 'downloadAllKeys';
+  static const shareAllKeys = 'shareAllKeys';
+  static const confirmPrivateKeyBackup = 'confirmPrivateKeyBackup';
+  static const confirmPrivateKeyBackupDescription = 'confirmPrivateKeyBackupDescription';
+  static const importantSecurityNotice = 'importantSecurityNotice';
+  static const privateKeySecurityWarning = 'privateKeySecurityWarning';
+  static const privateKeyBackupConfirmation = 'privateKeyBackupConfirmation';
+  static const confirmBackupComplete = 'confirmBackupComplete';
+  static const privateKeyExportSuccessTitle = 'privateKeyExportSuccessTitle';
+  static const privateKeyExportSuccessDescription = 'privateKeyExportSuccessDescription';
+  static const iHaveSavedMyPrivateKeys = 'iHaveSavedMyPrivateKeys';
   static const copyWarning = 'copyWarning';
   static const seedConfirmTitle = 'seedConfirmTitle';
   static const seedConfirmDescription = 'seedConfirmDescription';
@@ -660,7 +686,6 @@ abstract class  LocaleKeys {
   static const decimals = 'decimals';
   static const onlySendToThisAddress = 'onlySendToThisAddress';
   static const scanTheQrCode = 'scanTheQrCode';
-  static const tradingAddress = 'tradingAddress';
   static const addresses = 'addresses';
   static const creating = 'creating';
   static const createAddress = 'createAddress';
@@ -681,6 +706,7 @@ abstract class  LocaleKeys {
   static const amountFieldCheckboxListTile = 'amountFieldCheckboxListTile';
   static const customFeeToggleTitle = 'customFeeToggleTitle';
   static const priceChartCenterText = 'priceChartCenterText';
+  static const priceHistorySparklineTooltip = 'priceHistorySparklineTooltip';
   static const statistics = 'statistics';
   static const ibcTransferFieldTitle = 'ibcTransferFieldTitle';
   static const ibcTransferFieldSubtitle = 'ibcTransferFieldSubtitle';
@@ -692,11 +718,24 @@ abstract class  LocaleKeys {
   static const withdrawErrorCardTileTitle = 'withdrawErrorCardTileTitle';
   static const transactionSuccessful = 'transactionSuccessful';
   static const customNetworkFee = 'customNetworkFee';
-  static const previewWithdrawal = 'previewWithdrawal';
   static const createNewAddress = 'createNewAddress';
   static const searchAddresses = 'searchAddresses';
   static const trend7d = 'trend7d';
   static const tradingDisabledTooltip = 'tradingDisabledTooltip';
   static const tradingDisabled = 'tradingDisabled';
+  static const unbanPubkeysResults = 'unbanPubkeysResults';
+  static const unbannedPubkeys = 'unbannedPubkeys';
+  static const stillBannedPubkeys = 'stillBannedPubkeys';
+  static const wereNotBannedPubkeys = 'wereNotBannedPubkeys';
+  static const reason = 'reason';
+  static const unbanPubkeys = 'unbanPubkeys';
+  static const unbanPubkeysDescription = 'unbanPubkeysDescription';
+  static const noBannedPubkeys = 'noBannedPubkeys';
+  static const unbanPubkeysFailed = 'unbanPubkeysFailed';
+  static const privateKeyRetrievalFailed = 'privateKeyRetrievalFailed';
+  static const fetchingPrivateKeysTitle = 'fetchingPrivateKeysTitle';
+  static const fetchingPrivateKeysMessage = 'fetchingPrivateKeysMessage';
+  static const pubkeyType = 'pubkeyType';
+  static const securitySettings = 'securitySettings';
 
 }

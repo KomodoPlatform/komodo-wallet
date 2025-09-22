@@ -7,8 +7,8 @@ class StatisticCard extends StatelessWidget {
   // Text shown under the stat value title. Uses default of bodySmall style.
   final Widget caption;
 
-  // The value of the stat used for the title
-  final double value;
+  // The value of the stat used for the title. If null, shows a skeleton placeholder
+  final double? value;
 
   // The formatter used to format the value for the title
   final NumberFormat _valueFormatter;
@@ -25,7 +25,7 @@ class StatisticCard extends StatelessWidget {
 
   StatisticCard({
     super.key,
-    required this.value,
+    this.value,
     required this.caption,
     this.trendWidget,
     this.actionWidget,
@@ -43,10 +43,7 @@ class StatisticCard extends StatelessWidget {
       end: Alignment.bottomLeft,
       colors: (theme.brightness == Brightness.light)
           ? [cardColor, cardColor]
-          : [
-              Color.fromRGBO(23, 24, 28, 1),
-              theme.cardColor,
-            ],
+          : [Color.fromRGBO(23, 24, 28, 1), theme.cardColor],
       stops: const [0.0, 1.0],
     );
   }
@@ -59,10 +56,7 @@ class StatisticCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: containerGradient(Theme.of(context)),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
       ),
       child: InkWell(
         onTap: onTap,
@@ -79,14 +73,17 @@ class StatisticCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Value
-                    AutoScrollText(
-                      text: _valueFormatter.format(value),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDarkMode ? Colors.white : null,
-                          ),
-                    ),
+                    // Value or skeleton placeholder
+                    value != null
+                        ? AutoScrollText(
+                            text: _valueFormatter.format(value!),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: isDarkMode ? Colors.white : null,
+                                ),
+                          )
+                        : _ValuePlaceholder(),
                     const SizedBox(height: 4),
                     // Caption
                     DefaultTextStyle(
@@ -109,6 +106,25 @@ class StatisticCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ValuePlaceholder extends StatelessWidget {
+  const _ValuePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 24,
+      width: 120,
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const SizedBox.shrink(),
     );
   }
 }

@@ -99,7 +99,7 @@ class NftTxnRepository {
     final coins = _coinsRepo.getKnownCoins();
     for (final abbr in coinAbbr) {
       final coin = coins.firstWhere((c) => c.abbr == abbr);
-      _abbrToUsdPrices[abbr] = coin.usdPrice?.price;
+      _abbrToUsdPrices[abbr] = coin.usdPrice?.price?.toDouble();
     }
   }
 }

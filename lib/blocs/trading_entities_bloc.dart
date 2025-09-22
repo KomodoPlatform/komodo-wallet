@@ -36,6 +36,7 @@ class TradingEntitiesBloc implements BlocBase {
   List<MyOrder> _myOrders = [];
   List<Swap> _swaps = [];
   Timer? timer;
+  bool _closed = false;
 
   final StreamController<List<MyOrder>> _myOrdersController =
       StreamController<List<MyOrder>>.broadcast();
@@ -61,6 +62,7 @@ class TradingEntitiesBloc implements BlocBase {
   }
 
   Future<void> fetch() async {
+    if (_closed) return;
     if (!await _kdfSdk.auth.isSignedIn()) return;
 
     myOrders = await _myOrdersService.getOrders() ?? [];
@@ -76,12 +78,25 @@ class TradingEntitiesBloc implements BlocBase {
     bool updateInProgress = false;
 
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+      if (_closed) return;
       if (updateInProgress) return;
       // TODO!: do not run for hidden login or HW
 
       updateInProgress = true;
-      await fetch();
-      updateInProgress = false;
+      try {
+        await fetch();
+      } catch (e) {
+        if (e is StateError && e.message.contains('disposed')) {
+          _closed = true;
+        } else {
+          await log(
+            'fetch error: $e',
+            path: 'TradingEntitiesBloc.fetch',
+          );
+        }
+      } finally {
+        updateInProgress = false;
+      }
     });
   }
 

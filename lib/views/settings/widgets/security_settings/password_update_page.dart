@@ -2,6 +2,7 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
@@ -47,8 +48,9 @@ class _PasswordUpdatePageState extends State<PasswordUpdatePage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: .3),
-          borderRadius: BorderRadius.circular(18.0)),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: .3),
+        borderRadius: BorderRadius.circular(18.0),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -131,43 +133,45 @@ class _FormViewState extends State<_FormView> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CurrentField(
-            controller: _oldController,
-            isObscured: _isObscured,
-            onVisibilityChange: _onVisibilityChange,
-            formKey: _formKey,
-          ),
-          const SizedBox(height: 30),
-          _NewField(
-            controller: _newController,
-            isObscured: _isObscured,
-            onVisibilityChange: _onVisibilityChange,
-          ),
-          const SizedBox(height: 20),
-          _ConfirmField(
-            confirmController: _confirmController,
-            newController: _newController,
-            isObscured: _isObscured,
-            onVisibilityChange: _onVisibilityChange,
-          ),
-          const SizedBox(height: 30),
-          if (_error != null) ...{
-            Text(
-              _error!,
-              style: TextStyle(color: theme.currentGlobal.colorScheme.error),
+    return AutofillGroup(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CurrentField(
+              controller: _oldController,
+              isObscured: _isObscured,
+              onVisibilityChange: _onVisibilityChange,
+              formKey: _formKey,
             ),
-            const SizedBox(height: 10),
-          },
-          UiPrimaryButton(
-            onPressed: _onUpdate,
-            text: LocaleKeys.updatePassword.tr(),
-          ),
-        ],
+            const SizedBox(height: 30),
+            _NewField(
+              controller: _newController,
+              isObscured: _isObscured,
+              onVisibilityChange: _onVisibilityChange,
+            ),
+            const SizedBox(height: 20),
+            _ConfirmField(
+              confirmController: _confirmController,
+              newController: _newController,
+              isObscured: _isObscured,
+              onVisibilityChange: _onVisibilityChange,
+            ),
+            const SizedBox(height: 30),
+            if (_error != null) ...{
+              Text(
+                _error!,
+                style: TextStyle(color: theme.currentGlobal.colorScheme.error),
+              ),
+              const SizedBox(height: 10),
+            },
+            UiPrimaryButton(
+              onPressed: _onUpdate,
+              text: LocaleKeys.updatePassword.tr(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -197,6 +201,8 @@ class _FormViewState extends State<_FormView> {
       setState(() => _error = null);
       _newController.text = '';
       _confirmController.text = '';
+      // Complete autofill context so managers can update stored password
+      TextInput.finishAutofillContext(shouldSave: true);
       widget.onSuccess();
     } catch (e) {
       setState(() {
@@ -254,6 +260,7 @@ class _CurrentFieldState extends State<_CurrentField> {
       hintText: LocaleKeys.currentPassword.tr(),
       controller: widget.controller,
       isObscured: widget.isObscured,
+      autofillHints: const [AutofillHints.password],
       validator: (String? password) {
         if (password == null || password.isEmpty) {
           return LocaleKeys.passwordIsEmpty.tr();
@@ -287,6 +294,7 @@ class _NewField extends StatelessWidget {
       hintText: LocaleKeys.enterNewPassword.tr(),
       controller: controller,
       isObscured: isObscured,
+      autofillHints: const [AutofillHints.newPassword],
       validator: (password) => _validatePassword(password, context),
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: onVisibilityChange,
@@ -326,10 +334,9 @@ class _ConfirmField extends StatelessWidget {
       hintText: LocaleKeys.confirmNewPassword.tr(),
       controller: confirmController,
       isObscured: isObscured,
-      validator: (String? confirmPassword) => validateConfirmPassword(
-        newController.text,
-        confirmPassword ?? '',
-      ),
+      autofillHints: const [AutofillHints.newPassword],
+      validator: (String? confirmPassword) =>
+          validateConfirmPassword(newController.text, confirmPassword ?? ''),
       suffixIcon: PasswordVisibilityControl(
         onVisibilityChange: onVisibilityChange,
       ),
@@ -344,6 +351,7 @@ class _PasswordField extends StatelessWidget {
     required this.suffixIcon,
     required this.validator,
     required this.hintText,
+    this.autofillHints,
   });
 
   final TextEditingController controller;
@@ -351,6 +359,7 @@ class _PasswordField extends StatelessWidget {
   final PasswordVisibilityControl suffixIcon;
   final String? Function(String?)? validator;
   final String hintText;
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
@@ -361,7 +370,9 @@ class _PasswordField extends StatelessWidget {
       autocorrect: false,
       enableInteractiveSelection: true,
       obscureText: isObscured,
-      inputFormatters: [LengthLimitingTextInputFormatter(40)],
+      maxLength: passwordMaxLength,
+      counterText: '',
+      autofillHints: autofillHints,
       validator: validator,
       errorMaxLines: 6,
       hintText: hintText,
@@ -379,9 +390,7 @@ class _SuccessView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.only(top: 30),
           child: UiPrimaryButton(
