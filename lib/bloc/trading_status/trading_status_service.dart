@@ -119,15 +119,6 @@ class TradingStatusService {
     return _currentStatus.isAssetBlocked(assetId);
   }
 
-  /// Check if multiple assets can be traded (none are blocked and trading is enabled)
-  bool canTradeAssets(Iterable<AssetId> assetIds) {
-    assert(
-      _isInitialized,
-      'TradingStatusService must be initialized before use. Call initialize() first.',
-    );
-    return _currentStatus.canTradeAssets(assetIds);
-  }
-
   /// Filter a list of assets to remove blocked ones
   List<Asset> filterAllowedAssets(List<Asset> assets) {
     assert(
@@ -161,6 +152,31 @@ class TradingStatusService {
         (entry) => !isAssetBlocked(getAssetId(entry.value)),
       ),
     );
+  }
+
+  /// Immediately refresh the trading status by fetching from the repository
+  /// Returns the fresh status and updates the cached status
+  Future<AppGeoStatus> refreshStatus({bool? forceFail}) async {
+    assert(
+      _isInitialized,
+      'TradingStatusService must be initialized before use. Call initialize() first.',
+    );
+
+    _log.info('Refreshing trading status immediately');
+
+    try {
+      final freshStatus = await _repository.fetchStatus(forceFail: forceFail);
+      _updateStatus(freshStatus);
+      return freshStatus;
+    } catch (error, stackTrace) {
+      _log.severe('Error refreshing trading status', error, stackTrace);
+      // On error, assume trading is disabled for safety
+      const errorStatus = AppGeoStatus(
+        disallowedFeatures: {DisallowedFeature.trading},
+      );
+      _updateStatus(errorStatus);
+      rethrow;
+    }
   }
 
   void dispose() {

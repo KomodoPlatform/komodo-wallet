@@ -23,14 +23,6 @@ class AppGeoStatus extends Equatable {
     return disallowedAssets.contains(asset);
   }
 
-  bool canTradeAssets(Iterable<AssetId> assets) {
-    if (!tradingEnabled) return false;
-    for (final asset in assets) {
-      if (isAssetBlocked(asset)) return false;
-    }
-    return true;
-  }
-
   @override
   List<Object?> get props => [disallowedAssets, disallowedFeatures];
 }

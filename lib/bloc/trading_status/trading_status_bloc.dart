@@ -22,7 +22,7 @@ class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
   ) async {
     emit(TradingStatusLoadInProgress());
     try {
-      final status = _service.currentStatus;
+      final status = await _service.refreshStatus();
       emit(
         TradingStatusLoadSuccess(
           disallowedAssets: status.disallowedAssets,
@@ -39,6 +39,18 @@ class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
     Emitter<TradingStatusState> emit,
   ) async {
     emit(TradingStatusLoadInProgress());
+    // Seed immediately with cached status if available; continue with stream.
+    try {
+      final status = _service.currentStatus;
+      emit(
+        TradingStatusLoadSuccess(
+          disallowedAssets: status.disallowedAssets,
+          disallowedFeatures: status.disallowedFeatures,
+        ),
+      );
+    } catch (_) {
+      // Service not initialized yet; will emit once stream produces data.
+    }
     await emit.forEach(
       _service.statusStream,
       onData: (AppGeoStatus status) => TradingStatusLoadSuccess(

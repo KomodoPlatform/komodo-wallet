@@ -9,11 +9,8 @@ import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_api_provider.dart';
 
 class TradingStatusRepository {
-  TradingStatusRepository(
-    this._sdk, {
-    TradingStatusApiProvider? apiProvider,
-    Duration? pollingInterval,
-  }) : _apiProvider = apiProvider ?? TradingStatusApiProvider();
+  TradingStatusRepository(this._sdk, {TradingStatusApiProvider? apiProvider})
+    : _apiProvider = apiProvider ?? TradingStatusApiProvider();
 
   final TradingStatusApiProvider _apiProvider;
   final Logger _log = Logger('TradingStatusRepository');
@@ -88,18 +85,19 @@ class TradingStatusRepository {
     return status.tradingEnabled;
   }
 
-  /// Creates a stream that periodically polls for trading status using the
-  /// poll utility function with fault tolerance.
+  /// Creates a stream that periodically polls for trading status using
+  /// Stream.periodic with fault tolerance.
   ///
-  /// The stream yields immediately with the first status check, then continues
+  /// The stream emits immediately with the first status check, then continues
   /// polling at the configured interval. Uses exponential backoff for error retry delays.
   Stream<AppGeoStatus> watchTradingStatus({
     Duration pollingInterval = const Duration(minutes: 1),
+    BackoffStrategy? backoffStrategy,
     bool? forceFail,
   }) async* {
     _log.info('Starting trading status polling stream');
 
-    final backoffStrategy = ExponentialBackoff(
+    backoffStrategy ??= ExponentialBackoff(
       initialDelay: const Duration(seconds: 1),
       maxDelay: const Duration(minutes: 5),
       withJitter: true,
@@ -108,23 +106,36 @@ class TradingStatusRepository {
     var consecutiveFailures = 0;
     var currentDelay = Duration.zero;
 
-    while (true) {
+    // Emit first status immediately
+    try {
+      final status = await fetchStatus(forceFail: forceFail);
+      yield status;
+    } catch (e) {
+      _log.warning('Error in initial trading status fetch: $e');
+      yield const AppGeoStatus(
+        disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
+      );
+    }
+
+    // Use Stream.periodic for clean, reliable polling
+    await for (final _ in Stream.periodic(pollingInterval)) {
       try {
         final status = await fetchStatus(forceFail: forceFail);
         yield status;
 
         // Reset failure tracking on successful fetch
-        consecutiveFailures = 0;
-        currentDelay = Duration.zero;
-
-        await Future<void>.delayed(pollingInterval);
+        if (consecutiveFailures > 0) {
+          consecutiveFailures = 0;
+          currentDelay = Duration.zero;
+          _log.info('Trading status fetch recovered, resuming normal polling');
+        }
       } catch (e) {
-        _log.warning('Unexpected error in polling cycle: $e');
+        _log.warning('Error in trading status fetch: $e');
         yield const AppGeoStatus(
           disallowedFeatures: <DisallowedFeature>{DisallowedFeature.trading},
         );
 
-        // Calculate exponential backoff delay for consecutive failures
+        // Apply exponential backoff delay for consecutive failures
         currentDelay = backoffStrategy.nextDelay(
           consecutiveFailures,
           currentDelay,
@@ -132,8 +143,10 @@ class TradingStatusRepository {
         consecutiveFailures++;
 
         _log.info(
-          'Retrying after ${currentDelay.inMilliseconds}ms (attempt $consecutiveFailures)',
+          'Backing off for ${currentDelay.inMilliseconds}ms (attempt $consecutiveFailures)',
         );
+
+        // Add backoff delay before next poll
         await Future<void>.delayed(currentDelay);
       }
     }
@@ -170,8 +183,8 @@ class TradingStatusRepository {
       try {
         final assets = _sdk.assets.findAssetsByConfigId(symbol);
         out.addAll(assets.map((a) => a.id));
-      } catch (e) {
-        _log.warning('Failed to resolve asset "$symbol": ${e.toString()}');
+      } catch (e, s) {
+        _log.warning('Failed to resolve asset "$symbol"', e, s);
       }
     }
     return out;

@@ -324,7 +324,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       final allowedCoins = allCoinsToActivate.where((coinId) {
         final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
         if (assets.isEmpty) return false;
-        return !_tradingStatusService.isAssetBlocked(assets.first.id);
+        return !_tradingStatusService.isAssetBlocked(assets.single.id);
       });
 
       emit(_prePopulateListWithActivatingCoins(allowedCoins));
