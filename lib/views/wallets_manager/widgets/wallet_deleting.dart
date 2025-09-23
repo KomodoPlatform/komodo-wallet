@@ -2,21 +2,16 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
-import 'package:web_dex/shared/constants.dart';
 
 class WalletDeleting extends StatefulWidget {
-  const WalletDeleting({
-    super.key,
-    required this.wallet,
-    required this.close,
-  });
+  const WalletDeleting({super.key, required this.wallet, required this.close});
   final Wallet wallet;
   final VoidCallback close;
 
@@ -47,20 +42,19 @@ class _WalletDeletingState extends State<WalletDeleting> {
             padding: const EdgeInsets.only(top: 18.0),
             child: Text(
               LocaleKeys.deleteWalletTitle.tr(args: [widget.wallet.name]),
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontSize: 16),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontSize: 16),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               LocaleKeys.deleteWalletInfo.tr(),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           Padding(
@@ -93,20 +87,17 @@ class _WalletDeletingState extends State<WalletDeleting> {
         IconButton(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(0),
-          icon: Icon(
-            Icons.chevron_left,
-            color: theme.custom.headerIconColor,
-          ),
+          icon: Icon(Icons.chevron_left, color: theme.custom.headerIconColor),
           splashRadius: 15,
           iconSize: 18,
           onPressed: widget.close,
         ),
         Text(
           LocaleKeys.back.tr(),
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(fontWeight: FontWeight.w600, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
         ),
       ],
     );
@@ -135,7 +126,7 @@ class _WalletDeletingState extends State<WalletDeleting> {
             height: 40,
             width: 150,
           ),
-        )
+        ),
       ],
     );
   }
@@ -219,11 +210,11 @@ class _PasswordFieldState extends State<_PasswordField> {
       autofocus: true,
       autocorrect: false,
       obscureText: _isObscured,
-      maxLength: passwordMaxLength,
-      counterText: '',
       errorText: widget.errorText,
       validator: widget.validator,
       validationMode: InputValidationMode.eager,
+      maxLength: passwordMaxLength,
+      counterText: '',
       hintText: LocaleKeys.walletCreationPasswordHint.tr(),
       onChanged: widget.onChanged,
       suffixIcon: PasswordVisibilityControl(

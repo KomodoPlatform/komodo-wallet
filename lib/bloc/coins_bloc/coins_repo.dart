@@ -3,7 +3,7 @@ import 'dart:math' show min;
 
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show NetworkImage;
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -250,7 +250,7 @@ class CoinsRepo {
   ///
   /// **Parameters:**
   /// - [assets]: List of assets to activate
-  /// - [notify]: Whether to broadcast state changes to listeners (default: true)
+  /// - [notifyListeners]: Whether to broadcast state changes to listeners (default: true)
   /// - [addToWalletMetadata]: Whether to add assets to wallet metadata (default: true)
   /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
   /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
@@ -267,7 +267,7 @@ class CoinsRepo {
   /// **Note:** Assets are added to wallet metadata even if activation fails.
   Future<void> activateAssetsSync(
     List<Asset> assets, {
-    bool notify = true,
+    bool notifyListeners = true,
     bool addToWalletMetadata = true,
     int maxRetryAttempts = 30,
     Duration initialRetryDelay = const Duration(milliseconds: 500),
@@ -292,7 +292,9 @@ class CoinsRepo {
     for (final asset in assets) {
       final coin = _assetToCoinWithoutAddress(asset);
       try {
-        if (notify) _broadcastAsset(coin.copyWith(state: CoinState.activating));
+        if (notifyListeners) {
+          _broadcastAsset(coin.copyWith(state: CoinState.activating));
+        }
 
         // Use retry with exponential backoff for activation
         await retry<void>(
@@ -322,7 +324,7 @@ class CoinsRepo {
         );
 
         _log.info('Asset activated: ${asset.id.id}');
-        if (notify) {
+        if (notifyListeners) {
           _broadcastAsset(coin.copyWith(state: CoinState.active));
           if (coin.id.parentId != null) {
             final parentCoin = _assetToCoinWithoutAddress(
@@ -347,7 +349,7 @@ class CoinsRepo {
           e,
           s,
         );
-        if (notify) {
+        if (notifyListeners) {
           _broadcastAsset(asset.toCoin().copyWith(state: CoinState.suspended));
         }
       } finally {
@@ -430,7 +432,7 @@ class CoinsRepo {
 
     return activateAssetsSync(
       assets,
-      notify: notify,
+      notifyListeners: notify,
       addToWalletMetadata: addToWalletMetadata,
       maxRetryAttempts: maxRetryAttempts,
       initialRetryDelay: initialRetryDelay,
@@ -550,7 +552,12 @@ class CoinsRepo {
     // will hit rate limits and have reduced market metrics functionality.
     // This will happen regardless of chunk size. The rate limits are per IP
     // per hour.
-    final activatedAssets = await _kdfSdk.getWalletAssets();
+    final coinIds = await _kdfSdk.getWalletCoinIds();
+    final activatedAssets = coinIds
+        .map((coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId))
+        .where((assets) => assets.isNotEmpty)
+        .map((assets) => assets.single)
+        .toList();
     final Iterable<Asset> targetAssets = activatedAssets.isNotEmpty
         ? activatedAssets
         : _kdfSdk.assets.available.values;

@@ -244,7 +244,12 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
       await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
       if (event.wallet.config.activatedCoins.isNotEmpty) {
-        await _kdfSdk.addActivatedCoins(event.wallet.config.activatedCoins);
+        // Seed import files and legacy wallets may contain removed or unsupported
+        // coins, so we filter them out before adding them to the wallet metadata.
+        final availableWalletCoins = _filterOutUnsupportedCoins(
+          event.wallet.config.activatedCoins,
+        );
+        await _kdfSdk.addActivatedCoins(availableWalletCoins);
       }
 
       // Delete legacy wallet on successful restoration & login to avoid
@@ -371,5 +376,23 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
           : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));
     });
+  }
+
+  List<String> _filterOutUnsupportedCoins(List<String> coins) {
+    final unsupportedAssets = coins.where(
+      (coin) => _kdfSdk.assets.findAssetsByConfigId(coin).isEmpty,
+    );
+    _log.warning(
+      'Skipping import of unsupported assets: '
+      '${unsupportedAssets.map((coin) => coin).join(', ')}',
+    );
+
+    final supportedAssets = coins
+        .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
+        .where((assets) => assets.isNotEmpty)
+        .map((assets) => assets.single.id.id);
+    _log.info('Import supported assets: ${supportedAssets.join(', ')}');
+
+    return supportedAssets.toList();
   }
 }
