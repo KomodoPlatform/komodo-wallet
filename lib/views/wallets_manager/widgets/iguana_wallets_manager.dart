@@ -23,10 +23,9 @@ import 'package:web_dex/views/wallets_manager/widgets/wallet_creation.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_deleting.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_import_wrapper.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_login.dart';
+import 'package:web_dex/views/wallets_manager/widgets/wallet_rename_dialog.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_list.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager_controls.dart';
-import 'package:web_dex/views/wallets_manager/widgets/wallet_rename_dialog.dart';
-import 'package:web_dex/blocs/wallets_repository.dart';
 
 class IguanaWalletsManager extends StatefulWidget {
   const IguanaWalletsManager({
