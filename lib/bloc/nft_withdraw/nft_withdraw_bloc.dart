@@ -97,9 +97,9 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
     final walletType =
         (await _kdfSdk.auth.currentUser)
-            ?.walletId
-            .authOptions
-            .derivationMethod
+            ?.wallet
+            .config
+            .type
             .name ??
         'unknown';
 
@@ -179,9 +179,9 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
     final walletType =
         (await _kdfSdk.auth.currentUser)
-            ?.walletId
-            .authOptions
-            .derivationMethod
+            ?.wallet
+            .config
+            .type
             .name ??
         'unknown';
 
