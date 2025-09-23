@@ -5,6 +5,7 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/model/hw_wallet/trezor_task.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 import 'trezor_steps/trezor_dialog_select_wallet.dart';
 
@@ -23,12 +24,14 @@ Future<void> showTrezorPassphraseDialog(TrezorTask task) async {
     context: context,
     width: trezorDialogWidth,
     onDismiss: close,
-    popupContent: TrezorDialogSelectWallet(
-      onComplete: (String passphrase) async {
-        final authBloc = context.read<AuthBloc>();
-        authBloc.add(AuthTrezorPassphraseProvided(passphrase));
-        close();
-      },
+    popupContent: ScreenshotSensitive(
+      child: TrezorDialogSelectWallet(
+        onComplete: (String passphrase) async {
+          final authBloc = context.read<AuthBloc>();
+          authBloc.add(AuthTrezorPassphraseProvided(passphrase));
+          close();
+        },
+      ),
     ),
   );
 

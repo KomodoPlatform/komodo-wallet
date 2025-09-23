@@ -20,6 +20,7 @@ import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/dry_intrinsic.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class SeedShow extends StatelessWidget {
   const SeedShow({
@@ -32,7 +33,7 @@ class SeedShow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    return DexScrollbar(
+    return ScreenshotSensitive(child: DexScrollbar(
       scrollController: scrollController,
       child: SingleChildScrollView(
         controller: scrollController,
@@ -89,7 +90,7 @@ class SeedShow extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

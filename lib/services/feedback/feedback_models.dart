@@ -31,8 +31,9 @@ class CustomFeedback {
   String toFormattedDescription() {
     final buffer = StringBuffer();
     buffer.writeln('═══════════════════════════════════════');
-    buffer
-        .writeln('📋 ${feedbackType?.description ?? 'Unknown'}'.toUpperCase());
+    buffer.writeln(
+      '📋 ${feedbackType?.description ?? 'Unknown'}'.toUpperCase(),
+    );
     buffer.writeln('═══════════════════════════════════════');
     buffer.writeln();
     buffer.writeln('💬 USER FEEDBACK:');
@@ -63,7 +64,8 @@ class CustomFeedback {
           break;
         case ContactMethod.telegram:
           buffer.writeln(
-              '   📱 Telegram: ${contact.startsWith('@') ? contact : '@$contact'}');
+            '   📱 Telegram: ${contact.startsWith('@') ? contact : '@$contact'}',
+          );
           break;
         case ContactMethod.matrix:
           buffer.writeln('   🔗 Matrix: $contact');
@@ -72,61 +74,52 @@ class CustomFeedback {
       if (feedbackType == FeedbackType.support ||
           feedbackType == FeedbackType.missingCoins) {
         buffer.writeln(
-            '   ⚠️  PRIORITY: Contact details provided for support request');
+          '   ⚠️  PRIORITY: Contact details provided for support request',
+        );
       }
     } else {
       buffer.writeln('   ❌ No contact information provided');
       if (feedbackType == FeedbackType.support ||
           feedbackType == FeedbackType.missingCoins) {
         buffer.writeln(
-            '   ⚠️  WARNING: Support request without contact details!');
+          '   ⚠️  WARNING: Support request without contact details!',
+        );
       }
     }
     return buffer.toString();
   }
 }
 
-enum FeedbackType {
-  missingCoins,
-  bugReport,
-  featureRequest,
-  support,
-  other;
-}
+enum FeedbackType { missingCoins, bugReport, featureRequest, support, other }
 
 extension FeedbackTypeDescription on FeedbackType {
   String get description {
     switch (this) {
       case FeedbackType.bugReport:
-        return 'Bug Report';
+        return LocaleKeys.feedbackFormBugReport.tr();
       case FeedbackType.featureRequest:
-        return 'Feature Request';
+        return LocaleKeys.feedbackFormFeatureRequest.tr();
       case FeedbackType.support:
-        return 'Support Request';
+        return LocaleKeys.feedbackFormSupportRequest.tr();
       case FeedbackType.missingCoins:
         return LocaleKeys.myCoinsMissing.tr();
       case FeedbackType.other:
-        return 'Other';
+        return LocaleKeys.feedbackFormOther.tr();
     }
   }
 }
 
-enum ContactMethod {
-  discord,
-  matrix,
-  telegram,
-  email;
-}
+enum ContactMethod { discord, matrix, telegram, email }
 
 extension ContactMethodLabel on ContactMethod {
   String get label {
     switch (this) {
       case ContactMethod.discord:
-        return 'Discord';
+        return LocaleKeys.feedbackFormDiscord.tr();
       case ContactMethod.matrix:
-        return 'Matrix';
+        return LocaleKeys.feedbackFormMatrix.tr();
       case ContactMethod.telegram:
-        return 'Telegram';
+        return LocaleKeys.feedbackFormTelegram.tr();
       case ContactMethod.email:
         return LocaleKeys.email.tr();
     }

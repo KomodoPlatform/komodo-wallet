@@ -9,6 +9,7 @@ import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletDeleting extends StatefulWidget {
   const WalletDeleting({super.key, required this.wallet, required this.close});
@@ -33,7 +34,7 @@ class _WalletDeletingState extends State<WalletDeleting> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return ScreenshotSensitive(child: Form(
       key: _formKey,
       child: Column(
         children: [
@@ -78,7 +79,7 @@ class _WalletDeletingState extends State<WalletDeleting> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildHeader() {

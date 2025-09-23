@@ -6,6 +6,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/utils/window/window.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 /// The display mode for the webview dialog.
 enum WebViewDialogMode {
@@ -155,12 +156,14 @@ class InAppWebviewDialog extends StatelessWidget {
                   bottomLeft: Radius.circular(12.0),
                   bottomRight: Radius.circular(12.0),
                 ),
-                child: MessageInAppWebView(
-                  key: const Key('dialog-inappwebview'),
-                  settings: webviewSettings,
-                  url: url,
-                  onConsoleMessage: onConsoleMessage,
-                  onCloseWindow: onCloseWindow,
+                child: ScreenshotSensitive(
+                  child: MessageInAppWebView(
+                    key: const Key('dialog-inappwebview'),
+                    settings: webviewSettings,
+                    url: url,
+                    onConsoleMessage: onConsoleMessage,
+                    onCloseWindow: onCloseWindow,
+                  ),
                 ),
               ),
             ),
@@ -203,12 +206,14 @@ class FullscreenInAppWebview extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: MessageInAppWebView(
-          key: const Key('fullscreen-inapp-webview'),
-          settings: webviewSettings,
-          url: url,
-          onConsoleMessage: onConsoleMessage,
-          onCloseWindow: onCloseWindow,
+        child: ScreenshotSensitive(
+          child: MessageInAppWebView(
+            key: const Key('fullscreen-inapp-webview'),
+            settings: webviewSettings,
+            url: url,
+            onConsoleMessage: onConsoleMessage,
+            onCloseWindow: onCloseWindow,
+          ),
         ),
       ),
     );
