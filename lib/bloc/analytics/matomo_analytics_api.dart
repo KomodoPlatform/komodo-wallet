@@ -73,6 +73,11 @@ class MatomoAnalyticsApi implements AnalyticsApi {
         siteId: matomoSiteId,
         url: resolvedUrl,
         dispatchSettings: const DispatchSettings.persistent(),
+        // Include backend API key header similarly to feedback feature
+        customHeaders: {
+          if (const String.fromEnvironment('FEEDBACK_API_KEY').isNotEmpty)
+            'X-KW-KEY': const String.fromEnvironment('FEEDBACK_API_KEY'),
+        },
       );
       _instance = MatomoTracker.instance;
 
