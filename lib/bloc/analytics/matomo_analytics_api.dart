@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:matomo_tracker/matomo_tracker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -18,13 +17,9 @@ class MatomoAnalyticsApi implements AnalyticsApi {
   bool _isEnabled = false;
   int _initRetryCount = 0;
   static const int _maxInitRetries = 3;
-  static const String _persistedQueueKey = 'matomo_analytics_persisted_queue';
 
   /// Queue to store events when analytics is disabled
   final List<AnalyticsEventData> _eventQueue = [];
-
-  /// Timer for periodic queue persistence
-  Timer? _queuePersistenceTimer;
 
   @override
   String get providerName => 'Matomo';
@@ -50,15 +45,6 @@ class MatomoAnalyticsApi implements AnalyticsApi {
         );
       }
 
-      // Setup queue persistence timer
-      _queuePersistenceTimer = Timer.periodic(
-        const Duration(minutes: 5),
-        (_) => _persistQueue(),
-      );
-
-      // Load any previously saved events
-      await _loadPersistedQueue();
-
       // Initialize Matomo (only if enabled and configuration provided)
       if (!matomoEnabled) {
         if (kDebugMode) {
@@ -76,11 +62,10 @@ class MatomoAnalyticsApi implements AnalyticsApi {
       }
 
       final bool hasConfig = matomoUrl.isNotEmpty && matomoSiteId.isNotEmpty;
-      if (!hasConfig && !kDebugMode) {
-        // In non-debug builds, do not initialize Matomo without explicit configuration
+      if (!hasConfig) {
         if (kDebugMode) {
           log(
-            'Matomo configuration missing in non-debug build. Disabling Matomo.',
+            'Matomo configuration missing (MATOMO_URL and/or MATOMO_SITE_ID). Disabling Matomo.',
             path: 'analytics -> MatomoAnalyticsApi -> _initialize',
           );
         }
@@ -93,13 +78,14 @@ class MatomoAnalyticsApi implements AnalyticsApi {
       }
 
       // Ensure URL has trailing slash as required by matomo_tracker
-      final String resolvedUrl = hasConfig
-          ? (matomoUrl.endsWith('/') ? matomoUrl : '${matomoUrl}/')
-          : 'https://demo.matomo.cloud/';
+      final String resolvedUrl = matomoUrl.endsWith('/')
+          ? matomoUrl
+          : '$matomoUrl/';
 
       await MatomoTracker.instance.initialize(
-        siteId: hasConfig ? matomoSiteId : '1',
+        siteId: matomoSiteId,
         url: resolvedUrl,
+        dispatchSettings: const DispatchSettings.persistent(),
       );
       _instance = MatomoTracker.instance;
 
@@ -324,125 +310,13 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     return null;
   }
 
-  Future<void> _persistQueue() async {
-    if (_eventQueue.isEmpty) {
-      if (kDebugMode) {
-        log(
-          'No Matomo events to persist (queue empty)',
-          path: 'analytics -> MatomoAnalyticsApi -> _persistQueue',
-        );
-      }
-      return;
-    }
-
-    try {
-      if (kDebugMode) {
-        log(
-          'Persisting ${_eventQueue.length} queued Matomo analytics events',
-          path: 'analytics -> MatomoAnalyticsApi -> _persistQueue',
-        );
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-
-      // Convert events to a serializable format
-      final serializedEvents = _eventQueue.map((event) {
-        return {'name': event.name, 'parameters': event.parameters};
-      }).toList();
-
-      // Serialize and store
-      final serialized = jsonEncode(serializedEvents);
-      await prefs.setString(_persistedQueueKey, serialized);
-
-      if (kDebugMode) {
-        log(
-          'Successfully persisted ${_eventQueue.length} Matomo events to SharedPreferences',
-          path: 'analytics -> MatomoAnalyticsApi -> _persistQueue',
-        );
-      }
-    } catch (e, s) {
-      if (kDebugMode) {
-        log(
-          'Error persisting Matomo analytics queue: $e',
-          path: 'analytics -> MatomoAnalyticsApi -> _persistQueue',
-          trace: s,
-          isError: true,
-        );
-      }
-    }
-  }
-
-  Future<void> _loadPersistedQueue() async {
-    try {
-      if (kDebugMode) {
-        log(
-          'Loading persisted Matomo analytics events from SharedPreferences',
-          path: 'analytics -> MatomoAnalyticsApi -> _loadPersistedQueue',
-        );
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      final serialized = prefs.getString(_persistedQueueKey);
-
-      if (serialized == null || serialized.isEmpty) {
-        if (kDebugMode) {
-          log(
-            'No persisted Matomo analytics events found',
-            path: 'analytics -> MatomoAnalyticsApi -> _loadPersistedQueue',
-          );
-        }
-        return;
-      }
-
-      // Deserialize the data
-      final List<dynamic> decodedList = jsonDecode(serialized);
-
-      // Create PersistedAnalyticsEventData instances
-      for (final eventMap in decodedList) {
-        _eventQueue.add(
-          PersistedAnalyticsEventData(
-            name: eventMap['name'],
-            parameters: Map<String, dynamic>.from(eventMap['parameters']),
-          ),
-        );
-      }
-
-      if (kDebugMode) {
-        log(
-          'Loaded ${_eventQueue.length} persisted Matomo analytics events',
-          path: 'analytics -> MatomoAnalyticsApi -> _loadPersistedQueue',
-        );
-      }
-
-      // Clear the persisted data after loading
-      await prefs.remove(_persistedQueueKey);
-    } catch (e, s) {
-      if (kDebugMode) {
-        log(
-          'Error loading persisted Matomo analytics queue: $e',
-          path: 'analytics -> MatomoAnalyticsApi -> _loadPersistedQueue',
-          trace: s,
-          isError: true,
-        );
-      }
-    }
-  }
-
   @override
   Future<void> dispose() async {
-    if (_queuePersistenceTimer != null) {
-      _queuePersistenceTimer!.cancel();
-      _queuePersistenceTimer = null;
-
-      if (kDebugMode) {
-        log(
-          'Cancelled Matomo queue persistence timer',
-          path: 'analytics -> MatomoAnalyticsApi -> dispose',
-        );
-      }
+    if (kDebugMode) {
+      log(
+        'MatomoAnalyticsApi disposed',
+        path: 'analytics -> MatomoAnalyticsApi -> dispose',
+      );
     }
-
-    // Persist any remaining events before disposing
-    await _persistQueue();
   }
 }

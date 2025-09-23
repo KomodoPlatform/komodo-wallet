@@ -20,8 +20,7 @@ flutter run \
 
 Notes:
 
-- In non‑debug builds, both `MATOMO_URL` and `MATOMO_SITE_ID` must be provided or Matomo remains disabled.
-- In debug builds without config, the provider uses a demo endpoint for local testing.
+- Both `MATOMO_URL` and `MATOMO_SITE_ID` must be provided, otherwise Matomo is disabled.
 
 ## 3. CI and privacy controls
 
