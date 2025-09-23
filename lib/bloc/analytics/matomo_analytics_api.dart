@@ -429,7 +429,6 @@ class MatomoAnalyticsApi implements AnalyticsApi {
   }
 
   @override
-  @override
   Future<void> dispose() async {
     if (_queuePersistenceTimer != null) {
       _queuePersistenceTimer!.cancel();
