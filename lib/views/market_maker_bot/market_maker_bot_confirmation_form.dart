@@ -42,9 +42,9 @@ class _MarketMakerBotConfirmationFormState
     extends State<MarketMakerBotConfirmationForm> {
   @override
   void initState() {
-    context
-        .read<MarketMakerTradeFormBloc>()
-        .add(const MarketMakerConfirmationPreviewRequested());
+    context.read<MarketMakerTradeFormBloc>().add(
+      const MarketMakerConfirmationPreviewRequested(),
+    );
     super.initState();
   }
 
@@ -65,8 +65,25 @@ class _MarketMakerBotConfirmationFormState
             return const SizedBox();
           }
 
-          final hasError = state.tradePreImageError != null ||
+          final hasError =
+              state.tradePreImageError != null ||
               state.status == MarketMakerTradeFormStatus.error;
+
+          final VoidCallback? onCreateOrderCallback = hasError
+              ? null
+              : () {
+                  final sellAmt = state.sellAmount.valueAsRational.toDouble();
+                  final price =
+                      state.priceFromUsd ?? state.priceFromUsdWithMargin ?? 0.0;
+                  final baseCapital = price > 0 ? sellAmt * price : sellAmt;
+                  context.read<AnalyticsBloc>().logEvent(
+                    MarketbotSetupCompleteEventData(
+                      strategyType: 'simple',
+                      baseCapital: baseCapital,
+                    ),
+                  );
+                  widget.onCreateOrder();
+                };
 
           return SingleChildScrollView(
             key: const Key('maker-order-conformation-scroll'),
@@ -77,15 +94,15 @@ class _MarketMakerBotConfirmationFormState
               children: [
                 SelectableText(
                   LocaleKeys.mmBotFirstTradePreview.tr(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontSize: 16),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineSmall?.copyWith(fontSize: 16),
                 ),
                 const SizedBox(height: 37),
                 ImportantNote(
-                  text: LocaleKeys.mmBotFirstOrderVolume
-                      .tr(args: [state.sellCoin.value?.abbr ?? '']),
+                  text: LocaleKeys.mmBotFirstOrderVolume.tr(
+                    args: [state.sellCoin.value?.abbr ?? ''],
+                  ),
                 ),
                 const SizedBox(height: 10),
                 SwapReceiveAmount(
@@ -116,31 +133,16 @@ class _MarketMakerBotConfirmationFormState
                 TotalFees(preimage: state.tradePreImage),
                 const SizedBox(height: 24),
                 SwapErrorMessage(
-                  errorMessage: state.tradePreImageError
-                      ?.text(state.sellCoin.value, state.buyCoin.value),
+                  errorMessage: state.tradePreImageError?.text(
+                    state.sellCoin.value,
+                    state.buyCoin.value,
+                  ),
                   context: context,
                 ),
                 Flexible(
                   child: SwapActionButtons(
                     onCancel: widget.onCancel,
-                    onCreateOrder: state.status == MarketMakerTradeFormStatus.success
-                        ? () {
-                            // Log setup complete with base capital
-                            final sellAmt =
-                                state.sellAmount.valueAsRational.toDouble();
-                            // Attempt fiat estimate using priceFromUsd if available
-                            final price = state.priceFromUsd ??
-                                state.priceFromUsdWithMargin ?? 0.0;
-                            final baseCapital = price > 0 ? sellAmt * price : sellAmt;
-                            context.read<AnalyticsBloc>().logEvent(
-                                  MarketbotSetupCompleteEventData(
-                                    strategyType: 'simple',
-                                    baseCapital: baseCapital,
-                                  ),
-                                );
-                            widget.onCreateOrder();
-                          }
-                        : null,
+                    onCreateOrder: onCreateOrderCallback,
                   ),
                 ),
               ],
@@ -171,10 +173,7 @@ class SwapActionButtons extends StatelessWidget {
     return Row(
       children: [
         Flexible(
-          child: UiLightButton(
-            onPressed: onCancel,
-            text: LocaleKeys.back.tr(),
-          ),
+          child: UiLightButton(onPressed: onCancel, text: LocaleKeys.back.tr()),
         ),
         const SizedBox(width: 23),
         Flexible(
@@ -210,10 +209,9 @@ class SwapErrorMessage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
       child: Text(
         message,
-        style: Theme.of(context)
-            .textTheme
-            .bodySmall
-            ?.copyWith(color: Theme.of(context).colorScheme.error),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.error,
+        ),
       ),
     );
   }
@@ -234,10 +232,7 @@ class SwapSendAmount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 14,
-        horizontal: 16,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
         color: theme.custom.subCardBackgroundColor,
@@ -249,8 +244,8 @@ class SwapSendAmount extends StatelessWidget {
           SelectableText(
             LocaleKeys.swapConfirmationYouSending.tr(),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: theme.custom.dexSubTitleColor,
-                ),
+              color: theme.custom.dexSubTitleColor,
+            ),
           ),
           const SizedBox(height: 10),
           Row(
@@ -266,9 +261,9 @@ class SwapSendAmount extends StatelessWidget {
                   SelectableText(
                     formatDexAmt(amount),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   SwapFiatSendAmount(coin: coin, amount: amount),
                 ],
@@ -324,10 +319,14 @@ class SwapFiatReceivedAmount extends StatelessWidget {
     Color? color = Theme.of(context).textTheme.bodyMedium?.color;
     double? percentage;
 
-    final double sellAmtFiat =
-        getFiatAmount(sellCoin, sellAmount ?? Rational.zero);
-    final double receiveAmtFiat =
-        getFiatAmount(buyCoin, buyAmount ?? Rational.zero);
+    final double sellAmtFiat = getFiatAmount(
+      sellCoin,
+      sellAmount ?? Rational.zero,
+    );
+    final double receiveAmtFiat = getFiatAmount(
+      buyCoin,
+      buyAmount ?? Rational.zero,
+    );
 
     if (sellAmtFiat < receiveAmtFiat) {
       color = theme.custom.increaseColor;
@@ -347,10 +346,10 @@ class SwapFiatReceivedAmount extends StatelessWidget {
           Text(
             ' (${percentage > 0 ? '+' : ''}${formatAmt(percentage)}%)',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
-                  color: color,
-                  fontWeight: FontWeight.w200,
-                ),
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w200,
+            ),
           ),
       ],
     );
@@ -375,26 +374,22 @@ class SwapReceiveAmount extends StatelessWidget {
       children: [
         SelectableText(
           LocaleKeys.swapConfirmationYouReceive.tr(),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: theme.custom.dexSubTitleColor,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: theme.custom.dexSubTitleColor),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SelectableText(
               '${formatDexAmt(amount)} ',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
             ),
             SelectableText(
               Coin.normalizeAbbr(coin.abbr),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: theme.custom.balanceColor),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: theme.custom.balanceColor,
+              ),
             ),
             if (coin.mode == CoinMode.segwit)
               const Padding(

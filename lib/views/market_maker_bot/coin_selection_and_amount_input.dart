@@ -71,7 +71,7 @@ class _CoinSelectionAndAmountInputState
               (coin) => DropdownMenuItem<String>(
                 value: coin.abbr,
                 child: CoinSelectItemWidget(
-                  name: coin.name,
+                  name: coin.displayName,
                   coinId: coin.abbr,
                   trailing: AssetBalanceText(
                     coin.toSdkAsset(_sdk).id,

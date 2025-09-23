@@ -28,42 +28,44 @@ class FiatSelectButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFiat = currency?.isFiat ?? false;
+    final cryptoCurrency = currency is CryptoCurrency
+        ? currency as CryptoCurrency
+        : null;
 
     return FilledButton.icon(
       onPressed: enabled ? onTap : null,
       label: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (isFiat)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  (isFiat ? currency?.getAbbr() : currency?.name) ??
-                      (isFiat
-                          ? LocaleKeys.selectFiat.tr()
-                          : LocaleKeys.selectCoin.tr()),
-                  style: DefaultTextStyle.of(context).style.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: enabled
-                            ? foregroundColor
-                            : foregroundColor.withValues(alpha: 0.5),
-                      ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                (isFiat ? currency?.getAbbr() : currency?.name) ??
+                    (isFiat
+                        ? LocaleKeys.selectFiat.tr()
+                        : LocaleKeys.selectCoin.tr()),
+                style: DefaultTextStyle.of(context).style.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: enabled
+                      ? foregroundColor
+                      : foregroundColor.withValues(alpha: 0.5),
                 ),
-                if (!isFiat && currency != null)
-                  Text(
-                    (currency! as CryptoCurrency).isCrypto
-                        ? getCoinTypeName(
-                            (currency! as CryptoCurrency).chainType)
-                        : '',
-                    style: DefaultTextStyle.of(context).style.copyWith(
-                          color: enabled
-                              ? foregroundColor.withValues(alpha: 0.5)
-                              : foregroundColor.withValues(alpha: 0.25),
-                        ),
+              ),
+              if (!isFiat && cryptoCurrency != null)
+                Text(
+                  getCoinTypeName(
+                    cryptoCurrency.chainType,
+                    cryptoCurrency.symbol,
                   ),
-              ],
-            ),
+                  style: DefaultTextStyle.of(context).style.copyWith(
+                    color: enabled
+                        ? foregroundColor.withValues(alpha: 0.5)
+                        : foregroundColor.withValues(alpha: 0.25),
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(width: 4),
           Icon(
             Icons.keyboard_arrow_down,
