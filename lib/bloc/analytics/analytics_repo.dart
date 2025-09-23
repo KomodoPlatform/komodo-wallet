@@ -109,13 +109,15 @@ class AnalyticsRepository implements AnalyticsRepo {
       final firebaseProvider = FirebaseAnalyticsApi();
       _providers.add(firebaseProvider);
 
-      // Add Matomo Analytics provider when enabled
-      if (matomoEnabled) {
+      // Add Matomo Analytics provider when configuration is present
+      final bool hasMatomoConfig =
+          matomoUrl.isNotEmpty && matomoSiteId.isNotEmpty;
+      if (hasMatomoConfig) {
         final matomoProvider = MatomoAnalyticsApi();
         _providers.add(matomoProvider);
       } else if (kDebugMode) {
         log(
-          'Matomo provider not registered: MATOMO_ENABLED=false',
+          'Matomo provider not registered: missing MATOMO_URL and/or MATOMO_SITE_ID',
           path: 'analytics -> AnalyticsRepository -> _initializeProviders',
         );
       }
@@ -172,8 +174,9 @@ class AnalyticsRepository implements AnalyticsRepo {
     }
 
     // Forward to all providers; individual providers handle enabled/queueing
-    final sendFutures = _providers
-        .map((provider) => _sendToProvider(provider, event));
+    final sendFutures = _providers.map(
+      (provider) => _sendToProvider(provider, event),
+    );
 
     await Future.wait(sendFutures, eagerError: false);
   }

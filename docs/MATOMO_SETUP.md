@@ -9,11 +9,10 @@ This guide describes how to enable and configure the optional Matomo Analytics p
 
 ## 2. Enable Matomo provider via build flags
 
-Matomo is a build‑time feature flag. Pass the following `--dart-define` flags:
+Matomo is enabled automatically when required configuration is provided. Pass the following `--dart-define` flags:
 
 ```bash
 flutter run \
-  --dart-define=MATOMO_ENABLED=true \
   --dart-define=MATOMO_URL=https://your-matomo.example.com/ \
   --dart-define=MATOMO_SITE_ID=1
 ```

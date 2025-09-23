@@ -432,7 +432,7 @@ The app can send analytics to multiple providers simultaneously via `AnalyticsRe
 
 - Providers are registered and initialized in `AnalyticsRepository`
   - Firebase: always registered
-  - Matomo: registered when `MATOMO_ENABLED` is true
+  - Matomo: registered when both `MATOMO_URL` and `MATOMO_SITE_ID` are provided
 - Providers are enabled/disabled at runtime based on user preference and CI/privacy flags
 
 Runtime flags (defined in `lib/shared/constants.dart`) and typical usage:
@@ -448,16 +448,13 @@ flutter run \
 
 # Enable Matomo provider and configure endpoint
 flutter run \
-  --dart-define=MATOMO_ENABLED=true \
   --dart-define=MATOMO_URL=https://your-matomo.example.com/ \
   --dart-define=MATOMO_SITE_ID=1
 ```
 
 Notes:
 
-- When `MATOMO_ENABLED=false`, the Matomo provider is not registered.
-- In non‑debug builds, Matomo requires both `MATOMO_URL` and `MATOMO_SITE_ID`. Without them, it stays disabled.
-- In debug builds, if Matomo config is missing, a demo endpoint is used for local testing.
+- Matomo requires both `MATOMO_URL` and `MATOMO_SITE_ID`. Without them, it stays disabled.
 
 See the Matomo setup guide for full details: `/docs/MATOMO_SETUP.md`.
 

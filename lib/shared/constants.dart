@@ -66,12 +66,6 @@ const bool analyticsDisabled = bool.fromEnvironment(
   defaultValue: false,
 );
 
-/// Feature flag to enable/disable Matomo provider entirely at build time
-const bool matomoEnabled = bool.fromEnvironment(
-  'MATOMO_ENABLED',
-  defaultValue: true,
-);
-
 /// Matomo configuration (only used when both are non-empty)
 const String matomoUrl = String.fromEnvironment('MATOMO_URL', defaultValue: '');
 

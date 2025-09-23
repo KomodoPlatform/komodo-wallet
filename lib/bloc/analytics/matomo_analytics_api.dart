@@ -45,21 +45,7 @@ class MatomoAnalyticsApi implements AnalyticsApi {
         );
       }
 
-      // Initialize Matomo (only if enabled and configuration provided)
-      if (!matomoEnabled) {
-        if (kDebugMode) {
-          log(
-            'Matomo disabled by MATOMO_ENABLED=false',
-            path: 'analytics -> MatomoAnalyticsApi -> _initialize',
-          );
-        }
-        _isInitialized = false;
-        _isEnabled = false;
-        if (!_initCompleter.isCompleted) {
-          _initCompleter.complete();
-        }
-        return;
-      }
+      // Initialize Matomo only if configuration is provided
 
       final bool hasConfig = matomoUrl.isNotEmpty && matomoSiteId.isNotEmpty;
       if (!hasConfig) {
