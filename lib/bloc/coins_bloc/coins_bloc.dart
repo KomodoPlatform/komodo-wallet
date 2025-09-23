@@ -271,38 +271,43 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsPricesUpdated event,
     Emitter<CoinsState> emit,
   ) async {
-    final prices = await _coinsRepo.fetchCurrentPrices();
-    if (prices == null) {
-      _log.severe('Coin prices list empty/null');
-      return;
-    }
-    final didPricesChange = !mapEquals(state.prices, prices);
-    if (!didPricesChange) {
-      _log.info('Coin prices list unchanged');
-      return;
-    }
+    try {
+      final prices = await _coinsRepo.fetchCurrentPrices();
+      if (prices == null) {
+        _log.severe('Coin prices list empty/null');
+        return;
+      }
+      final didPricesChange = !mapEquals(state.prices, prices);
+      if (!didPricesChange) {
+        _log.info('Coin prices list unchanged');
+        return;
+      }
 
-    Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
-      final map = coins.map((key, coin) {
-        // Use configSymbol to lookup for backwards compatibility with the old,
-        // string-based price list (and fallback)
-        final price = prices[coin.id.symbol.configSymbol];
-        if (price != null) {
-          return MapEntry(key, coin.copyWith(usdPrice: price));
-        }
-        return MapEntry(key, coin);
-      });
+      Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
+        final map = coins.map((key, coin) {
+          // Use configSymbol to lookup for backwards compatibility with the old,
+          // string-based price list (and fallback)
+          final price = prices[coin.id.symbol.configSymbol];
+          if (price != null) {
+            return MapEntry(key, coin.copyWith(usdPrice: price));
+          }
+          return MapEntry(key, coin);
+        });
 
-      return Map.of(map).unmodifiable();
+        // .map already returns a new map, so we don't need to create a new map
+        return map.unmodifiable();
+      }
+
+      emit(
+        state.copyWith(
+          prices: prices.unmodifiable(),
+          coins: updateCoinsWithPrices(state.coins),
+          walletCoins: updateCoinsWithPrices(state.walletCoins),
+        ),
+      );
+    } catch (e, s) {
+      _log.shout('Error on prices updated', e, s);
     }
-
-    emit(
-      state.copyWith(
-        prices: prices.unmodifiable(),
-        coins: updateCoinsWithPrices(state.coins),
-        walletCoins: updateCoinsWithPrices(state.walletCoins),
-      ),
-    );
   }
 
   Future<void> _onLogin(
