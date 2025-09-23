@@ -5,4 +5,7 @@ abstract class TradingStatusEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class TradingStatusCheckRequested extends TradingStatusEvent {}
+final class TradingStatusCheckRequested extends TradingStatusEvent {}
+
+/// Event emitted when the bloc should start watching trading status continuously
+final class TradingStatusWatchStarted extends TradingStatusEvent {}

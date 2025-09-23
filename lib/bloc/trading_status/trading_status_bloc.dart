@@ -2,38 +2,62 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/trading_status/disallowed_feature.dart';
-import 'trading_status_repository.dart';
+import 'package:web_dex/bloc/trading_status/app_geo_status.dart';
+import 'trading_status_service.dart';
 
 part 'trading_status_event.dart';
 part 'trading_status_state.dart';
 
 class TradingStatusBloc extends Bloc<TradingStatusEvent, TradingStatusState> {
-  TradingStatusBloc(this._repository) : super(TradingStatusInitial()) {
+  TradingStatusBloc(this._service) : super(TradingStatusInitial()) {
     on<TradingStatusCheckRequested>(_onCheckRequested);
+    on<TradingStatusWatchStarted>(_onWatchStarted);
   }
 
-  final TradingStatusRepository _repository;
+  final TradingStatusService _service;
 
-  // TODO (@takenagain): Retry periodically if the failure was caused by a
-  // network issue.
   Future<void> _onCheckRequested(
     TradingStatusCheckRequested event,
     Emitter<TradingStatusState> emit,
   ) async {
     emit(TradingStatusLoadInProgress());
     try {
-      final status = await _repository.fetchStatus();
+      final status = await _service.refreshStatus();
       emit(
         TradingStatusLoadSuccess(
           disallowedAssets: status.disallowedAssets,
           disallowedFeatures: status.disallowedFeatures,
         ),
       );
-
-      // This catch will never be triggered by the repository. This will require
-      // changes to meet the "TODO" above.
     } catch (_) {
       emit(TradingStatusLoadFailure());
     }
+  }
+
+  Future<void> _onWatchStarted(
+    TradingStatusWatchStarted event,
+    Emitter<TradingStatusState> emit,
+  ) async {
+    emit(TradingStatusLoadInProgress());
+    // Seed immediately with cached status if available; continue with stream.
+    try {
+      final status = _service.currentStatus;
+      emit(
+        TradingStatusLoadSuccess(
+          disallowedAssets: status.disallowedAssets,
+          disallowedFeatures: status.disallowedFeatures,
+        ),
+      );
+    } catch (_) {
+      // Service not initialized yet; will emit once stream produces data.
+    }
+    await emit.forEach(
+      _service.statusStream,
+      onData: (AppGeoStatus status) => TradingStatusLoadSuccess(
+        disallowedAssets: status.disallowedAssets,
+        disallowedFeatures: status.disallowedFeatures,
+      ),
+      onError: (error, stackTrace) => TradingStatusLoadFailure(),
+    );
   }
 }

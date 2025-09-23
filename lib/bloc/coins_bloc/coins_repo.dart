@@ -14,6 +14,8 @@ import 'package:komodo_ui/komodo_ui.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart' show excludedAssetList;
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_service.dart'
+    show TradingStatusService;
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
@@ -29,9 +31,13 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 
 class CoinsRepo {
-  CoinsRepo({required KomodoDefiSdk kdfSdk, required MM2 mm2})
-    : _kdfSdk = kdfSdk,
-      _mm2 = mm2 {
+  CoinsRepo({
+    required KomodoDefiSdk kdfSdk,
+    required MM2 mm2,
+    required TradingStatusService tradingStatusService,
+  }) : _kdfSdk = kdfSdk,
+       _mm2 = mm2,
+       _tradingStatusService = tradingStatusService {
     enabledAssetsChanges = StreamController<Coin>.broadcast(
       onListen: () => _enabledAssetListenerCount += 1,
       onCancel: () => _enabledAssetListenerCount -= 1,
@@ -40,6 +46,7 @@ class CoinsRepo {
 
   final KomodoDefiSdk _kdfSdk;
   final MM2 _mm2;
+  final TradingStatusService _tradingStatusService;
 
   final _log = Logger('CoinsRepo');
 
@@ -86,6 +93,11 @@ class CoinsRepo {
     // Cancel any existing subscription for this asset
     _balanceWatchers[asset.id]?.cancel();
 
+    if (_tradingStatusService.isAssetBlocked(asset.id)) {
+      _log.info('Asset ${asset.id.id} is blocked. Skipping balance updates.');
+      return;
+    }
+
     // Start a new subscription
     _balanceWatchers[asset.id] = _kdfSdk.balances.watchBalance(asset.id).listen(
       (balanceInfo) {
@@ -128,7 +140,11 @@ class CoinsRepo {
     if (excludeExcludedAssets) {
       assets.removeWhere((key, _) => excludedAssetList.contains(key.id));
     }
-    return assets.values.map(_assetToCoinWithoutAddress).toList();
+    // Filter out blocked assets
+    final allowedAssets = _tradingStatusService.filterAllowedAssets(
+      assets.values.toList(),
+    );
+    return allowedAssets.map(_assetToCoinWithoutAddress).toList();
   }
 
   /// Returns a map of all known coins, optionally filtering out excluded assets.
@@ -139,8 +155,11 @@ class CoinsRepo {
     if (excludeExcludedAssets) {
       assets.removeWhere((key, _) => excludedAssetList.contains(key.id));
     }
+    final allowedAssets = _tradingStatusService.filterAllowedAssets(
+      assets.values.toList(),
+    );
     return Map.fromEntries(
-      assets.values.map(
+      allowedAssets.map(
         (asset) => MapEntry(asset.id.id, _assetToCoinWithoutAddress(asset)),
       ),
     );
@@ -180,7 +199,7 @@ class CoinsRepo {
       return [];
     }
 
-    return currentUser.wallet.config.activatedCoins
+    final walletAssets = currentUser.wallet.config.activatedCoins
         .map((coinId) {
           final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
           if (assets.isEmpty) {
@@ -196,6 +215,10 @@ class CoinsRepo {
           return assets.single;
         })
         .whereType<Asset>()
+        .toList();
+
+    return _tradingStatusService
+        .filterAllowedAssets(walletAssets)
         .map(_assetToCoinWithoutAddress)
         .toList();
   }
@@ -551,16 +574,22 @@ class CoinsRepo {
     // This will happen regardless of chunk size. The rate limits are per IP
     // per hour.
     final activatedAssets = await _kdfSdk.getWalletAssets();
+
     final Iterable<Asset> targetAssets = activatedAssets.isNotEmpty
         ? activatedAssets
         : _kdfSdk.assets.available.values;
 
     // Filter out excluded and testnet assets, as they are not expected
     // to have valid prices available at any of the providers
-    final validAssets = targetAssets
+    final filteredAssets = targetAssets
         .where((asset) => !excludedAssetList.contains(asset.id.id))
         .where((asset) => !asset.protocol.isTestnet)
         .toList();
+
+    // Filter out blocked assets
+    final validAssets = _tradingStatusService.filterAllowedAssets(
+      filteredAssets,
+    );
 
     // Process assets with bounded parallelism to avoid overwhelming providers
     await _fetchAssetPricesInChunks(validAssets);
@@ -618,7 +647,9 @@ class CoinsRepo {
     // the SDK's balance watchers to get live updates. We still
     // implement it for backward compatibility.
     final walletCoinsCopy = Map<String, Coin>.from(walletCoins);
-    final coins = walletCoinsCopy.values
+    final coins = _tradingStatusService
+        .filterAllowedAssetsMap(walletCoinsCopy, (coin) => coin.id)
+        .values
         .where((coin) => coin.isActive)
         .toList();
 
