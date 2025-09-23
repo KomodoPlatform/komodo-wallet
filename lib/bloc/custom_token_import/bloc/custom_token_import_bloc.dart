@@ -14,7 +14,7 @@ import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_event.
 import 'package:web_dex/bloc/custom_token_import/bloc/custom_token_import_state.dart';
 import 'package:web_dex/bloc/custom_token_import/data/custom_token_import_repository.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 
 class CustomTokenImportBloc
     extends Bloc<CustomTokenImportEvent, CustomTokenImportState> {
@@ -178,8 +178,7 @@ class CustomTokenImportBloc
     try {
       await _repository.importCustomToken(state.coin!);
 
-      final walletType =
-          (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '';
+      final walletType = (await _sdk.auth.currentUser)?.type ?? '';
       _analyticsBloc.logEvent(
         AssetAddedEventData(
           assetSymbol: state.coin!.id.id,

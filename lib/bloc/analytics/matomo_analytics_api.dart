@@ -6,6 +6,7 @@ import 'package:matomo_tracker/matomo_tracker.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/services/platform_info/platform_info.dart';
 import 'analytics_api.dart';
 import 'analytics_repo.dart';
 
@@ -195,6 +196,31 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     }
 
     _isEnabled = true;
+    // Attach visit-scoped custom dimensions such as platform name
+    try {
+      if (matomoPlatformDimensionId != null) {
+        final platform = PlatformInfo.getInstance().platform;
+        final dimensionKey = 'dimension${matomoPlatformDimensionId}';
+        MatomoTracker.instance.trackDimensions(
+          dimensions: {dimensionKey: platform},
+        );
+        if (kDebugMode) {
+          log(
+            'Matomo dimensions set: {$dimensionKey: $platform}',
+            path: 'analytics -> MatomoAnalyticsApi -> activate',
+          );
+        }
+      }
+    } catch (e, s) {
+      if (kDebugMode) {
+        log(
+          'Failed to set Matomo custom dimensions: $e',
+          path: 'analytics -> MatomoAnalyticsApi -> activate',
+          trace: s,
+          isError: true,
+        );
+      }
+    }
     // Matomo doesn't have a direct enable/disable method like Firebase
     // so we handle this by simply processing queued events
 

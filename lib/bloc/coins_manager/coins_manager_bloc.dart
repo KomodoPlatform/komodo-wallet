@@ -15,7 +15,7 @@ import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
 
@@ -228,8 +228,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       AssetDisabledEventData(
         assetSymbol: coin.abbr,
         assetNetwork: coin.protocolType,
-        walletType:
-            (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
+        walletType: (await _sdk.auth.currentUser)?.type ?? '',
       ),
     );
   }
@@ -244,8 +243,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
       AssetEnabledEventData(
         assetSymbol: coin.abbr,
         assetNetwork: coin.protocolType,
-        walletType:
-            (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
+        walletType: (await _sdk.auth.currentUser)?.type ?? '',
       ),
     );
   }

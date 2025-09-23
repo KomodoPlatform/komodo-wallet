@@ -20,6 +20,7 @@ import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 
 part 'nft_withdraw_event.dart';
 part 'nft_withdraw_state.dart';
@@ -95,8 +96,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       return;
     }
 
-    final walletType =
-        (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
+    final walletType = (await _kdfSdk.auth.currentUser)?.type ?? 'unknown';
 
     try {
       // Log initiated
@@ -172,8 +172,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
     final BaseError? responseError = response.error;
     final String? txHash = response.txHash;
 
-    final walletType =
-        (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
+    final walletType = (await _kdfSdk.auth.currentUser)?.type ?? 'unknown';
 
     if (txHash == null) {
       // Log failure

@@ -12,7 +12,7 @@ import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/entity_details/maker_order/maker_order_details_page.dart';
@@ -131,7 +131,7 @@ class _TradingDetailsState extends State<TradingDetails> {
 
     if (swapStatus != null) {
       final authBloc = context.read<AuthBloc>();
-      final walletType = authBloc.state.currentUser?.wallet.config.type.name;
+      final walletType = authBloc.state.currentUser?.type;
       final fromAsset = swapStatus.sellCoin;
       final toAsset = swapStatus.buyCoin;
       final int? durationMs =
