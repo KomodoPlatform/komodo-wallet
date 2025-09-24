@@ -313,9 +313,22 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
           if (mounted) setState(() => _isLoading = false);
           return;
         }
-        wallet.name = newName;
+        // Re-validate after dialog to prevent TOCTOU conflicts
+        final postError = walletsRepository.validateWalletName(newName);
+        if (postError != null) {
+          if (mounted) setState(() => _isLoading = false);
+          return;
+        }
+        // Persist legacy rename and update local instance
+        await walletsRepository.renameLegacyWallet(
+          walletId: wallet.id,
+          newName: newName,
+        );
+        wallet.name = newName.trim();
       }
     }
+
+    if (!mounted) return;
 
     final AnalyticsBloc analyticsBloc = context.read<AnalyticsBloc>();
     final analyticsEvent = walletsManagerEventsFactory.createEvent(

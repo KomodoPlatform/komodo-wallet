@@ -30,7 +30,9 @@ class WalletsRepository {
   final FileLoader _fileLoader;
 
   List<Wallet>? _cachedWallets;
+  List<Wallet>? _cachedLegacyWallets;
   List<Wallet>? get wallets => _cachedWallets;
+  bool get isCacheLoaded => _cachedWallets != null && _cachedLegacyWallets != null;
 
   Future<List<Wallet>> getWallets() async {
     final legacyWallets = await _getLegacyWallets();
@@ -44,6 +46,7 @@ class WalletsRepository {
               !wallet.name.toLowerCase().startsWith(trezorWalletNamePrefix),
         )
         .toList();
+    _cachedLegacyWallets = legacyWallets;
     return [..._cachedWallets!, ...legacyWallets];
   }
 
@@ -102,27 +105,37 @@ class WalletsRepository {
     if (RegExp(r'[^\p{L}\p{M}\p{N}\s\-_]', unicode: true).hasMatch(name)) {
       return LocaleKeys.invalidWalletNameError.tr();
     }
-    // This shouldn't happen, but just in case.
-    if (_cachedWallets == null) {
-      getWallets().ignore();
-      return null;
-    }
 
     final trimmedName = name.trim();
 
-    // Check if the trimmed name is empty (prevents space-only names)
-    if (trimmedName.isEmpty) {
+    // Reject leading/trailing spaces explicitly to avoid confusion/duplicates
+    if (trimmedName != name) {
       return LocaleKeys.walletCreationNameLengthError.tr();
     }
 
-    // Check if trimmed name exceeds length limit
-    if (trimmedName.length > 40) {
+    // Check empty and length limits on trimmed input
+    if (trimmedName.isEmpty || trimmedName.length > 40) {
       return LocaleKeys.walletCreationNameLengthError.tr();
     }
 
-    // Check for duplicates using the exact input name (not trimmed)
-    // This preserves backward compatibility with existing wallets that might have spaces
-    if (_cachedWallets!.firstWhereOrNull((w) => w.name == name) != null) {
+    // Ensure wallets cache is loading in the background if not available yet
+    if (_cachedWallets == null || _cachedLegacyWallets == null) {
+      getWallets().ignore();
+      // Defer duplicate validation until caches are loaded
+      return null;
+    }
+
+    // Check for duplicates against BOTH sdk and legacy wallets using trimmed comparison
+    final bool existsInSdk = _cachedWallets!
+            .firstWhereOrNull((w) => w.name.trim() == trimmedName) !=
+        null;
+    if (existsInSdk) {
+      return LocaleKeys.walletCreationExistNameError.tr();
+    }
+    final bool existsInLegacy = _cachedLegacyWallets!
+            .firstWhereOrNull((w) => w.name.trim() == trimmedName) !=
+        null;
+    if (existsInLegacy) {
       return LocaleKeys.walletCreationExistNameError.tr();
     }
 
@@ -166,5 +179,40 @@ class WalletsRepository {
 
   String _sanitizeFileName(String fileName) {
     return fileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+  }
+
+  Future<void> renameLegacyWallet({
+    required String walletId,
+    required String newName,
+  }) async {
+    final String trimmed = newName.trim();
+    // Persist to legacy storage
+    final List<Map<String, dynamic>> rawLegacyWallets =
+        (await _legacyWalletStorage.read(allWalletsStorageKey) as List?)
+                ?.cast<Map<String, dynamic>>() ??
+            [];
+    bool updated = false;
+    for (int i = 0; i < rawLegacyWallets.length; i++) {
+      final Map<String, dynamic> data = rawLegacyWallets[i];
+      if ((data['id'] as String? ?? '') == walletId) {
+        data['name'] = trimmed;
+        rawLegacyWallets[i] = data;
+        updated = true;
+        break;
+      }
+    }
+    if (updated) {
+      await _legacyWalletStorage.write(allWalletsStorageKey, rawLegacyWallets);
+    }
+
+    // Update in-memory legacy cache if available
+    if (_cachedLegacyWallets != null) {
+      final index = _cachedLegacyWallets!
+          .indexWhere((element) => element.id == walletId);
+      if (index != -1) {
+        _cachedLegacyWallets![index] =
+            _cachedLegacyWallets![index].copyWith(name: trimmed);
+      }
+    }
   }
 }

@@ -249,21 +249,25 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       }
 
       walletConfig.seedPhrase = decryptedSeed;
-      String name = widget.fileData.name.split('.').first;
-      // ignore: use_build_context_synchronously
-      final walletsBloc = RepositoryProvider.of<WalletsRepository>(context);
+      String name = widget.fileData.name.replaceFirst(RegExp(r'\.[^.]+$'), '');
+      final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
 
-      String? validationError = walletsBloc.validateWalletName(name);
+      String? validationError = walletsRepository.validateWalletName(name);
       if (validationError != null) {
+        if (!mounted) return;
         final newName = await walletRenameDialog(
-          // ignore: use_build_context_synchronously
           context,
           initialName: name,
         );
         if (newName == null) {
           return;
         }
-        name = newName;
+        // Re-validate to protect against TOCTOU (name taken while dialog open)
+        final postValidation = walletsRepository.validateWalletName(newName);
+        if (postValidation != null) {
+          return;
+        }
+        name = newName.trim();
       }
       // Close autofill context after successfully validating password & before import
       TextInput.finishAutofillContext(shouldSave: false);
