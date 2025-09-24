@@ -10,6 +10,7 @@ class FeedbackFormState extends Equatable {
     this.contactMethod,
     this.contactDetails = '',
     this.contactDetailsError,
+    this.contactOptOut = false,
     this.status = FeedbackFormStatus.initial,
     this.errorMessage,
   });
@@ -20,6 +21,7 @@ class FeedbackFormState extends Equatable {
   final ContactMethod? contactMethod;
   final String contactDetails;
   final String? contactDetailsError;
+  final bool contactOptOut;
   final FeedbackFormStatus status;
   final String? errorMessage;
 
@@ -29,6 +31,19 @@ class FeedbackFormState extends Equatable {
       contactDetailsError == null &&
       feedbackText.trim().isNotEmpty;
 
+  bool get isSubmitting => status == FeedbackFormStatus.submitting;
+
+  bool get isSupportType =>
+      feedbackType == FeedbackType.support ||
+      feedbackType == FeedbackType.missingCoins;
+
+  bool get isContactOptOutVisible => !isSupportType;
+
+  bool get isContactRequired => isSupportType || !contactOptOut;
+
+  bool get isContactRowDisabled =>
+      isSubmitting || (isContactOptOutVisible && contactOptOut);
+
   FeedbackFormState copyWith({
     FeedbackType? feedbackType,
     String? feedbackText,
@@ -36,6 +51,7 @@ class FeedbackFormState extends Equatable {
     ContactMethod? contactMethod,
     String? contactDetails,
     String? contactDetailsError,
+    bool? contactOptOut,
     FeedbackFormStatus? status,
     String? errorMessage,
   }) {
@@ -46,6 +62,7 @@ class FeedbackFormState extends Equatable {
       contactMethod: contactMethod ?? this.contactMethod,
       contactDetails: contactDetails ?? this.contactDetails,
       contactDetailsError: contactDetailsError,
+      contactOptOut: contactOptOut ?? this.contactOptOut,
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
     );
@@ -53,13 +70,14 @@ class FeedbackFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        feedbackType,
-        feedbackText,
-        feedbackTextError,
-        contactMethod,
-        contactDetails,
-        contactDetailsError,
-        status,
-        errorMessage,
-      ];
+    feedbackType,
+    feedbackText,
+    feedbackTextError,
+    contactMethod,
+    contactDetails,
+    contactDetailsError,
+    contactOptOut,
+    status,
+    errorMessage,
+  ];
 }

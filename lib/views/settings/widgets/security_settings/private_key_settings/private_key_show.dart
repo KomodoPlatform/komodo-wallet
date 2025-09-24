@@ -16,6 +16,7 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/expandable_private_key_list.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_actions_widget.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 /// Widget for displaying private keys in a secure manner.
 ///
@@ -54,7 +55,7 @@ class PrivateKeyShow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ScreenshotSensitive(child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
@@ -118,7 +119,7 @@ class PrivateKeyShow extends StatelessWidget {
           ],
         ),
       ],
-    );
+    ));
   }
 }
 

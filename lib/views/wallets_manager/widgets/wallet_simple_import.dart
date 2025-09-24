@@ -19,6 +19,7 @@ import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletSimpleImport extends StatefulWidget {
   const WalletSimpleImport({
@@ -95,7 +96,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         }
       },
       child: AutofillGroup(
-        child: Column(
+        child: ScreenshotSensitive(child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SelectableText(
@@ -140,7 +141,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
               ),
             ),
           ],
-        ),
+        )),
       ),
     );
   }
