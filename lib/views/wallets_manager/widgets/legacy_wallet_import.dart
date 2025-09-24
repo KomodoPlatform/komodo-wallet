@@ -26,8 +26,7 @@ class LegacyWalletImport extends StatefulWidget {
     required String password,
     required WalletConfig walletConfig,
     LegacyWalletData? legacyData,
-  })
-  onImport;
+  }) onImport;
 
   final void Function() onCancel;
 
@@ -106,6 +105,11 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
         Text(
           LocaleKeys.walletImportByFileDescription.tr(),
           style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Tip: On web, you can select your legacy \'*.seed\' file directly.',
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 24),
         UiPrimaryButton(
