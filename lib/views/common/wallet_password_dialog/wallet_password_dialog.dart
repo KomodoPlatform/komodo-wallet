@@ -4,6 +4,7 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/common/wallet_password_dialog/password_dialog_content.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 // Shows wallet password dialog and
 // returns password value or null (if wrong or cancelled)
@@ -24,14 +25,15 @@ Future<String?> walletPasswordDialog(
 
   popupManager = PopupDispatcher(
     context: context,
-    popupContent: PasswordDialogContent(
+    popupContent: ScreenshotSensitive(
+      child: PasswordDialogContent(
       wallet: wallet,
       onSuccess: (String pass) {
         password = pass;
         close();
       },
       onCancel: close,
-    ),
+    )),
   );
 
   isOpen = true;
@@ -72,7 +74,8 @@ Future<bool> walletPasswordDialogWithLoading(
 
   popupManager = PopupDispatcher(
     context: context,
-    popupContent: PasswordDialogContentWithLoading(
+    popupContent: ScreenshotSensitive(
+      child: PasswordDialogContentWithLoading(
       wallet: wallet,
       onPasswordValidated: onPasswordValidated,
       onComplete: (bool success) {
@@ -84,7 +87,7 @@ Future<bool> walletPasswordDialogWithLoading(
       loadingMessage: loadingMessage,
       operationFailedMessage: operationFailedMessage,
       passwordFieldKey: passwordFieldKey,
-    ),
+    )),
   );
 
   isOpen = true;

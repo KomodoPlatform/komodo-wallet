@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class TrezorDialogSelectWallet extends StatelessWidget {
   const TrezorDialogSelectWallet({Key? key, required this.onComplete})
@@ -13,7 +14,7 @@ class TrezorDialogSelectWallet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ScreenshotSensitive(child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
@@ -32,7 +33,7 @@ class TrezorDialogSelectWallet extends StatelessWidget {
           onSubmit: (String passphrase) => onComplete(passphrase),
         ),
       ],
-    );
+    ));
   }
 }
 
