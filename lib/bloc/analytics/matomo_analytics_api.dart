@@ -64,14 +64,9 @@ class MatomoAnalyticsApi implements AnalyticsApi {
         return;
       }
 
-      // Ensure URL has trailing slash as required by matomo_tracker
-      final String resolvedUrl = matomoUrl.endsWith('/')
-          ? matomoUrl
-          : '$matomoUrl/';
-
       await MatomoTracker.instance.initialize(
         siteId: matomoSiteId,
-        url: resolvedUrl,
+        url: matomoUrl,
         dispatchSettings: const DispatchSettings.persistent(),
         // Include backend API key header similarly to feedback feature
         customHeaders: {

@@ -13,13 +13,14 @@ Matomo is enabled automatically when required configuration is provided. Pass th
 
 ```bash
 flutter run \
-  --dart-define=MATOMO_URL=https://your-matomo.example.com/ \
+  --dart-define=MATOMO_URL=https://your-matomo.example.com/matomo.php \
   --dart-define=MATOMO_SITE_ID=1
 ```
 
 Notes:
 
 - Both `MATOMO_URL` and `MATOMO_SITE_ID` must be provided, otherwise Matomo is disabled.
+- The `MATOMO_URL` should include the complete endpoint path (e.g., `/matomo.php`).
 
 ## 3. CI and privacy controls
 
@@ -52,7 +53,7 @@ Matomo Analytics Event: <event_name>; Parameters: { ... }
 
 ## 6. Troubleshooting
 
-- Ensure `MATOMO_URL` ends with a trailing slash (as required by `matomo_tracker`).
+- Ensure `MATOMO_URL` includes the complete endpoint path (e.g., `/matomo.php`).
 - Verify the site ID exists and is active in your Matomo instance.
 - Confirm `ANALYTICS_DISABLED` is not set to `true` for local runs.
 - In CI, analytics will be disabled by default due to the `CI` flag.
