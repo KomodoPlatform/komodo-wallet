@@ -28,8 +28,10 @@ class FileLoaderWeb implements FileLoader {
     required String data,
   }) async {
     final dataArray = web.TextEncoder().encode(data);
-    final blob =
-        web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
+    final blob = web.Blob(
+      [dataArray].toJS,
+      web.BlobPropertyBag(type: 'text/plain'),
+    );
 
     final url = web.URL.createObjectURL(blob);
 
@@ -62,8 +64,10 @@ class FileLoaderWeb implements FileLoader {
 
       final encoder = web.TextEncoder();
       final dataArray = encoder.encode(data);
-      final blob =
-          web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
+      final blob = web.Blob(
+        [dataArray].toJS,
+        web.BlobPropertyBag(type: 'text/plain'),
+      );
 
       final response = web.Response(blob);
       final compressedResponse = web.Response(
@@ -128,6 +132,38 @@ class FileLoaderWeb implements FileLoader {
             }
           }.toJS
           ..readAsText(file! as web.Blob);
+      }
+    });
+  }
+
+  @override
+  Future<void> uploadBytes({
+    required void Function(String name, Uint8List bytes) onUpload,
+    required void Function(String) onError,
+    LoadFileType? fileType,
+  }) async {
+    final uploadInput = web.HTMLInputElement()..type = 'file';
+
+    if (fileType != null) {
+      uploadInput.accept = _getMimeType(fileType);
+    }
+
+    uploadInput.click();
+    uploadInput.onChange.listen((event) async {
+      final web.FileList? files = uploadInput.files;
+      if (files == null) {
+        return;
+      }
+
+      if (files.length == 1) {
+        final web.File? file = files.item(0);
+        try {
+          final arrayBuffer = await (file as web.Blob).arrayBuffer().toDart;
+          final bytes = Uint8List.view(arrayBuffer);
+          onUpload(file.name, bytes);
+        } catch (e) {
+          onError(e.toString());
+        }
       }
     });
   }

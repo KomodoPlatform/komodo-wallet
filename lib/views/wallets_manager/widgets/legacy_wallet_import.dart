@@ -26,7 +26,8 @@ class LegacyWalletImport extends StatefulWidget {
     required String password,
     required WalletConfig walletConfig,
     LegacyWalletData? legacyData,
-  }) onImport;
+  })
+  onImport;
 
   final void Function() onCancel;
 
@@ -34,11 +35,7 @@ class LegacyWalletImport extends StatefulWidget {
   State<LegacyWalletImport> createState() => _LegacyWalletImportState();
 }
 
-enum LegacyWalletImportStep {
-  selectFile,
-  enterPasswords,
-  reviewData,
-}
+enum LegacyWalletImportStep { selectFile, enterPasswords, reviewData }
 
 class _LegacyWalletImportState extends State<LegacyWalletImport> {
   LegacyWalletImportStep _step = LegacyWalletImportStep.selectFile;
@@ -113,7 +110,9 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
         const SizedBox(height: 24),
         UiPrimaryButton(
           onPressed: _selectFile,
-          text: _fileName.isEmpty ? 'Select Legacy Wallet File' : 'Change File',
+          text: _fileName.isEmpty
+              ? 'Select Legacy Wallet File (.seed/.wallet)'
+              : 'Change File',
         ),
         if (_fileName.isNotEmpty) ...[
           const SizedBox(height: 16),
@@ -127,8 +126,8 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
           Text(
             _commonError!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
         ],
       ],
@@ -163,8 +162,8 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
           Text(
             _filePasswordError!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
         ],
         const SizedBox(height: 16),
@@ -197,8 +196,8 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
           Text(
             _commonError!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
         ],
       ],
@@ -222,8 +221,8 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
           Text(
             _commonError!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
         ],
       ],
@@ -241,13 +240,21 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
           children: [
             _buildSummaryRow('Wallet Name', _legacyData!.walletName),
             _buildSummaryRow(
-                'Address Book Entries', '${_legacyData!.addressBook.length}'),
+              'Address Book Entries',
+              '${_legacyData!.addressBook.length}',
+            ),
             _buildSummaryRow(
-                'Swap History Entries', '${_legacyData!.swapHistory.length}'),
+              'Swap History Entries',
+              '${_legacyData!.swapHistory.length}',
+            ),
             _buildSummaryRow(
-                'Maker Orders', '${_legacyData!.makerOrders.length}'),
+              'Maker Orders',
+              '${_legacyData!.makerOrders.length}',
+            ),
             _buildSummaryRow(
-                'Makerbot Configs', '${_legacyData!.makerbotConfigs.length}'),
+              'Makerbot Configs',
+              '${_legacyData!.makerbotConfigs.length}',
+            ),
           ],
         ),
       ),
@@ -261,10 +268,12 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: Theme.of(context).textTheme.bodyMedium),
-          Text(value,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  )),
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -311,11 +320,11 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
 
   Future<void> _selectFile() async {
     try {
-      await FileLoader.fromPlatform().upload(
-        onUpload: (fileName, fileData) {
+      await FileLoader.fromPlatform().uploadBytes(
+        onUpload: (fileName, bytes) {
           setState(() {
             _fileName = fileName;
-            _fileData = Uint8List.fromList(fileData?.codeUnits ?? []);
+            _fileData = bytes;
             _commonError = null;
           });
         },
@@ -323,13 +332,8 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
           setState(() {
             _commonError = error;
           });
-          log(
-            error,
-            path: 'LegacyWalletImport._selectFile',
-            isError: true,
-          );
+          log(error, path: 'LegacyWalletImport._selectFile', isError: true);
         },
-        fileType: LoadFileType.text, // Use available file type
       );
     } catch (e) {
       setState(() {
@@ -491,9 +495,7 @@ class _LegacyWalletImportState extends State<LegacyWalletImport> {
 
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
     final existingWallet = walletsRepository.wallets
-        ?.where(
-          (w) => w.name == name.trim(),
-        )
+        ?.where((w) => w.name == name.trim())
         .firstOrNull;
 
     if (existingWallet != null) {

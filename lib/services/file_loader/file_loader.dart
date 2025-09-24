@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:web_dex/services/file_loader/file_loader_stub.dart'
     if (dart.library.io) 'package:web_dex/services/file_loader/file_loader_native.dart'
@@ -15,6 +16,13 @@ abstract class FileLoader {
   });
   Future<void> upload({
     required void Function(String name, String? content) onUpload,
+    required void Function(String) onError,
+    LoadFileType? fileType,
+  });
+
+  /// Uploads a file and returns its raw bytes. Prefer this for encrypted/binary files.
+  Future<void> uploadBytes({
+    required void Function(String name, Uint8List bytes) onUpload,
     required void Function(String) onError,
     LoadFileType? fileType,
   });

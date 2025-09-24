@@ -44,8 +44,10 @@ class FileLoaderNativeAndroid implements FileLoader {
     required String fileName,
     required String data,
   }) async {
-    final Uint8List compressedBytes =
-        createZipOfSingleFile(fileName: fileName, fileContent: data);
+    final Uint8List compressedBytes = createZipOfSingleFile(
+      fileName: fileName,
+      fileContent: data,
+    );
     final String? fileFullPath = await FilePicker.platform.saveFile(
       fileName: '$fileName.zip',
       bytes: compressedBytes,
@@ -76,6 +78,36 @@ class FileLoaderNativeAndroid implements FileLoader {
       final selectedFile = File(path);
       final data = await selectedFile.readAsString();
 
+      onUpload(file.name, data);
+    } catch (e) {
+      onError(e.toString());
+    }
+  }
+
+  @override
+  Future<void> uploadBytes({
+    required void Function(String name, Uint8List bytes) onUpload,
+    required void Function(String) onError,
+    LoadFileType? fileType,
+  }) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: fileType == null ? FileType.any : fileType.fileType,
+        allowedExtensions: fileType != null ? [fileType.extension] : null,
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      if (file.bytes != null) {
+        onUpload(file.name, file.bytes!);
+        return;
+      }
+
+      final path = file.path;
+      if (path == null) return;
+      final selectedFile = File(path);
+      final data = await selectedFile.readAsBytes();
       onUpload(file.name, data);
     } catch (e) {
       onError(e.toString());

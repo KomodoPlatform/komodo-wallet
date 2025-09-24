@@ -25,8 +25,10 @@ class LegacyWalletMigrationService {
   }) async {
     try {
       // First, try to decrypt as legacy desktop format
-      final decryptedMnemonic =
-          await _encryptionTool.decryptDataFromBytes(password, fileData);
+      final decryptedMnemonic = await _encryptionTool.decryptDataFromBytes(
+        password,
+        fileData,
+      );
       if (decryptedMnemonic == null) {
         return null; // Failed to decrypt
       }
@@ -49,9 +51,11 @@ class LegacyWalletMigrationService {
         mnemonic: decryptedMnemonic.trim(),
       );
     } catch (e) {
-      log('Failed to migrate legacy wallet: $e',
-          path: 'LegacyWalletMigrationService.migrateLegacyWallet',
-          isError: true);
+      log(
+        'Failed to migrate legacy wallet: $e',
+        path: 'LegacyWalletMigrationService.migrateLegacyWallet',
+        isError: true,
+      );
       return null;
     }
   }
@@ -69,8 +73,10 @@ class LegacyWalletMigrationService {
     required String newPassword,
   }) async {
     // Encrypt the mnemonic with the new password
-    final encryptedSeed =
-        await _encryptionTool.encryptData(newPassword, legacyData.mnemonic);
+    final encryptedSeed = await _encryptionTool.encryptData(
+      newPassword,
+      legacyData.mnemonic,
+    );
 
     return WalletConfig(
       type: walletType,
@@ -106,9 +112,59 @@ class LegacyWalletMigrationService {
       }
 
       // Use legacy decryption tool to detect format
-      return _encryptionTool.isLegacyDesktopFormat(fileData);
+      final toolResult = _encryptionTool.isLegacyDesktopFormat(fileData);
+      if (toolResult) return true;
+
+      // Fallback to heuristic detection that does not require libsodium
+      return _heuristicIsLegacyFormat(fileData);
     } catch (e) {
       // If we can't analyze the format, assume it might be legacy
+      return true;
+    }
+  }
+
+  bool _heuristicIsLegacyFormat(Uint8List fileData) {
+    // Legacy files should have at least the header size used by secretstream (24 bytes)
+    if (fileData.length < 24) {
+      return false;
+    }
+
+    try {
+      // If it starts with JSON, it's new format
+      if (fileData[0] == 123) {
+        // '{'
+        return false;
+      }
+
+      final asString = utf8.decode(fileData, allowMalformed: true);
+      if (asString.startsWith('{')) {
+        return false;
+      }
+
+      // If it's valid base64 or looks like our JSON-wrapped AES payload, it's not legacy
+      try {
+        final decoded = jsonDecode(asString);
+        if (decoded is Map<String, dynamic> &&
+            decoded.containsKey('0') &&
+            decoded.containsKey('1') &&
+            decoded.containsKey('2')) {
+          return false;
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      // Try base64 decode; if it decodes cleanly it's likely not the binary legacy header
+      try {
+        base64.decode(asString);
+        return false;
+      } catch (_) {
+        // not base64 -> likely binary legacy format
+      }
+
+      return true;
+    } catch (_) {
+      // If UTF-8 decoding fails badly, it's likely binary legacy
       return true;
     }
   }
@@ -134,8 +190,10 @@ class LegacyWalletMigrationService {
     required LegacyWalletData existingData,
   }) async {
     try {
-      final decryptedData =
-          await _encryptionTool.decryptDataFromBytes(password, fileData);
+      final decryptedData = await _encryptionTool.decryptDataFromBytes(
+        password,
+        fileData,
+      );
       if (decryptedData == null) {
         return null;
       }
@@ -153,27 +211,29 @@ class LegacyWalletMigrationService {
         mnemonic: existingData.mnemonic,
         addressBook: [
           ...existingData.addressBook,
-          ...additionalData.addressBook
+          ...additionalData.addressBook,
         ],
         swapHistory: [
           ...existingData.swapHistory,
-          ...additionalData.swapHistory
+          ...additionalData.swapHistory,
         ],
         makerOrders: [
           ...existingData.makerOrders,
-          ...additionalData.makerOrders
+          ...additionalData.makerOrders,
         ],
         makerbotConfigs: [
           ...existingData.makerbotConfigs,
-          ...additionalData.makerbotConfigs
+          ...additionalData.makerbotConfigs,
         ],
         settings: {...existingData.settings, ...additionalData.settings},
         exportedAt: DateTime.now(),
       );
     } catch (e) {
-      log('Failed to import additional legacy data: $e',
-          path: 'LegacyWalletMigrationService.importAdditionalLegacyData',
-          isError: true);
+      log(
+        'Failed to import additional legacy data: $e',
+        path: 'LegacyWalletMigrationService.importAdditionalLegacyData',
+        isError: true,
+      );
       return null;
     }
   }

@@ -13,6 +13,7 @@ class LegacyWalletDiscoveryService {
   static const String _legacyDataFolderName = 'atomicdex-desktop';
   static const String _legacyConfigFolderName = 'config';
   static const String _legacyWalletFileName = 'default.wallet';
+  static const String _legacySeedExtension = '.seed';
 
   final LegacyWalletMigrationService _migrationService =
       LegacyWalletMigrationService();
@@ -20,34 +21,43 @@ class LegacyWalletDiscoveryService {
   /// Scans for legacy desktop app installations and data on the current device
   Future<LegacyDesktopInstallation?> discoverLegacyInstallation() async {
     try {
-      log('Starting legacy desktop discovery',
-          path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation');
+      log(
+        'Starting legacy desktop discovery',
+        path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation',
+      );
 
       // Get potential data directories based on platform
       final dataPaths = _getLegacyDataPaths();
 
       for (final dataPath in dataPaths) {
         if (await Directory(dataPath).exists()) {
-          log('Checking legacy data path: $dataPath',
-              path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation');
+          log(
+            'Checking legacy data path: $dataPath',
+            path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation',
+          );
 
           final installation = await _scanDataDirectory(dataPath);
           if (installation != null) {
-            log('Found legacy installation at: $dataPath',
-                path:
-                    'LegacyWalletDiscoveryService.discoverLegacyInstallation');
+            log(
+              'Found legacy installation at: $dataPath',
+              path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation',
+            );
             return installation;
           }
         }
       }
 
-      log('No legacy desktop installation found',
-          path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation');
+      log(
+        'No legacy desktop installation found',
+        path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation',
+      );
       return null;
     } catch (e) {
-      log('Error during legacy discovery: $e',
-          path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation',
-          isError: true);
+      log(
+        'Error during legacy discovery: $e',
+        path: 'LegacyWalletDiscoveryService.discoverLegacyInstallation',
+        isError: true,
+      );
       return null;
     }
   }
@@ -72,8 +82,14 @@ class LegacyWalletDiscoveryService {
       // macOS: ~/Library/Application Support/atomicdex-desktop
       final home = Platform.environment['HOME'];
       if (home != null) {
-        paths.add(path.join(
-            home, 'Library', 'Application Support', _legacyDataFolderName));
+        paths.add(
+          path.join(
+            home,
+            'Library',
+            'Application Support',
+            _legacyDataFolderName,
+          ),
+        );
       }
     } else if (Platform.isLinux) {
       // Linux: ~/.atomicdex-desktop
@@ -125,16 +141,20 @@ class LegacyWalletDiscoveryService {
 
       return null;
     } catch (e) {
-      log('Error scanning directory $dataPath: $e',
-          path: 'LegacyWalletDiscoveryService._scanDataDirectory',
-          isError: true);
+      log(
+        'Error scanning directory $dataPath: $e',
+        path: 'LegacyWalletDiscoveryService._scanDataDirectory',
+        isError: true,
+      );
       return null;
     }
   }
 
   /// Scans the config directory for wallet and configuration files
   Future<void> _scanConfigDirectory(
-      LegacyDesktopInstallation installation, String configPath) async {
+    LegacyDesktopInstallation installation,
+    String configPath,
+  ) async {
     try {
       final configDir = Directory(configPath);
 
@@ -148,6 +168,11 @@ class LegacyWalletDiscoveryService {
             await _processWalletFile(installation, entity.path);
           }
 
+          // Check for legacy encrypted seed files (*.seed)
+          if (fileName.endsWith(_legacySeedExtension)) {
+            await _processWalletFile(installation, entity.path);
+          }
+
           // Check for configuration files
           if (fileName.endsWith('.json') || fileName.endsWith('.ini')) {
             await _processConfigFile(installation, entity.path);
@@ -155,15 +180,19 @@ class LegacyWalletDiscoveryService {
         }
       }
     } catch (e) {
-      log('Error scanning config directory $configPath: $e',
-          path: 'LegacyWalletDiscoveryService._scanConfigDirectory',
-          isError: true);
+      log(
+        'Error scanning config directory $configPath: $e',
+        path: 'LegacyWalletDiscoveryService._scanConfigDirectory',
+        isError: true,
+      );
     }
   }
 
   /// Scans version-specific directories
   Future<void> _scanVersionDirectory(
-      LegacyDesktopInstallation installation, String versionPath) async {
+    LegacyDesktopInstallation installation,
+    String versionPath,
+  ) async {
     try {
       // Look for configs subfolder in version directory
       final versionConfigPath = path.join(versionPath, 'configs');
@@ -171,15 +200,19 @@ class LegacyWalletDiscoveryService {
         await _scanConfigDirectory(installation, versionConfigPath);
       }
     } catch (e) {
-      log('Error scanning version directory $versionPath: $e',
-          path: 'LegacyWalletDiscoveryService._scanVersionDirectory',
-          isError: true);
+      log(
+        'Error scanning version directory $versionPath: $e',
+        path: 'LegacyWalletDiscoveryService._scanVersionDirectory',
+        isError: true,
+      );
     }
   }
 
   /// Processes a potential wallet file
   Future<void> _processWalletFile(
-      LegacyDesktopInstallation installation, String filePath) async {
+    LegacyDesktopInstallation installation,
+    String filePath,
+  ) async {
     try {
       final file = File(filePath);
       final fileSize = await file.length();
@@ -199,19 +232,25 @@ class LegacyWalletDiscoveryService {
         );
 
         installation.walletFiles.add(walletInfo);
-        log('Found legacy wallet file: $filePath',
-            path: 'LegacyWalletDiscoveryService._processWalletFile');
+        log(
+          'Found legacy wallet file: $filePath',
+          path: 'LegacyWalletDiscoveryService._processWalletFile',
+        );
       }
     } catch (e) {
-      log('Error processing wallet file $filePath: $e',
-          path: 'LegacyWalletDiscoveryService._processWalletFile',
-          isError: true);
+      log(
+        'Error processing wallet file $filePath: $e',
+        path: 'LegacyWalletDiscoveryService._processWalletFile',
+        isError: true,
+      );
     }
   }
 
   /// Processes configuration files
   Future<void> _processConfigFile(
-      LegacyDesktopInstallation installation, String filePath) async {
+    LegacyDesktopInstallation installation,
+    String filePath,
+  ) async {
     try {
       final fileName = path.basename(filePath);
 
@@ -234,12 +273,16 @@ class LegacyWalletDiscoveryService {
         installation.configFiles['maker'] = filePath;
       }
 
-      log('Found config file: $fileName at $filePath',
-          path: 'LegacyWalletDiscoveryService._processConfigFile');
+      log(
+        'Found config file: $fileName at $filePath',
+        path: 'LegacyWalletDiscoveryService._processConfigFile',
+      );
     } catch (e) {
-      log('Error processing config file $filePath: $e',
-          path: 'LegacyWalletDiscoveryService._processConfigFile',
-          isError: true);
+      log(
+        'Error processing config file $filePath: $e',
+        path: 'LegacyWalletDiscoveryService._processConfigFile',
+        isError: true,
+      );
     }
   }
 
@@ -257,12 +300,15 @@ class LegacyWalletDiscoveryService {
     required String newWalletName,
   }) async {
     try {
-      log('Starting auto-migration for: $newWalletName',
-          path: 'LegacyWalletDiscoveryService.autoMigrateLegacyData');
+      log(
+        'Starting auto-migration for: $newWalletName',
+        path: 'LegacyWalletDiscoveryService.autoMigrateLegacyData',
+      );
 
       if (installation.walletFiles.isEmpty) {
         return LegacyMigrationResult.failure(
-            'No wallet files found in legacy installation');
+          'No wallet files found in legacy installation',
+        );
       }
 
       // Try to migrate the most recent wallet file
@@ -277,7 +323,8 @@ class LegacyWalletDiscoveryService {
 
       if (legacyData == null) {
         return LegacyMigrationResult.failure(
-            'Failed to decrypt wallet with provided password');
+          'Failed to decrypt wallet with provided password',
+        );
       }
 
       // Try to load additional data from config files
@@ -289,27 +336,35 @@ class LegacyWalletDiscoveryService {
         additionalFiles: installation.configFiles,
       );
     } catch (e) {
-      log('Error during auto-migration: $e',
-          path: 'LegacyWalletDiscoveryService.autoMigrateLegacyData',
-          isError: true);
+      log(
+        'Error during auto-migration: $e',
+        path: 'LegacyWalletDiscoveryService.autoMigrateLegacyData',
+        isError: true,
+      );
       return LegacyMigrationResult.failure('Migration failed: $e');
     }
   }
 
   /// Loads additional data from configuration files
-  Future<void> _loadAdditionalConfigData(LegacyDesktopInstallation installation,
-      LegacyWalletData legacyData) async {
+  Future<void> _loadAdditionalConfigData(
+    LegacyDesktopInstallation installation,
+    LegacyWalletData legacyData,
+  ) async {
     try {
       // Load address book if available
       if (installation.configFiles.containsKey('addressbook')) {
         await _loadAddressBookData(
-            installation.configFiles['addressbook']!, legacyData);
+          installation.configFiles['addressbook']!,
+          legacyData,
+        );
       }
 
       // Load swap history if available
       if (installation.configFiles.containsKey('swaps')) {
         await _loadSwapHistoryData(
-            installation.configFiles['swaps']!, legacyData);
+          installation.configFiles['swaps']!,
+          legacyData,
+        );
       }
 
       // Load maker data if available
@@ -317,42 +372,57 @@ class LegacyWalletDiscoveryService {
         await _loadMakerData(installation.configFiles['maker']!, legacyData);
       }
     } catch (e) {
-      log('Error loading additional config data: $e',
-          path: 'LegacyWalletDiscoveryService._loadAdditionalConfigData',
-          isError: true);
+      log(
+        'Error loading additional config data: $e',
+        path: 'LegacyWalletDiscoveryService._loadAdditionalConfigData',
+        isError: true,
+      );
     }
   }
 
   /// Loads address book data from configuration file
   Future<void> _loadAddressBookData(
-      String filePath, LegacyWalletData legacyData) async {
+    String filePath,
+    LegacyWalletData legacyData,
+  ) async {
     // Implementation would depend on the exact format of the legacy address book
     // This is a placeholder that would need to be implemented based on actual format
-    log('Loading address book data from: $filePath',
-        path: 'LegacyWalletDiscoveryService._loadAddressBookData');
+    log(
+      'Loading address book data from: $filePath',
+      path: 'LegacyWalletDiscoveryService._loadAddressBookData',
+    );
   }
 
   /// Loads swap history data from configuration file
   Future<void> _loadSwapHistoryData(
-      String filePath, LegacyWalletData legacyData) async {
+    String filePath,
+    LegacyWalletData legacyData,
+  ) async {
     // Implementation would depend on the exact format of the legacy swap history
     // This is a placeholder that would need to be implemented based on actual format
-    log('Loading swap history data from: $filePath',
-        path: 'LegacyWalletDiscoveryService._loadSwapHistoryData');
+    log(
+      'Loading swap history data from: $filePath',
+      path: 'LegacyWalletDiscoveryService._loadSwapHistoryData',
+    );
   }
 
   /// Loads maker order/config data from configuration file
   Future<void> _loadMakerData(
-      String filePath, LegacyWalletData legacyData) async {
+    String filePath,
+    LegacyWalletData legacyData,
+  ) async {
     // Implementation would depend on the exact format of the legacy maker data
     // This is a placeholder that would need to be implemented based on actual format
-    log('Loading maker data from: $filePath',
-        path: 'LegacyWalletDiscoveryService._loadMakerData');
+    log(
+      'Loading maker data from: $filePath',
+      path: 'LegacyWalletDiscoveryService._loadMakerData',
+    );
   }
 
   /// Validates that a discovered installation is legitimate
   Future<bool> validateLegacyInstallation(
-      LegacyDesktopInstallation installation) async {
+    LegacyDesktopInstallation installation,
+  ) async {
     try {
       // Check basic requirements
       if (!installation.hasWalletData()) {
@@ -369,9 +439,11 @@ class LegacyWalletDiscoveryService {
 
       return false;
     } catch (e) {
-      log('Error validating legacy installation: $e',
-          path: 'LegacyWalletDiscoveryService.validateLegacyInstallation',
-          isError: true);
+      log(
+        'Error validating legacy installation: $e',
+        path: 'LegacyWalletDiscoveryService.validateLegacyInstallation',
+        isError: true,
+      );
       return false;
     }
   }
@@ -475,10 +547,7 @@ class LegacyMigrationResult {
   }
 
   factory LegacyMigrationResult.failure(String error) {
-    return LegacyMigrationResult._(
-      success: false,
-      error: error,
-    );
+    return LegacyMigrationResult._(success: false, error: error);
   }
 
   Map<String, dynamic> toJson() {

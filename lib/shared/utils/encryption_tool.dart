@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
-import 'package:web_dex/shared/utils/legacy_desktop_decryption.dart';
+import 'package:web_dex/shared/utils/legacy_desktop_decryption_selector.dart';
 
 class EncryptionTool {
   LegacyDesktopDecryption? _legacyDecryption;
@@ -147,7 +147,9 @@ class EncryptionTool {
 
   /// Supports decryption from file bytes for legacy desktop wallets
   Future<String?> decryptDataFromBytes(
-      String password, Uint8List encryptedBytes) async {
+    String password,
+    Uint8List encryptedBytes,
+  ) async {
     try {
       // Check if it's legacy desktop format
       if (isLegacyDesktopFormat(encryptedBytes)) {
