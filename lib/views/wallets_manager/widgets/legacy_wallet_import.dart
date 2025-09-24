@@ -26,7 +26,8 @@ class LegacyWalletImport extends StatefulWidget {
     required String password,
     required WalletConfig walletConfig,
     LegacyWalletData? legacyData,
-  }) onImport;
+  })
+  onImport;
 
   final void Function() onCancel;
 
