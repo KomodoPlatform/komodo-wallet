@@ -57,25 +57,31 @@ class _CoinSelectionAndAmountInputState
 
   late final _sdk = context.read<KomodoDefiSdk>();
   void _prepareItems() {
-    _items = prepareCoinsForTable(
-      context,
-      widget.coins,
-      null,
-      testCoinsEnabled: context.read<SettingsBloc>().state.testCoinsEnabled,
-    )
-        .map(
-          (coin) => DropdownMenuItem<String>(
-            value: coin.abbr,
-            child: CoinSelectItemWidget(
-              name: coin.name,
-              coinId: coin.abbr,
-              trailing: AssetBalanceText(coin.toSdkAsset(_sdk).id,
-                  activateIfNeeded: false),
-              title: CoinItemBody(coin: coin, size: CoinItemSize.large),
-            ),
-          ),
-        )
-        .toList();
+    _items =
+        prepareCoinsForTable(
+              context,
+              widget.coins,
+              null,
+              testCoinsEnabled: context
+                  .read<SettingsBloc>()
+                  .state
+                  .testCoinsEnabled,
+            )
+            .map(
+              (coin) => DropdownMenuItem<String>(
+                value: coin.abbr,
+                child: CoinSelectItemWidget(
+                  name: coin.displayName,
+                  coinId: coin.abbr,
+                  trailing: AssetBalanceText(
+                    coin.toSdkAsset(_sdk).id,
+                    activateIfNeeded: false,
+                  ),
+                  title: CoinItemBody(coin: coin, size: CoinItemSize.large),
+                ),
+              ),
+            )
+            .toList();
   }
 
   @override
@@ -84,9 +90,7 @@ class _CoinSelectionAndAmountInputState
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DexFormGroupHeader(
-          title: widget.title,
-        ),
+        DexFormGroupHeader(title: widget.title),
         const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 8, 0, 12),

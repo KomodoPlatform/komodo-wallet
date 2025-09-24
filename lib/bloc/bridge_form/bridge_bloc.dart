@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart' show KomodoDefiSdk;
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
+    show LinearBackoff, retry;
+import 'package:komodo_defi_types/komodo_defi_types.dart' show KdfUser;
 import 'package:rational/rational.dart';
+import 'package:web_dex/analytics/events/cross_chain_events.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_repository.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
@@ -27,9 +31,6 @@ import 'package:web_dex/model/typedef.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
-import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/cross_chain_events.dart';
 
 class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   BridgeBloc({
@@ -38,12 +39,12 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     required CoinsRepo coinsRepository,
     required KomodoDefiSdk kdfSdk,
     required AnalyticsBloc analyticsBloc,
-  })  : _bridgeRepository = bridgeRepository,
-        _dexRepository = dexRepository,
-        _coinsRepository = coinsRepository,
-        _kdfSdk = kdfSdk,
-        _analyticsBloc = analyticsBloc,
-        super(BridgeState.initial()) {
+  }) : _bridgeRepository = bridgeRepository,
+       _dexRepository = dexRepository,
+       _coinsRepository = coinsRepository,
+       _kdfSdk = kdfSdk,
+       _analyticsBloc = analyticsBloc,
+       super(BridgeState.initial()) {
     on<BridgeInit>(_onInit);
     on<BridgeReInit>(_onReInit);
     on<BridgeLogout>(_onLogout);
@@ -80,8 +81,9 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       sdk: _kdfSdk,
     );
 
-    _authorizationSubscription =
-        _kdfSdk.auth.watchCurrentUser().listen((event) {
+    _authorizationSubscription = _kdfSdk.auth.watchCurrentUser().listen((
+      event,
+    ) {
       _isLoggedIn = event != null;
       if (!_isLoggedIn) add(const BridgeLogout());
     });
@@ -101,30 +103,19 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   Timer? _maxSellAmountTimer;
   Timer? _preimageTimer;
 
-  void _onInit(
-    BridgeInit event,
-    Emitter<BridgeState> emit,
-  ) {
+  void _onInit(BridgeInit event, Emitter<BridgeState> emit) {
     if (state.selectedTicker != null) return;
 
     final Coin? defaultTickerCoin = _coinsRepository.getCoin(event.ticker);
-    emit(state.copyWith(
-      selectedTicker: () => defaultTickerCoin?.abbr,
-    ));
+    emit(state.copyWith(selectedTicker: () => defaultTickerCoin?.abbr));
 
     add(const BridgeUpdateTickers());
   }
 
-  Future<void> _onReInit(
-    BridgeReInit event,
-    Emitter<BridgeState> emit,
-  ) async {
+  Future<void> _onReInit(BridgeReInit event, Emitter<BridgeState> emit) async {
     _isLoggedIn = true;
 
-    emit(state.copyWith(
-      error: () => null,
-      autovalidate: () => false,
-    ));
+    emit(state.copyWith(error: () => null, autovalidate: () => false));
 
     add(const BridgeUpdateMaxSellAmount(true));
 
@@ -135,37 +126,35 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     _subscribeFees();
   }
 
-  void _onLogout(
-    BridgeLogout event,
-    Emitter<BridgeState> emit,
-  ) {
+  void _onLogout(BridgeLogout event, Emitter<BridgeState> emit) {
     _isLoggedIn = false;
 
-    emit(state.copyWith(
-      availableBalanceState: () => AvailableBalanceState.unavailable,
-      maxSellAmount: () => null,
-      preimageData: () => null,
-      step: () => BridgeStep.form,
-    ));
+    emit(
+      state.copyWith(
+        availableBalanceState: () => AvailableBalanceState.unavailable,
+        maxSellAmount: () => null,
+        preimageData: () => null,
+        step: () => BridgeStep.form,
+      ),
+    );
   }
 
-  void _onTickerChanged(
-    BridgeTickerChanged event,
-    Emitter<BridgeState> emit,
-  ) {
-    emit(state.copyWith(
-      selectedTicker: () => event.ticker,
-      showTickerDropdown: () => false,
-      sellCoin: () => null,
-      sellAmount: () => null,
-      bestOrders: () => null,
-      bestOrder: () => null,
-      buyAmount: () => null,
-      maxSellAmount: () => null,
-      availableBalanceState: () => AvailableBalanceState.unavailable,
-      preimageData: () => null,
-      error: () => null,
-    ));
+  void _onTickerChanged(BridgeTickerChanged event, Emitter<BridgeState> emit) {
+    emit(
+      state.copyWith(
+        selectedTicker: () => event.ticker,
+        showTickerDropdown: () => false,
+        sellCoin: () => null,
+        sellAmount: () => null,
+        bestOrders: () => null,
+        bestOrder: () => null,
+        buyAmount: () => null,
+        maxSellAmount: () => null,
+        availableBalanceState: () => AvailableBalanceState.unavailable,
+        preimageData: () => null,
+        error: () => null,
+      ),
+    );
   }
 
   Future<void> _onUpdateTickers(
@@ -174,9 +163,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   ) async {
     final CoinsByTicker tickers = await _bridgeRepository.getAvailableTickers();
 
-    emit(state.copyWith(
-      tickers: () => tickers,
-    ));
+    emit(state.copyWith(tickers: () => tickers));
 
     add(const BridgeUpdateSellCoins());
   }
@@ -185,64 +172,71 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     BridgeShowTickerDropdown event,
     Emitter<BridgeState> emit,
   ) {
-    emit(state.copyWith(
-      showTickerDropdown: () => event.show,
-      showSourceDropdown: () => false,
-      showTargetDropdown: () => false,
-    ));
+    emit(
+      state.copyWith(
+        showTickerDropdown: () => event.show,
+        showSourceDropdown: () => false,
+        showTargetDropdown: () => false,
+      ),
+    );
   }
 
   void _onShowSourceDropdown(
     BridgeShowSourceDropdown event,
     Emitter<BridgeState> emit,
   ) {
-    emit(state.copyWith(
-      showSourceDropdown: () => event.show,
-      showTickerDropdown: () => false,
-      showTargetDropdown: () => false,
-    ));
+    emit(
+      state.copyWith(
+        showSourceDropdown: () => event.show,
+        showTickerDropdown: () => false,
+        showTargetDropdown: () => false,
+      ),
+    );
   }
 
   void _onShowTargetDropdown(
     BridgeShowTargetDropdown event,
     Emitter<BridgeState> emit,
   ) {
-    emit(state.copyWith(
-      showTargetDropdown: () => event.show,
-      showTickerDropdown: () => false,
-      showSourceDropdown: () => false,
-    ));
+    emit(
+      state.copyWith(
+        showTargetDropdown: () => event.show,
+        showTickerDropdown: () => false,
+        showSourceDropdown: () => false,
+      ),
+    );
   }
 
   Future<void> _onUpdateSellCoins(
     BridgeUpdateSellCoins event,
     Emitter<BridgeState> emit,
   ) async {
-    final CoinsByTicker? sellCoins =
-        await _bridgeRepository.getSellCoins(state.tickers);
+    final CoinsByTicker? sellCoins = await _bridgeRepository.getSellCoins(
+      state.tickers,
+    );
 
-    emit(state.copyWith(
-      sellCoins: () => sellCoins,
-    ));
+    emit(state.copyWith(sellCoins: () => sellCoins));
   }
 
   Future<void> _onSetSellCoin(
     BridgeSetSellCoin event,
     Emitter<BridgeState> emit,
   ) async {
-    emit(state.copyWith(
-      sellCoin: () => event.coin,
-      sellAmount: () => null,
-      showSourceDropdown: () => false,
-      bestOrders: () => null,
-      bestOrder: () => null,
-      buyAmount: () => null,
-      maxSellAmount: () => null,
-      availableBalanceState: () => AvailableBalanceState.initial,
-      preimageData: () => null,
-      error: () => null,
-      autovalidate: () => false,
-    ));
+    emit(
+      state.copyWith(
+        sellCoin: () => event.coin,
+        sellAmount: () => null,
+        showSourceDropdown: () => false,
+        bestOrders: () => null,
+        bestOrder: () => null,
+        buyAmount: () => null,
+        maxSellAmount: () => null,
+        availableBalanceState: () => AvailableBalanceState.initial,
+        preimageData: () => null,
+        error: () => null,
+        autovalidate: () => false,
+      ),
+    );
 
     _autoActivateCoin(event.coin.abbr);
     _subscribeMaxSellAmount();
@@ -262,39 +256,45 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     final sellCoin = state.sellCoin;
     if (sellCoin == null) return;
 
-    final bestOrders = await _dexRepository.getBestOrders(BestOrdersRequest(
-      coin: sellCoin.abbr,
-      action: 'sell',
-      type: BestOrdersRequestType.number,
-      number: 1,
-    ));
+    final bestOrders = await _dexRepository.getBestOrders(
+      BestOrdersRequest(
+        coin: sellCoin.abbr,
+        action: 'sell',
+        type: BestOrdersRequestType.number,
+        number: 1,
+      ),
+    );
 
     /// Unsupported coins like ARRR cause downstream errors, so we need to
     /// remove them from the list here
-    bestOrders.result
-        ?.removeWhere((coinId, _) => excludedAssetList.contains(coinId));
+    bestOrders.result?.removeWhere(
+      (coinId, _) => excludedAssetList.contains(coinId),
+    );
 
-    emit(state.copyWith(
-      bestOrders: () => bestOrders,
-    ));
+    emit(state.copyWith(bestOrders: () => bestOrders));
   }
 
   void _onSelectBestOrder(
     BridgeSelectBestOrder event,
     Emitter<BridgeState> emit,
   ) async {
-    final bool switchingCoin = state.bestOrder != null &&
+    final bool switchingCoin =
+        state.bestOrder != null &&
         event.order != null &&
         state.bestOrder!.coin != event.order!.coin;
 
-    emit(state.copyWith(
-      bestOrder: () => event.order,
-      showTargetDropdown: () => false,
-      buyAmount: () => calculateBuyAmount(
-          sellAmount: state.sellAmount, selectedOrder: event.order),
-      error: () => null,
-      autovalidate: switchingCoin ? () => false : null,
-    ));
+    emit(
+      state.copyWith(
+        bestOrder: () => event.order,
+        showTargetDropdown: () => false,
+        buyAmount: () => calculateBuyAmount(
+          sellAmount: state.sellAmount,
+          selectedOrder: event.order,
+        ),
+        error: () => null,
+        autovalidate: switchingCoin ? () => false : null,
+      ),
+    );
 
     if (!state.autovalidate) add(const BridgeVerifyOrderVolume());
 
@@ -303,22 +303,12 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     _subscribeFees();
   }
 
-  void _onSetError(
-    BridgeSetError event,
-    Emitter<BridgeState> emit,
-  ) {
-    emit(state.copyWith(
-      error: () => event.error,
-    ));
+  void _onSetError(BridgeSetError event, Emitter<BridgeState> emit) {
+    emit(state.copyWith(error: () => event.error));
   }
 
-  void _onClearErrors(
-    BridgeClearErrors event,
-    Emitter<BridgeState> emit,
-  ) {
-    emit(state.copyWith(
-      error: () => null,
-    ));
+  void _onClearErrors(BridgeClearErrors event, Emitter<BridgeState> emit) {
+    emit(state.copyWith(error: () => null));
   }
 
   void _subscribeFees() {
@@ -346,8 +336,10 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   ) {
     final Rational? maxSellAmount = state.maxSellAmount;
     if (maxSellAmount == null) return;
-    final Rational sellAmount =
-        getFractionOfAmount(maxSellAmount, event.fraction);
+    final Rational sellAmount = getFractionOfAmount(
+      maxSellAmount,
+      event.fraction,
+    );
     add(BridgeSetSellAmount(sellAmount));
   }
 
@@ -355,8 +347,9 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     BridgeSellAmountChange event,
     Emitter<BridgeState> emit,
   ) {
-    final Rational? amount =
-        event.value.isNotEmpty ? Rational.parse(event.value) : null;
+    final Rational? amount = event.value.isNotEmpty
+        ? Rational.tryParse(event.value)
+        : null;
 
     if (amount == state.sellAmount) return;
 
@@ -367,13 +360,15 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     BridgeSetSellAmount event,
     Emitter<BridgeState> emit,
   ) async {
-    emit(state.copyWith(
-      sellAmount: () => event.amount,
-      buyAmount: () => calculateBuyAmount(
-        selectedOrder: state.bestOrder,
-        sellAmount: event.amount,
+    emit(
+      state.copyWith(
+        sellAmount: () => event.amount,
+        buyAmount: () => calculateBuyAmount(
+          selectedOrder: state.bestOrder,
+          sellAmount: event.amount,
+        ),
       ),
-    ));
+    );
 
     if (state.autovalidate) {
       await _validator.validateForm();
@@ -389,50 +384,56 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   ) async {
     if (state.sellCoin == null) {
       _maxSellAmountTimer?.cancel();
-      emit(state.copyWith(
-        availableBalanceState: () => AvailableBalanceState.unavailable,
-      ));
+      emit(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.unavailable,
+        ),
+      );
       return;
     }
 
     if (state.availableBalanceState == AvailableBalanceState.initial ||
         event.setLoadingStatus) {
-      emit(state.copyWith(
-        availableBalanceState: () => AvailableBalanceState.loading,
-      ));
+      emit(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.loading,
+        ),
+      );
     }
 
     if (!_isLoggedIn) {
-      emit(state.copyWith(
-        availableBalanceState: () => AvailableBalanceState.unavailable,
-      ));
+      emit(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.unavailable,
+        ),
+      );
     } else {
-      Rational? maxSellAmount =
-          await _dexRepository.getMaxTakerVolume(state.sellCoin!.abbr);
+      Rational? maxSellAmount = await _dexRepository.getMaxTakerVolume(
+        state.sellCoin!.abbr,
+      );
       if (maxSellAmount != null) {
-        emit(state.copyWith(
-          maxSellAmount: () => maxSellAmount,
-          availableBalanceState: () => AvailableBalanceState.success,
-        ));
+        emit(
+          state.copyWith(
+            maxSellAmount: () => maxSellAmount,
+            availableBalanceState: () => AvailableBalanceState.success,
+          ),
+        );
       } else {
         maxSellAmount = await _frequentlyGetMaxTakerVolume();
-        emit(state.copyWith(
-          maxSellAmount: () => maxSellAmount,
-          availableBalanceState: maxSellAmount == null
-              ? () => AvailableBalanceState.failure
-              : () => AvailableBalanceState.success,
-        ));
+        emit(
+          state.copyWith(
+            maxSellAmount: () => maxSellAmount,
+            availableBalanceState: maxSellAmount == null
+                ? () => AvailableBalanceState.failure
+                : () => AvailableBalanceState.success,
+          ),
+        );
       }
     }
   }
 
-  void _onUpdateFees(
-    BridgeUpdateFees event,
-    Emitter<BridgeState> emit,
-  ) async {
-    emit(state.copyWith(
-      preimageData: () => null,
-    ));
+  void _onUpdateFees(BridgeUpdateFees event, Emitter<BridgeState> emit) async {
+    emit(state.copyWith(preimageData: () => null));
 
     if (!_validator.canRequestPreimage) {
       _preimageTimer?.cancel();
@@ -449,65 +450,45 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
   ) async {
     if (state.sellCoin == null) return;
     if (!_isLoggedIn) {
-      emit(state.copyWith(
-        minSellAmount: () => null,
-      ));
+      emit(state.copyWith(minSellAmount: () => null));
       return;
     }
 
-    final Rational? minSellAmount =
-        await _dexRepository.getMinTradingVolume(state.sellCoin!.abbr);
+    final Rational? minSellAmount = await _dexRepository.getMinTradingVolume(
+      state.sellCoin!.abbr,
+    );
 
-    emit(state.copyWith(
-      minSellAmount: () => minSellAmount,
-    ));
+    emit(state.copyWith(minSellAmount: () => minSellAmount));
   }
 
-  void _onSetPreimage(
-    BridgeSetPreimage event,
-    Emitter<BridgeState> emit,
-  ) {
-    emit(state.copyWith(
-      preimageData: () => event.preimageData,
-    ));
+  void _onSetPreimage(BridgeSetPreimage event, Emitter<BridgeState> emit) {
+    emit(state.copyWith(preimageData: () => event.preimageData));
   }
 
-  void _onSetInProgress(
-    BridgeSetInProgress event,
-    Emitter<BridgeState> emit,
-  ) {
-    emit(state.copyWith(
-      inProgress: () => event.inProgress,
-    ));
+  void _onSetInProgress(BridgeSetInProgress event, Emitter<BridgeState> emit) {
+    emit(state.copyWith(inProgress: () => event.inProgress));
   }
 
   void _onSubmitClick(
     BridgeSubmitClick event,
     Emitter<BridgeState> emit,
   ) async {
-    emit(state.copyWith(
-      inProgress: () => true,
-      autovalidate: () => true,
-    ));
+    emit(state.copyWith(inProgress: () => true, autovalidate: () => true));
 
     await pauseWhile(() => _waitingForWallet || _activatingAssets);
 
     final bool isValid = await _validator.validate();
 
-    emit(state.copyWith(
-      inProgress: () => false,
-      step: () => isValid ? BridgeStep.confirm : BridgeStep.form,
-    ));
+    emit(
+      state.copyWith(
+        inProgress: () => false,
+        step: () => isValid ? BridgeStep.confirm : BridgeStep.form,
+      ),
+    );
   }
 
-  void _onBackClick(
-    BridgeBackClick event,
-    Emitter<BridgeState> emit,
-  ) {
-    emit(state.copyWith(
-      step: () => BridgeStep.form,
-      error: () => null,
-    ));
+  void _onBackClick(BridgeBackClick event, Emitter<BridgeState> emit) {
+    emit(state.copyWith(step: () => BridgeStep.form, error: () => null));
   }
 
   void _onSetWalletIsReady(
@@ -517,10 +498,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     _waitingForWallet = !event.isReady;
   }
 
-  void _onStartSwap(
-    BridgeStartSwap event,
-    Emitter<BridgeState> emit,
-  ) async {
+  void _onStartSwap(BridgeStartSwap event, Emitter<BridgeState> emit) async {
     final sellCoin = state.sellCoin;
     final bestOrder = state.bestOrder;
     if (sellCoin != null && bestOrder != null) {
@@ -536,16 +514,16 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
         ),
       );
     }
-    emit(state.copyWith(
-      inProgress: () => true,
-    ));
-    final SellResponse response = await _dexRepository.sell(SellRequest(
-      base: state.sellCoin!.abbr,
-      rel: state.bestOrder!.coin,
-      volume: state.sellAmount!,
-      price: state.bestOrder!.price,
-      orderType: SellBuyOrderType.fillOrKill,
-    ));
+    emit(state.copyWith(inProgress: () => true));
+    final SellResponse response = await _dexRepository.sell(
+      SellRequest(
+        base: state.sellCoin!.abbr,
+        rel: state.bestOrder!.coin,
+        volume: state.sellAmount!,
+        price: state.bestOrder!.price,
+        orderType: SellBuyOrderType.fillOrKill,
+      ),
+    );
 
     final String? uuid = response.result?.uuid;
 
@@ -578,10 +556,12 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       add(BridgeSetError(DexFormError(error: error)));
     }
 
-    emit(state.copyWith(
-      inProgress: uuid == null ? () => false : null,
-      swapUuid: () => uuid,
-    ));
+    emit(
+      state.copyWith(
+        inProgress: uuid == null ? () => false : null,
+        swapUuid: () => uuid,
+      ),
+    );
   }
 
   void _verifyOrderVolume(
@@ -591,10 +571,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     _validator.verifyOrderVolume();
   }
 
-  void _onClear(
-    BridgeClear event,
-    Emitter<BridgeState> emit,
-  ) {
+  void _onClear(BridgeClear event, Emitter<BridgeState> emit) {
     emit(BridgeState.initial());
   }
 
@@ -621,8 +598,10 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
     if (abbr == null) return;
 
     _activatingAssets = true;
-    final List<DexFormError> activationErrors =
-        await activateCoinIfNeeded(abbr, _coinsRepository);
+    final List<DexFormError> activationErrors = await activateCoinIfNeeded(
+      abbr,
+      _coinsRepository,
+    );
     _activatingAssets = false;
 
     if (activationErrors.isNotEmpty) {
@@ -638,20 +617,18 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
 
     bestOrders.forEach((key, value) => list.addAll(value));
 
-    list.removeWhere(
-      (order) {
-        final Coin? item = _coinsRepository.getCoin(order.coin);
-        if (item == null) return true;
+    list.removeWhere((order) {
+      final Coin? item = _coinsRepository.getCoin(order.coin);
+      if (item == null) return true;
 
-        final sameTicker = abbr2Ticker(item.abbr) == abbr2Ticker(sellCoin.abbr);
-        if (!sameTicker) return true;
+      final sameTicker = abbr2Ticker(item.abbr) == abbr2Ticker(sellCoin.abbr);
+      if (!sameTicker) return true;
 
-        if (item.isSuspended) return true;
-        if (item.walletOnly) return true;
+      if (item.isSuspended) return true;
+      if (item.walletOnly) return true;
 
-        return false;
-      },
-    );
+      return false;
+    });
 
     list.sort((a, b) => a.coin.compareTo(b.coin));
 
@@ -668,8 +645,12 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
         state.sellAmount,
       );
     } catch (e, s) {
-      log(e.toString(),
-          trace: s, path: 'bridge_bloc::_getFeesData', isError: true);
+      log(
+        e.toString(),
+        trace: s,
+        path: 'bridge_bloc::_getFeesData',
+        isError: true,
+      );
       return DataFromService(error: TextError(error: 'Failed to request fees'));
     }
   }

@@ -6,6 +6,7 @@ import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/model/hw_wallet/trezor_task.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/trezor_steps/trezor_dialog_pin_pad.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 Future<void> showTrezorPinDialog(TrezorTask task) async {
   late PopupDispatcher popupManager;
@@ -22,13 +23,18 @@ Future<void> showTrezorPinDialog(TrezorTask task) async {
     context: context,
     width: trezorDialogWidth,
     onDismiss: close,
-    popupContent: TrezorDialogPinPad(
-      onComplete: (String pin) async {
-        final authBloc = context.read<AuthBloc>();
-        authBloc.add(AuthTrezorPinProvided(pin));
-        close();
-      },
-      onClose: close,
+    popupContent: ScreenshotSensitive(
+      child: TrezorDialogPinPad(
+        onComplete: (String pin) async {
+          final authBloc = context.read<AuthBloc>();
+          authBloc.add(AuthTrezorPinProvided(pin));
+          close();
+        },
+        onClose: () {
+          context.read<AuthBloc>().add(AuthTrezorCancelled());
+          close();
+        },
+      ),
     ),
   );
 

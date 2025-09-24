@@ -117,7 +117,8 @@ abstract class LocaleKeys {
   static const walletImportByFileTitle = 'walletImportByFileTitle';
   static const invalidWalletNameError = 'invalidWalletNameError';
   static const invalidWalletFileNameError = 'invalidWalletFileNameError';
-  static const walletImportCreatePasswordTitle = 'walletImportCreatePasswordTitle';
+  static const walletImportCreatePasswordTitle =
+      'walletImportCreatePasswordTitle';
   static const walletImportByFileDescription = 'walletImportByFileDescription';
   static const walletLogInTitle = 'walletLogInTitle';
   static const walletCreationNameHint = 'walletCreationNameHint';
@@ -134,6 +135,9 @@ abstract class LocaleKeys {
   static const walletCreationConfirmPasswordError =
       'walletCreationConfirmPasswordError';
   static const incorrectPassword = 'incorrectPassword';
+  static const oneClickLogin = 'oneClickLogin';
+  static const quickLoginTooltip = 'quickLoginTooltip';
+  static const quickLoginSubtitle = 'quickLoginSubtitle';
   static const importSeedEnterSeedPhraseHint = 'importSeedEnterSeedPhraseHint';
   static const passphraseCheckingTitle = 'passphraseCheckingTitle';
   static const passphraseCheckingDescription = 'passphraseCheckingDescription';
@@ -229,7 +233,8 @@ abstract class LocaleKeys {
   static const walletCreationHdBip39SeedError =
       'walletCreationHdBip39SeedError';
   static const walletPageNoSuchAsset = 'walletPageNoSuchAsset';
-  static const swapCoin = 'swapCoin';
+  static const swap = 'swap';
+  static const dexAddress = 'dexAddress';
   static const fiatBalance = 'fiatBalance';
   static const yourBalance = 'yourBalance';
   static const all = 'all';
@@ -292,7 +297,6 @@ abstract class LocaleKeys {
   static const buyPrice = 'buyPrice';
   static const inProgress = 'inProgress';
   static const orders = 'orders';
-  static const swap = 'swap';
   static const percentFilled = 'percentFilled';
   static const orderType = 'orderType';
   static const recover = 'recover';
@@ -324,6 +328,26 @@ abstract class LocaleKeys {
   static const feedbackFormDescription = 'feedbackFormDescription';
   static const feedbackFormThanksTitle = 'feedbackFormThanksTitle';
   static const feedbackFormThanksDescription = 'feedbackFormThanksDescription';
+  static const feedbackFormKindQuestion = 'feedbackFormKindQuestion';
+  static const feedbackFormDescribeTitle = 'feedbackFormDescribeTitle';
+  static const feedbackFormContactRequired = 'feedbackFormContactRequired';
+  static const feedbackFormContactOptional = 'feedbackFormContactOptional';
+  static const feedbackFormMessageHint = 'feedbackFormMessageHint';
+  static const feedbackFormBugReport = 'feedbackFormBugReport';
+  static const feedbackFormFeatureRequest = 'feedbackFormFeatureRequest';
+  static const feedbackFormSupportRequest = 'feedbackFormSupportRequest';
+  static const feedbackFormOther = 'feedbackFormOther';
+  static const feedbackFormDiscord = 'feedbackFormDiscord';
+  static const feedbackFormMatrix = 'feedbackFormMatrix';
+  static const feedbackFormTelegram = 'feedbackFormTelegram';
+  static const feedbackFormSelectContactMethod =
+      'feedbackFormSelectContactMethod';
+  static const feedbackFormDiscordHint = 'feedbackFormDiscordHint';
+  static const feedbackFormMatrixHint = 'feedbackFormMatrixHint';
+  static const feedbackFormTelegramHint = 'feedbackFormTelegramHint';
+  static const feedbackFormEmailHint = 'feedbackFormEmailHint';
+  static const feedbackFormContactHint = 'feedbackFormContactHint';
+  static const feedbackFormContactOptOut = 'feedbackFormContactOptOut';
   static const email = 'email';
   static const emailValidatorError = 'emailValidatorError';
   static const contactRequiredError = 'contactRequiredError';
@@ -381,6 +405,8 @@ abstract class LocaleKeys {
   static const trezorSelectTitle = 'trezorSelectTitle';
   static const trezorSelectSubTitle = 'trezorSelectSubTitle';
   static const trezorBrowserUnsupported = 'trezorBrowserUnsupported';
+  static const trezorTransactionInProgressMessage =
+      'trezorTransactionInProgressMessage';
   static const mixedCaseError = 'mixedCaseError';
   static const addressConvertedToMixedCase = 'addressConvertedToMixedCase';
   static const invalidAddressChecksum = 'invalidAddressChecksum';
@@ -406,6 +432,9 @@ abstract class LocaleKeys {
   static const dexErrorMessage = 'dexErrorMessage';
   static const seedConfirmInitialText = 'seedConfirmInitialText';
   static const seedConfirmIncorrectText = 'seedConfirmIncorrectText';
+  static const mnemonicInvalidWordError = 'mnemonicInvalidWordError';
+  static const mnemonicInvalidChecksumError = 'mnemonicInvalidChecksumError';
+  static const mnemonicInvalidLengthError = 'mnemonicInvalidLengthError';
   static const usedSamePassword = 'usedSamePassword';
   static const passwordNotAccepted = 'passwordNotAccepted';
   static const confirmNewPassword = 'confirmNewPassword';
@@ -493,6 +522,7 @@ abstract class LocaleKeys {
   static const nothingFound = 'nothingFound';
   static const half = 'half';
   static const max = 'max';
+  static const exact = 'exact';
   static const reactivating = 'reactivating';
   static const weFailedCoinActivate = 'weFailedCoinActivate';
   static const failedActivate = 'failedActivate';
@@ -515,7 +545,6 @@ abstract class LocaleKeys {
   static const feedback = 'feedback';
   static const feedbackViewTitle = 'feedbackViewTitle';
   static const feedbackPageDescription = 'feedbackPageDescription';
-  static const sendFeedbackButton = 'sendFeedbackButton';
   static const feedbackThankyou = 'feedbackThankyou';
   static const feedbackError = 'feedbackError';
   static const selectAToken = 'selectAToken';
@@ -551,6 +580,25 @@ abstract class LocaleKeys {
   static const logs = 'logs';
   static const resetActivatedCoinsTitle = 'resetActivatedCoinsTitle';
   static const privateKeys = 'privateKeys';
+  static const exportPrivateKeys = 'exportPrivateKeys';
+  static const exportPrivateKeysDescription = 'exportPrivateKeysDescription';
+  static const privateKeyExportTitle = 'privateKeyExportTitle';
+  static const privateKeyExportDescription = 'privateKeyExportDescription';
+  static const showPrivateKeys = 'showPrivateKeys';
+  static const copyAllKeys = 'copyAllKeys';
+  static const downloadAllKeys = 'downloadAllKeys';
+  static const shareAllKeys = 'shareAllKeys';
+  static const confirmPrivateKeyBackup = 'confirmPrivateKeyBackup';
+  static const confirmPrivateKeyBackupDescription =
+      'confirmPrivateKeyBackupDescription';
+  static const importantSecurityNotice = 'importantSecurityNotice';
+  static const privateKeySecurityWarning = 'privateKeySecurityWarning';
+  static const privateKeyBackupConfirmation = 'privateKeyBackupConfirmation';
+  static const confirmBackupComplete = 'confirmBackupComplete';
+  static const privateKeyExportSuccessTitle = 'privateKeyExportSuccessTitle';
+  static const privateKeyExportSuccessDescription =
+      'privateKeyExportSuccessDescription';
+  static const iHaveSavedMyPrivateKeys = 'iHaveSavedMyPrivateKeys';
   static const copyWarning = 'copyWarning';
   static const seedConfirmTitle = 'seedConfirmTitle';
   static const seedConfirmDescription = 'seedConfirmDescription';
@@ -700,7 +748,6 @@ abstract class LocaleKeys {
   static const decimals = 'decimals';
   static const onlySendToThisAddress = 'onlySendToThisAddress';
   static const scanTheQrCode = 'scanTheQrCode';
-  static const tradingAddress = 'tradingAddress';
   static const addresses = 'addresses';
   static const creating = 'creating';
   static const createAddress = 'createAddress';
@@ -721,6 +768,7 @@ abstract class LocaleKeys {
   static const amountFieldCheckboxListTile = 'amountFieldCheckboxListTile';
   static const customFeeToggleTitle = 'customFeeToggleTitle';
   static const priceChartCenterText = 'priceChartCenterText';
+  static const priceHistorySparklineTooltip = 'priceHistorySparklineTooltip';
   static const statistics = 'statistics';
   static const ibcTransferFieldTitle = 'ibcTransferFieldTitle';
   static const ibcTransferFieldSubtitle = 'ibcTransferFieldSubtitle';
@@ -737,4 +785,18 @@ abstract class LocaleKeys {
   static const trend7d = 'trend7d';
   static const tradingDisabledTooltip = 'tradingDisabledTooltip';
   static const tradingDisabled = 'tradingDisabled';
+  static const unbanPubkeysResults = 'unbanPubkeysResults';
+  static const unbannedPubkeys = 'unbannedPubkeys';
+  static const stillBannedPubkeys = 'stillBannedPubkeys';
+  static const wereNotBannedPubkeys = 'wereNotBannedPubkeys';
+  static const reason = 'reason';
+  static const unbanPubkeys = 'unbanPubkeys';
+  static const unbanPubkeysDescription = 'unbanPubkeysDescription';
+  static const noBannedPubkeys = 'noBannedPubkeys';
+  static const unbanPubkeysFailed = 'unbanPubkeysFailed';
+  static const privateKeyRetrievalFailed = 'privateKeyRetrievalFailed';
+  static const fetchingPrivateKeysTitle = 'fetchingPrivateKeysTitle';
+  static const fetchingPrivateKeysMessage = 'fetchingPrivateKeysMessage';
+  static const pubkeyType = 'pubkeyType';
+  static const securitySettings = 'securitySettings';
 }

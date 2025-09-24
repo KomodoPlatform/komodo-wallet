@@ -14,6 +14,12 @@ class TradingStatusRepository {
 
   Future<bool> isTradingEnabled({bool? forceFail}) async {
     try {
+      final geoBlock = const String.fromEnvironment('GEO_BLOCK');
+      if (geoBlock == 'disabled') {
+        debugPrint('GEO_BLOCK is disabled. Trading enabled.');
+        return true;
+      }
+
       final apiKey = const String.fromEnvironment('FEEDBACK_API_KEY');
       final bool shouldFail = forceFail ?? false;
 

@@ -120,26 +120,28 @@ class FiatPaymentMethod extends Equatable {
 }
 
 List<FiatPaymentMethod> defaultFiatPaymentMethods = [
-  FiatPaymentMethod(
-    id: 'CARD_PAYMENT',
-    name: 'Card Payment',
-    providerId: 'Ramp',
-    priceInfo: FiatPriceInfo.zero,
-    relativePercent: Decimal.zero,
-    providerIconAssetPath: 'assets/fiat/providers/ramp_icon.svg',
-    transactionLimits: const [],
-    transactionFees: const [],
-  ),
-  FiatPaymentMethod(
-    id: 'APPLE_PAY',
-    name: 'Apple Pay',
-    providerId: 'Ramp',
-    priceInfo: FiatPriceInfo.zero,
-    relativePercent: Decimal.parse('-0.04126038522159592'),
-    providerIconAssetPath: 'assets/fiat/providers/ramp_icon.svg',
-    transactionLimits: const [],
-    transactionFees: const [],
-  ),
+  // Ramp API keys unavailable for the time being
+  // TODO(takenagain): re-enable when API keys are available
+  // FiatPaymentMethod(
+  //   id: 'CARD_PAYMENT',
+  //   name: 'Card Payment',
+  //   providerId: 'Ramp',
+  //   priceInfo: FiatPriceInfo.zero,
+  //   relativePercent: Decimal.zero,
+  //   providerIconAssetPath: 'assets/fiat/providers/ramp_icon.svg',
+  //   transactionLimits: const [],
+  //   transactionFees: const [],
+  // ),
+  // FiatPaymentMethod(
+  //   id: 'APPLE_PAY',
+  //   name: 'Apple Pay',
+  //   providerId: 'Ramp',
+  //   priceInfo: FiatPriceInfo.zero,
+  //   relativePercent: Decimal.parse('-0.04126038522159592'),
+  //   providerIconAssetPath: 'assets/fiat/providers/ramp_icon.svg',
+  //   transactionLimits: const [],
+  //   transactionFees: const [],
+  // ),
   FiatPaymentMethod(
     id: '7554',
     name: 'Visa/Mastercard',

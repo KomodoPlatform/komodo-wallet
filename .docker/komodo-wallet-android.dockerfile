@@ -1,6 +1,6 @@
 FROM komodo/android-sdk:35 AS final
 
-ENV FLUTTER_VERSION="3.32.5"
+ENV FLUTTER_VERSION="3.35.3"
 ENV HOME="/home/komodo"
 ENV USER="komodo"
 ENV PATH=$PATH:$HOME/flutter/bin

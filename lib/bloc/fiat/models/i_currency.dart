@@ -55,10 +55,10 @@ class FiatCurrency extends ICurrency {
   });
 
   factory FiatCurrency.usd() => FiatCurrency(
-        symbol: 'USD',
-        name: 'United States Dollar',
-        minPurchaseAmount: Decimal.zero,
-      );
+    symbol: 'USD',
+    name: 'United States Dollar',
+    minPurchaseAmount: Decimal.zero,
+  );
 
   @override
   bool get isFiat => true;
@@ -92,11 +92,11 @@ class CryptoCurrency extends ICurrency {
   });
 
   factory CryptoCurrency.bitcoin() => CryptoCurrency(
-        symbol: 'BTC-segwit',
-        name: 'Bitcoin',
-        chainType: CoinType.utxo,
-        minPurchaseAmount: Decimal.zero,
-      );
+    symbol: 'BTC-segwit',
+    name: 'Bitcoin',
+    chainType: CoinType.utxo,
+    minPurchaseAmount: Decimal.zero,
+  );
 
   factory CryptoCurrency.fromAsset(
     Asset asset, {
@@ -105,7 +105,7 @@ class CryptoCurrency extends ICurrency {
     final coin = asset.toCoin();
     return CryptoCurrency(
       symbol: coin.id.id,
-      name: coin.name,
+      name: coin.displayName,
       chainType: coin.type,
       minPurchaseAmount: minPurchaseAmount,
     );
@@ -143,12 +143,12 @@ class CryptoCurrency extends ICurrency {
       return symbol;
     }
 
-    return '$symbol-${getCoinTypeName(chainType).replaceAll('-', '')}';
+    return '$symbol-${getCoinTypeName(chainType, symbol).replaceAll('-', '')}';
   }
 
   @override
   String formatNameShort() {
-    final coinType = ' (${getCoinTypeName(chainType)})';
+    final coinType = ' (${getCoinTypeName(chainType, symbol)})';
     return '$name$coinType';
   }
 

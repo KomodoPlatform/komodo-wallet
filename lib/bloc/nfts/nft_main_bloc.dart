@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
+    show retry, ExponentialBackoff;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/nfts/nft_main_repo.dart';
@@ -20,7 +23,8 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   })  : _repo = repo,
         _sdk = sdk,
         super(NftMainState.initial()) {
-    on<NftMainChainUpdateRequested>(_onChainNftsUpdateRequested);
+    on<NftMainChainUpdateRequested>(_onChainNftsUpdateRequested,
+        transformer: restartable());
     on<NftMainTabChanged>(_onTabChanged);
     on<NftMainResetRequested>(_onReset);
     on<NftMainChainNftsRefreshed>(_onRefreshForChain);
@@ -49,6 +53,8 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   ) async {
     emit(state.copyWith(selectedChain: () => event.chain));
     if (!await _sdk.auth.isSignedIn() || !state.isInitialized) {
+      _log.warning(
+          'User is not signed in or state is not initialized. Cannot change NFT tab.');
       return;
     }
 
@@ -80,11 +86,13 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
     Emitter<NftMainState> emit,
   ) async {
     if (!await _sdk.auth.isSignedIn()) {
+      _log.warning('User is not signed in. Cannot update NFT chains.');
       return;
     }
 
     try {
       _log.info('Updating all NFT chains');
+
       final Map<NftBlockchains, List<NftToken>> nfts = await _getAllNfts();
       final (counts, sortedChains) = _calculateNftCount(nfts);
 
@@ -174,7 +182,16 @@ class NftMainBloc extends Bloc<NftMainEvent, NftMainState> {
   Future<Map<NftBlockchains, List<NftToken>>> _getAllNfts({
     List<NftBlockchains> chains = NftBlockchains.values,
   }) async {
-    await _repo.updateNft(chains);
+    try {
+      await retry<void>(
+        () async => await _repo.updateNft(chains),
+        maxAttempts: 3,
+        backoffStrategy:
+            ExponentialBackoff(initialDelay: const Duration(seconds: 1)),
+      );
+    } catch (e, s) {
+      _log.severe('Error updating NFTs for chains $chains', e, s);
+    }
     final List<NftToken> list = await _repo.getNfts(chains);
 
     final Map<NftBlockchains, List<NftToken>> nfts =

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/app_config/app_config.dart';
@@ -237,30 +238,31 @@ class CoinDetailsReceiveButton extends StatelessWidget {
     if (selectedAddress != null && context.mounted) {
       showDialog(
         context: context,
-        builder: (context) => PubkeyReceiveDialog(
-          coin: coin,
-          address: selectedAddress,
-        ),
+        builder: (context) =>
+            PubkeyReceiveDialog(coin: coin, address: selectedAddress),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasAddresses =
-        context.watch<CoinAddressesBloc>().state.addresses.isNotEmpty;
+    final hasAddresses = context
+        .watch<CoinAddressesBloc>()
+        .state
+        .addresses
+        .isNotEmpty;
     final ThemeData themeData = Theme.of(context);
     return UiPrimaryButton(
       key: const Key('coin-details-receive-button'),
       height: isMobile ? 52 : 40,
       prefix: Container(
         padding: const EdgeInsets.only(right: 14),
-        child: SvgPicture.asset(
-          '$assetsPath/others/receive.svg',
-        ),
+        child: SvgPicture.asset('$assetsPath/others/receive.svg'),
       ),
-      textStyle: themeData.textTheme.labelLarge
-          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+      textStyle: themeData.textTheme.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
       backgroundColor: themeData.colorScheme.tertiary,
       onPressed: coin.isSuspended || !hasAddresses
           ? null
@@ -271,11 +273,7 @@ class CoinDetailsReceiveButton extends StatelessWidget {
 }
 
 class AddressListItem extends StatelessWidget {
-  const AddressListItem({
-    super.key,
-    required this.address,
-    required this.coin,
-  });
+  const AddressListItem({super.key, required this.address, required this.coin});
 
   final PubkeyInfo address;
   final Coin coin;
@@ -313,20 +311,19 @@ class AddressListItem extends StatelessWidget {
                 Text(
                   address.formatted,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.5,
-                      ),
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${address.balance.spendable} ${coin.name} available',
+                  '${address.balance.spendable} ${coin.displayName} available',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.7),
-                      ),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.7),
+                  ),
                 ),
               ],
             ),
@@ -353,21 +350,24 @@ class CoinDetailsSendButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    final lastKnownBalance =
+        sdk.balances.lastKnown(coin.id)?.total ?? Decimal.zero;
+
     final ThemeData themeData = Theme.of(context);
     return UiPrimaryButton(
       key: const Key('coin-details-send-button'),
       height: isMobile ? 52 : 40,
       prefix: Container(
         padding: const EdgeInsets.only(right: 14),
-        child: SvgPicture.asset(
-          '$assetsPath/others/send.svg',
-        ),
+        child: SvgPicture.asset('$assetsPath/others/send.svg'),
       ),
-      textStyle: themeData.textTheme.labelLarge
-          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+      textStyle: themeData.textTheme.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
       backgroundColor: themeData.colorScheme.tertiary,
-      onPressed: coin.isSuspended
-          //TODO!.sdk || coin.balance == 0
+      onPressed: !coin.isActive || lastKnownBalance == Decimal.zero
           ? null
           : () {
               selectWidget(CoinPageType.send);
@@ -403,24 +403,24 @@ class CoinDetailsSwapButton extends StatelessWidget {
     return UiPrimaryButton(
       key: const Key('coin-details-swap-button'),
       height: isMobile ? 52 : 40,
-      textStyle: themeData.textTheme.labelLarge
-          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+      textStyle: themeData.textTheme.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
       backgroundColor: themeData.colorScheme.tertiary,
-      text: LocaleKeys.swapCoin.tr(),
+      text: LocaleKeys.swap.tr(),
       prefix: Padding(
         padding: const EdgeInsets.only(right: 10),
-        child: SvgPicture.asset(
-          '$assetsPath/others/swap.svg',
-        ),
+        child: SvgPicture.asset('$assetsPath/others/swap.svg'),
       ),
-      onPressed: coin.isSuspended ? null : onClickSwapButton,
+      onPressed: !coin.isActive ? null : onClickSwapButton,
     );
   }
 }
 
 /// Gets the appropriate tooltip message for the Bitrefill button
 String? _getBitrefillTooltip(Coin coin) {
-  if (coin.isSuspended) {
+  if (!coin.isActive) {
     return '${coin.abbr} is currently suspended';
   }
 

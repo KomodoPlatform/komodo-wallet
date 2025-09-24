@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -12,8 +13,11 @@ import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
 import 'package:web_dex/shared/utils/encryption_tool.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletFileData {
   const WalletFileData({required this.content, required this.name});
@@ -34,7 +38,9 @@ class WalletImportByFile extends StatefulWidget {
     required String name,
     required String password,
     required WalletConfig walletConfig,
-  }) onImport;
+    required bool rememberMe,
+  })
+  onImport;
   final void Function() onCancel;
 
   @override
@@ -42,12 +48,14 @@ class WalletImportByFile extends StatefulWidget {
 }
 
 class _WalletImportByFileState extends State<WalletImportByFile> {
-  final TextEditingController _filePasswordController =
-      TextEditingController(text: '');
+  final TextEditingController _filePasswordController = TextEditingController(
+    text: '',
+  );
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscured = true;
   bool _isHdMode = false;
   bool _eulaAndTosChecked = false;
+  bool _rememberMe = false;
   bool _allowCustomSeed = false;
 
   // Whether the selected file name contains characters that are not allowed
@@ -87,115 +95,126 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ScreenshotSensitive(child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           LocaleKeys.walletImportByFileTitle.tr(),
-          style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontSize: 24,
-              ),
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 24),
         ),
         const SizedBox(height: 20),
-        Text(LocaleKeys.walletImportByFileDescription.tr(),
-            style: Theme.of(context).textTheme.bodyLarge),
+        Text(
+          LocaleKeys.walletImportByFileDescription.tr(),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
         const SizedBox(height: 20),
-        Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              UiTextFormField(
-                key: const Key('file-password-field'),
-                controller: _filePasswordController,
-                autofocus: true,
-                textInputAction: TextInputAction.next,
-                autocorrect: false,
-                enableInteractiveSelection: true,
-                obscureText: _isObscured,
-                validator: (_) {
-                  return _filePasswordError;
-                },
-                errorMaxLines: 6,
-                hintText: LocaleKeys.walletCreationPasswordHint.tr(),
-                suffixIcon: PasswordVisibilityControl(
-                  onVisibilityChange: (bool isPasswordObscured) {
-                    setState(() {
-                      _isObscured = isPasswordObscured;
-                    });
+        AutofillGroup(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                UiTextFormField(
+                  key: const Key('file-password-field'),
+                  controller: _filePasswordController,
+                  autofocus: true,
+                  textInputAction: TextInputAction.next,
+                  autocorrect: false,
+                  enableInteractiveSelection: true,
+                  obscureText: _isObscured,
+                  maxLength: passwordMaxLength,
+                  counterText: '',
+                  autofillHints: const [AutofillHints.password],
+                  validator: (_) {
+                    return _filePasswordError;
                   },
-                ),
-              ),
-              const SizedBox(height: 30),
-              Row(children: [
-                const UiGradientIcon(
-                  icon: Icons.folder,
-                  size: 32,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: Text(
-                  widget.fileData.name,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                )),
-              ]),
-              if (_commonError != null)
-                Align(
-                  alignment: const Alignment(-1, 0),
-                  child: SelectableText(
-                    _commonError ?? '',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(color: Theme.of(context).colorScheme.error),
+                  errorMaxLines: 6,
+                  hintText: LocaleKeys.walletCreationPasswordHint.tr(),
+                  suffixIcon: PasswordVisibilityControl(
+                    onVisibilityChange: (bool isPasswordObscured) {
+                      setState(() {
+                        _isObscured = isPasswordObscured;
+                      });
+                    },
                   ),
                 ),
-              const SizedBox(height: 30),
-              HDWalletModeSwitch(
-                value: _isHdMode,
-                onChanged: (value) {
-                  setState(() => _isHdMode = value);
-                },
-              ),
-              const SizedBox(height: 15),
-              if (!_isHdMode)
-                CustomSeedCheckbox(
-                  value: _allowCustomSeed,
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    const UiGradientIcon(icon: Icons.folder, size: 32),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.fileData.name,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_commonError != null)
+                  Align(
+                    alignment: const Alignment(-1, 0),
+                    child: SelectableText(
+                      _commonError ?? '',
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 30),
+                HDWalletModeSwitch(
+                  value: _isHdMode,
                   onChanged: (value) {
+                    setState(() => _isHdMode = value);
+                  },
+                ),
+                const SizedBox(height: 15),
+                if (!_isHdMode)
+                  CustomSeedCheckbox(
+                    value: _allowCustomSeed,
+                    onChanged: (value) {
+                      setState(() {
+                        _allowCustomSeed = value;
+                      });
+                    },
+                  ),
+                const SizedBox(height: 15),
+                EulaTosCheckboxes(
+                  key: const Key('import-wallet-eula-checks'),
+                  isChecked: _eulaAndTosChecked,
+                  onCheck: (isChecked) {
                     setState(() {
-                      _allowCustomSeed = value;
+                      _eulaAndTosChecked = isChecked;
                     });
                   },
                 ),
-              const SizedBox(height: 15),
-              EulaTosCheckboxes(
-                key: const Key('import-wallet-eula-checks'),
-                isChecked: _eulaAndTosChecked,
-                onCheck: (isChecked) {
-                  setState(() {
-                    _eulaAndTosChecked = isChecked;
-                  });
-                },
-              ),
-              const SizedBox(height: 30),
-              UiPrimaryButton(
-                key: const Key('confirm-password-button'),
-                height: 50,
-                text: LocaleKeys.import.tr(),
-                onPressed: _isButtonEnabled ? _onImport : null,
-              ),
-              const SizedBox(height: 20),
-              UiUnderlineTextButton(
-                onPressed: widget.onCancel,
-                text: LocaleKeys.back.tr(),
-              ),
-            ],
+                const SizedBox(height: 20),
+                QuickLoginSwitch(
+                  value: _rememberMe,
+                  onChanged: (value) {
+                    setState(() => _rememberMe = value);
+                  },
+                ),
+                const SizedBox(height: 30),
+                UiPrimaryButton(
+                  key: const Key('confirm-password-button'),
+                  height: 50,
+                  text: LocaleKeys.import.tr(),
+                  onPressed: _isButtonEnabled ? _onImport : null,
+                ),
+                const SizedBox(height: 20),
+                UiUnderlineTextButton(
+                  onPressed: widget.onCancel,
+                  text: LocaleKeys.back.tr(),
+                ),
+              ],
+            ),
           ),
         ),
       ],
-    );
+    ));
   }
 
   @override
@@ -232,12 +251,15 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
     }
     _formKey.currentState?.validate();
     try {
-      final WalletConfig walletConfig =
-          WalletConfig.fromJson(json.decode(fileData));
+      final WalletConfig walletConfig = WalletConfig.fromJson(
+        json.decode(fileData),
+      );
       walletConfig.type = _isHdMode ? WalletType.hdwallet : WalletType.iguana;
 
       final String? decryptedSeed = await encryptionTool.decryptData(
-          _filePasswordController.text, walletConfig.seedPhrase);
+        _filePasswordController.text,
+        walletConfig.seedPhrase,
+      );
       if (decryptedSeed == null) return;
       if (!_isValidData) return;
 
@@ -261,10 +283,13 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
         });
         return;
       }
+      // Close autofill context after successfully validating password & before import
+      TextInput.finishAutofillContext(shouldSave: false);
       widget.onImport(
         name: name,
         password: _filePasswordController.text,
         walletConfig: walletConfig,
+        rememberMe: _rememberMe,
       );
     } catch (_) {
       setState(() {

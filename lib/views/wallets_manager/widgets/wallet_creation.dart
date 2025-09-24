@@ -10,8 +10,10 @@ import 'package:web_dex/model/wallets_manager_models.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletCreation extends StatefulWidget {
   const WalletCreation({
@@ -26,7 +28,9 @@ class WalletCreation extends StatefulWidget {
     required String name,
     required String password,
     WalletType? walletType,
-  }) onCreate;
+    required bool rememberMe,
+  })
+  onCreate;
   final void Function() onCancel;
 
   @override
@@ -42,6 +46,8 @@ class _WalletCreationState extends State<WalletCreation> {
   bool _eulaAndTosChecked = false;
   bool _inProgress = false;
   bool _isHdMode = true;
+  bool _rememberMe = false;
+  bool _arePasswordsValid = false;
 
   late final WalletsRepository _walletsRepository;
 
@@ -86,51 +92,53 @@ class _WalletCreationState extends State<WalletCreation> {
           );
         }
       },
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.action == WalletsManagerAction.create
-                  ? LocaleKeys.walletCreationTitle.tr()
-                  : LocaleKeys.walletImportTitle.tr(),
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontSize: 18),
-            ),
-            const SizedBox(height: 24),
-            _buildFields(),
-            const SizedBox(height: 22),
-            EulaTosCheckboxes(
-              key: const Key('create-wallet-eula-checks'),
-              isChecked: _eulaAndTosChecked,
-              onCheck: (isChecked) {
-                setState(() {
-                  _eulaAndTosChecked = isChecked;
-                });
-              },
-            ),
-            const SizedBox(height: 32),
-            UiPrimaryButton(
-              key: const Key('confirm-password-button'),
-              height: 50,
-              text: _inProgress
-                  ? '${LocaleKeys.pleaseWait.tr()}...'
-                  : LocaleKeys.create.tr(),
-              textStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+      child: AutofillGroup(
+        child: ScreenshotSensitive(child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.action == WalletsManagerAction.create
+                    ? LocaleKeys.walletCreationTitle.tr()
+                    : LocaleKeys.walletImportTitle.tr(),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 18),
               ),
-              onPressed: _isCreateButtonEnabled ? _onCreate : null,
-            ),
-            const SizedBox(height: 20),
-            UiUnderlineTextButton(
-              onPressed: widget.onCancel,
-              text: LocaleKeys.cancel.tr(),
-            ),
-          ],
-        ),
+              const SizedBox(height: 24),
+              _buildFields(),
+              const SizedBox(height: 22),
+              EulaTosCheckboxes(
+                key: const Key('create-wallet-eula-checks'),
+                isChecked: _eulaAndTosChecked,
+                onCheck: (isChecked) {
+                  setState(() {
+                    _eulaAndTosChecked = isChecked;
+                  });
+                },
+              ),
+              const SizedBox(height: 32),
+              UiPrimaryButton(
+                key: const Key('confirm-password-button'),
+                height: 50,
+                text: _inProgress
+                    ? '${LocaleKeys.pleaseWait.tr()}...'
+                    : LocaleKeys.create.tr(),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+                onPressed: _isCreateButtonEnabled ? _onCreate : null,
+              ),
+              const SizedBox(height: 20),
+              UiUnderlineTextButton(
+                onPressed: widget.onCancel,
+                text: LocaleKeys.cancel.tr(),
+              ),
+            ],
+          ),
+        )),
       ),
     );
   }
@@ -152,6 +160,9 @@ class _WalletCreationState extends State<WalletCreation> {
         const SizedBox(height: 20),
         CreationPasswordFields(
           passwordController: _passwordController,
+          onValidityChanged: (isValid) {
+            if (mounted) setState(() => _arePasswordsValid = isValid);
+          },
           onFieldSubmitted: (_) {
             if (_isCreateButtonEnabled) _onCreate();
           },
@@ -161,6 +172,14 @@ class _WalletCreationState extends State<WalletCreation> {
           value: _isHdMode,
           onChanged: (value) {
             setState(() => _isHdMode = value);
+          },
+        ),
+        const SizedBox(height: 20),
+        QuickLoginSwitch(
+          key: const Key('checkbox-one-click-login-signup'),
+          value: _rememberMe,
+          onChanged: (value) {
+            setState(() => _rememberMe = value);
           },
         ),
       ],
@@ -176,6 +195,7 @@ class _WalletCreationState extends State<WalletCreation> {
       autocorrect: false,
       textInputAction: TextInputAction.next,
       enableInteractiveSelection: true,
+      autofillHints: const [AutofillHints.username],
       validator: (String? name) =>
           _inProgress ? null : walletsRepository.validateWalletName(name ?? ''),
       inputFormatters: [LengthLimitingTextInputFormatter(40)],
@@ -189,17 +209,25 @@ class _WalletCreationState extends State<WalletCreation> {
     setState(() => _inProgress = true);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // Complete autofill session so password managers can save new credentials
+      TextInput.finishAutofillContext(shouldSave: true);
       widget.onCreate(
         name: _nameController.text.trim(),
         password: _passwordController.text,
         walletType: _isHdMode ? WalletType.hdwallet : WalletType.iguana,
+        rememberMe: _rememberMe,
       );
     });
   }
 
   bool get _isCreateButtonEnabled {
-    final nameError = _walletsRepository.validateWalletName(_nameController.text);
+    final nameError = _walletsRepository.validateWalletName(
+      _nameController.text,
+    );
     final isNameValid = nameError == null;
-    return _eulaAndTosChecked && !_inProgress && isNameValid;
+    return _eulaAndTosChecked &&
+        !_inProgress &&
+        isNameValid &&
+        _arePasswordsValid;
   }
 }
