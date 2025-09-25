@@ -328,6 +328,26 @@ abstract class LocaleKeys {
   static const feedbackFormDescription = 'feedbackFormDescription';
   static const feedbackFormThanksTitle = 'feedbackFormThanksTitle';
   static const feedbackFormThanksDescription = 'feedbackFormThanksDescription';
+  static const feedbackFormKindQuestion = 'feedbackFormKindQuestion';
+  static const feedbackFormDescribeTitle = 'feedbackFormDescribeTitle';
+  static const feedbackFormContactRequired = 'feedbackFormContactRequired';
+  static const feedbackFormContactOptional = 'feedbackFormContactOptional';
+  static const feedbackFormMessageHint = 'feedbackFormMessageHint';
+  static const feedbackFormBugReport = 'feedbackFormBugReport';
+  static const feedbackFormFeatureRequest = 'feedbackFormFeatureRequest';
+  static const feedbackFormSupportRequest = 'feedbackFormSupportRequest';
+  static const feedbackFormOther = 'feedbackFormOther';
+  static const feedbackFormDiscord = 'feedbackFormDiscord';
+  static const feedbackFormMatrix = 'feedbackFormMatrix';
+  static const feedbackFormTelegram = 'feedbackFormTelegram';
+  static const feedbackFormSelectContactMethod =
+      'feedbackFormSelectContactMethod';
+  static const feedbackFormDiscordHint = 'feedbackFormDiscordHint';
+  static const feedbackFormMatrixHint = 'feedbackFormMatrixHint';
+  static const feedbackFormTelegramHint = 'feedbackFormTelegramHint';
+  static const feedbackFormEmailHint = 'feedbackFormEmailHint';
+  static const feedbackFormContactHint = 'feedbackFormContactHint';
+  static const feedbackFormContactOptOut = 'feedbackFormContactOptOut';
   static const email = 'email';
   static const emailValidatorError = 'emailValidatorError';
   static const contactRequiredError = 'contactRequiredError';
@@ -525,7 +545,6 @@ abstract class LocaleKeys {
   static const feedback = 'feedback';
   static const feedbackViewTitle = 'feedbackViewTitle';
   static const feedbackPageDescription = 'feedbackPageDescription';
-  static const sendFeedbackButton = 'sendFeedbackButton';
   static const feedbackThankyou = 'feedbackThankyou';
   static const feedbackError = 'feedbackError';
   static const selectAToken = 'selectAToken';

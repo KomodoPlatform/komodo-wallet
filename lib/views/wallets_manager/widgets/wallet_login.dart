@@ -13,9 +13,10 @@ import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
-import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/shared/constants.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletLogIn extends StatefulWidget {
   const WalletLogIn({
@@ -103,7 +104,7 @@ class _WalletLogInState extends State<WalletLogIn> {
             : state.authError?.message;
 
         return AutofillGroup(
-          child: Column(
+          child: ScreenshotSensitive(child: Column(
             mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
             children: [
               Text(
@@ -166,7 +167,7 @@ class _WalletLogInState extends State<WalletLogIn> {
                 text: LocaleKeys.cancel.tr(),
               ),
             ],
-          ),
+          )),
         );
       },
     );
@@ -309,10 +310,10 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           autocorrect: false,
           controller: widget.controller,
           obscureText: _isPasswordObscured,
-          maxLength: passwordMaxLength,
-          counterText: '',
           errorText: widget.errorText,
           autofillHints: widget.autofillHints ?? const [AutofillHints.password],
+          maxLength: passwordMaxLength,
+          counterText: '',
           hintText: LocaleKeys.walletCreationPasswordHint.tr(),
           suffixIcon: PasswordVisibilityControl(
             onVisibilityChange: onVisibilityChange,

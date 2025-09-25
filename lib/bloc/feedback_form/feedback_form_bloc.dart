@@ -15,6 +15,7 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     on<FeedbackFormMessageChanged>(_onMessageChanged);
     on<FeedbackFormContactMethodChanged>(_onContactMethodChanged);
     on<FeedbackFormContactDetailsChanged>(_onContactDetailsChanged);
+    on<FeedbackFormContactOptOutChanged>(_onContactOptOutChanged);
     on<FeedbackFormSubmitted>(_onSubmitted);
   }
 
@@ -77,6 +78,33 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
     emit(state.copyWith(contactDetails: details, contactDetailsError: error));
   }
 
+  void _onContactOptOutChanged(
+    FeedbackFormContactOptOutChanged event,
+    Emitter<FeedbackFormState> emit,
+  ) {
+    if (event.optOut && !state.isSupportType) {
+      emit(
+        state.copyWith(
+          contactOptOut: true,
+          contactMethod: null,
+          contactDetails: '',
+          contactDetailsError: null,
+        ),
+      );
+      return;
+    }
+
+    final error = _validateContactDetails(
+      state.contactDetails,
+      state.feedbackType,
+      state.contactMethod,
+      contactOptOut: event.optOut,
+    );
+    emit(
+      state.copyWith(contactOptOut: event.optOut, contactDetailsError: error),
+    );
+  }
+
   Future<void> _onSubmitted(
     FeedbackFormSubmitted event,
     Emitter<FeedbackFormState> emit,
@@ -135,19 +163,27 @@ class FeedbackFormBloc extends Bloc<FeedbackFormEvent, FeedbackFormState> {
   String? _validateContactDetails(
     String value,
     FeedbackType? type,
-    ContactMethod? method,
-  ) {
+    ContactMethod? method, {
+    bool? contactOptOut,
+  }) {
     final trimmed = value.trim();
     final hasMethod = method != null;
     final hasDetails = trimmed.isNotEmpty;
+    final optedOut = contactOptOut ?? state.contactOptOut;
 
     if (type == FeedbackType.support || type == FeedbackType.missingCoins) {
       if (!hasMethod || !hasDetails) {
         return LocaleKeys.contactRequiredError.tr();
       }
     } else {
-      if ((hasMethod && !hasDetails) || (!hasMethod && hasDetails)) {
-        return LocaleKeys.contactRequiredError.tr();
+      if (!optedOut) {
+        if (!hasMethod || !hasDetails) {
+          return LocaleKeys.contactRequiredError.tr();
+        }
+      } else {
+        if ((hasMethod && !hasDetails) || (!hasMethod && hasDetails)) {
+          return LocaleKeys.contactRequiredError.tr();
+        }
       }
     }
 

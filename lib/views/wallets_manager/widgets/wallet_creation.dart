@@ -13,6 +13,7 @@ import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletCreation extends StatefulWidget {
   const WalletCreation({
@@ -46,6 +47,7 @@ class _WalletCreationState extends State<WalletCreation> {
   bool _inProgress = false;
   bool _isHdMode = true;
   bool _rememberMe = false;
+  bool _arePasswordsValid = false;
 
   late final WalletsRepository _walletsRepository;
 
@@ -91,7 +93,7 @@ class _WalletCreationState extends State<WalletCreation> {
         }
       },
       child: AutofillGroup(
-        child: Form(
+        child: ScreenshotSensitive(child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -136,7 +138,7 @@ class _WalletCreationState extends State<WalletCreation> {
               ),
             ],
           ),
-        ),
+        )),
       ),
     );
   }
@@ -158,6 +160,9 @@ class _WalletCreationState extends State<WalletCreation> {
         const SizedBox(height: 20),
         CreationPasswordFields(
           passwordController: _passwordController,
+          onValidityChanged: (isValid) {
+            if (mounted) setState(() => _arePasswordsValid = isValid);
+          },
           onFieldSubmitted: (_) {
             if (_isCreateButtonEnabled) _onCreate();
           },
@@ -220,6 +225,9 @@ class _WalletCreationState extends State<WalletCreation> {
       _nameController.text,
     );
     final isNameValid = nameError == null;
-    return _eulaAndTosChecked && !_inProgress && isNameValid;
+    return _eulaAndTosChecked &&
+        !_inProgress &&
+        isNameValid &&
+        _arePasswordsValid;
   }
 }

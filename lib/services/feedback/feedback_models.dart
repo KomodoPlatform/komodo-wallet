@@ -96,15 +96,15 @@ extension FeedbackTypeDescription on FeedbackType {
   String get description {
     switch (this) {
       case FeedbackType.bugReport:
-        return 'Bug Report';
+        return LocaleKeys.feedbackFormBugReport.tr();
       case FeedbackType.featureRequest:
-        return 'Feature Request';
+        return LocaleKeys.feedbackFormFeatureRequest.tr();
       case FeedbackType.support:
-        return 'Support Request';
+        return LocaleKeys.feedbackFormSupportRequest.tr();
       case FeedbackType.missingCoins:
         return LocaleKeys.myCoinsMissing.tr();
       case FeedbackType.other:
-        return 'Other';
+        return LocaleKeys.feedbackFormOther.tr();
     }
   }
 }
@@ -115,11 +115,11 @@ extension ContactMethodLabel on ContactMethod {
   String get label {
     switch (this) {
       case ContactMethod.discord:
-        return 'Discord';
+        return LocaleKeys.feedbackFormDiscord.tr();
       case ContactMethod.matrix:
-        return 'Matrix';
+        return LocaleKeys.feedbackFormMatrix.tr();
       case ContactMethod.telegram:
-        return 'Telegram';
+        return LocaleKeys.feedbackFormTelegram.tr();
       case ContactMethod.email:
         return LocaleKeys.email.tr();
     }

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
@@ -268,38 +268,43 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsPricesUpdated event,
     Emitter<CoinsState> emit,
   ) async {
-    final prices = await _coinsRepo.fetchCurrentPrices();
-    if (prices == null) {
-      _log.severe('Coin prices list empty/null');
-      return;
-    }
-    final didPricesChange = !mapEquals(state.prices, prices);
-    if (!didPricesChange) {
-      _log.info('Coin prices list unchanged');
-      return;
-    }
+    try {
+      final prices = await _coinsRepo.fetchCurrentPrices();
+      if (prices == null) {
+        _log.severe('Coin prices list empty/null');
+        return;
+      }
+      final didPricesChange = !mapEquals(state.prices, prices);
+      if (!didPricesChange) {
+        _log.info('Coin prices list unchanged');
+        return;
+      }
 
-    Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
-      final map = coins.map((key, coin) {
-        // Use configSymbol to lookup for backwards compatibility with the old,
-        // string-based price list (and fallback)
-        final price = prices[coin.id.symbol.configSymbol];
-        if (price != null) {
-          return MapEntry(key, coin.copyWith(usdPrice: price));
-        }
-        return MapEntry(key, coin);
-      });
+      Map<String, Coin> updateCoinsWithPrices(Map<String, Coin> coins) {
+        final map = coins.map((key, coin) {
+          // Use configSymbol to lookup for backwards compatibility with the old,
+          // string-based price list (and fallback)
+          final price = prices[coin.id.symbol.configSymbol];
+          if (price != null) {
+            return MapEntry(key, coin.copyWith(usdPrice: price));
+          }
+          return MapEntry(key, coin);
+        });
 
-      return Map.of(map).unmodifiable();
+        // .map already returns a new map, so we don't need to create a new map
+        return map.unmodifiable();
+      }
+
+      emit(
+        state.copyWith(
+          prices: prices.unmodifiable(),
+          coins: updateCoinsWithPrices(state.coins),
+          walletCoins: updateCoinsWithPrices(state.walletCoins),
+        ),
+      );
+    } catch (e, s) {
+      _log.shout('Error on prices updated', e, s);
     }
-
-    emit(
-      state.copyWith(
-        prices: prices.unmodifiable(),
-        coins: updateCoinsWithPrices(state.coins),
-        walletCoins: updateCoinsWithPrices(state.walletCoins),
-      ),
-    );
   }
 
   Future<void> _onLogin(
@@ -356,12 +361,11 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     // activation loops for assets not supported by the SDK.this may happen if the wallet
     // has assets that were removed from the SDK or the config has unsupported default
     // assets.
-    final coinsToActivate = coins
+    // This is also important for coin delistings.
+    final enableFutures = coins
         .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
-        .where((assetsSet) => assetsSet.isNotEmpty)
-        .map((assetsSet) => assetsSet.single);
-
-    final enableFutures = coinsToActivate
+        .where((assets) => assets.isNotEmpty)
+        .map((assets) => assets.single)
         .map((asset) => _coinsRepo.activateAssetsSync([asset]))
         .toList();
 

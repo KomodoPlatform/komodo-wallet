@@ -6,6 +6,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/views/common/hw_wallet_dialog/constants.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 const List<List<int>> _keys = [
   [7, 8, 9],
@@ -44,7 +45,7 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardListener(
+    return ScreenshotSensitive(child: KeyboardListener(
       autofocus: true,
       onKeyEvent: _onKeyEvent,
       focusNode: _focus,
@@ -67,7 +68,7 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
           _buildButtons(),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildObscuredPin() {
