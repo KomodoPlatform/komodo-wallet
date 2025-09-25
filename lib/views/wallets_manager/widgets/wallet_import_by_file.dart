@@ -254,8 +254,13 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
         context,
       );
 
+      // Check both validation and uniqueness
       String? validationError = walletsRepository.validateWalletName(name);
-      if (validationError != null) {
+      String? uniquenessError = await walletsRepository
+          .validateWalletNameUniqueness(name);
+
+      // If either validation or uniqueness fails, prompt for renaming
+      if (validationError != null || uniquenessError != null) {
         if (!mounted) return;
         final newName = await walletRenameDialog(context, initialName: name);
         if (newName == null) {
@@ -267,18 +272,12 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
           return;
         }
         // Async uniqueness check before proceeding with renamed value
-        final uniquenessError = await walletsRepository
+        final postUniquenessError = await walletsRepository
             .validateWalletNameUniqueness(newName);
-        if (uniquenessError != null) {
+        if (postUniquenessError != null) {
           return;
         }
         name = newName.trim();
-      }
-      // Async uniqueness check before proceeding with original value
-      final uniquenessError = await walletsRepository
-          .validateWalletNameUniqueness(name);
-      if (uniquenessError != null) {
-        return;
       }
       // Close autofill context after successfully validating password & before import
       TextInput.finishAutofillContext(shouldSave: false);
