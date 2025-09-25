@@ -42,82 +42,84 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    return ScreenshotSensitive(child: DexScrollbar(
-      isMobile: isMobile,
-      scrollController: scrollController,
-      child: SingleChildScrollView(
-        controller: scrollController,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            if (!isMobile)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: SeedBackButton(() {
-                  context.read<AnalyticsBloc>().add(
-                    AnalyticsBackupSkippedEvent(
-                      stageSkipped: 'seed_confirm',
-                      walletType:
-                          context
-                              .read<AuthBloc>()
-                              .state
-                              .currentUser
-                              ?.wallet
-                              .config
-                              .type
-                              .name ??
-                          '',
+    return ScreenshotSensitive(
+      child: DexScrollbar(
+        isMobile: isMobile,
+        scrollController: scrollController,
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              if (!isMobile)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: SeedBackButton(() {
+                    context.read<AnalyticsBloc>().add(
+                      AnalyticsBackupSkippedEvent(
+                        stageSkipped: 'seed_confirm',
+                        walletType:
+                            context
+                                .read<AuthBloc>()
+                                .state
+                                .currentUser
+                                ?.wallet
+                                .config
+                                .type
+                                .name ??
+                            '',
+                      ),
+                    );
+                    context.read<SecuritySettingsBloc>().add(
+                      const ShowSeedEvent(),
+                    );
+                  }),
+                ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(right: 10),
+                      child: _Title(),
                     ),
-                  );
-                  context.read<SecuritySettingsBloc>().add(
-                    const ShowSeedEvent(),
-                  );
-                }),
-              ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 680),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: _Title(),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: _SelectedWordsField(
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: _SelectedWordsField(
+                        selectedWords: _selectedWords,
+                        confirmationError: _confirmationError,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _JumbledSeedWords(
+                      words: _jumbledWords,
                       selectedWords: _selectedWords,
-                      confirmationError: _confirmationError,
+                      onWordPressed: _onWordPressed,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  _JumbledSeedWords(
-                    words: _jumbledWords,
-                    selectedWords: _selectedWords,
-                    onWordPressed: _onWordPressed,
-                  ),
-                  const SizedBox(height: 24),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: _ControlButtons(
-                      onConfirmPressed: _isReadyForCheck
-                          ? () => _onConfirmPressed()
-                          : null,
-                      onClearPressed: _clear,
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: _ControlButtons(
+                        onConfirmPressed: _isReadyForCheck
+                            ? () => _onConfirmPressed()
+                            : null,
+                        onClearPressed: _clear,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   void _onWordPressed(_SeedWord word) {

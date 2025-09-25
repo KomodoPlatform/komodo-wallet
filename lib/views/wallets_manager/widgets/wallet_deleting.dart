@@ -34,52 +34,54 @@ class _WalletDeletingState extends State<WalletDeleting> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenshotSensitive(child: Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          _buildHeader(),
-          Padding(
-            padding: const EdgeInsets.only(top: 18.0),
-            child: Text(
-              LocaleKeys.deleteWalletTitle.tr(args: [widget.wallet.name]),
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontSize: 16),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              LocaleKeys.deleteWalletInfo.tr(),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+    return ScreenshotSensitive(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            _buildHeader(),
+            Padding(
+              padding: const EdgeInsets.only(top: 18.0),
+              child: Text(
+                LocaleKeys.deleteWalletTitle.tr(args: [widget.wallet.name]),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 16),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0),
-            child: _PasswordField(
-              controller: _passwordController,
-              errorText: _error,
-              onFieldSubmitted: _isDeleting ? null : _deleteWallet,
-              onChanged: _handlePasswordChanged,
-              validator: (password) {
-                if (password == null || password.isEmpty) {
-                  return LocaleKeys.passwordIsEmpty.tr();
-                }
-                return null;
-              },
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                LocaleKeys.deleteWalletInfo.tr(),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 25.0),
-            child: _buildButtons(),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: _PasswordField(
+                controller: _passwordController,
+                errorText: _error,
+                onFieldSubmitted: _isDeleting ? null : _deleteWallet,
+                onChanged: _handlePasswordChanged,
+                validator: (password) {
+                  if (password == null || password.isEmpty) {
+                    return LocaleKeys.passwordIsEmpty.tr();
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 25.0),
+              child: _buildButtons(),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   Widget _buildHeader() {

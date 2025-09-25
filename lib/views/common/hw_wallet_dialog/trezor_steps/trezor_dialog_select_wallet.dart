@@ -14,26 +14,28 @@ class TrezorDialogSelectWallet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenshotSensitive(child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          LocaleKeys.selectWalletType.tr(),
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 18),
-        _TrezorStandardWallet(onTap: () => onComplete('')),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 6.0),
-          child: UiDivider(),
-        ),
-        _TrezorHiddenWallet(
-          onSubmit: (String passphrase) => onComplete(passphrase),
-        ),
-      ],
-    ));
+    return ScreenshotSensitive(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            LocaleKeys.selectWalletType.tr(),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 18),
+          _TrezorStandardWallet(onTap: () => onComplete('')),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 6.0),
+            child: UiDivider(),
+          ),
+          _TrezorHiddenWallet(
+            onSubmit: (String passphrase) => onComplete(passphrase),
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -21,7 +21,8 @@ class ScreenshotSensitivityController extends ChangeNotifier {
 }
 
 /// Inherited notifier providing access to the ScreenshotSensitivityController.
-class ScreenshotSensitivity extends InheritedNotifier<ScreenshotSensitivityController> {
+class ScreenshotSensitivity
+    extends InheritedNotifier<ScreenshotSensitivityController> {
   const ScreenshotSensitivity({
     super.key,
     required ScreenshotSensitivityController controller,
@@ -29,12 +30,17 @@ class ScreenshotSensitivity extends InheritedNotifier<ScreenshotSensitivityContr
   }) : super(notifier: controller, child: child);
 
   static ScreenshotSensitivityController? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ScreenshotSensitivity>()?.notifier;
+    return context
+        .dependOnInheritedWidgetOfExactType<ScreenshotSensitivity>()
+        ?.notifier;
   }
 
   static ScreenshotSensitivityController of(BuildContext context) {
     final controller = maybeOf(context);
-    assert(controller != null, 'ScreenshotSensitivity not found in widget tree');
+    assert(
+      controller != null,
+      'ScreenshotSensitivity not found in widget tree',
+    );
     return controller!;
   }
 }
@@ -77,4 +83,3 @@ extension ScreenshotSensitivityContextExt on BuildContext {
   bool get isScreenshotSensitive =>
       ScreenshotSensitivity.maybeOf(this)?.isSensitive ?? false;
 }
-

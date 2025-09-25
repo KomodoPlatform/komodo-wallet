@@ -104,70 +104,72 @@ class _WalletLogInState extends State<WalletLogIn> {
             : state.authError?.message;
 
         return AutofillGroup(
-          child: ScreenshotSensitive(child: Column(
-            mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
-            children: [
-              Text(
-                LocaleKeys.walletLogInTitle.tr(),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontSize: 18),
-              ),
-              const SizedBox(height: 24),
-              UiTextFormField(
-                key: const Key('wallet-field'),
-                initialValue: widget.wallet.name,
-                readOnly: true,
-                autocorrect: false,
-                autofillHints: const [AutofillHints.username],
-              ),
-              const SizedBox(height: 16),
-              PasswordTextField(
-                onFieldSubmitted: state.isLoading ? null : _submitLogin,
-                controller: _passwordController,
-                errorText: errorMessage,
-                autofillHints: const [AutofillHints.password],
-                isQuickLoginEnabled: _isQuickLoginEnabled,
-              ),
-              const SizedBox(height: 32),
-              QuickLoginSwitch(
-                value: _isQuickLoginEnabled,
-                onChanged: (value) {
-                  setState(() => _isQuickLoginEnabled = value);
-                },
-              ),
-              const SizedBox(height: 16),
-              if (_user != null && _user!.isBip39Seed == true) ...[
-                HDWalletModeSwitch(
-                  value: _isHdMode,
-                  onChanged: (value) {
-                    setState(() => _isHdMode = value);
-                  },
+          child: ScreenshotSensitive(
+            child: Column(
+              mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                Text(
+                  LocaleKeys.walletLogInTitle.tr(),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontSize: 18),
                 ),
                 const SizedBox(height: 24),
-              ],
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                child: UiPrimaryButton(
-                  height: 50,
-                  text: state.isLoading
-                      ? '${LocaleKeys.pleaseWait.tr()}...'
-                      : LocaleKeys.logIn.tr(),
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  onPressed: state.isLoading ? null : _submitLogin,
+                UiTextFormField(
+                  key: const Key('wallet-field'),
+                  initialValue: widget.wallet.name,
+                  readOnly: true,
+                  autocorrect: false,
+                  autofillHints: const [AutofillHints.username],
                 ),
-              ),
-              const SizedBox(height: 8),
-              UiUnderlineTextButton(
-                key: _backKeyButton,
-                onPressed: widget.onCancel,
-                text: LocaleKeys.cancel.tr(),
-              ),
-            ],
-          )),
+                const SizedBox(height: 16),
+                PasswordTextField(
+                  onFieldSubmitted: state.isLoading ? null : _submitLogin,
+                  controller: _passwordController,
+                  errorText: errorMessage,
+                  autofillHints: const [AutofillHints.password],
+                  isQuickLoginEnabled: _isQuickLoginEnabled,
+                ),
+                const SizedBox(height: 32),
+                QuickLoginSwitch(
+                  value: _isQuickLoginEnabled,
+                  onChanged: (value) {
+                    setState(() => _isQuickLoginEnabled = value);
+                  },
+                ),
+                const SizedBox(height: 16),
+                if (_user != null && _user!.isBip39Seed == true) ...[
+                  HDWalletModeSwitch(
+                    value: _isHdMode,
+                    onChanged: (value) {
+                      setState(() => _isHdMode = value);
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                  child: UiPrimaryButton(
+                    height: 50,
+                    text: state.isLoading
+                        ? '${LocaleKeys.pleaseWait.tr()}...'
+                        : LocaleKeys.logIn.tr(),
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    onPressed: state.isLoading ? null : _submitLogin,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                UiUnderlineTextButton(
+                  key: _backKeyButton,
+                  onPressed: widget.onCancel,
+                  text: LocaleKeys.cancel.tr(),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

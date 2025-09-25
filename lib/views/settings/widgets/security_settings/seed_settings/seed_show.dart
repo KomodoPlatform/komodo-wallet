@@ -30,65 +30,69 @@ class SeedShow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    return ScreenshotSensitive(child: DexScrollbar(
-      scrollController: scrollController,
-      child: SingleChildScrollView(
-        controller: scrollController,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            if (!isMobile)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: SeedBackButton(() {
-                  context.read<AnalyticsBloc>().add(
-                    AnalyticsBackupSkippedEvent(
-                      stageSkipped: 'seed_show',
-                      walletType:
-                          context
-                              .read<AuthBloc>()
-                              .state
-                              .currentUser
-                              ?.wallet
-                              .config
-                              .type
-                              .name ??
-                          '',
+    return ScreenshotSensitive(
+      child: DexScrollbar(
+        scrollController: scrollController,
+        child: SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              if (!isMobile)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: SeedBackButton(() {
+                    context.read<AnalyticsBloc>().add(
+                      AnalyticsBackupSkippedEvent(
+                        stageSkipped: 'seed_show',
+                        walletType:
+                            context
+                                .read<AuthBloc>()
+                                .state
+                                .currentUser
+                                ?.wallet
+                                .config
+                                .type
+                                .name ??
+                            '',
+                      ),
+                    );
+                    context.read<SecuritySettingsBloc>().add(
+                      const ResetEvent(),
+                    );
+                  }),
+                ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _TitleRow(),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _ShowingSwitcher(),
+                        _CopySeedButton(seed: seedPhrase),
+                      ],
                     ),
-                  );
-                  context.read<SecuritySettingsBloc>().add(const ResetEvent());
-                }),
+                    const SizedBox(height: 16),
+                    Flexible(child: _SeedPlace(seedPhrase: seedPhrase)),
+                    const SizedBox(height: 20),
+                    _SeedPhraseConfirmButton(seedPhrase: seedPhrase),
+                    const SizedBox(height: 40),
+                    _PrivateKeysList(privKeys: privKeys),
+                  ],
+                ),
               ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 680),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _TitleRow(),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _ShowingSwitcher(),
-                      _CopySeedButton(seed: seedPhrase),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Flexible(child: _SeedPlace(seedPhrase: seedPhrase)),
-                  const SizedBox(height: 20),
-                  _SeedPhraseConfirmButton(seedPhrase: seedPhrase),
-                  const SizedBox(height: 40),
-                  _PrivateKeysList(privKeys: privKeys),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }
 

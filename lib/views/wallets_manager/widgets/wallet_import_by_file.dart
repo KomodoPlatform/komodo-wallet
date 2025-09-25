@@ -95,126 +95,130 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenshotSensitive(child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          LocaleKeys.walletImportByFileTitle.tr(),
-          style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 24),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          LocaleKeys.walletImportByFileDescription.tr(),
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
-        AutofillGroup(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                UiTextFormField(
-                  key: const Key('file-password-field'),
-                  controller: _filePasswordController,
-                  autofocus: true,
-                  textInputAction: TextInputAction.next,
-                  autocorrect: false,
-                  enableInteractiveSelection: true,
-                  obscureText: _isObscured,
-                  maxLength: passwordMaxLength,
-                  counterText: '',
-                  autofillHints: const [AutofillHints.password],
-                  validator: (_) {
-                    return _filePasswordError;
-                  },
-                  errorMaxLines: 6,
-                  hintText: LocaleKeys.walletCreationPasswordHint.tr(),
-                  suffixIcon: PasswordVisibilityControl(
-                    onVisibilityChange: (bool isPasswordObscured) {
-                      setState(() {
-                        _isObscured = isPasswordObscured;
-                      });
+    return ScreenshotSensitive(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            LocaleKeys.walletImportByFileTitle.tr(),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge!.copyWith(fontSize: 24),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            LocaleKeys.walletImportByFileDescription.tr(),
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 20),
+          AutofillGroup(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  UiTextFormField(
+                    key: const Key('file-password-field'),
+                    controller: _filePasswordController,
+                    autofocus: true,
+                    textInputAction: TextInputAction.next,
+                    autocorrect: false,
+                    enableInteractiveSelection: true,
+                    obscureText: _isObscured,
+                    maxLength: passwordMaxLength,
+                    counterText: '',
+                    autofillHints: const [AutofillHints.password],
+                    validator: (_) {
+                      return _filePasswordError;
                     },
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Row(
-                  children: [
-                    const UiGradientIcon(icon: Icons.folder, size: 32),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        widget.fileData.name,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                if (_commonError != null)
-                  Align(
-                    alignment: const Alignment(-1, 0),
-                    child: SelectableText(
-                      _commonError ?? '',
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                    errorMaxLines: 6,
+                    hintText: LocaleKeys.walletCreationPasswordHint.tr(),
+                    suffixIcon: PasswordVisibilityControl(
+                      onVisibilityChange: (bool isPasswordObscured) {
+                        setState(() {
+                          _isObscured = isPasswordObscured;
+                        });
+                      },
                     ),
                   ),
-                const SizedBox(height: 30),
-                HDWalletModeSwitch(
-                  value: _isHdMode,
-                  onChanged: (value) {
-                    setState(() => _isHdMode = value);
-                  },
-                ),
-                const SizedBox(height: 15),
-                if (!_isHdMode)
-                  CustomSeedCheckbox(
-                    value: _allowCustomSeed,
+                  const SizedBox(height: 30),
+                  Row(
+                    children: [
+                      const UiGradientIcon(icon: Icons.folder, size: 32),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          widget.fileData.name,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_commonError != null)
+                    Align(
+                      alignment: const Alignment(-1, 0),
+                      child: SelectableText(
+                        _commonError ?? '',
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 30),
+                  HDWalletModeSwitch(
+                    value: _isHdMode,
                     onChanged: (value) {
+                      setState(() => _isHdMode = value);
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  if (!_isHdMode)
+                    CustomSeedCheckbox(
+                      value: _allowCustomSeed,
+                      onChanged: (value) {
+                        setState(() {
+                          _allowCustomSeed = value;
+                        });
+                      },
+                    ),
+                  const SizedBox(height: 15),
+                  EulaTosCheckboxes(
+                    key: const Key('import-wallet-eula-checks'),
+                    isChecked: _eulaAndTosChecked,
+                    onCheck: (isChecked) {
                       setState(() {
-                        _allowCustomSeed = value;
+                        _eulaAndTosChecked = isChecked;
                       });
                     },
                   ),
-                const SizedBox(height: 15),
-                EulaTosCheckboxes(
-                  key: const Key('import-wallet-eula-checks'),
-                  isChecked: _eulaAndTosChecked,
-                  onCheck: (isChecked) {
-                    setState(() {
-                      _eulaAndTosChecked = isChecked;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                QuickLoginSwitch(
-                  value: _rememberMe,
-                  onChanged: (value) {
-                    setState(() => _rememberMe = value);
-                  },
-                ),
-                const SizedBox(height: 30),
-                UiPrimaryButton(
-                  key: const Key('confirm-password-button'),
-                  height: 50,
-                  text: LocaleKeys.import.tr(),
-                  onPressed: _isButtonEnabled ? _onImport : null,
-                ),
-                const SizedBox(height: 20),
-                UiUnderlineTextButton(
-                  onPressed: widget.onCancel,
-                  text: LocaleKeys.back.tr(),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  QuickLoginSwitch(
+                    value: _rememberMe,
+                    onChanged: (value) {
+                      setState(() => _rememberMe = value);
+                    },
+                  ),
+                  const SizedBox(height: 30),
+                  UiPrimaryButton(
+                    key: const Key('confirm-password-button'),
+                    height: 50,
+                    text: LocaleKeys.import.tr(),
+                    onPressed: _isButtonEnabled ? _onImport : null,
+                  ),
+                  const SizedBox(height: 20),
+                  UiUnderlineTextButton(
+                    onPressed: widget.onCancel,
+                    text: LocaleKeys.back.tr(),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 
   @override

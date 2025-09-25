@@ -45,30 +45,32 @@ class _TrezorDialogPinPadState extends State<TrezorDialogPinPad> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenshotSensitive(child: KeyboardListener(
-      autofocus: true,
-      onKeyEvent: _onKeyEvent,
-      focusNode: _focus,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(LocaleKeys.trezorEnterPinTitle.tr(), style: trezorDialogTitle),
-          const SizedBox(height: 4),
-          Text(
-            LocaleKeys.trezorEnterPinHint.tr(),
-            style: trezorDialogDescription,
-          ),
-          const SizedBox(height: 12),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 30),
-            child: _buildObscuredPin(),
-          ),
-          const SizedBox(height: 12),
-          _buildKeys(),
-          _buildButtons(),
-        ],
+    return ScreenshotSensitive(
+      child: KeyboardListener(
+        autofocus: true,
+        onKeyEvent: _onKeyEvent,
+        focusNode: _focus,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(LocaleKeys.trezorEnterPinTitle.tr(), style: trezorDialogTitle),
+            const SizedBox(height: 4),
+            Text(
+              LocaleKeys.trezorEnterPinHint.tr(),
+              style: trezorDialogDescription,
+            ),
+            const SizedBox(height: 12),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 30),
+              child: _buildObscuredPin(),
+            ),
+            const SizedBox(height: 12),
+            _buildKeys(),
+            _buildButtons(),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   Widget _buildObscuredPin() {

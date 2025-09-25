@@ -27,13 +27,14 @@ Future<String?> walletPasswordDialog(
     context: context,
     popupContent: ScreenshotSensitive(
       child: PasswordDialogContent(
-      wallet: wallet,
-      onSuccess: (String pass) {
-        password = pass;
-        close();
-      },
-      onCancel: close,
-    )),
+        wallet: wallet,
+        onSuccess: (String pass) {
+          password = pass;
+          close();
+        },
+        onCancel: close,
+      ),
+    ),
   );
 
   isOpen = true;
@@ -76,18 +77,19 @@ Future<bool> walletPasswordDialogWithLoading(
     context: context,
     popupContent: ScreenshotSensitive(
       child: PasswordDialogContentWithLoading(
-      wallet: wallet,
-      onPasswordValidated: onPasswordValidated,
-      onComplete: (bool success) {
-        operationSuccessful = success;
-        close();
-      },
-      onCancel: close,
-      loadingTitle: loadingTitle,
-      loadingMessage: loadingMessage,
-      operationFailedMessage: operationFailedMessage,
-      passwordFieldKey: passwordFieldKey,
-    )),
+        wallet: wallet,
+        onPasswordValidated: onPasswordValidated,
+        onComplete: (bool success) {
+          operationSuccessful = success;
+          close();
+        },
+        onCancel: close,
+        loadingTitle: loadingTitle,
+        loadingMessage: loadingMessage,
+        operationFailedMessage: operationFailedMessage,
+        passwordFieldKey: passwordFieldKey,
+      ),
+    ),
   );
 
   isOpen = true;

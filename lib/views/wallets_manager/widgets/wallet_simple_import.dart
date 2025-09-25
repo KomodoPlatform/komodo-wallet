@@ -96,52 +96,54 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         }
       },
       child: AutofillGroup(
-        child: ScreenshotSensitive(child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SelectableText(
-              _step == WalletSimpleImportSteps.nameAndSeed
-                  ? LocaleKeys.walletImportTitle.tr()
-                  : LocaleKeys.walletImportCreatePasswordTitle.tr(
-                      args: [_nameController.text.trim()],
-                    ),
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontSize: 20),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  _buildFields(),
-                  const SizedBox(height: 20),
-                  UiPrimaryButton(
-                    key: const Key('confirm-seed-button'),
-                    text: _inProgress
-                        ? '${LocaleKeys.pleaseWait.tr()}...'
-                        : LocaleKeys.import.tr(),
-                    height: 50,
-                    textStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    onPressed: _isButtonEnabled ? _onImport : null,
-                  ),
-                  const SizedBox(height: 20),
-                  UiUnderlineTextButton(
-                    onPressed: _onCancel,
-                    text: _step == WalletSimpleImportSteps.nameAndSeed
-                        ? LocaleKeys.cancel.tr()
-                        : LocaleKeys.back.tr(),
-                  ),
-                ],
+        child: ScreenshotSensitive(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SelectableText(
+                _step == WalletSimpleImportSteps.nameAndSeed
+                    ? LocaleKeys.walletImportTitle.tr()
+                    : LocaleKeys.walletImportCreatePasswordTitle.tr(
+                        args: [_nameController.text.trim()],
+                      ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 20),
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
-        )),
+              const SizedBox(height: 20),
+              Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _buildFields(),
+                    const SizedBox(height: 20),
+                    UiPrimaryButton(
+                      key: const Key('confirm-seed-button'),
+                      text: _inProgress
+                          ? '${LocaleKeys.pleaseWait.tr()}...'
+                          : LocaleKeys.import.tr(),
+                      height: 50,
+                      textStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      onPressed: _isButtonEnabled ? _onImport : null,
+                    ),
+                    const SizedBox(height: 20),
+                    UiUnderlineTextButton(
+                      onPressed: _onCancel,
+                      text: _step == WalletSimpleImportSteps.nameAndSeed
+                          ? LocaleKeys.cancel.tr()
+                          : LocaleKeys.back.tr(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
