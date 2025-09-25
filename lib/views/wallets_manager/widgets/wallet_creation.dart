@@ -93,52 +93,54 @@ class _WalletCreationState extends State<WalletCreation> {
         }
       },
       child: AutofillGroup(
-        child: ScreenshotSensitive(child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.action == WalletsManagerAction.create
-                    ? LocaleKeys.walletCreationTitle.tr()
-                    : LocaleKeys.walletImportTitle.tr(),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontSize: 18),
-              ),
-              const SizedBox(height: 24),
-              _buildFields(),
-              const SizedBox(height: 22),
-              EulaTosCheckboxes(
-                key: const Key('create-wallet-eula-checks'),
-                isChecked: _eulaAndTosChecked,
-                onCheck: (isChecked) {
-                  setState(() {
-                    _eulaAndTosChecked = isChecked;
-                  });
-                },
-              ),
-              const SizedBox(height: 32),
-              UiPrimaryButton(
-                key: const Key('confirm-password-button'),
-                height: 50,
-                text: _inProgress
-                    ? '${LocaleKeys.pleaseWait.tr()}...'
-                    : LocaleKeys.create.tr(),
-                textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+        child: ScreenshotSensitive(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.action == WalletsManagerAction.create
+                      ? LocaleKeys.walletCreationTitle.tr()
+                      : LocaleKeys.walletImportTitle.tr(),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontSize: 18),
                 ),
-                onPressed: _isCreateButtonEnabled ? _onCreate : null,
-              ),
-              const SizedBox(height: 20),
-              UiUnderlineTextButton(
-                onPressed: widget.onCancel,
-                text: LocaleKeys.cancel.tr(),
-              ),
-            ],
+                const SizedBox(height: 24),
+                _buildFields(),
+                const SizedBox(height: 22),
+                EulaTosCheckboxes(
+                  key: const Key('create-wallet-eula-checks'),
+                  isChecked: _eulaAndTosChecked,
+                  onCheck: (isChecked) {
+                    setState(() {
+                      _eulaAndTosChecked = isChecked;
+                    });
+                  },
+                ),
+                const SizedBox(height: 32),
+                UiPrimaryButton(
+                  key: const Key('confirm-password-button'),
+                  height: 50,
+                  text: _inProgress
+                      ? '${LocaleKeys.pleaseWait.tr()}...'
+                      : LocaleKeys.create.tr(),
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  onPressed: _isCreateButtonEnabled ? _onCreate : null,
+                ),
+                const SizedBox(height: 20),
+                UiUnderlineTextButton(
+                  onPressed: widget.onCancel,
+                  text: LocaleKeys.cancel.tr(),
+                ),
+              ],
+            ),
           ),
-        )),
+        ),
       ),
     );
   }
@@ -203,10 +205,31 @@ class _WalletCreationState extends State<WalletCreation> {
     );
   }
 
-  void _onCreate() {
+  void _onCreate() async {
     if (!_eulaAndTosChecked) return;
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _inProgress = true);
+    // Async uniqueness check before proceeding
+    final uniquenessError = await _walletsRepository
+        .validateWalletNameUniqueness(_nameController.text);
+    if (uniquenessError != null) {
+      if (mounted) {
+        setState(() => _inProgress = false);
+        final theme = Theme.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              uniquenessError,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.errorContainer,
+          ),
+        );
+      }
+      return;
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       // Complete autofill session so password managers can save new credentials
