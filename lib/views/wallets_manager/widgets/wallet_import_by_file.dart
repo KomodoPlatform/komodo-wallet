@@ -59,6 +59,11 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   bool _rememberMe = false;
   bool _allowCustomSeed = false;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   String? _filePasswordError;
   String? _commonError;
 
@@ -250,15 +255,14 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
 
       walletConfig.seedPhrase = decryptedSeed;
       String name = widget.fileData.name.replaceFirst(RegExp(r'\.[^.]+$'), '');
-      final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+      final walletsRepository = RepositoryProvider.of<WalletsRepository>(
+        context,
+      );
 
       String? validationError = walletsRepository.validateWalletName(name);
       if (validationError != null) {
         if (!mounted) return;
-        final newName = await walletRenameDialog(
-          context,
-          initialName: name,
-        );
+        final newName = await walletRenameDialog(context, initialName: name);
         if (newName == null) {
           return;
         }
@@ -267,7 +271,19 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
         if (postValidation != null) {
           return;
         }
+        // Async uniqueness check before proceeding with renamed value
+        final uniquenessError = await walletsRepository
+            .validateWalletNameUniqueness(newName);
+        if (uniquenessError != null) {
+          return;
+        }
         name = newName.trim();
+      }
+      // Async uniqueness check before proceeding with original value
+      final uniquenessError = await walletsRepository
+          .validateWalletNameUniqueness(name);
+      if (uniquenessError != null) {
+        return;
       }
       // Close autofill context after successfully validating password & before import
       TextInput.finishAutofillContext(shouldSave: false);

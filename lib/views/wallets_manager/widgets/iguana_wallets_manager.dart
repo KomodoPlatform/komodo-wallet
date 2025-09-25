@@ -252,11 +252,31 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     required String password,
     WalletType? walletType,
     required bool rememberMe,
-  }) {
+  }) async {
     setState(() {
       _isLoading = true;
       _rememberMe = rememberMe;
     });
+
+    // Async uniqueness check prior to dispatch
+    final repo = context.read<WalletsRepository>();
+    final uniquenessError = await repo.validateWalletNameUniqueness(name);
+    if (uniquenessError != null) {
+      if (mounted) setState(() => _isLoading = false);
+      final theme = Theme.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            uniquenessError,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onErrorContainer,
+            ),
+          ),
+          backgroundColor: theme.colorScheme.errorContainer,
+        ),
+      );
+      return;
+    }
     final Wallet newWallet = Wallet.fromName(
       name: name,
       walletType: walletType ?? WalletType.iguana,
@@ -272,11 +292,31 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     required String password,
     required WalletConfig walletConfig,
     required bool rememberMe,
-  }) {
+  }) async {
     setState(() {
       _isLoading = true;
       _rememberMe = rememberMe;
     });
+
+    // Async uniqueness check prior to dispatch
+    final repo = context.read<WalletsRepository>();
+    final uniquenessError = await repo.validateWalletNameUniqueness(name);
+    if (uniquenessError != null) {
+      if (mounted) setState(() => _isLoading = false);
+      final theme = Theme.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            uniquenessError,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onErrorContainer,
+            ),
+          ),
+          backgroundColor: theme.colorScheme.errorContainer,
+        ),
+      );
+      return;
+    }
     final Wallet newWallet = Wallet.fromConfig(
       name: name,
       config: walletConfig,

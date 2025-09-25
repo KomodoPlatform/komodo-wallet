@@ -17,13 +17,6 @@ Future<String?> walletRenameDialog(
   );
   final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
 
-  // Ensure caches are loaded to provide accurate validation inside the dialog
-  if (!walletsRepository.isCacheLoaded) {
-    try {
-      await walletsRepository.getWallets();
-    } catch (_) {}
-  }
-
   final result = await AppDialog.show<String?>(
     context: context,
     width: isMobile ? null : 360,
