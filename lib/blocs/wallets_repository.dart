@@ -153,19 +153,23 @@ class WalletsRepository {
   @Deprecated('Use the KomodoDefiSdk.auth.getMnemonicEncrypted method instead.')
   Future<void> downloadEncryptedWallet(Wallet wallet, String password) async {
     try {
+      Wallet workingWallet = wallet.copy();
       if (wallet.config.seedPhrase.isEmpty) {
         final mnemonic = await _kdfSdk.auth.getMnemonicPlainText(password);
-        wallet.config.seedPhrase = await _encryptionTool.encryptData(
+        final String encryptedSeed = await _encryptionTool.encryptData(
           password,
           mnemonic.plaintextMnemonic ?? '',
         );
+        workingWallet = workingWallet.copyWith(
+          config: workingWallet.config.copyWith(seedPhrase: encryptedSeed),
+        );
       }
-      final String data = jsonEncode(wallet.config);
+      final String data = jsonEncode(workingWallet.config);
       final String encryptedData = await _encryptionTool.encryptData(
         password,
         data,
       );
-      final String sanitizedFileName = _sanitizeFileName(wallet.name);
+      final String sanitizedFileName = _sanitizeFileName(workingWallet.name);
       await _fileLoader.save(
         fileName: sanitizedFileName,
         data: encryptedData,

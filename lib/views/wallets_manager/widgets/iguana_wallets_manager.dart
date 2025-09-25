@@ -338,6 +338,8 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     Wallet wallet,
     bool rememberMe,
   ) async {
+    // Use a local variable to avoid mutating the original wallet reference
+    Wallet walletToUse = wallet.copy();
     setState(() {
       _isLoading = true;
       _rememberMe = rememberMe;
@@ -366,7 +368,15 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
           walletId: wallet.id,
           newName: newName,
         );
-        wallet.name = newName.trim();
+        final String trimmed = newName.trim();
+        final Wallet updatedWallet = wallet.copyWith(name: trimmed);
+        // Update selected wallet for UI consistency without mutating the original instance
+        if (mounted) {
+          setState(() {
+            _selectedWallet = updatedWallet;
+          });
+        }
+        walletToUse = updatedWallet;
       }
     }
 
@@ -380,7 +390,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
     analyticsBloc.logEvent(analyticsEvent);
 
     context.read<AuthBloc>().add(
-      AuthSignInRequested(wallet: wallet, password: password),
+      AuthSignInRequested(wallet: walletToUse, password: password),
     );
 
     if (mounted) {
