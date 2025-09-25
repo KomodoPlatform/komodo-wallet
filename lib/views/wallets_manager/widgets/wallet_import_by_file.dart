@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -6,13 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/wallet_file_import/wallet_file_import_bloc.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 import 'package:web_dex/shared/ui/ui_gradient_icon.dart';
-import 'package:web_dex/bloc/wallet_file_import/wallet_file_import_bloc.dart';
-import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 import 'package:web_dex/shared/widgets/quick_login_switch.dart';
@@ -130,54 +131,13 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
 
                 if (state.status == WalletFileImportStatus.success &&
                     state.walletConfig != null) {
-                  final walletConfig = state.walletConfig!;
                   setState(() {
                     _filePasswordError = null;
                     _commonError = null;
                   });
                   _formKey.currentState?.validate();
 
-                  String name = widget.fileData.name.replaceFirst(
-                    RegExp(r'\.[^.]+$'),
-                    '',
-                  );
-                  final walletsRepository =
-                      RepositoryProvider.of<WalletsRepository>(context);
-
-                  String? validationError = walletsRepository
-                      .validateWalletName(name);
-                  if (validationError != null) {
-                    if (!mounted) return;
-                    walletRenameDialog(context, initialName: name).then((
-                      newName,
-                    ) async {
-                      if (newName == null) {
-                        return;
-                      }
-                      final postValidation = walletsRepository
-                          .validateWalletName(newName);
-                      if (postValidation != null) {
-                        return;
-                      }
-                      final trimmed = newName.trim();
-                      TextInput.finishAutofillContext(shouldSave: false);
-                      widget.onImport(
-                        name: trimmed,
-                        password: _filePasswordController.text,
-                        walletConfig: walletConfig,
-                        rememberMe: _rememberMe,
-                      );
-                    });
-                    return;
-                  }
-
-                  TextInput.finishAutofillContext(shouldSave: false);
-                  widget.onImport(
-                    name: name,
-                    password: _filePasswordController.text,
-                    walletConfig: walletConfig,
-                    rememberMe: _rememberMe,
-                  );
+                  unawaited(_handleImportSuccess(state.walletConfig!));
                 }
               },
               child: AutofillGroup(
@@ -300,8 +260,57 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
     super.dispose();
   }
 
-  // Using Bloc to handle import logic
+  Future<void> _handleImportSuccess(WalletConfig walletConfig) async {
+    String name = widget.fileData.name.replaceFirst(RegExp(r'\.[^.]+$'), '');
+    name = name.trim();
 
+    final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+
+    String? validationError = walletsRepository.validateWalletName(name);
+    String? uniquenessError;
+    if (validationError == null) {
+      uniquenessError = await walletsRepository.validateWalletNameUniqueness(
+        name,
+      );
+    }
+
+    if (validationError != null || uniquenessError != null) {
+      if (!mounted) return;
+      final String? newName = await walletRenameDialog(
+        context,
+        initialName: name,
+      );
+      if (newName == null) {
+        return;
+      }
+
+      final String? postValidation = walletsRepository.validateWalletName(
+        newName,
+      );
+      if (postValidation != null) {
+        return;
+      }
+
+      final String? postUniquenessError = await walletsRepository
+          .validateWalletNameUniqueness(newName);
+      if (postUniquenessError != null) {
+        return;
+      }
+
+      name = newName.trim();
+    }
+
+    TextInput.finishAutofillContext(shouldSave: false);
+    if (!mounted) return;
+    widget.onImport(
+      name: name,
+      password: _filePasswordController.text,
+      walletConfig: walletConfig,
+      rememberMe: _rememberMe,
+    );
+  }
+
+  // Using Bloc to handle import logic
   Future<void> _onImport() async {
     final String password = _filePasswordController.text;
     context.read<WalletFileImportBloc>().add(

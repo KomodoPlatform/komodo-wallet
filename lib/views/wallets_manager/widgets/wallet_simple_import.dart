@@ -340,7 +340,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     widget.onCancel();
   }
 
-  void _onImport() {
+  void _onImport() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
@@ -360,6 +360,30 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     );
 
     setState(() => _inProgress = true);
+
+    // Async uniqueness check before proceeding
+    final repo = context.read<WalletsRepository>();
+    final uniquenessError = await repo.validateWalletNameUniqueness(
+      _nameController.text,
+    );
+    if (uniquenessError != null) {
+      if (mounted) {
+        setState(() => _inProgress = false);
+        final theme = Theme.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              uniquenessError,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.errorContainer,
+          ),
+        );
+      }
+      return;
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onImport(

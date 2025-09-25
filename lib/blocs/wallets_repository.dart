@@ -32,7 +32,8 @@ class WalletsRepository {
   List<Wallet>? _cachedWallets;
   List<Wallet>? _cachedLegacyWallets;
   List<Wallet>? get wallets => _cachedWallets;
-  bool get isCacheLoaded => _cachedWallets != null && _cachedLegacyWallets != null;
+  bool get isCacheLoaded =>
+      _cachedWallets != null && _cachedLegacyWallets != null;
 
   Future<List<Wallet>> getWallets() async {
     final legacyWallets = await _getLegacyWallets();
@@ -126,19 +127,40 @@ class WalletsRepository {
     }
 
     // Check for duplicates against BOTH sdk and legacy wallets using trimmed comparison
-    final bool existsInSdk = _cachedWallets!
-            .firstWhereOrNull((w) => w.name.trim() == trimmedName) !=
+    final bool existsInSdk =
+        _cachedWallets!.firstWhereOrNull((w) => w.name.trim() == trimmedName) !=
         null;
     if (existsInSdk) {
       return LocaleKeys.walletCreationExistNameError.tr();
     }
-    final bool existsInLegacy = _cachedLegacyWallets!
-            .firstWhereOrNull((w) => w.name.trim() == trimmedName) !=
+    final bool existsInLegacy =
+        _cachedLegacyWallets!.firstWhereOrNull(
+          (w) => w.name.trim() == trimmedName,
+        ) !=
         null;
     if (existsInLegacy) {
       return LocaleKeys.walletCreationExistNameError.tr();
     }
 
+    return null;
+  }
+
+  /// Async uniqueness check: verifies that no existing wallet (SDK or legacy)
+  /// has the same trimmed name. Returns a localized error string if taken,
+  /// or null if available or if wallets can't be loaded.
+  Future<String?> validateWalletNameUniqueness(String name) async {
+    final String trimmedName = name.trim();
+    try {
+      final List<Wallet> allWallets = await getWallets();
+      final bool taken =
+          allWallets.firstWhereOrNull((w) => w.name.trim() == trimmedName) !=
+          null;
+      if (taken) {
+        return LocaleKeys.walletCreationExistNameError.tr();
+      }
+    } catch (_) {
+      // Non-blocking on failure to fetch wallets; treat as no conflict found.
+    }
     return null;
   }
 
@@ -154,19 +176,23 @@ class WalletsRepository {
   @Deprecated('Use the KomodoDefiSdk.auth.getMnemonicEncrypted method instead.')
   Future<void> downloadEncryptedWallet(Wallet wallet, String password) async {
     try {
+      Wallet workingWallet = wallet.copy();
       if (wallet.config.seedPhrase.isEmpty) {
         final mnemonic = await _kdfSdk.auth.getMnemonicPlainText(password);
-        wallet.config.seedPhrase = await _encryptionTool.encryptData(
+        final String encryptedSeed = await _encryptionTool.encryptData(
           password,
           mnemonic.plaintextMnemonic ?? '',
         );
+        workingWallet = workingWallet.copyWith(
+          config: workingWallet.config.copyWith(seedPhrase: encryptedSeed),
+        );
       }
-      final String data = jsonEncode(wallet.config);
+      final String data = jsonEncode(workingWallet.config);
       final String encryptedData = await _encryptionTool.encryptData(
         password,
         data,
       );
-      final String sanitizedFileName = _sanitizeFileName(wallet.name);
+      final String sanitizedFileName = _sanitizeFileName(workingWallet.name);
       await _fileLoader.save(
         fileName: sanitizedFileName,
         data: encryptedData,
@@ -189,8 +215,8 @@ class WalletsRepository {
     // Persist to legacy storage
     final List<Map<String, dynamic>> rawLegacyWallets =
         (await _legacyWalletStorage.read(allWalletsStorageKey) as List?)
-                ?.cast<Map<String, dynamic>>() ??
-            [];
+            ?.cast<Map<String, dynamic>>() ??
+        [];
     bool updated = false;
     for (int i = 0; i < rawLegacyWallets.length; i++) {
       final Map<String, dynamic> data = rawLegacyWallets[i];
@@ -207,11 +233,13 @@ class WalletsRepository {
 
     // Update in-memory legacy cache if available
     if (_cachedLegacyWallets != null) {
-      final index = _cachedLegacyWallets!
-          .indexWhere((element) => element.id == walletId);
+      final index = _cachedLegacyWallets!.indexWhere(
+        (element) => element.id == walletId,
+      );
       if (index != -1) {
-        _cachedLegacyWallets![index] =
-            _cachedLegacyWallets![index].copyWith(name: trimmed);
+        _cachedLegacyWallets![index] = _cachedLegacyWallets![index].copyWith(
+          name: trimmed,
+        );
       }
     }
   }
