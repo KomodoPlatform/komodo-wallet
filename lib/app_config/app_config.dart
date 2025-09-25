@@ -107,15 +107,8 @@ const Set<String> excludedAssetList = {
   'FENIX',
   'AWR',
   'BOT',
-  // Pirate activation params are not yet implemented, so we need to
-  // exclude it from the list of coins for now.
-  'ARRR',
-  'ZOMBIE',
   'SMTF-v2',
   'SFUSD',
-  'VOTE2023',
-  'RICK',
-  'MORTY',
 
   // NFT v2 coins: https://github.com/KomodoPlatform/coins/pull/1061 will be
   // used in the background, so users do not need to see them.
