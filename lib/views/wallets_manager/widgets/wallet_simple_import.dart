@@ -62,10 +62,6 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _allowCustomSeed = false;
   bool _isHdMode = false;
   bool _rememberMe = false;
-  @override
-  void initState() {
-    super.initState();
-  }
 
   bool get _isButtonEnabled {
     final isFormValid = _refreshFormValidationState();

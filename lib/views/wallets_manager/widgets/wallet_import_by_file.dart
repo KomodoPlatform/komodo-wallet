@@ -59,11 +59,6 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   bool _rememberMe = false;
   bool _allowCustomSeed = false;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   String? _filePasswordError;
   String? _commonError;
 
