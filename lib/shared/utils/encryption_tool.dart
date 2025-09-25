@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
+import 'package:sodium/sodium.dart' show StringX;
+import 'package:sodium_libs/sodium_libs_sumo.dart';
 
 class EncryptionTool {
   /// Encrypts the provided [data] using AES encryption with the given [password].
@@ -93,7 +95,53 @@ class EncryptionTool {
     }
   }
 
+  Future<String?> decryptLegacyDesktopSeed({
+    required String password,
+    required Uint8List encryptedBytes,
+  }) async {
+    if (encryptedBytes.isEmpty) return null;
+
+    try {
+      final SodiumSumo sodium = await SodiumSumoInit.init();
+      final salt = Uint8List(sodium.crypto.pwhash.saltBytes);
+      final key = sodium.crypto.pwhash(
+        outLen: sodium.crypto.secretStream.keyBytes,
+        password: password.toCharArray(),
+        salt: salt,
+        opsLimit: sodium.crypto.pwhash.opsLimitInteractive,
+        memLimit: sodium.crypto.pwhash.memLimitInteractive,
+      );
+
+      try {
+        final BytesBuilder plaintextBuilder = BytesBuilder();
+        await for (final chunk in sodium.crypto.secretStream.pullChunked(
+          cipherStream: Stream<List<int>>.value(encryptedBytes),
+          key: key,
+          chunkSize: _legacyDesktopChunkSize,
+        )) {
+          if (chunk.isNotEmpty) {
+            plaintextBuilder.add(chunk);
+          }
+        }
+
+        final Uint8List plaintext = plaintextBuilder.toBytes();
+        if (plaintext.isEmpty) {
+          return null;
+        }
+        return utf8.decode(plaintext).trim();
+      } catch (_) {
+        return null;
+      } finally {
+        key.dispose();
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<Key> _pbkdf2Key(String password, Uint8List salt) async {
     return Key.fromUtf8(password).stretch(16, iterationCount: 1000, salt: salt);
   }
+
+  static const int _legacyDesktopChunkSize = 4096;
 }

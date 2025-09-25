@@ -12,12 +12,12 @@ If the above fails due to the offline environment, add the `--offline` flag.
 
 ## Static Analysis and Formatting
 
-Run analysis and formatting before committing code:
+Run analysis and formatting (only on changed files) before committing code:
 
 ```bash
 flutter analyze
 
-dart format .
+dart format [files]
 ```
 
 ## Running Tests

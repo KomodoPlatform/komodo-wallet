@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:js_interop';
+import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:web/web.dart' as web;
 import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -28,8 +31,10 @@ class FileLoaderWeb implements FileLoader {
     required String data,
   }) async {
     final dataArray = web.TextEncoder().encode(data);
-    final blob =
-        web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
+    final blob = web.Blob(
+      [dataArray].toJS,
+      web.BlobPropertyBag(type: 'text/plain'),
+    );
 
     final url = web.URL.createObjectURL(blob);
 
@@ -62,8 +67,10 @@ class FileLoaderWeb implements FileLoader {
 
       final encoder = web.TextEncoder();
       final dataArray = encoder.encode(data);
-      final blob =
-          web.Blob([dataArray].toJS, web.BlobPropertyBag(type: 'text/plain'));
+      final blob = web.Blob(
+        [dataArray].toJS,
+        web.BlobPropertyBag(type: 'text/plain'),
+      );
 
       final response = web.Response(blob);
       final compressedResponse = web.Response(
@@ -93,51 +100,41 @@ class FileLoaderWeb implements FileLoader {
 
   @override
   Future<void> upload({
-    required void Function(String name, String? content) onUpload,
+    required void Function(String name, LoadedFileData data) onUpload,
     required void Function(String) onError,
     LoadFileType? fileType,
   }) async {
-    final uploadInput = web.HTMLInputElement()..type = 'file';
-
-    if (fileType != null) {
-      uploadInput.accept = _getMimeType(fileType);
-    }
-
-    uploadInput.click();
-    uploadInput.onChange.listen((event) {
-      final web.FileList? files = uploadInput.files;
-      if (files == null) {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        withData: true,
+        type: fileType?.fileType ?? FileType.any,
+        allowedExtensions: fileType?.extensions,
+      );
+      if (result == null || result.files.isEmpty) {
         return;
       }
 
-      if (files.length == 1) {
-        final web.File? file = files.item(0);
-        final reader = web.FileReader();
-
-        reader.onLoadEnd.listen((event) {
-          final result = reader.result;
-          if (result case final String content) {
-            onUpload(file!.name, content);
-          }
-        });
-
-        reader
-          ..onerror = (JSAny event) {
-            if (event is web.ErrorEvent) {
-              onError(event.message);
-            }
-          }.toJS
-          ..readAsText(file! as web.Blob);
+      final file = result.files.first;
+      final bytes = file.bytes;
+      if (bytes == null) {
+        onError('Failed to read selected file contents');
+        return;
       }
-    });
+
+      onUpload(
+        file.name,
+        LoadedFileData(text: _tryDecodeUtf8(bytes), bytes: bytes),
+      );
+    } catch (e) {
+      onError(e.toString());
+    }
   }
 
-  String _getMimeType(LoadFileType type) {
-    switch (type) {
-      case LoadFileType.compressed:
-        return 'application/zip';
-      case LoadFileType.text:
-        return 'text/plain';
+  String? _tryDecodeUtf8(List<int> bytes) {
+    try {
+      return utf8.decode(bytes);
+    } catch (_) {
+      return null;
     }
   }
 }

@@ -670,10 +670,10 @@ packages:
     dependency: "direct main"
     description:
       name: js
-      sha256: "53385261521cc4a0c4658fd0ad07a7d14591cf8fc33abbceae306ddb974888dc"
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
+    version: "0.6.7"
   json_annotation:
     dependency: transitive
     description:
@@ -1205,6 +1205,30 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  sodium:
+    dependency: "direct main"
+    description:
+      name: sodium
+      sha256: "515b86c186f4caca49051caf858d878ca7cc4ff4542411e9febb50654eac8a62"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.6"
+  sodium_libs:
+    dependency: "direct main"
+    description:
+      name: sodium_libs
+      sha256: "8d78193b09db3a017f7c13e5e48f021c5cff007f10a6b332a69f12b63c176ad2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.6+2"
+  sodium_web:
+    dependency: "direct main"
+    description:
+      name: sodium_web
+      sha256: dd585939c99fbca00b4e5f6531d8e3310b0ae22e796ccb97ec7c7f88854d1808
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
   source_map_stack_trace:
     dependency: transitive
     description:
@@ -1277,6 +1301,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  synchronized:
+    dependency: transitive
+    description:
+      name: synchronized
+      sha256: c254ade258ec8282947a0acbbc90b9575b4f19673533ee46f2f6e9b3aeefd7c0
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.0"
   term_glyph:
     dependency: transitive
     description:
@@ -1575,5 +1607,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.8.1 <4.0.0"
+  dart: ">=3.9.0 <4.0.0"
   flutter: ">=3.35.3"

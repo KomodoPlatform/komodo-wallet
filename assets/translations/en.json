@@ -119,6 +119,8 @@
   "invalidWalletFileNameError": "Invalid filename, please rename it to remove special chars",
   "walletImportCreatePasswordTitle": "Create a password for \"{}\" wallet",
   "walletImportByFileDescription": "Create a password of your seed phrase file to decrypt it. This password will be used to log in to your wallet",
+  "walletImportLegacySupportNote": "Legacy desktop seed files (.seed) are supported. Upload the file and enter your original desktop password to migrate.",
+  "walletImportFileFormatsHint": "Accepted file types: .txt, .seed",
   "walletLogInTitle": "Log in",
   "walletCreationNameHint": "Wallet name",
   "walletCreationPasswordHint": "Wallet password",

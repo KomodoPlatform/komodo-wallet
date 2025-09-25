@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:web_dex/services/file_loader/file_loader.dart';
@@ -23,46 +25,71 @@ class FileLoaderNativeDesktop implements FileLoader {
 
   @override
   Future<void> upload({
-    required void Function(String name, String content) onUpload,
+    required void Function(String name, LoadedFileData data) onUpload,
     required void Function(String) onError,
     LoadFileType? fileType,
   }) async {
     try {
-      final result = await FilePicker.platform.pickFiles();
+      final result = await FilePicker.platform.pickFiles(
+        withData: true,
+        type: fileType?.fileType ?? FileType.any,
+        allowedExtensions: fileType?.extensions,
+      );
       if (result == null || result.files.isEmpty) {
         return;
       }
       final file = result.files.first;
-      final path = file.path;
-      if (path == null) return;
-
-      final selectedFile = File(path);
-      final data = await selectedFile.readAsString();
-
+      final data = await _loadFileData(file);
+      if (data == null) {
+        onError('Failed to read selected file contents');
+        return;
+      }
       onUpload(file.name, data);
     } catch (e) {
       onError(e.toString());
     }
   }
 
+  Future<LoadedFileData?> _loadFileData(PlatformFile file) async {
+    Uint8List? bytes = file.bytes;
+    if (bytes == null) {
+      final path = file.path;
+      if (path == null) {
+        return null;
+      }
+      bytes = await File(path).readAsBytes();
+    }
+
+    return LoadedFileData(text: _tryDecodeUtf8(bytes), bytes: bytes);
+  }
+
+  String? _tryDecodeUtf8(List<int> bytes) {
+    try {
+      return utf8.decode(bytes);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _saveAsTextFile(String fileName, String data) async {
-    final String? fileFullPath =
-        await FilePicker.platform.saveFile(fileName: '$fileName.txt');
+    final String? fileFullPath = await FilePicker.platform.saveFile(
+      fileName: '$fileName.txt',
+    );
     if (fileFullPath == null) return;
     final File file = File(fileFullPath)..createSync(recursive: true);
     await file.writeAsString(data);
   }
 
-  Future<void> _saveAsCompressedFile(
-    String fileName,
-    String data,
-  ) async {
-    final String? fileFullPath =
-        await FilePicker.platform.saveFile(fileName: '$fileName.zip');
+  Future<void> _saveAsCompressedFile(String fileName, String data) async {
+    final String? fileFullPath = await FilePicker.platform.saveFile(
+      fileName: '$fileName.zip',
+    );
     if (fileFullPath == null) return;
 
-    final compressedBytes =
-        createZipOfSingleFile(fileName: fileName, fileContent: data);
+    final compressedBytes = createZipOfSingleFile(
+      fileName: fileName,
+      fileContent: data,
+    );
 
     final File compressedFile = File(fileFullPath);
     await compressedFile.writeAsBytes(compressedBytes);

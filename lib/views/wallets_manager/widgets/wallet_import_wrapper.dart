@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_import_by_file.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallet_simple_import.dart';
 
@@ -55,9 +56,16 @@ class _WalletImportWrapperState extends State<WalletImportWrapper> {
     return const SizedBox();
   }
 
-  void _onUploadFiles({required String fileData, required String fileName}) {
+  void _onUploadFiles({
+    required LoadedFileData fileData,
+    required String fileName,
+  }) {
     setState(() {
-      _fileData = WalletFileData(content: fileData, name: fileName);
+      _fileData = WalletFileData(
+        name: fileName,
+        text: fileData.text,
+        bytes: fileData.bytes,
+      );
       _importType = WalletImportTypes.file;
     });
   }

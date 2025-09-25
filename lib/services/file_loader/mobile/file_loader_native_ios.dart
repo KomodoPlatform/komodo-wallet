@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
@@ -43,8 +45,10 @@ class FileLoaderNativeIOS implements FileLoader {
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, '$fileName.zip');
 
-    final compressedBytes =
-        createZipOfSingleFile(fileName: fileName, fileContent: data);
+    final compressedBytes = createZipOfSingleFile(
+      fileName: fileName,
+      fileContent: data,
+    );
 
     final File compressedFile = File(filePath);
     await compressedFile.writeAsBytes(compressedBytes);
@@ -54,27 +58,49 @@ class FileLoaderNativeIOS implements FileLoader {
 
   @override
   Future<void> upload({
-    required void Function(String name, String content) onUpload,
+    required void Function(String name, LoadedFileData data) onUpload,
     required void Function(String) onError,
     LoadFileType? fileType,
   }) async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: fileType == null ? FileType.any : fileType.fileType,
-        allowedExtensions: fileType != null ? [fileType.extension] : null,
+        withData: true,
+        type: fileType?.fileType ?? FileType.any,
+        allowedExtensions: fileType?.extensions,
       );
       if (result == null || result.files.isEmpty) return;
 
       final file = result.files.first;
-      final path = file.path;
-      if (path == null) return;
-
-      final selectedFile = File(path);
-      final data = await selectedFile.readAsString();
+      final data = await _loadFileData(file);
+      if (data == null) {
+        onError('Failed to read selected file contents');
+        return;
+      }
 
       onUpload(file.name, data);
     } catch (e) {
       onError(e.toString());
+    }
+  }
+
+  Future<LoadedFileData?> _loadFileData(PlatformFile file) async {
+    Uint8List? bytes = file.bytes;
+    if (bytes == null) {
+      final path = file.path;
+      if (path == null) {
+        return null;
+      }
+      bytes = await File(path).readAsBytes();
+    }
+
+    return LoadedFileData(text: _tryDecodeUtf8(bytes), bytes: bytes);
+  }
+
+  String? _tryDecodeUtf8(List<int> bytes) {
+    try {
+      return utf8.decode(bytes);
+    } catch (_) {
+      return null;
     }
   }
 }

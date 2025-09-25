@@ -184,6 +184,9 @@ dependencies:
   feedback: ^3.1.0
   ntp: ^2.0.0
   flutter_window_close: ^1.2.0
+  sodium: ^3.4.6
+  sodium_libs: ^3.4.6+2
+  sodium_web: ^0.0.5
 
 dev_dependencies:
   integration_test: # SDK

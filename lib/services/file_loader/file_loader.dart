@@ -1,7 +1,20 @@
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:web_dex/services/file_loader/file_loader_stub.dart'
     if (dart.library.io) 'package:web_dex/services/file_loader/file_loader_native.dart'
     if (dart.library.html) 'package:web_dex/services/file_loader/file_loader_web.dart';
+
+class LoadedFileData {
+  const LoadedFileData({this.text, this.bytes})
+    : assert(text != null || bytes != null);
+
+  final String? text;
+  final Uint8List? bytes;
+
+  bool get hasBytes => bytes != null;
+  bool get hasText => text != null && text!.isNotEmpty;
+}
 
 abstract class FileLoader {
   const FileLoader();
@@ -14,7 +27,7 @@ abstract class FileLoader {
     required LoadFileType type,
   });
   Future<void> upload({
-    required void Function(String name, String? content) onUpload,
+    required void Function(String name, LoadedFileData data) onUpload,
     required void Function(String) onError,
     LoadFileType? fileType,
   });
@@ -41,12 +54,14 @@ enum LoadFileType {
     }
   }
 
-  String get extension {
+  List<String> get extensions {
     switch (this) {
       case LoadFileType.compressed:
-        return 'zip';
+        return const ['zip'];
       case LoadFileType.text:
-        return 'txt';
+        return const ['txt', 'seed'];
     }
   }
+
+  String get extension => extensions.first;
 }
