@@ -298,6 +298,8 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       _rememberMe = rememberMe;
     });
 
+    final authBloc = context.read<AuthBloc>();
+
     // Async uniqueness check prior to dispatch
     final repo = context.read<WalletsRepository>();
     final uniquenessError = await repo.validateWalletNameUniqueness(name);
@@ -322,7 +324,7 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       config: walletConfig,
     );
 
-    context.read<AuthBloc>().add(
+    authBloc.add(
       AuthRestoreRequested(
         wallet: newWallet,
         password: password,
