@@ -799,4 +799,6 @@ abstract class LocaleKeys {
   static const fetchingPrivateKeysMessage = 'fetchingPrivateKeysMessage';
   static const pubkeyType = 'pubkeyType';
   static const securitySettings = 'securitySettings';
+  static const activatingZhtlcCoins = 'activatingZhtlcCoins';
+
 }

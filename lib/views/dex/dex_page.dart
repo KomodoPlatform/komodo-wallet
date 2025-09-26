@@ -17,6 +17,7 @@ import 'package:web_dex/views/common/pages/page_layout.dart';
 import 'package:web_dex/views/dex/dex_tab_bar.dart';
 import 'package:web_dex/views/dex/entities_list/dex_list_wrapper.dart';
 import 'package:web_dex/views/dex/entity_details/trading_details.dart';
+import 'package:web_dex/views/wallet/wallet_page/common/zhtlc/zhtlc_configuration_handler.dart';
 
 class DexPage extends StatefulWidget {
   const DexPage({super.key});
@@ -42,8 +43,9 @@ class _DexPageState extends State<DexPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tradingEntitiesBloc =
-        RepositoryProvider.of<TradingEntitiesBloc>(context);
+    final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+      context,
+    );
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final myOrdersService = RepositoryProvider.of<MyOrdersService>(context);
 
@@ -66,13 +68,11 @@ class _DexPageState extends State<DexPage> {
           ? TradingDetails(uuid: routingState.dexState.uuid)
           : _DexContent(),
     );
-    return pageContent;
+    return ZhtlcConfigurationHandler(child: pageContent);
   }
 
   void _onRouteChange() {
-    setState(
-      () => isTradingDetails = routingState.dexState.isTradingDetails,
-    );
+    setState(() => isTradingDetails = routingState.dexState.isTradingDetails);
   }
 }
 

@@ -761,5 +761,9 @@
   "fetchingPrivateKeysTitle": "Fetching Private Keys...",
   "fetchingPrivateKeysMessage": "Please wait while we securely fetch your private keys...",
   "pubkeyType": "Type",
-  "securitySettings": "Security Settings"
+  "securitySettings": "Security Settings",
+  "activatingZhtlcCoins": {
+    "one": "Activating ZHTLC coin: {}",
+    "other": "Activating ZHTLC coins: {}"
+  }
 }

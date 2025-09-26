@@ -4,6 +4,7 @@ import 'dart:math' show min;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart' show NetworkImage;
+import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -27,6 +28,7 @@ import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
+import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 
 class CoinsRepo {
   CoinsRepo({required KomodoDefiSdk kdfSdk, required MM2 mm2})
@@ -82,7 +84,7 @@ class CoinsRepo {
   BalanceInfo? lastKnownBalance(AssetId id) => _kdfSdk.balances.lastKnown(id);
 
   /// Subscribe to balance updates for an asset using the SDK's balance manager
-  void _subscribeToBalanceUpdates(Asset asset, Coin coin) {
+  void _subscribeToBalanceUpdates(Asset asset) {
     // Cancel any existing subscription for this asset
     _balanceWatchers[asset.id]?.cancel();
 
@@ -280,6 +282,15 @@ class CoinsRepo {
       return;
     }
 
+    if (assets.any((asset) => asset.id.subClass == CoinSubClass.zhtlc)) {
+      return _activateZhtlcAssets(
+        assets,
+        assets.map((asset) => _assetToCoinWithoutAddress(asset)).toList(),
+        notifyListeners: notifyListeners,
+        addToWalletMetadata: addToWalletMetadata,
+      );
+    }
+
     if (addToWalletMetadata) {
       // Ensure the wallet metadata is updated with the assets before activation
       // This is to ensure that the wallet metadata is always in sync with the assets
@@ -333,13 +344,13 @@ class CoinsRepo {
             _broadcastAsset(parentCoin.copyWith(state: CoinState.active));
           }
         }
-        _subscribeToBalanceUpdates(asset, coin);
+        _subscribeToBalanceUpdates(asset);
         if (coin.id.parentId != null) {
           final parentAsset = _kdfSdk.assets.available[coin.id.parentId];
           if (parentAsset == null) {
             _log.warning('Parent asset not found: ${coin.id.parentId}');
           } else {
-            _subscribeToBalanceUpdates(parentAsset, coin);
+            _subscribeToBalanceUpdates(parentAsset);
           }
         }
       } catch (e, s) {
@@ -701,5 +712,123 @@ class CoinsRepo {
     );
 
     return BlocResponse(result: withdrawDetails);
+  }
+
+  Future<void> _activateZhtlcAssets(
+    List<Asset> assets,
+    List<Coin> coins, {
+    bool notifyListeners = true,
+    bool addToWalletMetadata = true,
+  }) async {
+    for (final asset in assets) {
+      final coin = coins.firstWhere((coin) => coin.id == asset.id);
+      await _activateZhtlcAsset(
+        asset,
+        coin,
+        notifyListeners: notifyListeners,
+        addToWalletMetadata: addToWalletMetadata,
+      );
+    }
+  }
+
+  /// Activates a ZHTLC asset using ArrrActivationService
+  /// This will wait for user configuration if needed before proceeding with activation
+  /// Mirrors the notify and addToWalletMetadata functionality of activateAssetsSync
+  Future<void> _activateZhtlcAsset(
+    Asset asset,
+    Coin coin, {
+    bool notifyListeners = true,
+    bool addToWalletMetadata = true,
+  }) async {
+    try {
+      final arrrActivationService = GetIt.I<ArrrActivationService>();
+
+      _log.info('Starting ZHTLC activation for ${asset.id.id}');
+
+      // Use the service's future-based activation which will handle configuration
+      // The service will emit to its stream for UI to handle, and this future will
+      // complete only after configuration is provided and activation succeeds.
+      // This ensures CoinsRepo waits for user inputs for config params from the dialog
+      // before proceeding with activation, and doesn't broadcast activation status
+      // until config parameters are received and (desktop) params files downloaded.
+      final result = await arrrActivationService.activateArrr(asset);
+
+      result.when(
+        success: (progress) async {
+          _log.info('ZHTLC asset activated successfully: ${asset.id.id}');
+
+          if (addToWalletMetadata) {
+            await _addAssetsToWalletMetdata([asset.id]);
+          }
+
+          if (notifyListeners) {
+            _broadcastAsset(coin.copyWith(state: CoinState.activating));
+          }
+
+          if (notifyListeners) {
+            _broadcastAsset(coin.copyWith(state: CoinState.active));
+            if (coin.id.parentId != null) {
+              final parentCoin = _assetToCoinWithoutAddress(
+                _kdfSdk.assets.available[coin.id.parentId]!,
+              );
+              _broadcastAsset(parentCoin.copyWith(state: CoinState.active));
+            }
+          }
+
+          _subscribeToBalanceUpdates(asset);
+          if (coin.id.parentId != null) {
+            final parentAsset = _kdfSdk.assets.available[coin.id.parentId];
+            if (parentAsset == null) {
+              _log.warning('Parent asset not found: ${coin.id.parentId}');
+            } else {
+              _subscribeToBalanceUpdates(parentAsset);
+            }
+          }
+
+          if (coin.logoImageUrl?.isNotEmpty ?? false) {
+            AssetIcon.registerCustomIcon(
+              coin.id,
+              NetworkImage(coin.logoImageUrl!),
+            );
+          }
+        },
+        error: (message) {
+          _log.severe(
+            'ZHTLC asset activation failed: ${asset.id.id} - $message',
+          );
+
+          if (notifyListeners) {
+            _broadcastAsset(coin.copyWith(state: CoinState.suspended));
+          }
+
+          throw Exception('ZHTLC activation failed: $message');
+        },
+        needsConfiguration: (coinId, requiredSettings) {
+          _log.severe(
+            'ZHTLC activation should not return needsConfiguration in future-based call',
+          );
+          _log.severe(
+            'Unexpected needsConfiguration result for ${asset.id.id}',
+          );
+
+          if (notifyListeners) {
+            _broadcastAsset(coin.copyWith(state: CoinState.suspended));
+          }
+
+          throw Exception(
+            'ZHTLC activation configuration not handled properly',
+          );
+        },
+      );
+    } catch (e, s) {
+      _log.severe('Error activating ZHTLC asset ${asset.id.id}', e, s);
+
+      // Broadcast suspended state if requested
+      if (notifyListeners) {
+        _broadcastAsset(coin.copyWith(state: CoinState.suspended));
+      }
+
+      rethrow;
+    }
   }
 }
