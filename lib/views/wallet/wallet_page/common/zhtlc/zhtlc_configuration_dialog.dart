@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
@@ -13,6 +14,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart'
         DownloadResultSuccess;
 import 'package:komodo_defi_types/komodo_defi_types.dart' show Asset;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 
 /// Shows ZHTLC configuration dialog similar to handleZhtlcConfigDialog from SDK example
 /// This is bad practice (UI logic in utils), but necessary for now because of
@@ -50,7 +52,7 @@ Future<ZhtlcUserConfig?> confirmZhtlcConfiguration(
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error setting up Zcash parameters: $e'),
+            content: Text(LocaleKeys.zhtlcErrorSettingUpZcash.tr(args: ['$e'])),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -61,207 +63,313 @@ Future<ZhtlcUserConfig?> confirmZhtlcConfiguration(
     }
   }
 
-  // On web, use './zcash-params' as default, otherwise use prefilledZcashPath
-  final defaultZcashPath = kIsWeb ? './zcash-params' : prefilledZcashPath;
-  final zcashPathController = TextEditingController(text: defaultZcashPath);
-  final blocksPerIterController = TextEditingController(text: '1000');
-  final intervalMsController = TextEditingController(text: '0');
+  return showDialog<ZhtlcUserConfig?>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => ZhtlcConfigurationDialog(
+      asset: asset,
+      prefilledZcashPath: prefilledZcashPath,
+    ),
+  );
+}
 
-  var syncType = 'date'; // earliest | height | date
-  final syncValueController = TextEditingController();
+/// Stateful widget for ZHTLC configuration dialog
+class ZhtlcConfigurationDialog extends StatefulWidget {
+  const ZhtlcConfigurationDialog({
+    super.key,
+    required this.asset,
+    this.prefilledZcashPath,
+  });
+
+  final Asset asset;
+  final String? prefilledZcashPath;
+
+  @override
+  State<ZhtlcConfigurationDialog> createState() =>
+      _ZhtlcConfigurationDialogState();
+}
+
+class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
+  late final TextEditingController zcashPathController;
+  late final TextEditingController blocksPerIterController;
+  late final TextEditingController intervalMsController;
+  late final TextEditingController syncValueController;
+
+  String syncType = 'date';
   DateTime? selectedDateTime;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // On web, use './zcash-params' as default, otherwise use prefilledZcashPath
+    final defaultZcashPath = kIsWeb
+        ? './zcash-params'
+        : widget.prefilledZcashPath;
+    zcashPathController = TextEditingController(text: defaultZcashPath);
+    blocksPerIterController = TextEditingController(text: '1000');
+    intervalMsController = TextEditingController(text: '0');
+    syncValueController = TextEditingController();
+
+    // Initialize with default date (2 days ago)
+    selectedDateTime = DateTime.now().subtract(const Duration(days: 2));
+    syncValueController.text = formatDate(selectedDateTime!);
+  }
+
+  @override
+  void dispose() {
+    zcashPathController.dispose();
+    blocksPerIterController.dispose();
+    intervalMsController.dispose();
+    syncValueController.dispose();
+    super.dispose();
+  }
 
   String formatDate(DateTime dateTime) {
     return dateTime.toIso8601String().split('T')[0];
   }
 
-  Future<void> selectDate(BuildContext context) async {
+  /// Creates a Material 3 theme for the date picker based on the current Material 2 theme
+  ThemeData _createMaterial3DatePickerTheme(BuildContext context) {
+    final currentTheme = Theme.of(context);
+    final currentColorScheme = currentTheme.colorScheme;
+
+    // Use the current theme's primary color as the seed color
+    // This works for both light and dark themes since primary is set appropriately in each
+    final material3ColorScheme = ColorScheme.fromSeed(
+      seedColor: currentColorScheme.primary,
+      brightness: currentColorScheme.brightness,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: material3ColorScheme,
+      fontFamily: currentTheme.textTheme.bodyMedium?.fontFamily,
+    );
+  }
+
+  Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: selectedDateTime ?? DateTime.now(),
       firstDate: DateTime(2018), // first arrr block in 2018
       lastDate: DateTime.now(),
       builder: (context, child) {
-        return child ?? const SizedBox();
+        return Theme(
+          data: _createMaterial3DatePickerTheme(context),
+          child: child ?? const SizedBox(),
+        );
       },
     );
 
     if (picked != null) {
-      selectedDateTime = DateTime(picked.year, picked.month, picked.day);
-      syncValueController.text = formatDate(selectedDateTime!);
+      setState(() {
+        selectedDateTime = DateTime(picked.year, picked.month, picked.day);
+        syncValueController.text = formatDate(selectedDateTime!);
+      });
     }
   }
 
-  // Initialize with default date (2 days ago)
-  selectedDateTime = DateTime.now().subtract(const Duration(days: 2));
-  syncValueController.text = formatDate(selectedDateTime!);
+  void _onSyncTypeChanged(String? newSyncType) {
+    if (newSyncType == null) return;
+    setState(() {
+      syncType = newSyncType;
+      // Clear the input when switching sync types
+      if (syncType == 'date') {
+        // Set default date (2 days ago) for date type
+        selectedDateTime = DateTime.now().subtract(const Duration(days: 2));
+        syncValueController.text = formatDate(selectedDateTime!);
+      } else if (syncType == 'height') {
+        // Clear input for block height
+        syncValueController.clear();
+      } else {
+        // Clear input for earliest (no input needed)
+        syncValueController.clear();
+      }
+    });
+  }
 
-  ZhtlcUserConfig? result;
-
-  await showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setInnerState) {
-          return AlertDialog(
-            title: Text('Configure ${asset.id.id}'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (!kIsWeb) ...[
-                    TextField(
-                      controller: zcashPathController,
-                      readOnly: prefilledZcashPath != null,
-                      decoration: InputDecoration(
-                        labelText: 'Zcash parameters path',
-                        helperText: prefilledZcashPath != null
-                            ? 'Path automatically detected'
-                            : 'Folder containing sapling params',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  TextField(
-                    controller: blocksPerIterController,
-                    decoration: const InputDecoration(
-                      labelText: 'Blocks per iteration',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: intervalMsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Scan interval (ms)',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Text('Start sync from:'),
-                      const SizedBox(width: 12),
-                      DropdownButton<String>(
-                        value: syncType,
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'earliest',
-                            child: Text('Earliest (sapling)'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'height',
-                            child: Text('Block height'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'date',
-                            child: Text('Date & Time'),
-                          ),
-                        ],
-                        onChanged: (v) {
-                          if (v == null) return;
-                          setInnerState(() => syncType = v);
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      if (syncType != 'earliest')
-                        Expanded(
-                          child: TextField(
-                            controller: syncValueController,
-                            decoration: InputDecoration(
-                              labelText: syncType == 'height'
-                                  ? 'Block height'
-                                  : 'Select date & time',
-                              suffixIcon: syncType == 'date'
-                                  ? IconButton(
-                                      icon: const Icon(Icons.calendar_today),
-                                      onPressed: () => selectDate(context),
-                                    )
-                                  : null,
-                            ),
-                            keyboardType: syncType == 'height'
-                                ? TextInputType.number
-                                : TextInputType.none,
-                            readOnly: syncType == 'date',
-                            onTap: syncType == 'date'
-                                ? () => selectDate(context)
-                                : null,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
+  Widget _buildSyncForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(LocaleKeys.zhtlcStartSyncFromLabel.tr()),
+            const SizedBox(width: 12),
+            DropdownButton<String>(
+              value: syncType,
+              items: [
+                DropdownMenuItem(
+                  value: 'earliest',
+                  child: Text(LocaleKeys.zhtlcEarliestSaplingOption.tr()),
+                ),
+                DropdownMenuItem(
+                  value: 'height',
+                  child: Text(LocaleKeys.zhtlcBlockHeightOption.tr()),
+                ),
+                DropdownMenuItem(
+                  value: 'date',
+                  child: Text(LocaleKeys.zhtlcDateTimeOption.tr()),
+                ),
+              ],
+              onChanged: _onSyncTypeChanged,
+            ),
+          ],
+        ),
+        if (syncType != 'earliest') ...[
+          const SizedBox(height: 12),
+          TextField(
+            controller: syncValueController,
+            decoration: InputDecoration(
+              labelText: syncType == 'height'
+                  ? LocaleKeys.zhtlcBlockHeightOption.tr()
+                  : LocaleKeys.zhtlcSelectDateTimeLabel.tr(),
+              suffixIcon: syncType == 'date'
+                  ? IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: _selectDate,
+                    )
+                  : null,
+            ),
+            keyboardType: syncType == 'height'
+                ? TextInputType.number
+                : TextInputType.none,
+            readOnly: syncType == 'date',
+            onTap: syncType == 'date' ? _selectDate : null,
+          ),
+          if (syncType == 'date') ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 4.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 12.0,
+              ),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Text(
+                'Dates further back take longer to sync and activate the coin',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  final path = zcashPathController.text.trim();
-                  // On web, allow empty path, otherwise require it
-                  if (!kIsWeb && path.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Zcash params path is required'),
-                      ),
-                    );
-                    return;
-                  }
+          ],
+        ],
+      ],
+    );
+  }
 
-                  // Create sync params based on type
-                  ZhtlcSyncParams? syncParams;
-                  if (syncType == 'earliest') {
-                    syncParams = ZhtlcSyncParams.earliest();
-                  } else if (syncType == 'height') {
-                    final v = int.tryParse(syncValueController.text.trim());
-                    if (v == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Enter a valid block height'),
-                        ),
-                      );
-                      return;
-                    }
-                    syncParams = ZhtlcSyncParams.height(v);
-                  } else if (syncType == 'date') {
-                    if (selectedDateTime == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please select a date and time'),
-                        ),
-                      );
-                      return;
-                    }
-                    // Convert to Unix timestamp (seconds since epoch)
-                    final unixTimestamp =
-                        selectedDateTime!.millisecondsSinceEpoch ~/ 1000;
-                    syncParams = ZhtlcSyncParams.date(unixTimestamp);
-                  }
-
-                  result = ZhtlcUserConfig(
-                    zcashParamsPath: path,
-                    scanBlocksPerIteration:
-                        int.tryParse(blocksPerIterController.text) ?? 1000,
-                    scanIntervalMs:
-                        int.tryParse(intervalMsController.text) ?? 0,
-                    syncParams: syncParams,
-                  );
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
+  void _handleSave() {
+    final path = zcashPathController.text.trim();
+    // On web, allow empty path, otherwise require it
+    if (!kIsWeb && path.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(LocaleKeys.zhtlcZcashParamsRequired.tr())),
       );
-    },
-  );
+      return;
+    }
 
-  return result;
+    // Create sync params based on type
+    ZhtlcSyncParams? syncParams;
+    if (syncType == 'earliest') {
+      syncParams = ZhtlcSyncParams.earliest();
+    } else if (syncType == 'height') {
+      final v = int.tryParse(syncValueController.text.trim());
+      if (v == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(LocaleKeys.zhtlcInvalidBlockHeight.tr())),
+        );
+        return;
+      }
+      syncParams = ZhtlcSyncParams.height(v);
+    } else if (syncType == 'date') {
+      if (selectedDateTime == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(LocaleKeys.zhtlcSelectDateTimeRequired.tr())),
+        );
+        return;
+      }
+      // Convert to Unix timestamp (seconds since epoch)
+      final unixTimestamp = selectedDateTime!.millisecondsSinceEpoch ~/ 1000;
+      syncParams = ZhtlcSyncParams.date(unixTimestamp);
+    }
+
+    final result = ZhtlcUserConfig(
+      zcashParamsPath: path,
+      scanBlocksPerIteration:
+          int.tryParse(blocksPerIterController.text) ?? 1000,
+      scanIntervalMs: int.tryParse(intervalMsController.text) ?? 0,
+      syncParams: syncParams,
+    );
+    Navigator.of(context).pop(result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        LocaleKeys.zhtlcConfigureTitle.tr(args: [widget.asset.id.id]),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!kIsWeb) ...[
+              TextField(
+                controller: zcashPathController,
+                readOnly: widget.prefilledZcashPath != null,
+                decoration: InputDecoration(
+                  labelText: LocaleKeys.zhtlcZcashParamsPathLabel.tr(),
+                  helperText: widget.prefilledZcashPath != null
+                      ? LocaleKeys.zhtlcPathAutomaticallyDetected.tr()
+                      : LocaleKeys.zhtlcSaplingParamsFolder.tr(),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            TextField(
+              controller: blocksPerIterController,
+              decoration: InputDecoration(
+                labelText: LocaleKeys.zhtlcBlocksPerIterationLabel.tr(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: intervalMsController,
+              decoration: InputDecoration(
+                labelText: LocaleKeys.zhtlcScanIntervalLabel.tr(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 12),
+            _buildSyncForm(),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(LocaleKeys.cancel.tr()),
+        ),
+        FilledButton(onPressed: _handleSave, child: Text(LocaleKeys.ok.tr())),
+      ],
+    );
+  }
 }
 
 /// Shows a download progress dialog for Zcash parameters
@@ -269,109 +377,127 @@ Future<bool?> _showZcashDownloadDialog(
   BuildContext context,
   ZcashParamsDownloader downloader,
 ) async {
-  const downloadTimeout = Duration(minutes: 10);
-
-  // Start the download
-  final downloadFuture = downloader.downloadParams().timeout(
-    downloadTimeout,
-    onTimeout: () => throw TimeoutException(
-      'Download timed out after ${downloadTimeout.inMinutes} minutes',
-      downloadTimeout,
-    ),
-  );
-
-  var downloadComplete = false;
-  var downloadSuccess = false;
-  var dialogClosed = false;
-
-  // Show the progress dialog that monitors download completion
   return showDialog<bool>(
     context: context,
     barrierDismissible: false,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          // Listen for download completion and close dialog automatically
-          downloadFuture
-              .then((result) {
-                if (!downloadComplete && !dialogClosed && context.mounted) {
-                  downloadComplete = true;
-                  downloadSuccess = result is DownloadResultSuccess;
-
-                  // Close the dialog with the result
-                  dialogClosed = true;
-                  Navigator.of(context).pop(downloadSuccess);
-                }
-              })
-              .catchError((Object e, StackTrace? stackTrace) {
-                if (!downloadComplete && !dialogClosed && context.mounted) {
-                  downloadComplete = true;
-                  downloadSuccess = false;
-
-                  debugPrint('Zcash parameters download failed: $e');
-                  if (stackTrace != null) {
-                    debugPrint('Stack trace: $stackTrace');
-                  }
-
-                  // Indicate download failed (null result)
-                  dialogClosed = true;
-                  Navigator.of(context).pop();
-                }
-              });
-
-          return AlertDialog(
-            title: const Text('Downloading Zcash Parameters'),
-            content: SizedBox(
-              height: 120,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  StreamBuilder<DownloadProgress>(
-                    stream: downloader.downloadProgress,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        final progress = snapshot.data;
-                        return Column(
-                          children: [
-                            Text(
-                              progress?.displayText ?? '',
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 8),
-                            LinearProgressIndicator(
-                              value: (progress?.percentage ?? 0) / 100,
-                            ),
-                            Text(
-                              '${(progress?.percentage ?? 0).toStringAsFixed(1)}%',
-                              style: Theme.of(context).textTheme.bodySmall,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        );
-                      }
-                      return const Text('Preparing download...');
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  if (!dialogClosed) {
-                    dialogClosed = true;
-                    await downloader.cancelDownload();
-                    Navigator.of(context).pop(false); // Cancelled
-                  }
-                },
-                child: const Text('Cancel'),
-              ),
-            ],
-          );
-        },
-      );
-    },
+    builder: (context) => ZcashDownloadProgressDialog(downloader: downloader),
   );
+}
+
+/// Stateful widget for Zcash download progress dialog
+class ZcashDownloadProgressDialog extends StatefulWidget {
+  const ZcashDownloadProgressDialog({required this.downloader, super.key});
+
+  final ZcashParamsDownloader downloader;
+
+  @override
+  State<ZcashDownloadProgressDialog> createState() =>
+      _ZcashDownloadProgressDialogState();
+}
+
+class _ZcashDownloadProgressDialogState
+    extends State<ZcashDownloadProgressDialog> {
+  static const downloadTimeout = Duration(minutes: 10);
+  bool downloadComplete = false;
+  bool downloadSuccess = false;
+  bool dialogClosed = false;
+  late Future<void> downloadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _startDownload();
+  }
+
+  void _startDownload() {
+    downloadFuture = widget.downloader
+        .downloadParams()
+        .timeout(
+          downloadTimeout,
+          onTimeout: () => throw TimeoutException(
+            'Download timed out after ${downloadTimeout.inMinutes} minutes',
+            downloadTimeout,
+          ),
+        )
+        .then((result) {
+          if (!downloadComplete && !dialogClosed && mounted) {
+            downloadComplete = true;
+            downloadSuccess = result is DownloadResultSuccess;
+
+            // Close the dialog with the result
+            dialogClosed = true;
+            Navigator.of(context).pop(downloadSuccess);
+          }
+        })
+        .catchError((Object e, StackTrace? stackTrace) {
+          if (!downloadComplete && !dialogClosed && mounted) {
+            downloadComplete = true;
+            downloadSuccess = false;
+
+            debugPrint('Zcash parameters download failed: $e');
+            if (stackTrace != null) {
+              debugPrint('Stack trace: $stackTrace');
+            }
+
+            // Indicate download failed (null result)
+            dialogClosed = true;
+            Navigator.of(context).pop();
+          }
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(LocaleKeys.zhtlcDownloadingZcashParams.tr()),
+      content: SizedBox(
+        height: 120,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            StreamBuilder<DownloadProgress>(
+              stream: widget.downloader.downloadProgress,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final progress = snapshot.data;
+                  return Column(
+                    children: [
+                      Text(
+                        progress?.displayText ?? '',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      LinearProgressIndicator(
+                        value: (progress?.percentage ?? 0) / 100,
+                      ),
+                      Text(
+                        '${(progress?.percentage ?? 0).toStringAsFixed(1)}%',
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  );
+                }
+                return Text(LocaleKeys.zhtlcPreparingDownload.tr());
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            if (!dialogClosed) {
+              dialogClosed = true;
+              await widget.downloader.cancelDownload();
+              Navigator.of(context).pop(false); // Cancelled
+            }
+          },
+          child: Text(LocaleKeys.cancel.tr()),
+        ),
+      ],
+    );
+  }
 }

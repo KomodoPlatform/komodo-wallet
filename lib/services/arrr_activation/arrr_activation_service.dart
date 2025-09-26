@@ -10,7 +10,9 @@ import 'arrr_config.dart';
 /// Service layer - business logic coordination for ARRR activation
 class ArrrActivationService {
   ArrrActivationService(this._sdk)
-    : _configService = _sdk.activationConfigService;
+    : _configService = _sdk.activationConfigService {
+    _startListeningToAuthChanges();
+  }
 
   final ActivationConfigService _configService;
   final KomodoDefiSdk _sdk;
@@ -22,6 +24,9 @@ class ArrrActivationService {
 
   /// Completer to wait for configuration when needed
   final Map<AssetId, Completer<ZhtlcUserConfig?>> _configCompleters = {};
+
+  /// Subscription to auth state changes
+  StreamSubscription<KdfUser?>? _authSubscription;
 
   /// Stream of configuration requests that UI can listen to
   Stream<ZhtlcConfigurationRequest> get configurationRequests =>
@@ -284,8 +289,54 @@ class ArrrActivationService {
     stopwatch.stop();
   }
 
+  /// Start listening to authentication state changes
+  void _startListeningToAuthChanges() {
+    _authSubscription?.cancel();
+    _authSubscription = _sdk.auth.watchCurrentUser().listen(
+      _handleAuthStateChange,
+    );
+  }
+
+  /// Handle authentication state changes
+  void _handleAuthStateChange(KdfUser? user) {
+    if (user == null) {
+      // User signed out - cleanup all active operations
+      _cleanupOnSignOut();
+    }
+  }
+
+  /// Clean up all user-specific state when user signs out
+  void _cleanupOnSignOut() {
+    _log.info('User signed out - cleaning up active ZHTLC activations');
+
+    // Cancel all pending configuration requests
+    final pendingAssets = _configCompleters.keys.toList();
+    for (final assetId in pendingAssets) {
+      final completer = _configCompleters[assetId];
+      if (completer != null && !completer.isCompleted) {
+        _log.info('Cancelling pending configuration request for ${assetId.id}');
+        completer.complete(null);
+      }
+    }
+    _configCompleters.clear();
+
+    // Clear activation cache as it's user-specific
+    final activeAssets = _activationCache.keys.toList();
+    for (final assetId in activeAssets) {
+      _log.info('Clearing activation status for ${assetId.id}');
+    }
+    _activationCache.clear();
+
+    _log.info(
+      'Cleanup completed - cancelled ${pendingAssets.length} pending configs and cleared ${activeAssets.length} activation statuses',
+    );
+  }
+
   /// Dispose resources
   void dispose() {
+    // Cancel auth subscription first
+    _authSubscription?.cancel();
+
     // Complete any pending configuration requests
     for (final completer in _configCompleters.values) {
       if (!completer.isCompleted) {
