@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart' show AssetId;
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart' show LocaleKeys;
 import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 import 'package:web_dex/services/arrr_activation/arrr_config.dart';
@@ -35,6 +36,7 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
   }
 
   void _startPeriodicRefresh() {
+    _refreshStatuses();
     _refreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       _refreshStatuses();
     });
@@ -107,8 +109,8 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  LocaleKeys.activatingZhtlcCoins.plural(
+                child: AutoScrollText(
+                  text: LocaleKeys.activatingZhtlcCoins.plural(
                     coinCount,
                     args: [coinNames],
                   ),

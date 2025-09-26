@@ -781,9 +781,9 @@
   "zhtlcDownloadingZcashParams": "Downloading Zcash Parameters",
   "zhtlcPreparingDownload": "Preparing download...",
   "zhtlcErrorSettingUpZcash": "Error setting up Zcash parameters: {}",
-  "zhtlcDateSyncHint": "Dates further back take longer to sync and activate the coin",
+  "zhtlcDateSyncHint": "Selecting a date further in the past can significantly increase the activation time. \nActivation can take a little while the first time, as we need to download some block cache data.",
   "activatingZhtlcCoins": {
-    "one": "Activating ZHTLC coin: {}",
-    "other": "Activating ZHTLC coins: {}"
+    "one": "Activating ZHTLC coin: {}. Please do not close the app or tab until complete.",
+    "other": "Activating ZHTLC coins: {}. Please do not close the app or tab until complete."
   }
 }
