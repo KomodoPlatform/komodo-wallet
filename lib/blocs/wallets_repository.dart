@@ -30,7 +30,10 @@ class WalletsRepository {
   final FileLoader _fileLoader;
 
   List<Wallet>? _cachedWallets;
+  List<Wallet>? _cachedLegacyWallets;
   List<Wallet>? get wallets => _cachedWallets;
+  bool get isCacheLoaded =>
+      _cachedWallets != null && _cachedLegacyWallets != null;
 
   Future<List<Wallet>> getWallets() async {
     final legacyWallets = await _getLegacyWallets();
@@ -44,6 +47,7 @@ class WalletsRepository {
               !wallet.name.toLowerCase().startsWith(trezorWalletNamePrefix),
         )
         .toList();
+    _cachedLegacyWallets = legacyWallets;
     return [..._cachedWallets!, ...legacyWallets];
   }
 
@@ -99,33 +103,41 @@ class WalletsRepository {
 
   String? validateWalletName(String name) {
     // Disallow special characters except letters, digits, space, underscore and hyphen
-    if (RegExp(r'[^\w\- ]').hasMatch(name)) {
+    if (RegExp(r'[^\p{L}\p{M}\p{N}\s\-_]', unicode: true).hasMatch(name)) {
       return LocaleKeys.invalidWalletNameError.tr();
-    }
-    // This shouldn't happen, but just in case.
-    if (_cachedWallets == null) {
-      getWallets().ignore();
-      return null;
     }
 
     final trimmedName = name.trim();
 
-    // Check if the trimmed name is empty (prevents space-only names)
-    if (trimmedName.isEmpty) {
+    // Reject leading/trailing spaces explicitly to avoid confusion/duplicates
+    if (trimmedName != name) {
       return LocaleKeys.walletCreationNameLengthError.tr();
     }
 
-    // Check if trimmed name exceeds length limit
-    if (trimmedName.length > 40) {
+    // Check empty and length limits on trimmed input
+    if (trimmedName.isEmpty || trimmedName.length > 40) {
       return LocaleKeys.walletCreationNameLengthError.tr();
     }
 
-    // Check for duplicates using the exact input name (not trimmed)
-    // This preserves backward compatibility with existing wallets that might have spaces
-    if (_cachedWallets!.firstWhereOrNull((w) => w.name == name) != null) {
-      return LocaleKeys.walletCreationExistNameError.tr();
-    }
+    return null;
+  }
 
+  /// Async uniqueness check: verifies that no existing wallet (SDK or legacy)
+  /// has the same trimmed name. Returns a localized error string if taken,
+  /// or null if available or if wallets can't be loaded.
+  Future<String?> validateWalletNameUniqueness(String name) async {
+    final String trimmedName = name.trim();
+    try {
+      final List<Wallet> allWallets = await getWallets();
+      final bool taken =
+          allWallets.firstWhereOrNull((w) => w.name.trim() == trimmedName) !=
+          null;
+      if (taken) {
+        return LocaleKeys.walletCreationExistNameError.tr();
+      }
+    } catch (_) {
+      // Non-blocking on failure to fetch wallets; treat as no conflict found.
+    }
     return null;
   }
 
@@ -141,19 +153,23 @@ class WalletsRepository {
   @Deprecated('Use the KomodoDefiSdk.auth.getMnemonicEncrypted method instead.')
   Future<void> downloadEncryptedWallet(Wallet wallet, String password) async {
     try {
+      Wallet workingWallet = wallet.copy();
       if (wallet.config.seedPhrase.isEmpty) {
         final mnemonic = await _kdfSdk.auth.getMnemonicPlainText(password);
-        wallet.config.seedPhrase = await _encryptionTool.encryptData(
+        final String encryptedSeed = await _encryptionTool.encryptData(
           password,
           mnemonic.plaintextMnemonic ?? '',
         );
+        workingWallet = workingWallet.copyWith(
+          config: workingWallet.config.copyWith(seedPhrase: encryptedSeed),
+        );
       }
-      final String data = jsonEncode(wallet.config);
+      final String data = jsonEncode(workingWallet.config);
       final String encryptedData = await _encryptionTool.encryptData(
         password,
         data,
       );
-      final String sanitizedFileName = _sanitizeFileName(wallet.name);
+      final String sanitizedFileName = _sanitizeFileName(workingWallet.name);
       await _fileLoader.save(
         fileName: sanitizedFileName,
         data: encryptedData,
@@ -166,5 +182,42 @@ class WalletsRepository {
 
   String _sanitizeFileName(String fileName) {
     return fileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+  }
+
+  Future<void> renameLegacyWallet({
+    required String walletId,
+    required String newName,
+  }) async {
+    final String trimmed = newName.trim();
+    // Persist to legacy storage
+    final List<Map<String, dynamic>> rawLegacyWallets =
+        (await _legacyWalletStorage.read(allWalletsStorageKey) as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
+    bool updated = false;
+    for (int i = 0; i < rawLegacyWallets.length; i++) {
+      final Map<String, dynamic> data = rawLegacyWallets[i];
+      if ((data['id'] as String? ?? '') == walletId) {
+        data['name'] = trimmed;
+        rawLegacyWallets[i] = data;
+        updated = true;
+        break;
+      }
+    }
+    if (updated) {
+      await _legacyWalletStorage.write(allWalletsStorageKey, rawLegacyWallets);
+    }
+
+    // Update in-memory legacy cache if available
+    if (_cachedLegacyWallets != null) {
+      final index = _cachedLegacyWallets!.indexWhere(
+        (element) => element.id == walletId,
+      );
+      if (index != -1) {
+        _cachedLegacyWallets![index] = _cachedLegacyWallets![index].copyWith(
+          name: trimmed,
+        );
+      }
+    }
   }
 }
