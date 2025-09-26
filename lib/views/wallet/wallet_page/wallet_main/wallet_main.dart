@@ -5,7 +5,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -431,7 +430,9 @@ class CoinListView extends StatelessWidget {
           searchPhrase: searchPhrase,
           withBalance: withBalance,
           onCoinItemTap: onActiveCoinItemTap,
-          arrrActivationService: GetIt.I<ArrrActivationService>(),
+          arrrActivationService: RepositoryProvider.of<ArrrActivationService>(
+            context,
+          ),
         );
       case AuthorizeMode.hiddenLogin:
       case AuthorizeMode.noLogin:

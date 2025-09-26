@@ -4,7 +4,7 @@ import 'dart:math' show min;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart' show NetworkImage;
-import 'package:get_it/get_it.dart';
+
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -31,9 +31,13 @@ import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 
 class CoinsRepo {
-  CoinsRepo({required KomodoDefiSdk kdfSdk, required MM2 mm2})
-    : _kdfSdk = kdfSdk,
-      _mm2 = mm2 {
+  CoinsRepo({
+    required KomodoDefiSdk kdfSdk,
+    required MM2 mm2,
+    required ArrrActivationService arrrActivationService,
+  }) : _kdfSdk = kdfSdk,
+       _mm2 = mm2,
+       _arrrActivationService = arrrActivationService {
     enabledAssetsChanges = StreamController<Coin>.broadcast(
       onListen: () => _enabledAssetListenerCount += 1,
       onCancel: () => _enabledAssetListenerCount -= 1,
@@ -42,6 +46,7 @@ class CoinsRepo {
 
   final KomodoDefiSdk _kdfSdk;
   final MM2 _mm2;
+  final ArrrActivationService _arrrActivationService;
 
   final _log = Logger('CoinsRepo');
 
@@ -741,8 +746,6 @@ class CoinsRepo {
     bool addToWalletMetadata = true,
   }) async {
     try {
-      final arrrActivationService = GetIt.I<ArrrActivationService>();
-
       _log.info('Starting ZHTLC activation for ${asset.id.id}');
 
       // Use the service's future-based activation which will handle configuration
@@ -751,19 +754,20 @@ class CoinsRepo {
       // This ensures CoinsRepo waits for user inputs for config params from the dialog
       // before proceeding with activation, and doesn't broadcast activation status
       // until config parameters are received and (desktop) params files downloaded.
-      final result = await arrrActivationService.activateArrr(asset);
+      final result = await _arrrActivationService.activateArrr(asset);
+
+      // Add assets after activation regardless of success or failure
+      if (addToWalletMetadata) {
+        await _addAssetsToWalletMetdata([asset.id]);
+      }
+
+      if (notifyListeners) {
+        _broadcastAsset(coin.copyWith(state: CoinState.activating));
+      }
 
       result.when(
         success: (progress) async {
           _log.info('ZHTLC asset activated successfully: ${asset.id.id}');
-
-          if (addToWalletMetadata) {
-            await _addAssetsToWalletMetdata([asset.id]);
-          }
-
-          if (notifyListeners) {
-            _broadcastAsset(coin.copyWith(state: CoinState.activating));
-          }
 
           if (notifyListeners) {
             _broadcastAsset(coin.copyWith(state: CoinState.active));

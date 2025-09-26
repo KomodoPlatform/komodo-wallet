@@ -778,6 +778,7 @@
   "zhtlcDownloadingZcashParams": "Downloading Zcash Parameters",
   "zhtlcPreparingDownload": "Preparing download...",
   "zhtlcErrorSettingUpZcash": "Error setting up Zcash parameters: {}",
+  "zhtlcDateSyncHint": "Dates further back take longer to sync and activate the coin",
   "activatingZhtlcCoins": {
     "one": "Activating ZHTLC coin: {}",
     "other": "Activating ZHTLC coins: {}"

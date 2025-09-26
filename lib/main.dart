@@ -69,7 +69,12 @@ Future<void> main() async {
       sparklineRepository,
     );
 
-    final coinsRepo = CoinsRepo(kdfSdk: komodoDefiSdk, mm2: mm2);
+    final arrrActivationService = ArrrActivationService(komodoDefiSdk);
+    final coinsRepo = CoinsRepo(
+      kdfSdk: komodoDefiSdk,
+      mm2: mm2,
+      arrrActivationService: arrrActivationService,
+    );
     final walletsRepository = WalletsRepository(
       komodoDefiSdk,
       mm2Api,
@@ -87,6 +92,7 @@ Future<void> main() async {
           providers: [
             RepositoryProvider.value(value: komodoDefiSdk),
             RepositoryProvider.value(value: mm2Api),
+            RepositoryProvider.value(value: arrrActivationService),
             RepositoryProvider.value(value: coinsRepo),
             RepositoryProvider.value(value: walletsRepository),
             RepositoryProvider.value(value: sparklineRepository),

@@ -112,22 +112,32 @@ class ArrrActivationService {
     try {
       _cacheActivationStart(asset.id);
 
-      await for (final progress in _sdk.assets.activateAsset(asset)) {
-        _cacheActivationProgress(asset.id, progress);
+      ActivationProgress? lastActivationProgress;
+      await for (final activationProgress in _sdk.assets.activateAsset(asset)) {
+        _cacheActivationProgress(asset.id, activationProgress);
+        lastActivationProgress = activationProgress;
       }
 
       _cacheActivationComplete(asset.id);
-      return ArrrActivationResultSuccess(
-        Stream.value(
-          ActivationProgress(
-            status: 'Activation completed successfully',
-            progressDetails: ActivationProgressDetails(
-              currentStep: ActivationStep.complete,
-              stepCount: 1,
+
+      // return result type by status of activation
+      if (lastActivationProgress?.isSuccess ?? false) {
+        return ArrrActivationResultSuccess(
+          Stream.value(
+            ActivationProgress(
+              status: 'Activation completed successfully',
+              progressDetails: ActivationProgressDetails(
+                currentStep: ActivationStep.complete,
+                stepCount: 1,
+              ),
             ),
           ),
-        ),
-      );
+        );
+      } else {
+        return ArrrActivationResultError(
+          lastActivationProgress?.errorMessage ?? 'Unknown activation error',
+        );
+      }
     } catch (e) {
       _cacheActivationError(asset.id, e.toString());
       return ArrrActivationResultError(e.toString());
@@ -211,8 +221,15 @@ class ArrrActivationService {
       await _configService.saveZhtlcConfig(assetId, config);
       _log.info('Configuration saved to SDK for ${assetId.id}');
     } catch (e) {
-      _log.severe('Failed to save configuration to SDK for ${assetId.id}: $e');
-      completer?.completeError('Failed to save configuration: $e');
+      final error = ArrrActivationResultError(
+        'Failed to save configuration: $e',
+      );
+      _log.severe(
+        'Failed to save configuration to SDK for ${assetId.id}',
+        error,
+      );
+      completer?.completeError(error);
+      return;
     }
 
     if (completer != null && !completer.isCompleted) {

@@ -259,7 +259,7 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
                 ),
               ),
               child: Text(
-                'Dates further back take longer to sync and activate the coin',
+                LocaleKeys.zhtlcDateSyncHint.tr(),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),

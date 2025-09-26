@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/zhtlc/zhtlc_configuration_dialog.dart'
@@ -21,13 +21,15 @@ class ZhtlcConfigurationHandler extends StatefulWidget {
 
 class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
   late StreamSubscription<ZhtlcConfigurationRequest> _configRequestSubscription;
-  final ArrrActivationService _arrrActivationService =
-      GetIt.I<ArrrActivationService>();
+  late final ArrrActivationService _arrrActivationService;
   final Logger _log = Logger('ZhtlcConfigurationHandler');
 
   @override
   void initState() {
     super.initState();
+    _arrrActivationService = RepositoryProvider.of<ArrrActivationService>(
+      context,
+    );
     _listenToConfigurationRequests();
   }
 
@@ -73,7 +75,7 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
   }
 
   // Track which configuration requests are already being handled to prevent duplicates
-  final Set<String> _handlingConfigurations = <String>{};
+  static final Set<String> _handlingConfigurations = <String>{};
 
   @override
   Widget build(BuildContext context) {

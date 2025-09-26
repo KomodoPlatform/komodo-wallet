@@ -40,9 +40,6 @@ final class AppBootstrapper {
     // Register core services
     GetIt.I.registerSingleton<KomodoDefiSdk>(kdfSdk);
     GetIt.I.registerSingleton<Mm2Api>(mm2Api);
-
-    final arrrActivationService = ArrrActivationService( kdfSdk);
-    GetIt.I.registerSingleton<ArrrActivationService>(arrrActivationService);
   }
 
   /// A list of futures that should be completed before the app starts
