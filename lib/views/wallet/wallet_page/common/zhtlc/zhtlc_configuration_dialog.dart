@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     show ZhtlcSyncParams;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart'
@@ -15,6 +16,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart'
 import 'package:komodo_defi_types/komodo_defi_types.dart' show Asset;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 
 /// Shows ZHTLC configuration dialog similar to handleZhtlcConfigDialog from SDK example
 /// This is bad practice (UI logic in utils), but necessary for now because of
@@ -94,6 +96,8 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
   late final TextEditingController blocksPerIterController;
   late final TextEditingController intervalMsController;
   late final TextEditingController syncValueController;
+  StreamSubscription<AuthBlocState>? _authSubscription;
+  bool _dismissedDueToAuthChange = false;
 
   String syncType = 'date';
   DateTime? selectedDateTime;
@@ -114,10 +118,13 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
     // Initialize with default date (2 days ago)
     selectedDateTime = DateTime.now().subtract(const Duration(days: 2));
     syncValueController.text = formatDate(selectedDateTime!);
+
+    _subscribeToAuthChanges();
   }
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     zcashPathController.dispose();
     blocksPerIterController.dispose();
     intervalMsController.dispose();
@@ -369,6 +376,23 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
         FilledButton(onPressed: _handleSave, child: Text(LocaleKeys.ok.tr())),
       ],
     );
+  }
+
+  void _subscribeToAuthChanges() {
+    _authSubscription = context.read<AuthBloc>().stream.listen((state) {
+      if (state.currentUser == null) {
+        _handleAuthSignedOut();
+      }
+    });
+  }
+
+  void _handleAuthSignedOut() {
+    if (_dismissedDueToAuthChange || !mounted) {
+      return;
+    }
+
+    _dismissedDueToAuthChange = true;
+    Navigator.of(context).maybePop<ZhtlcUserConfig?>(null);
   }
 }
 

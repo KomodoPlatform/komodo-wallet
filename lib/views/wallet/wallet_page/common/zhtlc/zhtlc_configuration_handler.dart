@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart' show AssetId;
 import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/zhtlc/zhtlc_configuration_dialog.dart'
     show confirmZhtlcConfiguration;
@@ -22,6 +24,7 @@ class ZhtlcConfigurationHandler extends StatefulWidget {
 class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
   late StreamSubscription<ZhtlcConfigurationRequest> _configRequestSubscription;
   late final ArrrActivationService _arrrActivationService;
+  StreamSubscription<AuthBlocState>? _authSubscription;
   final Logger _log = Logger('ZhtlcConfigurationHandler');
 
   @override
@@ -31,11 +34,13 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
       context,
     );
     _listenToConfigurationRequests();
+    _subscribeToAuthChanges();
   }
 
   @override
   void dispose() {
     _configRequestSubscription.cancel();
+    _authSubscription?.cancel();
     super.dispose();
   }
 
@@ -49,7 +54,7 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
               'Received config request for ${configRequest.asset.id.id}',
             );
             if (mounted &&
-                !_handlingConfigurations.contains(configRequest.asset.id.id)) {
+                !_handlingConfigurations.contains(configRequest.asset.id)) {
               _log.info(
                 'Showing configuration dialog for ${configRequest.asset.id.id}',
               );
@@ -57,7 +62,7 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
             } else {
               _log.warning(
                 'Skipping config request for ${configRequest.asset.id.id} '
-                '(mounted: $mounted, already handling: ${_handlingConfigurations.contains(configRequest.asset.id.id)})',
+                '(mounted: $mounted, already handling: ${_handlingConfigurations.contains(configRequest.asset.id)})',
               );
             }
           },
@@ -75,7 +80,7 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
   }
 
   // Track which configuration requests are already being handled to prevent duplicates
-  static final Set<String> _handlingConfigurations = <String>{};
+  static final Set<AssetId> _handlingConfigurations = <AssetId>{};
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +91,7 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
     BuildContext context,
     ZhtlcConfigurationRequest configRequest,
   ) async {
-    _handlingConfigurations.add(configRequest.asset.id.id);
+    _handlingConfigurations.add(configRequest.asset.id);
     _log.info('Starting configuration dialog for ${configRequest.asset.id.id}');
 
     try {
@@ -125,7 +130,7 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
       );
       _arrrActivationService.cancelConfiguration(configRequest.asset.id);
     } finally {
-      _handlingConfigurations.remove(configRequest.asset.id.id);
+      _handlingConfigurations.remove(configRequest.asset.id);
       _log.info(
         'Finished handling configuration for ${configRequest.asset.id.id}',
       );
@@ -135,4 +140,26 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
   /// Check if the configuration request listener is active
   bool get isListeningToConfigurationRequests =>
       !_configRequestSubscription.isPaused;
+
+  void _subscribeToAuthChanges() {
+    _authSubscription = context.read<AuthBloc>().stream.listen((state) {
+      if (state.currentUser == null) {
+        _handleSignedOut();
+      }
+    });
+  }
+
+  void _handleSignedOut() {
+    if (_handlingConfigurations.isEmpty) {
+      return;
+    }
+
+    _log.info('Auth signed out - clearing pending ZHTLC configuration state');
+    final pendingAssetIds = List<AssetId>.of(_handlingConfigurations);
+    _handlingConfigurations.clear();
+
+    for (final assetId in pendingAssetIds) {
+      _arrrActivationService.cancelConfiguration(assetId);
+    }
+  }
 }

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart' show AssetId;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart' show LocaleKeys;
 import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 import 'package:web_dex/services/arrr_activation/arrr_config.dart';
@@ -22,17 +24,28 @@ class ZhtlcActivationStatusBar extends StatefulWidget {
 class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
   Timer? _refreshTimer;
   Map<AssetId, ArrrActivationStatus> _cachedStatuses = {};
+  StreamSubscription<AuthBlocState>? _authSubscription;
 
   @override
   void initState() {
     super.initState();
     _startPeriodicRefresh();
+    _subscribeToAuthChanges();
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _authSubscription?.cancel();
     super.dispose();
+  }
+
+  void _subscribeToAuthChanges() {
+    _authSubscription = context.read<AuthBloc>().stream.listen((state) {
+      if (state.currentUser == null) {
+        _handleSignedOut();
+      }
+    });
   }
 
   void _startPeriodicRefresh() {
@@ -50,6 +63,22 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
         _cachedStatuses = newStatuses;
       });
     }
+  }
+
+  void _handleSignedOut() {
+    if (!mounted) {
+      _cachedStatuses = {};
+      return;
+    }
+
+    final assetIds = _cachedStatuses.keys.toList();
+    for (final assetId in assetIds) {
+      widget.activationService.clearActivationStatus(assetId);
+    }
+
+    setState(() {
+      _cachedStatuses = {};
+    });
   }
 
   @override

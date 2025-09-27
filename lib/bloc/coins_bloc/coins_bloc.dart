@@ -383,7 +383,10 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
             return sdkCoin?.copyWith(state: CoinState.activating);
           })
           .where((coin) => coin != null)
-          .cast<Coin>(),
+          .cast<Coin>()
+          // Do not pre-populate zhtlc coins, as they require configuration
+          // and longer activation times, and are handled separately.
+          .where((coin) => coin.id.subClass != CoinSubClass.zhtlc),
       key: (element) => (element as Coin).id.id,
     );
     return state.copyWith(
