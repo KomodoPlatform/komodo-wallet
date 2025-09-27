@@ -287,14 +287,29 @@ class CoinsRepo {
       return;
     }
 
-    if (assets.any((asset) => asset.id.subClass == CoinSubClass.zhtlc)) {
-      return _activateZhtlcAssets(
-        assets,
-        assets.map((asset) => _assetToCoinWithoutAddress(asset)).toList(),
+    // Separate ZHTLC and regular assets
+    final zhtlcAssets = assets
+        .where((asset) => asset.id.subClass == CoinSubClass.zhtlc)
+        .toList();
+    final regularAssets = assets
+        .where((asset) => asset.id.subClass != CoinSubClass.zhtlc)
+        .toList();
+
+    // Process ZHTLC assets separately
+    if (zhtlcAssets.isNotEmpty) {
+      await _activateZhtlcAssets(
+        zhtlcAssets,
+        zhtlcAssets.map((asset) => _assetToCoinWithoutAddress(asset)).toList(),
         notifyListeners: notifyListeners,
         addToWalletMetadata: addToWalletMetadata,
       );
     }
+
+    // Continue with regular asset processing for non-ZHTLC assets
+    if (regularAssets.isEmpty) return;
+
+    // Update assets list to only include regular assets for remaining processing
+    assets = regularAssets;
 
     if (addToWalletMetadata) {
       // Ensure the wallet metadata is updated with the assets before activation

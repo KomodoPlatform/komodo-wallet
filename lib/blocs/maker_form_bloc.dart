@@ -275,6 +275,16 @@ class MakerFormBloc implements BlocBase {
       return;
     }
 
+    final activeAssets = await kdfSdk.assets.getActivatedAssets();
+    final isAssetActive = activeAssets.any((asset) => asset.id == coin.id);
+    if (!isAssetActive) {
+      // Intentionally leave in the loading state to avoid showing a "0.00" balance
+      // while the asset is activating.
+      maxSellAmount = null;
+      availableBalanceState = AvailableBalanceState.loading;
+      return;
+    }
+
     Rational? amount = await dexRepository.getMaxMakerVolume(coin.abbr);
     if (amount != null) {
       maxSellAmount = amount;

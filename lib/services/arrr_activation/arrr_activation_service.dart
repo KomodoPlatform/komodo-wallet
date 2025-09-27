@@ -28,6 +28,9 @@ class ArrrActivationService {
   /// Subscription to auth state changes
   StreamSubscription<KdfUser?>? _authSubscription;
 
+  /// Flag to track if the service is being disposed
+  bool _isDisposing = false;
+
   /// Stream of configuration requests that UI can listen to
   Stream<ZhtlcConfigurationRequest> get configurationRequests =>
       _configRequestController.stream;
@@ -38,6 +41,9 @@ class ArrrActivationService {
     Asset asset, {
     ZhtlcUserConfig? initialConfig,
   }) async {
+    if (_isDisposing || _configRequestController.isClosed) {
+      throw StateError('ArrrActivationService has been disposed');
+    }
     var config = initialConfig ?? await _getOrRequestConfiguration(asset.id);
 
     if (config == null) {
@@ -53,11 +59,12 @@ class ArrrActivationService {
 
       _log.info('Requesting configuration for ${asset.id.id}');
 
-      // Check if stream controller is closed
-      if (_configRequestController.isClosed) {
+      // Check if stream controller is closed or service is disposing
+      if (_isDisposing || _configRequestController.isClosed) {
         _log.severe(
-          'Configuration request controller is closed for ${asset.id.id}',
+          'Configuration request controller is closed or service is disposing for ${asset.id.id}',
         );
+        _configCompleters.remove(asset.id);
         return ArrrActivationResultError(
           'Configuration system is not available',
         );
@@ -213,6 +220,10 @@ class ArrrActivationService {
     AssetId assetId,
     ZhtlcUserConfig config,
   ) async {
+    if (_isDisposing) {
+      _log.warning('Ignoring configuration submission - service is disposing');
+      return;
+    }
     _log.info('Submitting configuration for ${assetId.id}');
 
     // Save configuration to SDK
@@ -351,17 +362,24 @@ class ArrrActivationService {
 
   /// Dispose resources
   void dispose() {
+    // Mark as disposing to prevent new operations
+    _isDisposing = true;
+
     // Cancel auth subscription first
     _authSubscription?.cancel();
 
-    // Complete any pending configuration requests
+    // Complete any pending configuration requests with a specific error
     for (final completer in _configCompleters.values) {
       if (!completer.isCompleted) {
-        completer.complete(null);
+        completer.completeError(StateError('Service is being disposed'));
       }
     }
     _configCompleters.clear();
-    _configRequestController.close();
+
+    // Close controller after ensuring all operations are complete
+    if (!_configRequestController.isClosed) {
+      _configRequestController.close();
+    }
   }
 }
 

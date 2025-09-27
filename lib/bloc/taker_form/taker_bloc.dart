@@ -34,6 +34,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     required KomodoDefiSdk kdfSdk,
   })  : _dexRepo = dexRepository,
         _coinsRepo = coinsRepository,
+        _sdk = kdfSdk,
         super(TakerState.initial()) {
     _validator = TakerValidator(
       bloc: this,
@@ -81,6 +82,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
 
   final DexRepository _dexRepo;
   final CoinsRepo _coinsRepo;
+  final KomodoDefiSdk _sdk;
   Timer? _maxSellAmountTimer;
   bool _activatingAssets = false;
   bool _waitingForWallet = true;
@@ -408,6 +410,21 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
           availableBalanceState: () => AvailableBalanceState.loading));
     }
 
+    // Required here because of the manual RPC calls that bypass the sdk 
+    final activeAssets = await _sdk.assets.getActivatedAssets();
+    final isAssetActive =
+        activeAssets.any((asset) => asset.id == state.sellCoin!.id);
+    if (!isAssetActive) {
+      // Intentionally leave the state as loading so that a spinner is shown 
+      // instead of a "0.00" balance hinting that the asset is active when it
+      // is not.
+      if (state.availableBalanceState != AvailableBalanceState.loading) {
+        emitter(state.copyWith(
+            availableBalanceState: () => AvailableBalanceState.loading));
+      }
+      return; 
+    }
+
     if (!_isLoggedIn) {
       emitter(state.copyWith(
           availableBalanceState: () => AvailableBalanceState.unavailable));
@@ -438,11 +455,10 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     try {
       return await retry(
         () => _dexRepo.getMaxTakerVolume(abbr),
-        maxAttempts: 5,
+        maxAttempts: 3,
         backoffStrategy: LinearBackoff(
-          initialDelay: const Duration(seconds: 2),
-          increment: const Duration(seconds: 2),
-          maxDelay: const Duration(seconds: 10),
+          initialDelay: const Duration(milliseconds: 500),
+          maxDelay: const Duration(seconds: 2),
         ),
       );
     } catch (_) {
