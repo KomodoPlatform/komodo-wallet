@@ -19,4 +19,5 @@ enum CoinType {
   tendermintToken,
   tendermint,
   slp,
+  zhtlc,
 }

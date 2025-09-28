@@ -119,7 +119,7 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
           ),
         ),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
@@ -127,8 +127,8 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
           child: Row(
             children: [
               SizedBox(
-                width: 16,
-                height: 16,
+                width: 14,
+                height: 14,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -143,9 +143,9 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
                     coinCount,
                     args: [coinNames],
                   ),
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).textTheme.titleSmall?.color,
-                    fontWeight: FontWeight.w600,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),

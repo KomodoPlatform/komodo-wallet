@@ -188,6 +188,8 @@ String getCoinTypeName(CoinType type, [String? symbol]) {
       return 'Tendermint Token';
     case CoinType.slp:
       return 'SLP';
+    case CoinType.zhtlc:
+      return 'ZHTLC';
   }
 }
 

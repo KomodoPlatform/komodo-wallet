@@ -392,6 +392,7 @@ final Map<String, String> _abbr2TickerCache = {};
 
 Color getProtocolColor(CoinType type) {
   switch (type) {
+    case CoinType.zhtlc:
     case CoinType.utxo:
       return const Color.fromRGBO(233, 152, 60, 1);
     case CoinType.erc20:
@@ -455,6 +456,7 @@ bool hasTxHistorySupport(Coin coin) {
     case CoinType.hco20:
     case CoinType.plg20:
     case CoinType.slp:
+    case CoinType.zhtlc:
       return true;
   }
 }
@@ -471,6 +473,7 @@ String getNativeExplorerUrlByCoin(Coin coin, String? address) {
     case CoinType.tendermintToken:
       return '${coin.explorerUrl}account/$coinAddress';
 
+    case CoinType.zhtlc:
     case CoinType.utxo:
     case CoinType.smartChain:
     case CoinType.erc20:

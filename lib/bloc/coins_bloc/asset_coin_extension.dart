@@ -96,6 +96,8 @@ extension CoinTypeExtension on CoinSubClass {
         return CoinType.erc20;
       case CoinSubClass.krc20:
         return CoinType.krc20;
+      case CoinSubClass.zhtlc:
+        return CoinType.zhtlc;
       default:
         return CoinType.utxo;
     }
@@ -166,6 +168,8 @@ extension CoinSubClassExtension on CoinType {
         return CoinSubClass.erc20;
       case CoinType.krc20:
         return CoinSubClass.krc20;
+      case CoinType.zhtlc:
+        return CoinSubClass.zhtlc;
     }
   }
 }

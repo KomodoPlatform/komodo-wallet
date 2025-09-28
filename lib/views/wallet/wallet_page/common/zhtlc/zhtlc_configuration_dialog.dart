@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,8 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 
+enum ZhtlcSyncType { earliest, height, date }
+
 /// Shows ZHTLC configuration dialog similar to handleZhtlcConfigDialog from SDK example
 /// This is bad practice (UI logic in utils), but necessary for now because of
 /// auto-coin activations from multiple sources in BLoCs.
@@ -27,16 +30,13 @@ Future<ZhtlcUserConfig?> confirmZhtlcConfiguration(
 }) async {
   String? prefilledZcashPath;
 
-  // On desktop platforms, try to download Zcash parameters first
   if (ZcashParamsDownloaderFactory.requiresDownload) {
     ZcashParamsDownloader? downloader;
     try {
       downloader = ZcashParamsDownloaderFactory.create();
 
-      // Check if parameters are already available
       final areAvailable = await downloader.areParamsAvailable();
       if (!areAvailable) {
-        // Show download progress dialog
         final downloadResult = await _showZcashDownloadDialog(
           context,
           downloader,
@@ -50,7 +50,6 @@ Future<ZhtlcUserConfig?> confirmZhtlcConfiguration(
 
       prefilledZcashPath = await downloader.getParamsPath();
     } catch (e) {
-      // Error creating downloader or getting params path
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -60,7 +59,6 @@ Future<ZhtlcUserConfig?> confirmZhtlcConfiguration(
         );
       }
     } finally {
-      // Always dispose the downloader to release resources
       downloader?.dispose();
     }
   }
@@ -95,12 +93,10 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
   late final TextEditingController zcashPathController;
   late final TextEditingController blocksPerIterController;
   late final TextEditingController intervalMsController;
-  late final TextEditingController syncValueController;
   StreamSubscription<AuthBlocState>? _authSubscription;
   bool _dismissedDueToAuthChange = false;
 
-  String syncType = 'date';
-  DateTime? selectedDateTime;
+  final GlobalKey<_SyncFormState> _syncFormKey = GlobalKey<_SyncFormState>();
 
   @override
   void initState() {
@@ -113,11 +109,6 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
     zcashPathController = TextEditingController(text: defaultZcashPath);
     blocksPerIterController = TextEditingController(text: '1000');
     intervalMsController = TextEditingController(text: '0');
-    syncValueController = TextEditingController();
-
-    // Initialize with default date (2 days ago)
-    selectedDateTime = DateTime.now().subtract(const Duration(days: 2));
-    syncValueController.text = formatDate(selectedDateTime!);
 
     _subscribeToAuthChanges();
   }
@@ -128,155 +119,7 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
     zcashPathController.dispose();
     blocksPerIterController.dispose();
     intervalMsController.dispose();
-    syncValueController.dispose();
     super.dispose();
-  }
-
-  String formatDate(DateTime dateTime) {
-    return dateTime.toIso8601String().split('T')[0];
-  }
-
-  /// Creates a Material 3 theme for the date picker based on the current Material 2 theme
-  ThemeData _createMaterial3DatePickerTheme(BuildContext context) {
-    final currentTheme = Theme.of(context);
-    final currentColorScheme = currentTheme.colorScheme;
-
-    // Use the current theme's primary color as the seed color
-    // This works for both light and dark themes since primary is set appropriately in each
-    final material3ColorScheme = ColorScheme.fromSeed(
-      seedColor: currentColorScheme.primary,
-      brightness: currentColorScheme.brightness,
-    );
-
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: material3ColorScheme,
-      fontFamily: currentTheme.textTheme.bodyMedium?.fontFamily,
-    );
-  }
-
-  Future<void> _selectDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDateTime ?? DateTime.now(),
-      firstDate: DateTime(2018), // first arrr block in 2018
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: _createMaterial3DatePickerTheme(context),
-          child: child ?? const SizedBox(),
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        selectedDateTime = DateTime(picked.year, picked.month, picked.day);
-        syncValueController.text = formatDate(selectedDateTime!);
-      });
-    }
-  }
-
-  void _onSyncTypeChanged(String? newSyncType) {
-    if (newSyncType == null) return;
-    setState(() {
-      syncType = newSyncType;
-      // Clear the input when switching sync types
-      if (syncType == 'date') {
-        // Set default date (2 days ago) for date type
-        selectedDateTime = DateTime.now().subtract(const Duration(days: 2));
-        syncValueController.text = formatDate(selectedDateTime!);
-      } else if (syncType == 'height') {
-        // Clear input for block height
-        syncValueController.clear();
-      } else {
-        // Clear input for earliest (no input needed)
-        syncValueController.clear();
-      }
-    });
-  }
-
-  Widget _buildSyncForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(LocaleKeys.zhtlcStartSyncFromLabel.tr()),
-            const SizedBox(width: 12),
-            DropdownButton<String>(
-              value: syncType,
-              items: [
-                DropdownMenuItem(
-                  value: 'earliest',
-                  child: Text(LocaleKeys.zhtlcEarliestSaplingOption.tr()),
-                ),
-                DropdownMenuItem(
-                  value: 'height',
-                  child: Text(LocaleKeys.zhtlcBlockHeightOption.tr()),
-                ),
-                DropdownMenuItem(
-                  value: 'date',
-                  child: Text(LocaleKeys.zhtlcDateTimeOption.tr()),
-                ),
-              ],
-              onChanged: _onSyncTypeChanged,
-            ),
-          ],
-        ),
-        if (syncType != 'earliest') ...[
-          const SizedBox(height: 12),
-          TextField(
-            controller: syncValueController,
-            decoration: InputDecoration(
-              labelText: syncType == 'height'
-                  ? LocaleKeys.zhtlcBlockHeightOption.tr()
-                  : LocaleKeys.zhtlcSelectDateTimeLabel.tr(),
-              suffixIcon: syncType == 'date'
-                  ? IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: _selectDate,
-                    )
-                  : null,
-            ),
-            keyboardType: syncType == 'height'
-                ? TextInputType.number
-                : TextInputType.none,
-            readOnly: syncType == 'date',
-            onTap: syncType == 'date' ? _selectDate : null,
-          ),
-          if (syncType == 'date') ...[
-            const SizedBox(height: 8),
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(top: 4.0),
-              padding: const EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 12.0,
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Text(
-                LocaleKeys.zhtlcDateSyncHint.tr(),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ],
-      ],
-    );
   }
 
   void _handleSave() {
@@ -290,28 +133,10 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
     }
 
     // Create sync params based on type
-    ZhtlcSyncParams? syncParams;
-    if (syncType == 'earliest') {
-      syncParams = ZhtlcSyncParams.earliest();
-    } else if (syncType == 'height') {
-      final v = int.tryParse(syncValueController.text.trim());
-      if (v == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(LocaleKeys.zhtlcInvalidBlockHeight.tr())),
-        );
-        return;
-      }
-      syncParams = ZhtlcSyncParams.height(v);
-    } else if (syncType == 'date') {
-      if (selectedDateTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(LocaleKeys.zhtlcSelectDateTimeRequired.tr())),
-        );
-        return;
-      }
-      // Convert to Unix timestamp (seconds since epoch)
-      final unixTimestamp = selectedDateTime!.millisecondsSinceEpoch ~/ 1000;
-      syncParams = ZhtlcSyncParams.date(unixTimestamp);
+    final syncState = _syncFormKey.currentState;
+    final syncParams = syncState?.buildSyncParams();
+    if (syncParams == null) {
+      return;
     }
 
     final result = ZhtlcUserConfig(
@@ -364,7 +189,7 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 12),
-            _buildSyncForm(),
+            _SyncForm(key: _syncFormKey),
           ],
         ),
       ),
@@ -393,6 +218,234 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
 
     _dismissedDueToAuthChange = true;
     Navigator.of(context).maybePop<ZhtlcUserConfig?>(null);
+  }
+}
+
+class _SyncForm extends StatefulWidget {
+  const _SyncForm({super.key});
+
+  @override
+  State<_SyncForm> createState() => _SyncFormState();
+}
+
+class _SyncFormState extends State<_SyncForm> {
+  late final TextEditingController _syncValueController;
+  ZhtlcSyncType _syncType = ZhtlcSyncType.date;
+  DateTime? _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now().subtract(const Duration(days: 2));
+    _syncValueController = TextEditingController(
+      text: _formatDate(_selectedDate!),
+    );
+  }
+
+  @override
+  void dispose() {
+    _syncValueController.dispose();
+    super.dispose();
+  }
+
+  ZhtlcSyncParams? buildSyncParams() {
+    switch (_syncType) {
+      case ZhtlcSyncType.earliest:
+        return ZhtlcSyncParams.earliest();
+      case ZhtlcSyncType.height:
+        final rawValue = _syncValueController.text.trim();
+        final parsedValue = int.tryParse(rawValue);
+        if (parsedValue == null) {
+          _showSnackBar(LocaleKeys.zhtlcInvalidBlockHeight.tr());
+          return null;
+        }
+        return ZhtlcSyncParams.height(parsedValue);
+      case ZhtlcSyncType.date:
+        if (_selectedDate == null) {
+          return null;
+        }
+        final unixTimestamp = _selectedDate!.millisecondsSinceEpoch ~/ 1000;
+        return ZhtlcSyncParams.date(unixTimestamp);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2018),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: _createMaterial3DatePickerTheme(),
+          child: child ?? const SizedBox(),
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = DateTime(picked.year, picked.month, picked.day);
+        _syncValueController.text = _formatDate(_selectedDate!);
+      });
+    }
+  }
+
+  void _onSyncTypeChanged(ZhtlcSyncType? newType) {
+    if (newType == null) {
+      return;
+    }
+
+    setState(() {
+      _syncType = newType;
+      if (_syncType == ZhtlcSyncType.date) {
+        _selectedDate = DateTime.now().subtract(const Duration(days: 2));
+        _syncValueController.text = _formatDate(_selectedDate!);
+      } else {
+        _selectedDate = null;
+        _syncValueController.clear();
+      }
+    });
+  }
+
+  String _formatDate(DateTime dateTime) {
+    return dateTime.toIso8601String().split('T')[0];
+  }
+
+  ThemeData _createMaterial3DatePickerTheme() {
+    final currentTheme = Theme.of(context);
+    final currentColorScheme = currentTheme.colorScheme;
+
+    final material3ColorScheme = ColorScheme.fromSeed(
+      seedColor: currentColorScheme.primary,
+      brightness: currentColorScheme.brightness,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: material3ColorScheme,
+      fontFamily: currentTheme.textTheme.bodyMedium?.fontFamily,
+    );
+  }
+
+  String _syncTypeLabel(ZhtlcSyncType type) {
+    switch (type) {
+      case ZhtlcSyncType.earliest:
+        return LocaleKeys.zhtlcEarliestSaplingOption.tr();
+      case ZhtlcSyncType.height:
+        return LocaleKeys.zhtlcBlockHeightOption.tr();
+      case ZhtlcSyncType.date:
+        return LocaleKeys.zhtlcDateTimeOption.tr();
+    }
+  }
+
+  bool get _shouldShowValueField => _syncType != ZhtlcSyncType.earliest;
+
+  bool get _isDate => _syncType == ZhtlcSyncType.date;
+
+  bool get _isHeight => _syncType == ZhtlcSyncType.height;
+
+  @override
+  Widget build(BuildContext context) {
+    final dropdownItems = ZhtlcSyncType.values
+        .map(
+          (type) => DropdownMenuItem<ZhtlcSyncType>(
+            value: type,
+            alignment: Alignment.centerLeft,
+            child: Text(_syncTypeLabel(type)),
+          ),
+        )
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(LocaleKeys.zhtlcStartSyncFromLabel.tr()),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Flexible(
+              child: DropdownButtonFormField<ZhtlcSyncType>(
+                initialValue: _syncType,
+                items: dropdownItems,
+                onChanged: _onSyncTypeChanged,
+              ),
+            ),
+            if (_shouldShowValueField) ...[
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _syncValueController,
+                  decoration: InputDecoration(
+                    labelText: _isHeight
+                        ? LocaleKeys.zhtlcBlockHeightOption.tr()
+                        : LocaleKeys.zhtlcSelectDateTimeLabel.tr(),
+                    suffixIcon: _isDate
+                        ? IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: _selectDate,
+                          )
+                        : null,
+                  ),
+                  keyboardType: _isHeight
+                      ? TextInputType.number
+                      : TextInputType.none,
+                  readOnly: _isDate,
+                  onTap: _isDate ? () => _selectDate() : null,
+                ),
+              ),
+            ],
+          ],
+        ),
+        if (_shouldShowValueField) ...[
+          const SizedBox(height: 24),
+          if (_isDate) ...[const _SyncTimeWarning()],
+        ],
+      ],
+    );
+  }
+}
+
+class _SyncTimeWarning extends StatelessWidget {
+  const _SyncTimeWarning();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final backgroundColor = theme.colorScheme.secondaryContainer;
+    final foregroundColor = theme.colorScheme.onSecondaryContainer;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: backgroundColor.withValues(alpha: 0.1),
+        border: Border.all(color: foregroundColor),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: foregroundColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              LocaleKeys.zhtlcDateSyncHint.tr(),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: foregroundColor),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

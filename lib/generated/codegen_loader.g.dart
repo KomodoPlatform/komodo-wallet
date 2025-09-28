@@ -456,6 +456,7 @@ abstract class  LocaleKeys {
   static const withdrawAmountTooLowError = 'withdrawAmountTooLowError';
   static const withdrawNoSuchCoinError = 'withdrawNoSuchCoinError';
   static const withdrawPreview = 'withdrawPreview';
+  static const withdrawPreviewZhtlcNote = 'withdrawPreviewZhtlcNote';
   static const withdrawPreviewError = 'withdrawPreviewError';
   static const txHistoryFetchError = 'txHistoryFetchError';
   static const txHistoryNoTransactions = 'txHistoryNoTransactions';

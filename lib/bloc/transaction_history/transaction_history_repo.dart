@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
 
 /// Throws [TransactionFetchException] if the transaction history could not be
 /// fetched.
@@ -15,6 +16,8 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
     required KomodoDefiSdk sdk,
   }) : _sdk = sdk;
   final KomodoDefiSdk _sdk;
+  final Logger _logger =
+      Logger('SdkTransactionHistoryRepository');
 
   @override
   Future<List<Transaction>?> fetch(AssetId assetId, {String? fromId}) async {
@@ -39,7 +42,8 @@ class SdkTransactionHistoryRepository implements TransactionHistoryRepo {
               ),
       );
       return transactionHistory.transactions;
-    } catch (e) {
+    } catch (e, s) {
+      _logger.severe('Failed to fetch transactions for $assetId', e, s);
       return null;
     }
   }

@@ -29,7 +29,6 @@ class UpdateIntervalDropdown extends StatelessWidget {
           child: DropdownButtonFormField<TradeBotUpdateInterval>(
             value: interval,
             onChanged: onChanged,
-            focusColor: Colors.transparent,
             items: TradeBotUpdateInterval.values
                 .map(
                   (interval) => DropdownMenuItem(
