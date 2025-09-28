@@ -11,7 +11,6 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -127,17 +126,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         );
       },
     );
-
-    final coinUpdates = _syncIguanaCoinsStates();
-    await emit.forEach(
-      coinUpdates,
-      onData: (coin) =>
-          state.copyWith(walletCoins: {...state.walletCoins, coin.id.id: coin}),
-      onError: (error, stackTrace) {
-        _log.severe('Error syncing iguana coins states', error, stackTrace);
-        return state;
-      },
-    );
   }
 
   Future<void> _onWalletCoinUpdated(
@@ -190,18 +178,6 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     // in the list at once, rather than one at a time as they are activated
     emit(_prePopulateListWithActivatingCoins(event.coinIds));
     await _activateCoins(event.coinIds, emit);
-
-    final currentWallet = await _kdfSdk.currentWallet();
-    if (currentWallet?.config.type == WalletType.iguana ||
-        currentWallet?.config.type == WalletType.hdwallet) {
-      final coinUpdates = _syncIguanaCoinsStates();
-      await emit.forEach(
-        coinUpdates,
-        onData: (coin) => state.copyWith(
-          walletCoins: {...state.walletCoins, coin.id.id: coin},
-        ),
-      );
-    }
 
     add(CoinsBalancesRefreshed());
   }
@@ -393,79 +369,5 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       walletCoins: {...state.walletCoins, ...activatingCoins},
       coins: {...knownCoins, ...state.coins, ...activatingCoins},
     );
-  }
-
-  /// Yields one coin at a time to provide visual feedback to the user as
-  /// coins are activated.
-  ///
-  /// When multiple coins are found for the provided IDs,
-  Stream<Coin> _syncIguanaCoinsStates() async* {
-    final coinsBlocWalletCoinsState = state.walletCoins;
-    final previouslyActivatedCoinIds =
-        (await _kdfSdk.currentWallet())?.config.activatedCoins ?? [];
-
-    final walletAssets = <Asset>[];
-    for (final coinId in previouslyActivatedCoinIds) {
-      final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
-      if (assets.isEmpty) {
-        _log.warning(
-          'No assets found for activated coin ID: $coinId. '
-          'This coin will be skipped during synchronization.',
-        );
-        continue;
-      }
-      if (assets.length > 1) {
-        final assetIds = assets.map((a) => a.id.id).join(', ');
-        _log.shout(
-          'Multiple assets found for activated coin ID: $coinId. '
-          'Expected single asset, found ${assets.length}: $assetIds. ',
-        );
-      }
-
-      // This is expected to throw if there are multiple assets, to stick
-      // to the strategy of using `.single` elsewhere in the codebase.
-      walletAssets.add(assets.single);
-    }
-
-    final coinsToSync = _getWalletCoinsNotInState(
-      walletAssets,
-      coinsBlocWalletCoinsState,
-    );
-    if (coinsToSync.isNotEmpty) {
-      _log.info(
-        'Found ${coinsToSync.length} wallet coins not in state, '
-        'syncing them to state as suspended',
-      );
-      yield* Stream.fromIterable(coinsToSync);
-    }
-  }
-
-  List<Coin> _getWalletCoinsNotInState(
-    List<Asset> walletAssets,
-    Map<String, Coin> coinsBlocWalletCoinsState,
-  ) {
-    final List<Coin> coinsToSyncToState = [];
-
-    final enabledAssetsNotInState = walletAssets
-        .where((asset) => !coinsBlocWalletCoinsState.containsKey(asset.id.id))
-        .toList();
-
-    // Show assets that are in the wallet metadata but not in the state. This might
-    // happen if activation occurs outside of the coins bloc, like the dex or
-    // coins manager auto-activation or deactivation.
-    for (final asset in enabledAssetsNotInState) {
-      final coin = _coinsRepo.getCoinFromId(asset.id);
-      if (coin == null) {
-        _log.shout(
-          'Coin ${asset.id.id} not found in coins repository, '
-          'skipping sync from wallet metadata to coins bloc state.',
-        );
-        continue;
-      }
-
-      coinsToSyncToState.add(coin.copyWith(state: CoinState.suspended));
-    }
-
-    return coinsToSyncToState;
   }
 }

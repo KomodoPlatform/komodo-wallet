@@ -41,12 +41,22 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
   ///
   /// Throws [StateError] if multiple assets are found with the same configuration ID.
   Future<List<Coin>> getWalletCoins() async {
+    final assets = await getWalletAssets();
+    return assets
+        // use single to stick to the existing behaviour around assetByTicker
+        // which will cause the application to crash if there are
+        // multiple assets with the same ticker
+        .map((asset) => asset.toCoin())
+        .toList();
+  }
+
+  Future<List<Asset>> getWalletAssets() async {
     final coinIds = await getWalletCoinIds();
     return coinIds
         // use single to stick to the existing behaviour around assetByTicker
         // which will cause the application to crash if there are
         // multiple assets with the same ticker
-        .map((coinId) => assets.findAssetsByConfigId(coinId).single.toCoin())
+        .map((coinId) => assets.findAssetsByConfigId(coinId).single)
         .toList();
   }
 

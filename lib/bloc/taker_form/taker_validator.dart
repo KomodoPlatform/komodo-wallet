@@ -15,6 +15,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_errors.dar
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/dex_form_error.dart';
+import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
@@ -221,7 +222,7 @@ class TakerValidator {
 
   Future<bool> _validateCoinAndParent(String abbr) async {
     final coin = _sdk.getSdkAsset(abbr);
-    final enabledAssets = await _sdk.assets.getActivatedAssets();
+    final enabledAssets = await _sdk.getWalletAssets();
     final isAssetEnabled = enabledAssets.contains(coin);
     final parentId = coin.id.parentId;
     final parent = _sdk.assets.available[parentId];
