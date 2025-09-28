@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/blocs/orderbook_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/orderbook/order.dart';
 import 'package:web_dex/model/orderbook/orderbook.dart';
@@ -66,30 +65,33 @@ class _OrderbookViewState extends State<OrderbookView> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<OrderbookResponse?>(
+    return StreamBuilder<OrderbookResult?>(
       initialData: _model.response,
       stream: _model.outResponse,
       builder: (context, snapshot) {
         if (!_model.isComplete) return const SizedBox.shrink();
 
-        final OrderbookResponse? response = snapshot.data;
+        final OrderbookResult? result = snapshot.data;
 
-        if (response == null) {
+        if (result == null) {
           return const Center(child: UiSpinner());
         }
 
-        if (response.error != null) {
+        if (result.hasError) {
           return OrderbookErrorMessage(
-            response,
+            result.error ?? LocaleKeys.orderBookFailedLoadError.tr(),
             onReloadClick: _model.reload,
           );
         }
 
-        final Orderbook? orderbook = response.result;
-        if (orderbook == null) {
-          return Center(
-            child: Text(LocaleKeys.orderBookEmpty.tr()),
-          );
+        final response = result.response;
+        if (response == null) {
+          return const Center(child: UiSpinner());
+        }
+
+        final Orderbook orderbook = Orderbook.fromSdkResponse(response);
+        if (orderbook.asks.isEmpty && orderbook.bids.isEmpty) {
+          return Center(child: Text(LocaleKeys.orderBookEmpty.tr()));
         }
 
         return GradientBorder(
@@ -97,8 +99,10 @@ class _OrderbookViewState extends State<OrderbookView> {
           gradient: dexPageColors.formPlateGradient,
           child: Container(
             constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 16.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,

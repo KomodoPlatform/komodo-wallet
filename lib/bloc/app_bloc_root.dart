@@ -171,7 +171,7 @@ class AppBlocRoot extends StatelessWidget {
             dexRepository: dexRepository,
           ),
         ),
-        RepositoryProvider(create: (_) => OrderbookBloc(api: mm2Api)),
+        RepositoryProvider(create: (_) => OrderbookBloc(sdk: komodoDefiSdk)),
         RepositoryProvider(create: (_) => myOrdersService),
         RepositoryProvider(
           create: (_) => KmdRewardsBloc(coinsRepository, mm2Api),

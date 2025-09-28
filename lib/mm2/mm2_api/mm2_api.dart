@@ -33,8 +33,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/my_tx_history_request.dart
 import 'package:web_dex/mm2/mm2_api/rpc/my_tx_history/my_tx_history_v2_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/order_status/order_status_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/order_status/order_status_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/orderbook_depth/orderbook_depth_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/recover_funds_of_swap/recover_funds_of_swap_request.dart';
@@ -52,16 +50,13 @@ import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.d
 import 'package:web_dex/mm2/mm2_api/rpc/validateaddress/validateaddress_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/version/version_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
-import 'package:web_dex/model/orderbook/orderbook.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class Mm2Api {
-  Mm2Api({
-    required MM2 mm2,
-    required KomodoDefiSdk sdk,
-  })  : _sdk = sdk,
-        _mm2 = mm2 {
+  Mm2Api({required MM2 mm2, required KomodoDefiSdk sdk})
+    : _sdk = sdk,
+      _mm2 = mm2 {
     nft = Mm2ApiNft(_mm2.call, sdk);
   }
 
@@ -113,10 +108,7 @@ class Mm2Api {
       denom: rational.denominator.toString(),
     );
 
-    return MaxTakerVolResponse(
-      coin: abbr,
-      result: result,
-    );
+    return MaxTakerVolResponse(coin: abbr, result: result);
   }
 
   Future<Map<String, dynamic>?> getActiveSwaps(
@@ -478,11 +470,7 @@ class Mm2Api {
       denom: rational.denominator.toString(),
     );
 
-    return MaxMakerVolResponse(
-      coin: coinAbbr,
-      volume: result,
-      balance: result,
-    );
+    return MaxMakerVolResponse(coin: coinAbbr, volume: result, balance: result);
   }
 
   Future<MinTradingVolResponse?> getMinTradingVol(
@@ -502,36 +490,6 @@ class Mm2Api {
         isError: true,
       ).ignore();
       return null;
-    }
-  }
-
-  Future<OrderbookResponse> getOrderbook(OrderbookRequest request) async {
-    try {
-      final JsonMap json = await _mm2.call(request);
-
-      if (json['error'] != null) {
-        return OrderbookResponse(
-          request: request,
-          error: json['error'] as String?,
-        );
-      }
-
-      return OrderbookResponse(
-        request: request,
-        result: Orderbook.fromJson(json),
-      );
-    } catch (e, s) {
-      log(
-        'Error getting orderbook ${request.base}/${request.rel}: $e',
-        path: 'api => getOrderbook',
-        trace: s,
-        isError: true,
-      ).ignore();
-
-      return OrderbookResponse(
-        request: request,
-        error: e.toString(),
-      );
     }
   }
 
@@ -557,10 +515,13 @@ class Mm2Api {
   }
 
   Future<
-      ApiResponse<TradePreimageRequest, TradePreimageResponseResult,
-          Map<String, dynamic>>> getTradePreimage(
-    TradePreimageRequest request,
-  ) async {
+    ApiResponse<
+      TradePreimageRequest,
+      TradePreimageResponseResult,
+      Map<String, dynamic>
+    >
+  >
+  getTradePreimage(TradePreimageRequest request) async {
     try {
       final JsonMap responseJson = await _mm2.call(request);
       if (responseJson['error'] != null) {
@@ -577,9 +538,7 @@ class Mm2Api {
         trace: s,
         isError: true,
       ).ignore();
-      return ApiResponse(
-        request: request,
-      );
+      return ApiResponse(request: request);
     }
   }
 
@@ -635,9 +594,7 @@ class Mm2Api {
     await _mm2.call(StopReq());
   }
 
-  Future<ShowPrivKeyResponse?> showPrivKey(
-    ShowPrivKeyRequest request,
-  ) async {
+  Future<ShowPrivKeyResponse?> showPrivKey(ShowPrivKeyRequest request) async {
     try {
       final JsonMap json = await _mm2.call(request);
       if (json['error'] != null) {

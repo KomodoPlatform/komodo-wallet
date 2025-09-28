@@ -1,13 +1,15 @@
 import 'dart:async';
 
+import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
+    show GeneralErrorResponse, OrderbookResponse;
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/blocs/bloc_base.dart';
-import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_request.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
+import 'package:web_dex/shared/utils/utils.dart';
 
 class OrderbookBloc implements BlocBase {
-  OrderbookBloc({required Mm2Api api}) {
-    _api = api;
+  OrderbookBloc({required KomodoDefiSdk sdk}) {
+    _sdk = sdk;
 
     _timer = Timer.periodic(
       const Duration(seconds: 3),
@@ -15,7 +17,7 @@ class OrderbookBloc implements BlocBase {
     );
   }
 
-  late Mm2Api _api;
+  late KomodoDefiSdk _sdk;
   Timer? _timer;
 
   // keys are 'base/rel' Strings
@@ -27,21 +29,21 @@ class OrderbookBloc implements BlocBase {
     _subscriptions.forEach((pair, subs) => subs.controller.close());
   }
 
-  OrderbookResponse? getInitialData(String base, String rel) {
+  OrderbookResult? getInitialData(String base, String rel) {
     final String pair = '$base/$rel';
     final OrderbookSubscription? subscription = _subscriptions[pair];
 
     return subscription?.initialData;
   }
 
-  Stream<OrderbookResponse?> getOrderbookStream(String base, String rel) {
+  Stream<OrderbookResult?> getOrderbookStream(String base, String rel) {
     final String pair = '$base/$rel';
     final OrderbookSubscription? subscription = _subscriptions[pair];
 
     if (subscription != null) {
       return subscription.stream;
     } else {
-      final controller = StreamController<OrderbookResponse?>.broadcast();
+      final controller = StreamController<OrderbookResult?>.broadcast();
       final sink = controller.sink;
       final stream = controller.stream;
 
@@ -58,7 +60,7 @@ class OrderbookBloc implements BlocBase {
   }
 
   Future<void> _updateOrderbooks() async {
-    final List<String> pairs = List.from(_subscriptions.keys);
+    final List<String> pairs = List.of(_subscriptions.keys);
 
     for (String pair in pairs) {
       final OrderbookSubscription? subscription = _subscriptions[pair];
@@ -79,13 +81,34 @@ class OrderbookBloc implements BlocBase {
 
     final List<String> coins = pair.split('/');
 
-    final OrderbookResponse response = await _api.getOrderbook(OrderbookRequest(
-      base: coins[0],
-      rel: coins[1],
-    ));
+    try {
+      final OrderbookResponse response = await _sdk.client.rpc.orderbook
+          .orderbook(base: coins[0], rel: coins[1]);
 
-    subscription.initialData = response;
-    subscription.sink.add(response);
+      final result = OrderbookResult(response: response);
+      subscription.initialData = result;
+      subscription.sink.add(result);
+    } on GeneralErrorResponse catch (error) {
+      final message = error.error ?? error.toString();
+      log(
+        'Orderbook request failed for pair $pair: $message',
+        path: 'OrderbookBloc._fetchOrderbook',
+        isError: true,
+      ).ignore();
+      final result = OrderbookResult(error: message);
+      subscription.initialData = result;
+      subscription.sink.add(result);
+    } catch (e, s) {
+      log(
+        'Unexpected orderbook error for pair $pair: $e',
+        path: 'OrderbookBloc._fetchOrderbook',
+        trace: s,
+        isError: true,
+      ).ignore();
+      final result = OrderbookResult(error: e.toString());
+      subscription.initialData = result;
+      subscription.sink.add(result);
+    }
   }
 }
 
@@ -97,8 +120,17 @@ class OrderbookSubscription {
     required this.stream,
   });
 
-  OrderbookResponse? initialData;
-  final StreamController<OrderbookResponse?> controller;
-  final Sink<OrderbookResponse?> sink;
-  final Stream<OrderbookResponse?> stream;
+  OrderbookResult? initialData;
+  final StreamController<OrderbookResult?> controller;
+  final Sink<OrderbookResult?> sink;
+  final Stream<OrderbookResult?> stream;
+}
+
+class OrderbookResult {
+  const OrderbookResult({this.response, this.error});
+
+  final OrderbookResponse? response;
+  final String? error;
+
+  bool get hasError => error != null;
 }

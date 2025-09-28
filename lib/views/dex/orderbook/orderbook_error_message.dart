@@ -1,17 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/orderbook/orderbook_response.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class OrderbookErrorMessage extends StatefulWidget {
   const OrderbookErrorMessage(
-    this.response, {
+    this.errorMessage, {
     Key? key,
     required this.onReloadClick,
   }) : super(key: key);
 
-  final OrderbookResponse response;
+  final String errorMessage;
   final VoidCallback onReloadClick;
 
   @override
@@ -23,8 +22,8 @@ class _OrderbookErrorMessageState extends State<OrderbookErrorMessage> {
 
   @override
   Widget build(BuildContext context) {
-    final String? error = widget.response.error;
-    if (error == null) return const SizedBox.shrink();
+    final String error = widget.errorMessage;
+    if (error.isEmpty) return const SizedBox.shrink();
 
     return Center(
       child: Column(
@@ -45,25 +44,24 @@ class _OrderbookErrorMessageState extends State<OrderbookErrorMessage> {
               ),
               const SizedBox(width: 8),
               InkWell(
-                  onTap: () => setState(() => _isExpanded = !_isExpanded),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        _isExpanded
-                            ? LocaleKeys.close.tr()
-                            : LocaleKeys.details.tr(),
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      Icon(
-                        _isExpanded
-                            ? Icons.arrow_drop_up
-                            : Icons.arrow_drop_down,
-                        size: 16,
-                        color: Theme.of(context).textTheme.bodyMedium?.color,
-                      ),
-                    ],
-                  )),
+                onTap: () => setState(() => _isExpanded = !_isExpanded),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      _isExpanded
+                          ? LocaleKeys.close.tr()
+                          : LocaleKeys.details.tr(),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    Icon(
+                      _isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                      size: 16,
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           if (_isExpanded)
