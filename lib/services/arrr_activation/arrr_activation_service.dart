@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
+    show ExponentialBackoff, retry;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -116,36 +118,68 @@ class ArrrActivationService {
     Asset asset,
     ZhtlcUserConfig config,
   ) async {
+    const maxAttempts = 3;
+    var attempt = 0;
+
     try {
-      _cacheActivationStart(asset.id);
+      final result = await retry<ArrrActivationResult>(
+        () async {
+          attempt += 1;
+          _log.info(
+            'Starting ARRR activation attempt $attempt for ${asset.id.id}',
+          );
 
-      ActivationProgress? lastActivationProgress;
-      await for (final activationProgress in _sdk.assets.activateAsset(asset)) {
-        _cacheActivationProgress(asset.id, activationProgress);
-        lastActivationProgress = activationProgress;
-      }
+          _cacheActivationStart(asset.id);
 
-      _cacheActivationComplete(asset.id);
+          ActivationProgress? lastActivationProgress;
+          await for (final activationProgress in _sdk.assets.activateAsset(
+            asset,
+          )) {
+            _cacheActivationProgress(asset.id, activationProgress);
+            lastActivationProgress = activationProgress;
+          }
 
-      // return result type by status of activation
-      if (lastActivationProgress?.isSuccess ?? false) {
-        return ArrrActivationResultSuccess(
-          Stream.value(
-            ActivationProgress(
-              status: 'Activation completed successfully',
-              progressDetails: ActivationProgressDetails(
-                currentStep: ActivationStep.complete,
-                stepCount: 1,
+          if (lastActivationProgress?.isSuccess ?? false) {
+            _cacheActivationComplete(asset.id);
+            return ArrrActivationResultSuccess(
+              Stream.value(
+                ActivationProgress(
+                  status: 'Activation completed successfully',
+                  progressDetails: ActivationProgressDetails(
+                    currentStep: ActivationStep.complete,
+                    stepCount: 1,
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      } else {
-        return ArrrActivationResultError(
-          lastActivationProgress?.errorMessage ?? 'Unknown activation error',
-        );
-      }
-    } catch (e) {
+            );
+          }
+
+          final errorMessage =
+              lastActivationProgress?.errorMessage ??
+              'Unknown activation error';
+          throw _RetryableZhtlcActivationException(errorMessage);
+        },
+        maxAttempts: maxAttempts,
+        backoffStrategy: ExponentialBackoff(
+          initialDelay: const Duration(seconds: 1),
+          maxDelay: const Duration(seconds: 5),
+        ),
+        shouldRetry: (error) => error is _RetryableZhtlcActivationException,
+        onRetry: (currentAttempt, error, delay) {
+          _log.warning(
+            'ARRR activation attempt $currentAttempt for ${asset.id.id} failed. '
+            'Retrying in ${delay.inMilliseconds}ms. Error: $error',
+          );
+        },
+      );
+
+      return result;
+    } catch (e, stackTrace) {
+      _log.severe(
+        'ARRR activation failed after $maxAttempts attempts for ${asset.id.id}',
+        e,
+        stackTrace,
+      );
       _cacheActivationError(asset.id, e.toString());
       return ArrrActivationResultError(e.toString());
     }
@@ -381,6 +415,15 @@ class ArrrActivationService {
       _configRequestController.close();
     }
   }
+}
+
+class _RetryableZhtlcActivationException implements Exception {
+  const _RetryableZhtlcActivationException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'RetryableZhtlcActivationException: $message';
 }
 
 /// Configuration request model for UI handling
