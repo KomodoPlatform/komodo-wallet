@@ -10,6 +10,7 @@ import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -55,8 +56,13 @@ class PortfolioGrowthBloc
     PortfolioGrowthPeriodChanged event,
     Emitter<PortfolioGrowthState> emit,
   ) {
-    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
-        _calculateCoinProgressCounters(event.coins);
+    final (
+      int totalCoins,
+      int coinsWithKnownBalance,
+      int coinsWithKnownBalanceAndFiat,
+    ) = _calculateCoinProgressCounters(
+      event.coins,
+    );
     final currentState = state;
     if (currentState is PortfolioGrowthChartLoadSuccess) {
       emit(
@@ -120,7 +126,9 @@ class PortfolioGrowthBloc
           int totalCoins,
           int coinsWithKnownBalance,
           int coinsWithKnownBalanceAndFiat,
-        ) = _calculateCoinProgressCounters(event.coins);
+        ) = _calculateCoinProgressCounters(
+          event.coins,
+        );
         return emit(
           PortfolioGrowthChartUnsupported(
             selectedPeriod: event.selectedPeriod,
@@ -131,8 +139,9 @@ class PortfolioGrowthBloc
         );
       }
 
+      final initialActiveCoins = await coins.removeInactiveCoins(_sdk);
       await _loadChart(
-        coins,
+        initialActiveCoins,
         event,
         useCache: true,
       ).then(emit.call).catchError((Object error, StackTrace stackTrace) {
@@ -149,7 +158,7 @@ class PortfolioGrowthBloc
 
       // Only remove inactivate/activating coins after an attempt to load the
       // cached chart, as the cached chart may contain inactive coins.
-      final activeCoins = await _removeInactiveCoins(coins);
+      final activeCoins = await coins.removeInactiveCoins(_sdk);
       if (activeCoins.isNotEmpty) {
         await _loadChart(
           activeCoins,
@@ -190,7 +199,9 @@ class PortfolioGrowthBloc
           int totalCoins,
           int coinsWithKnownBalance,
           int coinsWithKnownBalanceAndFiat,
-        ) = _calculateCoinProgressCounters(event.coins);
+        ) = _calculateCoinProgressCounters(
+          event.coins,
+        );
         emit(
           GrowthChartLoadFailure(
             error: TextError(error: 'Failed to load portfolio growth'),
@@ -238,8 +249,13 @@ class PortfolioGrowthBloc
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
 
-    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
-        _calculateCoinProgressCounters(event.coins);
+    final (
+      int totalCoins,
+      int coinsWithKnownBalance,
+      int coinsWithKnownBalanceAndFiat,
+    ) = _calculateCoinProgressCounters(
+      event.coins,
+    );
 
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: chart,
@@ -261,7 +277,7 @@ class PortfolioGrowthBloc
     // Do not let transaction loading exceptions stop the periodic updates
     try {
       final supportedCoins = await _removeUnsupportedCoins(event);
-      final coins = await _removeInactiveCoins(supportedCoins);
+      final coins = await supportedCoins.removeInactiveCoins(_sdk);
       return await _portfolioGrowthRepository.getPortfolioGrowthChart(
         coins,
         fiatCoinId: event.fiatCoinId,
@@ -272,18 +288,6 @@ class PortfolioGrowthBloc
       _log.shout('Empty growth chart on periodic update', error, stackTrace);
       return ChartData.empty();
     }
-  }
-
-  Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
-    final coinsCopy = List<Coin>.of(coins);
-    final activeCoins = await _sdk.assets.getActivatedAssets();
-    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
-    for (final coin in coins) {
-      if (!activeCoinsMap.contains(coin.id)) {
-        coinsCopy.remove(coin);
-      }
-    }
-    return coinsCopy;
   }
 
   Future<PortfolioGrowthState> _handlePortfolioGrowthUpdate(
@@ -300,8 +304,13 @@ class PortfolioGrowthBloc
     final totalChange24h = await _calculateTotalChange24h(coins);
     final percentageChange24h = await _calculatePercentageChange24h(coins);
 
-    final (int totalCoins, int coinsWithKnownBalance, int coinsWithKnownBalanceAndFiat) =
-        _calculateCoinProgressCounters(coins);
+    final (
+      int totalCoins,
+      int coinsWithKnownBalance,
+      int coinsWithKnownBalanceAndFiat,
+    ) = _calculateCoinProgressCounters(
+      coins,
+    );
 
     return PortfolioGrowthChartLoadSuccess(
       portfolioGrowth: growthChart,

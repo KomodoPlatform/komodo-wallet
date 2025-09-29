@@ -5,6 +5,7 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
+import 'package:web_dex/shared/utils/extensions/collection_extensions.dart';
 
 extension AssetCoinExtension on Asset {
   Coin toCoin() {
@@ -15,7 +16,7 @@ extension AssetCoinExtension on Asset {
     final logoImageUrl = config.valueOrNull<String>('logo_image_url');
     final isCustomToken =
         (config.valueOrNull<bool>('is_custom_token') ?? false) ||
-            logoImageUrl != null;
+        logoImageUrl != null;
 
     final ProtocolData protocolData = ProtocolData(
       platform: id.parentId?.id ?? platform ?? '',
@@ -38,8 +39,9 @@ extension AssetCoinExtension on Asset {
       isTestCoin: protocol.isTestnet,
       coingeckoId: id.symbol.coinGeckoId,
       swapContractAddress: config.valueOrNull<String>('swap_contract_address'),
-      fallbackSwapContract:
-          config.valueOrNull<String>('fallback_swap_contract'),
+      fallbackSwapContract: config.valueOrNull<String>(
+        'fallback_swap_contract',
+      ),
       priority: priorityCoinsAbbrMap[id.id] ?? 0,
       state: CoinState.inactive,
       walletOnly: config.valueOrNull<bool>('wallet_only') ?? false,
@@ -49,8 +51,11 @@ extension AssetCoinExtension on Asset {
     );
   }
 
-  String? get contractAddress => protocol.config
-      .valueOrNull('protocol', 'protocol_data', 'contract_address');
+  String? get contractAddress => protocol.config.valueOrNull(
+    'protocol',
+    'protocol_data',
+    'contract_address',
+  );
   String? get platform =>
       protocol.config.valueOrNull('protocol', 'protocol_data', 'platform');
 }
@@ -205,10 +210,7 @@ extension AssetBalanceExtension on Coin {
     KomodoDefiSdk sdk, {
     bool activateIfNeeded = true,
   }) {
-    return sdk.balances.watchBalance(
-      id,
-      activateIfNeeded: activateIfNeeded,
-    );
+    return sdk.balances.watchBalance(id, activateIfNeeded: activateIfNeeded);
   }
 
   /// Get the last-known balance for this coin.
@@ -229,5 +231,16 @@ extension AssetBalanceExtension on Coin {
     final price = sdk.marketData.priceIfKnown(id);
     if (price == null) return null;
     return (balance * price).spendable.toDouble();
+  }
+}
+
+extension CoinListOps on List<Coin> {
+  Future<List<Coin>> removeInactiveCoins(KomodoDefiSdk sdk) async {
+    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
+
+    return where(
+      (coin) => activeCoinsMap.contains(coin.id),
+    ).unmodifiable().toList();
   }
 }

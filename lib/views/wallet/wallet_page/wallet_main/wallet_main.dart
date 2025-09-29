@@ -234,20 +234,14 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
       ),
     );
 
-    assetOverviewBloc
-      ..add(
-        PortfolioAssetsOverviewLoadRequested(
-          coins: walletCoins,
-          walletId: walletId,
-        ),
-      )
-      ..add(
-        PortfolioAssetsOverviewSubscriptionRequested(
-          coins: walletCoins,
-          walletId: walletId,
-          updateFrequency: const Duration(minutes: 1),
-        ),
-      );
+    // Subscribe fires an immediate load event, so no need to also call load
+    assetOverviewBloc.add(
+      PortfolioAssetsOverviewSubscriptionRequested(
+        coins: walletCoins,
+        walletId: walletId,
+        updateFrequency: const Duration(minutes: 1),
+      ),
+    );
   }
 
   void _clearWalletData() {

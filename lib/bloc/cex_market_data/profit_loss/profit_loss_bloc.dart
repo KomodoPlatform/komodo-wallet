@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -51,6 +52,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         event.coins,
         event.fiatCoinId,
       );
+      final initialActiveCoins = await supportedCoins.removeInactiveCoins(_sdk);
       // Charts for individual coins (coin details) are parsed here as well,
       // and should be hidden if not supported.
       if (supportedCoins.isEmpty && event.coins.length <= 1) {
@@ -63,7 +65,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
 
       await _getProfitLossChart(
         event,
-        supportedCoins,
+        initialActiveCoins,
         useCache: true,
       ).then(emit.call).catchError((Object error, StackTrace stackTrace) {
         const errorMessage = 'Failed to load CACHED portfolio profit/loss';
@@ -74,7 +76,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
 
       // Fetch the un-cached version of the chart to update the cache.
       await _sdk.waitForEnabledCoinsToPassThreshold(supportedCoins);
-      final activeCoins = await _removeInactiveCoins(supportedCoins);
+      final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);
       if (activeCoins.isNotEmpty) {
         await _getProfitLossChart(
           event,
@@ -231,17 +233,5 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
 
     chartsList.removeWhere((element) => element.isEmpty);
     return Charts.merge(chartsList)..sort((a, b) => a.x.compareTo(b.x));
-  }
-
-  Future<List<Coin>> _removeInactiveCoins(List<Coin> coins) async {
-    final coinsCopy = List<Coin>.of(coins);
-    final activeCoins = await _sdk.assets.getActivatedAssets();
-    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
-    for (final coin in coins) {
-      if (!activeCoinsMap.contains(coin.id)) {
-        coinsCopy.remove(coin);
-      }
-    }
-    return coinsCopy;
   }
 }
