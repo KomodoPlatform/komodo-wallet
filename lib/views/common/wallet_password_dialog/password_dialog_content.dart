@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:web_dex/shared/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -60,11 +61,8 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Hidden username field for password manager context
-                  Visibility(
-                    visible: false,
-                    maintainSize: false,
-                    maintainAnimation: false,
-                    maintainState: false,
+                  Offstage(
+                    offstage: true,
                     child: UiTextFormField(
                       initialValue: widget.wallet?.name ?? '',
                       autofillHints: const [AutofillHints.username],
@@ -77,7 +75,8 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
                     autofocus: true,
                     autocorrect: false,
                     obscureText: _isObscured,
-                    inputFormatters: [LengthLimitingTextInputFormatter(40)],
+                    maxLength: passwordMaxLength,
+                    counterText: '',
                     errorMaxLines: 6,
                     errorText: _error,
                     hintText: LocaleKeys.enterThePassword.tr(),
@@ -152,6 +151,8 @@ class _PasswordDialogContentState extends State<PasswordDialogContent> {
       }
 
       if (mounted) {
+        // Finish autofill context to allow password managers to record usage
+        TextInput.finishAutofillContext(shouldSave: false);
         widget.onSuccess(password);
         setState(() => _inProgress = false);
       }
@@ -263,11 +264,8 @@ class _PasswordDialogContentWithLoadingState
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Hidden username field for password manager context
-                    Visibility(
-                      visible: false,
-                      maintainSize: false,
-                      maintainAnimation: false,
-                      maintainState: false,
+                    Offstage(
+                      offstage: true,
                       child: UiTextFormField(
                         initialValue: widget.wallet?.name ?? '',
                         autofillHints: const [AutofillHints.username],
@@ -280,7 +278,8 @@ class _PasswordDialogContentWithLoadingState
                       autofocus: true,
                       autocorrect: false,
                       obscureText: _isObscured,
-                      inputFormatters: [LengthLimitingTextInputFormatter(40)],
+                      maxLength: passwordMaxLength,
+                      counterText: '',
                       errorMaxLines: 6,
                       errorText: _error,
                       hintText: LocaleKeys.enterThePassword.tr(),
@@ -370,6 +369,8 @@ class _PasswordDialogContentWithLoadingState
       try {
         final success = await widget.onPasswordValidated(password);
         if (mounted) {
+          // Not saving new credentials here; just closing context
+          TextInput.finishAutofillContext(shouldSave: false);
           widget.onComplete(success);
         }
       } catch (e) {

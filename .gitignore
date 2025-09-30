@@ -1,6 +1,3 @@
-# Ignore the SDK symmlink (if it exists)
-/sdk/
-
 # Miscellaneous
 *.class
 *.log
@@ -36,7 +33,7 @@
 .packages
 .pub-cache/
 .pub/
-/build/
+**/build/
 contrib/coins_config.json
 devtools_options.yaml
 

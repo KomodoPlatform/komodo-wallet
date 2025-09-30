@@ -1,5 +1,6 @@
+import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/model/cex_price.dart';
+import 'package:web_dex/model/cex_price.dart' show CexPrice;
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 
@@ -9,21 +10,23 @@ Coin setCoin({
   String? coinAbbr,
   double? balance,
 }) {
+  final id = AssetId(
+    id: coinAbbr ?? 'KMD',
+    name: 'Komodo',
+    parentId: null,
+    symbol: AssetSymbol(
+      assetConfigId: coinAbbr ?? 'KMD',
+      coinGeckoId: 'komodo',
+      coinPaprikaId: 'kmd-komodo',
+    ),
+    derivationPath: "m/44'/141'/0'",
+    chainId: AssetChainId(chainId: 0),
+    subClass: CoinSubClass.smartChain,
+  );
+
   return Coin(
     abbr: coinAbbr ?? 'KMD',
-    id: AssetId(
-      id: coinAbbr ?? 'KMD',
-      name: 'Komodo',
-      parentId: null,
-      symbol: AssetSymbol(
-        assetConfigId: coinAbbr ?? 'KMD',
-        coinGeckoId: 'komodo',
-        coinPaprikaId: 'kmd-komodo',
-      ),
-      derivationPath: "m/44'/141'/0'",
-      chainId: AssetChainId(chainId: 0),
-      subClass: CoinSubClass.smartChain,
-    ),
+    id: id,
     activeByDefault: true,
     logoImageUrl: null,
     coingeckoId: "komodo",
@@ -44,13 +47,11 @@ Coin setCoin({
     swapContractAddress: null,
     type: CoinType.smartChain,
     walletOnly: false,
-    usdPrice: usdPrice != null
-        ? CexPrice(
-            price: usdPrice,
-            change24h: change24h ?? 0.0,
-            volume24h: 0.0,
-            ticker: 'USD',
-          )
-        : null,
+    usdPrice: CexPrice(
+      assetId: id,
+      lastUpdated: DateTime.now(),
+      price: Decimal.tryParse(usdPrice.toString()),
+      change24h: Decimal.tryParse(change24h.toString()),
+    ),
   );
 }

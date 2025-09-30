@@ -18,6 +18,7 @@ final class MM2 {
         preActivateHistoricalAssets: false,
         preActivateDefaultAssets: false,
       ),
+      onLog: _handleSdkLog,
     );
   }
 
@@ -65,10 +66,12 @@ final class MM2 {
     return response.result;
   }
 
-  @Deprecated('Use KomodoDefiSdk.client.rpc or KomodoDefiSdk.client.executeRpc '
-      'instead. This method is the legacy way of calling RPC methods which '
-      'injects an empty user password into the legacy models which override '
-      'the legacy base RPC request model')
+  @Deprecated(
+    'Use KomodoDefiSdk.client.rpc or KomodoDefiSdk.client.executeRpc '
+    'instead. This method is the legacy way of calling RPC methods which '
+    'injects an empty user password into the legacy models which override '
+    'the legacy base RPC request model',
+  )
   Future<JsonMap> call(dynamic request) async {
     try {
       final dynamic requestWithUserpass = _assertPass(request);
@@ -76,9 +79,9 @@ final class MM2 {
           ? JsonMap.from(requestWithUserpass)
           // ignore: avoid_dynamic_calls
           : (requestWithUserpass?.toJson != null
-              // ignore: avoid_dynamic_calls
-              ? requestWithUserpass.toJson() as JsonMap
-              : requestWithUserpass as JsonMap);
+                // ignore: avoid_dynamic_calls
+                ? requestWithUserpass.toJson() as JsonMap
+                : requestWithUserpass as JsonMap);
 
       return await _kdfSdk.client.executeRpc(jsonRequest);
     } catch (e) {
@@ -106,6 +109,10 @@ final class MM2 {
     }
 
     return req;
+  }
+
+  void _handleSdkLog(String message) {
+    log(message, path: 'KomodoDefiSdk').ignore();
   }
 }
 

@@ -37,13 +37,7 @@ class CoinBalance extends StatelessWidget {
       ),
       ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 100),
-        child: Row(
-          children: [
-            Text(' (', style: balanceStyle),
-            CoinFiatBalance(coin, isAutoScrollEnabled: true),
-            Text(')', style: balanceStyle),
-          ],
-        ),
+        child: CoinFiatBalance(coin, isAutoScrollEnabled: true),
       ),
     ];
 

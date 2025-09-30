@@ -15,9 +15,11 @@ import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/disclaimer/eula_tos_checkboxes.dart';
 import 'package:web_dex/shared/widgets/password_visibility_control.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 import 'package:web_dex/views/wallets_manager/widgets/creation_password_fields.dart';
 import 'package:web_dex/views/wallets_manager/widgets/custom_seed_checkbox.dart';
 import 'package:web_dex/views/wallets_manager/widgets/hdwallet_mode_switch.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class WalletSimpleImport extends StatefulWidget {
   const WalletSimpleImport({
@@ -31,6 +33,7 @@ class WalletSimpleImport extends StatefulWidget {
     required String name,
     required String password,
     required WalletConfig walletConfig,
+    required bool rememberMe,
   })
   onImport;
 
@@ -58,6 +61,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   bool _inProgress = false;
   bool _allowCustomSeed = false;
   bool _isHdMode = false;
+  bool _rememberMe = false;
 
   bool get _isButtonEnabled {
     final isFormValid = _refreshFormValidationState();
@@ -92,51 +96,53 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         }
       },
       child: AutofillGroup(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SelectableText(
-              _step == WalletSimpleImportSteps.nameAndSeed
-                  ? LocaleKeys.walletImportTitle.tr()
-                  : LocaleKeys.walletImportCreatePasswordTitle.tr(
-                      args: [_nameController.text.trim()],
-                    ),
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontSize: 20),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  _buildFields(),
-                  const SizedBox(height: 20),
-                  UiPrimaryButton(
-                    key: const Key('confirm-seed-button'),
-                    text: _inProgress
-                        ? '${LocaleKeys.pleaseWait.tr()}...'
-                        : LocaleKeys.import.tr(),
-                    height: 50,
-                    textStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    onPressed: _isButtonEnabled ? _onImport : null,
-                  ),
-                  const SizedBox(height: 20),
-                  UiUnderlineTextButton(
-                    onPressed: _onCancel,
-                    text: _step == WalletSimpleImportSteps.nameAndSeed
-                        ? LocaleKeys.cancel.tr()
-                        : LocaleKeys.back.tr(),
-                  ),
-                ],
+        child: ScreenshotSensitive(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SelectableText(
+                _step == WalletSimpleImportSteps.nameAndSeed
+                    ? LocaleKeys.walletImportTitle.tr()
+                    : LocaleKeys.walletImportCreatePasswordTitle.tr(
+                        args: [_nameController.text.trim()],
+                      ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 20),
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _buildFields(),
+                    const SizedBox(height: 20),
+                    UiPrimaryButton(
+                      key: const Key('confirm-seed-button'),
+                      text: _inProgress
+                          ? '${LocaleKeys.pleaseWait.tr()}...'
+                          : LocaleKeys.import.tr(),
+                      height: 50,
+                      textStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      onPressed: _isButtonEnabled ? _onImport : null,
+                    ),
+                    const SizedBox(height: 20),
+                    UiUnderlineTextButton(
+                      onPressed: _onCancel,
+                      text: _step == WalletSimpleImportSteps.nameAndSeed
+                          ? LocaleKeys.cancel.tr()
+                          : LocaleKeys.back.tr(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -179,15 +185,30 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       case WalletSimpleImportSteps.nameAndSeed:
         return _buildNameAndSeed();
       case WalletSimpleImportSteps.password:
-        return CreationPasswordFields(
+        return _buildPasswordStep();
+    }
+  }
+
+  Widget _buildPasswordStep() {
+    return Column(
+      children: [
+        CreationPasswordFields(
           passwordController: _passwordController,
           onFieldSubmitted: !_isButtonEnabled
               ? null
               : (text) {
                   _onImport();
                 },
-        );
-    }
+        ),
+        const SizedBox(height: 20),
+        QuickLoginSwitch(
+          value: _rememberMe,
+          onChanged: (value) {
+            setState(() => _rememberMe = value);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildImportFileButton() {
@@ -306,7 +327,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
     widget.onCancel();
   }
 
-  void _onImport() {
+  void _onImport() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
@@ -327,11 +348,36 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
 
     setState(() => _inProgress = true);
 
+    // Async uniqueness check before proceeding
+    final repo = context.read<WalletsRepository>();
+    final uniquenessError = await repo.validateWalletNameUniqueness(
+      _nameController.text,
+    );
+    if (uniquenessError != null) {
+      if (mounted) {
+        setState(() => _inProgress = false);
+        final theme = Theme.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              uniquenessError,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.errorContainer,
+          ),
+        );
+      }
+      return;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onImport(
         name: _nameController.text.trim(),
         password: _passwordController.text,
         walletConfig: config,
+        rememberMe: _rememberMe,
       );
     });
   }
@@ -370,6 +416,8 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
       MnemonicFailedReason.invalidChecksum =>
         LocaleKeys.mnemonicInvalidChecksumError.tr(),
       MnemonicFailedReason.invalidLength =>
+        // TODO: Specify the valid lengths since not all lengths between 12 and
+        // 24 are valid
         LocaleKeys.mnemonicInvalidLengthError.tr(args: ['12', '24']),
     };
   }

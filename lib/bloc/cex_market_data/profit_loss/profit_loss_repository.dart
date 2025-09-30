@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:hive/hive.dart';
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart' as cex;
-import 'package:komodo_cex_market_data/komodo_cex_market_data.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_persistence_layer/komodo_persistence_layer.dart';
@@ -20,23 +18,20 @@ import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 class ProfitLossRepository {
   ProfitLossRepository({
     required PersistenceProvider<String, ProfitLossCache>
-        profitLossCacheProvider,
-    required cex.CexRepository cexRepository,
+    profitLossCacheProvider,
     required TransactionHistoryRepo transactionHistoryRepo,
     required ProfitLossCalculator profitLossCalculator,
     required KomodoDefiSdk sdk,
-  })  : _transactionHistoryRepo = transactionHistoryRepo,
-        _cexRepository = cexRepository,
-        _profitLossCacheProvider = profitLossCacheProvider,
-        _profitLossCalculator = profitLossCalculator,
-        _sdk = sdk;
+  }) : _transactionHistoryRepo = transactionHistoryRepo,
+       _profitLossCacheProvider = profitLossCacheProvider,
+       _profitLossCalculator = profitLossCalculator,
+       _sdk = sdk;
 
   /// Return a new instance of [ProfitLossRepository] with default values.
   ///
   /// If [demoMode] is provided, it will return a [MockProfitLossRepository].
   factory ProfitLossRepository.withDefaults({
     required TransactionHistoryRepo transactionHistoryRepo,
-    required cex.CexRepository cexRepository,
     required KomodoDefiSdk sdk,
     String cacheTableName = 'profit_loss',
     PerformanceMode? demoMode,
@@ -51,16 +46,15 @@ class ProfitLossRepository {
 
     return ProfitLossRepository(
       transactionHistoryRepo: transactionHistoryRepo,
-      profitLossCacheProvider:
-          HiveLazyBoxProvider<String, ProfitLossCache>(name: cacheTableName),
-      cexRepository: cexRepository,
-      profitLossCalculator: RealisedProfitLossCalculator(cexRepository),
+      profitLossCacheProvider: HiveLazyBoxProvider<String, ProfitLossCache>(
+        name: cacheTableName,
+      ),
+      profitLossCalculator: RealisedProfitLossCalculator(sdk),
       sdk: sdk,
     );
   }
 
   final PersistenceProvider<String, ProfitLossCache> _profitLossCacheProvider;
-  final cex.CexRepository _cexRepository;
   final TransactionHistoryRepo _transactionHistoryRepo;
   final ProfitLossCalculator _profitLossCalculator;
   final KomodoDefiSdk _sdk;
@@ -84,61 +78,6 @@ class ProfitLossRepository {
     _log.fine(
       'Profit/loss cache cleared in ${stopwatch.elapsedMilliseconds}ms',
     );
-  }
-
-  /// Check if the coin is supported by the CEX API for charting.
-  /// This is used to filter out unsupported coins from the chart.
-  ///
-  /// [coinId] is the coin to check.
-  /// [fiatCoinId] is the fiat coin id to convert the coin to.
-  /// [allowFiatAsBase] is a flag to allow fiat coins as the base coin,
-  /// without checking if they are supported by the CEX API.
-  ///
-  /// Returns `true` if the coin is supported by the CEX API for charting.
-  /// Returns `false` if the coin is not supported by the CEX API for charting.
-  Future<bool> isCoinChartSupported(
-    AssetId coinId,
-    String fiatCoinId, {
-    bool allowFiatAsBase = false,
-  }) async {
-    final stopwatch = Stopwatch()..start();
-    final coinTicker = coinId.symbol.configSymbol.toUpperCase();
-    _log.fine(
-      'Checking if coin $coinTicker is supported for profit/loss calculation',
-    );
-
-    final supportedCoinsStopwatch = Stopwatch()..start();
-    final supportedCoins = await _cexRepository.getCoinList();
-    supportedCoinsStopwatch.stop();
-    _log.fine(
-      'Fetched ${supportedCoins.length} supported coins in '
-      '${supportedCoinsStopwatch.elapsedMilliseconds}ms',
-    );
-
-    // Allow fiat coins through, as they are represented by a constant value,
-    // 1, in the repository layer and are not supported by the CEX API
-    if (allowFiatAsBase && coinId.id == fiatCoinId.toUpperCase()) {
-      stopwatch.stop();
-      _log.fine(
-        'Coin $coinTicker is a fiat coin, supported: true '
-        '(total: ${stopwatch.elapsedMilliseconds}ms)',
-      );
-      return true;
-    }
-
-    final coinPair = CexCoinPair(
-      baseCoinTicker: coinTicker,
-      relCoinTicker: fiatCoinId.toUpperCase(),
-    );
-    final isSupported = coinPair.isCoinSupported(supportedCoins);
-
-    stopwatch.stop();
-    _log.fine(
-      'Coin $coinTicker support check completed in '
-      '${stopwatch.elapsedMilliseconds}ms, supported: $isSupported',
-    );
-
-    return isSupported;
   }
 
   /// Get the profit/loss data for a coin based on the transactions
@@ -187,8 +126,8 @@ class ProfitLossRepository {
         walletId: walletId,
         isHdWallet: currentUser.isHd,
       );
-      final ProfitLossCache? profitLossCache =
-          await _profitLossCacheProvider.get(compoundKey);
+      final ProfitLossCache? profitLossCache = await _profitLossCacheProvider
+          .get(compoundKey);
       final bool cacheExists = profitLossCache != null;
       cacheStopwatch.stop();
 
@@ -207,26 +146,10 @@ class ProfitLossRepository {
       );
     }
 
-    final supportCheckStopwatch = Stopwatch()..start();
-    final isCoinSupported = await isCoinChartSupported(
-      coinId,
-      fiatCoinId,
-    );
-    supportCheckStopwatch.stop();
-
-    if (!isCoinSupported) {
-      _log.fine(
-        'Coin ${coinId.id} is not supported for profit/loss calculation '
-        '(checked in ${supportCheckStopwatch.elapsedMilliseconds}ms)',
-      );
-      methodStopwatch.stop();
-      return <ProfitLoss>[];
-    }
-
     final txStopwatch = Stopwatch()..start();
     _log.fine('Fetching transactions for ${coinId.id}');
-    final transactions =
-        await _transactionHistoryRepo.fetchCompletedTransactions(coinId);
+    final transactions = await _transactionHistoryRepo
+        .fetchCompletedTransactions(coinId);
     txStopwatch.stop();
     _log.fine(
       'Fetched ${transactions.length} transactions for ${coinId.id} '
@@ -260,12 +183,12 @@ class ProfitLossRepository {
     _log.fine(
       'Calculating profit/loss for ${coinId.id} with ${transactions.length} transactions',
     );
-    final List<ProfitLoss> profitLosses =
-        await _profitLossCalculator.getProfitFromTransactions(
-      transactions,
-      coinId: coinId.id,
-      fiatCoinId: fiatCoinId,
-    );
+    final List<ProfitLoss> profitLosses = await _profitLossCalculator
+        .getProfitFromTransactions(
+          transactions,
+          coinId: coinId,
+          fiatCoinId: fiatCoinId,
+        );
     calcStopwatch.stop();
     _log.fine(
       'Calculated ${profitLosses.length} profit/loss entries for ${coinId.id} '

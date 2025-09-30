@@ -13,6 +13,7 @@ import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_word_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class SeedConfirmation extends StatefulWidget {
   const SeedConfirmation({required this.seedPhrase});
@@ -39,7 +40,7 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    return DexScrollbar(
+    return ScreenshotSensitive(child: DexScrollbar(
       isMobile: isMobile,
       scrollController: scrollController,
       child: SingleChildScrollView(
@@ -112,7 +113,7 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   void _onWordPressed(_SeedWord word) {

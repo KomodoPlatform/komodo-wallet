@@ -91,8 +91,9 @@ class CoinSelectItemWidget extends StatelessWidget {
             ),
           Expanded(
             child: DefaultTextStyle(
-              style: theme.inputDecorationTheme.labelStyle ??
-                  theme.textTheme.bodyMedium!,
+              style: theme.textTheme.bodyMedium!.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
               child: title ?? Text(name),
             ),
           ),

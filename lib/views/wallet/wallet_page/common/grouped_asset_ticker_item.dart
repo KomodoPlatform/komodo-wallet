@@ -5,6 +5,8 @@ import 'package:app_theme/src/light/theme_custom_light.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_cex_market_data/komodo_cex_market_data.dart'
+    show SparklineRepository;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
@@ -79,6 +81,9 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
     );
 
     final theme = Theme.of(context);
+    final sparklineRepository = RepositoryProvider.of<SparklineRepository>(
+      context,
+    );
 
     return Opacity(
       opacity: widget.isActivating ? 0.3 : 1,
@@ -117,8 +122,11 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                         flex: 2,
                         child: BlocBuilder<CoinsBloc, CoinsState>(
                           builder: (context, state) {
-                            final formattedPrice = price?.price != null
-                                ? priceFormatter.format(price!.price)
+                            // Double conversion required to fix the
+                            // `noSuchMethod` error in the `format` method.
+                            final priceValue = price?.price?.toDouble();
+                            final formattedPrice = priceValue != null
+                                ? priceFormatter.format(priceValue)
                                 : '';
                             return Text(
                               formattedPrice,
@@ -166,7 +174,9 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                                                 .decreaseColor,
                                       iconSize: 16,
                                       percentagePrecision: 2,
-                                      value: isMobile ? price?.price : null,
+                                      value: isMobile
+                                          ? price?.price?.toDouble()
+                                          : null,
                                       valueFormatter: (price?.price != null)
                                           ? (value) =>
                                                 priceFormatter.format(value)
@@ -188,7 +198,10 @@ class _GroupedAssetTickerItemState extends State<GroupedAssetTickerItem> {
                               _primaryAsset,
                               const Duration(days: 7),
                             ),
-                            child: CoinSparkline(coinId: _primaryAsset.id),
+                            child: CoinSparkline(
+                              coinId: _primaryAsset,
+                              repository: sparklineRepository,
+                            ),
                           ),
                         ),
                       ),

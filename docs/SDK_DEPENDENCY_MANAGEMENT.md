@@ -77,6 +77,7 @@ For development or testing purposes, you can run the SDK roll script manually on
    - Check the changes in the `pubspec.yaml` and `pubspec.lock` files
 
 5. If you want to commit these changes:
+
    ```bash
    git add **/pubspec.yaml **/pubspec.lock
    git commit -m "chore: roll SDK packages"
@@ -125,9 +126,17 @@ flutter doctor
 
 ## SDK Package Identification
 
-The script identifies SDK packages by looking for packages with names matching those in the `SDK_PACKAGES` array in the script, which refer to external packages from the KomodoPlatform SDK repository. These are typically defined as git dependencies in your `pubspec.yaml` files.
+The script identifies SDK packages by looking for packages with names matching those in the `SDK_PACKAGES` array in the script. These refer to external packages from the KomodoPlatform SDK repository and can be declared in your `pubspec.yaml` files in two ways:
 
-Local packages that are part of this repository (like `komodo_ui_kit` and `komodo_persistence_layer`) are not considered SDK packages and will not be updated by this script unless they depend on SDK packages themselves.
+- Git dependency (Option 2): declared with a `git:` section pointing to the `KomodoPlatform/komodo-defi-sdk-flutter` repository
+- Hosted dependency (Option 3): declared as a standard hosted package on pub.dev with a version constraint (for example, `^0.3.0`)
+
+Local packages that are part of this repository (like `komodo_ui_kit` and `komodo_persistence_layer`) are not considered external SDK packages and will not be updated by this script unless they themselves depend on SDK packages.
+
+When running in SDK-only mode (`UPGRADE_ALL_PACKAGES=false`):
+
+- Hosted SDK dependencies are bumped to the latest available version on pub.dev by executing `flutter pub add <package>`, which updates the version constraint in `pubspec.yaml` and refreshes the lockfile.
+- Git-based SDK dependencies are refreshed with `flutter pub upgrade --unlock-transitive <packages>` to update the lockfile according to the configured `ref`.
 
 ## Error Handling
 

@@ -1,13 +1,15 @@
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart' show KomodoDefiSdk;
+import 'package:komodo_defi_types/komodo_defi_types.dart'
+    show PubkeyInfo, AssetPubkeys;
+import 'package:komodo_ui/komodo_ui.dart' show Debouncer, SourceAddressField;
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_price_info.dart';
 import 'package:web_dex/bloc/fiat/models/i_currency.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/fiat/custom_fiat_input_field.dart';
 import 'package:web_dex/views/fiat/fiat_currency_item.dart';
 import 'package:web_dex/views/fiat/fiat_icon.dart';
@@ -57,17 +59,20 @@ class FiatInputs extends StatefulWidget {
 
 class FiatInputsState extends State<FiatInputs> {
   TextEditingController fiatController = TextEditingController();
+  late final Debouncer _debouncer;
+  bool _hasUserInput = false;
 
   @override
   void dispose() {
     fiatController.dispose();
-
+    _debouncer.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _debouncer = Debouncer(duration: const Duration(milliseconds: 300));
     fiatController.text = widget.initialFiatAmount?.toString() ?? '';
   }
 
@@ -75,14 +80,20 @@ class FiatInputsState extends State<FiatInputs> {
   void didUpdateWidget(FiatInputs oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // Reset _hasUserInput flag when asset or fiat currency changes
+    if (oldWidget.selectedAsset != widget.selectedAsset ||
+        oldWidget.initialFiat != widget.initialFiat) {
+      _hasUserInput = false;
+    }
+
     final Decimal? newFiatAmount = widget.initialFiatAmount;
 
     // Convert the current text to Decimal for comparison
     final Decimal currentFiatAmount =
         Decimal.tryParse(fiatController.text) ?? Decimal.zero;
 
-    // Compare using Decimal values
-    if (newFiatAmount != currentFiatAmount) {
+    // Only update if user hasn't made changes or if amounts are different
+    if (!_hasUserInput && newFiatAmount != currentFiatAmount) {
       final newFiatAmountText = newFiatAmount?.toString() ?? '';
       fiatController
         ..text = newFiatAmountText
@@ -105,7 +116,16 @@ class FiatInputsState extends State<FiatInputs> {
   }
 
   void fiatAmountChanged(String? newValue) {
-    widget.onFiatAmountUpdate(newValue);
+    // track if user has made inputs to avoid overwriting them
+    // with stale bloc state updates (e.g. race condition)
+    _hasUserInput = true;
+    _debouncer.run(() {
+      if (mounted) {
+        widget.onFiatAmountUpdate(newValue);
+        // Reset flag after API call to allow future bloc state updates
+        _hasUserInput = false;
+      }
+    });
   }
 
   @override
@@ -125,8 +145,8 @@ class FiatInputsState extends State<FiatInputs> {
     final maxFiatAmount = widget.fiatMaxAmount?.toStringAsFixed(2);
     final boundariesString =
         widget.fiatMaxAmount == null && widget.fiatMinAmount == null
-            ? ''
-            : '(${minFiatAmount ?? '1'} - ${maxFiatAmount ?? '∞'})';
+        ? ''
+        : '(${minFiatAmount ?? '1'} - ${maxFiatAmount ?? '∞'})';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -158,8 +178,10 @@ class FiatInputsState extends State<FiatInputs> {
           margin: EdgeInsets.zero,
           color: Theme.of(context).colorScheme.onSurface,
           child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 6.0),
               child: Row(
@@ -174,10 +196,9 @@ class FiatInputsState extends State<FiatInputs> {
                           text: fiatController.text.isEmpty || priceInfo == null
                               ? '0.00'
                               : coinAmount ?? '0.00',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(fontSize: 24),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.headlineMedium?.copyWith(fontSize: 24),
                         ),
                       ],
                     ),
@@ -187,8 +208,9 @@ class FiatInputsState extends State<FiatInputs> {
                     height: 48,
                     child: FiatCurrencyItem(
                       key: const Key('fiat-onramp-coin-dropdown'),
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSurfaceVariant,
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant,
                       disabled: coinListLoading,
                       currency: widget.selectedAsset,
                       icon: Icon(_getDefaultAssetIcon('coin')),
@@ -268,8 +290,9 @@ class FiatInputsState extends State<FiatInputs> {
                 final item = itemList.elementAt(index);
                 return FiatCurrencyItem(
                   key: Key('fiat-onramp-currency-item-${item.symbol}'),
-                  foregroundColor:
-                      Theme.of(context).colorScheme.onSurfaceVariant,
+                  foregroundColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant,
                   disabled: false,
                   currency: item,
                   icon: icon,

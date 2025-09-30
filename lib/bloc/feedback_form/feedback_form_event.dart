@@ -43,6 +43,15 @@ class FeedbackFormContactDetailsChanged extends FeedbackFormEvent {
   List<Object?> get props => [details];
 }
 
+class FeedbackFormContactOptOutChanged extends FeedbackFormEvent {
+  const FeedbackFormContactOptOutChanged(this.optOut);
+
+  final bool optOut;
+
+  @override
+  List<Object?> get props => [optOut];
+}
+
 class FeedbackFormSubmitted extends FeedbackFormEvent {
   const FeedbackFormSubmitted();
 }

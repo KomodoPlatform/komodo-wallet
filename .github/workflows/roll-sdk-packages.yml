@@ -40,12 +40,13 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           # NB! Keep up-to-date with the flutter version used for development
-          flutter-version: "3.32.5"
+          flutter-version: "3.35.3"
           channel: "stable"
 
       - name: Determine configuration
@@ -88,7 +89,7 @@ jobs:
             echo "SDK packages were successfully rolled"
           else
             echo "ROLLS_FOUND=false" >> $GITHUB_ENV
-            
+
             if [ -n "${EXIT_CODE}" ] && [ ${EXIT_CODE} -ne 100 ]; then
               echo "::warning::SDK package roll script failed with exit code ${EXIT_CODE}"
             else
