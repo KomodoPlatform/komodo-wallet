@@ -356,12 +356,19 @@ String abbr2Ticker(String abbr) {
     'IBC_NUCLEUSTEST',
   ];
 
-  // Join the suffixes with '|' to form the regex pattern
-  final String regexPattern = '(${filteredSuffixes.join('|')})';
+  const List<String> filteredPrefixes = ['NFT'];
 
-  final String ticker = abbr
-      .replaceAll(RegExp('-$regexPattern'), '')
-      .replaceAll(RegExp('_$regexPattern'), '');
+  // Create regex patterns for both suffixes and prefixes
+  String suffixPattern = '(${filteredSuffixes.join('|')})';
+  String prefixPattern = '(${filteredPrefixes.join('|')})';
+
+  String ticker = abbr
+      // Remove suffixes
+      .replaceAll(RegExp('-$suffixPattern'), '')
+      .replaceAll(RegExp('_$suffixPattern'), '')
+      // Remove prefixes
+      .replaceAll(RegExp('^$prefixPattern-'), '')
+      .replaceAll(RegExp('^${prefixPattern}_'), '');
 
   _abbr2TickerCache[abbr] = ticker;
   return ticker;

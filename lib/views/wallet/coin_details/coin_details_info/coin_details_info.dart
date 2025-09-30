@@ -258,8 +258,9 @@ class _DesktopCoinDetails extends StatelessWidget {
               CoinDetailsInfoFiat(coin: coin, isMobile: false),
             ],
           ),
-          Padding(
+          Container(
             padding: const EdgeInsets.fromLTRB(2, 28.0, 0, 0),
+            width: double.infinity,
             child: CoinDetailsCommonButtons(
               isMobile: false,
               selectWidget: setPageType,

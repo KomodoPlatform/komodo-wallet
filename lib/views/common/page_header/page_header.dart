@@ -84,7 +84,7 @@ class _MobileHeader extends StatelessWidget {
       actions: <Widget>[
         if (actions != null) ...actions!,
         if (context.watch<AuthBloc>().state.mode != AuthorizeMode.logIn)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
             child: ConnectWalletButton(
               eventType: WalletsManagerEventType.header,

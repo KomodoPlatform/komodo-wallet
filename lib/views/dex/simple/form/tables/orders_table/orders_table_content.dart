@@ -55,6 +55,7 @@ class OrdersTableContent extends StatelessWidget {
         if (orders.isEmpty) return const NothingFound();
 
         return GroupedListView<BestOrder>(
+          key: const Key('orders_table'),
           items: orders,
           onSelect: onSelect,
           maxHeight: maxHeight,

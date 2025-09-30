@@ -11,6 +11,7 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
+import 'package:web_dex/views/wallet/coin_details/message_signing/message_signing_screen.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_reward_claim_success.dart';
 import 'package:web_dex/views/wallet/coin_details/rewards/kmd_rewards_info.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form.dart';
@@ -101,6 +102,12 @@ class _CoinDetailsState extends State<CoinDetails> {
         return KmdRewardClaimSuccess(
           reward: _rewardValue,
           formattedUsd: _formattedUsdPrice,
+          onBackButtonPressed: _openInfo,
+        );
+
+      case CoinPageType.signMessage:
+        return MessageSigningScreen(
+          coin: widget.coin,
           onBackButtonPressed: _openInfo,
         );
     }

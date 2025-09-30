@@ -116,7 +116,16 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
               ),
               const SizedBox(width: 12),
             ],
-            if (!coin.walletOnly)
+            Flexible(
+              child: CoinDetailsMessageSigningButton(
+                isMobile: isMobile,
+                coin: coin,
+                selectWidget: selectWidget,
+                context: context,
+              ),
+            ),
+            if (!coin.walletOnly) ...[
+              const SizedBox(width: 12),
               Flexible(
                 child: CoinDetailsSwapButton(
                   isMobile: isMobile,
@@ -125,6 +134,7 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
                   context: context,
                 ),
               ),
+            ],
           ],
         ),
       ],
@@ -165,6 +175,16 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
           margin: const EdgeInsets.only(left: 21),
           constraints: const BoxConstraints(maxWidth: 120),
           child: CoinDetailsReceiveButton(
+            isMobile: isMobile,
+            coin: coin,
+            selectWidget: selectWidget,
+            context: context,
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(left: 21),
+          constraints: const BoxConstraints(maxWidth: 120),
+          child: CoinDetailsMessageSigningButton(
             isMobile: isMobile,
             coin: coin,
             selectWidget: selectWidget,
@@ -414,6 +434,53 @@ class CoinDetailsSwapButton extends StatelessWidget {
         child: SvgPicture.asset('$assetsPath/others/swap.svg'),
       ),
       onPressed: !coin.isActive ? null : onClickSwapButton,
+    );
+  }
+}
+
+class CoinDetailsMessageSigningButton extends StatelessWidget {
+  const CoinDetailsMessageSigningButton({
+    required this.isMobile,
+    required this.coin,
+    required this.selectWidget,
+    required this.context,
+    super.key,
+  });
+
+  final bool isMobile;
+  final Coin coin;
+  final void Function(CoinPageType) selectWidget;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasAddresses = context
+        .watch<CoinAddressesBloc>()
+        .state
+        .addresses
+        .isNotEmpty;
+    final ThemeData themeData = Theme.of(context);
+
+    return UiPrimaryButton(
+      key: const Key('coin-details-sign-message-button'),
+      height: isMobile ? 52 : 40,
+      prefix: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: Icon(
+          Icons.fingerprint,
+          size: 18,
+          color: themeData.colorScheme.onTertiary,
+        ),
+      ),
+      textStyle: themeData.textTheme.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+      backgroundColor: themeData.colorScheme.tertiary,
+      onPressed: coin.isSuspended || !hasAddresses
+          ? null
+          : () => selectWidget(CoinPageType.signMessage),
+      text: LocaleKeys.signMessage.tr(),
     );
   }
 }
