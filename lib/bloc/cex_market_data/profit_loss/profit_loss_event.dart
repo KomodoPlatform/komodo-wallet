@@ -17,7 +17,7 @@ class ProfitLossPortfolioChartLoadRequested extends ProfitLossEvent {
     required this.fiatCoinId,
     required this.selectedPeriod,
     required this.walletId,
-    this.updateFrequency = const Duration(minutes: 1),
+    this.updateFrequency = const Duration(minutes: 2),
   });
 
   final List<Coin> coins;
@@ -39,7 +39,7 @@ class ProfitLossPortfolioChartLoadRequested extends ProfitLossEvent {
 class ProfitLossPortfolioPeriodChanged extends ProfitLossEvent {
   const ProfitLossPortfolioPeriodChanged({
     required this.selectedPeriod,
-    this.updateFrequency = const Duration(minutes: 1),
+    this.updateFrequency = const Duration(minutes: 2),
   });
 
   final Duration selectedPeriod;

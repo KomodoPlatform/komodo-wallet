@@ -17,7 +17,7 @@ class PortfolioGrowthLoadRequested extends PortfolioGrowthEvent {
     required this.fiatCoinId,
     required this.selectedPeriod,
     required this.walletId,
-    this.updateFrequency = const Duration(minutes: 1),
+    this.updateFrequency = const Duration(minutes: 2),
   });
 
   final List<Coin> coins;
@@ -41,7 +41,7 @@ class PortfolioGrowthPeriodChanged extends PortfolioGrowthEvent {
     required this.selectedPeriod,
     required this.coins,
     required this.walletId,
-    this.updateFrequency = const Duration(minutes: 1),
+    this.updateFrequency = const Duration(minutes: 2),
   });
 
   final Duration selectedPeriod;

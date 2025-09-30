@@ -8,6 +8,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:logging/logging.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
+import 'package:web_dex/bloc/cex_market_data/common/update_frequency_backoff_strategy.dart';
 import 'package:web_dex/bloc/cex_market_data/portfolio_growth/portfolio_growth_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
@@ -44,6 +45,7 @@ class PortfolioGrowthBloc
   final PortfolioGrowthRepository _portfolioGrowthRepository;
   final KomodoDefiSdk _sdk;
   final _log = Logger('PortfolioGrowthBloc');
+  final UpdateFrequencyBackoffStrategy _backoffStrategy = UpdateFrequencyBackoffStrategy();
 
   void _onClearPortfolioGrowth(
     PortfolioGrowthClearRequested event,
@@ -177,42 +179,11 @@ class PortfolioGrowthBloc
       // recover at the cost of a longer first loading time.
     }
 
-    final periodicUpdate = Stream<Object?>.periodic(
-      event.updateFrequency,
-    ).asyncMap((_) async => _fetchPortfolioGrowthChart(event));
-
-    // Use await for here to allow for the async update handler. The previous
-    // implementation awaited the emit.forEach to ensure that cancelling the
-    // event handler with transformers would stop the previous periodic updates.
-    await for (final data in periodicUpdate) {
-      try {
-        emit(
-          await _handlePortfolioGrowthUpdate(
-            data,
-            event.selectedPeriod,
-            event.coins,
-          ),
-        );
-      } catch (error, stackTrace) {
-        _log.shout('Failed to load portfolio growth', error, stackTrace);
-        final (
-          int totalCoins,
-          int coinsWithKnownBalance,
-          int coinsWithKnownBalanceAndFiat,
-        ) = _calculateCoinProgressCounters(
-          event.coins,
-        );
-        emit(
-          GrowthChartLoadFailure(
-            error: TextError(error: 'Failed to load portfolio growth'),
-            selectedPeriod: event.selectedPeriod,
-            totalCoins: totalCoins,
-            coinsWithKnownBalance: coinsWithKnownBalance,
-            coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
-          ),
-        );
-      }
-    }
+    // Reset backoff strategy for new load request
+    _backoffStrategy.reset();
+    
+    // Create periodic update stream with dynamic intervals
+    await _runPeriodicUpdates(event, emit);
   }
 
   Future<List<Coin>> _removeUnsupportedCoins(
@@ -391,5 +362,42 @@ class PortfolioGrowthBloc
       }
     }
     return (totalCoins, withBalance, withBalanceAndFiat);
+  }
+
+  /// Run periodic updates with exponential backoff strategy
+  Future<void> _runPeriodicUpdates(
+    PortfolioGrowthLoadRequested event,
+    Emitter<PortfolioGrowthState> emit,
+  ) async {
+    while (true) {
+      try {
+        await Future.delayed(_backoffStrategy.getNextInterval());
+        
+        final data = await _fetchPortfolioGrowthChart(event);
+        emit(
+          await _handlePortfolioGrowthUpdate(
+            data,
+            event.selectedPeriod,
+            event.coins,
+          ),
+        );
+      } catch (error, stackTrace) {
+        _log.shout('Failed to load portfolio growth', error, stackTrace);
+        final (
+          int totalCoins,
+          int coinsWithKnownBalance,
+          int coinsWithKnownBalanceAndFiat,
+        ) = _calculateCoinProgressCounters(event.coins);
+        emit(
+          GrowthChartLoadFailure(
+            error: TextError(error: 'Failed to load portfolio growth'),
+            selectedPeriod: event.selectedPeriod,
+            totalCoins: totalCoins,
+            coinsWithKnownBalance: coinsWithKnownBalance,
+            coinsWithKnownBalanceAndFiat: coinsWithKnownBalanceAndFiat,
+          ),
+        );
+      }
+    }
   }
 }

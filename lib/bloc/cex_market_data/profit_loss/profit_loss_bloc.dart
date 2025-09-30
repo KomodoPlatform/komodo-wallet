@@ -7,6 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/charts.dart';
+import 'package:web_dex/bloc/cex_market_data/common/update_frequency_backoff_strategy.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
 import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
@@ -35,6 +36,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
   final KomodoDefiSdk _sdk;
 
   final _log = Logger('ProfitLossBloc');
+  final UpdateFrequencyBackoffStrategy _backoffStrategy = UpdateFrequencyBackoffStrategy();
 
   void _onClearPortfolioProfitLoss(
     ProfitLossPortfolioChartClearRequested event,
@@ -96,19 +98,11 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       // recover at the cost of a longer first loading time.
     }
 
-    await emit.forEach(
-      Stream<Object?>.periodic(event.updateFrequency).asyncMap(
-        (_) async => _getProfitLossChart(event, event.coins, useCache: false),
-      ),
-      onData: (ProfitLossState updatedChartState) => updatedChartState,
-      onError: (e, s) {
-        _log.shout('Failed to load portfolio profit/loss', e, s);
-        return ProfitLossLoadFailure(
-          error: TextError(error: 'Failed to load portfolio profit/loss'),
-          selectedPeriod: event.selectedPeriod,
-        );
-      },
-    );
+    // Reset backoff strategy for new load request
+    _backoffStrategy.reset();
+    
+    // Create periodic update stream with dynamic intervals
+    await _runPeriodicUpdates(event, emit);
   }
 
   Future<ProfitLossState> _getProfitLossChart(
@@ -233,5 +227,27 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
 
     chartsList.removeWhere((element) => element.isEmpty);
     return Charts.merge(chartsList)..sort((a, b) => a.x.compareTo(b.x));
+  }
+  /// Run periodic updates with exponential backoff strategy
+  Future<void> _runPeriodicUpdates(
+    ProfitLossPortfolioChartLoadRequested event,
+    Emitter<ProfitLossState> emit,
+  ) async {
+    while (true) {
+      try {
+        await Future.delayed(_backoffStrategy.getNextInterval());
+        
+        final updatedChartState = await _getProfitLossChart(event, event.coins, useCache: false);
+        emit(updatedChartState);
+      } catch (error, stackTrace) {
+        _log.shout('Failed to load portfolio profit/loss', error, stackTrace);
+        emit(
+          ProfitLossLoadFailure(
+            error: TextError(error: 'Failed to load portfolio profit/loss'),
+            selectedPeriod: event.selectedPeriod,
+          ),
+        );
+      }
+    }
   }
 }
