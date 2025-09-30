@@ -71,8 +71,8 @@ Future<void> main() async {
     );
 
     final tradingStatusRepository = TradingStatusRepository(komodoDefiSdk);
-    final tradingStatusService = TradingStatusService(tradingStatusRepository)
-      ..initialize();
+    final tradingStatusService = TradingStatusService(tradingStatusRepository);
+    await tradingStatusService.initialize();
 
     final coinsRepo = CoinsRepo(
       kdfSdk: komodoDefiSdk,
@@ -154,6 +154,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+    final tradingStatusService = RepositoryProvider.of<TradingStatusService>(
+      context,
+    );
 
     final sensitivityController = ScreenshotSensitivityController();
     return MultiBlocProvider(
@@ -164,6 +167,7 @@ class MyApp extends StatelessWidget {
               komodoDefiSdk,
               walletsRepository,
               SettingsRepository(),
+              tradingStatusService,
             );
             bloc.add(const AuthLifecycleCheckRequested());
             return bloc;

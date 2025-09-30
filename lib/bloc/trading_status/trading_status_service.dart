@@ -16,7 +16,10 @@ class TradingStatusService {
   final Logger _log = Logger('TradingStatusService');
 
   /// Current cached trading status
-  AppGeoStatus _currentStatus = const AppGeoStatus();
+  /// Starts with a restrictive state to prevent race conditions during app startup
+  AppGeoStatus _currentStatus = const AppGeoStatus(
+    disallowedFeatures: {DisallowedFeature.trading},
+  );
 
   /// Stream subscription for trading status updates
   StreamSubscription<AppGeoStatus>? _statusSubscription;
@@ -27,6 +30,15 @@ class TradingStatusService {
 
   /// Track whether initialize has been called
   bool _isInitialized = false;
+
+  /// Track whether we've received the initial status from the API
+  bool _hasInitialStatus = false;
+
+  /// Completer to track when initial status is ready
+  final Completer<void> _initialStatusCompleter = Completer<void>();
+
+  /// Future that completes when the initial status has been received
+  Future<void> get initialStatusReady => _initialStatusCompleter.future;
 
   /// Stream of trading status updates
   Stream<AppGeoStatus> get statusStream => _statusController.stream;
@@ -60,13 +72,28 @@ class TradingStatusService {
 
   /// Initialize the service by starting to watch trading status
   /// Must be called after constructing the service
-  void initialize() {
+  Future<void> initialize() async {
     assert(
       !_isInitialized,
       'TradingStatusService.initialize() can only be called once',
     );
     _isInitialized = true;
     _log.info('Initializing trading status service');
+
+    try {
+      final initialStatus = await _repository.fetchStatus();
+      _updateStatus(initialStatus);
+    } catch (error, stackTrace) {
+      _log.severe(
+        'Failed to fetch initial trading status, defaulting to blocked',
+        error,
+        stackTrace,
+      );
+      _updateStatus(
+        const AppGeoStatus(disallowedFeatures: {DisallowedFeature.trading}),
+      );
+    }
+
     _startWatching();
   }
 
@@ -90,6 +117,15 @@ class TradingStatusService {
   void _updateStatus(AppGeoStatus newStatus) {
     final previousStatus = _currentStatus;
     _currentStatus = newStatus;
+
+    // Mark that we've received the initial status
+    if (!_hasInitialStatus) {
+      _hasInitialStatus = true;
+      if (!_initialStatusCompleter.isCompleted) {
+        _initialStatusCompleter.complete();
+      }
+      _log.info('Initial trading status received');
+    }
 
     if (previousStatus.tradingEnabled != newStatus.tradingEnabled) {
       _log.info(
