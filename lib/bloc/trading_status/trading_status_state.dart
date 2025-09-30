@@ -2,7 +2,7 @@ part of 'trading_status_bloc.dart';
 
 abstract class TradingStatusState extends Equatable {
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [isEnabled];
 
   bool get isEnabled =>
       this is TradingStatusLoadSuccess &&
@@ -47,7 +47,9 @@ extension TradingStatusStateX on TradingStatusState {
 
   bool canTradeAssets(Iterable<AssetId?> assets) {
     if (!isEnabled) return false;
-    for (final asset in assets) {
+    // Filter out nulls - only check assets that are actually selected
+    final nonNullAssets = assets.whereType<AssetId>();
+    for (final asset in nonNullAssets) {
       if (isAssetBlocked(asset)) return false;
     }
     return true;
