@@ -19,6 +19,100 @@ class MatomoAnalyticsApi implements AnalyticsApi {
   int _initRetryCount = 0;
   static const int _maxInitRetries = 3;
 
+  /// SYNC NOTE:
+  /// The event-to-category mapping and numeric value extraction keys below must
+  /// stay in sync with `lib/analytics/required_analytics_events.csv`.
+  /// Ideally these would not be hard-coded and should be generated from a
+  /// shared analytics metadata source.
+
+  /// Explicit mapping of GA4 event names to Business Categories as defined in
+  /// `lib/analytics/required_analytics_events.csv`.
+  static const Map<String, String> _eventCategoryMap = {
+    // User Engagement
+    'app_open': 'User Engagement',
+
+    // User Acquisition
+    'onboarding_start': 'User Acquisition',
+    'wallet_created': 'User Acquisition',
+    'wallet_imported': 'User Acquisition',
+
+    // Security
+    'backup_complete': 'Security Adoption',
+    'backup_skipped': 'Security Risk',
+
+    // Portfolio
+    'portfolio_viewed': 'Portfolio',
+    'portfolio_growth_viewed': 'Portfolio',
+    'portfolio_pnl_viewed': 'Portfolio',
+
+    // Asset Mgmt
+    'add_asset': 'Asset Mgmt',
+    'view_asset': 'Asset Mgmt',
+    'asset_enabled': 'Asset Mgmt',
+    'asset_disabled': 'Asset Mgmt',
+
+    // Transactions
+    'send_initiated': 'Transactions',
+    'send_success': 'Transactions',
+    'send_failure': 'Transactions',
+
+    // Trading (DEX)
+    'swap_initiated': 'Trading (DEX)',
+    'swap_success': 'Trading (DEX)',
+    'swap_failure': 'Trading (DEX)',
+
+    // Cross-Chain
+    'bridge_initiated': 'Cross-Chain',
+    'bridge_success': 'Cross-Chain',
+    'bridge_failure': 'Cross-Chain',
+
+    // NFT Wallet
+    'nft_gallery_opened': 'NFT Wallet',
+    'nft_transfer_initiated': 'NFT Wallet',
+    'nft_transfer_success': 'NFT Wallet',
+    'nft_transfer_failure': 'NFT Wallet',
+
+    // Market Bot
+    'marketbot_setup_start': 'Market Bot',
+    'marketbot_setup_complete': 'Market Bot',
+    'marketbot_trade_executed': 'Market Bot',
+    'marketbot_error': 'Market Bot',
+
+    // Rewards
+    'reward_claim_initiated': 'Rewards',
+    'reward_claim_success': 'Rewards',
+    'reward_claim_failure': 'Rewards',
+
+    // Ecosystem
+    'dapp_connect': 'Ecosystem',
+
+    // Preferences
+    'settings_change': 'Preferences',
+    'theme_selected': 'Preferences',
+
+    // Stability
+    'error_displayed': 'Stability',
+
+    // Growth
+    'app_share': 'Growth',
+
+    // HD Wallet Ops
+    'hd_address_generated': 'HD Wallet Ops',
+
+    // UX & UI
+    'scroll_attempt_outside_content': 'UX Interaction',
+    'wallet_list_half_viewport': 'UI Usability',
+
+    // Data Sync
+    'coins_data_updated': 'Data Sync',
+
+    // Search
+    'searchbar_input': 'Search',
+
+    // Performance
+    'page_interactive_delay': 'Performance',
+  };
+
   /// Queue to store events when analytics is disabled
   final List<AnalyticsEventData> _eventQueue = [];
 
@@ -175,6 +269,9 @@ class MatomoAnalyticsApi implements AnalyticsApi {
           name: event.name,
           value: _extractEventValue(sanitizedParameters),
         ),
+        dimensions: event.parameters.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
       );
 
       // Note: Custom dimensions should be set separately in Matomo
@@ -200,7 +297,7 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     try {
       if (matomoPlatformDimensionId != null) {
         final platform = PlatformInfo.getInstance().platform;
-        final dimensionKey = 'dimension${matomoPlatformDimensionId}';
+        final dimensionKey = 'dimension$matomoPlatformDimensionId';
         MatomoTracker.instance.trackDimensions(
           dimensions: {dimensionKey: platform},
         );
@@ -271,25 +368,32 @@ class MatomoAnalyticsApi implements AnalyticsApi {
 
   /// Extract category from event name (used for Matomo event categorization)
   String _extractCategory(String eventName) {
-    // Simple category extraction based on event naming patterns
-    if (eventName.startsWith('app_')) return 'App';
-    if (eventName.startsWith('onboarding_')) return 'Onboarding';
-    if (eventName.startsWith('wallet_')) return 'Wallet';
+    // 1) Exact mapping from CSV
+    final mapped = _eventCategoryMap[eventName];
+    if (mapped != null) return mapped;
+
+    // 2) Fallback by prefix → Business Category (keep in sync with CSV semantics)
+    if (eventName.startsWith('onboarding_')) return 'User Acquisition';
+    if (eventName.startsWith('wallet_')) return 'User Acquisition';
+    if (eventName.startsWith('app_')) return 'User Engagement';
     if (eventName.startsWith('portfolio_')) return 'Portfolio';
-    if (eventName.startsWith('asset_')) return 'Asset';
-    if (eventName.startsWith('send_')) return 'Transaction';
-    if (eventName.startsWith('swap_')) return 'Trading';
-    if (eventName.startsWith('bridge_')) return 'Bridge';
-    if (eventName.startsWith('nft_')) return 'NFT';
-    if (eventName.startsWith('marketbot_')) return 'Marketbot';
+    if (eventName.startsWith('asset_')) return 'Asset Mgmt';
+    if (eventName.startsWith('send_')) return 'Transactions';
+    if (eventName.startsWith('swap_')) return 'Trading (DEX)';
+    if (eventName.startsWith('bridge_')) return 'Cross-Chain';
+    if (eventName.startsWith('nft_')) return 'NFT Wallet';
+    if (eventName.startsWith('marketbot_')) return 'Market Bot';
     if (eventName.startsWith('reward_')) return 'Rewards';
-    if (eventName.startsWith('dapp_')) return 'DApp';
-    if (eventName.startsWith('settings_')) return 'Settings';
-    if (eventName.startsWith('error_')) return 'Error';
-    if (eventName.startsWith('hd_')) return 'HDWallet';
-    if (eventName.startsWith('scroll_')) return 'UI';
+    if (eventName.startsWith('dapp_')) return 'Ecosystem';
+    if (eventName.startsWith('settings_')) return 'Preferences';
+    if (eventName.startsWith('error_')) return 'Stability';
+    if (eventName.startsWith('hd_')) return 'HD Wallet Ops';
+    if (eventName.startsWith('scroll_')) return 'UX Interaction';
     if (eventName.startsWith('searchbar_')) return 'Search';
-    if (eventName.startsWith('theme_')) return 'Theme';
+    if (eventName.startsWith('theme_')) return 'Preferences';
+    if (eventName.startsWith('coins_')) return 'Data Sync';
+    if (eventName.startsWith('page_')) return 'Performance';
+
     return 'General';
   }
 
@@ -305,6 +409,28 @@ class MatomoAnalyticsApi implements AnalyticsApi {
       'reward_amount',
       'base_capital',
       'trade_size',
+      // From required_analytics_events.csv (keep in sync)
+      'backup_time',
+      'total_coins',
+      'total_value_usd',
+      'growth_pct',
+      'realized_pnl',
+      'unrealized_pnl',
+      'fee',
+      'load_time_ms',
+      'nft_count',
+      'pairs_count',
+      'expected_reward_amount',
+      'account_index',
+      'address_index',
+      'scroll_delta',
+      'time_to_half_ms',
+      'wallet_size',
+      'coins_count',
+      'update_duration_ms',
+      'query_length',
+      'interactive_delay_ms',
+      'spinner_time_ms',
     ];
 
     for (final key in potentialValueKeys) {
