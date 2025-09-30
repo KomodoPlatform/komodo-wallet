@@ -273,3 +273,29 @@ extension AssetListOps on List<Asset> {
     ).unmodifiable().toList();
   }
 }
+
+extension CoinSupportOps on Iterable<Coin> {
+  /// Returns a list excluding test coins. Useful when filtering coins before
+  /// running portfolio calculations that assume production assets only.
+  List<Coin> withoutTestCoins() =>
+      where((coin) => !coin.isTestCoin).unmodifiable().toList();
+
+  /// Filters out unsupported coins by first removing test coins and then
+  /// evaluating the optional [isSupported] predicate. When the predicate is not
+  /// provided, only test coins are removed.
+  Future<List<Coin>> filterSupportedCoins([
+    Future<bool> Function(Coin coin)? isSupported,
+  ]) async {
+    final predicate = isSupported ?? _alwaysSupported;
+    final supportedCoins = <Coin>[];
+    for (final coin in this) {
+      if (coin.isTestCoin) continue;
+      if (await predicate(coin)) {
+        supportedCoins.add(coin);
+      }
+    }
+    return supportedCoins.unmodifiable().toList();
+  }
+
+  static Future<bool> _alwaysSupported(Coin _) async => true;
+}

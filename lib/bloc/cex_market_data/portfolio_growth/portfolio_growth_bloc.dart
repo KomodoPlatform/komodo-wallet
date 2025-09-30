@@ -45,7 +45,8 @@ class PortfolioGrowthBloc
   final PortfolioGrowthRepository _portfolioGrowthRepository;
   final KomodoDefiSdk _sdk;
   final _log = Logger('PortfolioGrowthBloc');
-  final UpdateFrequencyBackoffStrategy _backoffStrategy = UpdateFrequencyBackoffStrategy();
+  final UpdateFrequencyBackoffStrategy _backoffStrategy =
+      UpdateFrequencyBackoffStrategy();
 
   void _onClearPortfolioGrowth(
     PortfolioGrowthClearRequested event,
@@ -58,12 +59,13 @@ class PortfolioGrowthBloc
     PortfolioGrowthPeriodChanged event,
     Emitter<PortfolioGrowthState> emit,
   ) {
+    final coins = event.coins.withoutTestCoins();
     final (
       int totalCoins,
       int coinsWithKnownBalance,
       int coinsWithKnownBalanceAndFiat,
     ) = _calculateCoinProgressCounters(
-      event.coins,
+      coins,
     );
     final currentState = state;
     if (currentState is PortfolioGrowthChartLoadSuccess) {
@@ -106,7 +108,7 @@ class PortfolioGrowthBloc
 
     add(
       PortfolioGrowthLoadRequested(
-        coins: event.coins,
+        coins: coins,
         selectedPeriod: event.selectedPeriod,
         fiatCoinId: 'USDT',
         updateFrequency: event.updateFrequency,
@@ -120,16 +122,22 @@ class PortfolioGrowthBloc
     Emitter<PortfolioGrowthState> emit,
   ) async {
     try {
-      final List<Coin> coins = await _removeUnsupportedCoins(event);
+      final List<Coin> coins = await event.coins.filterSupportedCoins(
+        (coin) => _portfolioGrowthRepository.isCoinChartSupported(
+          coin.id,
+          event.fiatCoinId,
+        ),
+      );
       // Charts for individual coins (coin details) are parsed here as well,
       // and should be hidden if not supported.
-      if (coins.isEmpty && event.coins.length <= 1) {
+      final filteredEventCoins = event.coins.withoutTestCoins();
+      if (coins.isEmpty && filteredEventCoins.length <= 1) {
         final (
           int totalCoins,
           int coinsWithKnownBalance,
           int coinsWithKnownBalanceAndFiat,
         ) = _calculateCoinProgressCounters(
-          event.coins,
+          filteredEventCoins,
         );
         return emit(
           PortfolioGrowthChartUnsupported(
@@ -156,7 +164,9 @@ class PortfolioGrowthBloc
       // In case most coins are activating on wallet startup, wait for at least
       // 50% of the coins to be enabled before attempting to load the uncached
       // chart.
-      await _sdk.waitForEnabledCoinsToPassThreshold(event.coins);
+      if (coins.isNotEmpty) {
+        await _sdk.waitForEnabledCoinsToPassThreshold(coins);
+      }
 
       // Only remove inactivate/activating coins after an attempt to load the
       // cached chart, as the cached chart may contain inactive coins.
@@ -181,23 +191,9 @@ class PortfolioGrowthBloc
 
     // Reset backoff strategy for new load request
     _backoffStrategy.reset();
-    
+
     // Create periodic update stream with dynamic intervals
     await _runPeriodicUpdates(event, emit);
-  }
-
-  Future<List<Coin>> _removeUnsupportedCoins(
-    PortfolioGrowthLoadRequested event,
-  ) async {
-    final List<Coin> coins = List.from(event.coins);
-    for (final coin in event.coins) {
-      final isCoinSupported = await _portfolioGrowthRepository
-          .isCoinChartSupported(coin.id, event.fiatCoinId);
-      if (!isCoinSupported) {
-        coins.remove(coin);
-      }
-    }
-    return coins;
   }
 
   Future<PortfolioGrowthState> _loadChart(
@@ -225,7 +221,7 @@ class PortfolioGrowthBloc
       int coinsWithKnownBalance,
       int coinsWithKnownBalanceAndFiat,
     ) = _calculateCoinProgressCounters(
-      event.coins,
+      coins,
     );
 
     return PortfolioGrowthChartLoadSuccess(
@@ -242,22 +238,28 @@ class PortfolioGrowthBloc
     );
   }
 
-  Future<ChartData> _fetchPortfolioGrowthChart(
+  Future<(ChartData, List<Coin>)> _fetchPortfolioGrowthChart(
     PortfolioGrowthLoadRequested event,
   ) async {
     // Do not let transaction loading exceptions stop the periodic updates
     try {
-      final supportedCoins = await _removeUnsupportedCoins(event);
+      final supportedCoins = await event.coins.filterSupportedCoins(
+        (coin) => _portfolioGrowthRepository.isCoinChartSupported(
+          coin.id,
+          event.fiatCoinId,
+        ),
+      );
       final coins = await supportedCoins.removeInactiveCoins(_sdk);
-      return await _portfolioGrowthRepository.getPortfolioGrowthChart(
+      final chart = await _portfolioGrowthRepository.getPortfolioGrowthChart(
         coins,
         fiatCoinId: event.fiatCoinId,
         walletId: event.walletId,
         useCache: false,
       );
+      return (chart, coins);
     } catch (error, stackTrace) {
       _log.shout('Empty growth chart on periodic update', error, stackTrace);
-      return ChartData.empty();
+      return (ChartData.empty(), <Coin>[]);
     }
   }
 
@@ -372,13 +374,13 @@ class PortfolioGrowthBloc
     while (true) {
       try {
         await Future.delayed(_backoffStrategy.getNextInterval());
-        
-        final data = await _fetchPortfolioGrowthChart(event);
+
+        final (chart, coins) = await _fetchPortfolioGrowthChart(event);
         emit(
           await _handlePortfolioGrowthUpdate(
-            data,
+            chart,
             event.selectedPeriod,
-            event.coins,
+            coins,
           ),
         );
       } catch (error, stackTrace) {
@@ -387,7 +389,9 @@ class PortfolioGrowthBloc
           int totalCoins,
           int coinsWithKnownBalance,
           int coinsWithKnownBalanceAndFiat,
-        ) = _calculateCoinProgressCounters(event.coins);
+        ) = _calculateCoinProgressCounters(
+          event.coins.withoutTestCoins(),
+        );
         emit(
           GrowthChartLoadFailure(
             error: TextError(error: 'Failed to load portfolio growth'),

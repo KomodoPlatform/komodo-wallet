@@ -36,7 +36,8 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
   final KomodoDefiSdk _sdk;
 
   final _log = Logger('ProfitLossBloc');
-  final UpdateFrequencyBackoffStrategy _backoffStrategy = UpdateFrequencyBackoffStrategy();
+  final UpdateFrequencyBackoffStrategy _backoffStrategy =
+      UpdateFrequencyBackoffStrategy();
 
   void _onClearPortfolioProfitLoss(
     ProfitLossPortfolioChartClearRequested event,
@@ -50,14 +51,12 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     Emitter<ProfitLossState> emit,
   ) async {
     try {
-      final supportedCoins = await _removeUnsupportedCons(
-        event.coins,
-        event.fiatCoinId,
-      );
+      final supportedCoins = await event.coins.filterSupportedCoins();
+      final filteredEventCoins = event.coins.withoutTestCoins();
       final initialActiveCoins = await supportedCoins.removeInactiveCoins(_sdk);
       // Charts for individual coins (coin details) are parsed here as well,
       // and should be hidden if not supported.
-      if (supportedCoins.isEmpty && event.coins.length <= 1) {
+      if (supportedCoins.isEmpty && filteredEventCoins.length <= 1) {
         return emit(
           PortfolioProfitLossChartUnsupported(
             selectedPeriod: event.selectedPeriod,
@@ -77,7 +76,9 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       });
 
       // Fetch the un-cached version of the chart to update the cache.
-      await _sdk.waitForEnabledCoinsToPassThreshold(supportedCoins);
+      if (supportedCoins.isNotEmpty) {
+        await _sdk.waitForEnabledCoinsToPassThreshold(supportedCoins);
+      }
       final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);
       if (activeCoins.isNotEmpty) {
         await _getProfitLossChart(
@@ -100,7 +101,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
 
     // Reset backoff strategy for new load request
     _backoffStrategy.reset();
-    
+
     // Create periodic update stream with dynamic intervals
     await _runPeriodicUpdates(event, emit);
   }
@@ -115,6 +116,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     try {
       final filteredChart = await _getSortedProfitLossChartForCoins(
         event,
+        coins,
         useCache: useCache,
       );
       final unCachedProfitIncrease = filteredChart.increase;
@@ -133,19 +135,6 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       _log.shout('Failed periodic profit/loss chart update', error, stackTrace);
       return state;
     }
-  }
-
-  Future<List<Coin>> _removeUnsupportedCons(
-    List<Coin> walletCoins,
-    String fiatCoinId,
-  ) async {
-    final coins = List<Coin>.of(walletCoins);
-    for (final coin in coins) {
-      if (coin.isTestCoin) {
-        coins.remove(coin);
-      }
-    }
-    return coins;
   }
 
   Future<void> _onPortfolioPeriodChanged(
@@ -185,7 +174,8 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
   }
 
   Future<ChartData> _getSortedProfitLossChartForCoins(
-    ProfitLossPortfolioChartLoadRequested event, {
+    ProfitLossPortfolioChartLoadRequested event,
+    List<Coin> coins, {
     bool useCache = true,
   }) async {
     if (!await _sdk.auth.isSignedIn()) {
@@ -194,7 +184,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     }
 
     final chartsList = await Future.wait(
-      event.coins.map((coin) async {
+      coins.map((coin) async {
         // Catch any errors and return an empty chart to prevent a single coin
         // from breaking the entire portfolio chart.
         try {
@@ -228,6 +218,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     chartsList.removeWhere((element) => element.isEmpty);
     return Charts.merge(chartsList)..sort((a, b) => a.x.compareTo(b.x));
   }
+
   /// Run periodic updates with exponential backoff strategy
   Future<void> _runPeriodicUpdates(
     ProfitLossPortfolioChartLoadRequested event,
@@ -236,8 +227,14 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     while (true) {
       try {
         await Future.delayed(_backoffStrategy.getNextInterval());
-        
-        final updatedChartState = await _getProfitLossChart(event, event.coins, useCache: false);
+
+        final supportedCoins = await event.coins.filterSupportedCoins();
+        final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);
+        final updatedChartState = await _getProfitLossChart(
+          event,
+          activeCoins,
+          useCache: false,
+        );
         emit(updatedChartState);
       } catch (error, stackTrace) {
         _log.shout('Failed to load portfolio profit/loss', error, stackTrace);
