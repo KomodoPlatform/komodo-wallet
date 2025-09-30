@@ -4,7 +4,7 @@ import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 
 /// E20: Bridge transfer started
 /// Business category: Cross-Chain.
-class BridgeInitiatedEventData implements AnalyticsEventData {
+class BridgeInitiatedEventData extends AnalyticsEventData {
   const BridgeInitiatedEventData({
     required this.fromChain,
     required this.toChain,
@@ -48,7 +48,7 @@ class AnalyticsBridgeInitiatedEvent extends AnalyticsSendDataEvent {
 
 /// E21: Bridge completed
 /// Business category: Cross-Chain.
-class BridgeSucceededEventData implements AnalyticsEventData {
+class BridgeSucceededEventData extends AnalyticsEventData {
   const BridgeSucceededEventData({
     required this.fromChain,
     required this.toChain,
@@ -102,7 +102,7 @@ class AnalyticsBridgeSucceededEvent extends AnalyticsSendDataEvent {
 
 /// E22: Bridge failed
 /// Business category: Cross-Chain.
-class BridgeFailedEventData implements AnalyticsEventData {
+class BridgeFailedEventData extends AnalyticsEventData {
   const BridgeFailedEventData({
     required this.fromChain,
     required this.toChain,

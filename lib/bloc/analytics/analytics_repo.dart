@@ -10,12 +10,26 @@ import 'firebase_analytics_api.dart';
 import 'matomo_analytics_api.dart';
 
 abstract class AnalyticsEventData {
+  const AnalyticsEventData();
+
   String get name;
   Map<String, dynamic> get parameters;
+
+  MapEntry<String, dynamic>? get primaryParameter {
+    final params = parameters;
+    if (params.isEmpty) {
+      return null;
+    }
+    final iterator = params.entries.iterator;
+    if (!iterator.moveNext()) {
+      return null;
+    }
+    return iterator.current;
+  }
 }
 
 /// A simple implementation of AnalyticsEventData for persisted events
-class PersistedAnalyticsEventData implements AnalyticsEventData {
+class PersistedAnalyticsEventData extends AnalyticsEventData {
   PersistedAnalyticsEventData({required this.name, required this.parameters});
 
   @override

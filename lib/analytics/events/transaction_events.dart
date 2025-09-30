@@ -9,7 +9,7 @@ import '../../bloc/analytics/analytics_repo.dart';
 /// E14: Send flow started
 /// Measures when a user initiates a send transaction. Business category: Transactions.
 /// Provides insights on transaction funnel start and popular send assets.
-class SendInitiatedEventData implements AnalyticsEventData {
+class SendInitiatedEventData extends AnalyticsEventData {
   const SendInitiatedEventData({
     required this.assetSymbol,
     required this.network,
@@ -27,11 +27,11 @@ class SendInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'network': network,
-        'amount': amount,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'network': network,
+    'amount': amount,
+    'wallet_type': walletType,
+  };
 }
 
 /// E14: Send flow started
@@ -41,12 +41,14 @@ class AnalyticsSendInitiatedEvent extends AnalyticsSendDataEvent {
     required String network,
     required double amount,
     required String walletType,
-  }) : super(SendInitiatedEventData(
-          assetSymbol: assetSymbol,
-          network: network,
-          amount: amount,
-          walletType: walletType,
-        ));
+  }) : super(
+         SendInitiatedEventData(
+           assetSymbol: assetSymbol,
+           network: network,
+           amount: amount,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E15: On-chain send completed
@@ -55,7 +57,7 @@ class AnalyticsSendInitiatedEvent extends AnalyticsSendDataEvent {
 /// E15: On-chain send completed
 /// Measures when an on-chain send transaction is completed successfully. Business category: Transactions.
 /// Provides insights on successful sends, volume, and average size.
-class SendSucceededEventData implements AnalyticsEventData {
+class SendSucceededEventData extends AnalyticsEventData {
   const SendSucceededEventData({
     required this.assetSymbol,
     required this.network,
@@ -73,11 +75,11 @@ class SendSucceededEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'network': network,
-        'amount': amount,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'network': network,
+    'amount': amount,
+    'wallet_type': walletType,
+  };
 }
 
 /// E15: On-chain send completed
@@ -87,12 +89,14 @@ class AnalyticsSendSucceededEvent extends AnalyticsSendDataEvent {
     required String network,
     required double amount,
     required String walletType,
-  }) : super(SendSucceededEventData(
-          assetSymbol: assetSymbol,
-          network: network,
-          amount: amount,
-          walletType: walletType,
-        ));
+  }) : super(
+         SendSucceededEventData(
+           assetSymbol: assetSymbol,
+           network: network,
+           amount: amount,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E16: Send failed / cancelled
@@ -101,7 +105,7 @@ class AnalyticsSendSucceededEvent extends AnalyticsSendDataEvent {
 /// E16: Send failed / cancelled
 /// Measures when a send transaction fails or is cancelled. Business category: Transactions.
 /// Provides insights on error hotspots and UX/network issues.
-class SendFailedEventData implements AnalyticsEventData {
+class SendFailedEventData extends AnalyticsEventData {
   const SendFailedEventData({
     required this.assetSymbol,
     required this.network,
@@ -119,11 +123,11 @@ class SendFailedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'network': network,
-        'fail_reason': failReason,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'network': network,
+    'fail_reason': failReason,
+    'wallet_type': walletType,
+  };
 }
 
 /// E16: Send failed / cancelled
@@ -133,12 +137,14 @@ class AnalyticsSendFailedEvent extends AnalyticsSendDataEvent {
     required String network,
     required String failReason,
     required String walletType,
-  }) : super(SendFailedEventData(
-          assetSymbol: assetSymbol,
-          network: network,
-          failReason: failReason,
-          walletType: walletType,
-        ));
+  }) : super(
+         SendFailedEventData(
+           assetSymbol: assetSymbol,
+           network: network,
+           failReason: failReason,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E17: Swap order submitted
@@ -147,7 +153,7 @@ class AnalyticsSendFailedEvent extends AnalyticsSendDataEvent {
 /// E17: Swap order submitted
 /// Measures when a swap order is submitted. Business category: Trading (DEX).
 /// Provides insights on DEX funnel start and pair demand.
-class SwapInitiatedEventData implements AnalyticsEventData {
+class SwapInitiatedEventData extends AnalyticsEventData {
   const SwapInitiatedEventData({
     required this.fromAsset,
     required this.toAsset,
@@ -165,11 +171,11 @@ class SwapInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'from_asset': fromAsset,
-        'to_asset': toAsset,
-        'networks': networks,
-        'wallet_type': walletType,
-      };
+    'from_asset': fromAsset,
+    'to_asset': toAsset,
+    'networks': networks,
+    'wallet_type': walletType,
+  };
 }
 
 /// E17: Swap order submitted
@@ -179,12 +185,14 @@ class AnalyticsSwapInitiatedEvent extends AnalyticsSendDataEvent {
     required String toAsset,
     required String networks,
     required String walletType,
-  }) : super(SwapInitiatedEventData(
-          fromAsset: fromAsset,
-          toAsset: toAsset,
-          networks: networks,
-          walletType: walletType,
-        ));
+  }) : super(
+         SwapInitiatedEventData(
+           fromAsset: fromAsset,
+           toAsset: toAsset,
+           networks: networks,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E18: Atomic swap succeeded
@@ -193,7 +201,7 @@ class AnalyticsSwapInitiatedEvent extends AnalyticsSendDataEvent {
 /// E18: Atomic swap succeeded
 /// Measures when an atomic swap is completed successfully. Business category: Trading (DEX).
 /// Provides insights on trading volume and fee revenue.
-class SwapSucceededEventData implements AnalyticsEventData {
+class SwapSucceededEventData extends AnalyticsEventData {
   const SwapSucceededEventData({
     required this.fromAsset,
     required this.toAsset,
@@ -215,13 +223,13 @@ class SwapSucceededEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'from_asset': fromAsset,
-        'to_asset': toAsset,
-        'amount': amount,
-        'fee': fee,
-        'wallet_type': walletType,
-        if (durationMs != null) 'duration_ms': durationMs,
-      };
+    'from_asset': fromAsset,
+    'to_asset': toAsset,
+    'amount': amount,
+    'fee': fee,
+    'wallet_type': walletType,
+    if (durationMs != null) 'duration_ms': durationMs,
+  };
 }
 
 /// E18: Atomic swap succeeded
@@ -233,14 +241,16 @@ class AnalyticsSwapSucceededEvent extends AnalyticsSendDataEvent {
     required double fee,
     required String walletType,
     int? durationMs,
-  }) : super(SwapSucceededEventData(
-          fromAsset: fromAsset,
-          toAsset: toAsset,
-          amount: amount,
-          fee: fee,
-          walletType: walletType,
-          durationMs: durationMs,
-        ));
+  }) : super(
+         SwapSucceededEventData(
+           fromAsset: fromAsset,
+           toAsset: toAsset,
+           amount: amount,
+           fee: fee,
+           walletType: walletType,
+           durationMs: durationMs,
+         ),
+       );
 }
 
 // E19: Swap failed
@@ -249,7 +259,7 @@ class AnalyticsSwapSucceededEvent extends AnalyticsSendDataEvent {
 /// E19: Swap failed
 /// Measures when an atomic swap fails. Business category: Trading (DEX).
 /// Provides insights on liquidity gaps and technical/UX blockers.
-class SwapFailedEventData implements AnalyticsEventData {
+class SwapFailedEventData extends AnalyticsEventData {
   const SwapFailedEventData({
     required this.fromAsset,
     required this.toAsset,
@@ -269,12 +279,12 @@ class SwapFailedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'from_asset': fromAsset,
-        'to_asset': toAsset,
-        'fail_stage': failStage,
-        'wallet_type': walletType,
-        if (durationMs != null) 'duration_ms': durationMs,
-      };
+    'from_asset': fromAsset,
+    'to_asset': toAsset,
+    'fail_stage': failStage,
+    'wallet_type': walletType,
+    if (durationMs != null) 'duration_ms': durationMs,
+  };
 }
 
 /// E19: Swap failed
@@ -285,11 +295,13 @@ class AnalyticsSwapFailedEvent extends AnalyticsSendDataEvent {
     required String failStage,
     required String walletType,
     int? durationMs,
-  }) : super(SwapFailedEventData(
-          fromAsset: fromAsset,
-          toAsset: toAsset,
-          failStage: failStage,
-          walletType: walletType,
-          durationMs: durationMs,
-        ));
+  }) : super(
+         SwapFailedEventData(
+           fromAsset: fromAsset,
+           toAsset: toAsset,
+           failStage: failStage,
+           walletType: walletType,
+           durationMs: durationMs,
+         ),
+       );
 }

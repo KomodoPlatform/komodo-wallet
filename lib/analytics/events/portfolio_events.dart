@@ -8,7 +8,7 @@ import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 /// E07: Portfolio overview opened
 /// Measures when the portfolio overview is viewed. Business category: Portfolio.
 /// Provides insights on balance-check engagement.
-class PortfolioViewedEventData implements AnalyticsEventData {
+class PortfolioViewedEventData extends AnalyticsEventData {
   const PortfolioViewedEventData({
     required this.totalCoins,
     required this.totalValueUsd,
@@ -22,9 +22,9 @@ class PortfolioViewedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'total_coins': totalCoins,
-        'total_value_usd': totalValueUsd,
-      };
+    'total_coins': totalCoins,
+    'total_value_usd': totalValueUsd,
+  };
 }
 
 /// E07: Portfolio overview opened
@@ -33,11 +33,11 @@ class AnalyticsPortfolioViewedEvent extends AnalyticsSendDataEvent {
     required int totalCoins,
     required double totalValueUsd,
   }) : super(
-          PortfolioViewedEventData(
-            totalCoins: totalCoins,
-            totalValueUsd: totalValueUsd,
-          ),
-        );
+         PortfolioViewedEventData(
+           totalCoins: totalCoins,
+           totalValueUsd: totalValueUsd,
+         ),
+       );
 }
 
 // E08: Growth chart opened
@@ -46,7 +46,7 @@ class AnalyticsPortfolioViewedEvent extends AnalyticsSendDataEvent {
 /// E08: Growth chart opened
 /// Measures when a user opens the growth chart. Business category: Portfolio.
 /// Provides insights on long-term performance interest.
-class PortfolioGrowthViewedEventData implements AnalyticsEventData {
+class PortfolioGrowthViewedEventData extends AnalyticsEventData {
   const PortfolioGrowthViewedEventData({
     required this.period,
     required this.growthPct,
@@ -59,10 +59,7 @@ class PortfolioGrowthViewedEventData implements AnalyticsEventData {
   String get name => 'portfolio_growth_viewed';
 
   @override
-  JsonMap get parameters => {
-        'period': period,
-        'growth_pct': growthPct,
-      };
+  JsonMap get parameters => {'period': period, 'growth_pct': growthPct};
 }
 
 /// E08: Growth chart opened
@@ -71,11 +68,8 @@ class AnalyticsPortfolioGrowthViewedEvent extends AnalyticsSendDataEvent {
     required String period,
     required double growthPct,
   }) : super(
-          PortfolioGrowthViewedEventData(
-            period: period,
-            growthPct: growthPct,
-          ),
-        );
+         PortfolioGrowthViewedEventData(period: period, growthPct: growthPct),
+       );
 }
 
 // E09: P&L breakdown viewed
@@ -84,7 +78,7 @@ class AnalyticsPortfolioGrowthViewedEvent extends AnalyticsSendDataEvent {
 /// E09: P&L breakdown viewed
 /// Measures when a user views the P&L breakdown. Business category: Portfolio.
 /// Provides insights on trading insight demand and upsell cues.
-class PortfolioPnlViewedEventData implements AnalyticsEventData {
+class PortfolioPnlViewedEventData extends AnalyticsEventData {
   const PortfolioPnlViewedEventData({
     required this.timeframe,
     required this.realizedPnl,
@@ -100,10 +94,10 @@ class PortfolioPnlViewedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'timeframe': timeframe,
-        'realized_pnl': realizedPnl,
-        'unrealized_pnl': unrealizedPnl,
-      };
+    'timeframe': timeframe,
+    'realized_pnl': realizedPnl,
+    'unrealized_pnl': unrealizedPnl,
+  };
 }
 
 /// E09: P&L breakdown viewed
@@ -113,12 +107,12 @@ class AnalyticsPortfolioPnlViewedEvent extends AnalyticsSendDataEvent {
     required double realizedPnl,
     required double unrealizedPnl,
   }) : super(
-          PortfolioPnlViewedEventData(
-            timeframe: timeframe,
-            realizedPnl: realizedPnl,
-            unrealizedPnl: unrealizedPnl,
-          ),
-        );
+         PortfolioPnlViewedEventData(
+           timeframe: timeframe,
+           realizedPnl: realizedPnl,
+           unrealizedPnl: unrealizedPnl,
+         ),
+       );
 }
 
 // E10: Custom token added
@@ -127,7 +121,7 @@ class AnalyticsPortfolioPnlViewedEvent extends AnalyticsSendDataEvent {
 /// E10: Custom token added
 /// Measures when a user adds a custom token. Business category: Asset Management.
 /// Provides insights on token diversity and network popularity.
-class AssetAddedEventData implements AnalyticsEventData {
+class AssetAddedEventData extends AnalyticsEventData {
   const AssetAddedEventData({
     required this.assetSymbol,
     required this.assetNetwork,
@@ -143,10 +137,10 @@ class AssetAddedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E10: Custom token added
@@ -156,12 +150,12 @@ class AnalyticsAssetAddedEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetAddedEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetAddedEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E11: Asset detail viewed
@@ -170,7 +164,7 @@ class AnalyticsAssetAddedEvent extends AnalyticsSendDataEvent {
 /// E11: Asset detail viewed
 /// Measures when a user views the detailed information of an asset. Business category: Asset Management.
 /// Provides insights on asset popularity and research depth.
-class AssetViewedEventData implements AnalyticsEventData {
+class AssetViewedEventData extends AnalyticsEventData {
   const AssetViewedEventData({
     required this.assetSymbol,
     required this.assetNetwork,
@@ -186,10 +180,10 @@ class AssetViewedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E11: Asset detail viewed
@@ -199,12 +193,12 @@ class AnalyticsAssetViewedEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetViewedEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetViewedEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E12: Existing asset toggled on / made visible
@@ -213,7 +207,7 @@ class AnalyticsAssetViewedEvent extends AnalyticsSendDataEvent {
 /// E12: Existing asset toggled on / made visible
 /// Measures when a user enables an existing asset. Business category: Asset Management.
 /// Provides insights on which assets users want on dashboard and feature adoption.
-class AssetEnabledEventData implements AnalyticsEventData {
+class AssetEnabledEventData extends AnalyticsEventData {
   const AssetEnabledEventData({
     required this.assetSymbol,
     required this.assetNetwork,
@@ -229,10 +223,10 @@ class AssetEnabledEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E12: Existing asset toggled on / made visible
@@ -242,12 +236,12 @@ class AnalyticsAssetEnabledEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetEnabledEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetEnabledEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }
 
 // E13: Token toggled off / hidden
@@ -256,7 +250,7 @@ class AnalyticsAssetEnabledEvent extends AnalyticsSendDataEvent {
 /// E13: Token toggled off / hidden
 /// Measures when a user disables or hides a token. Business category: Asset Management.
 /// Provides insights on portfolio-cleanup behavior and waning asset interest.
-class AssetDisabledEventData implements AnalyticsEventData {
+class AssetDisabledEventData extends AnalyticsEventData {
   const AssetDisabledEventData({
     required this.assetSymbol,
     required this.assetNetwork,
@@ -272,10 +266,10 @@ class AssetDisabledEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset_symbol': assetSymbol,
-        'asset_network': assetNetwork,
-        'wallet_type': walletType,
-      };
+    'asset_symbol': assetSymbol,
+    'asset_network': assetNetwork,
+    'wallet_type': walletType,
+  };
 }
 
 /// E13: Token toggled off / hidden
@@ -285,10 +279,10 @@ class AnalyticsAssetDisabledEvent extends AnalyticsSendDataEvent {
     required String assetNetwork,
     required String walletType,
   }) : super(
-          AssetDisabledEventData(
-            assetSymbol: assetSymbol,
-            assetNetwork: assetNetwork,
-            walletType: walletType,
-          ),
-        );
+         AssetDisabledEventData(
+           assetSymbol: assetSymbol,
+           assetNetwork: assetNetwork,
+           walletType: walletType,
+         ),
+       );
 }

@@ -37,7 +37,7 @@ void main() {
   });
 }
 
-class TestAnalyticsEvent implements AnalyticsEventData {
+class TestAnalyticsEvent extends AnalyticsEventData {
   @override
   String get name => 'test_event';
 

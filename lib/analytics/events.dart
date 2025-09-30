@@ -15,7 +15,7 @@ import 'package:web_dex/bloc/analytics/analytics_event.dart';
 /// E38: Fresh receive address derived
 /// Measures when a fresh HD wallet address is generated. Business category: HD Wallet Operations.
 /// Provides insights on address-reuse risk and payment UX.
-class HdAddressGeneratedEventData implements AnalyticsEventData {
+class HdAddressGeneratedEventData extends AnalyticsEventData {
   const HdAddressGeneratedEventData({
     required this.accountIndex,
     required this.addressIndex,
@@ -31,10 +31,10 @@ class HdAddressGeneratedEventData implements AnalyticsEventData {
 
   @override
   Map<String, Object> get parameters => {
-        'account_index': accountIndex,
-        'address_index': addressIndex,
-        'asset_symbol': assetSymbol,
-      };
+    'account_index': accountIndex,
+    'address_index': addressIndex,
+    'asset_symbol': assetSymbol,
+  };
 }
 
 /// E38: Fresh receive address derived
@@ -43,11 +43,13 @@ class AnalyticsHdAddressGeneratedEvent extends AnalyticsSendDataEvent {
     required int accountIndex,
     required int addressIndex,
     required String assetSymbol,
-  }) : super(HdAddressGeneratedEventData(
-          accountIndex: accountIndex,
-          addressIndex: addressIndex,
-          assetSymbol: assetSymbol,
-        ));
+  }) : super(
+         HdAddressGeneratedEventData(
+           accountIndex: accountIndex,
+           addressIndex: addressIndex,
+           assetSymbol: assetSymbol,
+         ),
+       );
 }
 
 // UI USABILITY
@@ -56,7 +58,7 @@ class AnalyticsHdAddressGeneratedEvent extends AnalyticsSendDataEvent {
 /// E40: Time until the top of the coins list crosses 50% of viewport
 /// Measures the time it takes for the coins list to reach halfway through the viewport. Business category: UI Usability.
 /// Provides insights on whether users struggle to reach balances and helps optimize list layout.
-class WalletListHalfViewportReachedEventData implements AnalyticsEventData {
+class WalletListHalfViewportReachedEventData extends AnalyticsEventData {
   const WalletListHalfViewportReachedEventData({
     required this.timeToHalfMs,
     required this.walletSize,
@@ -70,9 +72,9 @@ class WalletListHalfViewportReachedEventData implements AnalyticsEventData {
 
   @override
   Map<String, Object> get parameters => {
-        'time_to_half_ms': timeToHalfMs,
-        'wallet_size': walletSize,
-      };
+    'time_to_half_ms': timeToHalfMs,
+    'wallet_size': walletSize,
+  };
 }
 
 /// E40: Time until the top of the coins list crosses 50% of viewport
@@ -81,10 +83,12 @@ class AnalyticsWalletListHalfViewportReachedEvent
   AnalyticsWalletListHalfViewportReachedEvent({
     required int timeToHalfMs,
     required int walletSize,
-  }) : super(WalletListHalfViewportReachedEventData(
-          timeToHalfMs: timeToHalfMs,
-          walletSize: walletSize,
-        ));
+  }) : super(
+         WalletListHalfViewportReachedEventData(
+           timeToHalfMs: timeToHalfMs,
+           walletSize: walletSize,
+         ),
+       );
 }
 
 // DATA SYNC
@@ -93,7 +97,7 @@ class AnalyticsWalletListHalfViewportReachedEvent
 /// E41: Coins config refresh completed on launch
 /// Measures when coins configuration data is refreshed upon app launch. Business category: Data Sync.
 /// Provides insights on data freshness and helps monitor failed or slow syncs.
-class CoinsDataUpdatedEventData implements AnalyticsEventData {
+class CoinsDataUpdatedEventData extends AnalyticsEventData {
   const CoinsDataUpdatedEventData({
     required this.coinsCount,
     required this.updateSource,
@@ -109,10 +113,10 @@ class CoinsDataUpdatedEventData implements AnalyticsEventData {
 
   @override
   Map<String, Object> get parameters => {
-        'coins_count': coinsCount,
-        'update_source': updateSource,
-        'update_duration_ms': updateDurationMs,
-      };
+    'coins_count': coinsCount,
+    'update_source': updateSource,
+    'update_duration_ms': updateDurationMs,
+  };
 }
 
 /// E41: Coins config refresh completed on launch
@@ -121,11 +125,13 @@ class AnalyticsCoinsDataUpdatedEvent extends AnalyticsSendDataEvent {
     required String updateSource,
     required int updateDurationMs,
     required int coinsCount,
-  }) : super(CoinsDataUpdatedEventData(
-          updateSource: updateSource,
-          updateDurationMs: updateDurationMs,
-          coinsCount: coinsCount,
-        ));
+  }) : super(
+         CoinsDataUpdatedEventData(
+           updateSource: updateSource,
+           updateDurationMs: updateDurationMs,
+           coinsCount: coinsCount,
+         ),
+       );
 }
 
 // PERFORMANCE
@@ -134,7 +140,7 @@ class AnalyticsCoinsDataUpdatedEvent extends AnalyticsSendDataEvent {
 /// E44: Delay from page open until interactive (Loading logo hidden)
 /// Measures the delay between opening a page and when it becomes interactive. Business category: Performance.
 /// Provides insights on performance bottlenecks that impact user experience.
-class PageInteractiveDelayEventData implements AnalyticsEventData {
+class PageInteractiveDelayEventData extends AnalyticsEventData {
   const PageInteractiveDelayEventData({
     required this.pageName,
     required this.interactiveDelayMs,
@@ -150,10 +156,10 @@ class PageInteractiveDelayEventData implements AnalyticsEventData {
 
   @override
   Map<String, Object> get parameters => {
-        'page_name': pageName,
-        'interactive_delay_ms': interactiveDelayMs,
-        'spinner_time_ms': spinnerTimeMs,
-      };
+    'page_name': pageName,
+    'interactive_delay_ms': interactiveDelayMs,
+    'spinner_time_ms': spinnerTimeMs,
+  };
 }
 
 /// E44: Delay from page open until interactive (Loading logo hidden)
@@ -162,11 +168,13 @@ class AnalyticsPageInteractiveDelayEvent extends AnalyticsSendDataEvent {
     required String pageName,
     required int interactiveDelayMs,
     required int spinnerTimeMs,
-  }) : super(PageInteractiveDelayEventData(
-          pageName: pageName,
-          interactiveDelayMs: interactiveDelayMs,
-          spinnerTimeMs: spinnerTimeMs,
-        ));
+  }) : super(
+         PageInteractiveDelayEventData(
+           pageName: pageName,
+           interactiveDelayMs: interactiveDelayMs,
+           spinnerTimeMs: spinnerTimeMs,
+         ),
+       );
 }
 
 ({int accountIndex, int addressIndex}) parseDerivationPath(String path) {

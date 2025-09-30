@@ -94,7 +94,7 @@ To add a new analytics event:
 1. **Create an Event Data Class**:
 
    ```dart
-   class NewFeatureEventData implements AnalyticsEventData {
+   class NewFeatureEventData extends AnalyticsEventData {
      const NewFeatureEventData({
        required this.featureId,
        required this.actionType,

@@ -3,7 +3,7 @@ import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 
 /// E23: NFT gallery opened
-class NftGalleryOpenedEventData implements AnalyticsEventData {
+class NftGalleryOpenedEventData extends AnalyticsEventData {
   const NftGalleryOpenedEventData({
     required this.nftCount,
     required this.loadTimeMs,
@@ -29,7 +29,7 @@ class AnalyticsNftGalleryOpenedEvent extends AnalyticsSendDataEvent {
 }
 
 /// E24: NFT send flow started
-class NftTransferInitiatedEventData implements AnalyticsEventData {
+class NftTransferInitiatedEventData extends AnalyticsEventData {
   const NftTransferInitiatedEventData({
     required this.collectionName,
     required this.tokenId,
@@ -66,7 +66,7 @@ class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
 }
 
 /// E25: NFT sent successfully
-class NftTransferSuccessEventData implements AnalyticsEventData {
+class NftTransferSuccessEventData extends AnalyticsEventData {
   const NftTransferSuccessEventData({
     required this.collectionName,
     required this.tokenId,
@@ -108,7 +108,7 @@ class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
 }
 
 /// E26: NFT send failed
-class NftTransferFailureEventData implements AnalyticsEventData {
+class NftTransferFailureEventData extends AnalyticsEventData {
   const NftTransferFailureEventData({
     required this.collectionName,
     required this.failReason,

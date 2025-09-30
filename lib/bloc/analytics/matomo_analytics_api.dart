@@ -249,6 +249,9 @@ class MatomoAnalyticsApi implements AnalyticsApi {
       return MapEntry(key, value.toString());
     });
 
+    final primaryEventLabel =
+        _derivePrimaryEventLabel(event, sanitizedParameters) ?? event.name;
+
     // Log the event in debug mode with formatted parameters for better readability
     if (kDebugMode) {
       final formattedParams = const JsonEncoder.withIndent(
@@ -266,12 +269,12 @@ class MatomoAnalyticsApi implements AnalyticsApi {
         eventInfo: EventInfo(
           category: _extractCategory(event.name),
           action: event.name,
-          name: event.name,
+          name: primaryEventLabel,
           value: _extractEventValue(sanitizedParameters),
         ),
-        // dimensions: event.parameters.map(
-        //   (key, value) => MapEntry(key, value.toString()),
-        // ),
+        dimensions: event.parameters.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
       );
 
       // Note: Custom dimensions should be set separately in Matomo
@@ -444,6 +447,41 @@ class MatomoAnalyticsApi implements AnalyticsApi {
           if (parsed != null) return parsed;
         }
       }
+    }
+    return null;
+  }
+
+  String? _derivePrimaryEventLabel(
+    AnalyticsEventData event,
+    Map<String, dynamic> sanitizedParameters,
+  ) {
+    final primary = event.primaryParameter;
+    if (primary == null) {
+      return _extractPrimaryEventLabel(sanitizedParameters);
+    }
+    final sanitizedValue = sanitizedParameters[primary.key];
+    if (sanitizedValue == null) {
+      return _extractPrimaryEventLabel(sanitizedParameters);
+    }
+    final stringValue = sanitizedValue.toString().trim();
+    if (stringValue.isEmpty || stringValue.toLowerCase() == 'null') {
+      return _extractPrimaryEventLabel(sanitizedParameters);
+    }
+    return '${primary.key}: $stringValue';
+  }
+
+  /// Extract the most relevant parameter/value pair to describe the event.
+  /// Returns the first non-empty parameter in insertion order, formatted as
+  /// "key: value".
+  String? _extractPrimaryEventLabel(Map<String, dynamic> parameters) {
+    for (final entry in parameters.entries) {
+      final dynamic value = entry.value;
+      if (value == null) continue;
+      final String stringValue = value.toString().trim();
+      if (stringValue.isEmpty || stringValue.toLowerCase() == 'null') {
+        continue;
+      }
+      return '${entry.key}: $stringValue';
     }
     return null;
   }
