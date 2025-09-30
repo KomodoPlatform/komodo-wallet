@@ -85,6 +85,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsStarted event,
     Emitter<CoinsState> emit,
   ) async {
+    // Wait for trading status service to receive initial status before
+    // populating coins list. This ensures geo-blocked assets are properly
+    // filtered from the start, preventing them from appearing in the UI
+    // before filtering is applied.
+    await _tradingStatusService.initialStatusReady;
+
     emit(state.copyWith(coins: _coinsRepo.getKnownCoinsMap()));
 
     final existingUser = await _kdfSdk.auth.currentUser;

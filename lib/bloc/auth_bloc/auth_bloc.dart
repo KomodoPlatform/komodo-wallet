@@ -9,6 +9,7 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_service.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
@@ -23,8 +24,12 @@ part 'trezor_auth_mixin.dart';
 class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   /// Handles [AuthBlocEvent]s and emits [AuthBlocState]s.
   /// [_kdfSdk] is an instance of [KomodoDefiSdk] used for authentication.
-  AuthBloc(this._kdfSdk, this._walletsRepository, this._settingsRepository)
-    : super(AuthBlocState.initial()) {
+  AuthBloc(
+    this._kdfSdk,
+    this._walletsRepository,
+    this._settingsRepository,
+    this._tradingStatusService,
+  ) : super(AuthBlocState.initial()) {
     on<AuthModeChanged>(_onAuthChanged);
     on<AuthStateClearRequested>(_onClearState);
     on<AuthSignOutRequested>(_onLogout);
@@ -41,12 +46,25 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   final KomodoDefiSdk _kdfSdk;
   final WalletsRepository _walletsRepository;
   final SettingsRepository _settingsRepository;
+  final TradingStatusService _tradingStatusService;
   StreamSubscription<KdfUser?>? _authChangesSubscription;
   @override
   final _log = Logger('AuthBloc');
 
   @override
   KomodoDefiSdk get _sdk => _kdfSdk;
+
+  /// Filters out geo-blocked assets from a list of coin IDs.
+  /// This ensures that blocked assets are not added to wallet metadata during
+  /// registration or restoration.
+  @override
+  List<String> _filterBlockedAssets(List<String> coinIds) {
+    return coinIds.where((coinId) {
+      final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
+      if (assets.isEmpty) return true; // Keep unknown assets for now
+      return !_tradingStatusService.isAssetBlocked(assets.single.id);
+    }).toList();
+  }
 
   @override
   Future<void> close() async {
@@ -186,7 +204,9 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       );
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: false);
-      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+      // Filter out geo-blocked assets from default coins before adding to wallet
+      final allowedDefaultCoins = _filterBlockedAssets(enabledByDefaultCoins);
+      await _kdfSdk.addActivatedCoins(allowedDefaultCoins);
 
       final currentUser = await _kdfSdk.auth.currentUser;
       if (currentUser == null) {
@@ -242,14 +262,18 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       );
       await _kdfSdk.setWalletType(event.wallet.config.type);
       await _kdfSdk.confirmSeedBackup(hasBackup: event.wallet.config.hasBackup);
-      await _kdfSdk.addActivatedCoins(enabledByDefaultCoins);
+      // Filter out geo-blocked assets from default coins before adding to wallet
+      final allowedDefaultCoins = _filterBlockedAssets(enabledByDefaultCoins);
+      await _kdfSdk.addActivatedCoins(allowedDefaultCoins);
       if (event.wallet.config.activatedCoins.isNotEmpty) {
         // Seed import files and legacy wallets may contain removed or unsupported
         // coins, so we filter them out before adding them to the wallet metadata.
         final availableWalletCoins = _filterOutUnsupportedCoins(
           event.wallet.config.activatedCoins,
         );
-        await _kdfSdk.addActivatedCoins(availableWalletCoins);
+        // Also filter out geo-blocked assets from restored wallet coins
+        final allowedWalletCoins = _filterBlockedAssets(availableWalletCoins);
+        await _kdfSdk.addActivatedCoins(allowedWalletCoins);
       }
 
       // Delete legacy wallet on successful restoration & login to avoid

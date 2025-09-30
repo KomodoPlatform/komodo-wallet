@@ -249,11 +249,23 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       context,
       onPasswordValidated: (String password) async {
         try {
+          // Get blocked assets from trading status before async call
+          // to avoid using BuildContext across async gaps
+          final tradingState = context.read<TradingStatusBloc>().state;
+          final Set<AssetId> blockedAssets = switch (tradingState) {
+            TradingStatusLoadSuccess s => Set<AssetId>.of(s.disallowedAssets),
+            _ => const <AssetId>{},
+          };
+
           // Fetch private keys directly into local UI state
           // This keeps sensitive data in minimal scope
           final privateKeys = await context.sdk.security.getPrivateKeys();
+
+          // Filter out excluded assets (NFTs) and blocked assets (geo-blocked)
           final filteredPrivateKeyEntries = privateKeys.entries.where(
-            (entry) => !excludedAssetList.contains(entry.key.id),
+            (entry) =>
+                !excludedAssetList.contains(entry.key.id) &&
+                !blockedAssets.contains(entry.key),
           );
           _sdkPrivateKeys = Map.fromEntries(filteredPrivateKeyEntries);
 
