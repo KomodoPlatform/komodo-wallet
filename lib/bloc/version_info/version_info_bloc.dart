@@ -48,11 +48,11 @@ class VersionInfoBloc extends Bloc<VersionInfoEvent, VersionInfoState> {
       'Commit: $commitHash',
     );
 
-    final basicInfo = VersionInfoLoaded(
+    var currentInfo = VersionInfoLoaded(
       appVersion: appVersion,
       commitHash: commitHash,
     );
-    emit(basicInfo);
+    emit(currentInfo);
 
     try {
       final apiVersion = await _mm2Api.version();
@@ -63,7 +63,8 @@ class VersionInfoBloc extends Bloc<VersionInfoEvent, VersionInfoState> {
       final apiCommitHash = apiVersion != null
           ? () => _tryParseCommitHash(apiVersion)
           : null;
-      emit(basicInfo.copyWith(apiCommitHash: apiCommitHash));
+      currentInfo = currentInfo.copyWith(apiCommitHash: apiCommitHash);
+      emit(currentInfo);
       _logger.info(
         'MM2 API version loaded successfully - Version: $apiVersion, '
         'Commit: ${apiCommitHash?.call()}',
@@ -83,12 +84,11 @@ class VersionInfoBloc extends Bloc<VersionInfoEvent, VersionInfoState> {
         );
       }
 
-      emit(
-        basicInfo.copyWith(
-          currentCoinsCommit: () => _tryParseCommitHash(currentCommit ?? '-'),
-          latestCoinsCommit: () => _tryParseCommitHash(latestCommit ?? '-'),
-        ),
+      currentInfo = currentInfo.copyWith(
+        currentCoinsCommit: () => _tryParseCommitHash(currentCommit ?? '-'),
+        latestCoinsCommit: () => _tryParseCommitHash(latestCommit ?? '-'),
       );
+      emit(currentInfo);
       _logger.info(
         'SDK coins commits loaded successfully - Current: $currentCommit, '
         'Latest: $latestCommit',
