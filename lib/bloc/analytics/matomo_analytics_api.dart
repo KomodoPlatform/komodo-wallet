@@ -269,9 +269,9 @@ class MatomoAnalyticsApi implements AnalyticsApi {
           name: event.name,
           value: _extractEventValue(sanitizedParameters),
         ),
-        dimensions: event.parameters.map(
-          (key, value) => MapEntry(key, value.toString()),
-        ),
+        // dimensions: event.parameters.map(
+        //   (key, value) => MapEntry(key, value.toString()),
+        // ),
       );
 
       // Note: Custom dimensions should be set separately in Matomo
