@@ -183,8 +183,18 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       return ChartData.empty();
     }
 
+    final supportedCoins = await coins.filterSupportedCoins();
+    if (supportedCoins.isEmpty) {
+      _log.warning('No supported coins to load profit/loss chart for');
+      return ChartData.empty();
+    }
+    final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);
+    if (activeCoins.isEmpty) {
+      _log.warning('No active coins to load profit/loss chart for');
+      return ChartData.empty();
+    }
     final chartsList = await Future.wait(
-      coins.map((coin) async {
+      activeCoins.map((coin) async {
         // Catch any errors and return an empty chart to prevent a single coin
         // from breaking the entire portfolio chart.
         try {

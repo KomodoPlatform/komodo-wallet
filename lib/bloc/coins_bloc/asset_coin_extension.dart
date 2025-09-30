@@ -2,10 +2,12 @@ import 'package:decimal/decimal.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:rational/rational.dart' show Rational;
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/shared/utils/extensions/collection_extensions.dart';
+import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
 extension AssetCoinExtension on Asset {
   Coin toCoin() {
@@ -235,23 +237,7 @@ extension AssetBalanceExtension on Coin {
 }
 
 extension CoinListOps on List<Coin> {
-  Future<List<Coin>> removeInactiveCoins(KomodoDefiSdk sdk) async {
-    final activeCoins = await sdk.assets.getActivatedAssets();
-    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
-
-    return where(
-      (coin) => activeCoinsMap.contains(coin.id),
-    ).unmodifiable().toList();
-  }
-
-  Future<List<Coin>> removeActiveCoins(KomodoDefiSdk sdk) async {
-    final activeCoins = await sdk.assets.getActivatedAssets();
-    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
-
-    return where(
-      (coin) => !activeCoinsMap.contains(coin.id),
-    ).unmodifiable().toList();
-  }
+  
 }
 
 extension AssetListOps on List<Asset> {
@@ -298,4 +284,64 @@ extension CoinSupportOps on Iterable<Coin> {
   }
 
   static Future<bool> _alwaysSupported(Coin _) async => true;
+
+  Future<List<Coin>> removeInactiveCoins(KomodoDefiSdk sdk) async {
+    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
+
+    return where(
+      (coin) => activeCoinsMap.contains(coin.id),
+    ).unmodifiable().toList();
+  }
+
+  Future<List<Coin>> removeActiveCoins(KomodoDefiSdk sdk) async {
+    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
+
+    return where(
+      (coin) => !activeCoinsMap.contains(coin.id),
+    ).unmodifiable().toList();
+  }
+
+  double totalLastKnownUsdBalance(KomodoDefiSdk sdk) {
+    double total = fold(
+      0,
+      (prev, coin) => prev + (coin.lastKnownUsdBalance(sdk) ?? 0),
+    );
+
+    // Return at least 0.01 if total is positive but very small
+    if (total > 0 && total < 0.01) {
+      return 0.01;
+    }
+
+    return total;
+  }
+
+  Future<Rational> totalChange24h(KomodoDefiSdk sdk) async {
+    Rational totalChange = Rational.zero;
+    for (final coin in this) {
+      final double usdBalance = coin.lastKnownUsdBalance(sdk) ?? 0.0;
+      final usdBalanceDecimal = Decimal.parse(usdBalance.toString());
+      final change24h =
+          await sdk.marketData.priceChange24h(coin.id) ?? Decimal.zero;
+      totalChange += change24h * usdBalanceDecimal / Decimal.fromInt(100);
+    }
+    return totalChange;
+  }
+
+  Future<Rational> percentageChange24h(KomodoDefiSdk sdk) async {
+    final double totalBalance = totalLastKnownUsdBalance(sdk);
+    final Rational totalBalanceRational = Rational.parse(
+      totalBalance.toString(),
+    );
+    final Rational totalChange = await totalChange24h(sdk);
+
+    // Avoid division by zero or very small balances
+    if (totalBalanceRational <= Rational.fromInt(1, 100)) {
+      return Rational.zero;
+    }
+
+    // Return the percentage change
+    return (totalChange / totalBalanceRational) * Rational.fromInt(100);
+  }
 }

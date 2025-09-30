@@ -104,6 +104,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
 
       final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);
       if (activeCoins.isEmpty) {
+        _log.warning('No active coins to load portfolio overview for');
         return;
       }
 
