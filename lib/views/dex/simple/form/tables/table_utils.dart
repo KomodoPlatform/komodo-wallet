@@ -68,12 +68,64 @@ List<BestOrder> prepareOrdersForTable(
   return filtered;
 }
 
+/// Filters out coins that are geo-blocked based on the current trading status.
+///
+/// TECH DEBT / BLoC ANTI-PATTERN WARNING:
+/// This function uses [context.read] to access [TradingStatusBloc] state.
+/// According to BLoC best practices, [context.read] should NOT be used to
+/// retrieve state within build methods because it doesn't establish a subscription
+/// to state changes.
+///
+/// IMPACT: When this function is called from a build method, the widget won't
+/// automatically rebuild when [TradingStatusBloc] state changes (e.g., when
+/// geo-blocking status updates).
+///
+/// FIX APPLIED: All widgets calling this function now wrap their build methods
+/// with [BlocBuilder<TradingStatusBloc>] to ensure rebuilds when trading status changes.
+///
+/// RECOMMENDED REFACTOR:
+/// Following SOLID principles (Single Responsibility), filtering logic should be
+/// moved into the respective Blocs rather than utility functions that access
+/// other Blocs' state. This would:
+/// 1. Remove presentation layer's direct dependency on [TradingStatusBloc]
+/// 2. Enable proper bloc-to-bloc communication through events
+/// 3. Make state changes more predictable and testable
+/// 4. Follow the unidirectional data flow pattern
 List<Coin> removeDisallowedCoins(BuildContext context, List<Coin> coins) {
   final tradingState = context.read<TradingStatusBloc>().state;
   if (!tradingState.isEnabled) return <Coin>[];
   return coins.where((coin) => tradingState.canTradeAssets([coin.id])).toList();
 }
 
+/// Filters out orders for coins that are geo-blocked based on the current trading status.
+/// Modifies the [orders] list in-place.
+///
+/// TECH DEBT / BLoC ANTI-PATTERN WARNING:
+/// This function uses [context.read] to access [TradingStatusBloc] state.
+/// According to BLoC best practices, [context.read] should NOT be used to
+/// retrieve state within build methods because it doesn't establish a subscription
+/// to state changes.
+///
+/// IMPACT: When this function is called from a build method, the widget won't
+/// automatically rebuild when [TradingStatusBloc] state changes (e.g., when
+/// geo-blocking status updates).
+///
+/// FIX APPLIED: All widgets calling this function now wrap their build methods
+/// with [BlocBuilder<TradingStatusBloc>] to ensure rebuilds when trading status changes.
+///
+/// RECOMMENDED REFACTOR:
+/// Following SOLID principles (Single Responsibility), filtering logic should be
+/// moved into the respective Blocs rather than utility functions that access
+/// other Blocs' state. This would:
+/// 1. Remove presentation layer's direct dependency on [TradingStatusBloc]
+/// 2. Enable proper bloc-to-bloc communication through events
+/// 3. Make state changes more predictable and testable
+/// 4. Follow the unidirectional data flow pattern
+///
+/// ADDITIONAL TECH DEBT:
+/// This function mutates the input list in-place, which is a side effect that
+/// can make code harder to reason about and test. Consider returning a new
+/// filtered list instead (similar to [removeDisallowedCoins]).
 void removeDisallowedCoinOrders(List<BestOrder> orders, BuildContext context) {
   final tradingState = context.read<TradingStatusBloc>().state;
   if (!tradingState.isEnabled) {
@@ -89,7 +141,9 @@ void removeDisallowedCoinOrders(List<BestOrder> orders, BuildContext context) {
 }
 
 List<BestOrder> _sortBestOrders(
-    BuildContext context, Map<String, List<BestOrder>> unsorted) {
+  BuildContext context,
+  Map<String, List<BestOrder>> unsorted,
+) {
   if (unsorted.isEmpty) return [];
 
   final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
