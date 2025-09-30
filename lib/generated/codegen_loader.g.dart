@@ -764,6 +764,7 @@ abstract class  LocaleKeys {
   static const zhtlcStartSyncFromLabel = 'zhtlcStartSyncFromLabel';
   static const zhtlcEarliestSaplingOption = 'zhtlcEarliestSaplingOption';
   static const zhtlcBlockHeightOption = 'zhtlcBlockHeightOption';
+  static const zhtlcShieldedAddress = 'zhtlcShieldedAddress';
   static const zhtlcDateTimeOption = 'zhtlcDateTimeOption';
   static const zhtlcSelectDateTimeLabel = 'zhtlcSelectDateTimeLabel';
   static const zhtlcZcashParamsRequired = 'zhtlcZcashParamsRequired';

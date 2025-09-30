@@ -16,6 +16,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/widgets/copied_text.dart' show CopiedTextV2;
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
@@ -313,16 +314,27 @@ class WithdrawPreviewDetails extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRow(
+            _buildTextRow(
               LocaleKeys.amount.tr(),
               preview.balanceChanges.netChange.toString(),
             ),
             const SizedBox(height: 8),
-            _buildRow(LocaleKeys.fee.tr(), preview.fee.formatTotal()),
-            // Add more preview details as needed
+            _buildTextRow(LocaleKeys.fee.tr(), preview.fee.formatTotal()),
+            const SizedBox(height: 8),
+            _buildRow(
+              LocaleKeys.recipientAddress.tr(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final recipient in preview.to)
+                    CopiedTextV2(copiedValue: recipient, fontSize: 14),
+                ],
+              ),
+            ),
             if (preview.memo != null) ...[
               const SizedBox(height: 8),
-              _buildRow(LocaleKeys.memo.tr(), preview.memo!),
+              _buildTextRow(LocaleKeys.memo.tr(), preview.memo!),
             ],
           ],
         ),
@@ -330,10 +342,23 @@ class WithdrawPreviewDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildTextRow(String label, String value) {
+    return _buildRow(
+      label,
+      AutoScrollText(text: value, textAlign: TextAlign.right),
+    );
+  }
+
+  Widget _buildRow(String label, Widget value) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Text(label), Text(value)],
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Align(alignment: Alignment.centerRight, child: value),
+        ),
+      ],
     );
   }
 }

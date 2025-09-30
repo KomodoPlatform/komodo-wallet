@@ -774,6 +774,7 @@
   "zhtlcStartSyncFromLabel": "Start sync from:",
   "zhtlcEarliestSaplingOption": "Earliest (sapling)",
   "zhtlcBlockHeightOption": "Block height",
+  "zhtlcShieldedAddress": "Shielded",
   "zhtlcDateTimeOption": "Date & Time",
   "zhtlcSelectDateTimeLabel": "Select date & time",
   "zhtlcZcashParamsRequired": "Zcash params path is required",
