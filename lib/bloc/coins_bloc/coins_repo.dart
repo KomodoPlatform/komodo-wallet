@@ -770,19 +770,18 @@ class CoinsRepo {
       // before proceeding with activation, and doesn't broadcast activation status
       // until config parameters are received and (desktop) params files downloaded.
       final result = await _arrrActivationService.activateArrr(asset);
-
-      // Add assets after activation regardless of success or failure
-      if (addToWalletMetadata) {
-        await _addAssetsToWalletMetdata([asset.id]);
-      }
-
-      if (notifyListeners) {
-        _broadcastAsset(coin.copyWith(state: CoinState.activating));
-      }
-
       result.when(
         success: (progress) async {
           _log.info('ZHTLC asset activated successfully: ${asset.id.id}');
+
+          // Add assets after activation regardless of success or failure
+          if (addToWalletMetadata) {
+            await _addAssetsToWalletMetdata([asset.id]);
+          }
+
+          if (notifyListeners) {
+            _broadcastAsset(coin.copyWith(state: CoinState.activating));
+          }
 
           if (notifyListeners) {
             _broadcastAsset(coin.copyWith(state: CoinState.active));

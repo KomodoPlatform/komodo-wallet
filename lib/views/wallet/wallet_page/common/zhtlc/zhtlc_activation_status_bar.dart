@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart' show AssetId;
+import 'package:komodo_defi_types/komodo_defi_types.dart'
+    show ActivationStep, AssetId;
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart' show LocaleKeys;
@@ -43,29 +44,31 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
   void _subscribeToAuthChanges() {
     _authSubscription = context.read<AuthBloc>().stream.listen((state) {
       if (state.currentUser == null) {
-        _handleSignedOut();
+        unawaited(_handleSignedOut());
       }
     });
   }
 
   void _startPeriodicRefresh() {
-    _refreshStatuses();
+    unawaited(_refreshStatuses());
     _refreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      _refreshStatuses();
+      unawaited(_refreshStatuses());
     });
   }
 
-  void _refreshStatuses() {
-    final newStatuses = widget.activationService.activationStatuses;
+  Future<void> _refreshStatuses() async {
+    final newStatuses = await widget.activationService.activationStatuses;
 
-    if (mounted) {
-      setState(() {
-        _cachedStatuses = newStatuses;
-      });
+    if (!mounted) {
+      return;
     }
+
+    setState(() {
+      _cachedStatuses = newStatuses;
+    });
   }
 
-  void _handleSignedOut() {
+  Future<void> _handleSignedOut() async {
     if (!mounted) {
       _cachedStatuses = {};
       return;
@@ -73,7 +76,12 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
 
     final assetIds = _cachedStatuses.keys.toList();
     for (final assetId in assetIds) {
-      widget.activationService.clearActivationStatus(assetId);
+      await widget.activationService.clearActivationStatus(assetId);
+    }
+
+    if (!mounted) {
+      _cachedStatuses = {};
+      return;
     }
 
     setState(() {
@@ -124,34 +132,129 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Row(
+          child: Column(
             children: [
-              SizedBox(
-                width: 14,
-                height: 14,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
+              Row(
+                children: [
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AutoScrollText(
+                      text: LocaleKeys.activatingZhtlcCoins.plural(coinCount),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: AutoScrollText(
-                  text: LocaleKeys.activatingZhtlcCoins.plural(
-                    coinCount,
-                    args: [coinNames],
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+              const SizedBox(height: 8),
+              Column(
+                children: activeStatuses.map((entry) {
+                  final status = entry.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: status.when(
+                      completed: (_, __) => const SizedBox.shrink(),
+                      error: (assetId, errorMessage, errorTime) => Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: AutoScrollText(
+                              text: errorMessage,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      inProgress:
+                          (
+                            assetId,
+                            startTime,
+                            progressPercentage,
+                            currentStep,
+                            statusMessage,
+                          ) {
+                            return _ActivationStatusDetails(
+                              assetId: assetId,
+                              progressPercentage:
+                                  progressPercentage?.toDouble() ?? 0,
+                              currentStep: currentStep!,
+                              statusMessage:
+                                  statusMessage ?? LocaleKeys.inProgress.tr(),
+                            );
+                          },
+                    ),
+                  );
+                }).toList(),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ActivationStatusDetails extends StatelessWidget {
+  const _ActivationStatusDetails({
+    required this.assetId,
+    required this.progressPercentage,
+    required this.currentStep,
+    required this.statusMessage,
+  });
+
+  final AssetId assetId;
+  final double progressPercentage;
+  final ActivationStep currentStep;
+  final String statusMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    final statusDetailsText =
+        '${assetId.id}: $statusMessage '
+        '(${progressPercentage.toStringAsFixed(0)}%)';
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 24.0),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: AutoScrollText(
+              text: statusDetailsText,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

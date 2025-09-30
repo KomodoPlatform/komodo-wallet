@@ -5,7 +5,7 @@ import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
     show ExponentialBackoff, retry;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:mutex/mutex.dart';
 
 import 'arrr_config.dart';
 
@@ -118,7 +118,7 @@ class ArrrActivationService {
     Asset asset,
     ZhtlcUserConfig config,
   ) async {
-    const maxAttempts = 3;
+    const maxAttempts = 5;
     var attempt = 0;
 
     try {
@@ -129,22 +129,24 @@ class ArrrActivationService {
             'Starting ARRR activation attempt $attempt for ${asset.id.id}',
           );
 
-          _cacheActivationStart(asset.id);
+          await _cacheActivationStart(asset.id);
 
           ActivationProgress? lastActivationProgress;
           await for (final activationProgress in _sdk.assets.activateAsset(
             asset,
           )) {
-            _cacheActivationProgress(asset.id, activationProgress);
+            await _cacheActivationProgress(asset.id, activationProgress);
             lastActivationProgress = activationProgress;
           }
 
           if (lastActivationProgress?.isSuccess ?? false) {
-            _cacheActivationComplete(asset.id);
+            await _cacheActivationComplete(asset.id);
             return ArrrActivationResultSuccess(
               Stream.value(
                 ActivationProgress(
                   status: 'Activation completed successfully',
+                  progressPercentage: 100,
+                  isComplete: true,
                   progressDetails: ActivationProgressDetails(
                     currentStep: ActivationStep.complete,
                     stepCount: 1,
@@ -161,8 +163,8 @@ class ArrrActivationService {
         },
         maxAttempts: maxAttempts,
         backoffStrategy: ExponentialBackoff(
-          initialDelay: const Duration(seconds: 1),
-          maxDelay: const Duration(seconds: 5),
+          initialDelay: const Duration(seconds: 5),
+          maxDelay: const Duration(seconds: 30),
         ),
         shouldRetry: (error) => error is _RetryableZhtlcActivationException,
         onRetry: (currentAttempt, error, delay) {
@@ -180,7 +182,7 @@ class ArrrActivationService {
         e,
         stackTrace,
       );
-      _cacheActivationError(asset.id, e.toString());
+      await _cacheActivationError(asset.id, e.toString());
       return ArrrActivationResultError(e.toString());
     }
   }
@@ -200,52 +202,75 @@ class ArrrActivationService {
 
   /// Activation status caching for UI display
   final Map<AssetId, ArrrActivationStatus> _activationCache = {};
+  final ReadWriteMutex _activationCacheMutex = ReadWriteMutex();
 
-  void _cacheActivationStart(AssetId assetId) {
-    _activationCache[assetId] = ArrrActivationStatusInProgress(
-      assetId: assetId,
-      startTime: DateTime.now(),
-    );
-  }
-
-  void _cacheActivationProgress(AssetId assetId, ActivationProgress progress) {
-    final current = _activationCache[assetId];
-    if (current is ArrrActivationStatusInProgress) {
-      _activationCache[assetId] = (current).copyWith(
-        progressPercentage: progress.progressPercentage?.toInt(),
-        currentStep: progress.progressDetails?.currentStep,
-        statusMessage: progress.status,
+  Future<void> _cacheActivationStart(AssetId assetId) async {
+    await _activationCacheMutex.protectWrite(() async {
+      _activationCache[assetId] = ArrrActivationStatusInProgress(
+        assetId: assetId,
+        startTime: DateTime.now(),
       );
-    }
+    });
   }
 
-  void _cacheActivationComplete(AssetId assetId) {
-    _activationCache[assetId] = ArrrActivationStatusCompleted(
-      assetId: assetId,
-      completionTime: DateTime.now(),
-    );
+  Future<void> _cacheActivationProgress(
+    AssetId assetId,
+    ActivationProgress progress,
+  ) async {
+    await _activationCacheMutex.protectWrite(() async {
+      final current = _activationCache[assetId];
+      if (current is ArrrActivationStatusInProgress) {
+        _activationCache[assetId] = current.copyWith(
+          progressPercentage: progress.progressPercentage?.toInt(),
+          currentStep: progress.progressDetails?.currentStep,
+          statusMessage: progress.status,
+        );
+      }
+    });
   }
 
-  void _cacheActivationError(AssetId assetId, String errorMessage) {
-    _activationCache[assetId] = ArrrActivationStatusError(
-      assetId: assetId,
-      errorMessage: errorMessage,
-      errorTime: DateTime.now(),
-    );
+  Future<void> _cacheActivationComplete(AssetId assetId) async {
+    await _activationCacheMutex.protectWrite(() async {
+      _activationCache[assetId] = ArrrActivationStatusCompleted(
+        assetId: assetId,
+        completionTime: DateTime.now(),
+      );
+    });
+  }
+
+  Future<void> _cacheActivationError(
+    AssetId assetId,
+    String errorMessage,
+  ) async {
+    await _activationCacheMutex.protectWrite(() async {
+      _activationCache[assetId] = ArrrActivationStatusError(
+        assetId: assetId,
+        errorMessage: errorMessage,
+        errorTime: DateTime.now(),
+      );
+    });
   }
 
   // Public method for UI to check activation status
-  ArrrActivationStatus? getActivationStatus(AssetId assetId) {
-    return _activationCache[assetId];
+  Future<ArrrActivationStatus?> getActivationStatus(AssetId assetId) async {
+    return _activationCacheMutex.protectRead(
+      () async => _activationCache[assetId],
+    );
   }
 
   // Public method for UI to get all cached activation statuses
-  Map<AssetId, ArrrActivationStatus> get activationStatuses =>
-      _activationCache.unmodifiable();
+  Future<Map<AssetId, ArrrActivationStatus>> get activationStatuses async {
+    return _activationCacheMutex.protectRead(
+      () async =>
+          Map<AssetId, ArrrActivationStatus>.unmodifiable(_activationCache),
+    );
+  }
 
   // Clear cached status when no longer needed
-  void clearActivationStatus(AssetId assetId) {
-    _activationCache.remove(assetId);
+  Future<void> clearActivationStatus(AssetId assetId) async {
+    await _activationCacheMutex.protectWrite(
+      () async => _activationCache.remove(assetId),
+    );
   }
 
   /// Submit configuration for a pending request
@@ -355,20 +380,20 @@ class ArrrActivationService {
   void _startListeningToAuthChanges() {
     _authSubscription?.cancel();
     _authSubscription = _sdk.auth.watchCurrentUser().listen(
-      _handleAuthStateChange,
+      (user) => unawaited(_handleAuthStateChange(user)),
     );
   }
 
   /// Handle authentication state changes
-  void _handleAuthStateChange(KdfUser? user) {
+  Future<void> _handleAuthStateChange(KdfUser? user) async {
     if (user == null) {
       // User signed out - cleanup all active operations
-      _cleanupOnSignOut();
+      await _cleanupOnSignOut();
     }
   }
 
   /// Clean up all user-specific state when user signs out
-  void _cleanupOnSignOut() {
+  Future<void> _cleanupOnSignOut() async {
     _log.info('User signed out - cleaning up active ZHTLC activations');
 
     // Cancel all pending configuration requests
@@ -383,11 +408,14 @@ class ArrrActivationService {
     _configCompleters.clear();
 
     // Clear activation cache as it's user-specific
-    final activeAssets = _activationCache.keys.toList();
-    for (final assetId in activeAssets) {
-      _log.info('Clearing activation status for ${assetId.id}');
-    }
-    _activationCache.clear();
+    var activeAssets = <AssetId>[];
+    await _activationCacheMutex.protectWrite(() async {
+      activeAssets = _activationCache.keys.toList();
+      for (final assetId in activeAssets) {
+        _log.info('Clearing activation status for ${assetId.id}');
+      }
+      _activationCache.clear();
+    });
 
     _log.info(
       'Cleanup completed - cancelled ${pendingAssets.length} pending configs and cleared ${activeAssets.length} activation statuses',
