@@ -9,7 +9,7 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart' as mm2;
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table_item.dart';
 
@@ -136,7 +136,7 @@ class GroupedListView<T> extends StatelessWidget {
     } else if (item is SelectItem) {
       return (coinsState.walletCoins[item.id] ?? coinsState.coins[item.id])!;
     } else {
-      final String coinId = (item as BestOrder).coin;
+      final String coinId = (item as mm2.BestOrder).coin;
       return (coinsState.walletCoins[coinId] ?? coinsState.coins[coinId])!;
     }
   }
