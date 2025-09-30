@@ -1,9 +1,12 @@
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart' show Asset;
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
+
+final Logger _walletMetadataLog = Logger('KdfAuthMetadataExtension');
 
 extension KdfAuthMetadataExtension on KomodoDefiSdk {
   /// Checks if a wallet with the specified ID exists in the system.
@@ -31,33 +34,65 @@ extension KdfAuthMetadataExtension on KomodoDefiSdk {
     return user?.metadata.valueOrNull<List<String>>('activated_coins') ?? [];
   }
 
+  /// Returns the stored list of wallet assets resolved from configuration IDs.
+  ///
+  /// Missing assets (for example, delisted coins) are skipped and logged for
+  /// visibility.
+  ///
+  /// Throws [StateError] if multiple assets are found with the same configuration ID.
+  Future<List<Asset>> getWalletAssets() async {
+    final coinIds = await getWalletCoinIds();
+    if (coinIds.isEmpty) {
+      return [];
+    }
+
+    final missingCoinIds = <String>{};
+    final walletAssets = <Asset>[];
+
+    for (final coinId in coinIds) {
+      final matchingAssets = assets.findAssetsByConfigId(coinId);
+      if (matchingAssets.isEmpty) {
+        missingCoinIds.add(coinId);
+        continue;
+      }
+
+      if (matchingAssets.length > 1) {
+        final assetIds = matchingAssets.map((asset) => asset.id.id).join(', ');
+        final message =
+            'Multiple assets found for activated coin ID "$coinId": $assetIds';
+        _walletMetadataLog.shout(message);
+        throw StateError(message);
+      }
+
+      walletAssets.add(matchingAssets.single);
+    }
+
+    if (missingCoinIds.isNotEmpty) {
+      _walletMetadataLog.warning(
+        'Skipping ${missingCoinIds.length} activated coin(s) that are no longer '
+        'available in the SDK (likely delisted): '
+        '${missingCoinIds.join(', ')}',
+      );
+    }
+
+    return walletAssets;
+  }
+
   /// Returns the stored list of wallet coins converted from asset configuration IDs.
   ///
   /// This method retrieves the coin IDs from user metadata and converts them
   /// to [Coin] objects. Uses `single` to maintain existing behavior which will
   /// throw an exception if multiple assets share the same ticker.
   ///
+  /// Missing assets (for example, delisted coins) are skipped and logged for
+  /// visibility.
+  ///
   /// If no user is signed in, returns an empty list.
   ///
   /// Throws [StateError] if multiple assets are found with the same configuration ID.
   Future<List<Coin>> getWalletCoins() async {
-    final assets = await getWalletAssets();
-    return assets
-        // use single to stick to the existing behaviour around assetByTicker
-        // which will cause the application to crash if there are
-        // multiple assets with the same ticker
-        .map((asset) => asset.toCoin())
-        .toList();
-  }
-
-  Future<List<Asset>> getWalletAssets() async {
-    final coinIds = await getWalletCoinIds();
-    return coinIds
-        // use single to stick to the existing behaviour around assetByTicker
-        // which will cause the application to crash if there are
-        // multiple assets with the same ticker
-        .map((coinId) => assets.findAssetsByConfigId(coinId).single)
-        .toList();
+    final walletAssets = await getWalletAssets();
+    return walletAssets.map((asset) => asset.toCoin()).toList();
   }
 
   /// Adds new coin/asset IDs to the current user's activated coins list.

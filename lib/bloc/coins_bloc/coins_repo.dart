@@ -26,7 +26,6 @@ import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 
@@ -182,29 +181,8 @@ class CoinsRepo {
     'Wallet [KdfUser].wallet extension instead.',
   )
   Future<List<Coin>> getWalletCoins() async {
-    final currentUser = await _kdfSdk.auth.currentUser;
-    if (currentUser == null) {
-      return [];
-    }
-
-    return currentUser.wallet.config.activatedCoins
-        .map((coinId) {
-          final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
-          if (assets.isEmpty) {
-            _log.warning('No assets found for coinId: $coinId');
-            return null;
-          }
-          if (assets.length > 1) {
-            _log.shout(
-              'Multiple assets found for coinId: $coinId (${assets.length} assets). '
-              'Selecting the first asset: ${assets.first.id.id}',
-            );
-          }
-          return assets.single;
-        })
-        .whereType<Asset>()
-        .map(_assetToCoinWithoutAddress)
-        .toList();
+    final walletAssets = await _kdfSdk.getWalletAssets();
+    return walletAssets.map(_assetToCoinWithoutAddress).toList();
   }
 
   Coin _assetToCoinWithoutAddress(Asset asset) {
@@ -550,7 +528,23 @@ class CoinsRepo {
     'select from the available options.',
   )
   Future<String?> getFirstPubkey(String coinId) async {
-    final asset = _kdfSdk.assets.findAssetsByConfigId(coinId).single;
+    final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
+    if (assets.isEmpty) {
+      _log.warning(
+        'Unable to fetch pubkey for coinId $coinId because the asset is no longer available.',
+      );
+      return null;
+    }
+
+    if (assets.length > 1) {
+      final assetIds = assets.map((asset) => asset.id.id).join(', ');
+      final message =
+          'Multiple assets found for coinId $coinId while fetching pubkey: $assetIds';
+      _log.shout(message);
+      throw StateError(message);
+    }
+
+    final asset = assets.single;
     final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
     if (pubkeys.keys.isEmpty) {
       return null;
@@ -583,12 +577,7 @@ class CoinsRepo {
     // will hit rate limits and have reduced market metrics functionality.
     // This will happen regardless of chunk size. The rate limits are per IP
     // per hour.
-    final coinIds = await _kdfSdk.getWalletCoinIds();
-    final activatedAssets = coinIds
-        .map((coinId) => _kdfSdk.assets.findAssetsByConfigId(coinId))
-        .where((assets) => assets.isNotEmpty)
-        .map((assets) => assets.single)
-        .toList();
+    final activatedAssets = await _kdfSdk.getWalletAssets();
     final Iterable<Asset> targetAssets = activatedAssets.isNotEmpty
         ? activatedAssets
         : _kdfSdk.assets.available.values;
