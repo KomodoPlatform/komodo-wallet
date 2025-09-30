@@ -102,7 +102,7 @@ class _BridgeTickersListState extends State<BridgeTickersList> {
       builder: (context, tickers) {
         if (tickers == null) return const UiSpinnerList();
 
-        final tradingState = context.read<TradingStatusBloc>().state;
+        final tradingState = context.watch<TradingStatusBloc>().state;
 
         var coinsList = tickers.entries.fold<Coins>([], (
           previousValue,

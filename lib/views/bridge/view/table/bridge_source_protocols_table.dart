@@ -83,7 +83,7 @@ class _SourceProtocolItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tradingState = context.read<TradingStatusBloc>().state;
+    final tradingState = context.watch<TradingStatusBloc>().state;
     final filteredCoins = coins
         .where((coin) => tradingState.canTradeAssets([coin.id]))
         .toList();
