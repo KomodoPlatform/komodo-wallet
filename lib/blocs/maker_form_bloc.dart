@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -261,17 +262,44 @@ class MakerFormBloc implements BlocBase {
       availableBalanceState = AvailableBalanceState.loading;
     }
 
-    bool isSignedIn = await kdfSdk.auth.isSignedIn();
+    final bool isSignedIn = await kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
+      maxSellAmount = null;
       availableBalanceState = AvailableBalanceState.unavailable;
+      return;
+    }
+
+    if (coin == null) {
+      maxSellAmount = null;
+      availableBalanceState = AvailableBalanceState.unavailable;
+      return;
+    }
+
+    Rational? amount = await dexRepository.getMaxMakerVolume(coin.abbr);
+    if (amount != null) {
+      maxSellAmount = amount;
+      availableBalanceState = AvailableBalanceState.success;
     } else {
-      if (coin == null) {
-        maxSellAmount = null;
-        availableBalanceState = AvailableBalanceState.unavailable;
-      } else {
-        maxSellAmount = Rational.parse(coin.balance(kdfSdk).toString());
-        availableBalanceState = AvailableBalanceState.success;
-      }
+      amount = await _retryGetMaxMakerVolume(coin.abbr);
+      maxSellAmount = amount;
+      availableBalanceState = amount == null
+          ? AvailableBalanceState.failure
+          : AvailableBalanceState.success;
+    }
+  }
+
+  Future<Rational?> _retryGetMaxMakerVolume(
+    String coinTicker, {
+    int maxAttempts = 5,
+  }) async {
+    try {
+      return await retry(
+        () => dexRepository.getMaxMakerVolume(coinTicker),
+        maxAttempts: maxAttempts,
+        backoffStrategy: const LinearBackoff(),
+      );
+    } catch (_) {
+      return null;
     }
   }
 
@@ -607,6 +635,9 @@ class MakerFormBloc implements BlocBase {
   bool _fetchingPreimageData = false;
   Future<DataFromService<TradePreimage, BaseError>?> _getPreimageData() async {
     await pauseWhile(() => _fetchingPreimageData);
+
+    await activateCoinIfNeeded(sellCoin?.abbr, coinsRepository);
+    await activateCoinIfNeeded(buyCoin?.abbr, coinsRepository);
 
     final String? base = sellCoin?.abbr;
     final String? rel = buyCoin?.abbr;

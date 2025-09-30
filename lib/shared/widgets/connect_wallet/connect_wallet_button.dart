@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
@@ -12,18 +11,20 @@ import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/dispatchers/popup_dispatcher.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
 
 class ConnectWalletButton extends StatefulWidget {
   const ConnectWalletButton({
-    super.key,
+    Key? key,
     required this.eventType,
     this.withText = true,
     this.withIcon = false,
     Size? buttonSize,
-  })  : buttonSize = buttonSize ?? const Size(double.infinity, 40);
+  })  : buttonSize = buttonSize ?? const Size(double.infinity, 40),
+        super(key: key);
   final Size buttonSize;
   final bool withIcon;
   final bool withText;

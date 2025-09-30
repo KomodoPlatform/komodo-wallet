@@ -1,16 +1,18 @@
 import 'dart:convert';
 
+import 'package:decimal/decimal.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class BanxaFiatProvider extends BaseFiatProvider {
   BanxaFiatProvider();
   final String providerId = 'Banxa';
   final String apiEndpoint = '/api/v1/banxa';
+  static final _log = Logger('BanxaFiatProvider');
 
   @override
   String getProviderId() {
@@ -23,7 +25,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
   FiatOrderStatus _parseStatusFromResponse(Map<String, dynamic> response) {
     final statusString = response['data']?['order']?['status'] as String?;
 
-    return _parseOrderStatus(statusString ?? '');
+    return FiatOrderStatus.fromString(statusString ?? '');
   }
 
   Future<dynamic> _getPaymentMethods(
@@ -37,7 +39,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         queryParams: {
           'endpoint': '/api/payment-methods',
           'source': source,
-          'target': target.symbol,
+          'target': target.configSymbol,
         },
       );
 
@@ -53,7 +55,7 @@ class BanxaFiatProvider extends BaseFiatProvider {
         queryParams: {
           'endpoint': '/api/prices',
           'source': source,
-          'target': target.symbol,
+          'target': target.configSymbol,
           'source_amount': sourceAmount,
           'payment_method_id': paymentMethod.id,
         },
@@ -95,34 +97,6 @@ class BanxaFiatProvider extends BaseFiatProvider {
         },
       );
 
-  FiatOrderStatus _parseOrderStatus(String status) {
-    // The case statements are references to Banxa's order statuses. See the
-    // docs link here for more info: https://docs.banxa.com/docs/order-status
-    switch (status) {
-      case 'complete':
-        return FiatOrderStatus.success;
-
-      case 'cancelled':
-      case 'declined':
-      case 'expired':
-      case 'refunded':
-        return FiatOrderStatus.failed;
-
-      case 'extraVerification':
-      case 'pendingPayment':
-      case 'waitingPayment':
-        return FiatOrderStatus.pending;
-
-      case 'paymentReceived':
-      case 'inProgress':
-      case 'coinTransferred':
-        return FiatOrderStatus.inProgress;
-
-      default:
-        throw Exception('Unknown status: $status');
-    }
-  }
-
   // These will be in BLOC:
   @override
   Stream<FiatOrderStatus> watchOrderStatus(String orderId) async* {
@@ -136,11 +110,9 @@ class BanxaFiatProvider extends BaseFiatProvider {
       final response = await _getOrder(orderId)
           .catchError((e) => Future<void>.error('Error fetching order: $e'));
 
-      log('Fiat order status response:\n${jsonEncode(response)}').ignore();
-
+      _log.fine('Fiat order status response:\n${jsonEncode(response)}');
       final status =
           _parseStatusFromResponse(response as Map<String, dynamic>? ?? {});
-
       final isCompleted =
           status == FiatOrderStatus.success || status == FiatOrderStatus.failed;
 
@@ -157,27 +129,35 @@ class BanxaFiatProvider extends BaseFiatProvider {
   }
 
   @override
-  Future<List<ICurrency>> getFiatList() async {
+  Future<List<FiatCurrency>> getFiatList() async {
     final response = await _getFiats();
     final data = response['data']['fiats'] as List<dynamic>;
     return data
         .map(
           (item) => FiatCurrency(
-            item['fiat_code'] as String,
-            item['fiat_name'] as String,
+            symbol: item['fiat_code'] as String,
+            name: item['fiat_name'] as String,
+            minPurchaseAmount: Decimal.zero,
           ),
         )
         .toList();
   }
 
   @override
-  Future<List<ICurrency>> getCoinList() async {
+  Future<List<CryptoCurrency>> getCoinList() async {
+    // TODO: add model classes to parse responses like these when migrating to
+    // the SDK
     final response = await _getCoins();
     final data = response['data']['coins'] as List<dynamic>;
 
-    final List<ICurrency> currencyList = [];
+    final List<CryptoCurrency> currencyList = [];
     for (final item in data) {
       final coinCode = item['coin_code'] as String;
+      if (banxaUnsupportedCoinsList.contains(coinCode)) {
+        _log.warning('Banxa does not support $coinCode');
+        continue;
+      }
+
       final coinName = item['coin_name'] as String;
       final blockchains = item['blockchains'] as List<dynamic>;
 
@@ -187,11 +167,32 @@ class BanxaFiatProvider extends BaseFiatProvider {
           continue;
         }
 
+        // Parse min_value which can be a string, int, or double
+        final dynamic minValue = blockchain['min_value'];
+        Decimal minPurchaseAmount;
+
+        if (minValue == null) {
+          minPurchaseAmount = Decimal.fromInt(0);
+        } else if (minValue is String) {
+          minPurchaseAmount = Decimal.fromJson(minValue);
+        } else if (minValue is int) {
+          minPurchaseAmount = Decimal.fromInt(minValue);
+        } else if (minValue is double) {
+          minPurchaseAmount = Decimal.parse(minValue.toString());
+        } else {
+          // Default to zero for any other unexpected types
+          minPurchaseAmount = Decimal.fromInt(0);
+          _log.warning(
+            'Unexpected type for min_value: ${minValue.runtimeType}',
+          );
+        }
+
         currencyList.add(
           CryptoCurrency(
-            coinCode,
-            coinName,
-            coinType,
+            symbol: coinCode,
+            name: coinName,
+            chainType: coinType,
+            minPurchaseAmount: minPurchaseAmount,
           ),
         );
       }
@@ -207,6 +208,11 @@ class BanxaFiatProvider extends BaseFiatProvider {
     String sourceAmount,
   ) async {
     try {
+      if (banxaUnsupportedCoinsList.contains(target.configSymbol)) {
+        _log.warning('Banxa does not support ${target.configSymbol}');
+        return [];
+      }
+
       final response =
           await _getPaymentMethods(source, target, sourceAmount: sourceAmount);
       final List<FiatPaymentMethod> paymentMethods = (response['data']
@@ -239,7 +245,8 @@ class BanxaFiatProvider extends BaseFiatProvider {
       }
 
       return paymentMethods;
-    } catch (e) {
+    } catch (e, s) {
+      _log.severe('Failed to get payment methods list', e, s);
       return [];
     }
   }
@@ -265,14 +272,8 @@ class BanxaFiatProvider extends BaseFiatProvider {
         prices.first as Map<String, dynamic>? ?? {},
       );
     } catch (e, s) {
-      log(
-        'Failed to get payment method price: $e',
-        isError: true,
-        trace: s,
-        // leaving path here until we figure out how to include stack trace
-        path: 'Banxa.getPaymentMethodPrice',
-      ).ignore();
-      return const FiatPriceInfo.zero();
+      _log.severe('Failed to get payment method price', e, s);
+      return FiatPriceInfo.zero;
     }
   }
 
@@ -289,19 +290,16 @@ class BanxaFiatProvider extends BaseFiatProvider {
     final payload = {
       'account_reference': accountReference,
       'source': source,
-      'target': target.symbol,
+      'target': target.configSymbol,
       'wallet_address': walletAddress,
       'payment_method_id': paymentMethodId,
       'source_amount': sourceAmount,
       'return_url_on_success': returnUrlOnSuccess,
     };
 
-    await log('Fiat buy coin order payload:');
-    await log(jsonEncode(payload));
+    _log.finer('Fiat buy coin order payload: ${jsonEncode(payload)}');
     final response = await _createOrder(payload);
-    await log('Fiat buy coin order response:');
-    await log(jsonEncode(response));
-
+    _log.finer('Fiat buy coin order response: ${jsonEncode(response)}');
     return FiatBuyOrderInfo.fromJson(response as Map<String, dynamic>? ?? {});
   }
 

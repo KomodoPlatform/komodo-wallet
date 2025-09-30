@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 
@@ -179,7 +180,7 @@ String formatDexAmt(dynamic amount) {
     case Rational:
       return cutTrailingZeros(
         (amount as Rational)
-            .toDecimal(scaleOnInfinitePrecision: 12)
+            .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision)
             .toStringAsFixed(8),
       );
     case String:
@@ -307,9 +308,9 @@ void formatAmountInput(TextEditingController controller, Rational? value) {
 
   final newText = value == null
       ? ''
-      : cutTrailingZeros(
-          value.toDecimal(scaleOnInfinitePrecision: 12).toStringAsFixed(8),
-        );
+      : cutTrailingZeros(value
+          .toDecimal(scaleOnInfinitePrecision: scaleOnInfinitePrecision)
+          .toStringAsFixed(8));
   controller.value = TextEditingValue(
     text: newText,
     selection: TextSelection.collapsed(offset: newText.length),
@@ -352,10 +353,10 @@ String truncateMiddleSymbols(
 String formatTransactionDateTime(Transaction tx) {
   if (tx.timestamp == DateTime.fromMillisecondsSinceEpoch(0) &&
       tx.confirmations == 0) {
-    return 'unconfirmed';
+    return 'Unconfirmed';
   } else if (tx.timestamp == DateTime.fromMillisecondsSinceEpoch(0) &&
       tx.confirmations > 0) {
-    return 'confirmed';
+    return 'Now';
   } else {
     return DateFormat('dd MMM yyyy HH:mm').format(tx.timestamp);
   }

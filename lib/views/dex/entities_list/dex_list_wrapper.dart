@@ -39,6 +39,7 @@ class _DexListWrapperState extends State<DexListWrapper> {
   @override
   void initState() {
     routingState.dexState.addListener(_onRouteChange);
+    _onRouteChange();
     super.initState();
   }
 

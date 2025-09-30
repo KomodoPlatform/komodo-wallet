@@ -36,6 +36,7 @@ class TradingEntitiesBloc implements BlocBase {
   List<MyOrder> _myOrders = [];
   List<Swap> _swaps = [];
   Timer? timer;
+  bool _closed = false;
 
   final StreamController<List<MyOrder>> _myOrdersController =
       StreamController<List<MyOrder>>.broadcast();
@@ -54,13 +55,14 @@ class TradingEntitiesBloc implements BlocBase {
   Stream<List<Swap>> get outSwaps => _swapsController.stream;
   List<Swap> get swaps => _swaps;
   set swaps(List<Swap> swapList) {
-    swapList.sort(
-        (first, second) => second.myInfo.startedAt - first.myInfo.startedAt);
+    swapList.sort((first, second) =>
+        (second.myInfo?.startedAt ?? 0) - (first.myInfo?.startedAt ?? 0));
     _swaps = swapList;
     _inSwaps.add(_swaps);
   }
 
   Future<void> fetch() async {
+    if (_closed) return;
     if (!await _kdfSdk.auth.isSignedIn()) return;
 
     myOrders = await _myOrdersService.getOrders() ?? [];
@@ -76,12 +78,25 @@ class TradingEntitiesBloc implements BlocBase {
     bool updateInProgress = false;
 
     timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+      if (_closed) return;
       if (updateInProgress) return;
       // TODO!: do not run for hidden login or HW
 
       updateInProgress = true;
-      await fetch();
-      updateInProgress = false;
+      try {
+        await fetch();
+      } catch (e) {
+        if (e is StateError && e.message.contains('disposed')) {
+          _closed = true;
+        } else {
+          await log(
+            'fetch error: $e',
+            path: 'TradingEntitiesBloc.fetch',
+          );
+        }
+      } finally {
+        updateInProgress = false;
+      }
     });
   }
 
@@ -104,6 +119,29 @@ class TradingEntitiesBloc implements BlocBase {
         0;
   }
 
+  bool hasActiveSwap(String coin) {
+    return _swaps
+        .where((swap) => !swap.isCompleted)
+        .any((swap) => swap.sellCoin == coin || swap.buyCoin == coin);
+  }
+
+  bool hasOpenOrders(String coin) {
+    return _myOrders.any((order) => order.base == coin || order.rel == coin);
+  }
+
+  int openOrdersCount(String coin) {
+    return _myOrders
+        .where((order) => order.base == coin || order.rel == coin)
+        .length;
+  }
+
+  Future<void> cancelOrdersForCoin(String coin) async {
+    final futures = _myOrders
+        .where((o) => o.base == coin || o.rel == coin)
+        .map((o) => cancelOrder(o.uuid));
+    await Future.wait(futures);
+  }
+
   double getPriceFromAmount(Rational sellAmount, Rational buyAmount) {
     final sellDoubleAmount = sellAmount.toDouble();
     final buyDoubleAmount = buyAmount.toDouble();
@@ -123,10 +161,8 @@ class TradingEntitiesBloc implements BlocBase {
         .map((id) => getSwap(id))
         .whereType<Swap>()
         .toList();
-    final double swapFill = swaps.fold(
-        0,
-        (previousValue, swap) =>
-            previousValue + swap.myInfo.myAmount.toDouble());
+    final double swapFill = swaps.fold(0,
+        (previousValue, swap) => previousValue + (swap.myInfo?.myAmount ?? 0));
     return swapFill / order.baseAmount.toDouble();
   }
 

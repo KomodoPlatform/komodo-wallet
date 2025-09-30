@@ -37,14 +37,26 @@ inputs:
     description: "Production URL for Cloudflare feedback service"
     required: false
     default: ""
-  FEEDBACK_TEST_URL:
-    description: "Test URL for Cloudflare feedback service (debug mode)"
-    required: false
-    default: ""
 
 runs:
   using: "composite"
   steps:
+    - name: Determine commit hash
+      shell: bash
+      run: |
+        echo "Determining commit hash..."
+        if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+          # For PRs, use the HEAD of the feature branch
+          PR_SHA=$(jq -r .pull_request.head.sha "$GITHUB_EVENT_PATH")
+          COMMIT_HASH=${PR_SHA:0:7}
+          echo "Detected pull_request event. Using PR HEAD SHA: $COMMIT_HASH"
+        else
+          # Otherwise use the current checked-out HEAD
+          COMMIT_HASH=$(git rev-parse --short HEAD | cut -c1-7)
+          echo "Using git HEAD SHA: $COMMIT_HASH"
+        fi
+        # Export for subsequent steps
+        echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
     - name: Fetch packages and generate assets
       shell: bash
       env:
@@ -55,7 +67,6 @@ runs:
         TRELLO_LIST_ID: ${{ inputs.TRELLO_LIST_ID }}
         FEEDBACK_API_KEY: ${{ inputs.FEEDBACK_API_KEY }}
         FEEDBACK_PRODUCTION_URL: ${{ inputs.FEEDBACK_PRODUCTION_URL }}
-        FEEDBACK_TEST_URL: ${{ inputs.FEEDBACK_TEST_URL }}
       run: |
         echo "Running \`flutter build\` to generate assets for the deployment build"
 
@@ -66,8 +77,7 @@ runs:
           unset GITHUB_API_PUBLIC_READONLY_TOKEN
         fi
 
-        # Get the current commit hash
-        COMMIT_HASH=$(git rev-parse --short HEAD)
+        # Now COMMIT_HASH comes from the previous step, not recalculated here.
 
         # Prepare build command with feedback service credentials
         BUILD_CMD="${{ inputs.BUILD_COMMAND }}"
@@ -98,14 +108,13 @@ runs:
 
         # Add Cloudflare feedback service variables if ALL required values are provided
         # Note: Cloudflare also needs the Trello board and list IDs to be available
-        if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$FEEDBACK_API_KEY" ] && [ -n "$FEEDBACK_PRODUCTION_URL" ] && [ -n "$FEEDBACK_TEST_URL" ]; then
+        if [ "$HAVE_TRELLO_IDS" = true ] && [ -n "$FEEDBACK_API_KEY" ] && [ -n "$FEEDBACK_PRODUCTION_URL" ]; then
           echo "Adding Cloudflare feedback service configuration"
           BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_API_KEY=$FEEDBACK_API_KEY"
           BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_PRODUCTION_URL=$FEEDBACK_PRODUCTION_URL"
-          BUILD_CMD="$BUILD_CMD --dart-define=FEEDBACK_TEST_URL=$FEEDBACK_TEST_URL"
         else
           # If any Cloudflare credential is missing, log a message but continue the build
-          if [ -n "$FEEDBACK_API_KEY" ] || [ -n "$FEEDBACK_PRODUCTION_URL" ] || [ -n "$FEEDBACK_TEST_URL" ] || 
+          if [ -n "$FEEDBACK_API_KEY" ] || [ -n "$FEEDBACK_PRODUCTION_URL" ] ||
              ([ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]); then
             echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
           fi

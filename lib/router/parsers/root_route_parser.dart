@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/model/first_uri_segment.dart';
 import 'package:web_dex/router/parsers/base_route_parser.dart';
@@ -41,7 +40,9 @@ class RootRouteInformationParser extends RouteInformationParser<AppRoutePath> {
 
   BaseRouteParser _getRoutParser(Uri uri) {
     final defaultRouteParser =
-        kIsWalletOnly ? _parsers[firstUriSegment.wallet]! : dexRouteParser;
+        dexRouteParser.handlesDeepLinkParameters(uri.queryParameters.keys)
+            ? dexRouteParser
+            : WalletRouteParser(coinsBloc);
 
     if (uri.pathSegments.isEmpty) return defaultRouteParser;
     return _parsers[uri.pathSegments.first] ?? defaultRouteParser;

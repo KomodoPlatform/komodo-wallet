@@ -1,20 +1,28 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/blocs/update_bloc.dart';
 import 'package:web_dex/common/screen.dart';
+
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/router/navigators/main_layout/main_layout_router.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/alpha_version_alert_service/alpha_version_alert_service.dart';
 import 'package:web_dex/services/feedback/feedback_service.dart';
 import 'package:web_dex/shared/utils/window/window.dart';
-import 'package:web_dex/views/common/header/app_header.dart';
 import 'package:web_dex/views/common/main_menu/main_menu_bar_mobile.dart';
+import 'package:web_dex/bloc/coins_manager/coins_manager_bloc.dart';
+import 'package:web_dex/router/state/wallet_state.dart';
+import 'package:web_dex/model/main_menu_value.dart';
+import 'package:web_dex/shared/widgets/quick_login_switch.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -27,13 +35,29 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   void initState() {
     // TODO: localize
-    showMessageBeforeUnload('Are you sure you want to leave?');
+    if (kIsWeb) {
+      showMessageBeforeUnload('Are you sure you want to leave?');
+    }
+    final tradingStatusBloc = context.read<TradingStatusBloc>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await AlphaVersionWarningService().run();
       await updateBloc.init();
 
-      if (!kIsWalletOnly && !await _hasAgreedNoTrading()) {
+      if (mounted) {
+        try {
+          await QuickLoginSwitch.maybeShowRememberedWallet(context);
+        } catch (e) {
+          // If showing the remembered wallet dialog fails, we continue normally
+          // The error has already been logged by RememberWalletService
+        }
+      }
+
+      if (!mounted) return;
+      final tradingEnabled = tradingStatusBloc.state is TradingEnabled;
+      if (tradingEnabled &&
+          kShowTradingWarning &&
+          !await _hasAgreedNoTrading()) {
         _showNoTradingWarning().ignore();
       }
     });
@@ -42,33 +66,52 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthBlocState>(
+    return BlocConsumer<AuthBloc, AuthBlocState>(
       listener: (context, state) {
-        if (state.mode == AuthorizeMode.noLogin) {
+        // Track when user has been logged in
+        if (state.mode == AuthorizeMode.logIn) {
+          QuickLoginSwitch.trackUserLoggedIn();
+        }
+
+        // Only reset the remember me dialog flag if user was logged in and is now logged out
+        // This prevents the flag from being reset on initial app startup
+        if (state.mode == AuthorizeMode.noLogin &&
+            QuickLoginSwitch.hasBeenLoggedInThisSession) {
           routingState.resetOnLogOut();
+          // Reset dialog state so it can be shown again after user logs out
+          QuickLoginSwitch.resetOnLogout();
         }
       },
-      child: Scaffold(
-        key: scaffoldKey,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        appBar: isMobile
-            ? null
-            : const PreferredSize(
-                preferredSize: Size.fromHeight(appBarHeight),
-                child: AppHeader(),
+      builder: (context, state) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return Scaffold(
+              key: scaffoldKey,
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.endFloat,
+              appBar: null,
+              body: SafeArea(child: MainLayoutRouter()),
+              bottomNavigationBar: (isMobile || isTablet)
+                  ? MainMenuBarMobile()
+                  : null,
+              floatingActionButton: MainLayoutFab(
+                showAddCoinButton:
+                    routingState.selectedMenu == MainMenuValue.wallet &&
+                    routingState.walletState.selectedCoin.isEmpty &&
+                    routingState.walletState.action.isEmpty &&
+                    context.watch<AuthBloc>().state.mode == AuthorizeMode.logIn,
+                isMini: isMobile,
               ),
-        body: SafeArea(child: MainLayoutRouter()),
-        bottomNavigationBar: !isDesktop ? MainMenuBarMobile() : null,
-        floatingActionButton: context.isFeedbackAvailable
-            ? FloatingActionButton(
-                onPressed: () => context.showFeedback(),
-                tooltip: 'Report a bug or feedback',
-                mini: isMobile,
-                child: const Icon(Icons.bug_report),
-              )
-            : null,
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -105,5 +148,67 @@ class _MainLayoutState extends State<MainLayout> {
   Future<bool> _hasAgreedNoTrading() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt('wallet_only_agreed') != null;
+  }
+}
+
+class MainLayoutFab extends StatelessWidget {
+  const MainLayoutFab({
+    super.key,
+    required this.showAddCoinButton,
+    required this.isMini,
+  });
+
+  final bool showAddCoinButton;
+  final bool isMini;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget? addAssetsFab = showAddCoinButton
+        ? Tooltip(
+            message: LocaleKeys.addAssets.tr(),
+            child: SizedBox.square(
+              dimension: isMini ? 56.0 : 64.0,
+              child: UiGradientButton(
+                onPressed: () {
+                  context.read<CoinsManagerBloc>().add(
+                    const CoinsManagerCoinsListReset(CoinsManagerAction.add),
+                  );
+                  routingState.walletState.action =
+                      coinsManagerRouteAction.addAssets;
+                },
+                child: const Icon(Icons.add_rounded, size: 36),
+              ),
+            ),
+          )
+        : null;
+
+    final Widget? feedbackFab = context.isFeedbackAvailable
+        ? Tooltip(
+            message: 'Report a bug or feedback',
+            child: SizedBox.square(
+              dimension: isMini ? 48 : 58,
+              child: UiGradientButton(
+                isMini: isMini,
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).primaryColor,
+                    Theme.of(context).primaryColor,
+                  ],
+                ),
+                onPressed: () => context.showFeedback(),
+                child: const Icon(Icons.bug_report, size: 24),
+              ),
+            ),
+          )
+        : null;
+
+    if (feedbackFab != null && addAssetsFab != null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [feedbackFab, const SizedBox(height: 16), addAssetsFab],
+      );
+    }
+
+    return addAssetsFab ?? feedbackFab ?? const SizedBox.shrink();
   }
 }

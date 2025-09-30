@@ -18,7 +18,7 @@ part 'profit_loss_state.dart';
 
 class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
   ProfitLossBloc(this._profitLossRepository, this._sdk)
-      : super(const ProfitLossInitial()) {
+    : super(const ProfitLossInitial()) {
     // Use the restartable transformer for load events to avoid overlapping
     // events if the user rapidly changes the period (i.e. faster than the
     // previous event can complete).
@@ -47,8 +47,10 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     Emitter<ProfitLossState> emit,
   ) async {
     try {
-      final supportedCoins =
-          await _removeUnsupportedCons(event.coins, event.fiatCoinId);
+      final supportedCoins = await _removeUnsupportedCons(
+        event.coins,
+        event.fiatCoinId,
+      );
       // Charts for individual coins (coin details) are parsed here as well,
       // and should be hidden if not supported.
       if (supportedCoins.isEmpty && event.coins.length <= 1) {
@@ -59,9 +61,11 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         );
       }
 
-      await _getProfitLossChart(event, supportedCoins, useCache: true)
-          .then(emit.call)
-          .catchError((Object error, StackTrace stackTrace) {
+      await _getProfitLossChart(
+        event,
+        supportedCoins,
+        useCache: true,
+      ).then(emit.call).catchError((Object error, StackTrace stackTrace) {
         const errorMessage = 'Failed to load CACHED portfolio profit/loss';
         _log.warning(errorMessage, error, stackTrace);
         // ignore cached errors, as the periodic refresh attempts should recover
@@ -72,9 +76,11 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
       await _sdk.waitForEnabledCoinsToPassThreshold(supportedCoins);
       final activeCoins = await _removeInactiveCoins(supportedCoins);
       if (activeCoins.isNotEmpty) {
-        await _getProfitLossChart(event, activeCoins, useCache: false)
-            .then(emit.call)
-            .catchError((Object e, StackTrace s) {
+        await _getProfitLossChart(
+          event,
+          activeCoins,
+          useCache: false,
+        ).then(emit.call).catchError((Object e, StackTrace s) {
           _log.severe('Failed to load uncached profit/loss chart', e, s);
           // Ignore un-cached errors, as a transaction loading exception should not
           // make the graph disappear with a load failure emit, as the cached data
@@ -125,6 +131,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         fiatCurrency: event.fiatCoinId,
         selectedPeriod: event.selectedPeriod,
         walletId: event.walletId,
+        isUpdating: false,
       );
     } catch (error, stackTrace) {
       _log.shout('Failed periodic profit/loss chart update', error, stackTrace);
@@ -138,11 +145,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
   ) async {
     final coins = List<Coin>.of(walletCoins);
     for (final coin in coins) {
-      final isCoinSupported = await _profitLossRepository.isCoinChartSupported(
-        coin.id,
-        fiatCoinId,
-      );
-      if (coin.isTestCoin || !isCoinSupported) {
+      if (coin.isTestCoin) {
         coins.remove(coin);
       }
     }
@@ -161,6 +164,20 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
         ),
       );
     }
+
+    emit(
+      PortfolioProfitLossChartLoadSuccess(
+        profitLossChart: eventState.profitLossChart,
+        totalValue: eventState.totalValue,
+        percentageIncrease: eventState.percentageIncrease,
+        coins: eventState.coins,
+        fiatCurrency: eventState.fiatCurrency,
+        walletId: eventState.walletId,
+        selectedPeriod: event.selectedPeriod,
+        isUpdating: true,
+      ),
+    );
+
     add(
       ProfitLossPortfolioChartLoadRequested(
         coins: eventState.coins,
@@ -192,15 +209,17 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
             useCache: useCache,
           );
 
-          final firstNonZeroProfitLossIndex =
-              profitLosses.indexWhere((element) => element.profitLoss != 0);
+          final firstNonZeroProfitLossIndex = profitLosses.indexWhere(
+            (element) => element.profitLoss != 0,
+          );
           if (firstNonZeroProfitLossIndex == -1) {
             _log.info('No non-zero profit/loss data found for ${coin.abbr}');
             return ChartData.empty();
           }
 
-          final nonZeroProfitLosses =
-              profitLosses.sublist(firstNonZeroProfitLossIndex);
+          final nonZeroProfitLosses = profitLosses.sublist(
+            firstNonZeroProfitLossIndex,
+          );
           return nonZeroProfitLosses.toChartData();
         } catch (e, s) {
           final cached = useCache ? 'cached' : 'uncached';

@@ -8,14 +8,19 @@ import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/security_events.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item.dart';
 import 'package:web_dex/shared/widgets/dry_intrinsic.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class SeedShow extends StatelessWidget {
   const SeedShow({
@@ -28,7 +33,7 @@ class SeedShow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    return DexScrollbar(
+    return ScreenshotSensitive(child: DexScrollbar(
       scrollController: scrollController,
       child: SingleChildScrollView(
         controller: scrollController,
@@ -40,9 +45,23 @@ class SeedShow extends StatelessWidget {
             if (!isMobile)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: SeedBackButton(() => context
-                    .read<SecuritySettingsBloc>()
-                    .add(const ResetEvent())),
+                child: SeedBackButton(() {
+                  context.read<AnalyticsBloc>().add(
+                        AnalyticsBackupSkippedEvent(
+                          stageSkipped: 'seed_show',
+                          walletType: context
+                                  .read<AuthBloc>()
+                                  .state
+                                  .currentUser
+                                  ?.wallet
+                                  .config
+                                  .type
+                                  .name ??
+                              '',
+                        ),
+                      );
+                  context.read<SecuritySettingsBloc>().add(const ResetEvent());
+                }),
               ),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 680),
@@ -71,13 +90,14 @@ class SeedShow extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
 class _PrivateKeysList extends StatelessWidget {
   const _PrivateKeysList({
     required this.privKeys,
+    // ignore: unused_element_parameter
     super.key,
   });
 
@@ -400,6 +420,7 @@ class _WordsList extends StatelessWidget {
 
 class _SelectableSeedWord extends StatelessWidget {
   const _SelectableSeedWord({
+    // ignore: unused_element_parameter
     super.key,
     required this.isSeedShown,
     required this.initialValue,

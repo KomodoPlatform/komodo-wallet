@@ -1,5 +1,5 @@
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
-import 'package:web_dex/shared/utils/utils.dart';
 
 class FiatPriceInfo extends Equatable {
   const FiatPriceInfo({
@@ -10,41 +10,37 @@ class FiatPriceInfo extends Equatable {
     required this.spotPriceIncludingFee,
   });
 
-  const FiatPriceInfo.zero()
-      : fiatAmount = 0,
-        coinAmount = 0,
-        fiatCode = '',
-        coinCode = '',
-        spotPriceIncludingFee = 0;
-
   factory FiatPriceInfo.fromJson(Map<String, dynamic> json) {
     return FiatPriceInfo(
-      fiatAmount: _parseFiatAmount(json),
-      coinAmount: _parseCoinAmount(json),
+      fiatAmount: _safeParseDecimal(json['fiat_amount']),
+      coinAmount: _safeParseDecimal(json['coin_amount']),
       fiatCode: json['fiat_code'] as String? ?? '',
       coinCode: json['coin_code'] as String? ?? '',
-      spotPriceIncludingFee: assertDouble(json['spot_price_including_fee']),
+      spotPriceIncludingFee:
+          _safeParseDecimal(json['spot_price_including_fee']),
     );
   }
 
-  static double _parseFiatAmount(Map<String, dynamic> json) =>
-      double.parse(json['fiat_amount'] as String? ?? '0');
+  static final zero = FiatPriceInfo(
+    fiatAmount: Decimal.zero,
+    coinAmount: Decimal.zero,
+    fiatCode: '',
+    coinCode: '',
+    spotPriceIncludingFee: Decimal.zero,
+  );
 
-  static double _parseCoinAmount(Map<String, dynamic> json) =>
-      double.parse(json['coin_amount'] as String? ?? '0');
-
-  final double fiatAmount;
-  final double coinAmount;
+  final Decimal fiatAmount;
+  final Decimal coinAmount;
   final String fiatCode;
   final String coinCode;
-  final double spotPriceIncludingFee;
+  final Decimal spotPriceIncludingFee;
 
   FiatPriceInfo copyWith({
-    double? fiatAmount,
-    double? coinAmount,
+    Decimal? fiatAmount,
+    Decimal? coinAmount,
     String? fiatCode,
     String? coinCode,
-    double? spotPriceIncludingFee,
+    Decimal? spotPriceIncludingFee,
   }) {
     return FiatPriceInfo(
       fiatAmount: fiatAmount ?? this.fiatAmount,
@@ -58,12 +54,20 @@ class FiatPriceInfo extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'fiat_amount': fiatAmount,
-      'coin_amount': coinAmount,
+      'fiat_amount': fiatAmount.toString(),
+      'coin_amount': coinAmount.toString(),
       'fiat_code': fiatCode,
       'coin_code': coinCode,
-      'spot_price_including_fee': spotPriceIncludingFee,
+      'spot_price_including_fee': spotPriceIncludingFee.toString(),
     };
+  }
+
+  static Decimal _safeParseDecimal(dynamic value) {
+    try {
+      return Decimal.parse(value?.toString() ?? '0');
+    } on FormatException {
+      return Decimal.zero;
+    }
   }
 
   @override

@@ -6,6 +6,35 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/typedef.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
+/// Sorts coins according to priority rules:
+/// 1. First by balance (non-zero balances come first, sorted by USD value descending)
+/// 2. If no balance, sort by priority (higher priority first)
+/// 3. If same priority, sort alphabetically
+List<Coin> sortByPriorityAndBalance(List<Coin> coins, KomodoDefiSdk sdk) {
+  final List<Coin> list = List.from(coins);
+  list.sort((a, b) {
+    final double usdBalanceA = a.lastKnownUsdBalance(sdk) ?? 0.00;
+    final double usdBalanceB = b.lastKnownUsdBalance(sdk) ?? 0.00;
+
+    // Both have balance - sort by USD balance descending
+    if (usdBalanceA > 0 && usdBalanceB > 0) {
+      return usdBalanceB.compareTo(usdBalanceA);
+    }
+
+    // Only one has balance - that one comes first
+    if (usdBalanceA > 0 && usdBalanceB == 0) return -1;
+    if (usdBalanceB > 0 && usdBalanceA == 0) return 1;
+
+    // Both have no balance - sort by priority then alphabetically
+    final int priorityA = a.priority;
+    final int priorityB = b.priority;
+    if (priorityA != priorityB) return priorityB - priorityA;
+
+    return a.abbr.compareTo(b.abbr);
+  });
+  return list;
+}
+
 List<Coin> sortFiatBalance(List<Coin> coins, KomodoDefiSdk sdk) {
   final List<Coin> list = List.from(coins);
   list.sort((a, b) {
@@ -59,7 +88,9 @@ Map<String, List<Coin>> removeSingleProtocol(Map<String, List<Coin>> group) {
 }
 
 CoinsByTicker removeTokensWithEmptyOrderbook(
-    CoinsByTicker tokenGroups, List<OrderBookDepth> depths) {
+  CoinsByTicker tokenGroups,
+  List<OrderBookDepth> depths,
+) {
   final CoinsByTicker copy = CoinsByTicker.from(tokenGroups);
 
   copy.removeWhere((key, value) {
@@ -80,21 +111,18 @@ CoinsByTicker removeTokensWithEmptyOrderbook(
 }
 
 CoinsByTicker convertToCoinsByTicker(List<Coin> coinsList) {
-  return coinsList.fold<CoinsByTicker>(
-    {},
-    (previousValue, coin) {
-      final String ticker = abbr2Ticker(coin.abbr);
-      final List<Coin>? coinsWithSameTicker = previousValue[ticker];
+  return coinsList.fold<CoinsByTicker>({}, (previousValue, coin) {
+    final String ticker = abbr2Ticker(coin.abbr);
+    final List<Coin>? coinsWithSameTicker = previousValue[ticker];
 
-      if (coinsWithSameTicker == null) {
-        previousValue[ticker] = [coin];
-      } else if (!isCoinInList(coin, coinsWithSameTicker)) {
-        coinsWithSameTicker.add(coin);
-      }
+    if (coinsWithSameTicker == null) {
+      previousValue[ticker] = [coin];
+    } else if (!isCoinInList(coin, coinsWithSameTicker)) {
+      coinsWithSameTicker.add(coin);
+    }
 
-      return previousValue;
-    },
-  );
+    return previousValue;
+  });
 }
 
 bool isCoinInList(Coin coin, List<Coin> list) {
@@ -107,7 +135,7 @@ Iterable<Coin> filterCoinsByPhrase(Iterable<Coin> coins, String phrase) {
 }
 
 bool compareCoinByPhrase(Coin coin, String phrase) {
-  final String compareName = coin.name.toLowerCase();
+  final String compareName = coin.displayName.toLowerCase();
   final String compareAbbr = abbr2Ticker(coin.abbr).toLowerCase();
   final lowerCasePhrase = phrase.toLowerCase();
 
@@ -116,7 +144,11 @@ bool compareCoinByPhrase(Coin coin, String phrase) {
       compareAbbr.contains(lowerCasePhrase);
 }
 
-String getCoinTypeName(CoinType type) {
+String getCoinTypeName(CoinType type, [String? symbol]) {
+  // Override for parent chain coins like ETH, AVAX etc.
+  if (symbol != null && isParentCoin(type, symbol)) {
+    return 'Native';
+  }
   switch (type) {
     case CoinType.erc20:
       return 'ERC-20';
@@ -150,55 +182,44 @@ String getCoinTypeName(CoinType type) {
       return 'Ubiq';
     case CoinType.krc20:
       return 'KRC-20';
-    case CoinType.cosmos:
-      return 'Cosmos';
-    case CoinType.iris:
-      return 'Iris';
+    case CoinType.tendermint:
+      return 'Tendermint';
+    case CoinType.tendermintToken:
+      return 'Tendermint Token';
     case CoinType.slp:
       return 'SLP';
   }
 }
 
-String getCoinTypeNameLong(CoinType type) {
+bool isParentCoin(CoinType type, String symbol) {
   switch (type) {
-    case CoinType.erc20:
-      return 'Ethereum (ERC-20)';
-    case CoinType.bep20:
-      return 'Binance (BEP-20)';
-    case CoinType.qrc20:
-      return 'QTUM (QRC-20)';
     case CoinType.utxo:
-      return 'Native';
-    case CoinType.smartChain:
-      return 'Smart Chain';
-    case CoinType.ftm20:
-      return 'Fantom';
-    case CoinType.arb20:
-      return 'Arbitrum';
-    case CoinType.etc:
-      return 'Ethereum Classic';
+    case CoinType.tendermint:
+      return true;
+    case CoinType.erc20:
+      return symbol == 'ETH';
+    case CoinType.bep20:
+      return symbol == 'BNB';
     case CoinType.avx20:
-      return 'Avalanche';
+      return symbol == 'AVAX';
+    case CoinType.etc:
+      return symbol == 'ETC';
+    case CoinType.ftm20:
+      return symbol == 'FTM';
+    case CoinType.arb20:
+      return symbol == 'ETH-ARB20';
     case CoinType.hrc20:
-      return 'Harmony (HRC-20)';
-    case CoinType.mvr20:
-      return 'Moonriver';
-    case CoinType.hco20:
-      return 'HecoChain';
+      return symbol == 'ONE';
     case CoinType.plg20:
-      return 'Polygon';
-    case CoinType.sbch:
-      return 'SmartBCH';
-    case CoinType.ubiq:
-      return 'Ubiq';
+      return symbol == 'MATIC';
+    case CoinType.mvr20:
+      return symbol == 'MOVR';
     case CoinType.krc20:
-      return 'Kucoin Chain';
-    case CoinType.cosmos:
-      return 'Cosmos';
-    case CoinType.iris:
-      return 'Iris';
-    case CoinType.slp:
-      return 'SLP';
+      return symbol == 'KCS';
+    case CoinType.qrc20:
+      return symbol == 'QTUM';
+    default:
+      return false;
   }
 }
 
@@ -207,8 +228,10 @@ Iterable<Coin> sortByPriority(Iterable<Coin> list) {
   sortedList.sort((a, b) {
     final int priorityA = a.priority;
     final int priorityB = b.priority;
+    if (priorityA != priorityB) return priorityB - priorityA;
 
-    return priorityB - priorityA;
+    // Ensure deterministic ordering when priorities are equal
+    return a.abbr.compareTo(b.abbr);
   });
   return sortedList;
 }

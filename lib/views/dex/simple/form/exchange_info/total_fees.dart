@@ -13,7 +13,7 @@ import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/model/trade_preimage_extended_fee_info.dart';
 import 'package:web_dex/shared/ui/custom_tooltip.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 
 class TotalFees extends StatefulWidget {

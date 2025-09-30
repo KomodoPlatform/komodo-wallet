@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
@@ -144,6 +145,10 @@ class SwapActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingStatusBloc = context.watch<TradingStatusBloc>();
+
+    final bool tradingEnabled = tradingStatusBloc.state is TradingEnabled;
+
     return Row(
       children: [
         Flexible(
@@ -156,8 +161,10 @@ class SwapActionButtons extends StatelessWidget {
         Flexible(
           child: UiPrimaryButton(
             key: const Key('market-maker-bot-order-confirm-button'),
-            onPressed: onCreateOrder,
-            text: LocaleKeys.confirm.tr(),
+            onPressed: !tradingEnabled ? null : onCreateOrder,
+            text: tradingEnabled
+                ? LocaleKeys.confirm.tr()
+                : LocaleKeys.tradingDisabled.tr(),
           ),
         ),
       ],

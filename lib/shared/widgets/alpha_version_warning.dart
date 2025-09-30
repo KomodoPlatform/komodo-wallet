@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/shared/widgets/send_analytics_checkbox.dart';
 
 class AlphaVersionWarning extends StatelessWidget {
   const AlphaVersionWarning({Key? key, required this.onAccept})
@@ -42,10 +44,6 @@ class AlphaVersionWarning extends StatelessWidget {
                 textAlign: TextAlign.justify,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 8.0),
-              child: SendAnalyticsCheckbox(),
-            ),
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
               child: UiPrimaryButton(
@@ -54,6 +52,9 @@ class AlphaVersionWarning extends StatelessWidget {
                 text: LocaleKeys.accept.tr(),
                 onPressed: () {
                   onAccept();
+                  context.read<AnalyticsBloc>().add(
+                        const AnalyticsActivateEvent(),
+                      );
                   Navigator.of(context).pop();
                 },
               ),

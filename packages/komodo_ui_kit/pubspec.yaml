@@ -3,29 +3,32 @@ description: Komodo Wallet's UI Kit Flutter package.
 publish_to: none
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: ^3.29.2
+  sdk: ">=3.8.1 <4.0.0"
+  flutter: ">=3.35.3 <4.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.20.2 # flutter.dev
   app_theme:
     path: ../../app_theme/
 
   komodo_defi_types:
-    # path: ../../sdk/packages/komodo_defi_types # Requires symlink to the SDK in the root of the project
-    git:
-      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
-      path: packages/komodo_defi_types
-      ref: dev
+    path: ../../sdk/packages/komodo_defi_types # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
+    # git: # Option 2: Git dependency
+    #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+    #   path: packages/komodo_defi_types
+    #   ref: dev
+    # ^0.3.2+1 # Option 3: Pub.dev dependency
 
   komodo_ui:
-    # path: ../../sdk/packages/komodo_ui # Requires symlink to the SDK in the root of the project
-    git:
-      url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
-      path: packages/komodo_ui
-      ref: dev
+    path: ../../sdk/packages/komodo_ui # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
+    # git: # Option 2: Git dependency
+    #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+    #   path: packages/komodo_ui
+    #   ref: dev
+    # ^0.3.0+3 # Option 3: Pub.dev dependency
 
 dev_dependencies:
   flutter_lints: ^5.0.0 # flutter.dev

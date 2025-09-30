@@ -3,9 +3,11 @@ description: App theme.
 version: 0.0.1
 # homepage:
 
+resolution: workspace
+
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: ^3.29.2
+  sdk: ">=3.8.1 <4.0.0"
+  flutter: ">=3.35.3 <4.0.0"
 
 dependencies:
   flutter:

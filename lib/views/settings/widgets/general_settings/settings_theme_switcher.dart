@@ -21,18 +21,18 @@ class SettingsThemeSwitcher extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18.0),
             color: Theme.of(context).colorScheme.onSurface),
-        child: const Row(
+        child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              const Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(right: 6.0),
                   child: _SettingsModeSelector(mode: ThemeMode.light),
                 ),
               ),
-              SizedBox(width: 10),
-              Expanded(
+              const SizedBox(width: 10),
+              const Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(right: 6.0),
                   child: _SettingsModeSelector(mode: ThemeMode.dark),

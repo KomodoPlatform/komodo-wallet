@@ -27,55 +27,24 @@ class CoinTypeTag extends StatelessWidget {
         ),
       ),
       child: Center(
-          child: Text(_protocolName,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                color: Colors.white,
-              ))),
+        child: Text(
+          _resolvedProtocolName,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 
-  String get _protocolName {
-    switch (coin.type) {
-      case CoinType.smartChain:
-        return 'SMART CHAIN';
-      case CoinType.erc20:
-        return 'ERC20';
-      case CoinType.utxo:
-        return 'UTXO';
-      case CoinType.bep20:
-        return 'BEP20';
-      case CoinType.qrc20:
-        return 'QRC20';
-      case CoinType.ftm20:
-        return 'FTM20';
-      case CoinType.arb20:
-        return 'ARB20';
-      case CoinType.etc:
-        return 'ETC';
-      case CoinType.avx20:
-        return 'AVX20';
-      case CoinType.hrc20:
-        return 'HRC20';
-      case CoinType.mvr20:
-        return 'MVR20';
-      case CoinType.hco20:
-        return 'HCO20';
-      case CoinType.plg20:
-        return 'PLG20';
-      case CoinType.sbch:
-        return 'SmartBCH';
-      case CoinType.ubiq:
-        return 'UBIQ';
-      case CoinType.krc20:
-        return 'KRC20';
-      case CoinType.cosmos:
-        return 'Cosmos';
-      case CoinType.iris:
-        return 'Iris';
-      case CoinType.slp:
-        return 'SLP';
-    }
+  String get _resolvedProtocolName {
+    // Use the same naming that the business logic layer uses everywhere else
+    // and ensure parents show as 'Native'.
+    final upper = coin.typeName.toUpperCase();
+    if (upper == 'SMART CHAIN') return 'SMART CHAIN';
+    // Keep short forms without hyphen for small badge
+    return upper.replaceAll('-', '');
   }
 }

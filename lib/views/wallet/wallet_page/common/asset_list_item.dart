@@ -13,13 +13,17 @@ class AssetListItem extends StatelessWidget {
     required this.assetId,
     required this.backgroundColor,
     required this.onTap,
+    this.onStatisticsTap,
     this.isActivating = false,
+    this.priceChangePercentage24h,
   });
 
   final AssetId assetId;
   final Color backgroundColor;
   final void Function(AssetId) onTap;
+  final void Function(AssetId, Duration period)? onStatisticsTap;
   final bool isActivating;
+  final double? priceChangePercentage24h;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +41,7 @@ class AssetListItem extends StatelessWidget {
             assetId: assetId,
             backgroundColor: backgroundColor,
             onTap: onTap,
+            onStatisticsTap: onStatisticsTap,
           );
   }
 }

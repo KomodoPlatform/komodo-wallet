@@ -1,10 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
-import 'package:web_dex/bloc/system_health/system_health_state.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class ClockWarningBanner extends StatelessWidget {
   const ClockWarningBanner({Key? key}) : super(key: key);
@@ -13,9 +12,11 @@ class ClockWarningBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
       builder: (context, systemHealthState) {
+        final tradingEnabled =
+            context.watch<TradingStatusBloc>().state is TradingEnabled;
         if (systemHealthState is SystemHealthLoadSuccess &&
             !systemHealthState.isValid &&
-            !kIsWalletOnly) {
+            tradingEnabled) {
           return _buildWarningBanner();
         }
         return const SizedBox.shrink();

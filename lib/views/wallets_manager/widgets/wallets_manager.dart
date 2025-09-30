@@ -11,11 +11,17 @@ class WalletsManager extends StatelessWidget {
     required this.walletType,
     required this.close,
     required this.onSuccess,
+    this.selectedWallet,
+    this.initialHdMode = false,
+    this.rememberMe = false,
   }) : super(key: key);
   final WalletsManagerEventType eventType;
   final WalletType walletType;
   final VoidCallback close;
   final Function(Wallet) onSuccess;
+  final Wallet? selectedWallet;
+  final bool initialHdMode;
+  final bool rememberMe;
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +32,13 @@ class WalletsManager extends StatelessWidget {
           close: close,
           onSuccess: onSuccess,
           eventType: eventType,
+          initialWallet: selectedWallet,
+          initialHdMode: initialHdMode,
+          rememberMe: rememberMe,
         );
 
       case WalletType.trezor:
-        return HardwareWalletsManager(
-          close: close,
-          eventType: eventType,
-        );
+        return HardwareWalletsManager(close: close, eventType: eventType);
       case WalletType.keplr:
       case WalletType.metamask:
         return const SizedBox();

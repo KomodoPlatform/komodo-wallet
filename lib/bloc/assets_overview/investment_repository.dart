@@ -1,14 +1,14 @@
+import 'package:logging/logging.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/models/fiat_value.dart';
 import 'package:web_dex/bloc/cex_market_data/profit_loss/profit_loss_repository.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/shared/utils/utils.dart' as logger;
 
 class InvestmentRepository {
-  InvestmentRepository({
-    required ProfitLossRepository profitLossRepository,
-  }) : _profitLossRepository = profitLossRepository;
+  InvestmentRepository({required ProfitLossRepository profitLossRepository})
+    : _profitLossRepository = profitLossRepository;
 
   final ProfitLossRepository _profitLossRepository;
+  final Logger _log = Logger('InvestmentRepository');
 
   // TODO: Create a balance repository to fetch the current balance for a coin
   // and also calculate its fiat value
@@ -46,8 +46,8 @@ class InvestmentRepository {
         );
 
         return totalPurchased;
-      } catch (e) {
-        logger.log('Failed to calculate total investment: $e', isError: true);
+      } catch (e, s) {
+        _log.shout('Failed to calculate total investment', e, s);
         return FiatValue.usd(0);
       }
     });

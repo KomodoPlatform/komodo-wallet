@@ -5,11 +5,15 @@ import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/common/screen.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/security_events.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_word_button.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
 
 class SeedConfirmation extends StatefulWidget {
   const SeedConfirmation({required this.seedPhrase});
@@ -36,7 +40,7 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
-    return DexScrollbar(
+    return ScreenshotSensitive(child: DexScrollbar(
       isMobile: isMobile,
       scrollController: scrollController,
       child: SingleChildScrollView(
@@ -50,9 +54,25 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: SeedBackButton(
-                  () => context
-                      .read<SecuritySettingsBloc>()
-                      .add(const ShowSeedEvent()),
+                  () {
+                    context.read<AnalyticsBloc>().add(
+                          AnalyticsBackupSkippedEvent(
+                            stageSkipped: 'seed_confirm',
+                            walletType: context
+                                    .read<AuthBloc>()
+                                    .state
+                                    .currentUser
+                                    ?.wallet
+                                    .config
+                                    .type
+                                    .name ??
+                                '',
+                          ),
+                        );
+                    context
+                        .read<SecuritySettingsBloc>()
+                        .add(const ShowSeedEvent());
+                  },
                 ),
               ),
             ConstrainedBox(
@@ -93,7 +113,7 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   void _onWordPressed(_SeedWord word) {
@@ -115,6 +135,16 @@ class _SeedConfirmationState extends State<SeedConfirmation> {
       final settingsBloc = context.read<SecuritySettingsBloc>();
       settingsBloc.add(const SeedConfirmedEvent());
       context.read<AuthBloc>().add(AuthSeedBackupConfirmed());
+      final walletType =
+          context.read<AuthBloc>().state.currentUser?.wallet.config.type.name ??
+              '';
+      context.read<AnalyticsBloc>().add(
+            AnalyticsBackupCompletedEvent(
+              backupTime: 0,
+              method: 'manual',
+              walletType: walletType,
+            ),
+          );
       return;
     }
     setState(() {

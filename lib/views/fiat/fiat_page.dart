@@ -1,6 +1,7 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/banxa_fiat_provider.dart';
@@ -47,13 +48,17 @@ class _FiatPageState extends State<FiatPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final fiatRepository = FiatRepository(
-      [BanxaFiatProvider(), RampFiatProvider()],
+      // Ramp API keys unavailable for the time being
+      // TODO(takenagain): re-enable when API keys are available
+      // [BanxaFiatProvider(), RampFiatProvider()],
+      [BanxaFiatProvider()],
       coinsRepository,
     );
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     return BlocProvider(
       create: (_) => FiatFormBloc(
         repository: fiatRepository,
-        coinsRepository: coinsRepository,
+        sdk: sdk,
       ),
       child: MultiBlocListener(
         listeners: [
@@ -172,7 +177,7 @@ class FiatPageLayout extends StatelessWidget {
 class _TabContent extends StatelessWidget {
   const _TabContent({
     required int activeTabIndex,
-    // ignore: unused_element, unused_element_parameter
+    // ignore: unused_element_parameter
     super.key,
   }) : _activeTabIndex = activeTabIndex;
 

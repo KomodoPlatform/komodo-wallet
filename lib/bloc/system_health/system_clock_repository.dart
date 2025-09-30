@@ -1,117 +1,70 @@
-// lib/repositories/system_clock_repository.dart
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:http/http.dart' as http;
-import 'package:web_dex/shared/utils/utils.dart';
+import 'package:logging/logging.dart';
+import 'package:web_dex/bloc/system_health/providers/time_provider_registry.dart';
 
 class SystemClockRepository {
   SystemClockRepository({
-    http.Client? httpClient,
+    TimeProviderRegistry? providerRegistry,
     Duration? maxAllowedDifference,
     Duration? apiTimeout,
-  })  : _httpClient = httpClient ?? http.Client(),
-        _maxAllowedDifference =
+    Logger? logger,
+  })  : _maxAllowedDifference =
             maxAllowedDifference ?? const Duration(seconds: 60),
-        _apiTimeout = apiTimeout ?? const Duration(seconds: 2);
-
-  static const _utcWorldTimeApis = [
-    'https://worldtimeapi.org/api/timezone/UTC',
-    'https://timeapi.io/api/time/current/zone?timeZone=UTC',
-    'http://worldclockapi.com/api/json/utc/now',
-  ];
+        _providerRegistry = providerRegistry ??
+            TimeProviderRegistry(
+              apiTimeout: apiTimeout,
+            ),
+        _logger = logger ?? Logger('SystemClockRepository');
 
   final Duration _maxAllowedDifference;
-  final Duration _apiTimeout;
-  final http.Client _httpClient;
+  final TimeProviderRegistry _providerRegistry;
+  final Logger _logger;
 
-  /// Queries the available 3rd party APIs to validate the system clock validity
-  /// returning true if the system clock is within allowed difference of the API
-  /// time, false otherwise. Uses the first successful response
-  Future<bool> isSystemClockValid({
-    List<String> timeApiUrls = _utcWorldTimeApis,
-  }) async {
+  /// Queries the available time providers to validate the system clock validity
+  /// returning true if the system clock is within allowed difference of the
+  /// first provider that responds, false otherwise. Returns true in case of
+  /// errors to avoid blocking app usage.
+  Future<bool> isSystemClockValid() async {
     try {
-      final futures = timeApiUrls.map((url) => _httpGet(url));
+      final providers = _providerRegistry.providers;
+      bool receivedValidResponse = false;
 
-      final responses = await Future.wait(
-        futures,
-        eagerError: false,
-      );
+      for (final provider in providers) {
+        try {
+          final apiTime = await provider.getCurrentUtcTime();
+          receivedValidResponse = true;
 
-      for (final response in responses) {
-        if (response.statusCode != 200) {
-          continue;
+          final localTime = DateTime.timestamp();
+          final Duration difference = apiTime.difference(localTime).abs();
+
+          final isValid = difference < _maxAllowedDifference;
+          if (isValid) {
+            _logger.info('System clock validated by ${provider.name} provider');
+          } else {
+            _logger.warning(
+                'System clock differs by ${difference.inSeconds}s from '
+                '${provider.name} provider');
+          }
+
+          return isValid;
+        } on Exception catch (e, s) {
+          _logger.severe('Provider ${provider.name} failed', e, s);
         }
-
-        final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-        final DateTime apiTime = _parseUtcDateTimeString(jsonResponse);
-        final localTime = DateTime.timestamp();
-        final Duration difference = apiTime.difference(localTime).abs();
-
-        return difference < _maxAllowedDifference;
       }
 
-      // Log error if no successful responses
-      log('All time API requests failed').ignore();
+      if (!receivedValidResponse) {
+        _logger.warning('All time providers failed to provide a time');
+      }
+
+      // Default to allowing usage when no provider responded
       return true;
-    } catch (e) {
-      log('Failed to validate system clock: $e').ignore();
-      return true; // Don't block usage
+    } on Exception catch (e, s) {
+      _logger.shout('Failed to validate system clock', e, s);
+      // Don't block usage of dex if the time provider fetch fails
+      return true;
     }
-  }
-
-  Future<http.Response> _httpGet(String url) async {
-    try {
-      return await _httpClient.get(Uri.parse(url)).timeout(_apiTimeout);
-    } catch (e) {
-      return http.Response('Error: $e', HttpStatus.internalServerError);
-    }
-  }
-
-  DateTime _parseUtcDateTimeString(Map<String, dynamic> jsonResponse) {
-    dynamic apiTimeStr = jsonResponse['datetime'] ?? // worldtimeapi.org
-        jsonResponse['dateTime'] ?? // worldclockapi.com
-        jsonResponse['currentDateTime']; // timeapi.io
-
-    if (apiTimeStr == null) {
-      throw Exception('API response does not contain datetime field');
-    }
-
-    if (apiTimeStr is! String || apiTimeStr.isEmpty) {
-      throw const FormatException('API datetime field is not a string');
-    }
-
-    // Convert +00:00 format to Z format if needed
-    if (apiTimeStr.endsWith('+00:00')) {
-      apiTimeStr = apiTimeStr.replaceAll('+00:00', 'Z');
-    } else if (!apiTimeStr.endsWith('Z')) {
-      apiTimeStr += 'Z'; // Add UTC timezone indicator if missing
-    }
-
-    final apiTime = DateTime.parse(apiTimeStr);
-    if (!apiTime.isUtc) {
-      throw const FormatException('API time is not in UTC');
-    }
-    return apiTime;
-  }
-
-  /// Checks if there are enough active seeders to indicate valid system clock
-  Future<bool> hasActiveSeeders() async {
-    // TODO: Implement seeder check logic onur suggested - few seeders
-    // implies that the user's clock is invalid and being rejected by seeders
-    throw UnimplementedError('Not implemented yet');
-  }
-
-  /// Combines multiple clock validation methods
-  Future<bool> isClockValidWithAllChecks() async {
-    final apiCheck = await isSystemClockValid();
-    final seederCheck = await hasActiveSeeders();
-
-    return apiCheck && seederCheck;
   }
 
   void dispose() {
-    _httpClient.close();
+    _providerRegistry.dispose();
   }
 }

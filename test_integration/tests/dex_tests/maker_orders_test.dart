@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:web_dex/main.dart' as app;
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/widgets/focusable_widget.dart';
 import 'package:web_dex/views/dex/entities_list/orders/order_item.dart';
 

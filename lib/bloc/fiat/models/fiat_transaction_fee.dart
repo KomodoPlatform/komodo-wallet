@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 
 class FiatTransactionFee extends Equatable {
@@ -8,9 +9,9 @@ class FiatTransactionFee extends Equatable {
     final List<FeeDetail> feesList = feesJson
         .map((e) => FeeDetail.fromJson(e as Map<String, dynamic>))
         .toList();
-
     return FiatTransactionFee(fees: feesList);
   }
+
   final List<FeeDetail> fees;
 
   Map<String, dynamic> toJson() {
@@ -27,13 +28,15 @@ class FeeDetail extends Equatable {
   const FeeDetail({required this.amount});
 
   factory FeeDetail.fromJson(Map<String, dynamic> json) {
-    return FeeDetail(amount: (json['amount'] ?? 0.0) as double);
+    final amountStr = json['amount']?.toString() ?? '0';
+    return FeeDetail(amount: Decimal.parse(amountStr));
   }
-  final double amount;
+
+  final Decimal amount;
 
   Map<String, dynamic> toJson() {
     return {
-      'amount': amount,
+      'amount': amount.toString(),
     };
   }
 

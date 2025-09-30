@@ -31,8 +31,6 @@ class _WalletManagerSearchFieldState extends State<WalletManagerSearchField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return TextFormField(
       key: const Key('wallet-page-search-field'),
       controller: _searchController,

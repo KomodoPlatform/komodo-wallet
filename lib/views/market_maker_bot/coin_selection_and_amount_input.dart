@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
-import 'package:web_dex/shared/widgets/coin_item/coin_logo.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/shared/widgets/coin_select_item_widget.dart';
 import 'package:web_dex/views/dex/common/front_plate.dart';
 import 'package:web_dex/views/dex/simple/form/common/dex_form_group_header.dart';
@@ -59,25 +57,31 @@ class _CoinSelectionAndAmountInputState
 
   late final _sdk = context.read<KomodoDefiSdk>();
   void _prepareItems() {
-    _items = prepareCoinsForTable(
-      context,
-      widget.coins,
-      null,
-      testCoinsEnabled: context.read<SettingsBloc>().state.testCoinsEnabled,
-    )
-        .map(
-          (coin) => DropdownMenuItem<String>(
-            value: coin.abbr,
-            child: CoinSelectItemWidget(
-              name: coin.name,
-              coinId: coin.abbr,
-              trailing: AssetBalanceText(coin.toSdkAsset(_sdk).id,
-                  activateIfNeeded: false),
-              title: CoinItemBody(coin: coin, size: CoinItemSize.large),
-            ),
-          ),
-        )
-        .toList();
+    _items =
+        prepareCoinsForTable(
+              context,
+              widget.coins,
+              null,
+              testCoinsEnabled: context
+                  .read<SettingsBloc>()
+                  .state
+                  .testCoinsEnabled,
+            )
+            .map(
+              (coin) => DropdownMenuItem<String>(
+                value: coin.abbr,
+                child: CoinSelectItemWidget(
+                  name: coin.displayName,
+                  coinId: coin.abbr,
+                  trailing: AssetBalanceText(
+                    coin.toSdkAsset(_sdk).id,
+                    activateIfNeeded: false,
+                  ),
+                  title: CoinItemBody(coin: coin, size: CoinItemSize.large),
+                ),
+              ),
+            )
+            .toList();
   }
 
   @override
@@ -86,9 +90,7 @@ class _CoinSelectionAndAmountInputState
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DexFormGroupHeader(
-          title: widget.title,
-        ),
+        DexFormGroupHeader(title: widget.title),
         const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.fromLTRB(15, 8, 0, 12),
@@ -100,7 +102,9 @@ class _CoinSelectionAndAmountInputState
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CoinLogo(coin: widget.selectedCoin),
+                  widget.selectedCoin == null
+                      ? AssetLogo.placeholder(isBlank: true)
+                      : AssetLogo.ofId(widget.selectedCoin!.id),
                   const SizedBox(width: 9),
                   CoinNameAndProtocol(widget.selectedCoin, true),
                   const SizedBox(width: 9),
@@ -120,13 +124,9 @@ class _CoinSelectionAndAmountInputState
 
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     return CoinDropdown(
-      coins: widget.coins.map((coin) => coin.assetId).toList(),
-      onItemSelected: (assetId) async {
-        final coin = coinsRepository.getCoinFromId(assetId);
-        if (coin != null) {
-          widget.onItemSelected?.call(coin);
-        }
-      },
+      items: _items,
+      onItemSelected: (item) =>
+          widget.onItemSelected?.call(coinsRepository.getCoin(item)),
       child: content,
     );
   }

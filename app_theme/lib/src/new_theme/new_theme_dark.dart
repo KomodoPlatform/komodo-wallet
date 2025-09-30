@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import '../../app_theme.dart';
 
 const ColorSchemeExtension _colorSchemeExtension = ColorSchemeExtension(
-  primary: Color.fromRGBO(61, 119, 233, 1),
-  p50: Color.fromRGBO(31, 60, 117, 1),
-  p40: Color.fromRGBO(24, 48, 93, 1),
-  p10: Color.fromRGBO(6, 12, 23, 1),
-  secondary: Color.fromRGBO(173, 175, 196, 1),
+  primary: Color(0xFF00D4FF), // Teal primary
+  p50: Color(0xFF006B55), // Dark teal
+  p40: Color(0xFF005544), // Darker teal
+  p10: Color(0xFF001511), // Very dark teal
+  secondary: Color(0xFF00C3AA), // Teal secondary
   s70: Color.fromRGBO(121, 123, 137, 1),
   s50: Color.fromRGBO(87, 88, 98, 1),
   s40: Color.fromRGBO(69, 70, 78, 1),
@@ -22,11 +22,11 @@ const ColorSchemeExtension _colorSchemeExtension = ColorSchemeExtension(
   g20: Color.fromRGBO(18, 38, 34, 1),
   green: Color.fromRGBO(88, 192, 171, 1),
   surf: Color.fromRGBO(255, 255, 255, 1),
-  surfCont: Color.fromRGBO(33, 35, 54, 1),
-  surfContHigh: Color.fromRGBO(43, 45, 64, 1),
-  surfContHighest: Color.fromRGBO(53, 55, 74, 1),
-  surfContLow: Color.fromRGBO(23, 25, 38, 1),
-  surfContLowest: Color.fromRGBO(18, 20, 31, 1),
+  surfCont: Color(0xFF0A0A0A), // Very dark gray for cards
+  surfContHigh: Color(0xFF141414), // Dark gray for elevated surfaces
+  surfContHighest: Color(0xFF1A1A1A), // Slightly lighter
+  surfContLow: Color(0xFF050505), // Near black
+  surfContLowest: Color(0xFF000000), // Pure black
   orange: Color.fromRGBO(237, 170, 70, 1),
   yellow: Color.fromRGBO(230, 188, 65, 1),
   purple: Color.fromRGBO(123, 73, 221, 1),
@@ -63,5 +63,5 @@ final ThemeData newThemeDataDark = theme.global.dark.copyWith(
 
 OutlineInputBorder _outlineBorderLight(Color accentColor) => OutlineInputBorder(
       borderSide: BorderSide(color: accentColor, width: 2),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(12),
     );

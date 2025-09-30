@@ -2,11 +2,11 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const ColorSchemeExtension _colorSchemeExtension = ColorSchemeExtension(
-  primary: Color.fromRGBO(61, 119, 233, 1),
-  p50: Color.fromRGBO(158, 187, 244, 1),
-  p40: Color.fromRGBO(177, 201, 246, 1),
-  p10: Color.fromRGBO(236, 241, 253, 1),
-  secondary: Color.fromRGBO(69, 96, 120, 1),
+  primary: Color(0xFF00D4FF), // Teal primary
+  p50: Color(0xFF80EAD7), // Light teal
+  p40: Color(0xFFB3F0E0), // Lighter teal
+  p10: Color(0xFFE6F9F5), // Very light teal
+  secondary: Color(0xFF00C3AA), // Teal secondary
   s70: Color.fromRGBO(125, 144, 161, 1),
   s50: Color.fromRGBO(162, 175, 187, 1),
   s40: Color.fromRGBO(181, 191, 201, 1),
@@ -62,5 +62,5 @@ final ThemeData newThemeDataLight = theme.global.light.copyWith(
 
 OutlineInputBorder _outlineBorderLight(Color accentColor) => OutlineInputBorder(
       borderSide: BorderSide(color: accentColor, width: 2),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(12),
     );

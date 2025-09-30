@@ -1,0 +1,188 @@
+# filepath: /Users/charl/Code/UTXO/komodo-wallet/.github/workflows/roll-sdk-packages.yml
+name: Roll SDK Packages
+
+# This workflow automates updating SDK package dependencies from the external komodo-defi-sdk-flutter repository
+# It creates or updates a pull request with the necessary changes to pubspec.yaml and pubspec.lock files
+# For more information on how this works or how to run the script manually, see:
+# https://github.com/KomodoPlatform/komodo-wallet/blob/dev/docs/SDK_DEPENDENCY_MANAGEMENT.md
+
+on:
+  schedule:
+    # Run once a day at midnight
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - dev
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      upgrade_all_packages:
+        description: "Upgrade all packages, not just SDK packages"
+        required: false
+        default: false
+        type: boolean
+      target_branch:
+        description: "Target branch for PR creation"
+        required: false
+        default: "dev"
+        type: string
+
+jobs:
+  roll-sdk-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # NB! Keep up-to-date with the flutter version used for development
+          flutter-version: "3.35.3"
+          channel: "stable"
+
+      - name: Determine configuration
+        id: config
+        run: |
+          # Set target branch
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.target_branch }}" != "" ]]; then
+            TARGET_BRANCH="${{ github.event.inputs.target_branch }}"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            TARGET_BRANCH="${{ github.base_ref }}"
+          else
+            TARGET_BRANCH="dev"
+          fi
+          echo "TARGET_BRANCH=$TARGET_BRANCH" >> $GITHUB_ENV
+
+          # Set upgrade mode
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.upgrade_all_packages }}" == "true" ]]; then
+            UPGRADE_ALL="true"
+          else
+            UPGRADE_ALL="false"
+          fi
+          echo "UPGRADE_ALL=$UPGRADE_ALL" >> $GITHUB_ENV
+
+          # Branch naming based on target branch, not date
+          echo "PR_BRANCH_NAME=sdk-roll-${TARGET_BRANCH}" >> $GITHUB_ENV
+
+      - name: Make roll script executable
+        run: |
+          chmod +x .github/scripts/roll_sdk_packages.sh
+
+      - name: Run roll script
+        id: roll_packages
+        run: |
+          # Run the script and capture exit code
+          UPGRADE_ALL_PACKAGES=${{ env.UPGRADE_ALL }} TARGET_BRANCH=${{ env.TARGET_BRANCH }} .github/scripts/roll_sdk_packages.sh || EXIT_CODE=$?
+
+          # Different handling based on exit code
+          if [ -f "SDK_CHANGELOG.md" ]; then
+            echo "ROLLS_FOUND=true" >> $GITHUB_ENV
+            echo "SDK packages were successfully rolled"
+          else
+            echo "ROLLS_FOUND=false" >> $GITHUB_ENV
+
+            if [ -n "${EXIT_CODE}" ] && [ ${EXIT_CODE} -ne 100 ]; then
+              echo "::warning::SDK package roll script failed with exit code ${EXIT_CODE}"
+            else
+              echo "No SDK package updates were needed"
+            fi
+          fi
+
+      - name: Setup Git identity
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install GitHub CLI
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          if ! command -v gh &> /dev/null; then
+            echo "Installing GitHub CLI..."
+            # GitHub CLI should already be installed on GitHub Actions runners
+            # This is a fallback mechanism
+            gh --version || {
+              echo "GitHub CLI not found, installing..."
+              type -p curl >/dev/null || sudo apt-get install curl -y
+              curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+              && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+              && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+              && sudo apt-get update \
+              && sudo apt-get install gh -y
+            }
+          fi
+          # Verify GitHub CLI is available
+          gh --version
+
+      - name: Create PR Branch
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          # Check if the branch already exists
+          if git ls-remote --heads origin ${{ env.PR_BRANCH_NAME }} | grep -q ${{ env.PR_BRANCH_NAME }}; then
+            # If it exists, delete it (force update)
+            git push origin --delete ${{ env.PR_BRANCH_NAME }} || {
+              echo "::warning::Failed to delete existing branch ${{ env.PR_BRANCH_NAME }} - it may be protected"
+            }
+          fi
+
+          # Create new branch
+          git checkout -b "${{ env.PR_BRANCH_NAME }}"
+
+          # Add all changed pubspec files in a single command
+          git add '**/pubspec.yaml' '**/pubspec.lock'
+
+          # Confirm which files will be committed
+          git status
+
+          git commit -m "chore: roll SDK packages targeting ${{ env.TARGET_BRANCH }}"
+          git push --set-upstream origin "${{ env.PR_BRANCH_NAME }}" || {
+            echo "::error::Failed to push branch to origin - check credentials and branch protection settings"
+            exit 1
+          }
+
+      - name: Create Pull Request
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          # Check if a PR from this branch to target branch already exists
+          EXISTING_PR=$(gh pr list --head "${{ env.PR_BRANCH_NAME }}" --base "${{ env.TARGET_BRANCH }}" --json number --jq '.[0].number' || echo "")
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Updating existing PR #$EXISTING_PR with new changes"
+            # Update the PR body with the latest SDK roll changes
+            gh pr edit "$EXISTING_PR" --body-file SDK_CHANGELOG.md || echo "::warning::Failed to update PR body"
+            # Add a comment to notify about the update
+            gh pr comment "$EXISTING_PR" --body "Updated SDK roll with new changes on $(date '+%Y-%m-%d %H:%M:%S')" || echo "::warning::Failed to add comment to PR"
+          else
+            # Create the pull request using gh CLI
+            gh pr create \
+              --title "ci(sdk): Roll SDK packages targeting ${{ env.TARGET_BRANCH }}" \
+              --body-file SDK_CHANGELOG.md \
+              --base "${{ env.TARGET_BRANCH }}" \
+              --head "${{ env.PR_BRANCH_NAME }}" \
+              --label "dependencies" \
+              --label "automated" || {
+                echo "::error::Failed to create Pull Request - check GitHub token permissions"
+                exit 1
+              }
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: PR Details
+        if: env.ROLLS_FOUND == 'true'
+        run: |
+          echo "Pull request created or updated successfully with rolled SDK package dependencies"
+
+      - name: No Updates
+        if: env.ROLLS_FOUND == 'false'
+        run: |
+          echo "No SDK package rolls needed"

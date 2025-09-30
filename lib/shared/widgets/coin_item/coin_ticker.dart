@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
 
 class CoinTicker extends StatelessWidget {
   const CoinTicker({
@@ -21,10 +21,14 @@ class CoinTicker extends StatelessWidget {
 
     return AutoScrollText(
       text: showSuffix ? abbr2TickerWithSuffix(coin) : abbr2Ticker(coin),
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-      ).merge(style),
+      style: Theme.of(context)
+          .textTheme
+          .bodyMedium
+          ?.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          )
+          .merge(style),
     );
   }
 }

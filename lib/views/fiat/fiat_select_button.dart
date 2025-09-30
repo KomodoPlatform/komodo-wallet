@@ -52,7 +52,9 @@ class FiatSelectButton extends StatelessWidget {
               if (!isFiat && currency != null)
                 Text(
                   (currency! as CryptoCurrency).isCrypto
-                      ? getCoinTypeName((currency! as CryptoCurrency).chainType)
+                      ? getCoinTypeName(
+                          (currency! as CryptoCurrency).chainType,
+                          (currency! as CryptoCurrency).symbol)
                       : '',
                   style: DefaultTextStyle.of(context).style.copyWith(
                         color: enabled

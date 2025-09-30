@@ -79,6 +79,18 @@ class Wallet {
       config: config.copy(),
     );
   }
+  
+  Wallet copyWith({
+    String? id,
+    String? name,
+    WalletConfig? config,
+  }) {
+    return Wallet(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      config: config ?? this.config.copy(),
+    );
+  }
 }
 
 class WalletConfig {
@@ -131,6 +143,24 @@ class WalletConfig {
       pubKey: pubKey,
     );
   }
+  
+  WalletConfig copyWith({
+    String? seedPhrase,
+    String? pubKey,
+    List<String>? activatedCoins,
+    bool? hasBackup,
+    WalletType? type,
+    bool? isLegacyWallet,
+  }) {
+    return WalletConfig(
+      seedPhrase: seedPhrase ?? this.seedPhrase,
+      pubKey: pubKey ?? this.pubKey,
+      activatedCoins: activatedCoins ?? [...this.activatedCoins],
+      hasBackup: hasBackup ?? this.hasBackup,
+      type: type ?? this.type,
+      isLegacyWallet: isLegacyWallet ?? this.isLegacyWallet,
+    );
+  }
 }
 
 enum WalletType {
@@ -166,7 +196,8 @@ extension KdfUserWalletExtension on KdfUser {
       config: WalletConfig(
         seedPhrase: '',
         pubKey: walletId.pubkeyHash,
-        activatedCoins: metadata.valueOrNull<List<String>>('activated_coins') ?? [],
+        activatedCoins:
+            metadata.valueOrNull<List<String>>('activated_coins') ?? [],
         hasBackup: metadata['has_backup'] as bool? ?? false,
         type: walletType,
       ),

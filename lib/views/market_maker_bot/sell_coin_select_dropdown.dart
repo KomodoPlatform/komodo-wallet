@@ -7,7 +7,6 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/forms/coin_select_input.dart';
 import 'package:web_dex/model/forms/coin_trade_amount_input.dart';
 import 'package:web_dex/model/forms/trade_volume_input.dart';
-import 'package:web_dex/shared/widgets/auto_scroll_text.dart';
 import 'package:web_dex/views/dex/common/front_plate.dart';
 import 'package:web_dex/views/market_maker_bot/coin_selection_and_amount_input.dart';
 import 'package:web_dex/views/market_maker_bot/coin_trade_amount_form_field.dart';

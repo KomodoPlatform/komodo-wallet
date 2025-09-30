@@ -19,17 +19,20 @@ class MarketMakerBotForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<MarketMakerTradeFormBloc, MarketMakerTradeFormState,
-        MarketMakerTradeFormStage>(
+    return BlocSelector<
+      MarketMakerTradeFormBloc,
+      MarketMakerTradeFormState,
+      MarketMakerTradeFormStage
+    >(
       selector: (state) => state.stage,
       builder: (context, formStage) {
         if (formStage == MarketMakerTradeFormStage.confirmationRequired) {
           return MarketMakerBotConfirmationForm(
             onCreateOrder: () => _onCreateOrderPressed(context),
             onCancel: () {
-              context
-                  .read<MarketMakerTradeFormBloc>()
-                  .add(const MarketMakerConfirmationPreviewCancelRequested());
+              context.read<MarketMakerTradeFormBloc>().add(
+                const MarketMakerConfirmationPreviewCancelRequested(),
+              );
             },
           );
         }
@@ -45,9 +48,9 @@ class MarketMakerBotForm extends StatelessWidget {
     final marketMakerTradeFormBloc = context.read<MarketMakerTradeFormBloc>();
     final tradePair = marketMakerTradeFormBloc.state.toTradePairConfig();
 
-    context
-        .read<MarketMakerBotBloc>()
-        .add(MarketMakerBotOrderUpdateRequested(tradePair));
+    context.read<MarketMakerBotBloc>().add(
+      MarketMakerBotOrderUpdateRequested(tradePair),
+    );
 
     context.read<DexTabBarBloc>().add(const TabChanged(2));
 
@@ -55,12 +58,34 @@ class MarketMakerBotForm extends StatelessWidget {
   }
 }
 
-class _MakerFormDesktopLayout extends StatelessWidget {
+class _MakerFormDesktopLayout extends StatefulWidget {
   const _MakerFormDesktopLayout();
 
   @override
+  State<_MakerFormDesktopLayout> createState() =>
+      _MakerFormDesktopLayoutState();
+}
+
+class _MakerFormDesktopLayoutState extends State<_MakerFormDesktopLayout> {
+  late final ScrollController _mainScrollController;
+  late final ScrollController _orderbookScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _mainScrollController = ScrollController();
+    _orderbookScrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _mainScrollController.dispose();
+    _orderbookScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final scrollController = ScrollController();
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -73,20 +98,22 @@ class _MakerFormDesktopLayout extends StatelessWidget {
         Flexible(
           flex: 6,
           child: DexScrollbar(
-            scrollController: scrollController,
+            scrollController: _mainScrollController,
             isMobile: isMobile,
             child: SingleChildScrollView(
               key: const Key('maker-form-layout-scroll'),
-              controller: scrollController,
+              controller: _mainScrollController,
               child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+                constraints: BoxConstraints(
+                  maxWidth: theme.custom.dexFormWidth,
+                ),
                 child: BlocBuilder<CoinsBloc, CoinsState>(
                   builder: (context, state) {
                     final coins = state.walletCoins.values
-                        .where(
-                          (e) => e.usdPrice != null && e.usdPrice!.price > 0,
-                        )
+                        .where((e) {
+                          final usdPrice = e.usdPrice?.price?.toDouble() ?? 0.0;
+                          return usdPrice > 0;
+                        })
                         .cast<Coin>()
                         .toList();
                     return MarketMakerBotFormContent(coins: coins);
@@ -101,7 +128,7 @@ class _MakerFormDesktopLayout extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 20),
             child: SingleChildScrollView(
-              controller: ScrollController(),
+              controller: _orderbookScrollController,
               child: const MarketMakerBotOrderbook(),
             ),
           ),
@@ -111,14 +138,33 @@ class _MakerFormDesktopLayout extends StatelessWidget {
   }
 }
 
-class _MakerFormMobileLayout extends StatelessWidget {
+class _MakerFormMobileLayout extends StatefulWidget {
   const _MakerFormMobileLayout();
+
+  @override
+  State<_MakerFormMobileLayout> createState() => _MakerFormMobileLayoutState();
+}
+
+class _MakerFormMobileLayoutState extends State<_MakerFormMobileLayout> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       key: const Key('maker-form-layout-scroll'),
-      controller: ScrollController(),
+      controller: _scrollController,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
         child: Column(
@@ -127,9 +173,10 @@ class _MakerFormMobileLayout extends StatelessWidget {
             BlocBuilder<CoinsBloc, CoinsState>(
               builder: (context, state) {
                 final coins = state.walletCoins.values
-                    .where(
-                      (e) => e.usdPrice != null && e.usdPrice!.price > 0,
-                    )
+                    .where((e) {
+                      final usdPrice = e.usdPrice?.price?.toDouble() ?? 0.0;
+                      return usdPrice > 0;
+                    })
                     .cast<Coin>()
                     .toList();
                 return MarketMakerBotFormContent(coins: coins);
@@ -145,9 +192,7 @@ class _MakerFormMobileLayout extends StatelessWidget {
 }
 
 class MarketMakerBotOrderbook extends StatelessWidget {
-  const MarketMakerBotOrderbook({
-    super.key,
-  });
+  const MarketMakerBotOrderbook({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +230,7 @@ Order? _getMyOrder(BuildContext context, Rational? price) {
 }
 
 void _onAskClick(BuildContext context, Order order) {
-  context
-      .read<MarketMakerTradeFormBloc>()
-      .add(MarketMakerTradeFormAskOrderbookSelected(order));
+  context.read<MarketMakerTradeFormBloc>().add(
+    MarketMakerTradeFormAskOrderbookSelected(order),
+  );
 }

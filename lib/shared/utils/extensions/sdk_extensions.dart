@@ -20,8 +20,10 @@ extension SdkBalances on Asset {
     return sdk.balances.getBalance(id);
   }
 
-  Stream<BalanceInfo> watchBalance(KomodoDefiSdk sdk,
-      {bool activateIfNeeded = true}) {
+  Stream<BalanceInfo> watchBalance(
+    KomodoDefiSdk sdk, {
+    bool activateIfNeeded = true,
+  }) {
     return sdk.balances.watchBalance(id, activateIfNeeded: activateIfNeeded);
   }
 }
@@ -31,14 +33,13 @@ extension SdkPrices on Asset {
   Future<double?> getFiatPrice(
     KomodoDefiSdk sdk, {
     DateTime? priceDate,
-    String fiatCurrency = 'usdt',
+    QuoteCurrency quoteCurrency = Stablecoin.usdt,
   }) async {
     return (await sdk.marketData.maybeFiatPrice(
       id,
       priceDate: priceDate,
-      fiatCurrency: fiatCurrency,
-    ))
-        ?.toDouble();
+      quoteCurrency: quoteCurrency,
+    ))?.toDouble();
   }
 
   // /// Gets historical fiat prices for specified dates
@@ -57,10 +58,10 @@ extension SdkPrices on Asset {
   /// Watches for price updates and maintains the cache
   Stream<double?> watchFiatPrice(
     KomodoDefiSdk sdk, {
-    String fiatCurrency = 'usdt',
+    QuoteCurrency quoteCurrency = Stablecoin.usdt,
   }) async* {
     while (true) {
-      final price = await getFiatPrice(sdk, fiatCurrency: fiatCurrency);
+      final price = await getFiatPrice(sdk, quoteCurrency: quoteCurrency);
       yield price;
       await Future.delayed(const Duration(minutes: 1));
     }

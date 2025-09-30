@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,16 +23,17 @@ class FiatAmount extends StatelessWidget {
   final TextStyle? style;
 
   const FiatAmount({
-    Key? key,
+    super.key,
     required this.coin,
     required this.amount,
     this.style,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? textStyle =
-        Theme.of(context).textTheme.bodySmall?.merge(style);
+    final TextStyle? textStyle = Theme.of(
+      context,
+    ).textTheme.bodySmall?.merge(style);
 
     return Text(
       getFormattedFiatAmount(context, coin.abbr, amount),
@@ -53,7 +55,9 @@ String getFormattedFiatAmount(
 }
 
 List<Swap> applyFiltersForSwap(
-    List<Swap> swaps, TradingEntitiesFilter entitiesFilterData) {
+  List<Swap> swaps,
+  TradingEntitiesFilter entitiesFilterData,
+) {
   return swaps.where((swap) {
     final String? sellCoin = entitiesFilterData.sellCoin;
     final String? buyCoin = entitiesFilterData.buyCoin;
@@ -64,11 +68,11 @@ List<Swap> applyFiltersForSwap(
 
     if (sellCoin != null && swap.sellCoin != sellCoin) return false;
     if (buyCoin != null && swap.buyCoin != buyCoin) return false;
-    if (startDate != null && swap.myInfo.startedAt < startDate / 1000) {
+    if (startDate != null && (swap.myInfo?.startedAt ?? 0) < startDate / 1000) {
       return false;
     }
     if (endDate != null &&
-        swap.myInfo.startedAt > (endDate + millisecondsIn24H) / 1000) {
+        (swap.myInfo?.startedAt ?? 0) > (endDate + millisecondsIn24H) / 1000) {
       return false;
     }
     if (statuses != null && statuses.isNotEmpty) {
@@ -93,7 +97,9 @@ List<Swap> applyFiltersForSwap(
 }
 
 List<MyOrder> applyFiltersForOrders(
-    List<MyOrder> orders, TradingEntitiesFilter entitiesFilterData) {
+  List<MyOrder> orders,
+  TradingEntitiesFilter entitiesFilterData,
+) {
   return orders.where((order) {
     final String? sellCoin = entitiesFilterData.sellCoin;
     final String? buyCoin = entitiesFilterData.buyCoin;
@@ -118,7 +124,9 @@ List<MyOrder> applyFiltersForOrders(
 }
 
 Map<String, List<String>> getCoinAbbrMapFromOrderList(
-    List<MyOrder> list, bool isSellCoin) {
+  List<MyOrder> list,
+  bool isSellCoin,
+) {
   final Map<String, List<String>> coinAbbrMap = isSellCoin
       ? list.fold<Map<String, List<String>>>({}, (previousValue, element) {
           final List<String> coinAbbrList = previousValue[element.base] ?? [];
@@ -136,7 +144,9 @@ Map<String, List<String>> getCoinAbbrMapFromOrderList(
 }
 
 Map<String, List<String>> getCoinAbbrMapFromSwapList(
-    List<Swap> list, bool isSellCoin) {
+  List<Swap> list,
+  bool isSellCoin,
+) {
   final Map<String, List<String>> coinAbbrMap = isSellCoin
       ? list.fold<Map<String, List<String>>>({}, (previousValue, element) {
           final List<String> coinAbbrList =
@@ -155,8 +165,11 @@ Map<String, List<String>> getCoinAbbrMapFromSwapList(
   return coinAbbrMap;
 }
 
-int getCoinPairsCountFromCoinAbbrMap(Map<String, List<String>> coinAbbrMap,
-    String coinAbbr, String? secondCoinAbbr) {
+int getCoinPairsCountFromCoinAbbrMap(
+  Map<String, List<String>> coinAbbrMap,
+  String coinAbbr,
+  String? secondCoinAbbr,
+) {
   return (coinAbbrMap[coinAbbr] ?? [])
       .where((abbr) => secondCoinAbbr == null || secondCoinAbbr == abbr)
       .toList()
@@ -218,24 +231,16 @@ Future<List<DexFormError>> activateCoinIfNeeded(
   final Coin? coin = coinsRepository.getCoin(abbr);
   if (coin == null) return errors;
 
-  if (!coin.isActive) {
-    try {
-      await coinsRepository.activateCoinsSync([coin]);
-    } catch (e) {
-      errors.add(DexFormError(
-          error: '${LocaleKeys.unableToActiveCoin.tr(args: [coin.abbr])}: $e'));
-    }
-  } else {
-    final Coin? parentCoin = coin.parentCoin;
-    if (parentCoin != null && !parentCoin.isActive) {
-      try {
-        await coinsRepository.activateCoinsSync([parentCoin]);
-      } catch (e) {
-        errors.add(DexFormError(
-            error:
-                '${LocaleKeys.unableToActiveCoin.tr(args: [coin.abbr])}: $e'));
-      }
-    }
+  try {
+    // sdk handles parent activation logic, so simply call
+    // activation here
+    await coinsRepository.activateCoinsSync([coin]);
+  } catch (e) {
+    errors.add(
+      DexFormError(
+        error: '${LocaleKeys.unableToActiveCoin.tr(args: [coin.abbr])}: $e',
+      ),
+    );
   }
 
   return errors;
@@ -324,47 +329,58 @@ Rational? calculateBuyAmount({
 /// print(result); // Output: "\$6.01 +0.001 BTC +0.01 ETH"
 /// ```
 /// unit tests: [testGetTotalFee]
-String getTotalFee(List<TradePreimageExtendedFeeInfo>? totalFeesInitial,
-    Coin? Function(String abbr) getCoin) {
+String getTotalFee(
+  List<TradePreimageExtendedFeeInfo>? totalFeesInitial,
+  Coin? Function(String abbr) getCoin,
+) {
   if (totalFeesInitial == null) return '\$0.00';
 
-  final Map<String, double> normalizedTotals =
-      totalFeesInitial.fold<Map<String, double>>(
-    {'USD': 0},
-    (previousValue, fee) => _combineFees(getCoin(fee.coin), fee, previousValue),
-  );
+  final Map<String, Rational> normalizedTotals = totalFeesInitial
+      .fold<Map<String, Rational>>(
+        {'USD': Rational.zero},
+        (previousValue, fee) =>
+            _combineFees(getCoin(fee.coin), fee, previousValue),
+      );
 
-  final String totalFees =
-      normalizedTotals.entries.fold<String>('', _combineTotalFee);
+  final String totalFees = normalizedTotals.entries.fold<String>(
+    '',
+    _combineTotalFee,
+  );
 
   return totalFees;
 }
 
 final String _nbsp = String.fromCharCode(0x00A0);
 String _combineTotalFee(
-    String previousValue, MapEntry<String, double> element) {
-  final double amount = element.value;
+  String previousValue,
+  MapEntry<String, Rational> element,
+) {
+  final Rational amount = element.value;
   final String coin = element.key;
-  if (amount == 0) return previousValue;
+  if (amount == Rational.zero) return previousValue;
 
   if (previousValue.isNotEmpty) previousValue += ' +$_nbsp';
   if (coin == 'USD') {
-    previousValue += '\$${cutTrailingZeros(formatAmt(amount))}';
+    previousValue += '\$${cutTrailingZeros(formatAmt(amount.toDouble()))}';
   } else {
     previousValue +=
-        '${cutTrailingZeros(formatAmt(amount))}$_nbsp${Coin.normalizeAbbr(coin)}';
+        '${cutTrailingZeros(formatAmt(amount.toDouble()))}$_nbsp${Coin.normalizeAbbr(coin)}';
   }
   return previousValue;
 }
 
-Map<String, double> _combineFees(Coin? coin, TradePreimageExtendedFeeInfo fee,
-    Map<String, double> previousValue) {
-  final feeAmount = double.tryParse(fee.amount) ?? 0;
-  final double feeUsdAmount = feeAmount * (coin?.usdPrice?.price ?? 0);
+Map<String, Rational> _combineFees(
+  Coin? coin,
+  TradePreimageExtendedFeeInfo fee,
+  Map<String, Rational> previousValue,
+) {
+  final feeAmount = Rational.tryParse(fee.amount) ?? Rational.zero;
+  final feeUsdAmount =
+      feeAmount * (coin?.usdPrice?.price ?? Decimal.zero).toRational();
 
-  if (feeUsdAmount > 0) {
+  if (feeUsdAmount > Rational.zero) {
     previousValue['USD'] = previousValue['USD']! + feeUsdAmount;
-  } else if (feeAmount > 0) {
+  } else if (feeAmount > Rational.zero) {
     previousValue[fee.coin] = feeAmount;
   }
   return previousValue;
@@ -410,7 +426,10 @@ Rational getFractionOfAmount(Rational amount, double fraction) {
 /// print(result); // Output: (200, 2)
 /// ```
 (Rational?, Rational?)? processBuyAmountAndPrice(
-    Rational? sellAmount, Rational? price, Rational? buyAmount) {
+  Rational? sellAmount,
+  Rational? price,
+  Rational? buyAmount,
+) {
   if (sellAmount == null) return null;
   if (price == null && buyAmount == null) return null;
   if (price != null) {

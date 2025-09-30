@@ -45,6 +45,7 @@ class _FillFormRecipientAddressState extends State<FillFormRecipientAddress> {
                 UiTextFormField(
                   key: const Key('withdraw-recipient-address-input'),
                   controller: _addressController,
+                  autofocus: true,
                   autocorrect: false,
                   textInputAction: TextInputAction.next,
                   enableInteractiveSelection: true,

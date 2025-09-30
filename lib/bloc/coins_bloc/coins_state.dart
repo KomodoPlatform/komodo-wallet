@@ -7,7 +7,6 @@ class CoinsState extends Equatable {
   CoinsState({
     required Map<String, Coin> coins,
     required Map<String, Coin> walletCoins,
-    required this.loginActivationFinished,
     required this.pubkeys,
     required this.prices,
   })  : coins = _filterExcludedAssets(coins),
@@ -16,20 +15,18 @@ class CoinsState extends Equatable {
   factory CoinsState.initial() => CoinsState(
         coins: const {},
         walletCoins: const {},
-        loginActivationFinished: false,
         pubkeys: const {},
         prices: const {},
       );
 
   final Map<String, Coin> coins;
   final Map<String, Coin> walletCoins;
-  final bool loginActivationFinished;
   final Map<String, AssetPubkeys> pubkeys;
   final Map<String, CexPrice> prices;
 
   @override
   List<Object> get props =>
-      [coins, walletCoins, loginActivationFinished, pubkeys, prices];
+      [coins, walletCoins, pubkeys, prices];
 
   /// Creates a copy of the current state with the option to update
   /// specific fields.
@@ -38,7 +35,6 @@ class CoinsState extends Equatable {
   CoinsState copyWith({
     Map<String, Coin>? coins,
     Map<String, Coin>? walletCoins,
-    bool? loginActivationFinished,
     Map<String, AssetPubkeys>? pubkeys,
     Map<String, CexPrice>? prices,
   }) {
@@ -53,8 +49,6 @@ class CoinsState extends Equatable {
     return CoinsState(
       coins: coinsWithoutExcludedCoins,
       walletCoins: walletCoinsWithoutExcludedCoins,
-      loginActivationFinished:
-          loginActivationFinished ?? this.loginActivationFinished,
       pubkeys: pubkeys ?? this.pubkeys,
       prices: prices ?? this.prices,
     );
@@ -76,7 +70,7 @@ class CoinsState extends Equatable {
 
   /// Gets the 24h price change percentage for a given asset ID
   double? get24hChangeForAsset(AssetId assetId) {
-    return getPriceForAsset(assetId)?.change24h;
+    return getPriceForAsset(assetId)?.change24h?.toDouble();
   }
 
   /// Calculates the USD price for a given amount of a coin
@@ -96,7 +90,7 @@ class CoinsState extends Equatable {
     final Coin? coin = coins[coinAbbr];
     final double? parsedAmount = double.tryParse(amount);
     final CexPrice? cexPrice = prices[coinAbbr.toUpperCase()];
-    final double? usdPrice = cexPrice?.price;
+    final double? usdPrice = cexPrice?.price?.toDouble();
 
     if (coin == null || usdPrice == null || parsedAmount == null) {
       return null;

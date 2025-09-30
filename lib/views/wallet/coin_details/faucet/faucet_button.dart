@@ -33,8 +33,10 @@ class _FaucetButtonState extends State<FaucetButton> {
 
     return BlocConsumer<FaucetBloc, FaucetState>(
       listenWhen: (previous, current) {
-        final isLoading = current is FaucetRequestInProgress && current.address == widget.address.address;
-        final didStopLoading = previous is FaucetRequestInProgress && previous.address == widget.address.address;
+        final isLoading = current is FaucetRequestInProgress &&
+            current.address == widget.address.address;
+        final didStopLoading = previous is FaucetRequestInProgress &&
+            previous.address == widget.address.address;
 
         return isLoading || didStopLoading;
       },
@@ -57,8 +59,8 @@ class _FaucetButtonState extends State<FaucetButton> {
         }
       },
       builder: (context, state) {
-        final isLoading =
-            state is FaucetRequestInProgress && state.address == widget.address.address;
+        final isLoading = state is FaucetRequestInProgress &&
+            state.address == widget.address.address;
         return Padding(
           padding: EdgeInsets.only(left: isMobile ? 4 : 8),
           child: Container(
@@ -68,8 +70,9 @@ class _FaucetButtonState extends State<FaucetButton> {
                   : themeData.colorScheme.tertiary,
               borderRadius: BorderRadius.circular(16.0),
             ),
-            child: UiPrimaryButton.flexible(
+            child: UiPrimaryButton(
               key: Key('coin-details-faucet-button-${widget.address.address}'),
+              height: isMobile ? 24.0 : 32.0,
               backgroundColor: themeData.colorScheme.tertiary,
               onPressed: isLoading
                   ? null
@@ -79,22 +82,25 @@ class _FaucetButtonState extends State<FaucetButton> {
                             address: widget.address.address,
                           ));
                     },
-              padding: EdgeInsets.symmetric(
-                vertical: isMobile ? 6.0 : 8.0,
-                horizontal: isMobile ? 8.0 : 12.0,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.local_drink_rounded,
-                      color: Colors.blue, size: isMobile ? 14 : 16),
-                  Text(
-                    LocaleKeys.faucet.tr(),
-                    style: TextStyle(
-                        fontSize: isMobile ? 9 : 12,
-                        fontWeight: FontWeight.w500),
-                  ),
-                ],
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: isMobile ? 6.0 : 8.0,
+                  horizontal: isMobile ? 8.0 : 12.0,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.local_drink_rounded,
+                        color: Colors.blue, size: isMobile ? 14 : 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      LocaleKeys.faucet.tr(),
+                      style: TextStyle(
+                          fontSize: isMobile ? 9 : 12,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

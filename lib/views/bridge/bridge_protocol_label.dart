@@ -1,9 +1,8 @@
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:komodo_ui/komodo_ui.dart' show AssetIcon;
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
-import 'package:web_dex/model/coin_utils.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 class BridgeProtocolLabel extends StatelessWidget {
@@ -36,7 +35,7 @@ class BridgeProtocolLabel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CoinIcon(coin.abbr, size: 16),
+          AssetIcon.ofTicker(coin.abbr, size: 16),
           const SizedBox(width: 6),
           _buildText(backgroundColor),
         ],
@@ -48,7 +47,7 @@ class BridgeProtocolLabel extends StatelessWidget {
     return Text(
       coin.type == CoinType.utxo
           ? coin.abbr
-          : getCoinTypeName(coin.type).toUpperCase(),
+          : coin.typeName.toUpperCase(),
       style: TextStyle(
         color: ThemeData.estimateBrightnessForColor(protocolColor) ==
                 Brightness.dark

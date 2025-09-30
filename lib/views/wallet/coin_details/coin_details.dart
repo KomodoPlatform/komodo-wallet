@@ -4,7 +4,11 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_event.dart';
+import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/portfolio_events.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_details_info.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
 import 'package:web_dex/views/wallet/coin_details/message_signing/message_signing_screen.dart';
@@ -14,10 +18,10 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/withdraw_form.da
 
 class CoinDetails extends StatefulWidget {
   const CoinDetails({
-    Key? key,
+    super.key,
     required this.coin,
     required this.onBackButtonPressed,
-  }) : super(key: key);
+  });
 
   final Coin coin;
   final VoidCallback onBackButtonPressed;
@@ -38,6 +42,16 @@ class _CoinDetailsState extends State<CoinDetails> {
     _txHistoryBloc = context.read<TransactionHistoryBloc>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _txHistoryBloc.add(TransactionHistorySubscribe(coin: widget.coin));
+      final walletType =
+          context.read<AuthBloc>().state.currentUser?.wallet.config.type.name ??
+              '';
+      context.read<AnalyticsBloc>().logEvent(
+            AssetViewedEventData(
+              assetSymbol: widget.coin.abbr,
+              assetNetwork: widget.coin.protocolType,
+              walletType: walletType,
+            ),
+          );
     });
     super.initState();
   }

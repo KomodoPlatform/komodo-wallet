@@ -1,82 +1,56 @@
-import 'package:equatable/equatable.dart';
+import 'package:decimal/decimal.dart';
+import 'package:equatable/equatable.dart' show Equatable;
+import 'package:flutter/foundation.dart' show ValueGetter;
+import 'package:komodo_cex_market_data/komodo_cex_market_data.dart'
+    as sdk_types;
+import 'package:komodo_defi_types/komodo_defi_types.dart' show AssetId;
 
-enum CexDataProvider {
-  binance,
-  coingecko,
-  coinpaprika,
-  nomics,
-  unknown,
-}
+typedef CexDataProvider = sdk_types.CexDataProvider;
 
 CexDataProvider cexDataProvider(String string) {
   return CexDataProvider.values.firstWhere(
-      (e) => e.toString().split('.').last == string,
-      orElse: () => CexDataProvider.unknown);
+    (e) => e.toString().split('.').last == string,
+    orElse: () => CexDataProvider.unknown,
+  );
 }
 
+@Deprecated(
+  'Use the KomodoDefiSdk.marketData interface instead. '
+  'This class will be removed in the future, and is only being kept during '
+  'the transition to the new SDK.',
+)
+/// A temporary class to hold the price and change24h for a coin in a structure
+/// similar to the one used in the legacy coins bloc during the transition to
+/// to the SDK.
 class CexPrice extends Equatable {
   const CexPrice({
-    required this.ticker,
+    required this.assetId,
     required this.price,
-    this.lastUpdated,
-    this.priceProvider,
-    this.change24h,
-    this.changeProvider,
-    this.volume24h,
-    this.volumeProvider,
+    required this.change24h,
+    required this.lastUpdated,
   });
 
-  final String ticker;
-  final double price;
-  final DateTime? lastUpdated;
-  final CexDataProvider? priceProvider;
-  final double? volume24h;
-  final CexDataProvider? volumeProvider;
-  final double? change24h;
-  final CexDataProvider? changeProvider;
+  final AssetId assetId;
+  final Decimal? price;
+  final Decimal? change24h;
+  final DateTime lastUpdated;
 
   @override
-  String toString() {
-    return 'CexPrice(ticker: $ticker, price: $price)';
-  }
+  List<Object?> get props => [assetId, price, change24h, lastUpdated];
 
-  factory CexPrice.fromJson(Map<String, dynamic> json) {
+  CexPrice copyWith({
+    ValueGetter<Decimal>? price,
+    ValueGetter<Decimal>? change24h,
+    DateTime? lastUpdated,
+  }) {
     return CexPrice(
-      ticker: json['ticker'] as String,
-      price: (json['price'] as num).toDouble(),
-      lastUpdated: json['lastUpdated'] == null
-          ? null
-          : DateTime.parse(json['lastUpdated'] as String),
-      priceProvider: cexDataProvider(json['priceProvider'] as String),
-      volume24h: (json['volume24h'] as num?)?.toDouble(),
-      volumeProvider: cexDataProvider(json['volumeProvider'] as String),
-      change24h: (json['change24h'] as num?)?.toDouble(),
-      changeProvider: cexDataProvider(json['changeProvider'] as String),
+      assetId: assetId,
+      price: price?.call() ?? this.price,
+      change24h: change24h?.call() ?? this.change24h,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'ticker': ticker,
-      'price': price,
-      'lastUpdated': lastUpdated?.toIso8601String(),
-      'priceProvider': priceProvider?.toString(),
-      'volume24h': volume24h,
-      'volumeProvider': volumeProvider?.toString(),
-      'change24h': change24h,
-      'changeProvider': changeProvider?.toString(),
-    };
-  }
-
-  @override
-  List<Object?> get props => [
-        ticker,
-        price,
-        lastUpdated,
-        priceProvider,
-        volume24h,
-        volumeProvider,
-        change24h,
-        changeProvider,
-      ];
+  // Intentionally excluding to/from JSON methods since this class should not be
+  // used outside of the legacy coins bloc, especially not for serialization.
 }

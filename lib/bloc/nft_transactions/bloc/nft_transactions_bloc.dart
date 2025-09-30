@@ -41,7 +41,7 @@ class NftTransactionsBloc extends Bloc<NftTxnEvent, NftTxnState> {
     on<NftTxnEventFullFilterChanged>(_changeFullFilter);
     on<NftTxnEventNoLogin>(_noLogin);
 
-    _authorizationSubscription = kdfSdk.auth.authStateChanges.listen((event) {
+    _authorizationSubscription = kdfSdk.auth.watchCurrentUser().listen((event) {
       final bool prevLoginState = _isLoggedIn;
       _isLoggedIn = event != null;
 

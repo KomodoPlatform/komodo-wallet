@@ -43,8 +43,8 @@ class FiatPaymentMethodsGrid extends StatelessWidget {
         child: Text(
           LocaleKeys.noOptionsToPurchase.tr(
             args: [
-              state.selectedCoin.value!.symbol,
-              state.selectedFiat.value!.symbol,
+              state.selectedAsset.value!.getAbbr(),
+              state.selectedFiat.value!.getAbbr(),
             ],
           ),
           textAlign: TextAlign.center,

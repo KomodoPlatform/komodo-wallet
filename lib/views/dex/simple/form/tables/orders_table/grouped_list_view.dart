@@ -1,29 +1,28 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table_item.dart';
-import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:get_it/get_it.dart';
 
 class GroupedListView<T> extends StatelessWidget {
   const GroupedListView({
-    super.key,
     required this.items,
     required this.onSelect,
     required this.maxHeight,
+    super.key,
   });
 
   final List<T> items;
-  final Function(T) onSelect;
+  final void Function(T) onSelect;
   final double maxHeight;
 
   @override
@@ -33,13 +32,14 @@ class GroupedListView<T> extends StatelessWidget {
 
     // Add right padding to the last column if there are grouped items
     // to align the grouped and non-grouped
-    final areGroupedItemsPresent = groupedItems.isNotEmpty &&
+    final areGroupedItemsPresent =
+        groupedItems.isNotEmpty &&
         groupedItems.entries
             .where((element) => element.value.length > 1)
             .isNotEmpty;
     final rightPadding = areGroupedItemsPresent
         ? const EdgeInsets.only(right: 52)
-        : const EdgeInsets.all(0);
+        : EdgeInsets.zero;
 
     return Flexible(
       child: ConstrainedBox(
@@ -64,8 +64,9 @@ class GroupedListView<T> extends StatelessWidget {
                         coin: _createHeaderCoinData(context, group.value),
                         onSelect: onSelect,
                         isGroupHeader: true,
-                        subtitleText: LocaleKeys.nNetworks
-                            .tr(args: [group.value.length.toString()]),
+                        subtitleText: LocaleKeys.nNetworks.tr(
+                          args: [group.value.length.toString()],
+                        ),
                       ),
                       children: group.value
                           .map((item) => buildItem(context, item, onSelect))
@@ -87,8 +88,8 @@ class GroupedListView<T> extends StatelessWidget {
   Widget buildItem(
     BuildContext context,
     T item,
-    dynamic onSelect, {
-    EdgeInsets padding = const EdgeInsets.all(0),
+    void Function(T) onSelect, {
+    EdgeInsets padding = EdgeInsets.zero,
   }) {
     return Padding(
       padding: padding,
@@ -102,9 +103,12 @@ class GroupedListView<T> extends StatelessWidget {
 
   Coin _createHeaderCoinData(BuildContext context, List<T> list) {
     final firstCoin = getCoin(context, list.first);
-    final KomodoDefiSdk sdk = GetIt.I<KomodoDefiSdk>();
+    final sdk = GetIt.I<KomodoDefiSdk>();
 
-    final totalBalance = list.fold(BalanceInfo.zero(), (sum, item) {
+    final totalBalance = list.fold<BalanceInfo>(BalanceInfo.zero(), (
+      sum,
+      item,
+    ) {
       final coin = getCoin(context, item);
       final coinBalance = sdk.balances.lastKnown(coin.id) ?? BalanceInfo.zero();
       return sum + coinBalance;
@@ -113,16 +117,14 @@ class GroupedListView<T> extends StatelessWidget {
     final coin = firstCoin.dummyCopyWithoutProtocolData();
     // Since we can't use 'balance' property directly anymore, we need to
     // construct the coin without using the balance property
-    return coin.copyWith(
-      sendableBalance: totalBalance.spendable.toDouble(),
-    );
+    return coin.copyWith(sendableBalance: totalBalance.spendable.toDouble());
   }
 
   Map<String, List<T>> _groupList(BuildContext context, List<T> list) {
-    Map<String, List<T>> grouped = {};
+    final Map<String, List<T>> grouped = {};
     for (final item in list) {
       final coin = getCoin(context, item);
-      grouped.putIfAbsent(coin.name, () => []).add(item);
+      grouped.putIfAbsent(coin.displayName, () => []).add(item);
     }
     return grouped;
   }
@@ -131,16 +133,11 @@ class GroupedListView<T> extends StatelessWidget {
     final coinsState = RepositoryProvider.of<CoinsBloc>(context).state;
     if (item is Coin) {
       return item as Coin;
+    } else if (item is SelectItem) {
+      return (coinsState.walletCoins[item.id] ?? coinsState.coins[item.id])!;
+    } else {
+      final String coinId = (item as BestOrder).coin;
+      return (coinsState.walletCoins[coinId] ?? coinsState.coins[coinId])!;
     }
-
-    final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
-
-    final idString = (item is SelectItem)
-        ? (item as SelectItem).id
-        : (item as BestOrder).coin;
-
-    return (coinsState.walletCoins[idString] ?? coinsState.coins[idString]) ??
-        coinsRepo.getCoin(idString) ??
-        (throw Exception('Coin $idString not found'));
   }
 }

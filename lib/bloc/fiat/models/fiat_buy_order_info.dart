@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/bloc/fiat/models/fiat_buy_order_error.dart';
 import 'package:web_dex/shared/utils/utils.dart';
@@ -20,32 +21,14 @@ class FiatBuyOrderInfo extends Equatable {
     required this.error,
   });
 
-  const FiatBuyOrderInfo.none()
+  FiatBuyOrderInfo.fromCheckoutUrl(String url)
       : this(
           id: '',
           accountId: '',
           accountReference: '',
           orderType: '',
           fiatCode: '',
-          fiatAmount: 0.0,
-          coinCode: '',
-          walletAddress: '',
-          extAccountId: '',
-          network: '',
-          paymentCode: '',
-          checkoutUrl: '',
-          createdAt: '',
-          error: const FiatBuyOrderError.none(),
-        );
-
-  const FiatBuyOrderInfo.fromCheckoutUrl(String url)
-      : this(
-          id: '',
-          accountId: '',
-          accountReference: '',
-          orderType: '',
-          fiatCode: '',
-          fiatAmount: 0.0,
+          fiatAmount: Decimal.zero,
           coinCode: '',
           walletAddress: '',
           extAccountId: '',
@@ -56,12 +39,42 @@ class FiatBuyOrderInfo extends Equatable {
           error: const FiatBuyOrderError.none(),
         );
 
+  FiatBuyOrderInfo.empty()
+      : this(
+          id: '',
+          accountId: '',
+          accountReference: '',
+          orderType: '',
+          fiatCode: '',
+          fiatAmount: Decimal.zero,
+          coinCode: '',
+          walletAddress: '',
+          extAccountId: '',
+          network: '',
+          paymentCode: '',
+          checkoutUrl: '',
+          createdAt: '',
+          error: const FiatBuyOrderError.none(),
+        );
+
   factory FiatBuyOrderInfo.fromJson(Map<String, dynamic> json) {
-    Map<String, dynamic> data = json;
-    if (json['data'] != null) {
-      final orderData = json['data'] as Map<String, dynamic>? ?? {};
-      data = orderData['order'] as Map<String, dynamic>? ?? {};
+    final jsonData = json['data'] as Map<String, dynamic>?;
+    final errors = json['errors'] as Map<String, dynamic>?;
+
+    if (json['data'] == null && errors == null) {
+      return FiatBuyOrderInfo.empty().copyWith(
+        error:
+            const FiatBuyOrderError.parsing(message: 'Missing order payload'),
+      );
     }
+
+    if (jsonData == null && errors != null) {
+      return FiatBuyOrderInfo.empty().copyWith(
+        error: FiatBuyOrderError.fromJson(errors),
+      );
+    }
+
+    final data = jsonData!['order'] as Map<String, dynamic>;
 
     return FiatBuyOrderInfo(
       id: data['id'] as String? ?? '',
@@ -69,7 +82,7 @@ class FiatBuyOrderInfo extends Equatable {
       accountReference: data['account_reference'] as String? ?? '',
       orderType: data['order_type'] as String? ?? '',
       fiatCode: data['fiat_code'] as String? ?? '',
-      fiatAmount: assertDouble(data['fiat_amount']),
+      fiatAmount: Decimal.parse(data['fiat_amount']?.toString() ?? '0'),
       coinCode: data['coin_code'] as String? ?? '',
       walletAddress: data['wallet_address'] as String? ?? '',
       extAccountId: data['ext_account_id'] as String? ?? '',
@@ -77,17 +90,18 @@ class FiatBuyOrderInfo extends Equatable {
       paymentCode: data['payment_code'] as String? ?? '',
       checkoutUrl: data['checkout_url'] as String? ?? '',
       createdAt: assertString(data['created_at']) ?? '',
-      error: data['errors'] != null
-          ? FiatBuyOrderError.fromJson(data['errors'] as Map<String, dynamic>)
+      error: errors != null
+          ? FiatBuyOrderError.fromJson(errors)
           : const FiatBuyOrderError.none(),
     );
   }
+
   final String id;
   final String accountId;
   final String accountReference;
   final String orderType;
   final String fiatCode;
-  final double fiatAmount;
+  final Decimal fiatAmount;
   final String coinCode;
   final String walletAddress;
   final String extAccountId;
@@ -124,7 +138,7 @@ class FiatBuyOrderInfo extends Equatable {
           'account_reference': accountReference,
           'order_type': orderType,
           'fiat_code': fiatCode,
-          'fiat_amount': fiatAmount,
+          'fiat_amount': fiatAmount.toString(),
           'coin_code': coinCode,
           'wallet_address': walletAddress,
           'ext_account_id': extAccountId,
@@ -144,7 +158,7 @@ class FiatBuyOrderInfo extends Equatable {
     String? accountReference,
     String? orderType,
     String? fiatCode,
-    double? fiatAmount,
+    Decimal? fiatAmount,
     String? coinCode,
     String? walletAddress,
     String? extAccountId,

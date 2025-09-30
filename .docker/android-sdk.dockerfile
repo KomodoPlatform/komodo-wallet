@@ -4,7 +4,8 @@ FROM docker.io/ubuntu:22.04
 # LABEL org.opencontainers.image.source=https://github.com/cirruslabs/docker-images-android
 
 ENV USER="komodo"
-ENV USER_ID=1000
+ARG BUILD_USER_ID=1000
+ENV USER_ID=${BUILD_USER_ID}
 
 RUN apt update && apt install -y sudo && \
     useradd -u $USER_ID -m $USER && \ 
@@ -25,11 +26,11 @@ ENV ANDROID_SDK_ROOT=$ANDROID_HOME \
 ENV ANDROID_SDK_TOOLS_VERSION=11076708
 
 # https://developer.android.com/studio/releases/build-tools
-ENV ANDROID_PLATFORM_VERSION=35
+ENV ANDROID_PLATFORM_VERSION=36
 ENV ANDROID_BUILD_TOOLS_VERSION=35.0.1
 
 # https://developer.android.com/ndk/downloads
-ENV ANDROID_NDK_VERSION=27.2.12479018
+ENV ANDROID_NDK_VERSION=27.3.13750724
 
 RUN set -o xtrace \
     && sudo chown -R $USER:$USER /opt \
@@ -39,11 +40,11 @@ RUN set -o xtrace \
     wget zip unzip git openssh-client curl bc software-properties-common build-essential \
     ruby-full ruby-bundler libstdc++6 libpulse0 libglu1-mesa locales lcov libsqlite3-dev --no-install-recommends \
     # For Linux build
-    xz-utils \
+    xz-utils acl \
     clang cmake git \
     ninja-build pkg-config \
     libgtk-3-dev liblzma-dev \
-    libstdc++-12-dev \
+    libstdc++-12-dev libsecret-1-dev \
     # for x86 emulators
     libxtst6 libnss3-dev libnspr4 libxss1 libatk-bridge2.0-0 libgtk-3-0 libgdk-pixbuf2.0-0 \
     && sudo rm -rf /var/lib/apt/lists/* \
@@ -66,4 +67,5 @@ RUN set -o xtrace \
     "platforms;android-$ANDROID_PLATFORM_VERSION" \
     "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
     && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
-    && sudo chown -R $USER:$USER $ANDROID_HOME
+    && sudo chown -R $USER:$USER $ANDROID_HOME \
+    && sudo setfacl -R -m u:$USER:rwX -m d:u:$USER:rwX /usr/local

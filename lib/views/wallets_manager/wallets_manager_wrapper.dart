@@ -10,11 +10,17 @@ class WalletsManagerWrapper extends StatefulWidget {
   const WalletsManagerWrapper({
     required this.eventType,
     this.onSuccess,
+    this.selectedWallet,
+    this.initialHdMode = false,
+    this.rememberMe = false,
     super.key = const Key('wallets-manager-wrapper'),
   });
 
   final Function(Wallet)? onSuccess;
   final WalletsManagerEventType eventType;
+  final Wallet? selectedWallet;
+  final bool initialHdMode;
+  final bool rememberMe;
 
   @override
   State<WalletsManagerWrapper> createState() => _WalletsManagerWrapperState();
@@ -25,6 +31,7 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
   @override
   void initState() {
     super.initState();
+    _selectedWalletType = widget.selectedWallet?.config.type;
   }
 
   @override
@@ -35,14 +42,13 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
         children: [
           Text(
             LocaleKeys.walletsTypeListTitle.tr(),
-            style:
-                Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontSize: 16),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 30.0),
-            child: WalletsTypeList(
-              onWalletTypeClick: _onWalletTypeClick,
-            ),
+            child: WalletsTypeList(onWalletTypeClick: _onWalletTypeClick),
           ),
         ],
       );
@@ -53,6 +59,11 @@ class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
       walletType: selectedWalletType,
       close: _closeWalletManager,
       onSuccess: widget.onSuccess ?? (_) {},
+      selectedWallet: widget.selectedWallet,
+      initialHdMode: widget.selectedWallet?.config.type == WalletType.hdwallet
+          ? true
+          : widget.initialHdMode,
+      rememberMe: widget.rememberMe,
     );
   }
 

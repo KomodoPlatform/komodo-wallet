@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 
 enum MainMenuValue {
@@ -13,11 +12,10 @@ enum MainMenuValue {
   support,
   none;
 
-  static MainMenuValue defaultMenu() =>
-      kIsWalletOnly ? MainMenuValue.wallet : MainMenuValue.dex;
+  static MainMenuValue defaultMenu() => MainMenuValue.wallet;
 
-  bool isEnabledInCurrentMode() {
-    return !(kIsWalletOnly && isDisabledWhenWalletOnly);
+  bool isEnabledInCurrentMode({required bool tradingEnabled}) {
+    return tradingEnabled || !isDisabledWhenWalletOnly;
   }
 
   // Getter to determine if the item is disabled if the wallet is in wallet-only mode
