@@ -740,7 +740,8 @@ class CoinsRepo {
     bool notifyListeners = true,
     bool addToWalletMetadata = true,
   }) async {
-    for (final asset in assets) {
+    final inactiveAssets = await assets.removeActiveAssets(_kdfSdk);
+    for (final asset in inactiveAssets) {
       final coin = coins.firstWhere((coin) => coin.id == asset.id);
       await _activateZhtlcAsset(
         asset,

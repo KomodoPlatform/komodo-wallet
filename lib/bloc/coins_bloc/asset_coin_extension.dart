@@ -243,4 +243,33 @@ extension CoinListOps on List<Coin> {
       (coin) => activeCoinsMap.contains(coin.id),
     ).unmodifiable().toList();
   }
+
+  Future<List<Coin>> removeActiveCoins(KomodoDefiSdk sdk) async {
+    final activeCoins = await sdk.assets.getActivatedAssets();
+    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
+
+    return where(
+      (coin) => !activeCoinsMap.contains(coin.id),
+    ).unmodifiable().toList();
+  }
+}
+
+extension AssetListOps on List<Asset> {
+  Future<List<Asset>> removeInactiveAssets(KomodoDefiSdk sdk) async {
+    final activeAssets = await sdk.assets.getActivatedAssets();
+    final activeAssetsMap = activeAssets.map((e) => e.id).toSet();
+
+    return where(
+      (asset) => activeAssetsMap.contains(asset.id),
+    ).unmodifiable().toList();
+  }
+
+  Future<List<Asset>> removeActiveAssets(KomodoDefiSdk sdk) async {
+    final activeAssets = await sdk.assets.getActivatedAssets();
+    final activeAssetsMap = activeAssets.map((e) => e.id).toSet();
+
+    return where(
+      (asset) => !activeAssetsMap.contains(asset.id),
+    ).unmodifiable().toList();
+  }
 }
