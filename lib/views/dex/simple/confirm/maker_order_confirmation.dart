@@ -328,9 +328,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       ),
     );
 
-    final int callStart = DateTime.now().millisecondsSinceEpoch;
     final TextError? error = await makerFormBloc.makeOrder();
-    final int durationMs = DateTime.now().millisecondsSinceEpoch - callStart;
 
     final tradingEntitiesBloc =
         // ignore: use_build_context_synchronously
@@ -343,29 +341,17 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     setState(() => _inProgress = false);
 
     if (error != null) {
-      context.read<AnalyticsBloc>().logEvent(
-        SwapFailedEventData(
-          fromAsset: sellCoin,
-          toAsset: buyCoin,
-          failStage: 'order_submission',
-          walletType: walletType,
-          durationMs: durationMs,
-        ),
-      );
+      // Note: We don't log swap_failure here because the swap hasn't started yet.
+      // This is just an order submission error. Actual swap success/failure
+      // events are logged in trading_details.dart when the swap completes.
       setState(() => _errorMessage = error.error);
       return;
     }
 
-    context.read<AnalyticsBloc>().logEvent(
-      SwapSucceededEventData(
-        fromAsset: sellCoin,
-        toAsset: buyCoin,
-        amount: makerFormBloc.sellAmount!.toDouble(),
-        fee: 0, // Fee data not available
-        walletType: walletType,
-        durationMs: durationMs,
-      ),
-    );
+    // Note: We don't log swap_success here because creating a maker order
+    // doesn't mean the swap succeeded. The swap will happen later when a taker
+    // matches this order. Swap success/failure events are logged in
+    // trading_details.dart when the swap actually completes.
     makerFormBloc.clear();
     widget.onCreateOrder();
   }

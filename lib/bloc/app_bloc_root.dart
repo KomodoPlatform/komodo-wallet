@@ -230,6 +230,7 @@ class AppBlocRoot extends StatelessWidget {
               kdfSdk: komodoDefiSdk,
               dexRepository: dexRepository,
               coinsRepository: coinsRepository,
+              analyticsBloc: BlocProvider.of<AnalyticsBloc>(context),
             ),
           ),
           BlocProvider<BridgeBloc>(
