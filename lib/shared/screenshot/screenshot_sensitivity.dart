@@ -9,32 +9,48 @@ class ScreenshotSensitivityController extends ChangeNotifier {
 
   void enter() {
     _depth += 1;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   void exit() {
     if (_depth > 0) {
       _depth -= 1;
-      notifyListeners();
+      _safeNotifyListeners();
     }
+  }
+
+  /// Safely notify listeners, avoiding calls during widget tree locked phases
+  /// and calling build during a build or dismount.
+  void _safeNotifyListeners() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (hasListeners) {
+        notifyListeners();
+      }
+    });
   }
 }
 
 /// Inherited notifier providing access to the ScreenshotSensitivityController.
-class ScreenshotSensitivity extends InheritedNotifier<ScreenshotSensitivityController> {
+class ScreenshotSensitivity
+    extends InheritedNotifier<ScreenshotSensitivityController> {
   const ScreenshotSensitivity({
     super.key,
     required ScreenshotSensitivityController controller,
-    required Widget child,
-  }) : super(notifier: controller, child: child);
+    required super.child,
+  }) : super(notifier: controller);
 
   static ScreenshotSensitivityController? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ScreenshotSensitivity>()?.notifier;
+    return context
+        .dependOnInheritedWidgetOfExactType<ScreenshotSensitivity>()
+        ?.notifier;
   }
 
   static ScreenshotSensitivityController of(BuildContext context) {
     final controller = maybeOf(context);
-    assert(controller != null, 'ScreenshotSensitivity not found in widget tree');
+    assert(
+      controller != null,
+      'ScreenshotSensitivity not found in widget tree',
+    );
     return controller!;
   }
 }
@@ -51,21 +67,31 @@ class ScreenshotSensitive extends StatefulWidget {
 
 class _ScreenshotSensitiveState extends State<ScreenshotSensitive> {
   ScreenshotSensitivityController? _controller;
+  bool _hasCalledEnter = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final controller = ScreenshotSensitivity.maybeOf(context);
     if (!identical(controller, _controller)) {
-      _controller?.exit();
+      // Exit the old controller if we were using it
+      if (_hasCalledEnter) {
+        _controller?.exit();
+      }
       _controller = controller;
+      _hasCalledEnter = false;
+      // Enter the new controller - this is safe now due to deferred notification
       _controller?.enter();
+      _hasCalledEnter = true;
     }
   }
 
   @override
   void dispose() {
-    _controller?.exit();
+    // Exit the controller - this is safe now due to deferred notification
+    if (_hasCalledEnter) {
+      _controller?.exit();
+    }
     super.dispose();
   }
 
@@ -77,4 +103,3 @@ extension ScreenshotSensitivityContextExt on BuildContext {
   bool get isScreenshotSensitive =>
       ScreenshotSensitivity.maybeOf(this)?.isSensitive ?? false;
 }
-
