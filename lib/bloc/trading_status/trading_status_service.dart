@@ -17,6 +17,12 @@ class TradingStatusService {
 
   /// Current cached trading status
   /// Starts with a restrictive state to prevent race conditions during app startup
+  ///
+  /// TODO: UX Improvement - For faster startup, consider starting with an
+  /// unrestricted state and only apply restrictions once the API responds.
+  /// This would show all assets initially and remove blocked ones when the
+  /// bouncer returns restrictions. Trade-off: Better UX vs. brief exposure of
+  /// potentially blocked assets during initial API call (~100-500ms).
   AppGeoStatus _currentStatus = const AppGeoStatus(
     disallowedFeatures: {DisallowedFeature.trading},
   );

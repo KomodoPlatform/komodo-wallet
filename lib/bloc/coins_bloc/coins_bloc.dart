@@ -89,6 +89,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     // populating coins list. This ensures geo-blocked assets are properly
     // filtered from the start, preventing them from appearing in the UI
     // before filtering is applied.
+    //
+    // TODO: UX Improvement - For faster startup, populate coins immediately
+    // and reactively filter when trading status updates arrive. This would
+    // eliminate startup delay (~100-500ms) but requires UI to handle dynamic
+    // removal of blocked assets. See TradingStatusService._currentStatus for
+    // related trade-offs.
     await _tradingStatusService.initialStatusReady;
 
     emit(state.copyWith(coins: _coinsRepo.getKnownCoinsMap()));

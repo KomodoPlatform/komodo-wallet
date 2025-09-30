@@ -57,6 +57,14 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   /// Filters out geo-blocked assets from a list of coin IDs.
   /// This ensures that blocked assets are not added to wallet metadata during
   /// registration or restoration.
+  ///
+  /// TODO: UX Improvement - For faster wallet creation/restoration, consider
+  /// adding all default coins to metadata initially, then removing blocked ones
+  /// when bouncer status is confirmed. This would require:
+  /// 1. Reactive metadata updates when trading status changes
+  /// 2. Coordinated cleanup across wallet metadata and activated coins
+  /// 3. Handling edge cases where user manually re-adds a blocked coin
+  /// See TradingStatusService._currentStatus for related startup optimizations.
   @override
   List<String> _filterBlockedAssets(List<String> coinIds) {
     return coinIds.where((coinId) {
