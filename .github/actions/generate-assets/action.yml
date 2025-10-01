@@ -39,10 +39,6 @@ inputs:
     default: ""
 
   # Optional Matomo analytics configuration
-  MATOMO_ENABLED:
-    description: "Enable Matomo analytics provider (true/false)"
-    required: false
-    default: ""
   MATOMO_URL:
     description: "Matomo server base URL"
     required: false
@@ -85,7 +81,6 @@ runs:
         TRELLO_LIST_ID: ${{ inputs.TRELLO_LIST_ID }}
         FEEDBACK_API_KEY: ${{ inputs.FEEDBACK_API_KEY }}
         FEEDBACK_PRODUCTION_URL: ${{ inputs.FEEDBACK_PRODUCTION_URL }}
-        MATOMO_ENABLED: ${{ inputs.MATOMO_ENABLED }}
         MATOMO_URL: ${{ inputs.MATOMO_URL }}
         MATOMO_SITE_ID: ${{ inputs.MATOMO_SITE_ID }}
         ANALYTICS_DISABLED: ${{ inputs.ANALYTICS_DISABLED }}
@@ -142,21 +137,20 @@ runs:
           fi
         fi
 
-        # Configure Matomo analytics if provided, otherwise disable analytics in CI
-        if [ -n "$MATOMO_URL" ] && [ -n "$MATOMO_SITE_ID" ] && [ "$MATOMO_ENABLED" != "false" ]; then
+        HAS_MATOMO_CONFIG=false
+        if [ -n "$MATOMO_URL" ] && [ -n "$MATOMO_SITE_ID" ]; then
+          HAS_MATOMO_CONFIG=true
           echo "Adding Matomo analytics configuration"
-          BUILD_CMD="$BUILD_CMD --dart-define=MATOMO_ENABLED=true"
           BUILD_CMD="$BUILD_CMD --dart-define=MATOMO_URL=$MATOMO_URL"
           BUILD_CMD="$BUILD_CMD --dart-define=MATOMO_SITE_ID=$MATOMO_SITE_ID"
-        else
-          # Respect explicit ANALYTICS_DISABLED input if provided
-          if [ "$ANALYTICS_DISABLED" = "true" ]; then
-            echo "Disabling analytics via ANALYTICS_DISABLED input"
-            BUILD_CMD="$BUILD_CMD --dart-define=ANALYTICS_DISABLED=true --dart-define=MATOMO_ENABLED=false"
-          elif [ "$CI" = "true" ]; then
-            echo "CI environment detected without Matomo config. Disabling analytics for this build."
-            BUILD_CMD="$BUILD_CMD --dart-define=CI=true --dart-define=ANALYTICS_DISABLED=true --dart-define=MATOMO_ENABLED=false"
-          fi
+        fi
+
+        if [ "$ANALYTICS_DISABLED" = "true" ]; then
+          echo "Disabling analytics via ANALYTICS_DISABLED input"
+          BUILD_CMD="$BUILD_CMD --dart-define=ANALYTICS_DISABLED=true"
+        elif [ "$CI" = "true" ] && [ "$HAS_MATOMO_CONFIG" != "true" ]; then
+          echo "CI environment detected without Matomo config. Disabling analytics for this build."
+          BUILD_CMD="$BUILD_CMD --dart-define=CI=true --dart-define=ANALYTICS_DISABLED=true"
         fi
 
         # Run flutter build once to download coin icons and config files. 
