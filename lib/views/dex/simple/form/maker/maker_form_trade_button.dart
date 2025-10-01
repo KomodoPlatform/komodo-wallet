@@ -8,6 +8,7 @@ import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/blocs/maker_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/coin.dart';
 
 class MakerFormTradeButton extends StatelessWidget {
   const MakerFormTradeButton({Key? key}) : super(key: key);
@@ -15,59 +16,80 @@ class MakerFormTradeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SystemHealthBloc, SystemHealthState>(
-        builder: (context, systemHealthState) {
-      // Determine if system clock is valid
-      final bool isSystemClockValid =
-          systemHealthState is SystemHealthLoadSuccess &&
-              systemHealthState.isValid;
+      builder: (context, systemHealthState) {
+        // Determine if system clock is valid
+        final bool isSystemClockValid =
+            systemHealthState is SystemHealthLoadSuccess &&
+            systemHealthState.isValid;
 
-      final tradingState = context.watch<TradingStatusBloc>().state;
-      final isTradingEnabled = tradingState.isEnabled;
+        final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
+        final authBloc = context.watch<AuthBloc>();
 
-      final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-      final authBloc = context.watch<AuthBloc>();
+        return StreamBuilder<Coin?>(
+          initialData: makerFormBloc.sellCoin,
+          stream: makerFormBloc.outSellCoin,
+          builder: (context, sellSnapshot) {
+            return StreamBuilder<Coin?>(
+              initialData: makerFormBloc.buyCoin,
+              stream: makerFormBloc.outBuyCoin,
+              builder: (context, buySnapshot) {
+                final tradingState = context.watch<TradingStatusBloc>().state;
+                final isTradingEnabled = tradingState.canTradeAssets([
+                  sellSnapshot.data?.id,
+                  buySnapshot.data?.id,
+                ]);
 
-      return StreamBuilder<bool>(
-          initialData: makerFormBloc.inProgress,
-          stream: makerFormBloc.outInProgress,
-          builder: (context, snapshot) {
-            final bool inProgress = snapshot.data ?? false;
-            final bool disabled = inProgress || !isSystemClockValid;
+                return StreamBuilder<bool>(
+                  initialData: makerFormBloc.inProgress,
+                  stream: makerFormBloc.outInProgress,
+                  builder: (context, snapshot) {
+                    final bool inProgress = snapshot.data ?? false;
+                    final bool disabled = inProgress || !isSystemClockValid;
 
-            return Opacity(
-              opacity: disabled ? 0.8 : 1,
-              child: UiPrimaryButton(
-                key: const Key('make-order-button'),
-                text: isTradingEnabled
-                    ? LocaleKeys.makeOrder.tr()
-                    : LocaleKeys.tradingDisabled.tr(),
-                prefix: inProgress
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: UiSpinner(
-                          width: 10,
-                          height: 10,
-                          strokeWidth: 1,
-                          color: theme.custom.defaultGradientButtonTextColor,
-                        ),
-                      )
-                    : null,
-                onPressed: disabled || !isTradingEnabled
-                    ? null
-                    : () async {
-                        while (!authBloc.state.isSignedIn) {
-                          await Future<dynamic>.delayed(
-                              const Duration(milliseconds: 300));
-                        }
-                        final bool isValid = await makerFormBloc.validate();
-                        if (!isValid) return;
+                    return Opacity(
+                      opacity: disabled ? 0.8 : 1,
+                      child: UiPrimaryButton(
+                        key: const Key('make-order-button'),
+                        text: isTradingEnabled
+                            ? LocaleKeys.makeOrder.tr()
+                            : LocaleKeys.tradingDisabled.tr(),
+                        prefix: inProgress
+                            ? Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: UiSpinner(
+                                  width: 10,
+                                  height: 10,
+                                  strokeWidth: 1,
+                                  color: theme
+                                      .custom
+                                      .defaultGradientButtonTextColor,
+                                ),
+                              )
+                            : null,
+                        onPressed: disabled || !isTradingEnabled
+                            ? null
+                            : () async {
+                                while (!authBloc.state.isSignedIn) {
+                                  await Future<dynamic>.delayed(
+                                    const Duration(milliseconds: 300),
+                                  );
+                                }
+                                final bool isValid = await makerFormBloc
+                                    .validate();
+                                if (!isValid) return;
 
-                        makerFormBloc.showConfirmation = true;
-                      },
-                height: 40,
-              ),
+                                makerFormBloc.showConfirmation = true;
+                              },
+                        height: 40,
+                      ),
+                    );
+                  },
+                );
+              },
             );
-          });
-    });
+          },
+        );
+      },
+    );
   }
 }

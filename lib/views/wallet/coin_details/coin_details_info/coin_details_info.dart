@@ -236,6 +236,9 @@ class _DesktopCoinDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingState = context.watch<TradingStatusBloc>().state;
+    final canTradeCoin = tradingState.canTradeAssets([coin.id]);
+
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: Column(
@@ -263,8 +266,7 @@ class _DesktopCoinDetails extends StatelessWidget {
             child: CoinDetailsCommonButtons(
               isMobile: false,
               selectWidget: setPageType,
-              onClickSwapButton:
-                  context.watch<TradingStatusBloc>().state is TradingEnabled
+              onClickSwapButton: canTradeCoin
                   ? () => _goToSwap(context, coin)
                   : null,
               coin: coin,
@@ -330,6 +332,9 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingState = context.watch<TradingStatusBloc>().state;
+    final canTradeCoin = tradingState.canTradeAssets([coin.id]);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(15, 18, 15, 16),
       decoration: BoxDecoration(
@@ -352,8 +357,7 @@ class _CoinDetailsInfoHeader extends StatelessWidget {
             child: CoinDetailsCommonButtons(
               isMobile: true,
               selectWidget: setPageType,
-              onClickSwapButton:
-                  context.watch<TradingStatusBloc>().state is TradingEnabled
+              onClickSwapButton: canTradeCoin
                   ? () => _goToSwap(context, coin)
                   : null,
               coin: coin,

@@ -5,16 +5,21 @@ import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/model/coin.dart';
 
 class AddMarketMakerBotTradeButton extends StatelessWidget {
   const AddMarketMakerBotTradeButton({
     super.key,
     required this.onPressed,
     this.enabled = true,
+    this.sellCoin,
+    this.buyCoin,
   });
 
   final bool enabled;
   final VoidCallback onPressed;
+  final Coin? sellCoin;
+  final Coin? buyCoin;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +27,10 @@ class AddMarketMakerBotTradeButton extends StatelessWidget {
       builder: (context, systemHealthState) {
         final tradingStatusBloc = context.watch<TradingStatusBloc>();
 
-        final bool tradingEnabled = tradingStatusBloc.state.isEnabled;
+        final bool tradingEnabled = tradingStatusBloc.state.canTradeAssets([
+          sellCoin?.id,
+          buyCoin?.id,
+        ]);
 
         return Opacity(
           opacity: !enabled ? 0.8 : 1,

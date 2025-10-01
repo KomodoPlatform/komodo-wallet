@@ -22,6 +22,8 @@ import 'package:web_dex/bloc/cex_market_data/cex_market_data.dart';
 import 'package:web_dex/bloc/cex_market_data/mockup/performance_mode.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_repository.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_service.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
@@ -69,10 +71,15 @@ Future<void> main() async {
       sparklineRepository,
     );
 
+    final tradingStatusRepository = TradingStatusRepository(komodoDefiSdk);
+    final tradingStatusService = TradingStatusService(tradingStatusRepository);
+    await tradingStatusService.initialize();
     final arrrActivationService = ArrrActivationService(komodoDefiSdk);
+
     final coinsRepo = CoinsRepo(
       kdfSdk: komodoDefiSdk,
       mm2: mm2,
+      tradingStatusService: tradingStatusService,
       arrrActivationService: arrrActivationService,
     );
     final walletsRepository = WalletsRepository(
@@ -96,6 +103,8 @@ Future<void> main() async {
             RepositoryProvider.value(value: coinsRepo),
             RepositoryProvider.value(value: walletsRepository),
             RepositoryProvider.value(value: sparklineRepository),
+            RepositoryProvider.value(value: tradingStatusRepository),
+            RepositoryProvider.value(value: tradingStatusService),
           ],
           child: const MyApp(),
         ),
@@ -149,6 +158,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final komodoDefiSdk = RepositoryProvider.of<KomodoDefiSdk>(context);
     final walletsRepository = RepositoryProvider.of<WalletsRepository>(context);
+    final tradingStatusService = RepositoryProvider.of<TradingStatusService>(
+      context,
+    );
 
     final sensitivityController = ScreenshotSensitivityController();
     return MultiBlocProvider(
@@ -159,6 +171,7 @@ class MyApp extends StatelessWidget {
               komodoDefiSdk,
               walletsRepository,
               SettingsRepository(),
+              tradingStatusService,
             );
             bloc.add(const AuthLifecycleCheckRequested());
             return bloc;

@@ -24,6 +24,7 @@ import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/s
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_show.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 
 /// Security settings page that manages both seed phrase and private key backup flows.
 ///
@@ -180,7 +181,15 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         return const SeedConfirmSuccess();
 
       case SecuritySettingsStep.privateKeyShow:
-        return PrivateKeyShow(privateKeys: _sdkPrivateKeys ?? {});
+        final tradingState = context.read<TradingStatusBloc>().state;
+        final Set<AssetId> blockedAssets = switch (tradingState) {
+          TradingStatusLoadSuccess s => Set<AssetId>.of(s.disallowedAssets),
+          _ => const <AssetId>{},
+        };
+        return PrivateKeyShow(
+          privateKeys: _sdkPrivateKeys ?? <AssetId, List<PrivateKey>>{},
+          blockedAssetIds: blockedAssets,
+        );
 
       case SecuritySettingsStep.passwordUpdate:
         _clearAllSensitiveData(); // Clear data when changing password
@@ -243,6 +252,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           // Fetch private keys directly into local UI state
           // This keeps sensitive data in minimal scope
           final privateKeys = await context.sdk.security.getPrivateKeys();
+
+          // Filter out excluded assets (NFTs only)
+          // Geo-blocked assets are handled by the UI toggle
           final filteredPrivateKeyEntries = privateKeys.entries.where(
             (entry) => !excludedAssetList.contains(entry.key.id),
           );

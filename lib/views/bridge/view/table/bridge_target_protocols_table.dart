@@ -16,6 +16,7 @@ import 'package:web_dex/views/bridge/bridge_group.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_nothing_found.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_protocol_table_order_item.dart';
 import 'package:web_dex/views/bridge/view/table/bridge_table_column_heads.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 
 class BridgeTargetProtocolsTable extends StatefulWidget {
   const BridgeTargetProtocolsTable({
@@ -114,6 +115,15 @@ class _TargetProtocolItems extends StatelessWidget {
     final scrollController = ScrollController();
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
 
+    final tradingState = context.watch<TradingStatusBloc>().state;
+    final filteredTargets = targetsList.where((order) {
+      final Coin? coin = coinsRepository.getCoin(order.coin);
+      if (coin == null) return false;
+      return tradingState.canTradeAssets([sellCoin.id, coin.id]);
+    }).toList();
+
+    if (filteredTargets.isEmpty) return BridgeNothingFound();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -128,7 +138,7 @@ class _TargetProtocolItems extends StatelessWidget {
                 controller: scrollController,
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, int index) {
-                  final BestOrder order = targetsList[index];
+                  final BestOrder order = filteredTargets[index];
                   final Coin coin = coinsRepository.getCoin(order.coin)!;
 
                   return BridgeProtocolTableOrderItem(
@@ -138,7 +148,7 @@ class _TargetProtocolItems extends StatelessWidget {
                     onSelect: () => onSelect(order),
                   );
                 },
-                itemCount: targetsList.length,
+                itemCount: filteredTargets.length,
               ),
             ),
           ),
@@ -173,11 +183,12 @@ class _TargetProtocolErrorMessage extends StatelessWidget {
               const Icon(Icons.warning_amber, size: 14, color: Colors.orange),
               const SizedBox(width: 4),
               Flexible(
-                  child: SelectableText(
-                error.message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
-              )),
+                child: SelectableText(
+                  error.message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
               const SizedBox(height: 4),
               UiSimpleButton(
                 onPressed: onRetry,
@@ -185,7 +196,7 @@ class _TargetProtocolErrorMessage extends StatelessWidget {
                   LocaleKeys.retryButtonText.tr(),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-              )
+              ),
             ],
           ),
         ],

@@ -3,7 +3,7 @@ part of 'auth_bloc.dart';
 /// Mixin that exposes Trezor authentication helpers for [AuthBloc].
 mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
   KomodoDefiSdk get _sdk;
-  final _log = Logger('TrezorAuthMixin');
+  Logger get _log;
 
   /// Registers handlers for Trezor specific events.
   void setupTrezorEventHandlers() {
@@ -16,6 +16,10 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
   /// Abstract method overriden in [AuthBloc] to start listening
   /// to authentication state changes.
   void _listenToAuthStateChanges();
+
+  /// Filters out geo-blocked assets from a list of coin IDs.
+  /// Implemented in [AuthBloc].
+  List<String> _filterBlockedAssets(List<String> coinIds);
 
   Future<void> _onTrezorInitAndAuth(
     AuthTrezorInitAndAuthStarted event,
@@ -130,7 +134,9 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     if (authState.user!.wallet.config.activatedCoins.isEmpty) {
       // If no coins are activated, we assume this is the first time
       // the user is setting up their Trezor wallet.
-      await _sdk.addActivatedCoins(enabledByDefaultCoins);
+      // Filter out geo-blocked assets from default coins before adding to wallet
+      final allowedDefaultCoins = _filterBlockedAssets(enabledByDefaultCoins);
+      await _sdk.addActivatedCoins(allowedDefaultCoins);
     }
 
     // Refresh the current user to pull in the updated wallet metadata

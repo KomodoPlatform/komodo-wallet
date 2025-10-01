@@ -41,88 +41,198 @@ class PrivateKeyShow extends StatelessWidget {
   /// [privateKeys] Map of asset IDs to their corresponding private keys.
   /// **Security Note**: This data should be handled with extreme care and
   /// cleared from memory as soon as possible.
-  const PrivateKeyShow({required this.privateKeys});
+  const PrivateKeyShow({
+    required this.privateKeys,
+    this.blockedAssetIds = const <AssetId>{},
+  });
 
   /// Private keys organized by asset ID.
   ///
   /// **Security Note**: This data is intentionally passed directly to the UI
   /// rather than stored in BLoC state to minimize memory exposure and lifetime.
   final Map<AssetId, List<PrivateKey>> privateKeys;
+  final Set<AssetId> blockedAssetIds;
 
   @override
   Widget build(BuildContext context) {
-    return ScreenshotSensitive(child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        if (!isMobile)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: SeedBackButton(() {
-              // Track analytics based on whether keys were copied
-              final wasBackupCompleted = context
-                  .read<SecuritySettingsBloc>()
-                  .state
-                  .arePrivateKeysSaved;
+    return ScreenshotSensitive(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          if (!isMobile)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: SeedBackButton(() {
+                // Track analytics based on whether keys were copied
+                final wasBackupCompleted = context
+                    .read<SecuritySettingsBloc>()
+                    .state
+                    .arePrivateKeysSaved;
 
-              final walletType =
-                  context
-                      .read<AuthBloc>()
-                      .state
-                      .currentUser
-                      ?.wallet
-                      .config
-                      .type
-                      .name ??
-                  '';
+                final walletType =
+                    context
+                        .read<AuthBloc>()
+                        .state
+                        .currentUser
+                        ?.wallet
+                        .config
+                        .type
+                        .name ??
+                    '';
 
-              if (wasBackupCompleted) {
-                // User copied keys, so track as completed backup
-                context.read<AnalyticsBloc>().add(
-                  AnalyticsBackupCompletedEvent(
-                    backupTime: 0,
-                    method: 'private_key_export',
-                    walletType: walletType,
-                  ),
-                );
-              } else {
-                // User didn't copy keys, so track as skipped
-                context.read<AnalyticsBloc>().add(
-                  AnalyticsBackupSkippedEvent(
-                    stageSkipped: 'private_key_show',
-                    walletType: walletType,
-                  ),
-                );
-              }
+                if (wasBackupCompleted) {
+                  // User copied keys, so track as completed backup
+                  context.read<AnalyticsBloc>().add(
+                    AnalyticsBackupCompletedEvent(
+                      backupTime: 0,
+                      method: 'private_key_export',
+                      walletType: walletType,
+                    ),
+                  );
+                } else {
+                  // User didn't copy keys, so track as skipped
+                  context.read<AnalyticsBloc>().add(
+                    AnalyticsBackupSkippedEvent(
+                      stageSkipped: 'private_key_show',
+                      walletType: walletType,
+                    ),
+                  );
+                }
 
-              context.read<SecuritySettingsBloc>().add(const ResetEvent());
-            }),
-          ),
-
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _TitleRow(),
-            const SizedBox(height: 16),
-            const _SecurityWarning(),
-            const SizedBox(height: 16),
-            const _CopyWarning(),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const _ShowingSwitcher(),
-                Flexible(
-                  child: PrivateKeyActionsWidget(privateKeys: privateKeys),
-                ),
-              ],
+                context.read<SecuritySettingsBloc>().add(const ResetEvent());
+              }),
             ),
-            const SizedBox(height: 16),
-            ExpandablePrivateKeyList(privateKeys: privateKeys),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _TitleRow(),
+              const SizedBox(height: 16),
+              const _SecurityWarning(),
+              const SizedBox(height: 16),
+              const _CopyWarning(),
+              const SizedBox(height: 16),
+              PrivateKeyExportSection(
+                privateKeys: privateKeys,
+                blockedAssetIds: blockedAssetIds,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PrivateKeyExportSection extends StatefulWidget {
+  const PrivateKeyExportSection({
+    super.key,
+    required this.privateKeys,
+    required this.blockedAssetIds,
+  });
+
+  final Map<AssetId, List<PrivateKey>> privateKeys;
+  final Set<AssetId> blockedAssetIds;
+
+  @override
+  State<PrivateKeyExportSection> createState() =>
+      _PrivateKeyExportSectionState();
+}
+
+class _PrivateKeyExportSectionState extends State<PrivateKeyExportSection> {
+  bool _includeBlockedAssets = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _includeBlockedAssets = !_hasBlockedAssetsInKeys();
+  }
+
+  bool _hasBlockedAssetsInKeys() {
+    if (widget.blockedAssetIds.isEmpty || widget.privateKeys.isEmpty) {
+      return false;
+    }
+    for (final assetId in widget.privateKeys.keys) {
+      if (widget.blockedAssetIds.contains(assetId)) return true;
+    }
+    return false;
+  }
+
+  Map<AssetId, List<PrivateKey>> _filteredPrivateKeys() {
+    if (_includeBlockedAssets || widget.blockedAssetIds.isEmpty) {
+      return widget.privateKeys;
+    }
+    final entries = widget.privateKeys.entries.where(
+      (e) => !widget.blockedAssetIds.contains(e.key),
+    );
+    return Map<AssetId, List<PrivateKey>>.fromEntries(entries);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasBlocked = _hasBlockedAssetsInKeys();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const _ShowingSwitcher(),
+            if (hasBlocked)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: _IncludeBlockedToggle(
+                  value: _includeBlockedAssets,
+                  onChanged: (val) =>
+                      setState(() => _includeBlockedAssets = val),
+                ),
+              ),
+            Flexible(
+              child: PrivateKeyActionsWidget(
+                privateKeys: _filteredPrivateKeys(),
+              ),
+            ),
           ],
         ),
+        const SizedBox(height: 16),
+        ExpandablePrivateKeyList(privateKeys: _filteredPrivateKeys()),
       ],
-    ));
+    );
+  }
+}
+
+class _IncludeBlockedToggle extends StatelessWidget {
+  const _IncludeBlockedToggle({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          UiSwitcher(value: value, onChanged: onChanged, width: 38, height: 21),
+          const SizedBox(width: 8),
+          Text(
+            LocaleKeys.includeBlockedAssets.tr(),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
   }
 }
 

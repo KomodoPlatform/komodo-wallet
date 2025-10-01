@@ -361,7 +361,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     return result;
   }
 
-  Set<Coin> mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
+  Set<Coin> _mergeCoinLists(List<Coin> originalList, List<Coin> newList) {
     final Map<String, Coin> coinMap = {};
 
     for (final Coin coin in originalList) {

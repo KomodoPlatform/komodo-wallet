@@ -10,6 +10,7 @@ import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_service.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/wallet.dart';
@@ -20,7 +21,8 @@ part 'coins_state.dart';
 
 /// Responsible for coin activation, deactivation, syncing, and fiat price
 class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
-  CoinsBloc(this._kdfSdk, this._coinsRepo) : super(CoinsState.initial()) {
+  CoinsBloc(this._kdfSdk, this._coinsRepo, this._tradingStatusService)
+    : super(CoinsState.initial()) {
     on<CoinsStarted>(_onCoinsStarted, transformer: droppable());
     // TODO: move auth listener to ui layer: bloclistener should fire auth events
     on<CoinsBalanceMonitoringStarted>(_onCoinsBalanceMonitoringStarted);
@@ -40,6 +42,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
   final KomodoDefiSdk _kdfSdk;
   final CoinsRepo _coinsRepo;
+  final TradingStatusService _tradingStatusService;
 
   final _log = Logger('CoinsBloc');
 
@@ -96,6 +99,18 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsStarted event,
     Emitter<CoinsState> emit,
   ) async {
+    // Wait for trading status service to receive initial status before
+    // populating coins list. This ensures geo-blocked assets are properly
+    // filtered from the start, preventing them from appearing in the UI
+    // before filtering is applied.
+    //
+    // TODO: UX Improvement - For faster startup, populate coins immediately
+    // and reactively filter when trading status updates arrive. This would
+    // eliminate startup delay (~100-500ms) but requires UI to handle dynamic
+    // removal of blocked assets. See TradingStatusService._currentStatus for
+    // related trade-offs.
+    await _tradingStatusService.initialStatusReady;
+
     emit(state.copyWith(coins: _coinsRepo.getKnownCoinsMap()));
 
     final existingUser = await _kdfSdk.auth.currentUser;
@@ -313,10 +328,17 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       // Start off by emitting the newly activated coins so that they all appear
       // in the list at once, rather than one at a time as they are activated
       final coinsToActivate = currentWallet.config.activatedCoins;
-      emit(_prePopulateListWithActivatingCoins(coinsToActivate));
-      _scheduleInitialBalanceRefresh(coinsToActivate);
 
-      final activationFuture = _activateCoins(coinsToActivate, emit);
+      // Filter out blocked coins before activation
+      final allowedCoins = coinsToActivate.where((coinId) {
+        final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
+        if (assets.isEmpty) return false;
+        return !_tradingStatusService.isAssetBlocked(assets.single.id);
+      });
+
+      emit(_prePopulateListWithActivatingCoins(allowedCoins));
+      _scheduleInitialBalanceRefresh(allowedCoins);
+      final activationFuture = _activateCoins(allowedCoins, emit);
       unawaited(() async {
         try {
           await activationFuture;
@@ -417,11 +439,17 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     // activation loops for assets not supported by the SDK.this may happen if the wallet
     // has assets that were removed from the SDK or the config has unsupported default
     // assets.
-    // This is also important for coin delistings.
-    final enableFutures = coins
+    final availableAssets = coins
         .map((coin) => _kdfSdk.assets.findAssetsByConfigId(coin))
-        .where((assets) => assets.isNotEmpty)
-        .map((assets) => assets.single)
+        .where((assetsSet) => assetsSet.isNotEmpty)
+        .map((assetsSet) => assetsSet.single);
+
+    // Filter out blocked assets
+    final coinsToActivate = _tradingStatusService.filterAllowedAssets(
+      availableAssets.toList(),
+    );
+
+    final enableFutures = coinsToActivate
         .map((asset) => _coinsRepo.activateAssetsSync([asset]))
         .toList();
 

@@ -28,8 +28,11 @@ import 'package:web_dex/views/dex/simple/form/maker/maker_form_exchange_rate.dar
 import 'package:web_dex/views/dex/simple/form/maker/maker_form_total_fees.dart';
 
 class MakerOrderConfirmation extends StatefulWidget {
-  const MakerOrderConfirmation(
-      {super.key, required this.onCreateOrder, required this.onCancel});
+  const MakerOrderConfirmation({
+    super.key,
+    required this.onCreateOrder,
+    required this.onCancel,
+  });
 
   final VoidCallback onCancel;
   final VoidCallback onCreateOrder;
@@ -53,55 +56,60 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
           : const EdgeInsets.only(top: 9.0),
       constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
       child: StreamBuilder<TradePreimage?>(
-          initialData: makerFormBloc.preimage,
-          stream: makerFormBloc.outPreimage,
-          builder: (BuildContext context,
-              AsyncSnapshot<TradePreimage?> preimageSnapshot) {
-            final preimage = preimageSnapshot.data;
-            if (preimage == null) return const UiSpinner();
+        initialData: makerFormBloc.preimage,
+        stream: makerFormBloc.outPreimage,
+        builder:
+            (
+              BuildContext context,
+              AsyncSnapshot<TradePreimage?> preimageSnapshot,
+            ) {
+              final preimage = preimageSnapshot.data;
+              if (preimage == null) return const UiSpinner();
 
-            final Coin? sellCoin =
-                coinsRepository.getCoin(preimage.request.base);
-            final Coin? buyCoin = coinsRepository.getCoin(preimage.request.rel);
-            final Rational? sellAmount = preimage.request.volume;
-            final Rational buyAmount =
-                (sellAmount ?? Rational.zero) * preimage.request.price;
+              final Coin? sellCoin = coinsRepository.getCoin(
+                preimage.request.base,
+              );
+              final Coin? buyCoin = coinsRepository.getCoin(
+                preimage.request.rel,
+              );
+              final Rational? sellAmount = preimage.request.volume;
+              final Rational buyAmount =
+                  (sellAmount ?? Rational.zero) * preimage.request.price;
 
-            if (sellCoin == null || buyCoin == null) {
-              return Center(child: Text(LocaleKeys.dexErrorMessage.tr()));
-            }
+              if (sellCoin == null || buyCoin == null) {
+                return Center(child: Text(LocaleKeys.dexErrorMessage.tr()));
+              }
 
-            return SingleChildScrollView(
-              key: const Key('maker-order-conformation-scroll'),
-              controller: ScrollController(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildTitle(),
-                  const SizedBox(height: 37),
-                  _buildReceive(buyCoin, buyAmount),
-                  _buildFiatReceive(
-                    sellCoin: sellCoin,
-                    buyCoin: buyCoin,
-                    sellAmount: sellAmount,
-                    buyAmount: buyAmount,
-                  ),
-                  const SizedBox(height: 23),
-                  _buildSend(sellCoin, sellAmount),
-                  const SizedBox(height: 24),
-                  const MakerFormExchangeRate(),
-                  const SizedBox(height: 10),
-                  const MakerFormTotalFees(),
-                  const SizedBox(height: 24),
-                  _buildError(),
-                  Flexible(
-                    child: _buildButtons(),
-                  )
-                ],
-              ),
-            );
-          }),
+              return SingleChildScrollView(
+                key: const Key('maker-order-conformation-scroll'),
+                controller: ScrollController(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildTitle(),
+                    const SizedBox(height: 37),
+                    _buildReceive(buyCoin, buyAmount),
+                    _buildFiatReceive(
+                      sellCoin: sellCoin,
+                      buyCoin: buyCoin,
+                      sellAmount: sellAmount,
+                      buyAmount: buyAmount,
+                    ),
+                    const SizedBox(height: 23),
+                    _buildSend(sellCoin, sellAmount),
+                    const SizedBox(height: 24),
+                    const MakerFormExchangeRate(),
+                    const SizedBox(height: 10),
+                    const MakerFormTotalFees(),
+                    const SizedBox(height: 24),
+                    _buildError(),
+                    Flexible(child: _buildButtons(sellCoin, buyCoin)),
+                  ],
+                ),
+              );
+            },
+      ),
     );
   }
 
@@ -112,43 +120,43 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(Coin sellCoin, Coin buyCoin) {
     return Row(
       children: [
-        Flexible(
-          child: _buildBackButton(),
-        ),
+        Flexible(child: _buildBackButton()),
         const SizedBox(width: 23),
-        Flexible(
-          child: _buildConfirmButton(),
-        ),
+        Flexible(child: _buildConfirmButton(sellCoin, buyCoin)),
       ],
     );
   }
 
-  Widget _buildConfirmButton() {
+  Widget _buildConfirmButton(Coin sellCoin, Coin buyCoin) {
     final tradingState = context.watch<TradingStatusBloc>().state;
-    final bool tradingEnabled = tradingState.isEnabled;
+    final bool tradingEnabled = tradingState.canTradeAssets([
+      sellCoin.id,
+      buyCoin.id,
+    ]);
 
     return Opacity(
       opacity: _inProgress ? 0.8 : 1,
       child: UiPrimaryButton(
-          key: const Key('make-order-confirm-button'),
-          prefix: _inProgress
-              ? Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: UiSpinner(
-                    height: 10,
-                    width: 10,
-                    strokeWidth: 1,
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
-                )
-              : null,
-          onPressed: _inProgress || !tradingEnabled ? null : _startSwap,
-          text: tradingEnabled
-              ? LocaleKeys.confirm.tr()
-              : LocaleKeys.tradingDisabled.tr()),
+        key: const Key('make-order-confirm-button'),
+        prefix: _inProgress
+            ? Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: UiSpinner(
+                  height: 10,
+                  width: 10,
+                  strokeWidth: 1,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+              )
+            : null,
+        onPressed: _inProgress || !tradingEnabled ? null : _startSwap,
+        text: tradingEnabled
+            ? LocaleKeys.confirm.tr()
+            : LocaleKeys.tradingDisabled.tr(),
+      ),
     );
   }
 
@@ -160,10 +168,9 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
       child: Text(
         message,
-        style: Theme.of(context)
-            .textTheme
-            .bodySmall
-            ?.copyWith(color: Theme.of(context).colorScheme.error),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.error,
+        ),
       ),
     );
   }
@@ -197,12 +204,14 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       children: [
         FiatAmount(coin: buyCoin, amount: buyAmount),
         if (percentage != null)
-          Text(' (${percentage > 0 ? '+' : ''}${formatAmt(percentage)}%)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    color: color,
-                    fontWeight: FontWeight.w200,
-                  )),
+          Text(
+            ' (${percentage > 0 ? '+' : ''}${formatAmt(percentage)}%)',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w200,
+            ),
+          ),
       ],
     );
   }
@@ -210,8 +219,9 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
   Widget _buildFiatSend(Coin coin, Rational? amount) {
     if (amount == null) return const SizedBox();
     return Container(
-        padding: const EdgeInsets.fromLTRB(0, 0, 2, 0),
-        child: FiatAmount(coin: coin, amount: amount));
+      padding: const EdgeInsets.fromLTRB(0, 0, 2, 0),
+      child: FiatAmount(coin: coin, amount: amount),
+    );
   }
 
   Widget _buildReceive(Coin coin, Rational? amount) {
@@ -219,24 +229,22 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
       children: [
         SelectableText(
           LocaleKeys.swapConfirmationYouReceive.tr(),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: theme.custom.dexSubTitleColor,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: theme.custom.dexSubTitleColor),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SelectableText('${formatDexAmt(amount)} ',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                )),
+            SelectableText(
+              '${formatDexAmt(amount)} ',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+            ),
             SelectableText(
               Coin.normalizeAbbr(coin.abbr),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: theme.custom.balanceColor),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: theme.custom.balanceColor,
+              ),
             ),
             if (coin.mode == CoinMode.segwit)
               const Padding(
@@ -251,10 +259,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
 
   Widget _buildSend(Coin coin, Rational? amount) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 14,
-        horizontal: 16,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
         color: theme.custom.subCardBackgroundColor,
@@ -266,8 +271,8 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
           SelectableText(
             LocaleKeys.swapConfirmationYouSending.tr(),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: theme.custom.dexSubTitleColor,
-                ),
+              color: theme.custom.dexSubTitleColor,
+            ),
           ),
           const SizedBox(height: 10),
           Row(
@@ -283,9 +288,9 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
                   SelectableText(
                     formatDexAmt(amount),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   _buildFiatSend(coin, amount),
                 ],
@@ -319,13 +324,13 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     final networks =
         '${makerFormBloc.sellCoin!.protocolType},${makerFormBloc.buyCoin!.protocolType}';
     context.read<AnalyticsBloc>().logEvent(
-          SwapInitiatedEventData(
-            fromAsset: sellCoin,
-            toAsset: buyCoin,
-            networks: networks,
-            walletType: walletType,
-          ),
-        );
+      SwapInitiatedEventData(
+        fromAsset: sellCoin,
+        toAsset: buyCoin,
+        networks: networks,
+        walletType: walletType,
+      ),
+    );
 
     final int callStart = DateTime.now().millisecondsSinceEpoch;
     final TextError? error = await makerFormBloc.makeOrder();
@@ -343,28 +348,28 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
 
     if (error != null) {
       context.read<AnalyticsBloc>().logEvent(
-            SwapFailedEventData(
-              fromAsset: sellCoin,
-              toAsset: buyCoin,
-              failStage: 'order_submission',
-              walletType: walletType,
-              durationMs: durationMs,
-            ),
-          );
+        SwapFailedEventData(
+          fromAsset: sellCoin,
+          toAsset: buyCoin,
+          failStage: 'order_submission',
+          walletType: walletType,
+          durationMs: durationMs,
+        ),
+      );
       setState(() => _errorMessage = error.error);
       return;
     }
 
     context.read<AnalyticsBloc>().logEvent(
-          SwapSucceededEventData(
-            fromAsset: sellCoin,
-            toAsset: buyCoin,
-            amount: makerFormBloc.sellAmount!.toDouble(),
-            fee: 0, // Fee data not available
-            walletType: walletType,
-            durationMs: durationMs,
-          ),
-        );
+      SwapSucceededEventData(
+        fromAsset: sellCoin,
+        toAsset: buyCoin,
+        amount: makerFormBloc.sellAmount!.toDouble(),
+        fee: 0, // Fee data not available
+        walletType: walletType,
+        durationMs: durationMs,
+      ),
+    );
     makerFormBloc.clear();
     widget.onCreateOrder();
   }
