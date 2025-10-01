@@ -236,10 +236,6 @@ extension AssetBalanceExtension on Coin {
   }
 }
 
-extension CoinListOps on List<Coin> {
-  
-}
-
 extension AssetListOps on List<Asset> {
   Future<List<Asset>> removeInactiveAssets(KomodoDefiSdk sdk) async {
     final activeAssets = await sdk.assets.getActivatedAssets();
@@ -304,8 +300,8 @@ extension CoinSupportOps on Iterable<Coin> {
   }
 
   double totalLastKnownUsdBalance(KomodoDefiSdk sdk) {
-    double total = fold(
-      0,
+    double total = fold<double>(
+      0.00,
       (prev, coin) => prev + (coin.lastKnownUsdBalance(sdk) ?? 0),
     );
 

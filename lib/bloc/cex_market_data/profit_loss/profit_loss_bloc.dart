@@ -19,8 +19,12 @@ part 'profit_loss_event.dart';
 part 'profit_loss_state.dart';
 
 class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
-  ProfitLossBloc(this._profitLossRepository, this._sdk)
-    : super(const ProfitLossInitial()) {
+  ProfitLossBloc(
+    this._profitLossRepository,
+    this._sdk, {
+    UpdateFrequencyBackoffStrategy? backoffStrategy,
+  }) : _backoffStrategy = backoffStrategy ?? UpdateFrequencyBackoffStrategy(),
+       super(const ProfitLossInitial()) {
     // Use the restartable transformer for load events to avoid overlapping
     // events if the user rapidly changes the period (i.e. faster than the
     // previous event can complete).
@@ -36,8 +40,7 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
   final KomodoDefiSdk _sdk;
 
   final _log = Logger('ProfitLossBloc');
-  final UpdateFrequencyBackoffStrategy _backoffStrategy =
-      UpdateFrequencyBackoffStrategy();
+  final UpdateFrequencyBackoffStrategy _backoffStrategy;
 
   void _onClearPortfolioProfitLoss(
     ProfitLossPortfolioChartClearRequested event,
@@ -235,8 +238,19 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
     Emitter<ProfitLossState> emit,
   ) async {
     while (true) {
+      if (isClosed || emit.isDone) {
+        _log.fine('Stopping profit/loss periodic updates: bloc closed.');
+        break;
+      }
       try {
         await Future.delayed(_backoffStrategy.getNextInterval());
+
+        if (isClosed || emit.isDone) {
+          _log.fine(
+            'Skipping profit/loss periodic update: bloc closed during delay.',
+          );
+          break;
+        }
 
         final supportedCoins = await event.coins.filterSupportedCoins();
         final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);

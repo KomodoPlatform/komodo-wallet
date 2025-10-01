@@ -5,7 +5,7 @@ import 'dart:math' as math;
 /// This reduces API calls while still providing reasonable update frequency.
 class UpdateFrequencyBackoffStrategy {
   UpdateFrequencyBackoffStrategy({
-    this.baseInterval = const Duration(minutes: 2),
+    this.baseInterval = const Duration(minutes: 1),
     this.maxInterval = const Duration(hours: 1),
   });
 

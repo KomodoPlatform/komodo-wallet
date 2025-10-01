@@ -22,8 +22,10 @@ class PortfolioGrowthBloc
   PortfolioGrowthBloc({
     required PortfolioGrowthRepository portfolioGrowthRepository,
     required KomodoDefiSdk sdk,
+    UpdateFrequencyBackoffStrategy? backoffStrategy,
   }) : _sdk = sdk,
        _portfolioGrowthRepository = portfolioGrowthRepository,
+       _backoffStrategy = backoffStrategy ?? UpdateFrequencyBackoffStrategy(),
        super(const PortfolioGrowthInitial()) {
     // Use the restartable transformer for period change events to avoid
     // overlapping events if the user rapidly changes the period (i.e. faster
@@ -42,8 +44,7 @@ class PortfolioGrowthBloc
   final PortfolioGrowthRepository _portfolioGrowthRepository;
   final KomodoDefiSdk _sdk;
   final _log = Logger('PortfolioGrowthBloc');
-  final UpdateFrequencyBackoffStrategy _backoffStrategy =
-      UpdateFrequencyBackoffStrategy();
+  final UpdateFrequencyBackoffStrategy _backoffStrategy;
 
   void _onClearPortfolioGrowth(
     PortfolioGrowthClearRequested event,
@@ -108,7 +109,6 @@ class PortfolioGrowthBloc
         coins: coins,
         selectedPeriod: event.selectedPeriod,
         fiatCoinId: 'USDT',
-        updateFrequency: event.updateFrequency,
         walletId: event.walletId,
       ),
     );
@@ -318,8 +318,19 @@ class PortfolioGrowthBloc
     Emitter<PortfolioGrowthState> emit,
   ) async {
     while (true) {
+      if (isClosed || emit.isDone) {
+        _log.fine('Stopping portfolio growth periodic updates: bloc closed.');
+        break;
+      }
       try {
         await Future.delayed(_backoffStrategy.getNextInterval());
+
+        if (isClosed || emit.isDone) {
+          _log.fine(
+            'Skipping portfolio growth periodic update: bloc closed during delay.',
+          );
+          break;
+        }
 
         final (chart, coins) = await _fetchPortfolioGrowthChart(event);
         emit(

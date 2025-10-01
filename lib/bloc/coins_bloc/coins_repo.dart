@@ -230,14 +230,14 @@ class CoinsRepo {
   /// exponential backoff for up to the specified duration.
   ///
   /// **Retry Configuration:**
-  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (30 attempts ≈ 3 minutes)
+  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (15 attempts ≈ 105 seconds)
   /// - Configurable via [maxRetryAttempts], [initialRetryDelay], and [maxRetryDelay]
   ///
   /// **Parameters:**
   /// - [assets]: List of assets to activate
   /// - [notifyListeners]: Whether to broadcast state changes to listeners (default: true)
   /// - [addToWalletMetadata]: Whether to add assets to wallet metadata (default: true)
-  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
+  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 15)
   /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
   /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
   ///
@@ -400,14 +400,14 @@ class CoinsRepo {
   /// activated coins and retry failed activations with exponential backoff.
   ///
   /// **Retry Configuration:**
-  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (30 attempts ≈ 3 minutes)
+  /// - Default: 500ms → 1s → 2s → 4s → 8s → 10s → 10s... (15 attempts ≈ 105 seconds)
   /// - Configurable via [maxRetryAttempts], [initialRetryDelay], and [maxRetryDelay]
   ///
   /// **Parameters:**
   /// - [coins]: List of coins to activate
   /// - [notify]: Whether to broadcast state changes to listeners (default: true)
   /// - [addToWalletMetadata]: Whether to add assets to wallet metadata (default: true)
-  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 30)
+  /// - [maxRetryAttempts]: Maximum number of retry attempts (default: 15)
   /// - [initialRetryDelay]: Initial delay between retries (default: 500ms)
   /// - [maxRetryDelay]: Maximum delay between retries (default: 10s)
   ///
