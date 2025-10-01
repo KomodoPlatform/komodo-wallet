@@ -67,7 +67,7 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   ) async {
     final List<FilterFunction> filters = [];
 
-    final mergedCoinsList = mergeCoinLists(
+    final mergedCoinsList = _mergeCoinLists(
       await _getOriginalCoinList(
         _coinsRepo,
         event.action,

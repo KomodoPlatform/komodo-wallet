@@ -27,6 +27,9 @@ class ArrrActivationService {
   /// Completer to wait for configuration when needed
   final Map<AssetId, Completer<ZhtlcUserConfig?>> _configCompleters = {};
 
+  /// Track ongoing activation flows per asset to prevent duplicate runs
+  final Map<AssetId, Future<ArrrActivationResult>> _ongoingActivations = {};
+
   /// Subscription to auth state changes
   StreamSubscription<KdfUser?>? _authSubscription;
 
@@ -42,10 +45,34 @@ class ArrrActivationService {
   Future<ArrrActivationResult> activateArrr(
     Asset asset, {
     ZhtlcUserConfig? initialConfig,
-  }) async {
+  }) {
     if (_isDisposing || _configRequestController.isClosed) {
       throw StateError('ArrrActivationService has been disposed');
     }
+
+    final existingActivation = _ongoingActivations[asset.id];
+    if (existingActivation != null) {
+      _log.info(
+        'Activation already in progress for ${asset.id.id} - reusing existing future',
+      );
+      return existingActivation;
+    }
+
+    late Future<ArrrActivationResult> activationFuture;
+    activationFuture =
+        _activateArrrInternal(asset, initialConfig: initialConfig).whenComplete(
+          () {
+            _ongoingActivations.remove(asset.id);
+          },
+        );
+    _ongoingActivations[asset.id] = activationFuture;
+    return activationFuture;
+  }
+
+  Future<ArrrActivationResult> _activateArrrInternal(
+    Asset asset, {
+    ZhtlcUserConfig? initialConfig,
+  }) async {
     var config = initialConfig ?? await _getOrRequestConfiguration(asset.id);
 
     if (config == null) {
