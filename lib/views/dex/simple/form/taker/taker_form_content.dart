@@ -127,8 +127,16 @@ class TradeButton extends StatelessWidget {
                 systemHealthState.isValid;
 
         final tradingStatusState = context.watch<TradingStatusBloc>().state;
+        final takerState = context.watch<TakerBloc>().state;
+        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
+        final buyCoin = takerState.selectedOrder == null
+            ? null
+            : coinsRepo.getCoin(takerState.selectedOrder!.coin);
 
-        final isTradingEnabled = tradingStatusState.isEnabled;
+        final isTradingEnabled = tradingStatusState.canTradeAssets([
+          takerState.sellCoin?.id,
+          buyCoin?.id,
+        ]);
 
         return BlocSelector<TakerBloc, TakerState, bool>(
           selector: (state) => state.inProgress,

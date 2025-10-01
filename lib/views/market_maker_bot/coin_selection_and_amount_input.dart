@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/settings/settings_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_size.dart';
@@ -39,6 +40,11 @@ class CoinSelectionAndAmountInput extends StatefulWidget {
 
 class _CoinSelectionAndAmountInputState
     extends State<CoinSelectionAndAmountInput> {
+  // TECH DEBT: This widget uses StatefulWidget with local state (_items)
+  // which is an anti-pattern when the data depends on Bloc state.
+  // Following BLoC best practices, this should be refactored to use BlocBuilder
+  // and compute the items in the build method based on bloc state changes.
+  // Currently, we work around this by wrapping the widget in BlocBuilder below.
   late List<DropdownMenuItem<String>> _items;
 
   @override
@@ -86,48 +92,58 @@ class _CoinSelectionAndAmountInputState
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DexFormGroupHeader(title: widget.title),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(15, 8, 0, 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
+    // FIX: Using BlocBuilder to listen to TradingStatusBloc changes
+    // This ensures _prepareItems is called when geo-blocking status changes.
+    // Following BLoC best practices: widgets should rebuild when dependent bloc states change.
+    return BlocBuilder<TradingStatusBloc, TradingStatusState>(
+      builder: (context, tradingStatus) {
+        // Rebuild items when trading status changes
+        _prepareItems();
+
+        Widget content = Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DexFormGroupHeader(title: widget.title),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 8, 0, 12),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  widget.selectedCoin == null
-                      ? AssetLogo.placeholder(isBlank: true)
-                      : AssetLogo.ofId(widget.selectedCoin!.id),
-                  const SizedBox(width: 9),
-                  CoinNameAndProtocol(widget.selectedCoin, true),
-                  const SizedBox(width: 9),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      widget.selectedCoin == null
+                          ? AssetLogo.placeholder(isBlank: true)
+                          : AssetLogo.ofId(widget.selectedCoin!.id),
+                      const SizedBox(width: 9),
+                      CoinNameAndProtocol(widget.selectedCoin, true),
+                      const SizedBox(width: 9),
+                    ],
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(child: widget.trailing ?? const SizedBox.shrink()),
                 ],
               ),
-              const SizedBox(width: 5),
-              Expanded(child: widget.trailing ?? const SizedBox.shrink()),
-            ],
-          ),
-        ),
-      ],
-    );
+            ),
+          ],
+        );
 
-    if (widget.useFrontPlate) {
-      content = FrontPlate(child: content);
-    }
+        if (widget.useFrontPlate) {
+          content = FrontPlate(child: content);
+        }
 
-    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
-    return CoinDropdown(
-      items: _items,
-      onItemSelected: (item) =>
-          widget.onItemSelected?.call(coinsRepository.getCoin(item)),
-      child: content,
+        final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+        return CoinDropdown(
+          items: _items,
+          onItemSelected: (item) =>
+              widget.onItemSelected?.call(coinsRepository.getCoin(item)),
+          child: content,
+        );
+      },
     );
   }
 }

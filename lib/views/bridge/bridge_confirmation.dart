@@ -99,7 +99,7 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
                   const BridgeTotalFees(),
                   const SizedBox(height: 24),
                   const _ErrorGroup(),
-                  _ButtonsRow(onCancel, startSwap),
+                  _ButtonsRow(onCancel, startSwap, confirmDto),
                 ],
               ),
             ),
@@ -360,10 +360,11 @@ class _ErrorGroup extends StatelessWidget {
 }
 
 class _ButtonsRow extends StatelessWidget {
-  const _ButtonsRow(this.onCancel, this.startSwap);
+  const _ButtonsRow(this.onCancel, this.startSwap, this.dto);
 
   final void Function()? onCancel;
   final void Function()? startSwap;
+  final _ConfirmDTO dto;
 
   @override
   Widget build(BuildContext context) {
@@ -372,7 +373,7 @@ class _ButtonsRow extends StatelessWidget {
         children: [
           _BackButton(onCancel),
           const SizedBox(width: 23),
-          _ConfirmButton(startSwap),
+          _ConfirmButton(startSwap, dto),
         ],
       ),
     );
@@ -406,14 +407,18 @@ class _BackButton extends StatelessWidget {
 }
 
 class _ConfirmButton extends StatelessWidget {
-  const _ConfirmButton(this.onPressed);
+  const _ConfirmButton(this.onPressed, this.dto);
 
   final void Function()? onPressed;
+  final _ConfirmDTO dto;
 
   @override
   Widget build(BuildContext context) {
     final tradingStatusState = context.watch<TradingStatusBloc>().state;
-    final tradingEnabled = tradingStatusState.isEnabled;
+    final tradingEnabled = tradingStatusState.canTradeAssets([
+      dto.sellCoin.id,
+      dto.buyCoin.id,
+    ]);
 
     return Flexible(
       child: BlocSelector<BridgeBloc, BridgeState, bool>(

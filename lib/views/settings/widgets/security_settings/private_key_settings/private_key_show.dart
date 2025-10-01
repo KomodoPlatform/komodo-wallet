@@ -41,13 +41,17 @@ class PrivateKeyShow extends StatelessWidget {
   /// [privateKeys] Map of asset IDs to their corresponding private keys.
   /// **Security Note**: This data should be handled with extreme care and
   /// cleared from memory as soon as possible.
-  const PrivateKeyShow({required this.privateKeys});
+  const PrivateKeyShow({
+    required this.privateKeys,
+    this.blockedAssetIds = const <AssetId>{},
+  });
 
   /// Private keys organized by asset ID.
   ///
   /// **Security Note**: This data is intentionally passed directly to the UI
   /// rather than stored in BLoC state to minimize memory exposure and lifetime.
   final Map<AssetId, List<PrivateKey>> privateKeys;
+  final Set<AssetId> blockedAssetIds;
 
   @override
   Widget build(BuildContext context) {
@@ -109,18 +113,122 @@ class PrivateKeyShow extends StatelessWidget {
               const SizedBox(height: 16),
               const _CopyWarning(),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const _ShowingSwitcher(),
-                  Flexible(
-                    child: PrivateKeyActionsWidget(privateKeys: privateKeys),
-                  ),
-                ],
+              PrivateKeyExportSection(
+                privateKeys: privateKeys,
+                blockedAssetIds: blockedAssetIds,
               ),
-              const SizedBox(height: 16),
-              ExpandablePrivateKeyList(privateKeys: privateKeys),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PrivateKeyExportSection extends StatefulWidget {
+  const PrivateKeyExportSection({
+    super.key,
+    required this.privateKeys,
+    required this.blockedAssetIds,
+  });
+
+  final Map<AssetId, List<PrivateKey>> privateKeys;
+  final Set<AssetId> blockedAssetIds;
+
+  @override
+  State<PrivateKeyExportSection> createState() =>
+      _PrivateKeyExportSectionState();
+}
+
+class _PrivateKeyExportSectionState extends State<PrivateKeyExportSection> {
+  bool _includeBlockedAssets = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _includeBlockedAssets = !_hasBlockedAssetsInKeys();
+  }
+
+  bool _hasBlockedAssetsInKeys() {
+    if (widget.blockedAssetIds.isEmpty || widget.privateKeys.isEmpty) {
+      return false;
+    }
+    for (final assetId in widget.privateKeys.keys) {
+      if (widget.blockedAssetIds.contains(assetId)) return true;
+    }
+    return false;
+  }
+
+  Map<AssetId, List<PrivateKey>> _filteredPrivateKeys() {
+    if (_includeBlockedAssets || widget.blockedAssetIds.isEmpty) {
+      return widget.privateKeys;
+    }
+    final entries = widget.privateKeys.entries.where(
+      (e) => !widget.blockedAssetIds.contains(e.key),
+    );
+    return Map<AssetId, List<PrivateKey>>.fromEntries(entries);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasBlocked = _hasBlockedAssetsInKeys();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const _ShowingSwitcher(),
+            if (hasBlocked)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: _IncludeBlockedToggle(
+                  value: _includeBlockedAssets,
+                  onChanged: (val) =>
+                      setState(() => _includeBlockedAssets = val),
+                ),
+              ),
+            Flexible(
+              child: PrivateKeyActionsWidget(
+                privateKeys: _filteredPrivateKeys(),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        ExpandablePrivateKeyList(privateKeys: _filteredPrivateKeys()),
+      ],
+    );
+  }
+}
+
+class _IncludeBlockedToggle extends StatelessWidget {
+  const _IncludeBlockedToggle({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          UiSwitcher(value: value, onChanged: onChanged, width: 38, height: 21),
+          const SizedBox(width: 8),
+          Text(
+            LocaleKeys.includeBlockedAssets.tr(),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
           ),
         ],
       ),

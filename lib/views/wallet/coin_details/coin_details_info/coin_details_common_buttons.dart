@@ -150,6 +150,10 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tradingState = context.watch<TradingStatusBloc>().state;
+    final canTradeCoin =
+        !coin.walletOnly && tradingState.canTradeAssets([coin.id]);
+
     return Row(
       children: [
         ConstrainedBox(
@@ -171,8 +175,7 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
             context: context,
           ),
         ),
-        if (!coin.walletOnly &&
-            context.watch<TradingStatusBloc>().state is TradingEnabled)
+        if (canTradeCoin)
           Container(
             margin: const EdgeInsets.only(left: 21),
             constraints: const BoxConstraints(maxWidth: 120),

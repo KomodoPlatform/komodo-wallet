@@ -104,7 +104,7 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
                     const MakerFormTotalFees(),
                     const SizedBox(height: 24),
                     _buildError(),
-                    Flexible(child: _buildButtons()),
+                    Flexible(child: _buildButtons(sellCoin, buyCoin)),
                   ],
                 ),
               );
@@ -120,19 +120,22 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(Coin sellCoin, Coin buyCoin) {
     return Row(
       children: [
         Flexible(child: _buildBackButton()),
         const SizedBox(width: 23),
-        Flexible(child: _buildConfirmButton()),
+        Flexible(child: _buildConfirmButton(sellCoin, buyCoin)),
       ],
     );
   }
 
-  Widget _buildConfirmButton() {
+  Widget _buildConfirmButton(Coin sellCoin, Coin buyCoin) {
     final tradingState = context.watch<TradingStatusBloc>().state;
-    final bool tradingEnabled = tradingState.isEnabled;
+    final bool tradingEnabled = tradingState.canTradeAssets([
+      sellCoin.id,
+      buyCoin.id,
+    ]);
 
     return Opacity(
       opacity: _inProgress ? 0.8 : 1,
@@ -315,14 +318,14 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     final authBloc = context.read<AuthBloc>();
     final walletType = authBloc.state.currentUser?.type ?? '';
     final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-    final sellCoin = makerFormBloc.sellCoin!.abbr;
-    final buyCoin = makerFormBloc.buyCoin!.abbr;
+    final sellCoin = makerFormBloc.sellCoin!;
+    final buyCoin = makerFormBloc.buyCoin!;
     context.read<AnalyticsBloc>().logEvent(
       SwapInitiatedEventData(
-        asset: sellCoin,
-        secondaryAsset: buyCoin,
-        network: makerFormBloc.sellCoin!.protocolType,
-        secondaryNetwork: makerFormBloc.buyCoin!.protocolType,
+        asset: sellCoin.abbr,
+        secondaryAsset: buyCoin.abbr,
+        network: sellCoin.protocolType,
+        secondaryNetwork: buyCoin.protocolType,
         hdType: walletType,
       ),
     );
@@ -340,17 +343,12 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     setState(() => _inProgress = false);
 
     if (error != null) {
-      // Note: We don't log swap_failure here because the swap hasn't started yet.
-      // This is just an order submission error. Actual swap success/failure
-      // events are logged in trading_details.dart when the swap completes.
+      // We log swap failures when the actual swap fails, not on order submission.
       setState(() => _errorMessage = error.error);
       return;
     }
 
-    // Note: We don't log swap_success here because creating a maker order
-    // doesn't mean the swap succeeded. The swap will happen later when a taker
-    // matches this order. Swap success/failure events are logged in
-    // trading_details.dart when the swap actually completes.
+    // Swap success is tracked when the trade completes in trading_details.dart.
     makerFormBloc.clear();
     widget.onCreateOrder();
   }

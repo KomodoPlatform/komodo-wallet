@@ -90,7 +90,7 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
                   const TakerFormTotalFees(),
                   const SizedBox(height: 24),
                   _buildError(),
-                  Flexible(child: _buildButtons()),
+                  Flexible(child: _buildButtons(sellCoin, buyCoin)),
                 ],
               ),
             ),
@@ -114,19 +114,22 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(Coin sellCoin, Coin buyCoin) {
     return Row(
       children: [
         Flexible(child: _buildBackButton()),
         const SizedBox(width: 23),
-        Flexible(child: _buildConfirmButton()),
+        Flexible(child: _buildConfirmButton(sellCoin, buyCoin)),
       ],
     );
   }
 
-  Widget _buildConfirmButton() {
+  Widget _buildConfirmButton(Coin sellCoin, Coin buyCoin) {
     final tradingStatusState = context.watch<TradingStatusBloc>().state;
-    final bool tradingEnabled = tradingStatusState.isEnabled;
+    final bool tradingEnabled = tradingStatusState.canTradeAssets([
+      sellCoin.id,
+      buyCoin.id,
+    ]);
 
     return BlocSelector<TakerBloc, TakerState, bool>(
       selector: (state) => state.inProgress,
