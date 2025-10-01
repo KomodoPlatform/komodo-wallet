@@ -61,7 +61,7 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
                   HdAddressGeneratedEventData(
                     accountIndex: parsed.accountIndex,
                     addressIndex: parsed.addressIndex,
-                    assetSymbol: assetId,
+                    asset: assetId,
                   ),
                 );
               } catch (_) {

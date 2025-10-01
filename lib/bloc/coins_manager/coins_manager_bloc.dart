@@ -226,9 +226,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     }
     _analyticsBloc.logEvent(
       AssetDisabledEventData(
-        assetSymbol: coin.abbr,
-        assetNetwork: coin.protocolType,
-        walletType: (await _sdk.auth.currentUser)?.type ?? '',
+        asset: coin.abbr,
+        network: coin.protocolType,
+        hdType: (await _sdk.auth.currentUser)?.type ?? '',
       ),
     );
   }
@@ -241,9 +241,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     }
     _analyticsBloc.logEvent(
       AssetEnabledEventData(
-        assetSymbol: coin.abbr,
-        assetNetwork: coin.protocolType,
-        walletType: (await _sdk.auth.currentUser)?.type ?? '',
+        asset: coin.abbr,
+        network: coin.protocolType,
+        hdType: (await _sdk.auth.currentUser)?.type ?? '',
       ),
     );
   }

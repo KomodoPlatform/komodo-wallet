@@ -123,10 +123,14 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
           'unknown';
       _analyticsBloc.logEvent(
         SwapFailedEventData(
-          fromAsset: state.sellCoin!.abbr,
-          toAsset: state.selectedOrder!.coin,
-          failStage: 'order_submission',
-          walletType: walletType,
+          asset: state.sellCoin!.abbr,
+          secondaryAsset: state.selectedOrder!.coin,
+          network: state.sellCoin!.protocolType,
+          secondaryNetwork:
+              _coinsRepo.getCoin(state.selectedOrder!.coin)?.protocolType ??
+              'unknown',
+          failureStage: 'order_submission',
+          hdType: walletType,
           durationMs: durationMs,
         ),
       );

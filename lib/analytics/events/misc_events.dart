@@ -145,7 +145,7 @@ class SearchbarInputEventData extends AnalyticsEventData {
   @override
   JsonMap get parameters => {
     'query_length': queryLength,
-    if (assetSymbol != null) 'asset_symbol': assetSymbol!,
+    if (assetSymbol != null) 'asset': assetSymbol!,
   };
 }
 

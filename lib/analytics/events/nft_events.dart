@@ -33,12 +33,12 @@ class NftTransferInitiatedEventData extends AnalyticsEventData {
   const NftTransferInitiatedEventData({
     required this.collectionName,
     required this.tokenId,
-    required this.walletType,
+    required this.hdType,
   });
 
   final String collectionName;
   final String tokenId;
-  final String walletType;
+  final String hdType;
 
   @override
   String get name => 'nft_transfer_initiated';
@@ -47,7 +47,7 @@ class NftTransferInitiatedEventData extends AnalyticsEventData {
   JsonMap get parameters => {
     'collection_name': collectionName,
     'token_id': tokenId,
-    'wallet_type': walletType,
+    'hd_type': hdType,
   };
 }
 
@@ -55,12 +55,12 @@ class AnalyticsNftTransferInitiatedEvent extends AnalyticsSendDataEvent {
   AnalyticsNftTransferInitiatedEvent({
     required String collectionName,
     required String tokenId,
-    required String walletType,
+    required String hdType,
   }) : super(
          NftTransferInitiatedEventData(
            collectionName: collectionName,
            tokenId: tokenId,
-           walletType: walletType,
+           hdType: hdType,
          ),
        );
 }
@@ -71,13 +71,13 @@ class NftTransferSuccessEventData extends AnalyticsEventData {
     required this.collectionName,
     required this.tokenId,
     required this.fee,
-    required this.walletType,
+    required this.hdType,
   });
 
   final String collectionName;
   final String tokenId;
   final double fee;
-  final String walletType;
+  final String hdType;
 
   @override
   String get name => 'nft_transfer_success';
@@ -87,7 +87,7 @@ class NftTransferSuccessEventData extends AnalyticsEventData {
     'collection_name': collectionName,
     'token_id': tokenId,
     'fee': fee,
-    'wallet_type': walletType,
+    'hd_type': hdType,
   };
 }
 
@@ -96,13 +96,13 @@ class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
     required String collectionName,
     required String tokenId,
     required double fee,
-    required String walletType,
+    required String hdType,
   }) : super(
          NftTransferSuccessEventData(
            collectionName: collectionName,
            tokenId: tokenId,
            fee: fee,
-           walletType: walletType,
+           hdType: hdType,
          ),
        );
 }
@@ -111,13 +111,13 @@ class AnalyticsNftTransferSuccessEvent extends AnalyticsSendDataEvent {
 class NftTransferFailureEventData extends AnalyticsEventData {
   const NftTransferFailureEventData({
     required this.collectionName,
-    required this.failReason,
-    required this.walletType,
+    required this.failureDetail,
+    required this.hdType,
   });
 
   final String collectionName;
-  final String failReason;
-  final String walletType;
+  final String failureDetail;
+  final String hdType;
 
   @override
   String get name => 'nft_transfer_failure';
@@ -125,21 +125,50 @@ class NftTransferFailureEventData extends AnalyticsEventData {
   @override
   JsonMap get parameters => {
     'collection_name': collectionName,
-    'fail_reason': failReason,
-    'wallet_type': walletType,
+    'failure_reason': _formatFailureReason(reason: failureDetail),
+    'hd_type': hdType,
   };
 }
 
 class AnalyticsNftTransferFailureEvent extends AnalyticsSendDataEvent {
   AnalyticsNftTransferFailureEvent({
     required String collectionName,
-    required String failReason,
-    required String walletType,
+    required String failureDetail,
+    required String hdType,
   }) : super(
          NftTransferFailureEventData(
            collectionName: collectionName,
-           failReason: failReason,
-           walletType: walletType,
+           failureDetail: failureDetail,
+           hdType: hdType,
          ),
        );
+}
+
+String _formatFailureReason({String? stage, String? reason, String? code}) {
+  final parts = <String>[];
+
+  String? sanitize(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  final sanitizedStage = sanitize(stage);
+  final sanitizedReason = sanitize(reason);
+  final sanitizedCode = sanitize(code);
+
+  if (sanitizedStage != null) {
+    parts.add('stage:$sanitizedStage');
+  }
+  if (sanitizedReason != null) {
+    parts.add('reason:$sanitizedReason');
+  }
+  if (sanitizedCode != null && sanitizedCode != sanitizedReason) {
+    parts.add('code:$sanitizedCode');
+  }
+
+  if (parts.isEmpty) {
+    return 'reason:unknown';
+  }
+  return parts.join('|');
 }

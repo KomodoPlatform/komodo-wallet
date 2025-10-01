@@ -6,7 +6,6 @@ import 'package:matomo_tracker/matomo_tracker.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/services/platform_info/platform_info.dart';
 import 'analytics_api.dart';
 import 'analytics_repo.dart';
 
@@ -113,8 +112,92 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     'page_interactive_delay': 'Performance',
   };
 
+  /// Visit-scoped dimension identifiers (set once per session).
+  static const Map<String, int> _visitDimensionIds = {
+    'platform': 1,
+    'app_version': 2,
+    'referral_source': 3,
+    'theme_name': 4,
+    'update_source': 5,
+  };
+
+  /// Action-scoped dimension identifiers (sent with each event).
+  static const Map<String, int> _actionDimensionIds = {
+    'asset': 6,
+    'secondary_asset': 7,
+    'network': 8,
+    'secondary_network': 9,
+    'amount': 10,
+    'fee': 11,
+    'collection_name': 12,
+    'token_id': 13,
+    'pair': 14,
+    'strategy_type': 15,
+    'hd_type': 16,
+    'failure_reason': 17,
+    'screen_context': 18,
+    'stage_skipped': 19,
+    'method': 20,
+    'import_type': 21,
+    'setting_name': 22,
+    'total_coins': 23,
+    'total_value_usd': 24,
+    'period': 25,
+    'timeframe': 26,
+    'growth_pct': 27,
+    'realized_pnl': 28,
+    'unrealized_pnl': 29,
+    'profit_usd': 30,
+    'backup_time': 31,
+    'duration_ms': 32,
+    'load_time_ms': 33,
+    'time_to_half_ms': 34,
+    'update_duration_ms': 35,
+    'interactive_delay_ms': 36,
+    'spinner_time_ms': 37,
+    'nft_count': 38,
+    'pairs_count': 39,
+    'base_capital': 40,
+    'account_index': 41,
+    'address_index': 42,
+    'wallet_size': 43,
+    'coins_count': 44,
+    'query_length': 45,
+    'dapp_name': 46,
+    'new_value': 47,
+    'channel': 48,
+    'scroll_delta': 49,
+    'page_name': 50,
+    'expected_reward_amount': 51,
+  };
+
+  static const Set<String> _assetDimensionRequiredEvents = {
+    'add_asset',
+    'view_asset',
+    'asset_enabled',
+    'asset_disabled',
+    'send_initiated',
+    'send_success',
+    'send_failure',
+    'swap_initiated',
+    'swap_success',
+    'swap_failure',
+    'bridge_initiated',
+    'bridge_success',
+    'bridge_failure',
+    'reward_claim_initiated',
+    'reward_claim_success',
+    'reward_claim_failure',
+    'hd_address_generated',
+    'marketbot_trade_executed',
+  };
+
   /// Queue to store events when analytics is disabled
   final List<AnalyticsEventData> _eventQueue = [];
+
+  /// Tracks the currently active visit-scoped dimension values so we only send updates
+  /// when something changes (e.g., theme switch mid-session).
+  final Map<String, String> _currentVisitDimensions = {};
 
   @override
   String get providerName => 'Matomo';
@@ -241,13 +324,30 @@ class MatomoAnalyticsApi implements AnalyticsApi {
       _eventQueue.add(event);
       return;
     }
-    final sanitizedParameters = event.parameters.map((key, value) {
-      if (value == null) return MapEntry(key, "null");
+
+    final normalizedParameters = _normalizeParameters(
+      event.parameters,
+      event.name,
+    );
+    final sanitizedParameters = normalizedParameters.map((key, value) {
+      if (value == null) {
+        return MapEntry(key, 'null');
+      }
       if (value is Map || value is List) {
         return MapEntry(key, jsonEncode(value));
       }
       return MapEntry(key, value.toString());
     });
+
+    final visitDimensionUpdates = _extractVisitDimensionUpdates(
+      sanitizedParameters,
+    );
+    if (visitDimensionUpdates.isNotEmpty) {
+      await _setVisitDimensions(visitDimensionUpdates);
+    }
+
+    final actionDimensions = _extractActionDimensions(sanitizedParameters);
+    _ensureAssetDimension(event.name, actionDimensions, sanitizedParameters);
 
     final primaryEventLabel =
         _derivePrimaryEventLabel(event, sanitizedParameters) ?? event.name;
@@ -270,11 +370,9 @@ class MatomoAnalyticsApi implements AnalyticsApi {
           category: _extractCategory(event.name),
           action: event.name,
           name: primaryEventLabel,
-          value: _extractEventValue(sanitizedParameters),
+          value: _extractEventValue(normalizedParameters),
         ),
-        dimensions: event.parameters.map(
-          (key, value) => MapEntry(key, value.toString()),
-        ),
+        dimensions: actionDimensions,
       );
 
       // Note: Custom dimensions should be set separately in Matomo
@@ -296,31 +394,7 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     }
 
     _isEnabled = true;
-    // Attach visit-scoped custom dimensions such as platform name
-    try {
-      if (matomoPlatformDimensionId != null) {
-        final platform = PlatformInfo.getInstance().platform;
-        final dimensionKey = 'dimension$matomoPlatformDimensionId';
-        MatomoTracker.instance.trackDimensions(
-          dimensions: {dimensionKey: platform},
-        );
-        if (kDebugMode) {
-          log(
-            'Matomo dimensions set: {$dimensionKey: $platform}',
-            path: 'analytics -> MatomoAnalyticsApi -> activate',
-          );
-        }
-      }
-    } catch (e, s) {
-      if (kDebugMode) {
-        log(
-          'Failed to set Matomo custom dimensions: $e',
-          path: 'analytics -> MatomoAnalyticsApi -> activate',
-          trace: s,
-          isError: true,
-        );
-      }
-    }
+    _currentVisitDimensions.clear();
     // Matomo doesn't have a direct enable/disable method like Firebase
     // so we handle this by simply processing queued events
 
@@ -367,6 +441,300 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     _isEnabled = false;
     // Matomo doesn't have a direct disable method
     // Events will be queued instead of sent when disabled
+  }
+
+  Map<String, dynamic> _normalizeParameters(
+    Map<String, dynamic> parameters,
+    String eventName,
+  ) {
+    final original = <String, dynamic>{};
+    for (final entry in parameters.entries) {
+      final value = entry.value;
+      if (value != null) {
+        original[entry.key] = value;
+      }
+    }
+
+    dynamic sanitizeValue(dynamic value) {
+      if (value == null) return null;
+      if (value is String) {
+        final trimmed = value.trim();
+        return trimmed.isEmpty ? null : trimmed;
+      }
+      return value;
+    }
+
+    final normalized = <String, dynamic>{};
+
+    final dynamic asset = sanitizeValue(
+      original.remove('asset') ??
+          original.remove('asset_symbol') ??
+          original.remove('from_asset'),
+    );
+    if (asset != null) {
+      normalized['asset'] = asset;
+    }
+
+    final dynamic secondaryAsset = sanitizeValue(
+      original.remove('secondary_asset') ?? original.remove('to_asset'),
+    );
+    if (secondaryAsset != null) {
+      normalized['secondary_asset'] = secondaryAsset;
+    }
+
+    dynamic network = sanitizeValue(
+      original.remove('network') ??
+          original.remove('asset_network') ??
+          original.remove('from_chain'),
+    );
+    dynamic secondaryNetwork = sanitizeValue(
+      original.remove('secondary_network') ?? original.remove('to_chain'),
+    );
+    final dynamic networksRaw = original.remove('networks');
+    if ((network == null || secondaryNetwork == null) && networksRaw != null) {
+      final parsed = _splitNetworkPair(networksRaw.toString());
+      network ??= parsed.primary;
+      secondaryNetwork ??= parsed.secondary;
+    }
+    if (network != null) {
+      normalized['network'] = network;
+    }
+    if (secondaryNetwork != null) {
+      normalized['secondary_network'] = secondaryNetwork;
+    }
+
+    final dynamic amount =
+        original.remove('amount') ??
+        original.remove('trade_size') ??
+        original.remove('reward_amount');
+    if (amount != null) {
+      normalized['amount'] = amount;
+    }
+
+    final dynamic fee = original.remove('fee');
+    if (fee != null) {
+      normalized['fee'] = fee;
+    }
+
+    final dynamic collectionName = original.remove('collection_name');
+    if (collectionName != null) {
+      normalized['collection_name'] = collectionName;
+    }
+
+    final dynamic tokenId = original.remove('token_id');
+    if (tokenId != null) {
+      normalized['token_id'] = tokenId;
+    }
+
+    final dynamic pair = original.remove('pair');
+    if (pair != null) {
+      normalized['pair'] = pair;
+    }
+
+    final dynamic strategyType = original.remove('strategy_type');
+    if (strategyType != null) {
+      normalized['strategy_type'] = strategyType;
+    }
+
+    final dynamic hdType =
+        original.remove('hd_type') ?? original.remove('wallet_type');
+    if (hdType != null) {
+      normalized['hd_type'] = hdType;
+    }
+
+    final dynamic failureReasonExplicit = original.remove('failure_reason');
+    final dynamic failReason = original.remove('fail_reason');
+    final dynamic failError = original.remove('fail_error');
+    final dynamic failStage = original.remove('fail_stage');
+    final dynamic errorCode = original.remove('error_code');
+    if (failureReasonExplicit != null) {
+      normalized['failure_reason'] = failureReasonExplicit;
+    } else {
+      final parts = <String>[];
+
+      void addPart(String label, dynamic value) {
+        final trimmed = sanitizeValue(value);
+        if (trimmed != null) {
+          parts.add('$label:$trimmed');
+        }
+      }
+
+      addPart('stage', failStage);
+      final dynamic primaryReason = failReason ?? failError;
+      addPart('reason', primaryReason);
+      if (errorCode != null && errorCode != primaryReason) {
+        addPart('code', errorCode);
+      }
+
+      if (parts.isNotEmpty) {
+        normalized['failure_reason'] = parts.join('|');
+      }
+    }
+
+    for (final key in [
+      'screen_context',
+      'stage_skipped',
+      'method',
+      'import_type',
+    ]) {
+      final value = original.remove(key);
+      if (value != null) {
+        normalized[key] = value;
+      }
+    }
+
+    final settingName = original.remove('setting_name');
+    if (settingName != null) {
+      normalized['setting_name'] = settingName;
+    }
+
+    final coinsTotalsKeys = [
+      'total_coins',
+      'total_value_usd',
+      'period',
+      'timeframe',
+      'growth_pct',
+      'realized_pnl',
+      'unrealized_pnl',
+      'profit_usd',
+      'backup_time',
+      'duration_ms',
+      'load_time_ms',
+      'time_to_half_ms',
+      'update_duration_ms',
+      'interactive_delay_ms',
+      'spinner_time_ms',
+      'nft_count',
+      'pairs_count',
+      'base_capital',
+      'account_index',
+      'address_index',
+      'wallet_size',
+      'coins_count',
+      'query_length',
+      'dapp_name',
+      'new_value',
+      'channel',
+      'scroll_delta',
+      'page_name',
+      'expected_reward_amount',
+    ];
+    for (final key in coinsTotalsKeys) {
+      final value = original.remove(key);
+      if (value != null) {
+        normalized[key] = value;
+      }
+    }
+
+    // Visit dimensions should also be part of the normalized map so they can be
+    // routed to Matomo via trackDimensions(). Leaving them here means we can
+    // reuse the same sanitized map for Firebase and app logging.
+    for (final key in _visitDimensionIds.keys) {
+      final value = original.remove(key);
+      if (value != null) {
+        normalized[key] = value;
+      }
+    }
+
+    // Any remaining keys were already using consolidated names or are
+    // provider-specific metadata – keep them to avoid data loss.
+    normalized.addAll(original);
+
+    return normalized;
+  }
+
+  Map<String, String> _extractVisitDimensionUpdates(
+    Map<String, String> parameters,
+  ) {
+    final updates = <String, String>{};
+    for (final entry in _visitDimensionIds.entries) {
+      final value = parameters[entry.key];
+      if (value == null) continue;
+      final dimensionKey = 'dimension${entry.value}';
+      if (_currentVisitDimensions[dimensionKey] != value) {
+        updates[dimensionKey] = value;
+      }
+    }
+    return updates;
+  }
+
+  Future<void> _setVisitDimensions(Map<String, String> updates) async {
+    if (updates.isEmpty) return;
+    try {
+      _instance.trackDimensions(dimensions: updates);
+      _currentVisitDimensions.addAll(updates);
+    } catch (e, s) {
+      if (kDebugMode) {
+        log(
+          'Failed to update Matomo visit dimensions: $e',
+          path: 'analytics -> MatomoAnalyticsApi -> _setVisitDimensions',
+          trace: s,
+          isError: true,
+        );
+      }
+    }
+  }
+
+  Map<String, String> _extractActionDimensions(Map<String, String> parameters) {
+    final dimensions = <String, String>{};
+    for (final entry in _actionDimensionIds.entries) {
+      final value = parameters[entry.key];
+      if (value == null) continue;
+      dimensions['dimension${entry.value}'] = value;
+    }
+    return dimensions;
+  }
+
+  void _ensureAssetDimension(
+    String eventName,
+    Map<String, String> actionDimensions,
+    Map<String, String> parameters,
+  ) {
+    if (!_assetDimensionRequiredEvents.contains(eventName)) {
+      return;
+    }
+
+    final assetDimension = actionDimensions['dimension6'];
+    if (assetDimension != null && assetDimension.trim().isNotEmpty) {
+      return;
+    }
+
+    final fallback = parameters['asset'];
+    if (fallback != null && fallback.trim().isNotEmpty) {
+      actionDimensions['dimension6'] = fallback;
+      return;
+    }
+
+    if (kDebugMode) {
+      log(
+        'Matomo asset dimension missing for $eventName. parameters=$parameters',
+        path: 'analytics -> MatomoAnalyticsApi -> _ensureAssetDimension',
+        isError: true,
+      );
+    }
+  }
+
+  ({String? primary, String? secondary}) _splitNetworkPair(String raw) {
+    const separators = [',', '->', '|', '/'];
+    for (final separator in separators) {
+      if (raw.contains(separator)) {
+        final parts = raw
+            .split(separator)
+            .map((part) => part.trim())
+            .where((part) => part.isNotEmpty)
+            .toList();
+        if (parts.isEmpty) return (primary: null, secondary: null);
+        if (parts.length == 1) {
+          return (primary: parts[0], secondary: null);
+        }
+        return (primary: parts[0], secondary: parts[1]);
+      }
+    }
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) {
+      return (primary: null, secondary: null);
+    }
+    return (primary: trimmed, secondary: null);
   }
 
   /// Extract category from event name (used for Matomo event categorization)

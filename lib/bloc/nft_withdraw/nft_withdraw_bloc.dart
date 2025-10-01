@@ -104,7 +104,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
         NftTransferInitiatedEventData(
           collectionName: nft.collectionName ?? nft.symbol ?? 'unknown',
           tokenId: nft.tokenId,
-          walletType: walletType,
+          hdType: walletType,
         ),
       );
 
@@ -130,8 +130,8 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
         NftTransferFailureEventData(
           collectionName:
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
-          failReason: e.message,
-          walletType: walletType,
+          failureDetail: e.message,
+          hdType: walletType,
         ),
       );
 
@@ -141,8 +141,8 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
         NftTransferFailureEventData(
           collectionName:
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
-          failReason: e.message,
-          walletType: walletType,
+          failureDetail: e.message,
+          hdType: walletType,
         ),
       );
 
@@ -180,8 +180,8 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
         NftTransferFailureEventData(
           collectionName:
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
-          failReason: responseError?.message ?? 'unknown',
-          walletType: walletType,
+          failureDetail: responseError?.message ?? 'unknown',
+          hdType: walletType,
         ),
       );
 
@@ -202,7 +202,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
           tokenId: state.txDetails.tokenId,
           fee: fee,
-          walletType: walletType,
+          hdType: walletType,
         ),
       );
 

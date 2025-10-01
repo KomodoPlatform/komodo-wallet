@@ -119,10 +119,11 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
     if (sellCoin != null && buyCoin != null) {
       context.read<AnalyticsBloc>().logEvent(
         BridgeInitiatedEventData(
-          fromChain: sellCoin.protocolType,
-          toChain: buyCoin.protocolType,
           asset: sellCoin.abbr,
-          walletType:
+          secondaryAsset: buyCoin.abbr,
+          network: sellCoin.protocolType,
+          secondaryNetwork: buyCoin.protocolType,
+          hdType:
               context
                   .read<AuthBloc>()
                   .state

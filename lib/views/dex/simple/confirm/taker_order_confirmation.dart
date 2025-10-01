@@ -321,14 +321,13 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     final buyCoinObj = coinsRepo.getCoin(takerBloc.state.selectedOrder!.coin);
     final sellCoin = sellCoinObj.abbr;
     final buyCoin = buyCoinObj?.abbr ?? takerBloc.state.selectedOrder!.coin;
-    final networks =
-        '${sellCoinObj.protocolType},${buyCoinObj?.protocolType ?? ''}';
     context.read<AnalyticsBloc>().logEvent(
       SwapInitiatedEventData(
-        fromAsset: sellCoin,
-        toAsset: buyCoin,
-        networks: networks,
-        walletType: walletType,
+        asset: sellCoin,
+        secondaryAsset: buyCoin,
+        network: sellCoinObj.protocolType,
+        secondaryNetwork: buyCoinObj?.protocolType ?? 'unknown',
+        hdType: walletType,
       ),
     );
     context.read<TakerBloc>().add(TakerStartSwap());

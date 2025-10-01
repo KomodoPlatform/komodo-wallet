@@ -11,42 +11,42 @@ import '../../bloc/analytics/analytics_repo.dart';
 /// Provides insights on transaction funnel start and popular send assets.
 class SendInitiatedEventData extends AnalyticsEventData {
   const SendInitiatedEventData({
-    required this.assetSymbol,
+    required this.asset,
     required this.network,
     required this.amount,
-    required this.walletType,
+    required this.hdType,
   });
 
-  final String assetSymbol;
+  final String asset;
   final String network;
   final double amount;
-  final String walletType;
+  final String hdType;
 
   @override
   String get name => 'send_initiated';
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
+    'asset': asset,
     'network': network,
     'amount': amount,
-    'wallet_type': walletType,
+    'hd_type': hdType,
   };
 }
 
 /// E14: Send flow started
 class AnalyticsSendInitiatedEvent extends AnalyticsSendDataEvent {
   AnalyticsSendInitiatedEvent({
-    required String assetSymbol,
+    required String asset,
     required String network,
     required double amount,
-    required String walletType,
+    required String hdType,
   }) : super(
          SendInitiatedEventData(
-           assetSymbol: assetSymbol,
+           asset: asset,
            network: network,
            amount: amount,
-           walletType: walletType,
+           hdType: hdType,
          ),
        );
 }
@@ -59,42 +59,42 @@ class AnalyticsSendInitiatedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on successful sends, volume, and average size.
 class SendSucceededEventData extends AnalyticsEventData {
   const SendSucceededEventData({
-    required this.assetSymbol,
+    required this.asset,
     required this.network,
     required this.amount,
-    required this.walletType,
+    required this.hdType,
   });
 
-  final String assetSymbol;
+  final String asset;
   final String network;
   final double amount;
-  final String walletType;
+  final String hdType;
 
   @override
   String get name => 'send_success';
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
+    'asset': asset,
     'network': network,
     'amount': amount,
-    'wallet_type': walletType,
+    'hd_type': hdType,
   };
 }
 
 /// E15: On-chain send completed
 class AnalyticsSendSucceededEvent extends AnalyticsSendDataEvent {
   AnalyticsSendSucceededEvent({
-    required String assetSymbol,
+    required String asset,
     required String network,
     required double amount,
-    required String walletType,
+    required String hdType,
   }) : super(
          SendSucceededEventData(
-           assetSymbol: assetSymbol,
+           asset: asset,
            network: network,
            amount: amount,
-           walletType: walletType,
+           hdType: hdType,
          ),
        );
 }
@@ -107,42 +107,42 @@ class AnalyticsSendSucceededEvent extends AnalyticsSendDataEvent {
 /// Provides insights on error hotspots and UX/network issues.
 class SendFailedEventData extends AnalyticsEventData {
   const SendFailedEventData({
-    required this.assetSymbol,
+    required this.asset,
     required this.network,
-    required this.failReason,
-    required this.walletType,
+    required this.failureReason,
+    required this.hdType,
   });
 
-  final String assetSymbol;
+  final String asset;
   final String network;
-  final String failReason;
-  final String walletType;
+  final String failureReason;
+  final String hdType;
 
   @override
   String get name => 'send_failure';
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
+    'asset': asset,
     'network': network,
-    'fail_reason': failReason,
-    'wallet_type': walletType,
+    'failure_reason': _formatFailureReason(reason: failureReason),
+    'hd_type': hdType,
   };
 }
 
 /// E16: Send failed / cancelled
 class AnalyticsSendFailedEvent extends AnalyticsSendDataEvent {
   AnalyticsSendFailedEvent({
-    required String assetSymbol,
+    required String asset,
     required String network,
-    required String failReason,
-    required String walletType,
+    required String failureReason,
+    required String hdType,
   }) : super(
          SendFailedEventData(
-           assetSymbol: assetSymbol,
+           asset: asset,
            network: network,
-           failReason: failReason,
-           walletType: walletType,
+           failureReason: failureReason,
+           hdType: hdType,
          ),
        );
 }
@@ -155,42 +155,47 @@ class AnalyticsSendFailedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on DEX funnel start and pair demand.
 class SwapInitiatedEventData extends AnalyticsEventData {
   const SwapInitiatedEventData({
-    required this.fromAsset,
-    required this.toAsset,
-    required this.networks,
-    required this.walletType,
+    required this.asset,
+    required this.secondaryAsset,
+    required this.network,
+    required this.secondaryNetwork,
+    required this.hdType,
   });
 
-  final String fromAsset;
-  final String toAsset;
-  final String networks;
-  final String walletType;
+  final String asset;
+  final String secondaryAsset;
+  final String network;
+  final String secondaryNetwork;
+  final String hdType;
 
   @override
   String get name => 'swap_initiated';
 
   @override
   JsonMap get parameters => {
-    'from_asset': fromAsset,
-    'to_asset': toAsset,
-    'networks': networks,
-    'wallet_type': walletType,
+    'asset': asset,
+    'secondary_asset': secondaryAsset,
+    'network': network,
+    'secondary_network': secondaryNetwork,
+    'hd_type': hdType,
   };
 }
 
 /// E17: Swap order submitted
 class AnalyticsSwapInitiatedEvent extends AnalyticsSendDataEvent {
   AnalyticsSwapInitiatedEvent({
-    required String fromAsset,
-    required String toAsset,
-    required String networks,
-    required String walletType,
+    required String asset,
+    required String secondaryAsset,
+    required String network,
+    required String secondaryNetwork,
+    required String hdType,
   }) : super(
          SwapInitiatedEventData(
-           fromAsset: fromAsset,
-           toAsset: toAsset,
-           networks: networks,
-           walletType: walletType,
+           asset: asset,
+           secondaryAsset: secondaryAsset,
+           network: network,
+           secondaryNetwork: secondaryNetwork,
+           hdType: hdType,
          ),
        );
 }
@@ -203,19 +208,23 @@ class AnalyticsSwapInitiatedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on trading volume and fee revenue.
 class SwapSucceededEventData extends AnalyticsEventData {
   const SwapSucceededEventData({
-    required this.fromAsset,
-    required this.toAsset,
+    required this.asset,
+    required this.secondaryAsset,
+    required this.network,
+    required this.secondaryNetwork,
     required this.amount,
     required this.fee,
-    required this.walletType,
+    required this.hdType,
     this.durationMs,
   });
 
-  final String fromAsset;
-  final String toAsset;
+  final String asset;
+  final String secondaryAsset;
+  final String network;
+  final String secondaryNetwork;
   final double amount;
   final double fee;
-  final String walletType;
+  final String hdType;
   final int? durationMs;
 
   @override
@@ -223,11 +232,13 @@ class SwapSucceededEventData extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_asset': fromAsset,
-    'to_asset': toAsset,
+    'asset': asset,
+    'secondary_asset': secondaryAsset,
+    'network': network,
+    'secondary_network': secondaryNetwork,
     'amount': amount,
     'fee': fee,
-    'wallet_type': walletType,
+    'hd_type': hdType,
     if (durationMs != null) 'duration_ms': durationMs,
   };
 }
@@ -235,19 +246,23 @@ class SwapSucceededEventData extends AnalyticsEventData {
 /// E18: Atomic swap succeeded
 class AnalyticsSwapSucceededEvent extends AnalyticsSendDataEvent {
   AnalyticsSwapSucceededEvent({
-    required String fromAsset,
-    required String toAsset,
+    required String asset,
+    required String secondaryAsset,
+    required String network,
+    required String secondaryNetwork,
     required double amount,
     required double fee,
-    required String walletType,
+    required String hdType,
     int? durationMs,
   }) : super(
          SwapSucceededEventData(
-           fromAsset: fromAsset,
-           toAsset: toAsset,
+           asset: asset,
+           secondaryAsset: secondaryAsset,
+           network: network,
+           secondaryNetwork: secondaryNetwork,
            amount: amount,
            fee: fee,
-           walletType: walletType,
+           hdType: hdType,
            durationMs: durationMs,
          ),
        );
@@ -261,17 +276,23 @@ class AnalyticsSwapSucceededEvent extends AnalyticsSendDataEvent {
 /// Provides insights on liquidity gaps and technical/UX blockers.
 class SwapFailedEventData extends AnalyticsEventData {
   const SwapFailedEventData({
-    required this.fromAsset,
-    required this.toAsset,
-    required this.failStage,
-    required this.walletType,
+    required this.asset,
+    required this.secondaryAsset,
+    required this.network,
+    required this.secondaryNetwork,
+    required this.failureStage,
+    this.failureDetail,
+    required this.hdType,
     this.durationMs,
   });
 
-  final String fromAsset;
-  final String toAsset;
-  final String failStage;
-  final String walletType;
+  final String asset;
+  final String secondaryAsset;
+  final String network;
+  final String secondaryNetwork;
+  final String failureStage;
+  final String? failureDetail;
+  final String hdType;
   final int? durationMs;
 
   @override
@@ -279,10 +300,15 @@ class SwapFailedEventData extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'from_asset': fromAsset,
-    'to_asset': toAsset,
-    'fail_stage': failStage,
-    'wallet_type': walletType,
+    'asset': asset,
+    'secondary_asset': secondaryAsset,
+    'network': network,
+    'secondary_network': secondaryNetwork,
+    'failure_reason': _formatFailureReason(
+      stage: failureStage,
+      reason: failureDetail,
+    ),
+    'hd_type': hdType,
     if (durationMs != null) 'duration_ms': durationMs,
   };
 }
@@ -290,18 +316,53 @@ class SwapFailedEventData extends AnalyticsEventData {
 /// E19: Swap failed
 class AnalyticsSwapFailedEvent extends AnalyticsSendDataEvent {
   AnalyticsSwapFailedEvent({
-    required String fromAsset,
-    required String toAsset,
-    required String failStage,
-    required String walletType,
+    required String asset,
+    required String secondaryAsset,
+    required String network,
+    required String secondaryNetwork,
+    required String failureStage,
+    String? failureDetail,
+    required String hdType,
     int? durationMs,
   }) : super(
          SwapFailedEventData(
-           fromAsset: fromAsset,
-           toAsset: toAsset,
-           failStage: failStage,
-           walletType: walletType,
+           asset: asset,
+           secondaryAsset: secondaryAsset,
+           network: network,
+           secondaryNetwork: secondaryNetwork,
+           failureStage: failureStage,
+           failureDetail: failureDetail,
+           hdType: hdType,
            durationMs: durationMs,
          ),
        );
+}
+
+String _formatFailureReason({String? stage, String? reason, String? code}) {
+  final parts = <String>[];
+
+  String? sanitize(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  final sanitizedStage = sanitize(stage);
+  final sanitizedReason = sanitize(reason);
+  final sanitizedCode = sanitize(code);
+
+  if (sanitizedStage != null) {
+    parts.add('stage:$sanitizedStage');
+  }
+  if (sanitizedReason != null) {
+    parts.add('reason:$sanitizedReason');
+  }
+  if (sanitizedCode != null && sanitizedCode != sanitizedReason) {
+    parts.add('code:$sanitizedCode');
+  }
+
+  if (parts.isEmpty) {
+    return 'reason:unknown';
+  }
+  return parts.join('|');
 }

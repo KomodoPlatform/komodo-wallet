@@ -51,78 +51,80 @@ class PrivateKeyShow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenshotSensitive(child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        if (!isMobile)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: SeedBackButton(() {
-              // Track analytics based on whether keys were copied
-              final wasBackupCompleted = context
-                  .read<SecuritySettingsBloc>()
-                  .state
-                  .arePrivateKeysSaved;
+    return ScreenshotSensitive(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          if (!isMobile)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: SeedBackButton(() {
+                // Track analytics based on whether keys were copied
+                final wasBackupCompleted = context
+                    .read<SecuritySettingsBloc>()
+                    .state
+                    .arePrivateKeysSaved;
 
-              final walletType =
-                  context
-                      .read<AuthBloc>()
-                      .state
-                      .currentUser
-                      ?.wallet
-                      .config
-                      .type
-                      .name ??
-                  '';
+                final walletType =
+                    context
+                        .read<AuthBloc>()
+                        .state
+                        .currentUser
+                        ?.wallet
+                        .config
+                        .type
+                        .name ??
+                    '';
 
-              if (wasBackupCompleted) {
-                // User copied keys, so track as completed backup
-                context.read<AnalyticsBloc>().add(
-                  AnalyticsBackupCompletedEvent(
-                    backupTime: 0,
-                    method: 'private_key_export',
-                    walletType: walletType,
-                  ),
-                );
-              } else {
-                // User didn't copy keys, so track as skipped
-                context.read<AnalyticsBloc>().add(
-                  AnalyticsBackupSkippedEvent(
-                    stageSkipped: 'private_key_show',
-                    walletType: walletType,
-                  ),
-                );
-              }
+                if (wasBackupCompleted) {
+                  // User copied keys, so track as completed backup
+                  context.read<AnalyticsBloc>().add(
+                    AnalyticsBackupCompletedEvent(
+                      backupTime: 0,
+                      method: 'private_key_export',
+                      hdType: walletType,
+                    ),
+                  );
+                } else {
+                  // User didn't copy keys, so track as skipped
+                  context.read<AnalyticsBloc>().add(
+                    AnalyticsBackupSkippedEvent(
+                      stageSkipped: 'private_key_show',
+                      hdType: walletType,
+                    ),
+                  );
+                }
 
-              context.read<SecuritySettingsBloc>().add(const ResetEvent());
-            }),
-          ),
-
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _TitleRow(),
-            const SizedBox(height: 16),
-            const _SecurityWarning(),
-            const SizedBox(height: 16),
-            const _CopyWarning(),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const _ShowingSwitcher(),
-                Flexible(
-                  child: PrivateKeyActionsWidget(privateKeys: privateKeys),
-                ),
-              ],
+                context.read<SecuritySettingsBloc>().add(const ResetEvent());
+              }),
             ),
-            const SizedBox(height: 16),
-            ExpandablePrivateKeyList(privateKeys: privateKeys),
-          ],
-        ),
-      ],
-    ));
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _TitleRow(),
+              const SizedBox(height: 16),
+              const _SecurityWarning(),
+              const SizedBox(height: 16),
+              const _CopyWarning(),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const _ShowingSwitcher(),
+                  Flexible(
+                    child: PrivateKeyActionsWidget(privateKeys: privateKeys),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ExpandablePrivateKeyList(privateKeys: privateKeys),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

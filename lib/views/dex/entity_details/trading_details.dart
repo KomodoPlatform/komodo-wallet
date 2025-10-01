@@ -155,56 +155,62 @@ class _TradingDetailsState extends State<TradingDetails> {
             break;
           }
         }
+        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
+        final fromNetwork =
+            coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
+        final toNetwork = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
         context.read<AnalyticsBloc>().logEvent(
           SwapSucceededEventData(
-            fromAsset: fromAsset,
-            toAsset: toAsset,
+            asset: fromAsset,
+            secondaryAsset: toAsset,
+            network: fromNetwork,
+            secondaryNetwork: toNetwork,
             amount: swapStatus.sellAmount.toDouble(),
             fee: fee,
-            walletType: walletType ?? 'unknown',
+            hdType: walletType ?? 'unknown',
             durationMs: durationMs,
           ),
         );
-
-        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
         if (swapStatus.isTheSameTicker) {
-          final fromChain =
-              coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
-          final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
           context.read<AnalyticsBloc>().logEvent(
             BridgeSucceededEventData(
-              fromChain: fromChain,
-              toChain: toChain,
               asset: fromAsset,
+              secondaryAsset: toAsset,
+              network: fromNetwork,
+              secondaryNetwork: toNetwork,
               amount: swapStatus.sellAmount.toDouble(),
-              walletType: walletType ?? 'unknown',
+              hdType: walletType ?? 'unknown',
               durationMs: durationMs,
             ),
           );
         }
       } else if (swapStatus.isFailed && !_loggedFailure) {
         _loggedFailure = true;
+        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
+        final fromNetwork =
+            coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
+        final toNetwork = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
         context.read<AnalyticsBloc>().logEvent(
           SwapFailedEventData(
-            fromAsset: fromAsset,
-            toAsset: toAsset,
-            failStage: swapStatus.status.name,
-            walletType: walletType ?? 'unknown',
+            asset: fromAsset,
+            secondaryAsset: toAsset,
+            network: fromNetwork,
+            secondaryNetwork: toNetwork,
+            failureStage: swapStatus.status.name,
+            hdType: walletType ?? 'unknown',
             durationMs: durationMs,
           ),
         );
-
-        final coinsRepo = RepositoryProvider.of<CoinsRepo>(context);
         if (swapStatus.isTheSameTicker) {
-          final fromChain =
-              coinsRepo.getCoin(fromAsset)?.protocolType ?? 'unknown';
-          final toChain = coinsRepo.getCoin(toAsset)?.protocolType ?? 'unknown';
           context.read<AnalyticsBloc>().logEvent(
             BridgeFailedEventData(
-              fromChain: fromChain,
-              toChain: toChain,
-              failError: swapStatus.status.name,
-              walletType: walletType ?? 'unknown',
+              asset: fromAsset,
+              secondaryAsset: toAsset,
+              network: fromNetwork,
+              secondaryNetwork: toNetwork,
+              failureStage: swapStatus.status.name,
+              failureDetail: swapStatus.status.name,
+              hdType: walletType ?? 'unknown',
               durationMs: durationMs,
             ),
           );

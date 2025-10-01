@@ -123,38 +123,34 @@ class AnalyticsPortfolioPnlViewedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on token diversity and network popularity.
 class AssetAddedEventData extends AnalyticsEventData {
   const AssetAddedEventData({
-    required this.assetSymbol,
-    required this.assetNetwork,
-    required this.walletType,
+    required this.asset,
+    required this.network,
+    required this.hdType,
   });
 
-  final String assetSymbol;
-  final String assetNetwork;
-  final String walletType;
+  final String asset;
+  final String network;
+  final String hdType;
 
   @override
   String get name => 'add_asset';
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
-    'asset_network': assetNetwork,
-    'wallet_type': walletType,
+    'asset': asset,
+    'network': network,
+    'hd_type': hdType,
   };
 }
 
 /// E10: Custom token added
 class AnalyticsAssetAddedEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetAddedEvent({
-    required String assetSymbol,
-    required String assetNetwork,
-    required String walletType,
+    required String asset,
+    required String network,
+    required String hdType,
   }) : super(
-         AssetAddedEventData(
-           assetSymbol: assetSymbol,
-           assetNetwork: assetNetwork,
-           walletType: walletType,
-         ),
+         AssetAddedEventData(asset: asset, network: network, hdType: hdType),
        );
 }
 
@@ -166,38 +162,34 @@ class AnalyticsAssetAddedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on asset popularity and research depth.
 class AssetViewedEventData extends AnalyticsEventData {
   const AssetViewedEventData({
-    required this.assetSymbol,
-    required this.assetNetwork,
-    required this.walletType,
+    required this.asset,
+    required this.network,
+    required this.hdType,
   });
 
-  final String assetSymbol;
-  final String assetNetwork;
-  final String walletType;
+  final String asset;
+  final String network;
+  final String hdType;
 
   @override
   String get name => 'view_asset';
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
-    'asset_network': assetNetwork,
-    'wallet_type': walletType,
+    'asset': asset,
+    'network': network,
+    'hd_type': hdType,
   };
 }
 
 /// E11: Asset detail viewed
 class AnalyticsAssetViewedEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetViewedEvent({
-    required String assetSymbol,
-    required String assetNetwork,
-    required String walletType,
+    required String asset,
+    required String network,
+    required String hdType,
   }) : super(
-         AssetViewedEventData(
-           assetSymbol: assetSymbol,
-           assetNetwork: assetNetwork,
-           walletType: walletType,
-         ),
+         AssetViewedEventData(asset: asset, network: network, hdType: hdType),
        );
 }
 
@@ -209,38 +201,34 @@ class AnalyticsAssetViewedEvent extends AnalyticsSendDataEvent {
 /// Provides insights on which assets users want on dashboard and feature adoption.
 class AssetEnabledEventData extends AnalyticsEventData {
   const AssetEnabledEventData({
-    required this.assetSymbol,
-    required this.assetNetwork,
-    required this.walletType,
+    required this.asset,
+    required this.network,
+    required this.hdType,
   });
 
-  final String assetSymbol;
-  final String assetNetwork;
-  final String walletType;
+  final String asset;
+  final String network;
+  final String hdType;
 
   @override
   String get name => 'asset_enabled';
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
-    'asset_network': assetNetwork,
-    'wallet_type': walletType,
+    'asset': asset,
+    'network': network,
+    'hd_type': hdType,
   };
 }
 
 /// E12: Existing asset toggled on / made visible
 class AnalyticsAssetEnabledEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetEnabledEvent({
-    required String assetSymbol,
-    required String assetNetwork,
-    required String walletType,
+    required String asset,
+    required String network,
+    required String hdType,
   }) : super(
-         AssetEnabledEventData(
-           assetSymbol: assetSymbol,
-           assetNetwork: assetNetwork,
-           walletType: walletType,
-         ),
+         AssetEnabledEventData(asset: asset, network: network, hdType: hdType),
        );
 }
 
@@ -252,37 +240,33 @@ class AnalyticsAssetEnabledEvent extends AnalyticsSendDataEvent {
 /// Provides insights on portfolio-cleanup behavior and waning asset interest.
 class AssetDisabledEventData extends AnalyticsEventData {
   const AssetDisabledEventData({
-    required this.assetSymbol,
-    required this.assetNetwork,
-    required this.walletType,
+    required this.asset,
+    required this.network,
+    required this.hdType,
   });
 
-  final String assetSymbol;
-  final String assetNetwork;
-  final String walletType;
+  final String asset;
+  final String network;
+  final String hdType;
 
   @override
   String get name => 'asset_disabled';
 
   @override
   JsonMap get parameters => {
-    'asset_symbol': assetSymbol,
-    'asset_network': assetNetwork,
-    'wallet_type': walletType,
+    'asset': asset,
+    'network': network,
+    'hd_type': hdType,
   };
 }
 
 /// E13: Token toggled off / hidden
 class AnalyticsAssetDisabledEvent extends AnalyticsSendDataEvent {
   AnalyticsAssetDisabledEvent({
-    required String assetSymbol,
-    required String assetNetwork,
-    required String walletType,
+    required String asset,
+    required String network,
+    required String hdType,
   }) : super(
-         AssetDisabledEventData(
-           assetSymbol: assetSymbol,
-           assetNetwork: assetNetwork,
-           walletType: walletType,
-         ),
+         AssetDisabledEventData(asset: asset, network: network, hdType: hdType),
        );
 }

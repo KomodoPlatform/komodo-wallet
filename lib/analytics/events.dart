@@ -19,12 +19,12 @@ class HdAddressGeneratedEventData extends AnalyticsEventData {
   const HdAddressGeneratedEventData({
     required this.accountIndex,
     required this.addressIndex,
-    required this.assetSymbol,
+    required this.asset,
   });
 
   final int accountIndex;
   final int addressIndex;
-  final String assetSymbol;
+  final String asset;
 
   @override
   String get name => 'hd_address_generated';
@@ -33,7 +33,7 @@ class HdAddressGeneratedEventData extends AnalyticsEventData {
   Map<String, Object> get parameters => {
     'account_index': accountIndex,
     'address_index': addressIndex,
-    'asset_symbol': assetSymbol,
+    'asset': asset,
   };
 }
 
@@ -42,12 +42,12 @@ class AnalyticsHdAddressGeneratedEvent extends AnalyticsSendDataEvent {
   AnalyticsHdAddressGeneratedEvent({
     required int accountIndex,
     required int addressIndex,
-    required String assetSymbol,
+    required String asset,
   }) : super(
          HdAddressGeneratedEventData(
            accountIndex: accountIndex,
            addressIndex: addressIndex,
-           assetSymbol: assetSymbol,
+           asset: asset,
          ),
        );
 }

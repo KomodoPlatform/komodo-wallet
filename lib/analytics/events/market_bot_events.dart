@@ -70,12 +70,12 @@ class AnalyticsMarketbotSetupCompleteEvent extends AnalyticsSendDataEvent {
 class MarketbotTradeExecutedEventData extends AnalyticsEventData {
   const MarketbotTradeExecutedEventData({
     required this.pair,
-    required this.tradeSize,
+    required this.amount,
     required this.profitUsd,
   });
 
   final String pair;
-  final double tradeSize;
+  final double amount;
   final double profitUsd;
 
   @override
@@ -84,7 +84,7 @@ class MarketbotTradeExecutedEventData extends AnalyticsEventData {
   @override
   JsonMap get parameters => {
     'pair': pair,
-    'trade_size': tradeSize,
+    'amount': amount,
     'profit_usd': profitUsd,
   };
 }
@@ -92,12 +92,12 @@ class MarketbotTradeExecutedEventData extends AnalyticsEventData {
 class AnalyticsMarketbotTradeExecutedEvent extends AnalyticsSendDataEvent {
   AnalyticsMarketbotTradeExecutedEvent({
     required String pair,
-    required double tradeSize,
+    required double amount,
     required double profitUsd,
   }) : super(
          MarketbotTradeExecutedEventData(
            pair: pair,
-           tradeSize: tradeSize,
+           amount: amount,
            profitUsd: profitUsd,
          ),
        );
@@ -106,11 +106,11 @@ class AnalyticsMarketbotTradeExecutedEvent extends AnalyticsSendDataEvent {
 /// E30: Bot error encountered
 class MarketbotErrorEventData extends AnalyticsEventData {
   const MarketbotErrorEventData({
-    required this.errorCode,
+    required this.failureDetail,
     required this.strategyType,
   });
 
-  final String errorCode;
+  final String failureDetail;
   final String strategyType;
 
   @override
@@ -118,19 +118,48 @@ class MarketbotErrorEventData extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-    'error_code': errorCode,
+    'failure_reason': _formatFailureReason(reason: failureDetail),
     'strategy_type': strategyType,
   };
 }
 
 class AnalyticsMarketbotErrorEvent extends AnalyticsSendDataEvent {
   AnalyticsMarketbotErrorEvent({
-    required String errorCode,
+    required String failureDetail,
     required String strategyType,
   }) : super(
          MarketbotErrorEventData(
-           errorCode: errorCode,
+           failureDetail: failureDetail,
            strategyType: strategyType,
          ),
        );
+}
+
+String _formatFailureReason({String? stage, String? reason, String? code}) {
+  final parts = <String>[];
+
+  String? sanitize(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  final sanitizedStage = sanitize(stage);
+  final sanitizedReason = sanitize(reason);
+  final sanitizedCode = sanitize(code);
+
+  if (sanitizedStage != null) {
+    parts.add('stage:$sanitizedStage');
+  }
+  if (sanitizedReason != null) {
+    parts.add('reason:$sanitizedReason');
+  }
+  if (sanitizedCode != null && sanitizedCode != sanitizedReason) {
+    parts.add('code:$sanitizedCode');
+  }
+
+  if (parts.isEmpty) {
+    return 'reason:unknown';
+  }
+  return parts.join('|');
 }

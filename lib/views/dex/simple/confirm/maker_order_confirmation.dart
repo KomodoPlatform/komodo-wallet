@@ -317,14 +317,13 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
     final sellCoin = makerFormBloc.sellCoin!.abbr;
     final buyCoin = makerFormBloc.buyCoin!.abbr;
-    final networks =
-        '${makerFormBloc.sellCoin!.protocolType},${makerFormBloc.buyCoin!.protocolType}';
     context.read<AnalyticsBloc>().logEvent(
       SwapInitiatedEventData(
-        fromAsset: sellCoin,
-        toAsset: buyCoin,
-        networks: networks,
-        walletType: walletType,
+        asset: sellCoin,
+        secondaryAsset: buyCoin,
+        network: makerFormBloc.sellCoin!.protocolType,
+        secondaryNetwork: makerFormBloc.buyCoin!.protocolType,
+        hdType: walletType,
       ),
     );
 
