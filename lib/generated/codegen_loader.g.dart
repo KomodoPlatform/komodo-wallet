@@ -774,6 +774,7 @@ abstract class  LocaleKeys {
   static const zhtlcPreparingDownload = 'zhtlcPreparingDownload';
   static const zhtlcErrorSettingUpZcash = 'zhtlcErrorSettingUpZcash';
   static const zhtlcDateSyncHint = 'zhtlcDateSyncHint';
-  static const activatingZhtlcCoins = 'activatingZhtlcCoins';
+  static const zhtlcActivating = 'zhtlcActivating';
+  static const zhtlcActivationWarning = 'zhtlcActivationWarning';
 
 }

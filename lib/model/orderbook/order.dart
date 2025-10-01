@@ -49,22 +49,19 @@ class Order {
     required String rel,
     required OrderDirection direction,
   }) {
-    final Rational? price = _numericValueToRational(info.price);
+    final Rational? price = info.price?.toRational();
 
-    final Rational? maxVolume = _numericValueToRational(
-      info.baseMaxVolume ?? info.baseMaxVolumeAggregated,
-    );
+    final Rational? maxVolume =
+        (info.baseMaxVolume ?? info.baseMaxVolumeAggregated)?.toRational();
 
     if (price == null || maxVolume == null) {
       throw ArgumentError('Invalid price or maxVolume in OrderInfo');
     }
 
-    final Rational? minVolume = _numericValueToRational(
-      info.baseMinVolume,
-    );
+    final Rational? minVolume = info.baseMinVolume?.toRational();
 
     final Rational? minVolumeRel =
-        _numericValueToRational(info.relMinVolume) ??
+        info.relMinVolume?.toRational() ??
         (minVolume != null ? minVolume * price : null);
 
     return Order(
@@ -94,29 +91,6 @@ class Order {
 
   bool get isBid => direction == OrderDirection.bid;
   bool get isAsk => direction == OrderDirection.ask;
-
-  static Rational? _numericValueToRational(NumericValue? value) {
-    if (value == null) return null;
-    if (value.rational != null) {
-      return value.rational;
-    }
-    final fraction = value.fraction;
-    if (fraction != null) {
-      final fractionRat = fract2rat(fraction.toJson(), false);
-      if (fractionRat != null) {
-        return fractionRat;
-      }
-    }
-    final decimal = value.decimal.trim();
-    if (decimal.isEmpty) {
-      return null;
-    }
-    try {
-      return Rational.parse(decimal);
-    } catch (_) {
-      return null;
-    }
-  }
 }
 
 enum OrderDirection { bid, ask }
@@ -124,3 +98,22 @@ enum OrderDirection { bid, ask }
 // This const is used to identify and highlight newly created
 // order preview in maker form orderbook (instead of isTarget flag)
 final String orderPreviewUuid = const Uuid().v1();
+
+extension NumericValueExtension on NumericValue {
+  Rational toRational() {
+    if (rational != null) {
+      return rational!;
+    }
+    if (fraction != null) {
+      final fractionRat = fract2rat(fraction!.toJson(), false);
+      if (fractionRat != null) {
+        return fractionRat;
+      }
+    }
+    final decimal = this.decimal.trim();
+    if (decimal.isEmpty) {
+      throw ArgumentError('NumericValue has empty decimal string');
+    }
+    return Rational.parse(decimal);
+  }
+}

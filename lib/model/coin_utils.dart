@@ -11,7 +11,7 @@ import 'package:web_dex/shared/utils/utils.dart';
 /// 2. If no balance, sort by priority (higher priority first)
 /// 3. If same priority, sort alphabetically
 List<Coin> sortByPriorityAndBalance(List<Coin> coins, KomodoDefiSdk sdk) {
-  final List<Coin> list = List.from(coins);
+  final List<Coin> list = List.of(coins);
   list.sort((a, b) {
     final double usdBalanceA = a.lastKnownUsdBalance(sdk) ?? 0.00;
     final double usdBalanceB = b.lastKnownUsdBalance(sdk) ?? 0.00;
@@ -36,7 +36,7 @@ List<Coin> sortByPriorityAndBalance(List<Coin> coins, KomodoDefiSdk sdk) {
 }
 
 List<Coin> sortFiatBalance(List<Coin> coins, KomodoDefiSdk sdk) {
-  final List<Coin> list = List.from(coins);
+  final List<Coin> list = List.of(coins);
   list.sort((a, b) {
     final double usdBalanceA = a.lastKnownUsdBalance(sdk) ?? 0.00;
     final double usdBalanceB = b.lastKnownUsdBalance(sdk) ?? 0.00;
@@ -57,28 +57,11 @@ List<Coin> sortFiatBalance(List<Coin> coins, KomodoDefiSdk sdk) {
 }
 
 List<Coin> removeTestCoins(List<Coin> coins) {
-  final List<Coin> list = List.from(coins);
-
-  list.removeWhere((Coin coin) => coin.isTestCoin);
-
-  return list;
+  return coins.where((Coin coin) => !coin.isTestCoin).toList();
 }
 
 List<Coin> removeWalletOnly(List<Coin> coins) {
-  final List<Coin> list = List.from(coins);
-
-  list.removeWhere((Coin coin) => coin.walletOnly);
-
-  return list;
-}
-
-List<Coin> removeSuspended(List<Coin> coins, bool isLoggedIn) {
-  if (!isLoggedIn) return coins;
-  final List<Coin> list = List.from(coins);
-
-  list.removeWhere((Coin coin) => coin.isSuspended);
-
-  return list;
+  return coins.where((Coin coin) => !coin.walletOnly).toList();
 }
 
 Map<String, List<Coin>> removeSingleProtocol(Map<String, List<Coin>> group) {

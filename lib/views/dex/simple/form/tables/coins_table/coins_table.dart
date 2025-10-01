@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/views/dex/common/front_plate.dart';
 import 'package:web_dex/views/dex/simple/form/tables/coins_table/coins_table_content.dart';
@@ -22,6 +23,13 @@ class CoinsTable extends StatefulWidget {
 
 class _CoinsTableState extends State<CoinsTable> {
   String? _searchTerm;
+  late final Debouncer _searchDebouncer;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchDebouncer = Debouncer(duration: const Duration(milliseconds: 200));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +46,12 @@ class _CoinsTableState extends State<CoinsTable> {
               child: TableSearchField(
                 height: 30,
                 onChanged: (String value) {
-                  if (_searchTerm == value) return;
-                  setState(() => _searchTerm = value);
+                  final nextValue = value;
+                  _searchDebouncer.run(() {
+                    if (!mounted) return;
+                    if (_searchTerm == nextValue) return;
+                    setState(() => _searchTerm = nextValue);
+                  });
                 },
               ),
             ),
@@ -53,5 +65,11 @@ class _CoinsTableState extends State<CoinsTable> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchDebouncer.dispose();
+    super.dispose();
   }
 }

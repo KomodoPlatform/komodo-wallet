@@ -114,7 +114,6 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
       return const SizedBox.shrink();
     }
 
-    final coinNames = activeStatuses.map((entry) => entry.key.id).join(', ');
     final coinCount = activeStatuses.length;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -149,11 +148,16 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: AutoScrollText(
-                      text: LocaleKeys.activatingZhtlcCoins.plural(coinCount),
+                      text: LocaleKeys.zhtlcActivating.plural(coinCount),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
                         fontWeight: FontWeight.w500,
                       ),
+                    ),
+                  ),
+                  Expanded(
+                    child: AutoScrollText(
+                      text: LocaleKeys.zhtlcActivationWarning.tr(),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
                 ],

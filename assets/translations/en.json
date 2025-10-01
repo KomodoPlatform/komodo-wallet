@@ -784,8 +784,9 @@
   "zhtlcPreparingDownload": "Preparing download...",
   "zhtlcErrorSettingUpZcash": "Error setting up Zcash parameters: {}",
   "zhtlcDateSyncHint": "Selecting a date further in the past can significantly increase the activation time. \nActivation can take a little while the first time to download block cache data.\n\nTransactions and balance prior to the sync date may be missing.\nOften this can be restored by sending in and out new transactions",
-  "activatingZhtlcCoins": {
+  "zhtlcActivating": {
     "one": "Activating ZHTLC coin. Please do not close the app or tab until complete.",
     "other": "Activating ZHTLC coins. Please do not close the app or tab until complete."
-  }
+  },
+  "zhtlcActivationWarning": "This may take from a few minutes to a few hours, depending on your sync params and how long since your last sync."
 }

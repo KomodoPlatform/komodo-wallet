@@ -88,24 +88,15 @@ class OrderbookBloc implements BlocBase {
       final result = OrderbookResult(response: response);
       subscription.initialData = result;
       subscription.sink.add(result);
-    } on GeneralErrorResponse catch (error) {
-      final message = error.error ?? error.toString();
-      log(
-        'Orderbook request failed for pair $pair: $message',
-        path: 'OrderbookBloc._fetchOrderbook',
-        isError: true,
-      ).ignore();
-      final result = OrderbookResult(error: message);
-      subscription.initialData = result;
-      subscription.sink.add(result);
     } catch (e, s) {
       log(
-        'Unexpected orderbook error for pair $pair: $e',
+        // Exception message can contain RPC pass, so avoid displaying it and logging it
+        'Unexpected orderbook error for pair $pair',
         path: 'OrderbookBloc._fetchOrderbook',
         trace: s,
         isError: true,
       ).ignore();
-      final result = OrderbookResult(error: e.toString());
+      final result = OrderbookResult(error: 'Unexpected error for pair $pair');
       subscription.initialData = result;
       subscription.sink.add(result);
     }

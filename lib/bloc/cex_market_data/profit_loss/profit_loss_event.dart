@@ -17,13 +17,11 @@ class ProfitLossPortfolioChartLoadRequested extends ProfitLossEvent {
     required this.fiatCoinId,
     required this.selectedPeriod,
     required this.walletId,
-    this.updateFrequency = const Duration(minutes: 2),
   });
 
   final List<Coin> coins;
   final String fiatCoinId;
   final Duration selectedPeriod;
-  final Duration updateFrequency;
   final String walletId;
 
   @override
@@ -32,19 +30,16 @@ class ProfitLossPortfolioChartLoadRequested extends ProfitLossEvent {
         fiatCoinId,
         selectedPeriod,
         walletId,
-        updateFrequency,
       ];
 }
 
 class ProfitLossPortfolioPeriodChanged extends ProfitLossEvent {
   const ProfitLossPortfolioPeriodChanged({
     required this.selectedPeriod,
-    this.updateFrequency = const Duration(minutes: 2),
   });
 
   final Duration selectedPeriod;
-  final Duration updateFrequency;
 
   @override
-  List<Object> get props => [selectedPeriod, updateFrequency];
+  List<Object> get props => [selectedPeriod];
 }

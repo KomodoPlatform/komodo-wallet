@@ -55,7 +55,6 @@ class BridgeRepository {
   Future<CoinsByTicker> getAvailableTickers() async {
     List<Coin> coins = _coinsRepository.getKnownCoins();
     coins = removeWalletOnly(coins);
-    coins = removeSuspended(coins, await _kdfSdk.auth.isSignedIn());
 
     final CoinsByTicker coinsByTicker = convertToCoinsByTicker(coins);
     final CoinsByTicker multiProtocolCoins =
