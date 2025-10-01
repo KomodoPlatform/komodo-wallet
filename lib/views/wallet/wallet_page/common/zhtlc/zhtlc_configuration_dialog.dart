@@ -103,12 +103,13 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
     super.initState();
 
     // On web, use './zcash-params' as default, otherwise use prefilledZcashPath
+    // TODO: get from config factory constructor, or move to constants
     final defaultZcashPath = kIsWeb
         ? './zcash-params'
         : widget.prefilledZcashPath;
     zcashPathController = TextEditingController(text: defaultZcashPath);
     blocksPerIterController = TextEditingController(text: '1000');
-    intervalMsController = TextEditingController(text: '0');
+    intervalMsController = TextEditingController(text: '200');
 
     _subscribeToAuthChanges();
   }

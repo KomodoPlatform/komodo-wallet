@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
-    show GeneralErrorResponse, OrderbookResponse;
+    show OrderbookResponse;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/blocs/bloc_base.dart';

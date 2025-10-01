@@ -154,6 +154,11 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
                       ),
                     ),
                   ),
+                ],
+              ),
+              Row(
+                children: [
+                  const SizedBox(width: 26),
                   Expanded(
                     child: AutoScrollText(
                       text: LocaleKeys.zhtlcActivationWarning.tr(),
