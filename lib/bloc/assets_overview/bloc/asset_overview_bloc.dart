@@ -94,10 +94,17 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
         return;
       }
 
-      await _sdk.waitForEnabledCoinsToPassThreshold(event.coins);
+      final supportedCoins = await event.coins.filterSupportedCoins();
+      if (supportedCoins.isEmpty) {
+        _log.warning('No supported coins to load portfolio overview for');
+        return;
+      }
 
-      final activeCoins = await event.coins.removeInactiveCoins(_sdk);
+      await _sdk.waitForEnabledCoinsToPassThreshold(supportedCoins);
+
+      final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);
       if (activeCoins.isEmpty) {
+        _log.warning('No active coins to load portfolio overview for');
         return;
       }
 
@@ -136,7 +143,7 @@ class AssetOverviewBloc extends Bloc<AssetOverviewEvent, AssetOverviewState> {
 
       emit(
         PortfolioAssetsOverviewLoadSuccess(
-          selectedAssetIds: event.coins.map((coin) => coin.id.id).toList(),
+          selectedAssetIds: activeCoins.map((coin) => coin.id.id).toList(),
           assetPortionPercentages: assetPortionPercentages,
           totalInvestment: totalInvestment,
           totalValue: FiatValue.usd(profitAmount),

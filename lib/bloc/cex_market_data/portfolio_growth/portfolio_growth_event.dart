@@ -17,23 +17,15 @@ class PortfolioGrowthLoadRequested extends PortfolioGrowthEvent {
     required this.fiatCoinId,
     required this.selectedPeriod,
     required this.walletId,
-    this.updateFrequency = const Duration(minutes: 1),
   });
 
   final List<Coin> coins;
   final String fiatCoinId;
   final Duration selectedPeriod;
   final String walletId;
-  final Duration updateFrequency;
 
   @override
-  List<Object> get props => [
-        coins,
-        fiatCoinId,
-        selectedPeriod,
-        walletId,
-        updateFrequency,
-      ];
+  List<Object> get props => [coins, fiatCoinId, selectedPeriod, walletId];
 }
 
 class PortfolioGrowthPeriodChanged extends PortfolioGrowthEvent {
@@ -41,14 +33,12 @@ class PortfolioGrowthPeriodChanged extends PortfolioGrowthEvent {
     required this.selectedPeriod,
     required this.coins,
     required this.walletId,
-    this.updateFrequency = const Duration(minutes: 1),
   });
 
   final Duration selectedPeriod;
   final List<Coin> coins;
   final String walletId;
-  final Duration updateFrequency;
 
   @override
-  List<Object> get props => [selectedPeriod, coins, walletId, updateFrequency];
+  List<Object> get props => [selectedPeriod, coins, walletId];
 }

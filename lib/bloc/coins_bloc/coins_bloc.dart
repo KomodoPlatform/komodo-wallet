@@ -8,6 +8,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/model/cex_price.dart';
 import 'package:web_dex/model/coin.dart';
@@ -45,6 +46,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   StreamSubscription<Coin>? _enabledCoinsSubscription;
   Timer? _updateBalancesTimer;
   Timer? _updatePricesTimer;
+  bool _isInitialActivationInProgress = false;
 
   @override
   Future<void> close() async {
@@ -60,11 +62,24 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     try {
-      // Return early if the coin is not yet in wallet coins, meaning that
-      // it's not yet activated.
-      // TODO: update this once coin activation is fully handled by the SDK
+      if (_isInitialActivationInProgress) {
+        _log.info(
+          'Skipping pubkeys request for ${event.coinId} while initial activation is in progress.',
+        );
+        return;
+      }
+
+      // Coins are added to walletCoins before activation even starts
+      // to show them in the UI regardless of activation state.
+      // If the coin is not found here, it means the auth state handler
+      // has not pre-populated the list with activating coins yet.
       final coin = state.walletCoins[event.coinId];
-      if (coin == null) return;
+      if (coin == null) {
+        _log.warning(
+          'Coin ${event.coinId} not found in wallet coins, cannot fetch pubkeys',
+        );
+        return;
+      }
 
       // Get pubkeys from the SDK through the repo
       final asset = _kdfSdk.assets.available[coin.id]!;
@@ -287,6 +302,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsSessionStarted event,
     Emitter<CoinsState> emit,
   ) async {
+    _isInitialActivationInProgress = true;
     try {
       // Ensure any cached addresses/pubkeys from a previous wallet are cleared
       // so that UI fetches fresh pubkeys for the newly logged-in wallet.
@@ -298,11 +314,20 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       // in the list at once, rather than one at a time as they are activated
       final coinsToActivate = currentWallet.config.activatedCoins;
       emit(_prePopulateListWithActivatingCoins(coinsToActivate));
-      await _activateCoins(coinsToActivate, emit);
+      _scheduleInitialBalanceRefresh(coinsToActivate);
 
-      add(CoinsBalancesRefreshed());
-      add(CoinsBalanceMonitoringStarted());
+      final activationFuture = _activateCoins(coinsToActivate, emit);
+      unawaited(() async {
+        try {
+          await activationFuture;
+        } catch (e, s) {
+          _log.shout('Error during initial coin activation', e, s);
+        } finally {
+          _isInitialActivationInProgress = false;
+        }
+      }());
     } catch (e, s) {
+      _isInitialActivationInProgress = false;
       _log.shout('Error on login', e, s);
     }
   }
@@ -311,6 +336,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     CoinsSessionEnded event,
     Emitter<CoinsState> emit,
   ) async {
+    _resetInitialActivationState();
     add(CoinsBalanceMonitoringStopped());
 
     emit(
@@ -322,6 +348,60 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       ),
     );
     _coinsRepo.flushCache();
+  }
+
+  void _scheduleInitialBalanceRefresh(Iterable<String> coinsToActivate) {
+    if (isClosed) return;
+
+    final knownCoins = _coinsRepo.getKnownCoinsMap();
+    final walletCoinsForThreshold = coinsToActivate
+        .map((coinId) => knownCoins[coinId])
+        .whereType<Coin>()
+        .toList();
+
+    if (walletCoinsForThreshold.isEmpty) {
+      add(CoinsBalancesRefreshed());
+      add(CoinsBalanceMonitoringStarted());
+      return;
+    }
+
+    unawaited(() async {
+      var triggeredByThreshold = false;
+      try {
+        triggeredByThreshold = await _kdfSdk.waitForEnabledCoinsToPassThreshold(
+          walletCoinsForThreshold,
+          threshold: 0.8,
+          timeout: const Duration(minutes: 1),
+        );
+      } catch (e, s) {
+        _log.shout(
+          'Failed while waiting for enabled coins threshold during login',
+          e,
+          s,
+        );
+      }
+
+      if (isClosed) {
+        return;
+      }
+
+      if (triggeredByThreshold) {
+        _log.fine(
+          'Initial balance refresh triggered after 80% of coins activated.',
+        );
+      } else {
+        _log.fine(
+          'Initial balance refresh triggered after timeout while waiting for coin activation.',
+        );
+      }
+
+      add(CoinsBalancesRefreshed());
+      add(CoinsBalanceMonitoringStarted());
+    }());
+  }
+
+  void _resetInitialActivationState() {
+    _isInitialActivationInProgress = false;
   }
 
   Future<void> _activateCoins(
