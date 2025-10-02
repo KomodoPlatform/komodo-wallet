@@ -102,6 +102,15 @@ else
     echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
   fi
 fi
+# Add Matomo tracking variables if ALL required values are provided
+# Matomo configuration only used when both are non-empty
+if [ -n "$MATOMO_URL" ] && [ -n "$MATOMO_SITE_ID" ]; then
+  echo "Adding Matomo tracking configuration"
+  BUILD_CMD="$BUILD_CMD --dart-define=MATOMO_URL=$MATOMO_URL"
+  BUILD_CMD="$BUILD_CMD --dart-define=MATOMO_SITE_ID=$MATOMO_SITE_ID"
+else
+  echo "Warning: Missing Matomo parameters. Both MATOMO_URL and MATOMO_SITE_ID must be provided."
+fi
 # Add web-specific build arguments if the target is web
 if [ "$BUILD_TARGET" = "web" ]; then
     echo "Adding web-specific build arguments: --no-web-resources-cdn"
