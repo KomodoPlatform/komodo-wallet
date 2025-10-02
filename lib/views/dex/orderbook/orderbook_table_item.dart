@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
+import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
 import 'package:web_dex/model/orderbook/order.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class OrderbookTableItem extends StatefulWidget {
   const OrderbookTableItem(
@@ -25,38 +28,91 @@ class OrderbookTableItem extends StatefulWidget {
 }
 
 class _OrderbookTableItemState extends State<OrderbookTableItem> {
+  static final Set<String> _pubkeysRequested = <String>{};
+
   double _scale = 0.1;
   late Color _color;
   late TextStyle _style;
   late bool _isPreview;
   late bool _isTradeWithSelf;
+  StreamSubscription<CoinsState>? _coinsSubscription;
 
   @override
   void initState() {
-    final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
+    super.initState();
+    final coinsBloc = context.read<CoinsBloc>();
     _isPreview = widget.order.uuid == orderPreviewUuid;
-    final String? orderAddress = widget.order.address;
-    final String? walletAddress = coinsRepository
-        .getCoin(widget.order.rel)
-        ?.address;
-    _isTradeWithSelf =
-        orderAddress != null &&
-        walletAddress != null &&
-        orderAddress == walletAddress;
     _style = const TextStyle(fontSize: 11, fontWeight: FontWeight.w500);
     _color = _isPreview
         ? theme.custom.targetColor
         : widget.order.direction == OrderDirection.ask
         ? theme.custom.asksColor
         : theme.custom.bidsColor;
+    _isTradeWithSelf = _computeTradeWithSelf(coinsBloc.state);
+
+    _maybeRequestPubkeys(coinsBloc);
+    _coinsSubscription = coinsBloc.stream.listen((CoinsState state) {
+      final bool nextValue = _computeTradeWithSelf(state);
+      if (!mounted || nextValue == _isTradeWithSelf) return;
+      setState(() {
+        _isTradeWithSelf = nextValue;
+      });
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _scale = 1;
       });
     });
+  }
 
-    super.initState();
+  @override
+  void didUpdateWidget(covariant OrderbookTableItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.order.uuid == widget.order.uuid &&
+        oldWidget.order.rel == widget.order.rel &&
+        oldWidget.order.address == widget.order.address) {
+      return;
+    }
+
+    final coinsBloc = context.read<CoinsBloc>();
+    _maybeRequestPubkeys(coinsBloc);
+    final bool nextValue = _computeTradeWithSelf(coinsBloc.state);
+    if (nextValue != _isTradeWithSelf) {
+      setState(() {
+        _isTradeWithSelf = nextValue;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _coinsSubscription?.cancel();
+    super.dispose();
+  }
+
+  bool _computeTradeWithSelf(CoinsState state) {
+    final String? orderAddress = widget.order.address;
+    if (orderAddress == null || orderAddress.isEmpty) {
+      return false;
+    }
+
+    final AssetPubkeys? assetPubkeys = state.pubkeys[widget.order.rel];
+    if (assetPubkeys == null || assetPubkeys.isEmpty) {
+      return false;
+    }
+
+    return assetPubkeys.keys.any((pubkey) => pubkey.address == orderAddress);
+  }
+
+  void _maybeRequestPubkeys(CoinsBloc coinsBloc) {
+    final String? orderAddress = widget.order.address;
+    if (orderAddress == null || orderAddress.isEmpty) return;
+    if (coinsBloc.state.pubkeys.containsKey(widget.order.rel)) return;
+    if (_pubkeysRequested.contains(widget.order.rel)) return;
+
+    _pubkeysRequested.add(widget.order.rel);
+    coinsBloc.add(CoinsPubkeysRequested(widget.order.rel));
   }
 
   @override
