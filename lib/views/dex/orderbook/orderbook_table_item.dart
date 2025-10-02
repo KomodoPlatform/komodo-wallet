@@ -35,14 +35,20 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
   void initState() {
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     _isPreview = widget.order.uuid == orderPreviewUuid;
-    _isTradeWithSelf = widget.order.address ==
-        coinsRepository.getCoin(widget.order.rel)?.address;
+    final String? orderAddress = widget.order.address;
+    final String? walletAddress = coinsRepository
+        .getCoin(widget.order.rel)
+        ?.address;
+    _isTradeWithSelf =
+        orderAddress != null &&
+        walletAddress != null &&
+        orderAddress == walletAddress;
     _style = const TextStyle(fontSize: 11, fontWeight: FontWeight.w500);
     _color = _isPreview
         ? theme.custom.targetColor
         : widget.order.direction == OrderDirection.ask
-            ? theme.custom.asksColor
-            : theme.custom.bidsColor;
+        ? theme.custom.asksColor
+        : theme.custom.bidsColor;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -93,22 +99,14 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
     if (_isTradeWithSelf) {
       return Positioned(
         left: 2,
-        child: Icon(
-          Icons.circle,
-          size: 4,
-          color: _color,
-        ),
+        child: Icon(Icons.circle, size: 4, color: _color),
       );
     }
 
     if (_isPreview || widget.isSelected) {
       return Positioned(
         left: 0,
-        child: Icon(
-          Icons.forward,
-          size: 8,
-          color: _color,
-        ),
+        child: Icon(Icons.forward, size: 8, color: _color),
       );
     }
 
@@ -120,9 +118,7 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
       widthFactor: widget.volumeFraction,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 21),
-        child: Container(
-          color: _color.withValues(alpha: 0.1),
-        ),
+        child: Container(color: _color.withValues(alpha: 0.1)),
       ),
     );
   }
@@ -154,10 +150,10 @@ class _OrderbookTableItemState extends State<OrderbookTableItem> {
             ),
           ),
           const SizedBox(width: 10),
-          Text(formatAmt(widget.order.maxVolume.toDouble()),
-              style: _style.copyWith(
-                color: _isPreview ? _color : null,
-              )),
+          Text(
+            formatAmt(widget.order.maxVolume.toDouble()),
+            style: _style.copyWith(color: _isPreview ? _color : null),
+          ),
           const SizedBox(width: 4),
         ],
       ),

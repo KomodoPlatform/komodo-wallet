@@ -17,6 +17,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/sell/sell_response.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.dart';
+import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/swap.dart';
 import 'package:web_dex/model/text_error.dart';
@@ -54,9 +55,12 @@ class DexRepository {
       swapMethod: swapMethod,
       max: max,
     );
-    final ApiResponse<TradePreimageRequest, TradePreimageResponseResult,
-            Map<String, dynamic>> response =
-        await _mm2Api.getTradePreimage(request);
+    final ApiResponse<
+      TradePreimageRequest,
+      TradePreimageResponseResult,
+      Map<String, dynamic>
+    >
+    response = await _mm2Api.getTradePreimage(request);
 
     final Map<String, dynamic>? error = response.error;
     final TradePreimageResponseResult? result = response.result;
@@ -88,8 +92,9 @@ class DexRepository {
   }
 
   Future<Rational?> getMaxTakerVolume(String coinAbbr) async {
-    final MaxTakerVolResponse? response =
-        await _mm2Api.getMaxTakerVolume(MaxTakerVolRequest(coin: coinAbbr));
+    final MaxTakerVolResponse? response = await _mm2Api.getMaxTakerVolume(
+      MaxTakerVolRequest(coin: coinAbbr),
+    );
     if (response == null) {
       return null;
     }
@@ -98,8 +103,9 @@ class DexRepository {
   }
 
   Future<Rational?> getMaxMakerVolume(String coinAbbr) async {
-    final MaxMakerVolResponse? response =
-        await _mm2Api.getMaxMakerVolume(MaxMakerVolRequest(coin: coinAbbr));
+    final MaxMakerVolResponse? response = await _mm2Api.getMaxMakerVolume(
+      MaxMakerVolRequest(coin: coinAbbr),
+    );
     if (response == null) {
       return null;
     }
@@ -108,8 +114,9 @@ class DexRepository {
   }
 
   Future<Rational?> getMinTradingVolume(String coinAbbr) async {
-    final MinTradingVolResponse? response =
-        await _mm2Api.getMinTradingVol(MinTradingVolRequest(coin: coinAbbr));
+    final MinTradingVolResponse? response = await _mm2Api.getMinTradingVol(
+      MinTradingVolRequest(coin: coinAbbr),
+    );
     if (response == null) {
       return null;
     }
@@ -135,7 +142,8 @@ class DexRepository {
         (response?['result'] as Map<String, dynamic>?)?.isNotEmpty ?? false;
 
     if (isErrorResponse) {
-      return BestOrders(error: TextError(error: response!['error']!));
+      final String rawError = response!['error']!;
+      return BestOrders(error: TextError(error: _mapNoSuchCoinError(rawError)));
     }
 
     if (!hasResult) {
@@ -156,8 +164,9 @@ class DexRepository {
   }
 
   Future<Swap> getSwapStatus(String swapUuid) async {
-    final response =
-        await _mm2Api.getSwapStatus(MySwapStatusReq(uuid: swapUuid));
+    final response = await _mm2Api.getSwapStatus(
+      MySwapStatusReq(uuid: swapUuid),
+    );
 
     if (response['error'] != null) {
       throw TextError(error: response['error']);
@@ -189,4 +198,23 @@ class DexRepository {
       await Future.delayed(Duration(milliseconds: interval));
     }
   }
+}
+
+String _mapNoSuchCoinError(String error) {
+  final RegExpMatch? match = RegExp(
+    r'No such coin:?\s*(?<coin>[A-Za-z0-9\-_.]+)',
+    caseSensitive: false,
+  ).firstMatch(error);
+
+  if (match == null) {
+    return error;
+  }
+
+  final String coin = (match.namedGroup('coin') ?? '').trim();
+  if (coin.isEmpty) {
+    return error;
+  }
+
+  final String formattedCoin = Coin.normalizeAbbr(coin.toUpperCase());
+  return '$formattedCoin is not activated';
 }
