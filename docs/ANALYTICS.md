@@ -7,10 +7,9 @@ This document describes how to use the analytics system in the application.
 The analytics system is designed with a clear separation of concerns:
 
 1. `AnalyticsBloc` - Manages the user preference for whether analytics are enabled or disabled
-2. `AnalyticsRepo` - Repository layer for logging analytics events
+2. `AnalyticsRepository` - Aggregates and manages multiple analytics providers
 3. `AnalyticsEvents` - Event data structures
-4. `AnalyticsLogger` - Core logger that handles actual event logging
-5. `AnalyticsService` - Interface for analytics providers (Firebase, etc.)
+4. `AnalyticsApi` providers - Concrete providers (e.g., `FirebaseAnalyticsApi`, `MatomoAnalyticsApi`)
 
 ## Event Organization
 
@@ -95,7 +94,7 @@ To add a new analytics event:
 1. **Create an Event Data Class**:
 
    ```dart
-   class NewFeatureEventData implements AnalyticsEventData {
+   class NewFeatureEventData extends AnalyticsEventData {
      const NewFeatureEventData({
        required this.featureId,
        required this.actionType,
@@ -426,6 +425,45 @@ This analytics implementation uses Firebase Analytics as the default provider. T
 [Firebase Setup Instructions](/docs/FIREBASE_SETUP.md)
 
 The setup includes generating necessary configuration files for each platform (iOS, Android, web, etc.) and integrating them into the project.
+
+## Multi‑provider architecture and runtime flags
+
+The app can send analytics to multiple providers simultaneously via `AnalyticsRepository`.
+
+- Providers are registered and initialized in `AnalyticsRepository`
+  - Firebase: always registered
+  - Matomo: registered when both `MATOMO_URL` and `MATOMO_SITE_ID` are provided
+- Providers are enabled/disabled at runtime based on user preference and CI/privacy flags
+
+Runtime flags (defined in `lib/shared/constants.dart`) and typical usage:
+
+```bash
+# Disable analytics entirely (e.g. CI, tests, privacy-first builds)
+flutter run \
+  --dart-define=ANALYTICS_DISABLED=true
+
+# Mark CI environment (implicitly disables analytics in code)
+flutter run \
+  --dart-define=CI=true
+
+# Enable Matomo provider and configure endpoint
+flutter run \
+  --dart-define=MATOMO_URL=https://your-matomo.example.com/ \
+  --dart-define=MATOMO_SITE_ID=1
+```
+
+Notes:
+
+- Matomo requires both `MATOMO_URL` and `MATOMO_SITE_ID`. Without them, it stays disabled.
+
+See the Matomo setup guide for full details: `/docs/MATOMO_SETUP.md`.
+
+## Queue persistence and provider activation
+
+- Providers manage their own event queues.
+- When analytics is disabled (user opt‑out or CI), events are queued.
+- On activation, queued events are flushed.
+- The Matomo provider periodically persists its queue to `SharedPreferences` and restores it on startup to prevent data loss across app restarts.
 
 ## Data Sync Events Example
 

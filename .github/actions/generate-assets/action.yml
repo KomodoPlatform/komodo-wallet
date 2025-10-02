@@ -38,6 +38,20 @@ inputs:
     required: false
     default: ""
 
+  # Optional Matomo analytics configuration
+  MATOMO_URL:
+    description: "Matomo server base URL"
+    required: false
+    default: ""
+  MATOMO_SITE_ID:
+    description: "Matomo site ID"
+    required: false
+    default: ""
+  ANALYTICS_DISABLED:
+    description: "Disable analytics collection (true/false)"
+    required: false
+    default: ""
+
 runs:
   using: "composite"
   steps:
@@ -67,6 +81,9 @@ runs:
         TRELLO_LIST_ID: ${{ inputs.TRELLO_LIST_ID }}
         FEEDBACK_API_KEY: ${{ inputs.FEEDBACK_API_KEY }}
         FEEDBACK_PRODUCTION_URL: ${{ inputs.FEEDBACK_PRODUCTION_URL }}
+        MATOMO_URL: ${{ inputs.MATOMO_URL }}
+        MATOMO_SITE_ID: ${{ inputs.MATOMO_SITE_ID }}
+        ANALYTICS_DISABLED: ${{ inputs.ANALYTICS_DISABLED }}
       run: |
         echo "Running \`flutter build\` to generate assets for the deployment build"
 
@@ -118,6 +135,22 @@ runs:
              ([ -n "$TRELLO_BOARD_ID" ] || [ -n "$TRELLO_LIST_ID" ]); then
             echo "Warning: Incomplete Cloudflare feedback credentials provided. All Cloudflare credentials and Trello board/list IDs must be present to include them in the build."
           fi
+        fi
+
+        HAS_MATOMO_CONFIG=false
+        if [ -n "$MATOMO_URL" ] && [ -n "$MATOMO_SITE_ID" ]; then
+          HAS_MATOMO_CONFIG=true
+          echo "Adding Matomo analytics configuration"
+          BUILD_CMD="$BUILD_CMD --dart-define=MATOMO_URL=$MATOMO_URL"
+          BUILD_CMD="$BUILD_CMD --dart-define=MATOMO_SITE_ID=$MATOMO_SITE_ID"
+        fi
+
+        if [ "$ANALYTICS_DISABLED" = "true" ]; then
+          echo "Disabling analytics via ANALYTICS_DISABLED input"
+          BUILD_CMD="$BUILD_CMD --dart-define=ANALYTICS_DISABLED=true"
+        elif [ "$CI" = "true" ] && [ "$HAS_MATOMO_CONFIG" != "true" ]; then
+          echo "CI environment detected without Matomo config. Disabling analytics for this build."
+          BUILD_CMD="$BUILD_CMD --dart-define=CI=true --dart-define=ANALYTICS_DISABLED=true"
         fi
 
         # Run flutter build once to download coin icons and config files. 

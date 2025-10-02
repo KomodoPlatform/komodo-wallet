@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_bloc.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_event.dart';
 import 'package:web_dex/bloc/bridge_form/bridge_state.dart';
@@ -18,7 +19,6 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/dex_form_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
-import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/utils/balances_formatter.dart';
@@ -47,8 +47,9 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
         context.read<BridgeBloc>().add(const BridgeClear());
         routingState.bridgeState.setDetailsAction(swapUuid);
 
-        final tradingEntitiesBloc =
-            RepositoryProvider.of<TradingEntitiesBloc>(context);
+        final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
+          context,
+        );
         await tradingEntitiesBloc.fetch();
       },
       builder: (BuildContext context, BridgeState state) {
@@ -112,25 +113,28 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
     final bloc = context.read<BridgeBloc>();
     final state = bloc.state;
     final sellCoin = state.sellCoin;
-    final buyCoin = RepositoryProvider.of<CoinsRepo>(context)
-        .getCoin(state.bestOrder?.coin ?? '');
+    final buyCoin = RepositoryProvider.of<CoinsRepo>(
+      context,
+    ).getCoin(state.bestOrder?.coin ?? '');
     if (sellCoin != null && buyCoin != null) {
       context.read<AnalyticsBloc>().logEvent(
-            BridgeInitiatedEventData(
-              fromChain: sellCoin.protocolType,
-              toChain: buyCoin.protocolType,
-              asset: sellCoin.abbr,
-              walletType: context
-                      .read<AuthBloc>()
-                      .state
-                      .currentUser
-                      ?.wallet
-                      .config
-                      .type
-                      .name ??
-                  'unknown',
-            ),
-          );
+        BridgeInitiatedEventData(
+          asset: sellCoin.abbr,
+          secondaryAsset: buyCoin.abbr,
+          network: sellCoin.protocolType,
+          secondaryNetwork: buyCoin.protocolType,
+          hdType:
+              context
+                  .read<AuthBloc>()
+                  .state
+                  .currentUser
+                  ?.wallet
+                  .config
+                  .type
+                  .name ??
+              'unknown',
+        ),
+      );
     }
 
     bloc.add(const BridgeStartSwap());
@@ -142,11 +146,12 @@ class _BridgeOrderConfirmationState extends State<BridgeConfirmation> {
 }
 
 class _ConfirmDTO {
-  _ConfirmDTO(
-      {required this.sellCoin,
-      required this.buyCoin,
-      this.sellAmount,
-      this.buyAmount});
+  _ConfirmDTO({
+    required this.sellCoin,
+    required this.buyCoin,
+    this.sellAmount,
+    this.buyAmount,
+  });
 
   final Coin sellCoin;
   final Coin buyCoin;
@@ -182,24 +187,23 @@ class _ReceiveGroup extends StatelessWidget {
       children: [
         SelectableText(
           LocaleKeys.swapConfirmationYouReceive.tr(),
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: theme.custom.dexSubTitleColor),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: theme.custom.dexSubTitleColor),
         ),
         SelectableText.rich(
           TextSpan(
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: theme.custom.balanceColor),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: theme.custom.balanceColor),
             children: [
               TextSpan(
-                  text: '${formatDexAmt(dto.buyAmount)} ',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  )),
+                text: '${formatDexAmt(dto.buyAmount)} ',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               TextSpan(text: dto.buyCoin.abbr),
             ],
           ),
@@ -251,10 +255,10 @@ class _Percentage extends StatelessWidget {
     } else {
       final text = ' (${percentage > 0 ? '+' : ''}${formatAmt(percentage)}%)';
       final style = Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontSize: 11,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-            fontWeight: FontWeight.w200,
-          );
+        fontSize: 11,
+        color: Theme.of(context).textTheme.bodyMedium?.color,
+        fontWeight: FontWeight.w200,
+      );
       return Text(text, style: style);
     }
   }
@@ -267,13 +271,13 @@ class _SendGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style1 = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: theme.custom.dexSubTitleColor,
-        );
+    final style1 = Theme.of(
+      context,
+    ).textTheme.bodyLarge?.copyWith(color: theme.custom.dexSubTitleColor);
     final style3 = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 14.0,
-          fontWeight: FontWeight.w500,
-        );
+      fontSize: 14.0,
+      fontWeight: FontWeight.w500,
+    );
     final coinsBloc = RepositoryProvider.of<CoinsRepo>(context);
     final Coin? coin = coinsBloc.getCoin(dto.sellCoin.abbr);
     if (coin == null) return const SizedBox.shrink();
@@ -288,8 +292,10 @@ class _SendGroup extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SelectableText(LocaleKeys.swapConfirmationYouSending.tr(),
-              style: style1),
+          SelectableText(
+            LocaleKeys.swapConfirmationYouSending.tr(),
+            style: style1,
+          ),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -307,10 +313,7 @@ class _SendGroup extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SelectableText(
-                    formatDexAmt(dto.sellAmount),
-                    style: style3,
-                  ),
+                  SelectableText(formatDexAmt(dto.sellAmount), style: style3),
                   _FiatSend(dto),
                 ],
               ),
@@ -344,10 +347,9 @@ class _ErrorGroup extends StatelessWidget {
       builder: (context, error) {
         if (error == null) return const SizedBox();
 
-        final style = Theme.of(context)
-            .textTheme
-            .bodySmall
-            ?.copyWith(color: Theme.of(context).colorScheme.error);
+        final style = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.error,
+        );
         return Container(
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
           child: Text(error.error, style: style),
@@ -387,18 +389,19 @@ class _BackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Flexible(
       child: BlocSelector<BridgeBloc, BridgeState, bool>(
-          selector: (state) => state.inProgress,
-          builder: (context, inProgress) {
-            return Opacity(
-              opacity: inProgress ? 0.8 : 1,
-              child: UiLightButton(
-                key: const Key('bridge-order-cancel-button'),
-                height: 40,
-                onPressed: inProgress ? null : onPressed,
-                text: LocaleKeys.back.tr(),
-              ),
-            );
-          }),
+        selector: (state) => state.inProgress,
+        builder: (context, inProgress) {
+          return Opacity(
+            opacity: inProgress ? 0.8 : 1,
+            child: UiLightButton(
+              key: const Key('bridge-order-cancel-button'),
+              height: 40,
+              onPressed: inProgress ? null : onPressed,
+              text: LocaleKeys.back.tr(),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -418,22 +421,24 @@ class _ConfirmButton extends StatelessWidget {
     ]);
 
     return Flexible(
-        child: BlocSelector<BridgeBloc, BridgeState, bool>(
-            selector: (state) => state.inProgress,
-            builder: (context, inProgress) {
-              return Opacity(
-                opacity: inProgress ? 0.8 : 1,
-                child: UiPrimaryButton(
-                  key: const Key('bridge-order-confirm-button'),
-                  height: 40,
-                  prefix: inProgress ? const _ProgressIndicator() : null,
-                  text: tradingEnabled
-                      ? LocaleKeys.confirm.tr()
-                      : LocaleKeys.tradingDisabled.tr(),
-                  onPressed: inProgress || !tradingEnabled ? null : onPressed,
-                ),
-              );
-            }));
+      child: BlocSelector<BridgeBloc, BridgeState, bool>(
+        selector: (state) => state.inProgress,
+        builder: (context, inProgress) {
+          return Opacity(
+            opacity: inProgress ? 0.8 : 1,
+            child: UiPrimaryButton(
+              key: const Key('bridge-order-confirm-button'),
+              height: 40,
+              prefix: inProgress ? const _ProgressIndicator() : null,
+              text: tradingEnabled
+                  ? LocaleKeys.confirm.tr()
+                  : LocaleKeys.tradingDisabled.tr(),
+              onPressed: inProgress || !tradingEnabled ? null : onPressed,
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

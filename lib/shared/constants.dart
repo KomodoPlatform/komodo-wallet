@@ -55,6 +55,31 @@ const bool isTestMode = bool.fromEnvironment(
   'testing_mode',
   defaultValue: false,
 );
+
+// Analytics & CI environment configuration
+// These values are provided via --dart-define at build/run time in CI and app builds
+const bool isCiEnvironment = bool.fromEnvironment('CI', defaultValue: false);
+
+/// When true, providers should not send analytics (used in CI/tests or privacy-first builds)
+const bool analyticsDisabled = bool.fromEnvironment(
+  'ANALYTICS_DISABLED',
+  defaultValue: false,
+);
+
+/// Matomo configuration (only used when both are non-empty)
+const String matomoUrl = String.fromEnvironment('MATOMO_URL', defaultValue: '');
+
+const String matomoSiteId = String.fromEnvironment(
+  'MATOMO_SITE_ID',
+  defaultValue: '',
+);
+
+/// Optional: Custom dimension id in Matomo used to store platform name
+/// Provide via --dart-define=MATOMO_PLATFORM_DIMENSION_ID=<number>
+const int? matomoPlatformDimensionId =
+    int.fromEnvironment('MATOMO_PLATFORM_DIMENSION_ID', defaultValue: -1) == -1
+    ? null
+    : int.fromEnvironment('MATOMO_PLATFORM_DIMENSION_ID');
 const String moralisProxyUrl = 'https://moralis-proxy.komodo.earth';
 const String nftAntiSpamUrl = 'https://nft.antispam.dragonhound.info';
 

@@ -1,26 +1,36 @@
-import 'dart:convert';
 import 'dart:async';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_dex/model/settings/analytics_settings.dart';
 import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/firebase_options.dart';
+import 'package:web_dex/shared/constants.dart';
+import 'analytics_api.dart';
+import 'firebase_analytics_api.dart';
+import 'matomo_analytics_api.dart';
 
 abstract class AnalyticsEventData {
+  const AnalyticsEventData();
+
   String get name;
   Map<String, dynamic> get parameters;
+
+  MapEntry<String, dynamic>? get primaryParameter {
+    final params = parameters;
+    if (params.isEmpty) {
+      return null;
+    }
+    final iterator = params.entries.iterator;
+    if (!iterator.moveNext()) {
+      return null;
+    }
+    return iterator.current;
+  }
 }
 
 /// A simple implementation of AnalyticsEventData for persisted events
-class PersistedAnalyticsEventData implements AnalyticsEventData {
-  PersistedAnalyticsEventData({
-    required this.name,
-    required this.parameters,
-  });
+class PersistedAnalyticsEventData extends AnalyticsEventData {
+  PersistedAnalyticsEventData({required this.name, required this.parameters});
 
   @override
   final String name;
@@ -60,108 +70,99 @@ abstract class AnalyticsRepo {
   Future<void> loadPersistedQueue();
 
   /// Cleanup resources used by the repository
-  void dispose();
+  Future<void> dispose();
 }
 
-class FirebaseAnalyticsRepo implements AnalyticsRepo {
-  FirebaseAnalyticsRepo(AnalyticsSettings settings) {
-    _initializeWithRetry(settings);
+/// Unified analytics repository that handles multiple analytics providers
+class AnalyticsRepository implements AnalyticsRepo {
+  AnalyticsRepository(AnalyticsSettings settings) {
+    _initializeProviders(settings);
   }
 
-  late FirebaseAnalytics _instance;
-  final Completer<void> _initCompleter = Completer<void>();
-
+  final List<AnalyticsApi> _providers = [];
   bool _isInitialized = false;
   bool _isEnabled = false;
-  int _initRetryCount = 0;
-  static const int _maxInitRetries = 3;
-  static const String _persistedQueueKey = 'analytics_persisted_queue';
 
-  /// Queue to store events when analytics is disabled
-  final List<AnalyticsEventData> _eventQueue = [];
-
-  /// Timer for periodic queue persistence
-  Timer? _queuePersistenceTimer;
-
-  /// For checking initialization status
   @override
   bool get isInitialized => _isInitialized;
 
-  /// For checking if analytics is enabled
   @override
   bool get isEnabled => _isEnabled;
 
-  /// Registers the AnalyticsRepo instance with GetIt for dependency injection
+  /// Registers the AnalyticsRepository instance with GetIt for dependency injection
   static void register(AnalyticsSettings settings) {
     if (!GetIt.I.isRegistered<AnalyticsRepo>()) {
-      final repo = FirebaseAnalyticsRepo(settings);
+      final repo = AnalyticsRepository(settings);
       GetIt.I.registerSingleton<AnalyticsRepo>(repo);
 
       if (kDebugMode) {
         log(
-          'AnalyticsRepo registered with GetIt',
-          path: 'analytics -> FirebaseAnalyticsService -> register',
+          'AnalyticsRepository registered with GetIt',
+          path: 'analytics -> AnalyticsRepository -> register',
         );
       }
     } else if (kDebugMode) {
       log(
-        'AnalyticsRepo already registered with GetIt',
-        path: 'analytics -> FirebaseAnalyticsService -> register',
+        'AnalyticsRepository already registered with GetIt',
+        path: 'analytics -> AnalyticsRepository -> register',
       );
     }
   }
 
-  /// Initialize with retry mechanism
-  Future<void> _initializeWithRetry(AnalyticsSettings settings) async {
-    // Firebase is not supported on Linux
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
-      _isInitialized = false;
-      _isEnabled = false;
-      _initCompleter.completeError(UnsupportedError);
-      return;
-    }
-
+  /// Initialize all configured analytics providers
+  Future<void> _initializeProviders(AnalyticsSettings settings) async {
     try {
       if (kDebugMode) {
         log(
-          'Initializing Firebase Analytics with settings: isSendAllowed=${settings.isSendAllowed}',
-          path: 'analytics -> FirebaseAnalyticsService -> _initialize',
+          'Initializing analytics providers with settings: isSendAllowed=${settings.isSendAllowed}',
+          path: 'analytics -> AnalyticsRepository -> _initializeProviders',
         );
       }
 
-      // Setup queue persistence timer
-      _queuePersistenceTimer = Timer.periodic(
-        const Duration(minutes: 5),
-        (_) => persistQueue(),
+      // Add Firebase Analytics provider
+      final firebaseProvider = FirebaseAnalyticsApi();
+      _providers.add(firebaseProvider);
+
+      // Add Matomo Analytics provider when configuration is present
+      final bool hasMatomoConfig =
+          matomoUrl.isNotEmpty && matomoSiteId.isNotEmpty;
+      if (hasMatomoConfig) {
+        final matomoProvider = MatomoAnalyticsApi();
+        _providers.add(matomoProvider);
+      } else if (kDebugMode) {
+        log(
+          'Matomo provider not registered: missing MATOMO_URL and/or MATOMO_SITE_ID',
+          path: 'analytics -> AnalyticsRepository -> _initializeProviders',
+        );
+      }
+
+      // Initialize all providers
+      final initFutures = _providers.map(
+        (provider) => provider.initialize(settings),
       );
+      await Future.wait(initFutures, eagerError: false);
 
-      // Load any previously saved events
-      await loadPersistedQueue();
-
-      // Initialize Firebase
-      try {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      } on UnsupportedError {
-        _isInitialized = false;
-        _isEnabled = false;
-        if (kDebugMode) {
-          log('Firebase Analytics initializeApp failed with UnsupportedError');
-        }
-        _initCompleter.completeError(UnsupportedError);
-        return;
-      }
-      _instance = FirebaseAnalytics.instance;
-
-      _isInitialized = true;
-      _isEnabled = settings.isSendAllowed;
+      // Check if at least one provider is initialized successfully
+      final initializedProviders = _providers
+          .where((p) => p.isInitialized)
+          .toList();
+      _isInitialized = initializedProviders.isNotEmpty;
+      // Disable analytics in CI or when analyticsDisabled flag is set
+      final bool shouldDisable = analyticsDisabled || isCiEnvironment;
+      _isEnabled = settings.isSendAllowed && !shouldDisable;
 
       if (kDebugMode) {
         log(
-          'Firebase Analytics initialized: _isInitialized=$_isInitialized, _isEnabled=$_isEnabled',
-          path: 'analytics -> FirebaseAnalyticsService -> _initialize',
+          'Analytics providers initialized: ${initializedProviders.length}/${_providers.length} successful',
+          path: 'analytics -> AnalyticsRepository -> _initializeProviders',
         );
+
+        for (final provider in _providers) {
+          log(
+            '${provider.providerName}: initialized=${provider.isInitialized}, enabled=${provider.isEnabled}',
+            path: 'analytics -> AnalyticsRepository -> _initializeProviders',
+          );
+        }
       }
 
       if (_isInitialized && _isEnabled) {
@@ -169,123 +170,66 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       } else {
         await deactivate();
       }
-
-      // Successfully initialized
-      if (!_initCompleter.isCompleted) {
-        _initCompleter.complete();
-      }
     } catch (e) {
-      _isInitialized = false;
-
       if (kDebugMode) {
         log(
-          'Error initializing Firebase Analytics: $e',
-          path: 'analytics -> FirebaseAnalyticsService -> _initialize',
+          'Error initializing analytics providers: $e',
+          path: 'analytics -> AnalyticsRepository -> _initializeProviders',
           isError: true,
         );
       }
-
-      // Try to initialize again if we haven't exceeded max retries
-      if (_initRetryCount < _maxInitRetries) {
-        _initRetryCount++;
-
-        if (kDebugMode) {
-          log(
-            'Retrying analytics initialization (attempt $_initRetryCount of $_maxInitRetries)',
-            path: 'analytics -> FirebaseAnalyticsService -> _initialize',
-          );
-        }
-
-        // Retry with exponential backoff
-        await Future.delayed(Duration(seconds: 2 * _initRetryCount));
-        await _initializeWithRetry(settings);
-      } else {
-        // Maximum retries exceeded
-        if (!_initCompleter.isCompleted) {
-          _initCompleter.completeError(e);
-        }
-      }
-    }
-  }
-
-  /// Retry initialization if it previously failed
-  @override
-  Future<void> retryInitialization(AnalyticsSettings settings) async {
-    if (!_isInitialized) {
-      _initRetryCount = 0;
-      return _initializeWithRetry(settings);
     }
   }
 
   @override
   Future<void> sendData(AnalyticsEventData event) async {
-    final sanitizedParameters = event.parameters.map((key, value) {
-      if (value == null) return MapEntry(key, "null");
-      if (value is Map || value is List) {
-        return MapEntry(key, jsonEncode(value));
-      }
-      return MapEntry(key, value.toString());
-    });
-
-    // Log the event in debug mode with formatted parameters for better readability
-    if (kDebugMode) {
-      final formattedParams =
-          const JsonEncoder.withIndent('  ').convert(sanitizedParameters);
-      log(
-        'Analytics Event: ${event.name}; Parameters: $formattedParams',
-        path: 'analytics -> FirebaseAnalyticsService -> sendData',
-      );
+    if (!_isInitialized || !_isEnabled) {
+      return queueEvent(event);
     }
 
+    // Forward to all providers; individual providers handle enabled/queueing
+    final sendFutures = _providers.map(
+      (provider) => _sendToProvider(provider, event),
+    );
+
+    await Future.wait(sendFutures, eagerError: false);
+  }
+
+  Future<void> _sendToProvider(
+    AnalyticsApi provider,
+    AnalyticsEventData event,
+  ) async {
     try {
-      await _instance.logEvent(
-        name: event.name,
-        parameters: sanitizedParameters,
-      );
-    } catch (e, s) {
-      log(
-        e.toString(),
-        path: 'analytics -> FirebaseAnalyticsService -> logEvent',
-        trace: s,
-        isError: true,
-      );
+      await provider.sendEvent(event);
+    } catch (e) {
+      if (kDebugMode) {
+        log(
+          'Error sending event to ${provider.providerName}: $e',
+          path: 'analytics -> AnalyticsRepository -> _sendToProvider',
+          isError: true,
+        );
+      }
     }
   }
 
   @override
   Future<void> queueEvent(AnalyticsEventData data) async {
-    // Log the queued event in debug mode with formatted parameters
-    if (kDebugMode) {
-      final formattedParams =
-          const JsonEncoder.withIndent('  ').convert(data.parameters);
-      log(
-        'Analytics Event Queued: ${data.name}\nParameters:\n$formattedParams',
-        path: 'analytics -> FirebaseAnalyticsService -> queueEvent',
-      );
-    }
-
-    if (!_isInitialized) {
-      _eventQueue.add(data);
-      if (kDebugMode) {
-        log(
-          'Analytics not initialized, added to queue (${_eventQueue.length} events queued)',
-          path: 'analytics -> FirebaseAnalyticsService -> queueEvent',
-        );
+    // Always forward to providers; they are responsible for queuing/persisting
+    final queueFutures = _providers.map((provider) async {
+      try {
+        await provider.sendEvent(data);
+      } catch (e) {
+        if (kDebugMode) {
+          log(
+            'Error queueing event for ${provider.providerName}: $e',
+            path: 'analytics -> AnalyticsRepository -> queueEvent',
+            isError: true,
+          );
+        }
       }
-      return;
-    }
+    });
 
-    if (_isEnabled) {
-      await sendData(data);
-    } else {
-      _eventQueue.add(data);
-      if (kDebugMode) {
-        log(
-          'Analytics disabled, added to queue (${_eventQueue.length} events queued)',
-          path: 'analytics -> FirebaseAnalyticsService -> queueEvent',
-        );
-      }
-    }
+    await Future.wait(queueFutures, eagerError: false);
   }
 
   @override
@@ -295,30 +239,30 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
     }
 
     _isEnabled = true;
-    await _instance.setAnalyticsCollectionEnabled(true);
 
-    // Process any queued events
-    if (_eventQueue.isNotEmpty) {
+    final activateFutures = _providers
+        .where((provider) => provider.isInitialized)
+        .map((provider) => _activateProvider(provider));
+
+    await Future.wait(activateFutures, eagerError: false);
+
+    if (kDebugMode) {
+      log(
+        'Analytics providers activated',
+        path: 'analytics -> AnalyticsRepository -> activate',
+      );
+    }
+  }
+
+  Future<void> _activateProvider(AnalyticsApi provider) async {
+    try {
+      await provider.activate();
+    } catch (e) {
       if (kDebugMode) {
         log(
-          'Processing ${_eventQueue.length} queued analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> activate',
-        );
-      }
-
-      final queuedEvents = List<AnalyticsEventData>.from(_eventQueue);
-      _eventQueue.clear();
-
-      int processedCount = 0;
-      for (final event in queuedEvents) {
-        await sendData(event);
-        processedCount++;
-      }
-
-      if (kDebugMode && processedCount > 0) {
-        log(
-          'Successfully processed $processedCount queued analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> activate',
+          'Error activating ${provider.providerName}: $e',
+          path: 'analytics -> AnalyticsRepository -> _activateProvider',
+          isError: true,
         );
       }
     }
@@ -330,140 +274,110 @@ class FirebaseAnalyticsRepo implements AnalyticsRepo {
       return;
     }
 
+    _isEnabled = false;
+
+    final deactivateFutures = _providers
+        .where((provider) => provider.isInitialized)
+        .map((provider) => _deactivateProvider(provider));
+
+    await Future.wait(deactivateFutures, eagerError: false);
+
     if (kDebugMode) {
       log(
-        'Analytics collection disabled',
-        path: 'analytics -> FirebaseAnalyticsService -> deactivate',
+        'Analytics providers deactivated',
+        path: 'analytics -> AnalyticsRepository -> deactivate',
       );
     }
+  }
 
-    _isEnabled = false;
-    await _instance.setAnalyticsCollectionEnabled(false);
+  Future<void> _deactivateProvider(AnalyticsApi provider) async {
+    try {
+      await provider.deactivate();
+    } catch (e) {
+      if (kDebugMode) {
+        log(
+          'Error deactivating ${provider.providerName}: $e',
+          path: 'analytics -> AnalyticsRepository -> _deactivateProvider',
+          isError: true,
+        );
+      }
+    }
+  }
+
+  @override
+  Future<void> retryInitialization(AnalyticsSettings settings) async {
+    final retryFutures = _providers.map((provider) async {
+      try {
+        await provider.retryInitialization(settings);
+      } catch (e) {
+        if (kDebugMode) {
+          log(
+            'Error retrying initialization for ${provider.providerName}: $e',
+            path: 'analytics -> AnalyticsRepository -> retryInitialization',
+            isError: true,
+          );
+        }
+      }
+    });
+
+    await Future.wait(retryFutures, eagerError: false);
+
+    // Update initialization status
+    final initializedProviders = _providers
+        .where((p) => p.isInitialized)
+        .toList();
+    _isInitialized = initializedProviders.isNotEmpty;
   }
 
   @override
   Future<void> persistQueue() async {
-    if (_eventQueue.isEmpty) {
-      if (kDebugMode) {
-        log(
-          'No events to persist (queue empty)',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
-        );
-      }
-      return;
-    }
-
-    try {
-      if (kDebugMode) {
-        log(
-          'Persisting ${_eventQueue.length} queued analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
-        );
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-
-      // Convert events to a serializable format
-      final serializedEvents = _eventQueue.map((event) {
-        return {
-          'name': event.name,
-          'parameters': event.parameters,
-        };
-      }).toList();
-
-      // Serialize and store
-      final serialized = jsonEncode(serializedEvents);
-      await prefs.setString(_persistedQueueKey, serialized);
-
-      if (kDebugMode) {
-        log(
-          'Successfully persisted ${_eventQueue.length} events to SharedPreferences',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
-        );
-      }
-    } catch (e, s) {
-      if (kDebugMode) {
-        log(
-          'Error persisting analytics queue: $e',
-          path: 'analytics -> FirebaseAnalyticsService -> persistQueue',
-          trace: s,
-          isError: true,
-        );
-      }
+    // Each provider handles its own queue persistence
+    // This is a no-op at the repository level since providers manage their own queues
+    if (kDebugMode) {
+      log(
+        'Queue persistence handled by individual providers',
+        path: 'analytics -> AnalyticsRepository -> persistQueue',
+      );
     }
   }
 
   @override
   Future<void> loadPersistedQueue() async {
-    try {
-      if (kDebugMode) {
-        log(
-          'Loading persisted analytics events from SharedPreferences',
-          path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
-        );
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      final serialized = prefs.getString(_persistedQueueKey);
-
-      if (serialized == null || serialized.isEmpty) {
-        if (kDebugMode) {
-          log(
-            'No persisted analytics events found',
-            path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
-          );
-        }
-        return;
-      }
-
-      // Deserialize the data
-      final List<dynamic> decodedList = jsonDecode(serialized);
-
-      // Create PersistedAnalyticsEventData instances
-      for (final eventMap in decodedList) {
-        _eventQueue.add(PersistedAnalyticsEventData(
-          name: eventMap['name'],
-          parameters: Map<String, dynamic>.from(eventMap['parameters']),
-        ));
-      }
-
-      if (kDebugMode) {
-        log(
-          'Loaded ${_eventQueue.length} persisted analytics events',
-          path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
-        );
-      }
-
-      // Clear the persisted data after loading
-      await prefs.remove(_persistedQueueKey);
-    } catch (e, s) {
-      if (kDebugMode) {
-        log(
-          'Error loading persisted analytics queue: $e',
-          path: 'analytics -> FirebaseAnalyticsService -> loadPersistedQueue',
-          trace: s,
-          isError: true,
-        );
-      }
+    // Each provider handles loading its own persisted queue
+    // This is a no-op at the repository level since providers manage their own queues
+    if (kDebugMode) {
+      log(
+        'Queue loading handled by individual providers',
+        path: 'analytics -> AnalyticsRepository -> loadPersistedQueue',
+      );
     }
   }
 
-  /// Cleanup resources used by the repository
   @override
-  void dispose() {
-    if (_queuePersistenceTimer != null) {
-      _queuePersistenceTimer!.cancel();
-      _queuePersistenceTimer = null;
-
-      if (kDebugMode) {
-        log(
-          'Cancelled queue persistence timer',
-          path: 'analytics -> FirebaseAnalyticsService -> dispose',
-        );
+  Future<void> dispose() async {
+    final disposeFutures = _providers.map((provider) async {
+      try {
+        await provider.dispose();
+      } catch (e) {
+        if (kDebugMode) {
+          log(
+            'Error disposing ${provider.providerName}: $e',
+            path: 'analytics -> AnalyticsRepository -> dispose',
+            isError: true,
+          );
+        }
       }
-    }
+    });
 
-    // Persist any remaining events before disposing
-    persistQueue();
+    await Future.wait(disposeFutures, eagerError: false);
+
+    _providers.clear();
+
+    if (kDebugMode) {
+      log(
+        'AnalyticsRepository disposed',
+        path: 'analytics -> AnalyticsRepository -> dispose',
+      );
+    }
   }
 }

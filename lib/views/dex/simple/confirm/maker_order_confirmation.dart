@@ -16,7 +16,7 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 import 'package:web_dex/shared/ui/ui_light_button.dart';
 import 'package:web_dex/shared/utils/balances_formatter.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
@@ -316,25 +316,21 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     });
 
     final authBloc = context.read<AuthBloc>();
-    final walletType =
-        authBloc.state.currentUser?.wallet.config.type.name ?? '';
+    final walletType = authBloc.state.currentUser?.type ?? '';
     final makerFormBloc = RepositoryProvider.of<MakerFormBloc>(context);
-    final sellCoin = makerFormBloc.sellCoin!.abbr;
-    final buyCoin = makerFormBloc.buyCoin!.abbr;
-    final networks =
-        '${makerFormBloc.sellCoin!.protocolType},${makerFormBloc.buyCoin!.protocolType}';
+    final sellCoin = makerFormBloc.sellCoin!;
+    final buyCoin = makerFormBloc.buyCoin!;
     context.read<AnalyticsBloc>().logEvent(
       SwapInitiatedEventData(
-        fromAsset: sellCoin,
-        toAsset: buyCoin,
-        networks: networks,
-        walletType: walletType,
+        asset: sellCoin.abbr,
+        secondaryAsset: buyCoin.abbr,
+        network: sellCoin.protocolType,
+        secondaryNetwork: buyCoin.protocolType,
+        hdType: walletType,
       ),
     );
 
-    final int callStart = DateTime.now().millisecondsSinceEpoch;
     final TextError? error = await makerFormBloc.makeOrder();
-    final int durationMs = DateTime.now().millisecondsSinceEpoch - callStart;
 
     final tradingEntitiesBloc =
         // ignore: use_build_context_synchronously
@@ -347,29 +343,12 @@ class _MakerOrderConfirmationState extends State<MakerOrderConfirmation> {
     setState(() => _inProgress = false);
 
     if (error != null) {
-      context.read<AnalyticsBloc>().logEvent(
-        SwapFailedEventData(
-          fromAsset: sellCoin,
-          toAsset: buyCoin,
-          failStage: 'order_submission',
-          walletType: walletType,
-          durationMs: durationMs,
-        ),
-      );
+      // We log swap failures when the actual swap fails, not on order submission.
       setState(() => _errorMessage = error.error);
       return;
     }
 
-    context.read<AnalyticsBloc>().logEvent(
-      SwapSucceededEventData(
-        fromAsset: sellCoin,
-        toAsset: buyCoin,
-        amount: makerFormBloc.sellAmount!.toDouble(),
-        fee: 0, // Fee data not available
-        walletType: walletType,
-        durationMs: durationMs,
-      ),
-    );
+    // Swap success is tracked when the trade completes in trading_details.dart.
     makerFormBloc.clear();
     widget.onCreateOrder();
   }

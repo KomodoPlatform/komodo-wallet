@@ -21,6 +21,7 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_for
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
+import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 
 bool _isMemoSupportedProtocol(Asset asset) {
   final protocol = asset.protocol;
@@ -76,14 +77,13 @@ class _WithdrawFormState extends State<WithdrawForm> {
                 prev.step != curr.step && curr.step == WithdrawFormStep.success,
             listener: (context, state) {
               final authBloc = context.read<AuthBloc>();
-              final walletType =
-                  authBloc.state.currentUser?.wallet.config.type.name ?? '';
+              final walletType = authBloc.state.currentUser?.type ?? '';
               context.read<AnalyticsBloc>().logEvent(
                 SendSucceededEventData(
-                  assetSymbol: state.asset.id.id,
+                  asset: state.asset.id.id,
                   network: state.asset.id.subClass.name,
                   amount: double.tryParse(state.amount) ?? 0.0,
-                  walletType: walletType,
+                  hdType: walletType,
                 ),
               );
               widget.onSuccess();
@@ -94,15 +94,14 @@ class _WithdrawFormState extends State<WithdrawForm> {
                 prev.step != curr.step && curr.step == WithdrawFormStep.failed,
             listener: (context, state) {
               final authBloc = context.read<AuthBloc>();
-              final walletType =
-                  authBloc.state.currentUser?.wallet.config.type.name ?? '';
+              final walletType = authBloc.state.currentUser?.type ?? '';
               final reason = state.transactionError?.message ?? 'unknown';
               context.read<AnalyticsBloc>().logEvent(
                 SendFailedEventData(
-                  assetSymbol: state.asset.id.id,
+                  asset: state.asset.id.id,
                   network: state.asset.protocol.subClass.name,
-                  failReason: reason,
-                  walletType: walletType,
+                  failureReason: reason,
+                  hdType: walletType,
                 ),
               );
             },
@@ -524,10 +523,10 @@ class WithdrawFormFillSection extends StatelessWidget {
                           '';
                       context.read<AnalyticsBloc>().logEvent(
                         SendInitiatedEventData(
-                          assetSymbol: state.asset.id.id,
+                          asset: state.asset.id.id,
                           network: state.asset.protocol.subClass.name,
                           amount: double.tryParse(state.amount) ?? 0.0,
-                          walletType: walletType,
+                          hdType: walletType,
                         ),
                       );
                       context.read<WithdrawFormBloc>().add(

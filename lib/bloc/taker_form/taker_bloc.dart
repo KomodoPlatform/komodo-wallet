@@ -26,15 +26,20 @@ import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/transaction_events.dart';
+import 'package:web_dex/model/wallet.dart';
 
 class TakerBloc extends Bloc<TakerEvent, TakerState> {
   TakerBloc({
     required DexRepository dexRepository,
     required CoinsRepo coinsRepository,
     required KomodoDefiSdk kdfSdk,
+    required AnalyticsBloc analyticsBloc,
   }) : _dexRepo = dexRepository,
        _coinsRepo = coinsRepository,
        _sdk = kdfSdk,
+       _analyticsBloc = analyticsBloc,
        super(TakerState.initial()) {
     _validator = TakerValidator(
       bloc: this,
@@ -87,6 +92,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   final DexRepository _dexRepo;
   final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _sdk;
+  final AnalyticsBloc _analyticsBloc;
   Timer? _maxSellAmountTimer;
   bool _activatingAssets = false;
   bool _waitingForWallet = true;
@@ -100,6 +106,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   ) async {
     emit(state.copyWith(inProgress: () => true));
 
+    final int callStart = DateTime.now().millisecondsSinceEpoch;
     final SellResponse response = await _dexRepo.sell(
       SellRequest(
         base: state.sellCoin!.abbr,
@@ -109,9 +116,28 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
         orderType: SellBuyOrderType.fillOrKill,
       ),
     );
+    final int durationMs = DateTime.now().millisecondsSinceEpoch - callStart;
 
     if (response.error != null) {
       add(TakerAddError(DexFormError(error: response.error!.message)));
+
+      // Log swap failure analytics event for immediate RPC errors
+      final walletType =
+          (await _sdk.auth.currentUser)?.wallet.config.type.name ??
+          'unknown';
+      _analyticsBloc.logEvent(
+        SwapFailedEventData(
+          asset: state.sellCoin!.abbr,
+          secondaryAsset: state.selectedOrder!.coin,
+          network: state.sellCoin!.protocolType,
+          secondaryNetwork:
+              _coinsRepo.getCoin(state.selectedOrder!.coin)?.protocolType ??
+              'unknown',
+          failureStage: 'order_submission',
+          hdType: walletType,
+          durationMs: durationMs,
+        ),
+      );
     }
 
     final String? uuid = response.result?.uuid;

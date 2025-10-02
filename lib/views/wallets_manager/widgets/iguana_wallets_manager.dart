@@ -411,14 +411,14 @@ class _IguanaWalletsManagerState extends State<IguanaWalletsManager> {
       final walletType = currentWallet.config.type.name;
       if (action == WalletsManagerAction.create) {
         analyticsBloc.add(
-          AnalyticsWalletCreatedEvent(source: source, walletType: walletType),
+          AnalyticsWalletCreatedEvent(source: source, hdType: walletType),
         );
       } else if (action == WalletsManagerAction.import) {
         analyticsBloc.add(
           AnalyticsWalletImportedEvent(
             source: source,
             importType: 'seed_phrase',
-            walletType: walletType,
+            hdType: walletType,
           ),
         );
       }

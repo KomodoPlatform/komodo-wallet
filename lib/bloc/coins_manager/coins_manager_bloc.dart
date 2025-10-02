@@ -6,6 +6,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/analytics/events/portfolio_events.dart';
+import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/coins_manager/coins_manager_sort.dart';
@@ -14,7 +15,7 @@ import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/model/coin_utils.dart';
-import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 import 'package:web_dex/router/state/wallet_state.dart';
 import 'package:web_dex/views/wallet/coins_manager/coins_manager_helpers.dart';
 
@@ -254,10 +255,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     }
     _analyticsBloc.logEvent(
       AssetDisabledEventData(
-        assetSymbol: coin.abbr,
-        assetNetwork: coin.protocolType,
-        walletType:
-            (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
+        asset: coin.abbr,
+        network: coin.protocolType,
+        hdType: (await _sdk.auth.currentUser)?.type ?? '',
       ),
     );
   }
@@ -270,10 +270,9 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     }
     _analyticsBloc.logEvent(
       AssetEnabledEventData(
-        assetSymbol: coin.abbr,
-        assetNetwork: coin.protocolType,
-        walletType:
-            (await _sdk.auth.currentUser)?.wallet.config.type.name ?? '',
+        asset: coin.abbr,
+        network: coin.protocolType,
+        hdType: (await _sdk.auth.currentUser)?.type ?? '',
       ),
     );
   }
@@ -301,6 +300,14 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
     Emitter<CoinsManagerState> emit,
   ) {
     emit(state.copyWith(searchPhrase: event.text));
+    final query = event.text.trim();
+    final matchedCoin = _coinsRepo.getCoin(query.toUpperCase());
+    _analyticsBloc.logEvent(
+      SearchbarInputEventData(
+        queryLength: query.length,
+        assetSymbol: matchedCoin?.abbr,
+      ),
+    );
     add(CoinsManagerCoinsUpdate(state.action));
   }
 

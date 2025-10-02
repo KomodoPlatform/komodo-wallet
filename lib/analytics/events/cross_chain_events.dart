@@ -4,137 +4,203 @@ import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 
 /// E20: Bridge transfer started
 /// Business category: Cross-Chain.
-class BridgeInitiatedEventData implements AnalyticsEventData {
+class BridgeInitiatedEventData extends AnalyticsEventData {
   const BridgeInitiatedEventData({
-    required this.fromChain,
-    required this.toChain,
     required this.asset,
-    required this.walletType,
+    required this.secondaryAsset,
+    required this.network,
+    required this.secondaryNetwork,
+    required this.hdType,
   });
 
-  final String fromChain;
-  final String toChain;
   final String asset;
-  final String walletType;
+  final String secondaryAsset;
+  final String network;
+  final String secondaryNetwork;
+  final String hdType;
 
   @override
   String get name => 'bridge_initiated';
 
   @override
   JsonMap get parameters => {
-        'from_chain': fromChain,
-        'to_chain': toChain,
-        'asset': asset,
-        'wallet_type': walletType,
-      };
+    'asset': asset,
+    'secondary_asset': secondaryAsset,
+    'network': network,
+    'secondary_network': secondaryNetwork,
+    'hd_type': hdType,
+  };
 }
 
 /// E20: Bridge transfer started
 class AnalyticsBridgeInitiatedEvent extends AnalyticsSendDataEvent {
   AnalyticsBridgeInitiatedEvent({
-    required String fromChain,
-    required String toChain,
     required String asset,
-    required String walletType,
+    required String secondaryAsset,
+    required String network,
+    required String secondaryNetwork,
+    required String hdType,
   }) : super(
-          BridgeInitiatedEventData(
-            fromChain: fromChain,
-            toChain: toChain,
-            asset: asset,
-            walletType: walletType,
-          ),
-        );
+         BridgeInitiatedEventData(
+           asset: asset,
+           secondaryAsset: secondaryAsset,
+           network: network,
+           secondaryNetwork: secondaryNetwork,
+           hdType: hdType,
+         ),
+       );
 }
 
 /// E21: Bridge completed
 /// Business category: Cross-Chain.
-class BridgeSucceededEventData implements AnalyticsEventData {
+class BridgeSucceededEventData extends AnalyticsEventData {
   const BridgeSucceededEventData({
-    required this.fromChain,
-    required this.toChain,
     required this.asset,
+    required this.secondaryAsset,
+    required this.network,
+    required this.secondaryNetwork,
     required this.amount,
-    required this.walletType,
+    required this.hdType,
+    this.durationMs,
   });
 
-  final String fromChain;
-  final String toChain;
   final String asset;
+  final String secondaryAsset;
+  final String network;
+  final String secondaryNetwork;
   final double amount;
-  final String walletType;
+  final String hdType;
+  final int? durationMs;
 
   @override
   String get name => 'bridge_success';
 
   @override
   JsonMap get parameters => {
-        'from_chain': fromChain,
-        'to_chain': toChain,
-        'asset': asset,
-        'amount': amount,
-        'wallet_type': walletType,
-      };
+    'asset': asset,
+    'secondary_asset': secondaryAsset,
+    'network': network,
+    'secondary_network': secondaryNetwork,
+    'amount': amount,
+    'hd_type': hdType,
+    if (durationMs != null) 'duration_ms': durationMs,
+  };
 }
 
 /// E21: Bridge completed
 class AnalyticsBridgeSucceededEvent extends AnalyticsSendDataEvent {
   AnalyticsBridgeSucceededEvent({
-    required String fromChain,
-    required String toChain,
     required String asset,
+    required String secondaryAsset,
+    required String network,
+    required String secondaryNetwork,
     required double amount,
-    required String walletType,
+    required String hdType,
+    int? durationMs,
   }) : super(
-          BridgeSucceededEventData(
-            fromChain: fromChain,
-            toChain: toChain,
-            asset: asset,
-            amount: amount,
-            walletType: walletType,
-          ),
-        );
+         BridgeSucceededEventData(
+           asset: asset,
+           secondaryAsset: secondaryAsset,
+           network: network,
+           secondaryNetwork: secondaryNetwork,
+           amount: amount,
+           hdType: hdType,
+           durationMs: durationMs,
+         ),
+       );
 }
 
 /// E22: Bridge failed
 /// Business category: Cross-Chain.
-class BridgeFailedEventData implements AnalyticsEventData {
+class BridgeFailedEventData extends AnalyticsEventData {
   const BridgeFailedEventData({
-    required this.fromChain,
-    required this.toChain,
-    required this.failError,
-    required this.walletType,
+    required this.asset,
+    required this.secondaryAsset,
+    required this.network,
+    required this.secondaryNetwork,
+    required this.failureStage,
+    this.failureDetail,
+    required this.hdType,
+    this.durationMs,
   });
 
-  final String fromChain;
-  final String toChain;
-  final String failError;
-  final String walletType;
+  final String asset;
+  final String secondaryAsset;
+  final String network;
+  final String secondaryNetwork;
+  final String failureStage;
+  final String? failureDetail;
+  final String hdType;
+  final int? durationMs;
 
   @override
   String get name => 'bridge_failure';
 
   @override
   JsonMap get parameters => {
-        'from_chain': fromChain,
-        'to_chain': toChain,
-        'fail_error': failError,
-        'wallet_type': walletType,
-      };
+    'asset': asset,
+    'secondary_asset': secondaryAsset,
+    'network': network,
+    'secondary_network': secondaryNetwork,
+    'failure_reason': _formatFailureReason(
+      stage: failureStage,
+      reason: failureDetail,
+    ),
+    'hd_type': hdType,
+    if (durationMs != null) 'duration_ms': durationMs,
+  };
 }
 
 /// E22: Bridge failed
 class AnalyticsBridgeFailedEvent extends AnalyticsSendDataEvent {
   AnalyticsBridgeFailedEvent({
-    required String fromChain,
-    required String toChain,
-    required String failError,
-    required String walletType,
+    required String asset,
+    required String secondaryAsset,
+    required String network,
+    required String secondaryNetwork,
+    required String failureStage,
+    String? failureDetail,
+    required String hdType,
+    int? durationMs,
   }) : super(
-          BridgeFailedEventData(
-            fromChain: fromChain,
-            toChain: toChain,
-            failError: failError,
-            walletType: walletType,
-          ),
-        );
+         BridgeFailedEventData(
+           asset: asset,
+           secondaryAsset: secondaryAsset,
+           network: network,
+           secondaryNetwork: secondaryNetwork,
+           failureStage: failureStage,
+           failureDetail: failureDetail,
+           hdType: hdType,
+           durationMs: durationMs,
+         ),
+       );
+}
+
+String _formatFailureReason({String? stage, String? reason, String? code}) {
+  final parts = <String>[];
+
+  String? sanitize(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  final sanitizedStage = sanitize(stage);
+  final sanitizedReason = sanitize(reason);
+  final sanitizedCode = sanitize(code);
+
+  if (sanitizedStage != null) {
+    parts.add('stage:$sanitizedStage');
+  }
+  if (sanitizedReason != null) {
+    parts.add('reason:$sanitizedReason');
+  }
+  if (sanitizedCode != null && sanitizedCode != sanitizedReason) {
+    parts.add('code:$sanitizedCode');
+  }
+
+  if (parts.isEmpty) {
+    return 'reason:unknown';
+  }
+  return parts.join('|');
 }

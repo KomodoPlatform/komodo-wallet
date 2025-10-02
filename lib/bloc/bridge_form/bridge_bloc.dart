@@ -507,10 +507,11 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
           (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
       _analyticsBloc.logEvent(
         BridgeInitiatedEventData(
-          fromChain: sellCoin.protocolType,
-          toChain: buyCoin?.protocolType ?? '',
           asset: sellCoin.abbr,
-          walletType: walletType,
+          secondaryAsset: buyCoin?.abbr ?? sellCoin.abbr,
+          network: sellCoin.protocolType,
+          secondaryNetwork: buyCoin?.protocolType ?? '',
+          hdType: walletType,
         ),
       );
     }
@@ -533,11 +534,12 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
           (await _kdfSdk.auth.currentUser)?.wallet.config.type.name ?? '';
       _analyticsBloc.logEvent(
         BridgeSucceededEventData(
-          fromChain: state.sellCoin!.protocolType,
-          toChain: buyCoin?.protocolType ?? '',
           asset: state.sellCoin!.abbr,
+          secondaryAsset: buyCoin?.abbr ?? state.sellCoin!.abbr,
+          network: state.sellCoin!.protocolType,
+          secondaryNetwork: buyCoin?.protocolType ?? '',
           amount: state.sellAmount?.toDouble() ?? 0.0,
-          walletType: walletType,
+          hdType: walletType,
         ),
       );
     } else {
@@ -547,10 +549,13 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       final error = response.error?.message ?? 'unknown';
       _analyticsBloc.logEvent(
         BridgeFailedEventData(
-          fromChain: state.sellCoin!.protocolType,
-          toChain: buyCoin?.protocolType ?? '',
-          failError: error,
-          walletType: walletType,
+          asset: state.sellCoin!.abbr,
+          secondaryAsset: buyCoin?.abbr ?? state.sellCoin!.abbr,
+          network: state.sellCoin!.protocolType,
+          secondaryNetwork: buyCoin?.protocolType ?? '',
+          failureStage: 'start_swap',
+          failureDetail: error,
+          hdType: walletType,
         ),
       );
       add(BridgeSetError(DexFormError(error: error)));

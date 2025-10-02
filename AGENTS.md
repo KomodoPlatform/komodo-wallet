@@ -14,6 +14,13 @@ If the above fails due to the offline environment, add the `--offline` flag.
 
 Run analysis and formatting (only on changed files) before committing code:
 
+```bash
+flutter analyze
+
+dart format [files]
+
+```
+
 ## Running Tests
 
 Unit tests and integration tests are currently failing. Instead of running tests to validate fixes, do a thorough code review of the changes and static analysis

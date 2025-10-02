@@ -50,6 +50,10 @@ jobs:
           TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
           TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
           TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+          # Matomo analytics configuration (optional). If not provided, analytics will be disabled in CI.
+          MATOMO_URL: ${{ secrets.MATOMO_URL }}
+          MATOMO_SITE_ID: ${{ secrets.MATOMO_SITE_ID }}
+          ANALYTICS_DISABLED: true
 
       - name: Validate build
         uses: ./.github/actions/validate-build

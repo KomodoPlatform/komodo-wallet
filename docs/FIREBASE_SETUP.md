@@ -17,3 +17,15 @@ git update-index --assume-unchanged ios/firebase_app_id_file.json
 git update-index --assume-unchanged macos/firebase_app_id_file.json
 git update-index --assume-unchanged lib/firebase_options.dart
 ```
+
+## Notes
+
+- Firebase is the default analytics provider and is always registered by the app.
+- Analytics collection can be disabled globally using runtime flags (applies to all providers):
+
+```bash
+--dart-define=ANALYTICS_DISABLED=true
+--dart-define=CI=true
+```
+
+See `/docs/ANALYTICS.md` for multi‑provider details, and `/docs/MATOMO_SETUP.md` for enabling Matomo alongside Firebase.

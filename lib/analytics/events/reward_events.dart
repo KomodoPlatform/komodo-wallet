@@ -3,7 +3,7 @@ import 'package:web_dex/bloc/analytics/analytics_event.dart';
 import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 
 /// E31: KMD reward claim started
-class RewardClaimInitiatedEventData implements AnalyticsEventData {
+class RewardClaimInitiatedEventData extends AnalyticsEventData {
   const RewardClaimInitiatedEventData({
     required this.asset,
     required this.expectedRewardAmount,
@@ -17,9 +17,9 @@ class RewardClaimInitiatedEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset': asset,
-        'expected_reward_amount': expectedRewardAmount,
-      };
+    'asset': asset,
+    'expected_reward_amount': expectedRewardAmount,
+  };
 }
 
 class AnalyticsRewardClaimInitiatedEvent extends AnalyticsSendDataEvent {
@@ -27,15 +27,15 @@ class AnalyticsRewardClaimInitiatedEvent extends AnalyticsSendDataEvent {
     required String asset,
     required double expectedRewardAmount,
   }) : super(
-          RewardClaimInitiatedEventData(
-            asset: asset,
-            expectedRewardAmount: expectedRewardAmount,
-          ),
-        );
+         RewardClaimInitiatedEventData(
+           asset: asset,
+           expectedRewardAmount: expectedRewardAmount,
+         ),
+       );
 }
 
 /// E32: KMD reward claim succeeded
-class RewardClaimSuccessEventData implements AnalyticsEventData {
+class RewardClaimSuccessEventData extends AnalyticsEventData {
   const RewardClaimSuccessEventData({
     required this.asset,
     required this.rewardAmount,
@@ -48,10 +48,7 @@ class RewardClaimSuccessEventData implements AnalyticsEventData {
   String get name => 'reward_claim_success';
 
   @override
-  JsonMap get parameters => {
-        'asset': asset,
-        'reward_amount': rewardAmount,
-      };
+  JsonMap get parameters => {'asset': asset, 'amount': rewardAmount};
 }
 
 class AnalyticsRewardClaimSuccessEvent extends AnalyticsSendDataEvent {
@@ -59,15 +56,12 @@ class AnalyticsRewardClaimSuccessEvent extends AnalyticsSendDataEvent {
     required String asset,
     required double rewardAmount,
   }) : super(
-          RewardClaimSuccessEventData(
-            asset: asset,
-            rewardAmount: rewardAmount,
-          ),
-        );
+         RewardClaimSuccessEventData(asset: asset, rewardAmount: rewardAmount),
+       );
 }
 
 /// E33: Reward claim failed
-class RewardClaimFailureEventData implements AnalyticsEventData {
+class RewardClaimFailureEventData extends AnalyticsEventData {
   const RewardClaimFailureEventData({
     required this.asset,
     required this.failReason,
@@ -81,19 +75,43 @@ class RewardClaimFailureEventData implements AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset': asset,
-        'fail_reason': failReason,
-      };
+    'asset': asset,
+    'failure_reason': _formatFailureReason(reason: failReason),
+  };
+}
+
+String _formatFailureReason({String? stage, String? reason, String? code}) {
+  final parts = <String>[];
+
+  String? sanitize(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  final sanitizedStage = sanitize(stage);
+  final sanitizedReason = sanitize(reason);
+  final sanitizedCode = sanitize(code);
+
+  if (sanitizedStage != null) {
+    parts.add('stage:$sanitizedStage');
+  }
+  if (sanitizedReason != null) {
+    parts.add('reason:$sanitizedReason');
+  }
+  if (sanitizedCode != null && sanitizedCode != sanitizedReason) {
+    parts.add('code:$sanitizedCode');
+  }
+
+  if (parts.isEmpty) {
+    return 'reason:unknown';
+  }
+  return parts.join('|');
 }
 
 class AnalyticsRewardClaimFailureEvent extends AnalyticsSendDataEvent {
   AnalyticsRewardClaimFailureEvent({
     required String asset,
     required String failReason,
-  }) : super(
-          RewardClaimFailureEventData(
-            asset: asset,
-            failReason: failReason,
-          ),
-        );
+  }) : super(RewardClaimFailureEventData(asset: asset, failReason: failReason));
 }

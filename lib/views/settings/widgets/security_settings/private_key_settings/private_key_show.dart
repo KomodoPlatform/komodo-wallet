@@ -87,7 +87,7 @@ class PrivateKeyShow extends StatelessWidget {
                     AnalyticsBackupCompletedEvent(
                       backupTime: 0,
                       method: 'private_key_export',
-                      walletType: walletType,
+                      hdType: walletType,
                     ),
                   );
                 } else {
@@ -95,7 +95,7 @@ class PrivateKeyShow extends StatelessWidget {
                   context.read<AnalyticsBloc>().add(
                     AnalyticsBackupSkippedEvent(
                       stageSkipped: 'private_key_show',
-                      walletType: walletType,
+                      hdType: walletType,
                     ),
                   );
                 }

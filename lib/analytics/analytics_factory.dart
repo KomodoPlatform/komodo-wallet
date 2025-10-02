@@ -18,10 +18,10 @@ class PortfolioPnlViewedEvent extends AnalyticsEventData {
 
   @override
   Map<String, Object> get parameters => {
-        'timeframe': timeframe,
-        'realized_pnl': realizedPnl,
-        'unrealized_pnl': unrealizedPnl,
-      };
+    'timeframe': timeframe,
+    'realized_pnl': realizedPnl,
+    'unrealized_pnl': unrealizedPnl,
+  };
 }
 
 class AppOpenedEvent extends AnalyticsEventData {
@@ -34,10 +34,7 @@ class AppOpenedEvent extends AnalyticsEventData {
   final String appVersion;
 
   @override
-  JsonMap get parameters => {
-        'platform': platform,
-        'app_version': appVersion,
-      };
+  JsonMap get parameters => {'platform': platform, 'app_version': appVersion};
 }
 
 class OnboardingStartedEvent extends AnalyticsEventData {
@@ -51,9 +48,9 @@ class OnboardingStartedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'method': method,
-        if (referralSource != null) 'referral_source': referralSource!,
-      };
+    'method': method,
+    if (referralSource != null) 'referral_source': referralSource!,
+  };
 }
 
 class WalletCreatedEvent extends AnalyticsEventData {
@@ -66,10 +63,7 @@ class WalletCreatedEvent extends AnalyticsEventData {
   final String walletType;
 
   @override
-  JsonMap get parameters => {
-        'source': source,
-        'wallet_type': walletType,
-      };
+  JsonMap get parameters => {'source': source, 'wallet_type': walletType};
 }
 
 class WalletImportedEvent extends AnalyticsEventData {
@@ -88,10 +82,10 @@ class WalletImportedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'source': source,
-        'import_type': importType,
-        'wallet_type': walletType,
-      };
+    'source': source,
+    'import_type': importType,
+    'wallet_type': walletType,
+  };
 }
 
 class BackupCompletedEvent extends AnalyticsEventData {
@@ -110,10 +104,10 @@ class BackupCompletedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'backup_time': backupTime,
-        'method': method,
-        'wallet_type': walletType,
-      };
+    'backup_time': backupTime,
+    'method': method,
+    'wallet_type': walletType,
+  };
 }
 
 class BackupSkippedEvent extends AnalyticsEventData {
@@ -127,9 +121,9 @@ class BackupSkippedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'stage_skipped': stageSkipped,
-        'wallet_type': walletType,
-      };
+    'stage_skipped': stageSkipped,
+    'wallet_type': walletType,
+  };
 }
 
 class AnalyticsEvents {
@@ -262,22 +256,19 @@ class AnalyticsEvents {
     required int nftCount,
     required int loadTimeMs,
   }) {
-    return NftGalleryOpenedEvent(
-      nftCount: nftCount,
-      loadTimeMs: loadTimeMs,
-    );
+    return NftGalleryOpenedEvent(nftCount: nftCount, loadTimeMs: loadTimeMs);
   }
 
   /// NFT transfer initiated
   static NftTransferInitiatedEvent nftTransferInitiated({
     required String collectionName,
     required String tokenId,
-    required String hdType,
+    required String walletType,
   }) {
     return NftTransferInitiatedEvent(
       collectionName: collectionName,
       tokenId: tokenId,
-      hdType: hdType,
+      walletType: walletType,
     );
   }
 
@@ -286,13 +277,13 @@ class AnalyticsEvents {
     required String collectionName,
     required String tokenId,
     required double fee,
-    required String hdType,
+    required String walletType,
   }) {
     return NftTransferSuccessEvent(
       collectionName: collectionName,
       tokenId: tokenId,
       fee: fee,
-      hdType: hdType,
+      walletType: walletType,
     );
   }
 
@@ -300,12 +291,12 @@ class AnalyticsEvents {
   static NftTransferFailureEvent nftTransferFailure({
     required String collectionName,
     required String failReason,
-    required String hdType,
+    required String walletType,
   }) {
     return NftTransferFailureEvent(
       collectionName: collectionName,
       failReason: failReason,
-      hdType: hdType,
+      walletType: walletType,
     );
   }
 
@@ -371,10 +362,7 @@ class AnalyticsEvents {
     required String asset,
     required double rewardAmount,
   }) {
-    return RewardClaimSuccessEvent(
-      asset: asset,
-      rewardAmount: rewardAmount,
-    );
+    return RewardClaimSuccessEvent(asset: asset, rewardAmount: rewardAmount);
   }
 
   /// Reward claim failure
@@ -382,10 +370,7 @@ class AnalyticsEvents {
     required String asset,
     required String failReason,
   }) {
-    return RewardClaimFailureEvent(
-      asset: asset,
-      failReason: failReason,
-    );
+    return RewardClaimFailureEvent(asset: asset, failReason: failReason);
   }
 
   /// DApp connected
@@ -393,10 +378,7 @@ class AnalyticsEvents {
     required String dappName,
     required String network,
   }) {
-    return DappConnectEvent(
-      dappName: dappName,
-      network: network,
-    );
+    return DappConnectEvent(dappName: dappName, network: network);
   }
 
   /// Settings change
@@ -404,10 +386,7 @@ class AnalyticsEvents {
     required String settingName,
     required String newValue,
   }) {
-    return SettingsChangeEvent(
-      settingName: settingName,
-      newValue: newValue,
-    );
+    return SettingsChangeEvent(settingName: settingName, newValue: newValue);
   }
 
   /// Error displayed
@@ -422,9 +401,7 @@ class AnalyticsEvents {
   }
 
   /// App shared
-  static AppShareEvent appShare({
-    required String channel,
-  }) {
+  static AppShareEvent appShare({required String channel}) {
     return AppShareEvent(channel: channel);
   }
 
@@ -451,9 +428,7 @@ class AnalyticsEvents {
   }
 
   /// Theme selected
-  static ThemeSelectedEvent themeSelected({
-    required String themeName,
-  }) {
+  static ThemeSelectedEvent themeSelected({required String themeName}) {
     return ThemeSelectedEvent(themeName: themeName);
   }
 }
@@ -474,10 +449,10 @@ class BridgeInitiatedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'from_chain': fromChain,
-        'to_chain': toChain,
-        'asset': asset,
-      };
+    'from_chain': fromChain,
+    'to_chain': toChain,
+    'asset': asset,
+  };
 }
 
 class BridgeSuccessEvent extends AnalyticsEventData {
@@ -500,12 +475,12 @@ class BridgeSuccessEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'from_chain': fromChain,
-        'to_chain': toChain,
-        'asset': asset,
-        'amount': amount,
-        if (durationMs != null) 'duration_ms': durationMs,
-      };
+    'from_chain': fromChain,
+    'to_chain': toChain,
+    'asset': asset,
+    'amount': amount,
+    if (durationMs != null) 'duration_ms': durationMs,
+  };
 }
 
 class BridgeFailureEvent extends AnalyticsEventData {
@@ -526,18 +501,15 @@ class BridgeFailureEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'from_chain': fromChain,
-        'to_chain': toChain,
-        'fail_error': failError,
-        if (durationMs != null) 'duration_ms': durationMs,
-      };
+    'from_chain': fromChain,
+    'to_chain': toChain,
+    'fail_error': failError,
+    if (durationMs != null) 'duration_ms': durationMs,
+  };
 }
 
 class NftGalleryOpenedEvent extends AnalyticsEventData {
-  NftGalleryOpenedEvent({
-    required this.nftCount,
-    required this.loadTimeMs,
-  });
+  NftGalleryOpenedEvent({required this.nftCount, required this.loadTimeMs});
 
   @override
   String get name => 'nft_gallery_opened';
@@ -546,17 +518,14 @@ class NftGalleryOpenedEvent extends AnalyticsEventData {
   final int loadTimeMs;
 
   @override
-  JsonMap get parameters => {
-        'nft_count': nftCount,
-        'load_time_ms': loadTimeMs,
-      };
+  JsonMap get parameters => {'nft_count': nftCount, 'load_time_ms': loadTimeMs};
 }
 
 class NftTransferInitiatedEvent extends AnalyticsEventData {
   NftTransferInitiatedEvent({
     required this.collectionName,
     required this.tokenId,
-    required this.hdType,
+    required this.walletType,
   });
 
   @override
@@ -564,14 +533,14 @@ class NftTransferInitiatedEvent extends AnalyticsEventData {
 
   final String collectionName;
   final String tokenId;
-  final String hdType;
+  final String walletType;
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'hd_type': hdType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'wallet_type': walletType,
+  };
 }
 
 class NftTransferSuccessEvent extends AnalyticsEventData {
@@ -579,7 +548,7 @@ class NftTransferSuccessEvent extends AnalyticsEventData {
     required this.collectionName,
     required this.tokenId,
     required this.fee,
-    required this.hdType,
+    required this.walletType,
   });
 
   @override
@@ -588,22 +557,22 @@ class NftTransferSuccessEvent extends AnalyticsEventData {
   final String collectionName;
   final String tokenId;
   final double fee;
-  final String hdType;
+  final String walletType;
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'token_id': tokenId,
-        'fee': fee,
-        'hd_type': hdType,
-      };
+    'collection_name': collectionName,
+    'token_id': tokenId,
+    'fee': fee,
+    'wallet_type': walletType,
+  };
 }
 
 class NftTransferFailureEvent extends AnalyticsEventData {
   NftTransferFailureEvent({
     required this.collectionName,
     required this.failReason,
-    required this.hdType,
+    required this.walletType,
   });
 
   @override
@@ -611,14 +580,14 @@ class NftTransferFailureEvent extends AnalyticsEventData {
 
   final String collectionName;
   final String failReason;
-  final String hdType;
+  final String walletType;
 
   @override
   JsonMap get parameters => {
-        'collection_name': collectionName,
-        'fail_reason': failReason,
-        'hd_type': hdType,
-      };
+    'collection_name': collectionName,
+    'fail_reason': failReason,
+    'wallet_type': walletType,
+  };
 }
 
 class MarketbotSetupStartEvent extends AnalyticsEventData {
@@ -635,9 +604,9 @@ class MarketbotSetupStartEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'strategy_type': strategyType,
-        'pairs_count': pairsCount,
-      };
+    'strategy_type': strategyType,
+    'pairs_count': pairsCount,
+  };
 }
 
 class MarketbotSetupCompleteEvent extends AnalyticsEventData {
@@ -654,9 +623,9 @@ class MarketbotSetupCompleteEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'strategy_type': strategyType,
-        'base_capital': baseCapital,
-      };
+    'strategy_type': strategyType,
+    'base_capital': baseCapital,
+  };
 }
 
 class MarketbotTradeExecutedEvent extends AnalyticsEventData {
@@ -675,17 +644,14 @@ class MarketbotTradeExecutedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'pair': pair,
-        'trade_size': tradeSize,
-        'profit_usd': profitUsd,
-      };
+    'pair': pair,
+    'trade_size': tradeSize,
+    'profit_usd': profitUsd,
+  };
 }
 
 class MarketbotErrorEvent extends AnalyticsEventData {
-  MarketbotErrorEvent({
-    required this.errorCode,
-    required this.strategyType,
-  });
+  MarketbotErrorEvent({required this.errorCode, required this.strategyType});
 
   @override
   String get name => 'marketbot_error';
@@ -695,9 +661,9 @@ class MarketbotErrorEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'error_code': errorCode,
-        'strategy_type': strategyType,
-      };
+    'error_code': errorCode,
+    'strategy_type': strategyType,
+  };
 }
 
 class RewardClaimInitiatedEvent extends AnalyticsEventData {
@@ -714,16 +680,13 @@ class RewardClaimInitiatedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'asset': asset,
-        'expected_reward_amount': expectedRewardAmount,
-      };
+    'asset': asset,
+    'expected_reward_amount': expectedRewardAmount,
+  };
 }
 
 class RewardClaimSuccessEvent extends AnalyticsEventData {
-  RewardClaimSuccessEvent({
-    required this.asset,
-    required this.rewardAmount,
-  });
+  RewardClaimSuccessEvent({required this.asset, required this.rewardAmount});
 
   @override
   String get name => 'reward_claim_success';
@@ -732,17 +695,11 @@ class RewardClaimSuccessEvent extends AnalyticsEventData {
   final double rewardAmount;
 
   @override
-  JsonMap get parameters => {
-        'asset': asset,
-        'reward_amount': rewardAmount,
-      };
+  JsonMap get parameters => {'asset': asset, 'reward_amount': rewardAmount};
 }
 
 class RewardClaimFailureEvent extends AnalyticsEventData {
-  RewardClaimFailureEvent({
-    required this.asset,
-    required this.failReason,
-  });
+  RewardClaimFailureEvent({required this.asset, required this.failReason});
 
   @override
   String get name => 'reward_claim_failure';
@@ -751,17 +708,11 @@ class RewardClaimFailureEvent extends AnalyticsEventData {
   final String failReason;
 
   @override
-  JsonMap get parameters => {
-        'asset': asset,
-        'fail_reason': failReason,
-      };
+  JsonMap get parameters => {'asset': asset, 'fail_reason': failReason};
 }
 
 class DappConnectEvent extends AnalyticsEventData {
-  DappConnectEvent({
-    required this.dappName,
-    required this.network,
-  });
+  DappConnectEvent({required this.dappName, required this.network});
 
   @override
   String get name => 'dapp_connect';
@@ -770,17 +721,11 @@ class DappConnectEvent extends AnalyticsEventData {
   final String network;
 
   @override
-  JsonMap get parameters => {
-        'dapp_name': dappName,
-        'network': network,
-      };
+  JsonMap get parameters => {'dapp_name': dappName, 'network': network};
 }
 
 class SettingsChangeEvent extends AnalyticsEventData {
-  SettingsChangeEvent({
-    required this.settingName,
-    required this.newValue,
-  });
+  SettingsChangeEvent({required this.settingName, required this.newValue});
 
   @override
   String get name => 'settings_change';
@@ -790,16 +735,13 @@ class SettingsChangeEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'setting_name': settingName,
-        'new_value': newValue,
-      };
+    'setting_name': settingName,
+    'new_value': newValue,
+  };
 }
 
 class ErrorDisplayedEvent extends AnalyticsEventData {
-  ErrorDisplayedEvent({
-    required this.errorCode,
-    required this.screenContext,
-  });
+  ErrorDisplayedEvent({required this.errorCode, required this.screenContext});
 
   @override
   String get name => 'error_displayed';
@@ -809,9 +751,9 @@ class ErrorDisplayedEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'error_code': errorCode,
-        'screen_context': screenContext,
-      };
+    'error_code': errorCode,
+    'screen_context': screenContext,
+  };
 }
 
 class AppShareEvent extends AnalyticsEventData {
@@ -823,9 +765,7 @@ class AppShareEvent extends AnalyticsEventData {
   final String channel;
 
   @override
-  JsonMap get parameters => {
-        'channel': channel,
-      };
+  JsonMap get parameters => {'channel': channel};
 }
 
 class ScrollAttemptOutsideContentEvent extends AnalyticsEventData {
@@ -842,16 +782,13 @@ class ScrollAttemptOutsideContentEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'screen_context': screenContext,
-        'scroll_delta': scrollDelta,
-      };
+    'screen_context': screenContext,
+    'scroll_delta': scrollDelta,
+  };
 }
 
 class SearchbarInputEvent extends AnalyticsEventData {
-  SearchbarInputEvent({
-    required this.queryLength,
-    this.assetSymbol,
-  });
+  SearchbarInputEvent({required this.queryLength, this.assetSymbol});
 
   @override
   String get name => 'searchbar_input';
@@ -861,9 +798,9 @@ class SearchbarInputEvent extends AnalyticsEventData {
 
   @override
   JsonMap get parameters => {
-        'query_length': queryLength,
-        if (assetSymbol != null) 'asset_symbol': assetSymbol!,
-      };
+    'query_length': queryLength,
+    if (assetSymbol != null) 'asset_symbol': assetSymbol!,
+  };
 }
 
 class ThemeSelectedEvent extends AnalyticsEventData {
@@ -875,7 +812,5 @@ class ThemeSelectedEvent extends AnalyticsEventData {
   final String themeName;
 
   @override
-  JsonMap get parameters => {
-        'theme_name': themeName,
-      };
+  JsonMap get parameters => {'theme_name': themeName};
 }

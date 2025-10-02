@@ -76,57 +76,54 @@ class IntegrationTestRunner {
   }
 
   Future<ProcessResult> _runNativeTest(String test) async {
-    return Process.run(
-      'flutter',
-      [
-        'drive',
-        '--dart-define=testing_mode=true',
-        '--driver=test_driver/integration_test.dart',
-        '--target=$testsDirectory/$test',
-        if (_args.verbose) '-v',
-        '-d',
-        _args.device,
-        '--${_args.runMode}',
-        if (_args.runMode == 'profile') '--profile-memory=memory_profile.json',
-        '--${_args.pub ? '' : 'no-'}pub',
-        '--${_args.keepRunning ? '' : 'no-'}keep-app-running',
-        '--timeout=600',
-      ],
-      runInShell: true,
-    );
+    return Process.run('flutter', [
+      'drive',
+      '--dart-define=testing_mode=true',
+      '--dart-define=CI=true',
+      '--dart-define=ANALYTICS_DISABLED=true',
+      '--driver=test_driver/integration_test.dart',
+      '--target=$testsDirectory/$test',
+      if (_args.verbose) '-v',
+      '-d',
+      _args.device,
+      '--${_args.runMode}',
+      if (_args.runMode == 'profile') '--profile-memory=memory_profile.json',
+      '--${_args.pub ? '' : 'no-'}pub',
+      '--${_args.keepRunning ? '' : 'no-'}keep-app-running',
+      '--timeout=600',
+    ], runInShell: true);
   }
 
   Future<ProcessResult> _runWebServerTest(String test) async {
-    return Process.run(
-      'flutter',
-      [
-        'drive',
-        '--dart-define=testing_mode=true',
-        '--driver=test_driver/integration_test.dart',
-        '--target=$testsDirectory/$test',
-        if (_args.verbose) '-v',
-        '-d',
-        _args.device,
-        '--browser-dimension',
-        _args.browserDimension,
-        '--${_args.displayMode}',
-        '--${_args.runMode}',
-        if (_args.runMode == 'profile') '--profile-memory=memory_profile.json',
-        '--browser-name',
-        _args.browserName,
-        '--web-renderer',
-        'canvaskit',
-        '--${_args.pub ? '' : 'no-'}pub',
-        '--${_args.keepRunning ? '' : 'no-'}keep-app-running',
-        '--driver-port=${_args.driverPort}',
-        '--timeout=600',
-      ],
-      runInShell: true,
-    );
+    return Process.run('flutter', [
+      'drive',
+      '--dart-define=testing_mode=true',
+      '--dart-define=CI=true',
+      '--dart-define=ANALYTICS_DISABLED=true',
+      '--driver=test_driver/integration_test.dart',
+      '--target=$testsDirectory/$test',
+      if (_args.verbose) '-v',
+      '-d',
+      _args.device,
+      '--browser-dimension',
+      _args.browserDimension,
+      '--${_args.displayMode}',
+      '--${_args.runMode}',
+      if (_args.runMode == 'profile') '--profile-memory=memory_profile.json',
+      '--browser-name',
+      _args.browserName,
+      '--web-renderer',
+      'canvaskit',
+      '--${_args.pub ? '' : 'no-'}pub',
+      '--${_args.keepRunning ? '' : 'no-'}keep-app-running',
+      '--driver-port=${_args.driverPort}',
+      '--timeout=600',
+    ], runInShell: true);
   }
 
   bool _didAnyTestFail(ProcessResult result) {
-    final caseInvariantConsoleOutput = result.stdout.toString().toLowerCase() +
+    final caseInvariantConsoleOutput =
+        result.stdout.toString().toLowerCase() +
         result.stderr.toString().toLowerCase();
 
     return caseInvariantConsoleOutput.contains('failure details') ||

@@ -48,7 +48,6 @@ class BalanceSummaryWidget extends StatelessWidget {
                   )
                 : _BalancePlaceholder(),
             const SizedBox(height: 12),
-
             // Change indicator using TrendPercentageText or placeholder
             totalBalance != null
                 ? TrendPercentageText(

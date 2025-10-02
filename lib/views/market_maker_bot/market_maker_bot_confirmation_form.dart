@@ -20,6 +20,8 @@ import 'package:web_dex/views/dex/simple/form/exchange_info/exchange_rate.dart';
 import 'package:web_dex/views/dex/simple/form/exchange_info/total_fees.dart';
 import 'package:web_dex/views/market_maker_bot/important_note.dart';
 import 'package:web_dex/views/market_maker_bot/market_maker_form_error_message_extensions.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/analytics/events/market_bot_events.dart';
 
 class MarketMakerBotConfirmationForm extends StatefulWidget {
   const MarketMakerBotConfirmationForm({
@@ -66,6 +68,22 @@ class _MarketMakerBotConfirmationFormState
           final hasError =
               state.tradePreImageError != null ||
               state.status == MarketMakerTradeFormStatus.error;
+
+          final VoidCallback? onCreateOrderCallback = hasError
+              ? null
+              : () {
+                  final sellAmt = state.sellAmount.valueAsRational.toDouble();
+                  final price =
+                      state.priceFromUsd ?? state.priceFromUsdWithMargin ?? 0.0;
+                  final baseCapital = price > 0 ? sellAmt * price : sellAmt;
+                  context.read<AnalyticsBloc>().logEvent(
+                    MarketbotSetupCompleteEventData(
+                      strategyType: 'simple',
+                      baseCapital: baseCapital,
+                    ),
+                  );
+                  widget.onCreateOrder();
+                };
 
           return SingleChildScrollView(
             key: const Key('maker-order-conformation-scroll'),
@@ -124,7 +142,7 @@ class _MarketMakerBotConfirmationFormState
                 Flexible(
                   child: SwapActionButtons(
                     onCancel: widget.onCancel,
-                    onCreateOrder: hasError ? null : widget.onCreateOrder,
+                    onCreateOrder: onCreateOrderCallback,
                     sellCoin: state.sellCoin.value,
                     buyCoin: state.buyCoin.value,
                   ),
