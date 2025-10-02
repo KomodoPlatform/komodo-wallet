@@ -15,7 +15,6 @@ import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_errors.dar
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/dex_form_error.dart';
-import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
@@ -33,7 +32,7 @@ class TakerValidator {
         _coinsRepo = coinsRepo,
         _dexRepo = dexRepo,
         _sdk = sdk,
-        add = bloc.add;
+       add = bloc.add;
 
   final TakerBloc _bloc;
   final CoinsRepo _coinsRepo;
@@ -222,7 +221,7 @@ class TakerValidator {
 
   Future<bool> _validateCoinAndParent(String abbr) async {
     final coin = _sdk.getSdkAsset(abbr);
-    final enabledAssets = await _sdk.getWalletAssets();
+    final enabledAssets = await _sdk.assets.getActivatedAssets();
     final isAssetEnabled = enabledAssets.contains(coin);
     final parentId = coin.id.parentId;
     final parent = _sdk.assets.available[parentId];
@@ -317,7 +316,7 @@ class TakerValidator {
   }
 
   DexFormError _coinNotActiveError(String abbr) {
-    return DexFormError(error: '$abbr is not active.');
+    return DexFormError(error: LocaleKeys.coinIsNotActive.tr(args: [abbr]));
   }
 
   DexFormError _selectSellCoinError() =>

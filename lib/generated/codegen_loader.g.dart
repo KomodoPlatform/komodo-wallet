@@ -507,6 +507,7 @@ abstract class  LocaleKeys {
   static const userActionRequired = 'userActionRequired';
   static const unknown = 'unknown';
   static const unableToActiveCoin = 'unableToActiveCoin';
+  static const coinIsNotActive = 'coinIsNotActive';
   static const feedback = 'feedback';
   static const feedbackViewTitle = 'feedbackViewTitle';
   static const feedbackPageDescription = 'feedbackPageDescription';

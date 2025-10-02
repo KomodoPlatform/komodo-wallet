@@ -510,6 +510,7 @@
   "userActionRequired": "User action required",
   "unknown": "Unknown",
   "unableToActiveCoin": "Unable to activate {}",
+  "coinIsNotActive": "{} is not active",
   "feedback": "Feedback",
   "feedbackViewTitle": "Send us your feedback",
   "feedbackPageDescription": "Help us improve by sharing your suggestions, reporting bugs, or giving general feedback.",

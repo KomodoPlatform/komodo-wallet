@@ -193,7 +193,6 @@ class ArrrActivationService {
           initialDelay: const Duration(seconds: 5),
           maxDelay: const Duration(seconds: 30),
         ),
-        shouldRetry: (error) => error is _RetryableZhtlcActivationException,
         onRetry: (currentAttempt, error, delay) {
           _log.warning(
             'ARRR activation attempt $currentAttempt for ${asset.id.id} failed. '

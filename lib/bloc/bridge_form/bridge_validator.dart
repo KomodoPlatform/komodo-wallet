@@ -292,7 +292,7 @@ class BridgeValidator {
   }
 
   DexFormError _coinNotActiveError(String abbr) {
-    return DexFormError(error: '$abbr is not active.');
+    return DexFormError(error: LocaleKeys.coinIsNotActive.tr(args: [abbr]));
   }
 
   DexFormError _selectSourceProtocolError() =>
