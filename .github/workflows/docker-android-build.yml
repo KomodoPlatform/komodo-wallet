@@ -58,3 +58,10 @@ jobs:
         run: |
           chmod +x .docker/build.sh
           sh .docker/build.sh apk release
+
+      - name: Upload Android APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: komodo-wallet-android-docker.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 5
