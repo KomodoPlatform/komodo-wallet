@@ -322,7 +322,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
       // Ensure any cached addresses/pubkeys from a previous wallet are cleared
       // so that UI fetches fresh pubkeys for the newly logged-in wallet.
       emit(state.copyWith(pubkeys: {}));
-      _coinsRepo.flushCache();
+      await _coinsRepo.flushCache();
       final Wallet currentWallet = event.signedInUser.wallet;
 
       // Start off by emitting the newly activated coins so that they all appear
@@ -369,7 +369,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         pubkeys: {},
       ),
     );
-    _coinsRepo.flushCache();
+    await _coinsRepo.flushCache();
   }
 
   void _scheduleInitialBalanceRefresh(Iterable<String> coinsToActivate) {

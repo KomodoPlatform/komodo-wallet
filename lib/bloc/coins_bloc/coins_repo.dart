@@ -4,7 +4,6 @@ import 'dart:math' show min;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart' show NetworkImage;
-
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -102,7 +101,6 @@ class CoinsRepo {
       return;
     }
 
-    // Start a new subscription
     _balanceWatchers[asset.id] = _kdfSdk.balances.watchBalance(asset.id).listen(
       (balanceInfo) {
         // Update the balance cache with the new values
@@ -114,26 +112,53 @@ class CoinsRepo {
     );
   }
 
-  void flushCache() {
+  /// Logs activation coordination events with appropriate context for debugging
+  void _logActivationCoordinationEvent(AssetId assetId, Object error) {
+    if (error is StateError &&
+        (error.message.contains('activation in progress') ||
+            error.message.contains('already activated'))) {
+      // These are expected coordination conflicts, log at info level
+      _log.info(
+        'Activation coordination event for ${assetId.id}: ${error.message}',
+      );
+    } else {
+      // Unexpected errors should be logged at warning level for coordination events
+      _log.warning('Activation coordination issue for ${assetId.id}: $error');
+    }
+  }
+
+  /// Logs activation errors with appropriate context for debugging
+  void _logActivationError(
+    AssetId assetId,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    if (error is StateError &&
+        (error.message.contains('activation in progress') ||
+            error.message.contains('already activated'))) {
+      // These are expected coordination conflicts, log at info level
+      _log.info(
+        'Activation coordination event for ${assetId.id}: ${error.message}',
+      );
+    } else {
+      // Unexpected errors should be logged at severe level
+      _log.severe(
+        'Error activating asset after retries: ${assetId.id}',
+        error,
+        stackTrace,
+      );
+    }
+  }
+
+  Future<void> flushCache() async {
     // Intentionally avoid flushing the prices cache - prices are independent
     // of the user's session and should be updated on a regular basis.
     _addressCache.clear();
-    _balancesCache.clear();
 
-    // Cancel all balance watchers
-    for (final subscription in _balanceWatchers.values) {
-      subscription.cancel();
-    }
+    _log.info('Clearing ${_balanceWatchers.length} balance watchers');
+    final cancelFutures = _balanceWatchers.values.map((sub) => sub.cancel());
+    await Future.wait(cancelFutures);
     _balanceWatchers.clear();
-  }
-
-  void dispose() {
-    for (final subscription in _balanceWatchers.values) {
-      subscription.cancel();
-    }
-    _balanceWatchers.clear();
-
-    enabledAssetsChanges.close();
   }
 
   /// Returns all known coins, optionally filtering out excluded assets.
@@ -320,29 +345,49 @@ class CoinsRepo {
 
     for (final asset in assets) {
       final coin = _assetToCoinWithoutAddress(asset);
+
+      _log.info('Starting activation for asset ${asset.id.id}');
+
       try {
         if (notifyListeners) {
           _broadcastAsset(coin.copyWith(state: CoinState.activating));
         }
 
-        // Use retry with exponential backoff for activation
+        // Use retry with exponential backoff for activation with enhanced error handling
         await retry<void>(
           () async {
-            // exception is thrown if the asset is already activated, so manual
-            // check is needed for now until specific exception type can be caught
-            final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
-            if (activatedAssets.any((a) => a.id == asset.id)) {
-              _log.info(
-                'Coin ${coin.id} is already activated. Skipping activation.',
-              );
-              return;
-            }
+            try {
+              // Check if asset is already active to prevent duplicate activation
+              final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+              if (activatedAssets.any((a) => a.id == asset.id)) {
+                _log.info(
+                  'Coin ${coin.id} is already activated. Skipping activation.',
+                );
+                return;
+              }
 
-            final progress = await _kdfSdk.assets.activateAsset(asset).last;
-            if (!progress.isSuccess) {
-              throw Exception(
-                progress.errorMessage ?? 'Activation failed for ${asset.id.id}',
-              );
+              // Use the SDK's activation stream and wait for completion
+              final progress = await _kdfSdk.assets.activateAsset(asset).last;
+              if (!progress.isSuccess) {
+                throw Exception(
+                  progress.errorMessage ??
+                      'Activation failed for ${asset.id.id}',
+                );
+              }
+            } on StateError catch (e) {
+              // Handle activation conflicts gracefully
+              if (e.message.contains('already activated') ||
+                  e.message.contains('activation in progress')) {
+                _log.info(
+                  'Activation conflict resolved for ${asset.id.id}: ${e.message}',
+                );
+                return;
+              }
+              rethrow;
+            } catch (e) {
+              // Log activation coordination events
+              _logActivationCoordinationEvent(asset.id, e);
+              rethrow;
             }
           },
           maxAttempts: maxRetryAttempts,
@@ -352,7 +397,7 @@ class CoinsRepo {
           ),
         );
 
-        _log.info('Asset activated: ${asset.id.id}');
+        _log.info('Asset activated successfully: ${asset.id.id}');
         if (notifyListeners) {
           _broadcastAsset(coin.copyWith(state: CoinState.active));
           if (coin.id.parentId != null) {
@@ -360,6 +405,7 @@ class CoinsRepo {
               _kdfSdk.assets.available[coin.id.parentId]!,
             );
             _broadcastAsset(parentCoin.copyWith(state: CoinState.active));
+            _log.fine('Parent coin also activated: ${coin.id.parentId!.id}');
           }
         }
         _subscribeToBalanceUpdates(asset);
@@ -373,11 +419,7 @@ class CoinsRepo {
         }
       } catch (e, s) {
         lastActivationException = e is Exception ? e : Exception(e.toString());
-        _log.shout(
-          'Error activating asset after retries: ${asset.id.id}',
-          e,
-          s,
-        );
+        _logActivationError(asset.id, e, s);
         if (notifyListeners) {
           _broadcastAsset(asset.toCoin().copyWith(state: CoinState.suspended));
         }
@@ -759,12 +801,17 @@ class CoinsRepo {
     final inactiveAssets = await assets.removeActiveAssets(_kdfSdk);
     for (final asset in inactiveAssets) {
       final coin = coins.firstWhere((coin) => coin.id == asset.id);
-      await _activateZhtlcAsset(
-        asset,
-        coin,
-        notifyListeners: notifyListeners,
-        addToWalletMetadata: addToWalletMetadata,
-      );
+      try {
+        await _activateZhtlcAsset(
+          asset,
+          coin,
+          notifyListeners: notifyListeners,
+          addToWalletMetadata: addToWalletMetadata,
+        );
+      } catch (e, s) {
+        _log.severe('Failed to activate ZHTLC asset ${asset.id.id}', e, s);
+        // Continue with the next asset
+      }
     }
   }
 

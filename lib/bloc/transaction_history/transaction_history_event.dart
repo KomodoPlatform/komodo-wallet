@@ -24,3 +24,8 @@ class TransactionHistoryFailure extends TransactionHistoryEvent {
   TransactionHistoryFailure({required this.error});
   final BaseError error;
 }
+
+/// Event triggered when auth state changes (logout/wallet switch)
+class TransactionHistoryAuthStateChanged extends TransactionHistoryEvent {
+  const TransactionHistoryAuthStateChanged();
+}

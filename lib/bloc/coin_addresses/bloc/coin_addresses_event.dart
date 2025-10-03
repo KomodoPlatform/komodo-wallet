@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart' show PubkeyInfo;
+import 'package:komodo_defi_types/komodo_defi_types.dart'
+    show PubkeyInfo, KdfUser;
 
 abstract class CoinAddressesEvent extends Equatable {
   const CoinAddressesEvent();
@@ -45,4 +46,14 @@ class CoinAddressesPubkeysSubscriptionFailed extends CoinAddressesEvent {
 
   @override
   List<Object?> get props => [error];
+}
+
+/// Event triggered when auth state changes (logout/wallet switch)
+class CoinAddressesAuthStateChanged extends CoinAddressesEvent {
+  final KdfUser? user;
+
+  const CoinAddressesAuthStateChanged(this.user);
+
+  @override
+  List<Object?> get props => [user];
 }
