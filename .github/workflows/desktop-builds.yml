@@ -3,7 +3,7 @@ run-name: Building desktop apps 🖥️
 
 on:
   pull_request:
-    branches: [dev, main, release/*, hotfix/*, feature/*]
+    branches: [dev, main, fix/*, add/*, release/*, hotfix/*, feature/*]
   workflow_dispatch:
   release:
     types: [created]
@@ -85,7 +85,16 @@ jobs:
       - name: Build for ${{ matrix.platform }}
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ${{ matrix.build_command }}
+        uses: ./.github/actions/generate-assets
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
+          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          BUILD_COMMAND: ${{ matrix.build_command }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
