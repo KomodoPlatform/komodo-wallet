@@ -32,6 +32,15 @@ jobs:
       - name: Build Linux Desktop
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional feedback provider secrets to embed dart-defines
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
+          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
+          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          MATOMO_URL: ${{ secrets.MATOMO_URL }}
+          MATOMO_SITE_ID: ${{ secrets.MATOMO_SITE_ID }}
         run: |
           chmod +x .docker/build.sh
           sh .docker/build.sh linux release

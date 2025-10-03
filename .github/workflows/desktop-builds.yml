@@ -82,6 +82,8 @@ jobs:
           TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
           FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
           FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
+          MATOMO_URL: ${{ secrets.MATOMO_URL }}
+          MATOMO_SITE_ID: ${{ secrets.MATOMO_SITE_ID }}
           BUILD_COMMAND: ${{ matrix.build_command }}
 
       - name: Upload artifact
