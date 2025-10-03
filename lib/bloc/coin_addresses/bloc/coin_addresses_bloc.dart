@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart'
-    show Asset, NewAddressStatus, AssetPubkeys, KdfUser, WalletId;
+    show Asset, NewAddressStatus, AssetPubkeys;
 import 'package:logging/logging.dart';
 import 'package:web_dex/analytics/events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
@@ -20,14 +20,6 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
     on<CoinAddressesZeroBalanceVisibilityChanged>(_onHideZeroBalanceChanged);
     on<CoinAddressesPubkeysUpdated>(_onPubkeysUpdated);
     on<CoinAddressesPubkeysSubscriptionFailed>(_onPubkeysSubscriptionFailed);
-    on<CoinAddressesAuthStateChanged>(_onAuthStateChanged);
-
-    // Listen to auth state changes to clear subscriptions on logout/wallet switch
-    _authSubscription = _sdk.auth.watchCurrentUser().listen((user) {
-      if (!isClosed) {
-        add(CoinAddressesAuthStateChanged(user));
-      }
-    });
   }
 
   final KomodoDefiSdk _sdk;
@@ -37,10 +29,6 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
   static final Logger _log = Logger('CoinAddressesBloc');
 
   StreamSubscription<AssetPubkeys>? _pubkeysSub;
-  StreamSubscription<KdfUser?>? _authSubscription;
-
-  /// Current wallet ID being tracked for auth state changes
-  WalletId? _currentWalletId;
 
   Future<void> _onStarted(
     CoinAddressesStarted event,
@@ -248,57 +236,10 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
   Future<void> close() async {
     _log.fine('Closing CoinAddressesBloc for asset $_assetId');
 
-    // Cancel auth subscription
-    try {
-      await _authSubscription?.cancel();
-      _authSubscription = null;
-    } catch (e) {
-      _log.warning(
-        'Error cancelling auth subscription for asset $_assetId: $e',
-      );
-    }
-
     // Cancel pubkey subscription
     await _cancelPubkeySubscription();
 
     return super.close();
-  }
-
-  /// Clears pubkeys subscription when auth state changes (logout or wallet switch).
-  /// This prevents stale subscriptions from continuing to receive updates
-  /// for the previous wallet's addresses.
-  Future<void> _onAuthStateChanged(
-    CoinAddressesAuthStateChanged event,
-    Emitter<CoinAddressesState> emit,
-  ) async {
-    final newWalletId = event.user?.walletId;
-
-    _log.fine(
-      'Auth state changed for asset $_assetId: ${_currentWalletId?.name} -> '
-      '${newWalletId?.name}',
-    );
-
-    // If the wallet ID has changed, clear subscriptions and reset state
-    if (_currentWalletId != newWalletId) {
-      _log.info(
-        'Wallet change detected for asset $_assetId, clearing pubkey subscriptions',
-      );
-
-      await _cancelPubkeySubscription();
-      _currentWalletId = newWalletId;
-
-      // Reset to initial state when wallet changes
-      emit(const CoinAddressesState());
-
-      _log.fine(
-        'Auth state change handling completed for asset $_assetId, wallet: '
-        '${newWalletId?.name}',
-      );
-    } else {
-      _log.finest(
-        'No wallet change detected for asset $_assetId, keeping current state',
-      );
-    }
   }
 
   /// Cancels the current pubkey subscription with proper error handling
