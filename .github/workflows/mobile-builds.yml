@@ -67,7 +67,9 @@ jobs:
         run: |
           flutter build apk --config-only
 
-      - name: Fetch packages and generate assets
+      - name: Fetch packages, generate assets, and build for ${{ matrix.platform }}
+        env:
+          GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

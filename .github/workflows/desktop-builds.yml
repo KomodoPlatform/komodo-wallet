@@ -70,19 +70,7 @@ jobs:
           pfx-base64: ${{ secrets.WINDOWS_PFX_BASE64 }}
           pfx-password: ${{ secrets.WINDOWS_PFX_PASSWORD }}
 
-      - name: Fetch packages and generate assets
-        uses: ./.github/actions/generate-assets
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
-          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
-          TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
-          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
-          FEEDBACK_API_KEY: ${{ secrets.FEEDBACK_API_KEY }}
-          FEEDBACK_PRODUCTION_URL: ${{ secrets.FEEDBACK_PRODUCTION_URL }}
-          BUILD_COMMAND: ${{ matrix.build_command }}
-
-      - name: Build for ${{ matrix.platform }}
+      - name: Fetch packages, generate assets, and build for ${{ matrix.platform }}
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: ./.github/actions/generate-assets

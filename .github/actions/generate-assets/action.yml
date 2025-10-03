@@ -1,5 +1,5 @@
-name: "Generates assets"
-description: "Runs the flutter build command to transform and generate assets for the deployment build"
+name: "Fetch packages, generate assets, and build"
+description: "Runs a dry-run flutter build to fetch/register assets, then runs the actual build for deployment"
 
 inputs:
   GITHUB_TOKEN:
