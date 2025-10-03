@@ -1,7 +1,7 @@
 [submodule "sdk"]
 	path = sdk
 	url = https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
-	branch = dev
+	branch = kdf-roll/hotfix-remove-memorydb-size-metric-476262f
 	update = checkout
 	fetchRecurseSubmodules = on-demand
 	ignore = dirty
