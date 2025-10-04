@@ -1,3 +1,56 @@
+# Komodo Wallet v0.9.3 Release Notes
+
+This release sharpens sign-in convenience, analytics coverage, and operational resilience ahead of the 0.9.3 cut. Highlights include one-click remember-me login, a dual analytics pipeline with Matomo support, a hardened feedback workflow, and improved compliance guardrails across platforms.
+
+## 🚀 New Features
+- **One-Click Remember Me Sign-In** ([@CharlVS], #3041) - Adds a quick login toggle that remembers hashed wallet metadata, auto-detects password manager autofill, and lets you resume the last wallet in one tap across desktop and mobile.
+- **Feedback Portal Overhaul** ([@CharlVS], #3017) - Rebuilds the in-app feedback flow with provider plugins, optional contact opt-out, log attachments capped under 10 MB, and screenshot scrubbing for sensitive dialogs.
+- **Dual Analytics Pipeline** ([@CharlVS], #2932) - Runs Firebase and Matomo providers side by side with persistent event queues, CI-aware disables, and configurable Matomo dimensions.
+- **Wallet Import Renaming & Validation** ([@CharlVS], #2792) - Validates wallet names on creation or import and lets you rename imports before they enter the manager.
+- **Version Insight Panel** ([@takenagain], #3109) - Adds a bloc-driven settings panel that surfaces app, mm2, and coin-config commits with periodic polling.
+
+## 🎨 UI & UX
+- **Asset List Loading Guards** ([@takenagain], #3134) - Hides portfolio rows until fiat pricing lands and shows placeholders instead of flickering zeroes.
+- **Token Parent Labeling** ([@smk762], #2988) - Marks parent chains as native, adopts SDK display names, and keeps network suffixes visible across wallet views.
+- **DEX Address Pill Consistency** ([@smk762], #2974) - Aligns the address pill style between list and detail flows for clearer swap confirmations.
+- **Coin Detail Fiat Per Address** ([@takenagain], #3049) - Restores fiat balance context for individual addresses on the coin detail screen.
+- **Memo Field Contextualization** ([@smk762], #2998) - Only renders memo inputs for Tendermint and ZHTLC assets so other withdrawals stay clutter-free.
+
+## 🔒 Security & Compliance
+- **Geo Blocker Bouncer Integration** ([@CharlVS], #3150) - Streams the new trading-status API, filters blocked assets during wallet bootstrap, and exposes an override for regulated builds.
+- **Password Policy Hardening** ([@CharlVS], #3149/#3141) - Expands password limits to 128 characters across forms and makes validation consistent between Flutter and SDK layers.
+- **Weak Password Flag Fix** ([@smk762], #3101) - Ensures the configuration flag actually respects weak-password bypass scenarios.
+- **Pubkey Hygiene on Logout** ([@CharlVS], #3144) - Clears cached pubkeys when switching wallets or signing out to prevent stale address reuse.
+
+## ⚡ Performance & Reliability
+- **Fiat Onramp Debounce** ([@takenagain], #3125) - Debounces fiat amount edits so API calls only fire after user pauses typing.
+- **Custom Token Activation Guardrails** ([@takenagain], #3129) - Waits for token propagation, limits retry loops, and deactivates test imports if the dialog closes without confirmation.
+- **Legacy Wallet Import Stability** ([@takenagain], #3126) - Re-applies migrated coin lists after legacy imports and filters unsupported assets before activation.
+
+## 🐛 Bug Fixes
+- **Unauthenticated Coin State Fixes** ([@CharlVS], #3138) - Repairs coin list and sparkline loading when viewing portfolios before logging in.
+- **DEX Precision Regression** ([@CharlVS], #3123) - Eliminates precision loss in taker forms and adds tests for large rational conversions.
+- **macOS File Picker Entitlements** ([@CharlVS], #3111) - Restores the native file picker by adding the required read-only entitlement and window focus handling.
+- **NFT IPFS Fallbacks** ([@takenagain], #3020) - Introduces an IPFS gateway manager with retries, cooldowns, and unit tests so NFT media loads consistently.
+- **SDK Disposal Crash** ([@DeckerSU], #3117) - Avoids crashes when mm2 shuts down mid-fetch by guarding the periodic fetch loop.
+- **Price/Version Reporting** ([@DeckerSU], #3115) - Ensures the settings screen shows the actual mm2 commit hash instead of a closure string.
+
+## 🛠️ Build & Developer Experience
+- **Flutter 3.35.1 & SDK Roll** ([@CharlVS], #3108) - Upgrades Flutter, aligns SDK dependencies, and refreshes package overrides for the new mono-repo workspace.
+- **SDK Git Submodule Adoption** ([@takenagain], #3110) - Vendors komodo-defi-sdk as a submodule with workspace overrides and adds tooling for deterministic rolls.
+- **Matomo Build Validation** ([@DeckerSU], #3165) - Validates Matomo tracking parameters during CI builds to prevent misconfigured releases.
+- **Build Script Environment Sanitization** ([@DeckerSU], #3037/#3055/#3058) - Normalises docker env defines, forces web builds off CDN resources, and removes stray .dgph artifacts from iOS outputs.
+- **Linux Build Workflow Check** ([@DeckerSU], #3106) - Adds a GitHub workflow that exercises the Linux build script after SDK rolls.
+- **Devcontainer Modernisation** ([@CharlVS], #3114) - Switches the devcontainer to lightweight .docker images and consolidates post-create provisioning.
+
+## 📚 Documentation
+- **Matomo Analytics Guide** ([@CharlVS], #2932) - Documents how to enable Matomo alongside Firebase, including CI toggles and queue behaviour.
+- **SDK Submodule Management** ([@takenagain], #3110) - Provides end-to-end instructions for updating, hotfixing, and testing the vendored SDK.
+- **macOS/iOS Build Prerequisites** ([@takenagain], #3128) - Expands setup docs with Ruby installation steps and refreshed platform notes.
+
+**Full Changelog**: [0.9.2...0.9.3](https://github.com/KomodoPlatform/komodo-wallet/compare/0.9.2...0.9.3)
+
+
 # Komodo Wallet v0.9.2 Release Notes
 
 This release brings numerous improvements to wallet functionality, enhanced user experience, and critical bug fixes. Key highlights include HD wallet private key export, improved Trezor support, enhanced UI/UX throughout the application, and platform-specific optimizations.
