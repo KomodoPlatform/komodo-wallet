@@ -1,8 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:web_dex/services/onboarding/onboarding_service.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
+import 'package:web_dex/views/wallets_manager/widgets/onboarding/start_screen.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_manager.dart';
 import 'package:web_dex/views/wallets_manager/widgets/wallets_type_list.dart';
 
@@ -28,14 +32,58 @@ class WalletsManagerWrapper extends StatefulWidget {
 
 class _WalletsManagerWrapperState extends State<WalletsManagerWrapper> {
   WalletType? _selectedWalletType;
+  bool _showStartScreen = false;
+  bool _isCheckingFirstLaunch = true;
+
   @override
   void initState() {
     super.initState();
     _selectedWalletType = widget.selectedWallet?.config.type;
+    _checkFirstLaunch();
+  }
+
+  /// Check if this is first launch (no existing wallets).
+  Future<void> _checkFirstLaunch() async {
+    final walletsRepo = context.read<WalletsRepository>();
+    final onboardingService = OnboardingService();
+
+    final wallets = walletsRepo.wallets;
+    final hasSeenStart = await onboardingService.hasSeenStartScreen();
+
+    if (mounted) {
+      setState(() {
+        // Show start screen if: no existing wallets AND haven't seen it before
+        _showStartScreen =
+            (wallets == null || wallets.isEmpty) && !hasSeenStart;
+        _isCheckingFirstLaunch = false;
+      });
+    }
+  }
+
+  /// Called when user selects an option from start screen.
+  void _onStartScreenAction({required bool isImport}) {
+    setState(() {
+      _showStartScreen = false;
+    });
+    // Mark start screen as seen
+    OnboardingService().markStartScreenSeen().ignore();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show loading while checking first launch status
+    if (_isCheckingFirstLaunch) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Show start screen for first-time users
+    if (_showStartScreen) {
+      return StartScreen(
+        onCreateWallet: () => _onStartScreenAction(isImport: false),
+        onImportWallet: () => _onStartScreenAction(isImport: true),
+      );
+    }
+
     final WalletType? selectedWalletType = _selectedWalletType;
     if (selectedWalletType == null) {
       return Column(

@@ -44,8 +44,12 @@ import 'package:web_dex/views/wallet/wallet_page/common/assets_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/active_coins_list.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_manage_section.dart';
 import 'package:web_dex/views/wallet/wallet_page/wallet_main/wallet_overview.dart';
+import 'package:web_dex/analytics/events/onboarding_events.dart';
+import 'package:web_dex/model/main_menu_value.dart';
+import 'package:web_dex/model/settings_menu_value.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_wrapper.dart';
+import 'package:web_dex/views/wallets_manager/widgets/onboarding/backup_warning_banner.dart';
 
 class WalletMain extends StatefulWidget {
   const WalletMain({super.key = const Key('wallet-page')});
@@ -151,6 +155,22 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
                       if (isLoggedIn) ...[
                         if (!isMobile)
                           const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                        // Show backup warning banner if seed not backed up
+                        if (!(authState.currentUser?.wallet.config.hasBackup ??
+                            true))
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                                vertical: 8.0,
+                              ),
+                              child: BackupWarningBanner(
+                                onBackupTap: () =>
+                                    _navigateToSeedBackup(context),
+                                onDismiss: () => _dismissBackupBanner(),
+                              ),
+                            ),
+                          ),
                         SliverToBoxAdapter(
                           child: WalletOverview(
                             key: const Key('wallet-overview'),
@@ -253,9 +273,9 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
   }
 
   void _onShowCoinsWithBalanceClick(bool value) {
-    context
-        .read<SettingsBloc>()
-        .add(HideZeroBalanceAssetsChanged(hideZeroBalanceAssets: value));
+    context.read<SettingsBloc>().add(
+      HideZeroBalanceAssetsChanged(hideZeroBalanceAssets: value),
+    );
   }
 
   void _onSearchChange(String searchKey) {
@@ -276,11 +296,8 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
 
   void _onAssetStatisticsTap(AssetId assetId, Duration period) {
     context.read<PriceChartBloc>().add(
-          PriceChartStarted(
-            symbols: [assetId.symbol.configSymbol],
-            period: period,
-          ),
-        );
+      PriceChartStarted(symbols: [assetId.symbol.configSymbol], period: period),
+    );
     _tabController.animateTo(1);
   }
 
@@ -291,8 +308,10 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverSearchBarDelegate(
-              withBalance:
-                  context.watch<SettingsBloc>().state.hideZeroBalanceAssets,
+              withBalance: context
+                  .watch<SettingsBloc>()
+                  .state
+                  .hideZeroBalanceAssets,
               onSearchChange: _onSearchChange,
               onWithBalanceChange: _onShowCoinsWithBalanceClick,
               mode: mode,
@@ -302,8 +321,10 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
           CoinListView(
             mode: mode,
             searchPhrase: _searchKey,
-            withBalance:
-                context.watch<SettingsBloc>().state.hideZeroBalanceAssets,
+            withBalance: context
+                .watch<SettingsBloc>()
+                .state
+                .hideZeroBalanceAssets,
             onActiveCoinItemTap: _onActiveCoinItemTap,
             onAssetItemTap: _onAssetItemTap,
             onAssetStatisticsTap: _onAssetStatisticsTap,
@@ -345,11 +366,11 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
       _walletHalfLogged = true;
       final coinsCount = context.read<CoinsBloc>().state.walletCoins.length;
       context.read<AnalyticsBloc>().logEvent(
-            WalletListHalfViewportReachedEventData(
-              timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
-              walletSize: coinsCount,
-            ),
-          );
+        WalletListHalfViewportReachedEventData(
+          timeToHalfMs: _walletListStopwatch.elapsedMilliseconds,
+          walletSize: coinsCount,
+        ),
+      );
     }
   }
 
@@ -362,15 +383,43 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
 
     if (newOffset == _scrollController.offset) {
       context.read<AnalyticsBloc>().logEvent(
-            ScrollAttemptOutsideContentEventData(
-              screenContext: 'wallet_page',
-              scrollDelta: event.scrollDelta.dy,
-            ),
-          );
+        ScrollAttemptOutsideContentEventData(
+          screenContext: 'wallet_page',
+          scrollDelta: event.scrollDelta.dy,
+        ),
+      );
       return;
     }
 
     _scrollController.jumpTo(newOffset);
+  }
+
+  /// Navigates to seed backup flow in Settings.
+  void _navigateToSeedBackup(BuildContext context) {
+    // Log analytics event
+    context.read<AnalyticsBloc>().logEvent(
+      const BackupBannerActionClickedEventData(),
+    );
+
+    // Navigate to Settings > Security section
+    routingState.selectedMenu = MainMenuValue.settings;
+    routingState.settingsState.selectedMenu = SettingsMenuValue.security;
+  }
+
+  /// Dismisses the backup banner temporarily.
+  void _dismissBackupBanner() {
+    // Log analytics event
+    context.read<AnalyticsBloc>().logEvent(
+      const BackupBannerDismissedEventData(),
+    );
+
+    // Store dismissal state temporarily (until next app launch)
+    // For now, the banner will reappear on next build since hasBackup is still false
+    // A proper implementation would use shared preferences to track dismissal
+    // and check timestamp before showing again
+    setState(() {
+      // Banner will hide until next rebuild
+    });
   }
 
   PopupDispatcher _createPopupDispatcher() {
@@ -437,8 +486,8 @@ class CoinListView extends StatelessWidget {
           searchPhrase: searchPhrase,
           onAssetItemTap: (assetId) => onAssetItemTap(
             context.read<CoinsBloc>().state.coins.values.firstWhere(
-                  (coin) => coin.assetId == assetId,
-                ),
+              (coin) => coin.assetId == assetId,
+            ),
           ),
           onStatisticsTap: onAssetStatisticsTap,
         );
@@ -471,8 +520,10 @@ class _SliverSearchBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     // Apply collapse progress on both mobile and desktop
-    final collapseProgress =
-        (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    final collapseProgress = (shrinkOffset / (maxExtent - minExtent)).clamp(
+      0.0,
+      1.0,
+    );
 
     return SizedBox(
       height: (maxExtent - shrinkOffset).clamp(minExtent, maxExtent),

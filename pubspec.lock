@@ -471,7 +471,7 @@ packages:
     source: hosted
     version: "2.0.30"
   flutter_secure_storage:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_secure_storage
       sha256: f7eceb0bc6f4fd0441e29d43cab9ac2a1c5ffd7ea7b64075136b718c46954874
@@ -809,7 +809,7 @@ packages:
     source: hosted
     version: "5.1.1"
   local_auth:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: local_auth
       sha256: "434d854cf478f17f12ab29a76a02b3067f86a63a6d6c4eb8fbfdcfe4879c1b7b"
