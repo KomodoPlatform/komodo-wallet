@@ -96,20 +96,6 @@ This release sharpens sign-in convenience, analytics coverage, and operational r
 
 **SDK Version**: Updated from `68429b23dac43eddd53434dda1bd23296523f27d` to `72c9de3b370f1b4169ebbb3150e8adedf4ed3b23`
 
-**SDK Package Versions**:
-
-- `komodo_defi_sdk` → v0.4.0+3
-- `komodo_defi_types` → v0.3.2+1
-- `komodo_defi_framework` → v0.3.1+2
-- `komodo_defi_rpc_methods` → v0.3.1+1
-- `komodo_defi_local_auth` → v0.3.1+2
-- `komodo_coins` → v0.3.1+2
-- `komodo_coin_updates` → v1.1.1
-- `komodo_cex_market_data` → v0.0.3+1
-- `komodo_ui` → v0.3.0+3
-- `dragon_logs` → v2.0.0
-- `dragon_charts_flutter` → v0.1.1-dev.3
-
 **Full Changelog**: [0.9.2...0.9.3](https://github.com/KomodoPlatform/komodo-wallet/compare/0.9.2...0.9.3)
 
 # Komodo Wallet v0.9.2 Release Notes
