@@ -6,18 +6,21 @@ import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:mutex/mutex.dart';
+import 'package:web_dex/mm2/mm2.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/disable_coin/disable_coin_req.dart';
 
 import 'arrr_config.dart';
 
 /// Service layer - business logic coordination for ARRR activation
 class ArrrActivationService {
-  ArrrActivationService(this._sdk)
+  ArrrActivationService(this._sdk, this._mm2)
     : _configService = _sdk.activationConfigService {
     _startListeningToAuthChanges();
   }
 
   final ActivationConfigService _configService;
   final KomodoDefiSdk _sdk;
+  final MM2 _mm2;
   final Logger _log = Logger('ArrrActivationService');
 
   /// Stream controller for configuration requests
@@ -446,6 +449,80 @@ class ArrrActivationService {
     _log.info(
       'Cleanup completed - cancelled ${pendingAssets.length} pending configs and cleared ${activeAssets.length} activation statuses',
     );
+  }
+
+  /// Updates the configuration for an already activated ZHTLC coin
+  /// This will:
+  /// 1. Cancel any ongoing activation tasks for the asset
+  /// 2. Disable the coin if it's currently active
+  /// 3. Store the new configuration
+  /// 4. Reactivate the coin with the updated configuration
+  Future<ArrrActivationResult> updateZhtlcConfig(
+    Asset asset,
+    ZhtlcUserConfig newConfig,
+  ) async {
+    if (_isDisposing || _configRequestController.isClosed) {
+      throw StateError('ArrrActivationService has been disposed');
+    }
+
+    _log.info('Updating ZHTLC configuration for ${asset.id.id}');
+
+    try {
+      // 1. Cancel any ongoing activation for this asset
+      final ongoingActivation = _ongoingActivations[asset.id];
+      if (ongoingActivation != null) {
+        _log.info('Cancelling ongoing activation for ${asset.id.id}');
+        _ongoingActivations.remove(asset.id);
+        // Note: We can't actually cancel the future, but we remove it from tracking
+      }
+
+      // Cancel any pending configuration requests
+      final completer = _configCompleters[asset.id];
+      if (completer != null && !completer.isCompleted) {
+        _log.info(
+          'Cancelling pending configuration request for ${asset.id.id}',
+        );
+        completer.complete(null);
+        _configCompleters.remove(asset.id);
+      }
+
+      // 2. Disable the coin if it's currently active
+      final activatedAssets = await _sdk.assets.getActivatedAssets();
+      final isCurrentlyActive = activatedAssets.any((a) => a.id == asset.id);
+
+      if (isCurrentlyActive) {
+        _log.info('Disabling currently active ZHTLC coin ${asset.id.id}');
+        await _disableCoin(asset.id.id);
+      }
+
+      // 3. Store the new configuration
+      _log.info('Saving new configuration for ${asset.id.id}');
+      await _configService.saveZhtlcConfig(asset.id, newConfig);
+
+      // 4. Reactivate the coin with the updated configuration
+      _log.info('Reactivating ${asset.id.id} with updated configuration');
+      return await activateArrr(asset, initialConfig: newConfig);
+    } catch (e, stackTrace) {
+      _log.severe(
+        'Failed to update ZHTLC configuration for ${asset.id.id}',
+        e,
+        stackTrace,
+      );
+      await _cacheActivationError(asset.id, e.toString());
+      return ArrrActivationResultError('Failed to update configuration: $e');
+    }
+  }
+
+  /// Disable a coin by calling the MM2 disable_coin RPC
+  /// Copied from CoinsRepo._disableCoin for consistency
+  Future<void> _disableCoin(String coinId) async {
+    try {
+      await _mm2.call(DisableCoinReq(coin: coinId));
+      _log.info('Successfully disabled coin $coinId');
+    } catch (e, s) {
+      _log.shout('Error disabling $coinId', e, s);
+      // Don't rethrow - we want to continue with the configuration update
+    }
   }
 
   /// Dispose resources

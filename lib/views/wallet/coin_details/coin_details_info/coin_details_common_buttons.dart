@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,18 +7,23 @@ import 'package:flutter_svg/svg.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/bloc/coin_addresses/bloc/coin_addresses_bloc.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_bloc.dart';
+import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/router/state/routing_state.dart';
+import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 import 'package:web_dex/views/bitrefill/bitrefill_button.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/coin_addresses.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_details_info/contract_address_button.dart';
 import 'package:web_dex/views/wallet/coin_details/coin_page_type.dart';
+import 'package:web_dex/views/wallet/wallet_page/common/zhtlc/zhtlc_configuration_dialog.dart';
 
 class CoinDetailsCommonButtons extends StatelessWidget {
   const CoinDetailsCommonButtons({
@@ -127,6 +134,10 @@ class CoinDetailsCommonButtonsMobileLayout extends StatelessWidget {
               ),
           ],
         ),
+        if (coin.id.subClass == CoinSubClass.zhtlc) ...[
+          const SizedBox(height: 12),
+          ZhtlcConfigButton(coin: coin, isMobile: isMobile),
+        ],
       ],
     );
   }
@@ -198,6 +209,12 @@ class CoinDetailsCommonButtonsDesktopLayout extends StatelessWidget {
               onPaymentRequested: (_) => selectWidget(CoinPageType.send),
               tooltip: _getBitrefillTooltip(coin),
             ),
+          ),
+        if (coin.id.subClass == CoinSubClass.zhtlc)
+          Container(
+            margin: const EdgeInsets.only(left: 21),
+            constraints: const BoxConstraints(maxWidth: 120),
+            child: ZhtlcConfigButton(coin: coin, isMobile: isMobile),
           ),
         Flexible(
           flex: 2,
@@ -429,4 +446,78 @@ String? _getBitrefillTooltip(Coin coin) {
 
   // Check if coin has zero balance (this could be enhanced with actual balance check)
   return null; // Let BitrefillButton handle the zero balance tooltip
+}
+
+class ZhtlcConfigButton extends StatelessWidget {
+  const ZhtlcConfigButton({
+    required this.coin,
+    required this.isMobile,
+    super.key,
+  });
+
+  final Coin coin;
+  final bool isMobile;
+
+  Future<void> _handleConfigUpdate(BuildContext context) async {
+    final sdk = RepositoryProvider.of<KomodoDefiSdk>(context);
+    final arrrService = RepositoryProvider.of<ArrrActivationService>(context);
+    final coinsBloc = context.read<CoinsBloc>();
+
+    // Get the asset from the SDK
+    final asset = sdk.assets.available[coin.id];
+    if (asset == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Asset ${coin.id.id} not found'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Show the configuration dialog
+      final newConfig = await confirmZhtlcConfiguration(context, asset: asset);
+
+      if (newConfig != null && context.mounted) {
+        // Deactivate the coin first using CoinsBloc
+        coinsBloc.add(CoinsDeactivated({coin.id.id}));
+
+        // Navigate to main wallet page
+        routingState.selectedMenu = MainMenuValue.defaultMenu();
+
+        // Update the configuration (will trigger reactivation)
+        unawaited(arrrService.updateZhtlcConfig(asset, newConfig));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating configuration: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData themeData = Theme.of(context);
+    return UiPrimaryButton(
+      key: const Key('coin-details-zhtlc-config-button'),
+      height: isMobile ? 52 : 40,
+      prefix: Container(
+        padding: const EdgeInsets.only(right: 14),
+        child: Icon(Icons.settings, size: 18),
+      ),
+      textStyle: themeData.textTheme.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+      backgroundColor: themeData.colorScheme.tertiary,
+      onPressed: coin.isActive ? () => _handleConfigUpdate(context) : null,
+      text: LocaleKeys.zhtlcConfigButton.tr(),
+    );
+  }
 }
