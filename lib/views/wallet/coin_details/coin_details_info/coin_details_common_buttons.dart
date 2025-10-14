@@ -480,7 +480,6 @@ class ZhtlcConfigButton extends StatelessWidget {
       if (newConfig != null && context.mounted) {
         coinsBloc.add(CoinsDeactivated({coin.id.id}));
         await arrrService.updateZhtlcConfig(asset, newConfig);
-        coinsBloc.add(CoinsActivated([asset.id.id]));
 
         // Forcefully navigate back to wallet page so that the zhtlc status bar
         // is visible, rather than allowing periodic balance, pubkey, and tx
@@ -496,6 +495,9 @@ class ZhtlcConfigButton extends StatelessWidget {
           ),
         );
       }
+    } finally {
+      // Ensure that the coin is reactivated regardless of success of update
+      coinsBloc.add(CoinsActivated([asset.id.id]));
     }
   }
 
@@ -507,7 +509,7 @@ class ZhtlcConfigButton extends StatelessWidget {
       height: isMobile ? 52 : 40,
       prefix: Container(
         padding: const EdgeInsets.only(right: 14),
-        child: Icon(Icons.settings, size: 18),
+        child: const Icon(Icons.settings, size: 18),
       ),
       textStyle: themeData.textTheme.labelLarge?.copyWith(
         fontSize: 14,

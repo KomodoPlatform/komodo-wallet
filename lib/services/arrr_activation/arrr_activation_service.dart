@@ -456,7 +456,6 @@ class ArrrActivationService {
   /// 1. Cancel any ongoing activation tasks for the asset
   /// 2. Disable the coin if it's currently active
   /// 3. Store the new configuration
-  /// 4. Reactivate the coin with the updated configuration
   Future<void> updateZhtlcConfig(
     Asset asset,
     ZhtlcUserConfig newConfig,
@@ -468,14 +467,6 @@ class ArrrActivationService {
     _log.info('Updating ZHTLC configuration for ${asset.id.id}');
 
     try {
-      // 1. Cancel any ongoing activation for this asset
-      final ongoingActivation = _ongoingActivations[asset.id];
-      if (ongoingActivation != null) {
-        _log.info('Cancelling ongoing activation for ${asset.id.id}');
-        _ongoingActivations.remove(asset.id);
-        // Note: We can't actually cancel the future, but we remove it from tracking
-      }
-
       // Cancel any pending configuration requests
       final completer = _configCompleters[asset.id];
       if (completer != null && !completer.isCompleted) {
