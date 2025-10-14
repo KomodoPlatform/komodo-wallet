@@ -9,6 +9,9 @@ This checklist covers positive, negative, and edge-case scenarios for onboarding
 - **Username**: 
 - **Date**: 
 - **Operating system**: 
+- **Issues opened**: 
+
+
 
 ---
 

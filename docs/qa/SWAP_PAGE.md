@@ -9,6 +9,7 @@ Covers coin selection, orderbook, maker/taker order forms, confirmations, and li
 - **Username**: 
 - **Date**: 
 - **Operating system**: 
+- **Issues opened**: 
 
 ---
 

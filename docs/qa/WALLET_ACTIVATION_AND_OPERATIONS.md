@@ -9,6 +9,7 @@ This checklist covers coin activation/deactivation and non-DEX wallet operations
 - **Username**: 
 - **Date**: 
 - **Operating system**: 
+- **Issues opened**: 
 
 ---
 

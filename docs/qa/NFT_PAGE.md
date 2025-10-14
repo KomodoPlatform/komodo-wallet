@@ -9,6 +9,7 @@ Covers NFT list/grid, details, receive, withdraw, and NFT transactions (filters 
 - **Username**: 
 - **Date**: 
 - **Operating system**: 
+- **Issues opened**: 
 
 ---
 

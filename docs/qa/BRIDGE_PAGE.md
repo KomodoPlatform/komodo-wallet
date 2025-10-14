@@ -9,6 +9,8 @@ Basic cross-chain exchange UI that reuses DEX functionality under the hood. Cove
 - **Username**: 
 - **Date**: 
 - **Operating system**: 
+- **Issues opened**: 
+
 
 ---
 

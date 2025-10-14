@@ -9,6 +9,7 @@ Covers Settings landing, General, Security, and Support. Includes mobile/desktop
 - **Username**: 
 - **Date**: 
 - **Operating system**: 
+- **Issues opened**: 
 
 ---
 

@@ -9,6 +9,7 @@ App-wide checks not covered by feature-specific lists. Use alongside page-specif
 - **Username**: 
 - **Date**: 
 - **Operating system**: 
+- **Issues opened**: 
 
 ---
 
