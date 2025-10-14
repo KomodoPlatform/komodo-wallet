@@ -1,5 +1,8 @@
 require 'xcodeproj'
 
+# Use the CocoaPods CDN source for faster and more reliable dependency resolution
+source 'https://cdn.cocoapods.org/'
+
 def deployment_target
   project_path = 'Runner.xcodeproj'
   project = Xcodeproj::Project.open(project_path)
@@ -51,5 +54,10 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = deployment_target
     end
+  end
+  
+  # Ensure pods project builds for standard architectures
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings['ARCHS'] = '$(ARCHS_STANDARD)'
   end
 end
