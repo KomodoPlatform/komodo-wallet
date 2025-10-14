@@ -793,5 +793,5 @@
   "zhtlcActivationWarning": "This may take from a few minutes to a few hours, depending on your sync params and how long since your last sync.",
   "zhtlcAdvancedConfiguration": "Advanced configuration",
   "zhtlcAdvancedConfigurationHint": "Faster intervals (lower milliseconds) and higher blocks per iteration result in higher memory and CPU usage.",
-  "zhtlcConfigButton": "Modify sync config"
+  "zhtlcConfigButton": "Config"
 }

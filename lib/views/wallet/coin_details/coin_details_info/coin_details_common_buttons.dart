@@ -476,18 +476,16 @@ class ZhtlcConfigButton extends StatelessWidget {
     }
 
     try {
-      // Show the configuration dialog
       final newConfig = await confirmZhtlcConfiguration(context, asset: asset);
-
       if (newConfig != null && context.mounted) {
-        // Deactivate the coin first using CoinsBloc
         coinsBloc.add(CoinsDeactivated({coin.id.id}));
+        await arrrService.updateZhtlcConfig(asset, newConfig);
+        coinsBloc.add(CoinsActivated([asset.id.id]));
 
-        // Navigate to main wallet page
-        routingState.selectedMenu = MainMenuValue.defaultMenu();
-
-        // Update the configuration (will trigger reactivation)
-        unawaited(arrrService.updateZhtlcConfig(asset, newConfig));
+        // Forcefully navigate back to wallet page so that the zhtlc status bar
+        // is visible, rather than allowing periodic balance, pubkey, and tx
+        // history requests to continue running and failing during activation
+        routingState.selectedMenu = MainMenuValue.wallet;
       }
     } catch (e) {
       if (context.mounted) {

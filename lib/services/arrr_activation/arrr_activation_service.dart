@@ -457,7 +457,7 @@ class ArrrActivationService {
   /// 2. Disable the coin if it's currently active
   /// 3. Store the new configuration
   /// 4. Reactivate the coin with the updated configuration
-  Future<ArrrActivationResult> updateZhtlcConfig(
+  Future<void> updateZhtlcConfig(
     Asset asset,
     ZhtlcUserConfig newConfig,
   ) async {
@@ -487,21 +487,11 @@ class ArrrActivationService {
       }
 
       // 2. Disable the coin if it's currently active
-      final activatedAssets = await _sdk.assets.getActivatedAssets();
-      final isCurrentlyActive = activatedAssets.any((a) => a.id == asset.id);
-
-      if (isCurrentlyActive) {
-        _log.info('Disabling currently active ZHTLC coin ${asset.id.id}');
-        await _disableCoin(asset.id.id);
-      }
+      await _disableCoin(asset.id.id);
 
       // 3. Store the new configuration
       _log.info('Saving new configuration for ${asset.id.id}');
       await _configService.saveZhtlcConfig(asset.id, newConfig);
-
-      // 4. Reactivate the coin with the updated configuration
-      _log.info('Reactivating ${asset.id.id} with updated configuration');
-      return await activateArrr(asset, initialConfig: newConfig);
     } catch (e, stackTrace) {
       _log.severe(
         'Failed to update ZHTLC configuration for ${asset.id.id}',
@@ -509,7 +499,6 @@ class ArrrActivationService {
         stackTrace,
       );
       await _cacheActivationError(asset.id, e.toString());
-      return ArrrActivationResultError('Failed to update configuration: $e');
     }
   }
 
@@ -517,8 +506,15 @@ class ArrrActivationService {
   /// Copied from CoinsRepo._disableCoin for consistency
   Future<void> _disableCoin(String coinId) async {
     try {
-      await _mm2.call(DisableCoinReq(coin: coinId));
-      _log.info('Successfully disabled coin $coinId');
+      final activatedAssets = await _sdk.assets.getEnabledCoins();
+      final isCurrentlyActive = activatedAssets.any(
+        (configId) => configId == coinId,
+      );
+      if (isCurrentlyActive) {
+        _log.info('Disabling currently active ZHTLC coin $coinId');
+        await _mm2.call(DisableCoinReq(coin: coinId));
+        _log.info('Successfully disabled coin $coinId');
+      }
     } catch (e, s) {
       _log.shout('Error disabling $coinId', e, s);
       // Don't rethrow - we want to continue with the configuration update
