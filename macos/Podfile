@@ -56,7 +56,9 @@ post_install do |installer|
     end
   end
   
-  # Ensure pods project builds for standard architectures
+  # Use $(ARCHS_STANDARD) (arm64 + x86_64) to produce a universal macOS build.
+  # TODO: If we encounter arch/linker errors from pods missing x86_64 slices (often vendored/prebuilt),
+  # exclude x86_64 for affected configs or switch Release to arm64-only.
   installer.pods_project.build_configurations.each do |config|
     config.build_settings['ARCHS'] = '$(ARCHS_STANDARD)'
   end
