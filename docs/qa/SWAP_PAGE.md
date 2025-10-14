@@ -209,7 +209,6 @@ Covers coin selection, orderbook, maker/taker order forms, confirmations, and li
 
 ### 16. Post-Execution
 - [ ] Document failures with steps and redacted logs
-- [ ] File issues following `docs/ISSUE.md`
-- [ ] Update manual test cases in `docs/MANUAL_TESTING_DEBUGGING.md` if flows changed
-
-
+- [ ] Report [issues](https://github.com/KomodoPlatform/komodo-wallet/issues) for failing tests and/or UX enhancements
+- [ ] Report [issues](https://github.com/KomodoPlatform/komodo-wallet/issues) for missing or obsolete tests within the QA checklists (if flows changed)
+- [ ] Update manual test cases in `docs/qa/MANUAL_TESTING_NOTES.md` 

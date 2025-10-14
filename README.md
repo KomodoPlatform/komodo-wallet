@@ -30,7 +30,7 @@ Current production version is available here: https://app.komodoplatform.com
 - [App version, update](docs/UPDATE_APP_VERSION.md)
 - [Run the App](docs/BUILD_RUN_APP.md)
 - [Build release version of the App](docs/BUILD_RELEASE.md)
-- [Manual testing and debugging](docs/MANUAL_TESTING_DEBUGGING.md)
+- [Manual testing and debugging](docs/qa/MANUAL_TESTING_NOTES.md)
 - [Localization](docs/LOCALIZATION.md)
 - [Unit testing](docs/UNIT_TESTING.md)
 - [Integration testing](docs/INTEGRATION_TESTING.md)
