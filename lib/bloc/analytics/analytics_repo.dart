@@ -119,15 +119,20 @@ class AnalyticsRepository implements AnalyticsRepo {
         );
       }
 
-      // Add Firebase Analytics provider
+      // Add Firebase Analytics provider if available
       final firebaseProvider = FirebaseAnalyticsApi();
-      _providers.add(firebaseProvider);
+      if (firebaseProvider.isAvailable()) {
+        _providers.add(firebaseProvider);
+      } else if (kDebugMode) {
+        log(
+          'Firebase provider not registered: unavailable (missing/placeholder options or unsupported platform)',
+          path: 'analytics -> AnalyticsRepository -> _initializeProviders',
+        );
+      }
 
       // Add Matomo Analytics provider when configuration is present
-      final bool hasMatomoConfig =
-          matomoUrl.isNotEmpty && matomoSiteId.isNotEmpty;
-      if (hasMatomoConfig) {
-        final matomoProvider = MatomoAnalyticsApi();
+      final matomoProvider = MatomoAnalyticsApi();
+      if (matomoProvider.isAvailable()) {
         _providers.add(matomoProvider);
       } else if (kDebugMode) {
         log(
