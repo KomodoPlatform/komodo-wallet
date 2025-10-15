@@ -4,6 +4,9 @@ import 'analytics_repo.dart';
 
 /// Abstract interface for analytics providers
 abstract class AnalyticsApi {
+  /// Whether this analytics provider can be used on the current platform/config
+  bool isAvailable();
+
   /// Initialize the analytics provider
   Future<void> initialize(AnalyticsSettings settings);
 

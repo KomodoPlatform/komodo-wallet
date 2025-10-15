@@ -209,6 +209,12 @@ class MatomoAnalyticsApi implements AnalyticsApi {
   bool get isEnabled => _isEnabled;
 
   @override
+  bool isAvailable() {
+    // Available only when MATOMO_URL and MATOMO_SITE_ID are configured
+    return matomoUrl.isNotEmpty && matomoSiteId.isNotEmpty;
+  }
+
+  @override
   Future<void> initialize(AnalyticsSettings settings) async {
     return _initializeWithRetry(settings);
   }
