@@ -45,9 +45,14 @@ jobs:
           chmod +x .docker/build.sh
           sh .docker/build.sh linux release
 
+      - name: Compute short commit SHA
+        id: vars
+        shell: bash
+        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+  
       - name: Upload Linux bundle artifact
         uses: actions/upload-artifact@v4
         with:
-          name: komodo-wallet-linux-docker.zip
+          name: komodo-wallet-linux-docker-${{ steps.vars.outputs.short_sha }}.zip
           path: build/linux/x64/release/bundle/*
           retention-days: 5
