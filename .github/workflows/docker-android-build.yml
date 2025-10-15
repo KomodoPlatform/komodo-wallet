@@ -59,9 +59,14 @@ jobs:
           chmod +x .docker/build.sh
           sh .docker/build.sh apk release
 
+      - name: Compute short commit SHA
+        id: vars
+        shell: bash
+        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+  
       - name: Upload Android APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: komodo-wallet-android-docker.apk
+          name: komodo-wallet-android-docker-${{ steps.vars.outputs.short_sha }}.apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 5

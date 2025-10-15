@@ -83,9 +83,14 @@ jobs:
           MATOMO_SITE_ID: ${{ secrets.MATOMO_SITE_ID }}
           BUILD_COMMAND: ${{ matrix.build_command }}
 
+      - name: Compute short commit SHA
+        id: vars
+        shell: bash
+        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+  
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ matrix.artifact_name }}-${{ steps.vars.outputs.short_sha }}
           path: ${{ matrix.artifact_path }}
           retention-days: 5
