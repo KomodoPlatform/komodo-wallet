@@ -16,6 +16,7 @@ project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
   'Release' => :release,
+  'Release-production'=> :release,
 }
 
 def flutter_root
@@ -50,6 +51,18 @@ post_install do |installer|
     flutter_additional_macos_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = deployment_target
+    end
+  end
+
+  team_id = '8HPBYKKKQP'
+  installer.pods_project.targets.each do |t|
+    t.build_configurations.each do |cfg|
+      next unless cfg.name == 'Release-production'
+      cfg.build_settings['DEVELOPMENT_TEAM'] = team_id
+      cfg.build_settings['CODE_SIGN_STYLE']  = 'Manual'
+      cfg.build_settings['CODE_SIGN_IDENTITY[sdk=macosx*]'] = 'Developer ID Application'
+      cfg.build_settings['CODE_SIGNING_ALLOWED']  = 'YES'
+      cfg.build_settings['CODE_SIGNING_REQUIRED'] = 'YES'
     end
   end
 end
