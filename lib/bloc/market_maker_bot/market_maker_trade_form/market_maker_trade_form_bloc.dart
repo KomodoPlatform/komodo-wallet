@@ -93,32 +93,32 @@ class MarketMakerTradeFormBloc
       newBuyAmount = CoinTradeAmountInput.dirty(buyAmountValue.toString());
     }
 
-    // Activate coin before checking preimage
-    await _autoActivateCoin(event.sellCoin);
-
-    // Build prospective state snapshot with new values for preimage computation
-    final prospectiveState = state.copyWith(
-      sellCoin: CoinSelectInput.dirty(event.sellCoin),
-      sellAmount: newSellAmount,
-      buyCoin: identicalBuyAndSellCoins
-          ? const CoinSelectInput.dirty(null, -1)
-          : state.buyCoin,
-      buyAmount: newBuyAmount,
-      status: MarketMakerTradeFormStatus.success,
+    // Emit immediately with new coin selection for fast UI update
+    emit(
+      state.copyWith(
+        sellCoin: CoinSelectInput.dirty(event.sellCoin),
+        sellAmount: newSellAmount,
+        buyCoin: identicalBuyAndSellCoins
+            ? const CoinSelectInput.dirty(null, -1)
+            : state.buyCoin,
+        buyAmount: newBuyAmount,
+        status: MarketMakerTradeFormStatus.success,
+      ),
     );
 
-    // Check for preimage errors using the prospective state snapshot
-    MarketMakerTradeFormError? preImageError;
-    if (prospectiveState.buyCoin.value != null) {
-      final preImage = await _getPreimageData(prospectiveState);
-      final error = await _getPreImageError(preImage.error, prospectiveState);
+    // Activate coin before checking preimage
+    // TODO: consider removing this, as only enabled coins with a balance are 
+    // displayed in the sell coins dropdown
+    await _autoActivateCoin(event.sellCoin);
+
+    // Check for preimage errors using the current state asynchronously
+    if (state.buyCoin.value != null) {
+      final preImage = await _getPreimageData(state);
+      final error = await _getPreImageError(preImage.error, state);
       if (error != MarketMakerTradeFormError.none) {
-        preImageError = error;
+        emit(state.copyWith(preImageError: error));
       }
     }
-
-    // Emit once with all updates including preimage result
-    emit(prospectiveState.copyWith(preImageError: preImageError));
   }
 
   Future<void> _onBuyCoinChanged(
@@ -132,13 +132,15 @@ class MarketMakerTradeFormBloc
     // code duplication and would be harder to maintain.
     final areBuyAndSellCoinsIdentical = event.buyCoin == state.sellCoin.value;
 
-    // Build intermediate state snapshot to calculate price-dependent values
-    final intermediateState = state.copyWith(
-      buyCoin: CoinSelectInput.dirty(event.buyCoin, -1),
-      sellCoin: areBuyAndSellCoinsIdentical
-          ? const CoinSelectInput.dirty(null, -1)
-          : state.sellCoin,
-      status: MarketMakerTradeFormStatus.success,
+    // Emit immediately with new coin selection for fast UI update
+    emit(
+      state.copyWith(
+        buyCoin: CoinSelectInput.dirty(event.buyCoin, -1),
+        sellCoin: areBuyAndSellCoinsIdentical
+            ? const CoinSelectInput.dirty(null, -1)
+            : state.sellCoin,
+        status: MarketMakerTradeFormStatus.success,
+      ),
     );
 
     await _autoActivateCoin(event.buyCoin);
@@ -146,32 +148,27 @@ class MarketMakerTradeFormBloc
     // Buy coin does not have to have a balance, so set the minimum balance to
     // -1 to avoid the insufficient balance error
     final newBuyAmount = _getBuyAmountFromSellAmount(
-      intermediateState.sellAmount.value,
-      intermediateState.priceFromUsdWithMargin,
+      state.sellAmount.value,
+      state.priceFromUsdWithMargin,
     );
 
-    // Build prospective state snapshot with new buy amount for preimage computation
-    final prospectiveState = intermediateState.copyWith(
-      buyAmount: newBuyAmount > 0
-          ? CoinTradeAmountInput.dirty(newBuyAmount.toString())
-          : const CoinTradeAmountInput.dirty(),
-    );
-
-    // Check for preimage errors using the prospective state snapshot
-    final preImage = await _getPreimageData(prospectiveState);
-    final preImageError = await _getPreImageError(
-      preImage.error,
-      prospectiveState,
-    );
-
-    // Emit once with all updates including preimage result
+    // Emit updated buy amount
     emit(
-      prospectiveState.copyWith(
-        preImageError: preImageError != MarketMakerTradeFormError.none
-            ? preImageError
-            : null,
+      state.copyWith(
+        buyAmount: newBuyAmount > 0
+            ? CoinTradeAmountInput.dirty(newBuyAmount.toString())
+            : const CoinTradeAmountInput.dirty(),
+        status: MarketMakerTradeFormStatus.success,
       ),
     );
+
+    // Check for preimage errors asynchronously
+    final preImage = await _getPreimageData(state);
+    final preImageError = await _getPreImageError(preImage.error, state);
+
+    if (preImageError != MarketMakerTradeFormError.none) {
+      emit(state.copyWith(preImageError: preImageError));
+    }
   }
 
   Future<void> _onTradeVolumeChanged(
@@ -195,38 +192,35 @@ class MarketMakerTradeFormBloc
       state.priceFromUsdWithMargin,
     );
 
-    // Build prospective state snapshot with new values for preimage computation
-    final prospectiveState = state.copyWith(
-      sellAmount: newSellAmount,
-      buyAmount: CoinTradeAmountInput.dirty(newBuyAmount.toString()),
-      minimumTradeVolume: TradeVolumeInput.dirty(event.minimumTradeVolume),
-      maximumTradeVolume: TradeVolumeInput.dirty(maximumTradeVolume),
+    // Emit immediately with new volume values for fast UI update
+    emit(
+      state.copyWith(
+        sellAmount: newSellAmount,
+        buyAmount: CoinTradeAmountInput.dirty(newBuyAmount.toString()),
+        minimumTradeVolume: TradeVolumeInput.dirty(event.minimumTradeVolume),
+        maximumTradeVolume: TradeVolumeInput.dirty(maximumTradeVolume),
+      ),
     );
 
-    // Check for preimage errors using the prospective state snapshot
-    final preImage = await _getPreimageData(prospectiveState);
-    final preImageError = await _getPreImageError(
-      preImage.error,
-      prospectiveState,
-    );
+    // Check for preimage errors asynchronously
+    final preImage = await _getPreimageData(state);
+    final preImageError = await _getPreImageError(preImage.error, state);
     final newSellAmountFromPreImage = await _getMaxSellAmountFromPreImage(
       preImage.error,
       newSellAmount,
-      prospectiveState.sellCoin,
+      state.sellCoin,
     );
 
-    // Emit once with all updates including preimage result
+    // Emit error and adjusted sell amount if preimage validation fails
     if (preImageError != MarketMakerTradeFormError.none) {
       emit(
-        prospectiveState.copyWith(
+        state.copyWith(
           preImageError: preImageError,
           sellAmount: CoinTradeAmountInput.dirty(
             newSellAmountFromPreImage.toString(),
           ),
         ),
       );
-    } else {
-      emit(prospectiveState);
     }
   }
 
