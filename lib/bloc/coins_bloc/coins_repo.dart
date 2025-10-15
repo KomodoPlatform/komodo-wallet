@@ -878,11 +878,13 @@ class CoinsRepo {
             'ZHTLC asset activation failed: ${asset.id.id} - $message',
           );
 
-          if (notifyListeners) {
+          // Only broadcast suspended state if it's not a user cancellation
+          // User cancellations have the message "Configuration cancelled by user or timed out"
+          final isUserCancellation = message.contains('cancelled by user');
+
+          if (notifyListeners && !isUserCancellation) {
             _broadcastAsset(coin.copyWith(state: CoinState.suspended));
           }
-
-          throw Exception('ZHTLC activation failed: $message');
         },
         needsConfiguration: (coinId, requiredSettings) {
           _log.severe(
