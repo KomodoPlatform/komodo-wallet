@@ -882,6 +882,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--options=runtime --timestamp";
 				PRODUCT_BUNDLE_IDENTIFIER = com.komodo.wallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "[decker] Komodo(8HPBYKKKQP.com.komodo.wallet)";
