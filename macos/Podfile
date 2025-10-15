@@ -63,6 +63,7 @@ post_install do |installer|
       cfg.build_settings['CODE_SIGN_IDENTITY[sdk=macosx*]'] = 'Developer ID Application'
       cfg.build_settings['CODE_SIGNING_ALLOWED']  = 'YES'
       cfg.build_settings['CODE_SIGNING_REQUIRED'] = 'YES'
+      cfg.build_settings['OTHER_CODE_SIGN_FLAGS[sdk=macosx*]'] = '--options=runtime --timestamp'
     end
   end
 end
