@@ -42,9 +42,9 @@ class MarketMakerTradeFormBloc
   MarketMakerTradeFormBloc({
     required DexRepository dexRepo,
     required CoinsRepo coinsRepo,
-  })  : _dexRepository = dexRepo,
-        _coinsRepo = coinsRepo,
-        super(MarketMakerTradeFormState.initial()) {
+  }) : _dexRepository = dexRepo,
+       _coinsRepo = coinsRepo,
+       super(MarketMakerTradeFormState.initial()) {
     on<MarketMakerTradeFormSellCoinChanged>(_onSellCoinChanged);
     on<MarketMakerTradeFormBuyCoinChanged>(_onBuyCoinChanged);
     on<MarketMakerTradeFormTradeVolumeChanged>(_onTradeVolumeChanged);
@@ -83,6 +83,30 @@ class MarketMakerTradeFormBloc
       (state.maximumTradeVolume.value * sellCoinBalance).toString(),
     );
 
+    // Calculate buy amount if applicable
+    CoinTradeAmountInput? newBuyAmount;
+    if (!identicalBuyAndSellCoins && state.buyCoin.value != null) {
+      final double buyAmountValue = _getBuyAmountFromSellAmount(
+        newSellAmount.value,
+        state.priceFromUsdWithMargin,
+      );
+      newBuyAmount = CoinTradeAmountInput.dirty(buyAmountValue.toString());
+    }
+
+    // Activate coin before checking preimage
+    await _autoActivateCoin(event.sellCoin);
+
+    // Check for preimage errors if buy coin is set
+    MarketMakerTradeFormError? preImageError;
+    if (state.buyCoin.value != null) {
+      final preImage = await _getPreimageData(state);
+      final error = await _getPreImageError(preImage.error, state);
+      if (error != MarketMakerTradeFormError.none) {
+        preImageError = error;
+      }
+    }
+
+    // Emit once with all updates
     emit(
       state.copyWith(
         sellCoin: CoinSelectInput.dirty(event.sellCoin),
@@ -90,31 +114,11 @@ class MarketMakerTradeFormBloc
         buyCoin: identicalBuyAndSellCoins
             ? const CoinSelectInput.dirty(null, -1)
             : state.buyCoin,
+        buyAmount: newBuyAmount,
         status: MarketMakerTradeFormStatus.success,
+        preImageError: preImageError,
       ),
     );
-
-    if (!identicalBuyAndSellCoins && state.buyCoin.value != null) {
-      final double newBuyAmount = _getBuyAmountFromSellAmount(
-        newSellAmount.value,
-        state.priceFromUsdWithMargin,
-      );
-      emit(
-        state.copyWith(
-          buyAmount: CoinTradeAmountInput.dirty(newBuyAmount.toString()),
-        ),
-      );
-    }
-
-    await _autoActivateCoin(event.sellCoin);
-
-    if (state.buyCoin.value != null) {
-      final preImage = await _getPreimageData(state);
-      final preImageError = await _getPreImageError(preImage.error, state);
-      if (preImageError != MarketMakerTradeFormError.none) {
-        emit(state.copyWith(preImageError: preImageError));
-      }
-    }
   }
 
   Future<void> _onBuyCoinChanged(
@@ -127,6 +131,8 @@ class MarketMakerTradeFormBloc
     // here and pass that to the function, but that would require a lot of
     // code duplication and would be harder to maintain.
     final areBuyAndSellCoinsIdentical = event.buyCoin == state.sellCoin.value;
+
+    // First emit to update coins so priceFromUsdWithMargin can be calculated
     emit(
       state.copyWith(
         buyCoin: CoinSelectInput.dirty(event.buyCoin, -1),
@@ -138,6 +144,7 @@ class MarketMakerTradeFormBloc
     );
 
     await _autoActivateCoin(event.buyCoin);
+
     // Buy coin does not have to have a balance, so set the minimum balance to
     // -1 to avoid the insufficient balance error
     final newBuyAmount = _getBuyAmountFromSellAmount(
@@ -145,20 +152,22 @@ class MarketMakerTradeFormBloc
       state.priceFromUsdWithMargin,
     );
 
+    // Check for preimage errors
+    final preImage = await _getPreimageData(state);
+    final preImageError = await _getPreImageError(preImage.error, state);
+
+    // Emit once with all updates
     emit(
       state.copyWith(
         buyAmount: newBuyAmount > 0
             ? CoinTradeAmountInput.dirty(newBuyAmount.toString())
             : const CoinTradeAmountInput.dirty(),
         status: MarketMakerTradeFormStatus.success,
+        preImageError: preImageError != MarketMakerTradeFormError.none
+            ? preImageError
+            : null,
       ),
     );
-
-    final preImage = await _getPreimageData(state);
-    final preImageError = await _getPreImageError(preImage.error, state);
-    if (preImageError != MarketMakerTradeFormError.none) {
-      emit(state.copyWith(preImageError: preImageError));
-    }
   }
 
   Future<void> _onTradeVolumeChanged(
@@ -172,9 +181,10 @@ class MarketMakerTradeFormBloc
     final maximumTradeVolume =
         double.tryParse(event.maximumTradeVolume.toString()) ?? 0.0;
     final newSellAmount = CoinTradeAmountInput.dirty(
-        (maximumTradeVolume * spendableBalance).toString(),
-        0,
-        spendableBalance);
+      (maximumTradeVolume * spendableBalance).toString(),
+      0,
+      spendableBalance,
+    );
 
     final newBuyAmount = _getBuyAmountFromSellAmount(
       newSellAmount.value,
@@ -202,8 +212,9 @@ class MarketMakerTradeFormBloc
       emit(
         state.copyWith(
           preImageError: preImageError,
-          sellAmount:
-              CoinTradeAmountInput.dirty(newSellAmountFromPreImage.toString()),
+          sellAmount: CoinTradeAmountInput.dirty(
+            newSellAmountFromPreImage.toString(),
+          ),
         ),
       );
     }
@@ -249,9 +260,7 @@ class MarketMakerTradeFormBloc
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
     emit(
-      state.copyWith(
-        tradeMargin: TradeMarginInput.dirty(event.tradeMargin),
-      ),
+      state.copyWith(tradeMargin: TradeMarginInput.dirty(event.tradeMargin)),
     );
 
     if (state.buyCoin.value != null) {
@@ -458,7 +467,8 @@ class MarketMakerTradeFormBloc
 
       final requiredAmount = double.tryParse(preImageError.required) ?? 0;
       final sellCoinBalance = balance ?? BalanceInfo.zero();
-      final newSellAmount = sellAmountValue -
+      final newSellAmount =
+          sellAmountValue -
           (requiredAmount - sellCoinBalance.spendable.toDouble());
       return newSellAmount;
     }

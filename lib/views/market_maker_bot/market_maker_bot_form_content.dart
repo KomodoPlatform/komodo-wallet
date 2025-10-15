@@ -49,11 +49,11 @@ class _MarketMakerBotFormContentState extends State<MarketMakerBotFormContent> {
       final formBloc = context.read<MarketMakerTradeFormBloc>();
       if (formBloc.state.sellCoin.value == null) {
         _setSellCoinToDefaultCoin();
-      } else {
-        formBloc.add(
-          MarketMakerTradeFormSellCoinChanged(formBloc.state.sellCoin.value),
-        );
       }
+      // Removed re-dispatch of MarketMakerTradeFormSellCoinChanged event
+      // as it causes flickering when coins list updates during coin selection.
+      // The event is already dispatched by _onSelectSellCoin when user
+      // selects a coin, so re-dispatching here creates a race condition.
     }
     super.didUpdateWidget(oldWidget);
   }
