@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
 # make_dmg.sh — Build DMG with layout «App ⇢ Applications»
+# 
+# This script creates a professional DMG installer for macOS applications.
+# It creates a disk image with:
+# - The application bundle
+# - A shortcut to Applications folder
+# - Custom background image (optional)
+# - Proper Finder window layout and icon positioning
+# - Compressed final output
+#
 # Requires: macOS, hdiutil, osascript, ditto.
 
 set -euo pipefail
 
 # ------------------------ PARAMETERS ------------------------
-APP="${APP:-}"                       # Path to .app (required)
+# Default app path
+DEFAULT_APP="build/macos/Build/Products/Release-production/Komodo Wallet.app"
+
+APP="${APP:-$DEFAULT_APP}"            # Path to .app (uses default if not specified)
 VOL="${VOL:-Komodo Wallet}"          # Volume/window name for DMG
 OUT="${OUT:-dist/KomodoWallet.dmg}"  # Path to output .dmg
 BG="${BG:-}"                         # Path to PNG background (optional)
@@ -20,15 +32,19 @@ APPS_Y="${APPS_Y:-200}"              # Applications shortcut position (y)
 usage() {
   cat <<EOF
 Usage:
+  # Use default app path
+  ./make_dmg.sh
+  
+  # Or specify custom parameters
   APP="build/.../Komodo Wallet.app" \\
   VOL="Komodo Wallet" \\
   OUT="dist/KomodoWallet.dmg" \\
   BG="assets/dmg_background.png" \\
   ./make_dmg.sh
+  
+Default APP path: $DEFAULT_APP
 EOF
 }
-
-[[ -z "${APP}" ]] && { usage; echo >&2 "ERROR: APP not specified"; exit 1; }
 [[ ! -d "${APP}" ]] && { echo >&2 "ERROR: .app not found: ${APP}"; exit 1; }
 
 APP_BASENAME="$(basename "${APP}")"
