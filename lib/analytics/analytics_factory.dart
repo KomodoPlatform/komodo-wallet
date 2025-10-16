@@ -768,25 +768,6 @@ class AppShareEvent extends AnalyticsEventData {
   JsonMap get parameters => {'channel': channel};
 }
 
-class ScrollAttemptOutsideContentEvent extends AnalyticsEventData {
-  ScrollAttemptOutsideContentEvent({
-    required this.screenContext,
-    required this.scrollDelta,
-  });
-
-  @override
-  String get name => 'scroll_attempt_outside_content';
-
-  final String screenContext;
-  final double scrollDelta;
-
-  @override
-  JsonMap get parameters => {
-    'screen_context': screenContext,
-    'scroll_delta': scrollDelta,
-  };
-}
-
 class SearchbarInputEvent extends AnalyticsEventData {
   SearchbarInputEvent({required this.queryLength, this.assetSymbol});
 

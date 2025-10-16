@@ -7,6 +7,8 @@ For each event:
 2. When the described user action occurs, create the corresponding event using `AnalyticsEvents` from `lib/analytics/analytics_factory.dart`.
 3. Dispatch the event via `AnalyticsSendDataEvent` through the `AnalyticsBloc`.
 
+> **Note:** The `scroll_attempt_outside_content` instrumentation has been removed temporarily and will be re-implemented in a future iteration once the UX experiment resumes.
+
 The table below mirrors the CSV with an expanded explanation.
 
 | GA4 Event Name | Trigger Location | Implementation Notes |
@@ -49,7 +51,6 @@ The table below mirrors the CSV with an expanded explanation.
 | `error_displayed` | Global error dialogs | Send when error dialog is shown to user. |
 | `app_share` | Share/referral actions | Emit when user shares app via share sheet. |
 | `hd_address_generated` | Receive page address generation | Log when new HD receive address derived. |
-| `scroll_attempt_outside_content` | Scrollable widgets | Trigger when user tries to scroll while pointer outside list bounds. |
 | `wallet_list_half_viewport` | Coins list performance metric | Record time until wallet list scrolls halfway on first load. |
 | `coins_data_updated` | Coins data refresh | Send when price/metadata update completes at launch. |
 | `searchbar_input` | Coin search field | Emit on search submission with query stats. |
