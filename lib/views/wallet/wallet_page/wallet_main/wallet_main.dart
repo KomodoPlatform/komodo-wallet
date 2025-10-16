@@ -9,7 +9,6 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/analytics/events.dart';
-import 'package:web_dex/analytics/events/misc_events.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/assets_overview/bloc/asset_overview_bloc.dart';
@@ -364,12 +363,6 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
         .clamp(position.minScrollExtent, position.maxScrollExtent);
 
     if (newOffset == _scrollController.offset) {
-      context.read<AnalyticsBloc>().logEvent(
-        ScrollAttemptOutsideContentEventData(
-          screenContext: 'wallet_page',
-          scrollDelta: event.scrollDelta.dy,
-        ),
-      );
       return;
     }
 

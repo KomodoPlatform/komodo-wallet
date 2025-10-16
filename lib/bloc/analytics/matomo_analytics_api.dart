@@ -99,7 +99,6 @@ class MatomoAnalyticsApi implements AnalyticsApi {
     'hd_address_generated': 'HD Wallet Ops',
 
     // UX & UI
-    'scroll_attempt_outside_content': 'UX Interaction',
     'wallet_list_half_viewport': 'UI Usability',
 
     // Data Sync
