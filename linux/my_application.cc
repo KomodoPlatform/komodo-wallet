@@ -41,7 +41,7 @@ static void my_application_activate(GApplication* application) {
 
   // Set window icon
   GError* error = NULL;
-  gtk_window_set_icon_from_file(window, "KomodoWallet.svg", &error);
+  gtk_window_set_icon_from_file(window, "KomodoWallet.png", &error);
   if (error) {
     g_warning("Failed to set window icon: %s", error->message);
     g_error_free(error);
