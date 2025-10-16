@@ -885,6 +885,10 @@ class CoinsRepo {
           if (notifyListeners && !isUserCancellation) {
             _broadcastAsset(coin.copyWith(state: CoinState.suspended));
           }
+
+          if (!isUserCancellation) {
+            throw Exception("zcoin activaiton failed: $message");
+          }
         },
         needsConfiguration: (coinId, requiredSettings) {
           _log.severe(

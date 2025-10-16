@@ -475,8 +475,9 @@ class ZhtlcConfigButton extends StatelessWidget {
       return;
     }
 
+    ZhtlcUserConfig? newConfig;
     try {
-      final newConfig = await confirmZhtlcConfiguration(context, asset: asset);
+      newConfig = await confirmZhtlcConfiguration(context, asset: asset);
       if (newConfig != null && context.mounted) {
         coinsBloc.add(CoinsDeactivated({coin.id.id}));
         await arrrService.updateZhtlcConfig(asset, newConfig);
@@ -496,8 +497,9 @@ class ZhtlcConfigButton extends StatelessWidget {
         );
       }
     } finally {
-      // Ensure that the coin is reactivated regardless of success of update
-      coinsBloc.add(CoinsActivated([asset.id.id]));
+      if (newConfig != null) {
+        coinsBloc.add(CoinsActivated([asset.id.id]));
+      }
     }
   }
 
