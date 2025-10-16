@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +15,8 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart'
         DownloadResultSuccess;
 import 'package:komodo_defi_types/komodo_defi_types.dart' show Asset;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 
 enum ZhtlcSyncType { earliest, height, date }
 
@@ -95,6 +94,7 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
   late final TextEditingController intervalMsController;
   StreamSubscription<AuthBlocState>? _authSubscription;
   bool _dismissedDueToAuthChange = false;
+  bool _showAdvancedConfig = false;
 
   final GlobalKey<_SyncFormState> _syncFormKey = GlobalKey<_SyncFormState>();
 
@@ -156,42 +156,40 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
       title: Text(
         LocaleKeys.zhtlcConfigureTitle.tr(args: [widget.asset.id.id]),
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!kIsWeb) ...[
-              TextField(
-                controller: zcashPathController,
-                readOnly: widget.prefilledZcashPath != null,
-                decoration: InputDecoration(
-                  labelText: LocaleKeys.zhtlcZcashParamsPathLabel.tr(),
-                  helperText: widget.prefilledZcashPath != null
-                      ? LocaleKeys.zhtlcPathAutomaticallyDetected.tr()
-                      : LocaleKeys.zhtlcSaplingParamsFolder.tr(),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 700, minWidth: 300),
+        child: IntrinsicWidth(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!kIsWeb) ...[
+                  TextField(
+                    controller: zcashPathController,
+                    readOnly: widget.prefilledZcashPath != null,
+                    decoration: InputDecoration(
+                      labelText: LocaleKeys.zhtlcZcashParamsPathLabel.tr(),
+                      helperText: widget.prefilledZcashPath != null
+                          ? LocaleKeys.zhtlcPathAutomaticallyDetected.tr()
+                          : LocaleKeys.zhtlcSaplingParamsFolder.tr(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                _SyncForm(key: _syncFormKey),
+                const SizedBox(height: 24),
+                _AdvancedConfigurationSection(
+                  showAdvancedConfig: _showAdvancedConfig,
+                  onToggle: () => setState(
+                    () => _showAdvancedConfig = !_showAdvancedConfig,
+                  ),
+                  blocksPerIterController: blocksPerIterController,
+                  intervalMsController: intervalMsController,
                 ),
-              ),
-              const SizedBox(height: 12),
-            ],
-            TextField(
-              controller: blocksPerIterController,
-              decoration: InputDecoration(
-                labelText: LocaleKeys.zhtlcBlocksPerIterationLabel.tr(),
-              ),
-              keyboardType: TextInputType.number,
+              ],
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: intervalMsController,
-              decoration: InputDecoration(
-                labelText: LocaleKeys.zhtlcScanIntervalLabel.tr(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 12),
-            _SyncForm(key: _syncFormKey),
-          ],
+          ),
         ),
       ),
       actions: [
@@ -219,6 +217,98 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
 
     _dismissedDueToAuthChange = true;
     Navigator.of(context).maybePop<ZhtlcUserConfig?>(null);
+  }
+}
+
+class _AdvancedConfigurationSection extends StatelessWidget {
+  const _AdvancedConfigurationSection({
+    required this.showAdvancedConfig,
+    required this.onToggle,
+    required this.blocksPerIterController,
+    required this.intervalMsController,
+  });
+
+  final bool showAdvancedConfig;
+  final VoidCallback onToggle;
+  final TextEditingController blocksPerIterController;
+  final TextEditingController intervalMsController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: onToggle,
+          child: Row(
+            children: [
+              Icon(showAdvancedConfig ? Icons.expand_less : Icons.expand_more),
+              const SizedBox(width: 8),
+              Text(
+                LocaleKeys.zhtlcAdvancedConfiguration.tr(),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
+          ),
+        ),
+        if (showAdvancedConfig) ...[
+          const SizedBox(height: 12),
+          const _AdvancedConfigurationWarning(),
+          const SizedBox(height: 12),
+          TextField(
+            controller: blocksPerIterController,
+            decoration: InputDecoration(
+              labelText: LocaleKeys.zhtlcBlocksPerIterationLabel.tr(),
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: intervalMsController,
+            decoration: InputDecoration(
+              labelText: LocaleKeys.zhtlcScanIntervalLabel.tr(),
+            ),
+            keyboardType: TextInputType.number,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _AdvancedConfigurationWarning extends StatelessWidget {
+  const _AdvancedConfigurationWarning();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final backgroundColor = theme.colorScheme.secondaryContainer;
+    final foregroundColor = theme.colorScheme.onSecondaryContainer;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: backgroundColor.withValues(alpha: 0.1),
+        border: Border.all(color: foregroundColor),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, color: foregroundColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              LocaleKeys.zhtlcAdvancedConfigurationHint.tr(),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: foregroundColor),
+              softWrap: true,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

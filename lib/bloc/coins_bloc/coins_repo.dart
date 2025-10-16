@@ -4,7 +4,6 @@ import 'dart:math' show min;
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart' show NetworkImage;
-
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart'
     as kdf_rpc;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -756,15 +755,62 @@ class CoinsRepo {
     bool notifyListeners = true,
     bool addToWalletMetadata = true,
   }) async {
-    final inactiveAssets = await assets.removeActiveAssets(_kdfSdk);
-    for (final asset in inactiveAssets) {
+    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+
+    for (final asset in assets) {
       final coin = coins.firstWhere((coin) => coin.id == asset.id);
-      await _activateZhtlcAsset(
-        asset,
-        coin,
-        notifyListeners: notifyListeners,
-        addToWalletMetadata: addToWalletMetadata,
-      );
+
+      // Check if asset is already activated
+      final isAlreadyActivated = activatedAssets.any((a) => a.id == asset.id);
+
+      if (isAlreadyActivated) {
+        _log.info(
+          'ZHTLC coin ${coin.id} is already activated. Broadcasting active state.',
+        );
+
+        // Add to wallet metadata if requested
+        if (addToWalletMetadata) {
+          await _addAssetsToWalletMetdata([asset.id]);
+        }
+
+        // Broadcast active state for already activated assets
+        if (notifyListeners) {
+          _broadcastAsset(coin.copyWith(state: CoinState.active));
+          if (coin.id.parentId != null) {
+            final parentCoin = _assetToCoinWithoutAddress(
+              _kdfSdk.assets.available[coin.id.parentId]!,
+            );
+            _broadcastAsset(parentCoin.copyWith(state: CoinState.active));
+          }
+        }
+
+        // Subscribe to balance updates for already activated assets
+        _subscribeToBalanceUpdates(asset);
+        if (coin.id.parentId != null) {
+          final parentAsset = _kdfSdk.assets.available[coin.id.parentId];
+          if (parentAsset == null) {
+            _log.warning('Parent asset not found: ${coin.id.parentId}');
+          } else {
+            _subscribeToBalanceUpdates(parentAsset);
+          }
+        }
+
+        // Register custom icon if available
+        if (coin.logoImageUrl?.isNotEmpty ?? false) {
+          AssetIcon.registerCustomIcon(
+            coin.id,
+            NetworkImage(coin.logoImageUrl!),
+          );
+        }
+      } else {
+        // Asset needs activation
+        await _activateZhtlcAsset(
+          asset,
+          coin,
+          notifyListeners: notifyListeners,
+          addToWalletMetadata: addToWalletMetadata,
+        );
+      }
     }
   }
 
@@ -832,11 +878,17 @@ class CoinsRepo {
             'ZHTLC asset activation failed: ${asset.id.id} - $message',
           );
 
-          if (notifyListeners) {
+          // Only broadcast suspended state if it's not a user cancellation
+          // User cancellations have the message "Configuration cancelled by user or timed out"
+          final isUserCancellation = message.contains('cancelled by user');
+
+          if (notifyListeners && !isUserCancellation) {
             _broadcastAsset(coin.copyWith(state: CoinState.suspended));
           }
 
-          throw Exception('ZHTLC activation failed: $message');
+          if (!isUserCancellation) {
+            throw Exception("zcoin activaiton failed: $message");
+          }
         },
         needsConfiguration: (coinId, requiredSettings) {
           _log.severe(
