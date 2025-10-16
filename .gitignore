@@ -81,3 +81,5 @@ venv/
 .fvm/
 /macos/build
 AGENTS_1.md
+# .dmg Release
+dist/
