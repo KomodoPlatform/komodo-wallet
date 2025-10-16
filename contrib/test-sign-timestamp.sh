@@ -53,6 +53,14 @@ while IFS= read -r -d '' f; do
     fi
   fi
 done < <(find "$APP" -type f -perm -111 -print0)
+# Additional verification for the entire .app bundle:
+echo ""
+echo -e "${BLU}Performing deep signature verification of the .app bundle...${NC}"
+/usr/bin/codesign --verify --deep --strict --verbose=2 "$APP"
+
+echo ""
+echo -e "${BLU}Gatekeeper assessment (spctl) for the .app bundle...${NC}"
+/usr/sbin/spctl --assess --type execute -vv "$APP"
 
 echo ""
 echo -e "${BLU}========================================${NC}"
