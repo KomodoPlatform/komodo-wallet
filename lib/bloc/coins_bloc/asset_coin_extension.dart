@@ -9,6 +9,22 @@ import 'package:web_dex/model/coin_type.dart';
 import 'package:web_dex/shared/utils/extensions/collection_extensions.dart';
 import 'package:web_dex/shared/utils/extensions/legacy_coin_migration_extensions.dart';
 
+/// Determines the correct CoinType based on subclass and sign_message_prefix
+/// For UTXO coins with "Komodo Signed Message:\n" prefix, they should be SmartChain
+CoinType _determineCoinType(CoinSubClass subClass, dynamic config) {
+  final baseType = subClass.toCoinType();
+  
+  // If it's already classified as UTXO, check the sign_message_prefix
+  if (baseType == CoinType.utxo) {
+    final signMessagePrefix = config.valueOrNull<String>('sign_message_prefix');
+    if (signMessagePrefix == 'Komodo Signed Message:\n') {
+      return CoinType.smartChain;
+    }
+  }
+  
+  return baseType;
+}
+
 extension AssetCoinExtension on Asset {
   Coin toCoin() {
     // temporary measure to get metadata, like `wallet_only`, that isn't exposed
@@ -26,7 +42,7 @@ extension AssetCoinExtension on Asset {
     );
 
     return Coin(
-      type: protocol.subClass.toCoinType(),
+      type: _determineCoinType(protocol.subClass, config),
       abbr: id.id,
       id: id,
       name: id.name,
