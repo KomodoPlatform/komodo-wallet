@@ -28,7 +28,7 @@ NFT sent successfully,nft_transfer_success,NFT Wallet,"collection_name, token_id
 NFT send failed,nft_transfer_failure,NFT Wallet,"collection_name, failure_reason, hd_type",Pain points in NFT UX or network,Medium (v0.9.1),TRUE,NFT send error,Emit when NFT transfer fails.
 Bot config wizard opened,marketbot_setup_start,Market Bot,"strategy_type, pairs_count",Interest in automated trading,Medium (v0.9.1),TRUE,MarketBot setup wizard,Record when user opens bot configuration.
 Bot configured & saved,marketbot_setup_complete,Market Bot,"strategy_type, base_capital","Bot adoption, barriers cleared",Medium (v0.9.1),TRUE,MarketBot wizard finish,Send when user saves bot settings.
-Bot placed a trade,marketbot_trade_executed,Market Bot,"pair, amount, profit_usd","Bot performance, revenue impact",Medium (v0.9.1),FALSE,MarketBot trade callback,Log each automated trade executed by the bot.
+Bot placed a trade,marketbot_trade_executed,Market Bot,"pair, amount, profit_usd","Bot performance, revenue impact",Medium (v0.9.1),TRUE,MarketBot trade callback,Log each automated trade executed by the bot.
 Bot error encountered,marketbot_error,Market Bot,"failure_reason, strategy_type","Bot reliability, engineering focus",Medium (v0.9.1),TRUE,MarketBot error handler,Emit when bot encounters an error.
 KMD active user reward claim started,reward_claim_initiated,Rewards,"asset, expected_reward_amount",Yield feature curiosity,Medium (v0.9.1),TRUE,KMD rewards screen,Send when user starts claiming active user rewards.
 KMD active user reward claimed,reward_claim_success,Rewards,"asset, amount","Reward uptake, total payout",Medium (v0.9.1),TRUE,KMD rewards success,Trigger after reward claim transaction success.
