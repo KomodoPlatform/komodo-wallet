@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart'
     show ActivationStep, AssetId;
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart' show LocaleKeys;
@@ -91,7 +92,8 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter out completed or error statuses older than 5 seconds
+    // Filter out completed statuses older than 5 seconds
+    // Keep error statuses for 60 seconds (these are final errors after all retries)
     final activeStatuses = _cachedStatuses.entries.where((entry) {
       final status = entry.value;
       return status.when(
@@ -106,7 +108,7 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
         completed: (coinId, completionTime) =>
             DateTime.now().difference(completionTime).inSeconds < 5,
         error: (coinId, errorMessage, errorTime) =>
-            DateTime.now().difference(errorTime).inSeconds < 5,
+            DateTime.now().difference(errorTime).inSeconds < 60,
       );
     }).toList();
 
@@ -175,24 +177,16 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
                     padding: const EdgeInsets.only(top: 4.0),
                     child: status.when(
                       completed: (_, __) => const SizedBox.shrink(),
-                      error: (assetId, errorMessage, errorTime) => Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 14,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: AutoScrollText(
-                              text: errorMessage,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                            ),
-                          ),
-                        ],
+                      error: (assetId, errorMessage, errorTime) => Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: ErrorDisplay(
+                          message:
+                              '${assetId.id}: ${LocaleKeys.activationFailedMessage.tr()}',
+                          detailedMessage: errorMessage,
+                          showDetails: false,
+                          showIcon: true,
+                          narrowBreakpoint: 400,
+                        ),
                       ),
                       inProgress:
                           (

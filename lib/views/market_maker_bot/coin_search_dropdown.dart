@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui/komodo_ui.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/widgets/coin_item/coin_item_body.dart';
-import 'package:komodo_ui/komodo_ui.dart';
 
 bool doesCoinMatchSearch(String searchQuery, DropdownMenuItem<String> item) {
   final lowerCaseQuery = searchQuery.toLowerCase();
@@ -37,10 +37,7 @@ Future<String?> showCoinSearch(
   if (isMobile) {
     return showSearch<String?>(
       context: context,
-      delegate: SearchableSelectorDelegate(
-        items,
-        searchHint: 'Search coins',
-      ),
+      delegate: SearchableSelectorDelegate(items, searchHint: 'Search coins'),
     );
   } else {
     return showSearchableSelect(
@@ -99,12 +96,15 @@ class _CoinDropdownState extends State<CoinDropdown> {
     final availableHeightBelow = screenSize.height - offset.dy - size.height;
     final availableHeightAbove = offset.dy;
 
-    final showAbove = availableHeightBelow < widget.items.length * 48 &&
+    final showAbove =
+        availableHeightBelow < widget.items.length * 48 &&
         availableHeightAbove > availableHeightBelow;
 
     final dropdownHeight =
-        (showAbove ? availableHeightAbove : availableHeightBelow)
-            .clamp(100.0, 330.0);
+        (showAbove ? availableHeightAbove : availableHeightBelow).clamp(
+          100.0,
+          330.0,
+        );
 
     return OverlayEntry(
       builder: (context) {
@@ -145,14 +145,16 @@ class _CoinDropdownState extends State<CoinDropdown> {
   @override
   Widget build(BuildContext context) {
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
-    final coin =
-        selectedItem == null ? null : coinsRepository.getCoin(selectedItem!);
+    final coin = selectedItem == null
+        ? null
+        : coinsRepository.getCoin(selectedItem!);
 
     return CompositedTransformTarget(
       link: _layerLink,
       child: InkWell(
         onTap: _showSearch,
-        child: widget.child ??
+        child:
+            widget.child ??
             Padding(
               padding: const EdgeInsets.only(left: 15),
               child: CoinItemBody(coin: coin),
@@ -239,15 +241,7 @@ class _SearchableDropdownState extends State<_SearchableDropdown> {
                   itemBuilder: (context, index) {
                     final item = filteredItems[index];
                     return ListTile(
-                      leading: item.child is Row
-                          ? (item.child as Row).children.first
-                          : item.child,
-                      title: item.child is Row
-                          ? Row(
-                              children:
-                                  (item.child as Row).children.skip(1).toList(),
-                            )
-                          : null,
+                      title: item.child,
                       onTap: () => widget.onItemSelected(item.value),
                     );
                   },
