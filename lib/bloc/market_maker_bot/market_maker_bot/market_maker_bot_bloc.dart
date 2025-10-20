@@ -10,7 +10,7 @@ import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/rpc_error.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/rpc_error_type.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 import 'package:web_dex/analytics/events/market_bot_events.dart';
 import 'package:get_it/get_it.dart';
 
@@ -69,7 +69,7 @@ class MarketMakerBotBloc
         return;
       }
       // Log bot error
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         MarketbotErrorEventData(
           failureDetail: 'start_failed',
           strategyType: 'simple',
@@ -93,7 +93,7 @@ class MarketMakerBotBloc
       emit(const MarketMakerBotState.stopped());
     } catch (e) {
       // Log bot error
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         MarketbotErrorEventData(
           failureDetail: 'stop_failed',
           strategyType: 'simple',
@@ -139,7 +139,7 @@ class MarketMakerBotBloc
       );
       emit(stoppingState);
       // Log bot error
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         MarketbotErrorEventData(
           failureDetail: 'update_failed',
           strategyType: 'simple',
@@ -186,7 +186,7 @@ class MarketMakerBotBloc
       );
       emit(stoppingState);
       // Log bot error
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         MarketbotErrorEventData(
           failureDetail: 'cancel_failed',
           strategyType: 'simple',
@@ -211,7 +211,7 @@ class MarketMakerBotBloc
       if (DateTime.now().difference(start) > timeout) {
         if (fatalTimeout) {
           // Log bot error
-          GetIt.I<AnalyticsBloc>().logEvent(
+          GetIt.I<AnalyticsRepo>().queueEvent(
             MarketbotErrorEventData(
               failureDetail: 'timeout_cancelling',
               strategyType: 'simple',

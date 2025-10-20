@@ -18,7 +18,7 @@ import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transactio
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/nft.dart';
 import 'package:web_dex/model/text_error.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
+import 'package:web_dex/bloc/analytics/analytics_repo.dart';
 import 'package:get_it/get_it.dart';
 import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
 
@@ -100,7 +100,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
     try {
       // Log initiated
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         NftTransferInitiatedEventData(
           collectionName: nft.collectionName ?? nft.symbol ?? 'unknown',
           tokenId: nft.tokenId,
@@ -126,7 +126,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       );
     } on ApiError catch (e) {
       // Log failure
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         NftTransferFailureEventData(
           collectionName:
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
@@ -137,7 +137,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
       emit(state.copyWith(sendError: () => e, isSending: () => false));
     } on TransportError catch (e) {
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         NftTransferFailureEventData(
           collectionName:
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
@@ -176,7 +176,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
 
     if (txHash == null) {
       // Log failure
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         NftTransferFailureEventData(
           collectionName:
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
@@ -196,7 +196,7 @@ class NftWithdrawBloc extends Bloc<NftWithdrawEvent, NftWithdrawState> {
       // Log success with fee
       final fee =
           double.tryParse(state.txDetails.feeDetails.feeValue ?? '0') ?? 0.0;
-      GetIt.I<AnalyticsBloc>().logEvent(
+      GetIt.I<AnalyticsRepo>().queueEvent(
         NftTransferSuccessEventData(
           collectionName:
               state.nft.collectionName ?? state.nft.symbol ?? 'unknown',
