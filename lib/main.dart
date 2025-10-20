@@ -74,7 +74,7 @@ Future<void> main() async {
     final tradingStatusRepository = TradingStatusRepository(komodoDefiSdk);
     final tradingStatusService = TradingStatusService(tradingStatusRepository);
     await tradingStatusService.initialize();
-    final arrrActivationService = ArrrActivationService(komodoDefiSdk);
+    final arrrActivationService = ArrrActivationService(komodoDefiSdk, mm2);
 
     final coinsRepo = CoinsRepo(
       kdfSdk: komodoDefiSdk,

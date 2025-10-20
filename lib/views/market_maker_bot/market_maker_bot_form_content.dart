@@ -3,7 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/events/market_bot_events.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_maker_trade_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
@@ -23,8 +25,6 @@ import 'package:web_dex/views/market_maker_bot/sell_coin_select_dropdown.dart';
 import 'package:web_dex/views/market_maker_bot/trade_bot_update_interval.dart';
 import 'package:web_dex/views/market_maker_bot/update_interval_dropdown.dart';
 import 'package:web_dex/views/wallets_manager/wallets_manager_events_factory.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/market_bot_events.dart';
 
 class MarketMakerBotFormContent extends StatefulWidget {
   const MarketMakerBotFormContent({required this.coins, super.key});
@@ -49,11 +49,11 @@ class _MarketMakerBotFormContentState extends State<MarketMakerBotFormContent> {
       final formBloc = context.read<MarketMakerTradeFormBloc>();
       if (formBloc.state.sellCoin.value == null) {
         _setSellCoinToDefaultCoin();
-      } else {
-        formBloc.add(
-          MarketMakerTradeFormSellCoinChanged(formBloc.state.sellCoin.value),
-        );
       }
+      // Removed re-dispatch of MarketMakerTradeFormSellCoinChanged event
+      // as it causes flickering when coins list updates during coin selection.
+      // The event is already dispatched by _onSelectSellCoin when user
+      // selects a coin, so re-dispatching here creates a race condition.
     }
     super.didUpdateWidget(oldWidget);
   }

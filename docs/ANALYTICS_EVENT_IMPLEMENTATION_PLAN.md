@@ -49,9 +49,11 @@ The table below mirrors the CSV with an expanded explanation.
 | `error_displayed` | Global error dialogs | Send when error dialog is shown to user. |
 | `app_share` | Share/referral actions | Emit when user shares app via share sheet. |
 | `hd_address_generated` | Receive page address generation | Log when new HD receive address derived. |
-| `scroll_attempt_outside_content` | Scrollable widgets | Trigger when user tries to scroll while pointer outside list bounds. |
 | `wallet_list_half_viewport` | Coins list performance metric | Record time until wallet list scrolls halfway on first load. |
 | `coins_data_updated` | Coins data refresh | Send when price/metadata update completes at launch. |
 | `searchbar_input` | Coin search field | Emit on search submission with query stats. |
 | `theme_selected` | Theme selection page | Log when user chooses light/dark/auto theme. |
 | `page_interactive_delay` | Page load performance | Record time until spinner hidden after page open. |
+
+> **Note:** The `scroll_attempt_outside_content` event has been temporarily removed and will be re-implemented when the updated UX
+> instrumentation is ready.

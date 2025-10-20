@@ -778,5 +778,8 @@ abstract class  LocaleKeys {
   static const zhtlcDateSyncHint = 'zhtlcDateSyncHint';
   static const zhtlcActivating = 'zhtlcActivating';
   static const zhtlcActivationWarning = 'zhtlcActivationWarning';
+  static const zhtlcAdvancedConfiguration = 'zhtlcAdvancedConfiguration';
+  static const zhtlcAdvancedConfigurationHint = 'zhtlcAdvancedConfigurationHint';
+  static const zhtlcConfigButton = 'zhtlcConfigButton';
 
 }

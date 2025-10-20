@@ -767,13 +767,13 @@
   "fetchingPrivateKeysMessage": "Please wait while we securely fetch your private keys...",
   "pubkeyType": "Type",
   "securitySettings": "Security Settings",
-  "zhtlcConfigureTitle": "Configure {}",
+  "zhtlcConfigureTitle": "Configure {} chain sync",
   "zhtlcZcashParamsPathLabel": "Zcash parameters path",
   "zhtlcPathAutomaticallyDetected": "Path automatically detected",
   "zhtlcSaplingParamsFolder": "Folder containing sapling params",
   "zhtlcBlocksPerIterationLabel": "Blocks per iteration",
   "zhtlcScanIntervalLabel": "Scan interval (ms)",
-  "zhtlcStartSyncFromLabel": "Start sync from:",
+  "zhtlcStartSyncFromLabel": "Start chain sync from:",
   "zhtlcEarliestSaplingOption": "Earliest (sapling)",
   "zhtlcBlockHeightOption": "Block height",
   "zhtlcShieldedAddress": "Shielded",
@@ -790,5 +790,8 @@
     "one": "Activating ZHTLC coin. Please do not close the app or tab until complete.",
     "other": "Activating ZHTLC coins. Please do not close the app or tab until complete."
   },
-  "zhtlcActivationWarning": "This may take from a few minutes to a few hours, depending on your sync params and how long since your last sync."
+  "zhtlcActivationWarning": "This may take from a few minutes to a few hours, depending on your sync params and how long since your last sync.",
+  "zhtlcAdvancedConfiguration": "Advanced configuration",
+  "zhtlcAdvancedConfigurationHint": "Faster intervals (lower milliseconds) and higher blocks per iteration result in higher memory and CPU usage.",
+  "zhtlcConfigButton": "Config"
 }

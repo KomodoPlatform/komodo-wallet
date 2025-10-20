@@ -100,38 +100,6 @@ class AnalyticsAppShareEvent extends AnalyticsSendDataEvent {
     : super(AppShareEventData(channel: channel));
 }
 
-/// E40: User scroll attempt outside content
-class ScrollAttemptOutsideContentEventData extends AnalyticsEventData {
-  const ScrollAttemptOutsideContentEventData({
-    required this.screenContext,
-    required this.scrollDelta,
-  });
-
-  final String screenContext;
-  final double scrollDelta;
-
-  @override
-  String get name => 'scroll_attempt_outside_content';
-
-  @override
-  JsonMap get parameters => {
-    'screen_context': screenContext,
-    'scroll_delta': scrollDelta,
-  };
-}
-
-class AnalyticsScrollAttemptOutsideContentEvent extends AnalyticsSendDataEvent {
-  AnalyticsScrollAttemptOutsideContentEvent({
-    required String screenContext,
-    required double scrollDelta,
-  }) : super(
-         ScrollAttemptOutsideContentEventData(
-           screenContext: screenContext,
-           scrollDelta: scrollDelta,
-         ),
-       );
-}
-
 /// E42: Searchbar input submitted
 class SearchbarInputEventData extends AnalyticsEventData {
   const SearchbarInputEventData({required this.queryLength, this.assetSymbol});
