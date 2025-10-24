@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/shared/utils/formatters.dart';
 
-class CustomFiatInputField extends StatelessWidget {
+class CustomFiatInputField extends StatefulWidget {
   const CustomFiatInputField({
     required this.controller,
     required this.hintText,
@@ -13,6 +13,8 @@ class CustomFiatInputField extends StatelessWidget {
     this.label,
     this.readOnly = false,
     this.inputError,
+    this.focusNode,
+    this.onSubmitted,
   });
 
   final TextEditingController controller;
@@ -22,27 +24,51 @@ class CustomFiatInputField extends StatelessWidget {
   final bool readOnly;
   final Widget assetButton;
   final String? inputError;
+  final FocusNode? focusNode;
+  final void Function(String)? onSubmitted;
+
+  @override
+  State<CustomFiatInputField> createState() => _CustomFiatInputFieldState();
+}
+
+class _CustomFiatInputFieldState extends State<CustomFiatInputField> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+  }
+
+  @override
+  void dispose() {
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     final inputStyle = Theme.of(context).textTheme.headlineLarge?.copyWith(
-          fontSize: 18,
-          fontWeight: FontWeight.w300,
-          color: textColor,
-          letterSpacing: 1.1,
-        );
+      fontSize: 18,
+      fontWeight: FontWeight.w300,
+      color: textColor,
+      letterSpacing: 1.1,
+    );
 
     final InputDecoration inputDecoration = InputDecoration(
-      label: label,
+      label: widget.label,
       labelStyle: inputStyle,
       fillColor: Theme.of(context).colorScheme.onSurface,
-      floatingLabelStyle:
-          Theme.of(context).inputDecorationTheme.floatingLabelStyle,
+      floatingLabelStyle: Theme.of(
+        context,
+      ).inputDecorationTheme.floatingLabelStyle,
       floatingLabelBehavior: FloatingLabelBehavior.always,
       contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      hintText: hintText,
+      hintText: widget.hintText,
       border: const OutlineInputBorder(
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(4),
@@ -51,7 +77,7 @@ class CustomFiatInputField extends StatelessWidget {
           topRight: Radius.circular(18),
         ),
       ),
-      errorText: inputError,
+      errorText: widget.inputError,
       errorMaxLines: 1,
       helperText: '',
     );
@@ -61,24 +87,25 @@ class CustomFiatInputField extends StatelessWidget {
       alignment: Alignment.centerRight,
       children: [
         TextField(
-          autofocus: true,
-          controller: controller,
+          autofocus: false,
+          controller: widget.controller,
+          focusNode: _focusNode,
           style: inputStyle,
           decoration: inputDecoration,
-          readOnly: readOnly,
-          onChanged: onTextChanged,
+          readOnly: widget.readOnly,
+          onChanged: widget.onTextChanged,
+          onSubmitted: (value) {
+            _focusNode.unfocus();
+            widget.onSubmitted?.call(value);
+          },
           inputFormatters: [
             FilteringTextInputFormatter.allow(numberRegExp),
             DecimalTextInputFormatter(decimalRange: 2),
           ],
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.done,
         ),
-        Positioned(
-          right: 16,
-          bottom: 26,
-          top: 2,
-          child: assetButton,
-        ),
+        Positioned(right: 16, bottom: 26, top: 2, child: widget.assetButton),
       ],
     );
   }

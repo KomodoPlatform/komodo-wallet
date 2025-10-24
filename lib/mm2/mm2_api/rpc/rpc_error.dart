@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/rpc_error_type.dart';
 
@@ -23,15 +25,36 @@ class RpcError extends Equatable {
     this.id,
   });
 
-  factory RpcError.fromJson(Map<String, dynamic> json) => RpcError(
-        mmrpc: json['mmrpc'] as String?,
-        error: json['error'] as String?,
-        errorPath: json['error_path'] as String?,
-        errorTrace: json['error_trace'] as String?,
-        errorType: RpcErrorType.fromString(json['error_type'] as String? ?? ''),
-        errorData: json['error_data'] as String?,
-        id: json['id'] as int?,
-      );
+  factory RpcError.fromJson(Map<String, dynamic> json) {
+    // Handle nested error format where RPC error is in 'message' field
+    if (json.containsKey('message') && json['message'] is String) {
+      try {
+        final Map<String, dynamic> nestedError =
+            jsonDecode(json['message'] as String) as Map<String, dynamic>;
+        return RpcError._fromDirectJson(nestedError);
+      } catch (_) {
+        // If parsing fails, fall back to treating message as error string
+        return RpcError(
+          error: json['message'] as String?,
+          errorData: json['error'] as String?,
+        );
+      }
+    }
+
+    return RpcError._fromDirectJson(json);
+  }
+
+  factory RpcError._fromDirectJson(Map<String, dynamic> json) => RpcError(
+    mmrpc: json['mmrpc'] as String?,
+    error: json['error'] as String?,
+    errorPath: json['error_path'] as String?,
+    errorTrace: json['error_trace'] as String?,
+    errorType: json['error_type'] != null
+        ? RpcErrorType.fromString(json['error_type'] as String)
+        : null,
+    errorData: json['error_data'] as String?,
+    id: json['id'] as int?,
+  );
 
   final String? mmrpc;
   final String? error;
@@ -42,14 +65,14 @@ class RpcError extends Equatable {
   final int? id;
 
   Map<String, dynamic> toJson() => {
-        'mmrpc': mmrpc,
-        'error': error,
-        'error_path': errorPath,
-        'error_trace': errorTrace,
-        'error_type': errorType?.toString(),
-        'error_data': errorData,
-        'id': id,
-      };
+    'mmrpc': mmrpc,
+    'error': error,
+    'error_path': errorPath,
+    'error_trace': errorTrace,
+    'error_type': errorType?.toString(),
+    'error_data': errorData,
+    'id': id,
+  };
 
   RpcError copyWith({
     String? mmrpc,
@@ -87,14 +110,6 @@ RpcError: {
 
   @override
   List<Object?> get props {
-    return [
-      mmrpc,
-      error,
-      errorPath,
-      errorTrace,
-      errorType,
-      errorData,
-      id,
-    ];
+    return [mmrpc, error, errorPath, errorTrace, errorType, errorData, id];
   }
 }

@@ -186,7 +186,10 @@ class _MobileWidget extends StatelessWidget {
             onFilterDataChange: onApplyFilter,
             onFilterPressed: onFilterTap,
             centerWidget: type == MarketMakerBotTabType.orders
-                ? _buildBotControls(context)
+                ? const _SimplifiedTradingBotControls()
+                : null,
+            onCancelAll: type == MarketMakerBotTabType.orders
+                ? () => _handleCancelAllOrders(context)
                 : null,
           ),
           const SizedBox(height: 6),
@@ -204,7 +207,23 @@ class _MobileWidget extends StatelessWidget {
     }
   }
 
-  Widget _buildBotControls(BuildContext context) {
+  void _handleCancelAllOrders(BuildContext context) {
+    final orderListBloc = context.read<MarketMakerOrderListBloc>();
+    final marketMakerBotBloc = context.read<MarketMakerBotBloc>();
+    final orders = orderListBloc.state.makerBotOrders;
+
+    if (orders.isNotEmpty) {
+      final tradePairs = orders.map((e) => e.config).toList();
+      marketMakerBotBloc.add(MarketMakerBotOrderCancelRequested(tradePairs));
+    }
+  }
+}
+
+class _SimplifiedTradingBotControls extends StatelessWidget {
+  const _SimplifiedTradingBotControls({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<MarketMakerBotBloc, MarketMakerBotState>(
       builder: (context, botState) {
         return BlocBuilder<MarketMakerOrderListBloc, MarketMakerOrderListState>(

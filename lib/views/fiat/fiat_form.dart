@@ -32,12 +32,17 @@ class FiatForm extends StatefulWidget {
 
 class _FiatFormState extends State<FiatForm> {
   bool _isLoggedIn = false;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
 
     _isLoggedIn = RepositoryProvider.of<AuthBloc>(context).state.isSignedIn;
+
+    // Initialize scroll controller and add listener for keyboard dismissal
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
 
     final fiatFormBloc = context.read<FiatFormBloc>()
       ..add(const FiatFormCurrenciesRefreshRequested())
@@ -50,6 +55,18 @@ class _FiatFormState extends State<FiatForm> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Dismiss keyboard when user starts scrolling
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -67,7 +84,6 @@ class _FiatFormState extends State<FiatForm> {
     // creating the checkout URL. This could clutter up the order history with
     // orders that were never completed.
 
-    final scrollController = ScrollController();
     return BlocListener<AuthBloc, AuthBlocState>(
       listener: (context, state) {
         _handleAccountStatusChange(state.isSignedIn);
@@ -76,80 +92,86 @@ class _FiatFormState extends State<FiatForm> {
         listenWhen: (previous, current) =>
             previous.fiatOrderStatus != current.fiatOrderStatus,
         listener: (context, state) => _handlePaymentStatusUpdate(state),
-        builder: (context, state) => DexScrollbar(
-          isMobile: isMobile,
-          scrollController: scrollController,
-          child: SingleChildScrollView(
-            key: const Key('fiat-form-scroll'),
-            controller: scrollController,
-            child: Column(
-              children: [
-                FiatActionTabBar(
-                  currentTabIndex: state.fiatMode.tabIndex,
-                  onTabClick: _setActiveTab,
-                ),
-                const SizedBox(height: 16),
-                if (state.fiatMode == FiatMode.offramp)
-                  Center(child: Text(LocaleKeys.comingSoon.tr()))
-                else
-                  GradientBorder(
-                    innerColor: dexPageColors.frontPlate,
-                    gradient: dexPageColors.formPlateGradient,
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
-                      child: Column(
-                        children: [
-                          FiatInputs(
-                            onFiatCurrencyChanged: _onFiatChanged,
-                            onCoinChanged: _onCoinChanged,
-                            onFiatAmountUpdate: _onFiatAmountChanged,
-                            onSourceAddressChanged: _onSourceAddressChanged,
-                            initialFiat: state.selectedFiat.value!,
-                            selectedAsset: state.selectedAsset.value!,
-                            selectedAssetAddress: state.selectedAssetAddress,
-                            selectedAssetPubkeys: state.selectedCoinPubkeys,
-                            initialFiatAmount: state.fiatAmount.valueAsDecimal,
-                            fiatList: state.fiatList,
-                            coinList: state.coinList,
-                            selectedPaymentMethodPrice:
-                                state.selectedPaymentMethod.priceInfo,
-                            isLoggedIn: _isLoggedIn,
-                            fiatMinAmount: state.minFiatAmount,
-                            fiatMaxAmount: state.maxFiatAmount,
-                            boundariesError:
-                                state.fiatAmount.error?.text(state),
-                          ),
-                          const SizedBox(height: 16),
-                          FiatPaymentMethodsGrid(state: state),
-                          const SizedBox(height: 16),
-                          ConnectWalletWrapper(
-                            key: const Key('connect-wallet-fiat-form'),
-                            eventType: WalletsManagerEventType.fiat,
-                            child: UiPrimaryButton(
-                              key: const Key('fiat-onramp-submit-button'),
-                              height: 40,
-                              text: state.fiatOrderStatus.isSubmitting
-                                  ? '${LocaleKeys.submitting.tr()}...'
-                                  : LocaleKeys.buyNow.tr(),
-                              onPressed:
-                                  state.canSubmit ? _completeOrder : null,
+        builder: (context, state) => GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: DexScrollbar(
+            isMobile: isMobile,
+            scrollController: _scrollController,
+            child: SingleChildScrollView(
+              key: const Key('fiat-form-scroll'),
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  FiatActionTabBar(
+                    currentTabIndex: state.fiatMode.tabIndex,
+                    onTabClick: _setActiveTab,
+                  ),
+                  const SizedBox(height: 16),
+                  if (state.fiatMode == FiatMode.offramp)
+                    Center(child: Text(LocaleKeys.comingSoon.tr()))
+                  else
+                    GradientBorder(
+                      innerColor: dexPageColors.frontPlate,
+                      gradient: dexPageColors.formPlateGradient,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
+                        child: Column(
+                          children: [
+                            FiatInputs(
+                              onFiatCurrencyChanged: _onFiatChanged,
+                              onCoinChanged: _onCoinChanged,
+                              onFiatAmountUpdate: _onFiatAmountChanged,
+                              onSourceAddressChanged: _onSourceAddressChanged,
+                              initialFiat: state.selectedFiat.value!,
+                              selectedAsset: state.selectedAsset.value!,
+                              selectedAssetAddress: state.selectedAssetAddress,
+                              selectedAssetPubkeys: state.selectedCoinPubkeys,
+                              initialFiatAmount:
+                                  state.fiatAmount.valueAsDecimal,
+                              fiatList: state.fiatList,
+                              coinList: state.coinList,
+                              selectedPaymentMethodPrice:
+                                  state.selectedPaymentMethod.priceInfo,
+                              isLoggedIn: _isLoggedIn,
+                              fiatMinAmount: state.minFiatAmount,
+                              fiatMaxAmount: state.maxFiatAmount,
+                              boundariesError: state.fiatAmount.error?.text(
+                                state,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _isLoggedIn
-                                ? state.fiatOrderStatus.isFailed
-                                    ? LocaleKeys.fiatCantCompleteOrder.tr()
-                                    : LocaleKeys.fiatPriceCanChange.tr()
-                                : LocaleKeys.fiatConnectWallet.tr(),
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            FiatPaymentMethodsGrid(state: state),
+                            const SizedBox(height: 16),
+                            ConnectWalletWrapper(
+                              key: const Key('connect-wallet-fiat-form'),
+                              eventType: WalletsManagerEventType.fiat,
+                              child: UiPrimaryButton(
+                                key: const Key('fiat-onramp-submit-button'),
+                                height: 40,
+                                text: state.fiatOrderStatus.isSubmitting
+                                    ? '${LocaleKeys.submitting.tr()}...'
+                                    : LocaleKeys.buyNow.tr(),
+                                onPressed: state.canSubmit
+                                    ? _completeOrder
+                                    : null,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _isLoggedIn
+                                  ? state.fiatOrderStatus.isFailed
+                                        ? LocaleKeys.fiatCantCompleteOrder.tr()
+                                        : LocaleKeys.fiatPriceCanChange.tr()
+                                  : LocaleKeys.fiatConnectWallet.tr(),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -157,8 +179,11 @@ class _FiatFormState extends State<FiatForm> {
     );
   }
 
-  void _completeOrder() =>
-      context.read<FiatFormBloc>().add(const FiatFormSubmitted());
+  void _completeOrder() {
+    // Dismiss keyboard before submitting
+    FocusScope.of(context).unfocus();
+    context.read<FiatFormBloc>().add(const FiatFormSubmitted());
+  }
 
   void _onFiatChanged(FiatCurrency value) => context.read<FiatFormBloc>()
     ..add(FiatFormFiatSelected(value))
@@ -208,9 +233,9 @@ class _FiatFormState extends State<FiatForm> {
   }
 
   void _onConsoleMessage(String message) {
-    context
-        .read<FiatFormBloc>()
-        .add(FiatFormPaymentStatusMessageReceived(message));
+    context.read<FiatFormBloc>().add(
+      FiatFormPaymentStatusMessageReceived(message),
+    );
   }
 
   void _onCloseWebView() {
@@ -262,6 +287,7 @@ class _FiatFormState extends State<FiatForm> {
       case FiatOrderStatus.inProgress:
       case FiatOrderStatus.windowCloseRequested:
       case FiatOrderStatus.initial:
+      case FiatOrderStatus.submitting:
       case FiatOrderStatus.pendingPayment:
         debugPrint('Pending status should not be shown in dialog.');
         return;
@@ -277,7 +303,8 @@ class _FiatFormState extends State<FiatForm> {
         title = LocaleKeys.fiatPaymentFailedTitle.tr();
         content = LocaleKeys.fiatPaymentFailedMessage.tr();
         if (state.providerError != null && state.providerError!.isNotEmpty) {
-          content = '$content\n\n${LocaleKeys.errorDetails.tr()}: '
+          content =
+              '$content\n\n${LocaleKeys.errorDetails.tr()}: '
               '${state.providerError}';
         }
         icon = const Icon(Icons.error_outline, color: Colors.red);
@@ -306,15 +333,13 @@ extension on FiatAmountValidationError {
     final fiatId = state.selectedFiat.value?.symbol ?? '';
     switch (this) {
       case FiatAmountValidationError.aboveMaximum:
-        return LocaleKeys.fiatMaximumAmount
-            .tr(args: [state.maxFiatAmount?.toString() ?? '', fiatId]);
+        return LocaleKeys.fiatMaximumAmount.tr(
+          args: [state.maxFiatAmount?.toString() ?? '', fiatId],
+        );
       case FiatAmountValidationError.invalid:
       case FiatAmountValidationError.belowMinimum:
         return LocaleKeys.fiatMinimumAmount.tr(
-          args: [
-            state.minFiatAmount?.toStringAsFixed(2) ?? '',
-            fiatId,
-          ],
+          args: [state.minFiatAmount?.toStringAsFixed(2) ?? '', fiatId],
         );
       case FiatAmountValidationError.empty:
         return null;

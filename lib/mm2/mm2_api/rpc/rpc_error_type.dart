@@ -21,7 +21,7 @@ enum RpcErrorType {
     }
   }
 
-  static RpcErrorType fromString(String value) {
+  static RpcErrorType? fromString(String value) {
     switch (value) {
       case 'AlreadyStarted':
         return RpcErrorType.alreadyStarted;
@@ -34,7 +34,7 @@ enum RpcErrorType {
       case 'InvalidRequest':
         return RpcErrorType.invalidRequest;
       default:
-        throw ArgumentError('Invalid value: $value');
+        return null;
     }
   }
 }

@@ -3,30 +3,32 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/model/my_orders/my_order.dart';
 import 'package:web_dex/model/trading_entities_filter.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
 class DexListHeaderMobile extends StatelessWidget {
   const DexListHeaderMobile({
-    Key? key,
+    super.key,
     required this.listType,
     required this.entitiesFilterData,
     required this.onFilterPressed,
     required this.onFilterDataChange,
     required this.isFilterShown,
     this.centerWidget,
-  }) : super(key: key);
+    this.onCancelAll,
+  });
   final DexListType listType;
   final TradingEntitiesFilter? entitiesFilterData;
   final bool isFilterShown;
   final VoidCallback onFilterPressed;
   final void Function(TradingEntitiesFilter?) onFilterDataChange;
   final Widget? centerWidget;
+  final VoidCallback? onCancelAll;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,8 @@ class DexListHeaderMobile extends StatelessWidget {
                 text: LocaleKeys.cancelAll.tr(),
                 width: 100,
                 height: 30,
-                onPressed: () => tradingEntitiesBloc.cancelAllOrders(),
+                onPressed:
+                    onCancelAll ?? () => tradingEntitiesBloc.cancelAllOrders(),
                 textStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

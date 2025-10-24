@@ -158,7 +158,6 @@ class MarketMakerBotRepository {
     };
     return MarketMakerBotParameters(
       botRefreshRate: mmSettings.botRefreshRate,
-      priceUrl: mmSettings.priceUrl,
       tradeCoinPairs: tradePairs,
     );
   }

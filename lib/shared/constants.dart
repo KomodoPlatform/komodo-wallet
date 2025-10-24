@@ -46,7 +46,7 @@ final RegExp matrixIdRegex = RegExp(
   r'^@[a-zA-Z0-9._=-]+:[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
 );
 final Uri pricesUrlV3 = Uri.parse(
-  'https://defi-stats.komodo.earth/api/v3/prices/tickers_v2?expire_at=60',
+  'https://prices.komodian.info/api/v2/tickers?expire_at=60',
 );
 
 const int millisecondsIn24H = 86400000;

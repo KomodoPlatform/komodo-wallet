@@ -44,7 +44,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     // can happen frequently and we want to avoid race conditions.
     on<FiatFormCoinSelected>(_onCoinSelected, transformer: restartable());
     on<FiatFormPaymentMethodSelected>(_onPaymentMethodSelected);
-    on<FiatFormSubmitted>(_onFormSubmitted);
+    // Use droppable here to prevent multiple simultaneous submissions
+    on<FiatFormSubmitted>(_onFormSubmitted, transformer: droppable());
     on<FiatFormPaymentStatusMessageReceived>(_onPaymentStatusMessage);
     on<FiatFormModeUpdated>(_onModeUpdated);
     on<FiatFormResetRequested>(_onAccountCleared);
@@ -169,15 +170,18 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormSubmitted event,
     Emitter<FiatFormState> emit,
   ) async {
-    final formValidationError = getFormIssue();
+    final formValidationError = _getFormIssue();
     if (formValidationError != null || !state.isValid) {
       _log.warning('Form validation failed. Validation: ${state.isValid}');
       return;
     }
 
-    if (state.checkoutUrl.isNotEmpty) {
-      emit(state.copyWith(checkoutUrl: ''));
-    }
+    emit(
+      state.copyWith(
+        fiatOrderStatus: FiatOrderStatus.submitting,
+        checkoutUrl: '',
+      ),
+    );
 
     try {
       final newOrder = await _fiatRepository.buyCoin(
@@ -229,12 +233,11 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   WebViewDialogMode _determineWebViewMode() {
     final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
     const bool isWeb = kIsWeb || kIsWasm;
-    final bool isBanxa = state.selectedPaymentMethod.providerId == 'Banxa';
 
     // Banxa "Return to Komodo" button attempts to navigate the top window to
     // the return URL, which is not supported in a dialog. So we need to open
     // it in a new tab.
-    if (isLinux || (isWeb && isBanxa)) {
+    if (isLinux || (isWeb && state.isBanxaSelected)) {
       return WebViewDialogMode.newTab;
     } else if (isWeb) {
       return WebViewDialogMode.dialog;
@@ -415,7 +418,12 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
   }
 
-  String? getFormIssue() {
+  @Deprecated(
+    'Validation is handled by formz in dedicated inputs like [FiatAmountInput]'
+    'This function should be removed once the cases are confirmed to be '
+    'covered by formz inputs',
+  )
+  String? _getFormIssue() {
     // TODO: ? show on the UI and localise? These are currently used as more of
     // a boolean "is there an error?" rather than "what is the error?"
     if (state.paymentMethods.isEmpty) {

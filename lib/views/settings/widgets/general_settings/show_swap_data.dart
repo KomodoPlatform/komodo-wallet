@@ -7,9 +7,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/my_recent_swaps/my_recent_swaps_request.dart';
+import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 
+/// This version of ShowSwapData keeps the foldable text output for viewing swap
+/// data and adds an "Export swap data" button that downloads all swap data as
+/// a JSON file.  A spinner indicates progress during export.
 class ShowSwapData extends StatefulWidget {
   const ShowSwapData({Key? key}) : super(key: key);
 
@@ -21,6 +25,7 @@ class _ShowSwapDataState extends State<ShowSwapData> {
   final TextEditingController _controller = TextEditingController();
   bool _showData = false;
   bool _inProgress = false;
+  bool _isDownloading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +38,13 @@ class _ShowSwapDataState extends State<ShowSwapData> {
           _buildData(),
         },
         const SizedBox(height: 20),
+        _buildExportButton(),
+        const SizedBox(height: 20),
       ],
     );
   }
 
+  /// Builds the button that shows or hides the raw swap data in a text field.
   Widget _buildSwitcherButton() {
     return UiBorderButton(
       width: 160,
@@ -62,6 +70,7 @@ class _ShowSwapDataState extends State<ShowSwapData> {
     );
   }
 
+  /// Builds the editable text field and copy button that display the swap data.
   Widget _buildData() {
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -76,14 +85,57 @@ class _ShowSwapDataState extends State<ShowSwapData> {
         const SizedBox(width: 10),
         Material(
           child: IconButton(
-              onPressed: () => copyToClipBoard(context, _controller.text),
-              icon: const Icon(Icons.copy)),
+            onPressed: () => copyToClipBoard(context, _controller.text),
+            icon: const Icon(Icons.copy),
+          ),
         ),
         const SizedBox(width: 10),
       ],
     );
   }
 
+  /// Builds the export button that downloads all swap data as a JSON file.
+  Widget _buildExportButton() {
+    return UiBorderButton(
+      width: 160,
+      height: 32,
+      borderWidth: 1,
+      borderColor: theme.custom.specificButtonBorderColor,
+      backgroundColor: theme.custom.specificButtonBackgroundColor,
+      fontWeight: FontWeight.w500,
+      // Use a static label since no translation key exists for export.
+      text: 'Export swap data',
+      icon: _isDownloading
+          ? const UiSpinner()
+          : Icon(
+              Icons.file_download,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+              size: 18,
+            ),
+      onPressed: _isDownloading ? null : _exportSwapData,
+    );
+  }
+
+  /// Fetches all raw swap data and writes it to a JSON file.
+  Future<void> _exportSwapData() async {
+    setState(() => _isDownloading = true);
+    try {
+      final mm2Api = RepositoryProvider.of<Mm2Api>(context);
+      final response = await mm2Api.getRawSwapData(MyRecentSwapsRequest());
+      // Use ISO timestamp so each file is unique and sorted chronologically.
+      final fileName =
+          'swap_data_${DateTime.now().toUtc().toIso8601String()}.json';
+      await FileLoader.fromPlatform().save(
+        fileName: fileName,
+        data: response,
+        type: LoadFileType.text,
+      );
+    } finally {
+      if (mounted) setState(() => _isDownloading = false);
+    }
+  }
+
+  /// Retrieves the raw swap data from MM2 and displays it in the text field.
   Future<void> _getSwapData() async {
     setState(() => _inProgress = true);
 

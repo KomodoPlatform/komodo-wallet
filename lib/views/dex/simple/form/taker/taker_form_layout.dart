@@ -22,17 +22,48 @@ class TakerFormLayout extends StatelessWidget {
         return step == TakerStep.confirm
             ? const TakerOrderConfirmation()
             : isMobile
-                ? const _TakerFormMobileLayout()
-                : _TakerFormDesktopLayout();
+            ? const _TakerFormMobileLayout()
+            : _TakerFormDesktopLayout();
       },
     );
   }
 }
 
-class _TakerFormDesktopLayout extends StatelessWidget {
+class _TakerFormDesktopLayout extends StatefulWidget {
+  @override
+  State<_TakerFormDesktopLayout> createState() =>
+      _TakerFormDesktopLayoutState();
+}
+
+class _TakerFormDesktopLayoutState extends State<_TakerFormDesktopLayout> {
+  late final ScrollController _mainScrollController;
+  late final ScrollController _orderbookScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _mainScrollController = ScrollController();
+    _orderbookScrollController = ScrollController();
+    _mainScrollController.addListener(_onScroll);
+    _orderbookScrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _mainScrollController.removeListener(_onScroll);
+    _orderbookScrollController.removeListener(_onScroll);
+    _mainScrollController.dispose();
+    _orderbookScrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Dismiss keyboard when user starts scrolling
+    FocusScope.of(context).unfocus();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final scrollController = ScrollController();
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -45,14 +76,15 @@ class _TakerFormDesktopLayout extends StatelessWidget {
         Flexible(
           flex: 6,
           child: DexScrollbar(
-            scrollController: scrollController,
+            scrollController: _mainScrollController,
             isMobile: isMobile,
             child: SingleChildScrollView(
               key: const Key('taker-form-layout-scroll'),
-              controller: scrollController,
+              controller: _mainScrollController,
               child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: theme.custom.dexFormWidth),
+                constraints: BoxConstraints(
+                  maxWidth: theme.custom.dexFormWidth,
+                ),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -76,21 +108,49 @@ class _TakerFormDesktopLayout extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 20),
             child: SingleChildScrollView(
-                controller: ScrollController(), child: const TakerOrderbook()),
+              controller: _orderbookScrollController,
+              child: const TakerOrderbook(),
+            ),
           ),
-        )
+        ),
       ],
     );
   }
 }
 
-class _TakerFormMobileLayout extends StatelessWidget {
+class _TakerFormMobileLayout extends StatefulWidget {
   const _TakerFormMobileLayout();
+
+  @override
+  State<_TakerFormMobileLayout> createState() => _TakerFormMobileLayoutState();
+}
+
+class _TakerFormMobileLayoutState extends State<_TakerFormMobileLayout> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Dismiss keyboard when user starts scrolling
+    FocusScope.of(context).unfocus();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      controller: ScrollController(),
+      controller: _scrollController,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: theme.custom.dexFormWidth),
         child: Stack(
