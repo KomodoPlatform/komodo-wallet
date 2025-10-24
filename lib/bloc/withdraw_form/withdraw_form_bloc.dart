@@ -58,18 +58,28 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   ) async {
     try {
       final pubkeys = await state.asset.getPubkeys(_sdk);
-      if (pubkeys.keys.isNotEmpty) {
+      final fundedKeys = pubkeys.keys
+          .where((key) => key.balance.spendable > Decimal.zero)
+          .toList();
+
+      if (fundedKeys.isNotEmpty) {
+        final filteredPubkeys = AssetPubkeys(
+          assetId: pubkeys.assetId,
+          keys: fundedKeys,
+          availableAddressesCount: pubkeys.availableAddressesCount,
+          syncStatus: pubkeys.syncStatus,
+        );
+
         final current = state.selectedSourceAddress;
         final newSelection = current != null
-            ? pubkeys.keys.firstWhereOrNull(
+            ? fundedKeys.firstWhereOrNull(
                     (key) => key.address == current.address,
                   ) ??
-                  pubkeys.keys.first
-            : (pubkeys.keys.length == 1 ? pubkeys.keys.first : null);
-
+                  fundedKeys.first
+            : (fundedKeys.length == 1 ? fundedKeys.first : null);
         emit(
           state.copyWith(
-            pubkeys: () => pubkeys,
+            pubkeys: () => filteredPubkeys,
             networkError: () => null,
             selectedSourceAddress: () => newSelection,
           ),
@@ -78,7 +88,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         emit(
           state.copyWith(
             networkError: () => TextError(
-              error: 'No addresses found for ${state.asset.id.name}',
+              error: 'No funded addresses found for ${state.asset.id.name}',
             ),
           ),
         );
