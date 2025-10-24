@@ -168,8 +168,6 @@ List<String> get enabledByDefaultCoins => [
   if (kDebugMode) 'MARTY',
 ];
 
-List<String> get coinsWithFaucet => ['RICK', 'MORTY', 'DOC', 'MARTY'];
-
 const String logsDbName = 'logs';
 const String appFolder = 'KomodoWallet';
 
