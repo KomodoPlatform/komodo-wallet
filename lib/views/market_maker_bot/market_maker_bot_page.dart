@@ -12,6 +12,7 @@ import 'package:web_dex/bloc/market_maker_bot/market_maker_trade_form/market_mak
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/blocs/trading_entities_bloc.dart';
 import 'package:web_dex/model/authorize_mode.dart';
+import 'package:web_dex/model/dex_list_type.dart';
 import 'package:web_dex/router/state/routing_state.dart';
 import 'package:web_dex/services/orders_service/my_orders_service.dart';
 import 'package:web_dex/views/dex/entity_details/trading_details.dart';
@@ -85,9 +86,17 @@ class _MarketMakerBotPageState extends State<MarketMakerBotPage> {
                 .add(const MarketMakerBotStopRequested());
           }
         },
-        child: isTradingDetails
-            ? TradingDetails(uuid: routingState.marketMakerState.uuid)
-            : MarketMakerBotView(),
+        child: BlocBuilder<DexTabBarBloc, DexTabBarState>(
+          builder: (context, state) {
+            final tab = DexListType.values[state.tabIndex];
+            final kind = tab == DexListType.orders
+                ? TradingEntityKind.order
+                : TradingEntityKind.swap;
+            return isTradingDetails
+                ? TradingDetails(uuid: routingState.marketMakerState.uuid, kind: kind)
+                : MarketMakerBotView();
+          },
+        ),
       ),
     );
     return pageContent;

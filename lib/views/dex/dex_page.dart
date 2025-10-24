@@ -48,7 +48,6 @@ class _DexPageState extends State<DexPage> {
     );
     final coinsRepository = RepositoryProvider.of<CoinsRepo>(context);
     final myOrdersService = RepositoryProvider.of<MyOrdersService>(context);
-
     final pageContent = MultiBlocProvider(
       providers: [
         BlocProvider<DexTabBarBloc>(
@@ -64,9 +63,17 @@ class _DexPageState extends State<DexPage> {
           )..add(const ListenToOrdersRequested()),
         ),
       ],
-      child: isTradingDetails
-          ? TradingDetails(uuid: routingState.dexState.uuid)
-          : _DexContent(),
+      child: BlocBuilder<DexTabBarBloc, DexTabBarState>(
+        builder: (context, state) {
+          final tab = DexListType.values[state.tabIndex];
+          final kind = tab == DexListType.orders
+              ? TradingEntityKind.order
+              : TradingEntityKind.swap;
+          return isTradingDetails
+              ? TradingDetails(uuid: routingState.dexState.uuid, kind: kind)
+              : _DexContent();
+        },
+      ),
     );
     return ZhtlcConfigurationHandler(child: pageContent);
   }

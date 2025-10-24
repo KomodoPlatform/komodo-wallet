@@ -19,10 +19,17 @@ import 'package:web_dex/views/dex/entity_details/maker_order/maker_order_details
 import 'package:web_dex/views/dex/entity_details/swap/swap_details_page.dart';
 import 'package:web_dex/views/dex/entity_details/taker_order/taker_order_details_page.dart';
 
+/// Distinguishes what entity the uuid represents
+enum TradingEntityKind {
+  order,
+  swap,
+}
+
 class TradingDetails extends StatefulWidget {
-  const TradingDetails({super.key, required this.uuid});
+  const TradingDetails({super.key, required this.uuid, this.kind = TradingEntityKind.swap});
 
   final String uuid;
+  final TradingEntityKind? kind;
 
   @override
   State<TradingDetails> createState() => _TradingDetailsState();
@@ -98,30 +105,22 @@ class _TradingDetailsState extends State<TradingDetails> {
     DexRepository dexRepository,
     MyOrdersService myOrdersService,
   ) async {
-    Swap? swapStatus;
+    Swap? swapStatus = null;
+    OrderStatus? orderStatus = null;
     try {
-      swapStatus = await dexRepository.getSwapStatus(widget.uuid);
-    } on TextError catch (e, s) {
-      log(
-        e.error,
-        path: 'trading_details =>_updateStatus',
-        trace: s,
-        isError: true,
-      );
-      swapStatus = null;
+      if (widget.kind == TradingEntityKind.swap) {
+        swapStatus = await dexRepository.getSwapStatus(widget.uuid);
+      } else if (widget.kind == TradingEntityKind.order) {
+        orderStatus = await myOrdersService.getStatus(widget.uuid);
+      }
     } catch (e, s) {
       log(
         e.toString(),
-        path: 'trading_details =>_updateStatus',
+        path: 'trading_details =>_updateStatus ${widget.kind ?? TradingEntityKind.swap} error | uuid=${widget.uuid}',
         trace: s,
         isError: true,
       );
-      swapStatus = null;
     }
-
-    final OrderStatus? orderStatus = await myOrdersService.getStatus(
-      widget.uuid,
-    );
 
     if (!mounted) return;
     setState(() {
