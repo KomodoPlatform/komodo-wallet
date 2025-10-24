@@ -185,6 +185,8 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         // temporarily disabled to avoid confusion with failed activations
         return null;
       // return 'arbitrum-one'; // https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/0xCBeb19549054CC0a6257A77736FC78C367216cE7
+      case CoinSubClass.base:
+        return 'base'; // https://api.coingecko.com/api/v3/coins/base/contract/CONTRACT_ADDRESS
       case CoinSubClass.avx20:
         return 'avalanche'; // https://api.coingecko.com/api/v3/coins/avalanche/contract/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E
       case CoinSubClass.moonriver:

@@ -69,6 +69,8 @@ extension CoinTypeExtension on CoinSubClass {
         return CoinType.ftm20;
       case CoinSubClass.arbitrum:
         return CoinType.arb20;
+      case CoinSubClass.base:
+        return CoinType.base20;
       case CoinSubClass.slp:
         return CoinType.slp;
       case CoinSubClass.qrc20:
@@ -118,6 +120,7 @@ extension CoinTypeExtension on CoinSubClass {
       case CoinSubClass.matic:
       case CoinSubClass.hrc20:
       case CoinSubClass.arbitrum:
+      case CoinSubClass.base:
       case CoinSubClass.moonriver:
       case CoinSubClass.moonbeam:
       case CoinSubClass.ethereumClassic:
@@ -141,6 +144,8 @@ extension CoinSubClassExtension on CoinType {
         return CoinSubClass.ftm20;
       case CoinType.arb20:
         return CoinSubClass.arbitrum;
+      case CoinType.base20:
+        return CoinSubClass.base;
       case CoinType.slp:
         return CoinSubClass.slp;
       case CoinType.qrc20:

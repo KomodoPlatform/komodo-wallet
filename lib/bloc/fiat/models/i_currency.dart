@@ -136,6 +136,7 @@ class CryptoCurrency extends ICurrency {
         (chainType == CoinType.etc && symbol == 'ETC') ||
         (chainType == CoinType.ftm20 && symbol == 'FTM') ||
         (chainType == CoinType.arb20 && symbol == 'ARB') ||
+        (chainType == CoinType.base20 && symbol == 'BASE') ||
         (chainType == CoinType.hrc20 && symbol == 'ONE') ||
         (chainType == CoinType.plg20 && symbol == 'MATIC') ||
         (chainType == CoinType.mvr20 && symbol == 'MOVR') ||
