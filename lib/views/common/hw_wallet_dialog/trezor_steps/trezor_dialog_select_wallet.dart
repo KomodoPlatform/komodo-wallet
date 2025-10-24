@@ -5,6 +5,7 @@ import 'package:web_dex/shared/constants.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
+import 'package:web_dex/shared/widgets/password_visibility_control.dart';
 
 class TrezorDialogSelectWallet extends StatelessWidget {
   const TrezorDialogSelectWallet({Key? key, required this.onComplete})
@@ -65,6 +66,7 @@ class _TrezorHiddenWalletState extends State<_TrezorHiddenWallet> {
   final TextEditingController _passphraseController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FocusNode _passphraseFieldFocusNode = FocusNode();
+  bool _isObscured = true;
 
   @override
   void initState() {
@@ -101,10 +103,17 @@ class _TrezorHiddenWalletState extends State<_TrezorHiddenWallet> {
         hintText: LocaleKeys.passphrase.tr(),
         keyboardType: TextInputType.text,
         autofillHints: const [AutofillHints.password],
-        obscureText: true,
+        obscureText: _isObscured,
         maxLength: passwordMaxLength,
         counterText: '',
         focusNode: _passphraseFieldFocusNode,
+        suffixIcon: PasswordVisibilityControl(
+          onVisibilityChange: (bool isObscured) {
+            setState(() {
+              _isObscured = isObscured;
+            });
+          },
+        ),
         onFieldSubmitted: (_) => _onSubmit(),
         validator: (String? text) {
           if (text == null || text.isEmpty) {
