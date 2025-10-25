@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/bloc/settings/settings_repository.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_service.dart';
 import 'package:web_dex/blocs/wallets_repository.dart';
@@ -51,8 +53,29 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
   @override
   final _log = Logger('AuthBloc');
 
+  static const bool _kIsTestFlight = bool.fromEnvironment(
+    'IS_TESTFLIGHT',
+    defaultValue: false,
+  );
+
   @override
   KomodoDefiSdk get _sdk => _kdfSdk;
+
+  void _logRegistrationContext({
+    required String action,
+    required String walletName,
+  }) {
+    final String pkgName = packageInformation.packageName ?? 'unknown';
+    final String pkgVersion = packageInformation.packageVersion ?? 'unknown';
+    final String commit = packageInformation.commitHash ?? 'unknown';
+    final String buildMode = kReleaseMode ? 'release' : 'debug';
+
+    _log.info(
+      '$action wallet: $walletName | '
+      'mode=$buildMode | isTestFlight=$_kIsTestFlight | '
+      'package=$pkgName | version=$pkgVersion | commit=$commit',
+    );
+  }
 
   /// Filters out geo-blocked assets from a list of coin IDs.
   /// This ensures that blocked assets are not added to wallet metadata during
@@ -194,7 +217,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
         return;
       }
 
-      _log.info('Registering a new wallet');
+      _logRegistrationContext(
+        action: 'Registering a new',
+        walletName: event.wallet.name,
+      );
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
       await _kdfSdk.auth.register(
         password: event.password,
@@ -223,13 +249,22 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
-      final errorMsg = 'Failed to register wallet ${event.wallet.name}';
-      _log.shout(errorMsg, e, s);
-      emit(
-        AuthBlocState.error(
-          AuthException(errorMsg, type: AuthExceptionType.generalAuthError),
-        ),
-      );
+      if (e is AuthException) {
+        _log.shout(
+          'Registration failed with AuthException for wallet ${event.wallet.name}',
+          e,
+          s,
+        );
+        emit(AuthBlocState.error(e));
+      } else {
+        final errorMsg = 'Failed to register wallet ${event.wallet.name}';
+        _log.shout(errorMsg, e, s);
+        emit(
+          AuthBlocState.error(
+            AuthException(errorMsg, type: AuthExceptionType.generalAuthError),
+          ),
+        );
+      }
       await _authChangesSubscription?.cancel();
     }
   }
@@ -284,7 +319,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       }
 
       emit(AuthBlocState.loading());
-      _log.info('Restoring wallet from a seed');
+      _logRegistrationContext(
+        action: 'Restoring',
+        walletName: workingWallet.name,
+      );
       final weakPasswordsAllowed = await _areWeakPasswordsAllowed();
       await _kdfSdk.auth.register(
         password: event.password,
@@ -341,13 +379,23 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       emit(AuthBlocState.loggedIn(currentUser));
       _listenToAuthStateChanges();
     } catch (e, s) {
-      final errorMsg = 'Failed to restore existing wallet ${event.wallet.name}';
-      _log.shout(errorMsg, e, s);
-      emit(
-        AuthBlocState.error(
-          AuthException(errorMsg, type: AuthExceptionType.generalAuthError),
-        ),
-      );
+      if (e is AuthException) {
+        _log.shout(
+          'Restore failed with AuthException for wallet ${event.wallet.name}',
+          e,
+          s,
+        );
+        emit(AuthBlocState.error(e));
+      } else {
+        final errorMsg =
+            'Failed to restore existing wallet ${event.wallet.name}';
+        _log.shout(errorMsg, e, s);
+        emit(
+          AuthBlocState.error(
+            AuthException(errorMsg, type: AuthExceptionType.generalAuthError),
+          ),
+        );
+      }
       await _authChangesSubscription?.cancel();
     }
   }
