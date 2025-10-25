@@ -377,7 +377,7 @@ class _WalletMainState extends State<WalletMain> with TickerProviderStateMixin {
       width: 320,
       context: scaffoldKey.currentContext ?? context,
       barrierColor: isMobile ? Theme.of(context).colorScheme.onSurface : null,
-      barrierDismissible: false,
+      barrierDismissible: !isMobile,
       borderColor: theme.custom.specificButtonBorderColor,
       popupContent: WalletsManagerWrapper(
         eventType: WalletsManagerEventType.wallet,
