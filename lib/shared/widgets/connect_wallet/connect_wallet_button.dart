@@ -103,7 +103,7 @@ class _ConnectWalletButtonState extends State<ConnectWalletButton> {
     return PopupDispatcher(
       borderColor: theme.custom.specificButtonBorderColor,
       barrierColor: isMobile ? Theme.of(context).colorScheme.onSurface : null,
-      barrierDismissible: !isMobile,
+      barrierDismissible: false,
       width: 320,
       context: scaffoldKey.currentContext ?? context,
       popupContent: WalletsManagerWrapper(

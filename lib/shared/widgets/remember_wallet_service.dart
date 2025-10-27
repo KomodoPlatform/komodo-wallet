@@ -93,7 +93,7 @@ class RememberWalletService {
       await AppDialog.showWithCallback<void>(
         context: context,
         width: 320,
-        barrierDismissible: !isMobile,
+        barrierDismissible: false,
         // Keep default useRootNavigator (true) to avoid navigation stack corruption
         childBuilder: (closeDialog) => WalletsManagerWrapper(
           eventType: WalletsManagerEventType.header,

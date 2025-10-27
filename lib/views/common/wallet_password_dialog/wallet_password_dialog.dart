@@ -25,6 +25,7 @@ Future<String?> walletPasswordDialog(
 
   popupManager = PopupDispatcher(
     context: context,
+    barrierDismissible: false,
     popupContent: ScreenshotSensitive(
       child: PasswordDialogContent(
       wallet: wallet,
@@ -74,6 +75,7 @@ Future<bool> walletPasswordDialogWithLoading(
 
   popupManager = PopupDispatcher(
     context: context,
+    barrierDismissible: false,
     popupContent: ScreenshotSensitive(
       child: PasswordDialogContentWithLoading(
       wallet: wallet,

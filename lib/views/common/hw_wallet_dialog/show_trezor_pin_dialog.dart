@@ -22,6 +22,7 @@ Future<void> showTrezorPinDialog(TrezorTask task) async {
   popupManager = PopupDispatcher(
     context: context,
     width: trezorDialogWidth,
+    barrierDismissible: false,
     onDismiss: close,
     popupContent: ScreenshotSensitive(
       child: TrezorDialogPinPad(
