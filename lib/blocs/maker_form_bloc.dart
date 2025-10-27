@@ -246,7 +246,10 @@ class MakerFormBloc implements BlocBase {
   Future<void> _updateMaxSellAmountListener() async {
     _maxSellAmountTimer?.cancel();
     maxSellAmount = null;
-    availableBalanceState = AvailableBalanceState.loading;
+    // Only show loading spinner when signed in
+    final bool isSignedIn = await kdfSdk.auth.isSignedIn();
+    availableBalanceState =
+        isSignedIn ? AvailableBalanceState.loading : AvailableBalanceState.unavailable;
     isMaxActive = false;
 
     await _updateMaxSellAmount();
@@ -259,15 +262,15 @@ class MakerFormBloc implements BlocBase {
 
   Future<void> _updateMaxSellAmount() async {
     final Coin? coin = sellCoin;
-    if (availableBalanceState == AvailableBalanceState.initial) {
-      availableBalanceState = AvailableBalanceState.loading;
-    }
-
     final bool isSignedIn = await kdfSdk.auth.isSignedIn();
     if (!isSignedIn) {
       maxSellAmount = null;
       availableBalanceState = AvailableBalanceState.unavailable;
       return;
+    }
+
+    if (availableBalanceState == AvailableBalanceState.initial) {
+      availableBalanceState = AvailableBalanceState.loading;
     }
 
     if (coin == null) {

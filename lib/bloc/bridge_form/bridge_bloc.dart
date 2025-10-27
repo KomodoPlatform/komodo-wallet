@@ -238,6 +238,16 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       ),
     );
 
+    // Before login, show 0.00 instead of spinner
+    if (!_isLoggedIn) {
+      emit(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.unavailable,
+          maxSellAmount: () => null,
+        ),
+      );
+    }
+
     await _autoActivateCoin(event.coin.abbr);
     _subscribeMaxSellAmount();
 
@@ -392,6 +402,17 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       return;
     }
 
+    // If not logged in, show 0.00 (unavailable) and skip spinner
+    if (!_isLoggedIn) {
+      emit(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.unavailable,
+          maxSellAmount: () => null,
+        ),
+      );
+      return;
+    }
+
     if (state.availableBalanceState == AvailableBalanceState.initial ||
         event.setLoadingStatus) {
       emit(
@@ -401,13 +422,7 @@ class BridgeBloc extends Bloc<BridgeEvent, BridgeState> {
       );
     }
 
-    if (!_isLoggedIn) {
-      emit(
-        state.copyWith(
-          availableBalanceState: () => AvailableBalanceState.unavailable,
-        ),
-      );
-    } else {
+    {
       Rational? maxSellAmount = await _dexRepository.getMaxTakerVolume(
         state.sellCoin!.abbr,
       );
