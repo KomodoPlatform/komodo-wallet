@@ -19,6 +19,8 @@ import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_request.da
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.dart';
 import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/swap.dart';
+import 'package:web_dex/router/state/routing_state.dart';
+import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/services/mappers/trade_preimage_mappers.dart';
@@ -122,11 +124,25 @@ class DexRepository {
   }
 
   Future<BestOrders> getBestOrders(BestOrdersRequest request) async {
+    // Only allow best_orders when user is on Swap (DEX) or Bridge pages
+    final MainMenuValue current = routingState.selectedMenu;
+    final bool isTradingPage =
+        current == MainMenuValue.dex || current == MainMenuValue.bridge;
+    if (!isTradingPage) {
+      return BestOrders(result: <String, List<BestOrder>>{});
+    }
+
     Map<String, dynamic>? response;
     try {
       response = await _mm2Api.getBestOrders(request);
-    } catch (e) {
-      return BestOrders(error: TextError.fromString(e.toString()));
+    } catch (e, s) {
+      log(
+        'best_orders request failed: $e',
+        trace: s,
+        path: 'api => getBestOrders',
+        isError: true,
+      ).ignore();
+      return BestOrders(result: <String, List<BestOrder>>{});
     }
 
     final isErrorResponse =
@@ -135,11 +151,17 @@ class DexRepository {
         (response?['result'] as Map<String, dynamic>?)?.isNotEmpty ?? false;
 
     if (isErrorResponse) {
-      return BestOrders(error: TextError(error: response!['error']!));
+      log(
+        'best_orders returned error: ${response!['error']}',
+        path: 'api => getBestOrders',
+        isError: true,
+      ).ignore();
+      return BestOrders(result: <String, List<BestOrder>>{});
     }
 
     if (!hasResult) {
-      return BestOrders(error: TextError(error: 'Orders not found!'));
+      // Treat empty or missing result as no orders available
+      return BestOrders(result: <String, List<BestOrder>>{});
     }
 
     try {
