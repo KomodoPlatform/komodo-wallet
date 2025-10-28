@@ -30,13 +30,13 @@ class WithdrawRequest
     String? memo,
     FeeRequest? fee,
   }) : params = WithdrawRequestParams(
-          amount: amount,
-          to: to,
-          coin: coin,
-          max: max,
-          fee: fee,
-          memo: memo,
-        );
+         amount: amount,
+         to: to,
+         coin: coin,
+         max: max,
+         fee: fee,
+         memo: memo,
+       );
 
   @override
   final String method = 'withdraw';
@@ -60,6 +60,9 @@ class WithdrawRequest
         if (params.memo != null) 'memo': params.memo,
         if (params.amount != null) 'amount': params.amount,
         if (fee != null) 'fee': fee.toJson(),
+        // KMD requires kmd_rewards object with claimed_by_me flag
+        if (params.coin.toUpperCase() == 'KMD')
+          'kmd_rewards': {'amount': '0', 'claimed_by_me': true},
       },
     };
   }
