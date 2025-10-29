@@ -30,7 +30,6 @@ class CoinDetails extends StatefulWidget {
 }
 
 class _CoinDetailsState extends State<CoinDetails> {
-  late TransactionHistoryBloc _txHistoryBloc;
   CoinPageType _selectedPageType = CoinPageType.info;
 
   String _rewardValue = '';
@@ -38,9 +37,7 @@ class _CoinDetailsState extends State<CoinDetails> {
 
   @override
   void initState() {
-    _txHistoryBloc = context.read<TransactionHistoryBloc>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _txHistoryBloc.add(TransactionHistorySubscribe(coin: widget.coin));
       final walletType =
           context.read<AuthBloc>().state.currentUser?.wallet.config.type.name ??
           '';
@@ -63,21 +60,27 @@ class _CoinDetailsState extends State<CoinDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CoinsBloc, CoinsState>(
-      builder: (context, state) {
-        return GestureDetector(
-          onHorizontalDragEnd: (details) {
-            // Detect swipe-back gesture (swipe from left to right)
-            if (details.primaryVelocity != null && details.primaryVelocity! > 0) {
-              // Only trigger back navigation if we're on the info page
-              if (_selectedPageType == CoinPageType.info) {
-                widget.onBackButtonPressed();
+    return BlocProvider<TransactionHistoryBloc>(
+      create: (ctx) =>
+          TransactionHistoryBloc(sdk: ctx.read<KomodoDefiSdk>())
+            ..add(TransactionHistorySubscribe(coin: widget.coin)),
+      child: BlocBuilder<CoinsBloc, CoinsState>(
+        builder: (context, state) {
+          return GestureDetector(
+            onHorizontalDragEnd: (details) {
+              // Detect swipe-back gesture (swipe from left to right)
+              if (details.primaryVelocity != null &&
+                  details.primaryVelocity! > 0) {
+                // Only trigger back navigation if we're on the info page
+                if (_selectedPageType == CoinPageType.info) {
+                  widget.onBackButtonPressed();
+                }
               }
-            }
-          },
-          child: _buildContent(),
-        );
-      },
+            },
+            child: _buildContent(),
+          );
+        },
+      ),
     );
   }
 

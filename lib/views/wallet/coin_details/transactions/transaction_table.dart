@@ -73,11 +73,18 @@ class TransactionTable extends StatelessWidget {
         }
 
         if (state.error != null) {
+          String errorText;
+          if (state.error!.message.contains('Asset activation failed')) {
+            errorText = 'Asset activation failed for ${coin.displayName}';
+          } else {
+            errorText = LocaleKeys.connectionToServersFailing.tr(
+              args: [coin.displayName],
+            );
+          }
+
           return SliverToBoxAdapter(
             child: _ErrorMessage(
-              text: LocaleKeys.connectionToServersFailing.tr(
-                args: [coin.displayName],
-              ),
+              text: errorText,
               textColor: theme.currentGlobal.colorScheme.error,
             ),
           );

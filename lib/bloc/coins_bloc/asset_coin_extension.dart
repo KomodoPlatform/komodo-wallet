@@ -236,26 +236,6 @@ extension AssetBalanceExtension on Coin {
   }
 }
 
-extension AssetListOps on List<Asset> {
-  Future<List<Asset>> removeInactiveAssets(KomodoDefiSdk sdk) async {
-    final activeAssets = await sdk.assets.getActivatedAssets();
-    final activeAssetsMap = activeAssets.map((e) => e.id).toSet();
-
-    return where(
-      (asset) => activeAssetsMap.contains(asset.id),
-    ).unmodifiable().toList();
-  }
-
-  Future<List<Asset>> removeActiveAssets(KomodoDefiSdk sdk) async {
-    final activeAssets = await sdk.assets.getActivatedAssets();
-    final activeAssetsMap = activeAssets.map((e) => e.id).toSet();
-
-    return where(
-      (asset) => !activeAssetsMap.contains(asset.id),
-    ).unmodifiable().toList();
-  }
-}
-
 extension CoinSupportOps on Iterable<Coin> {
   /// Returns a list excluding test coins. Useful when filtering coins before
   /// running portfolio calculations that assume production assets only.
@@ -282,20 +262,16 @@ extension CoinSupportOps on Iterable<Coin> {
   static Future<bool> _alwaysSupported(Coin _) async => true;
 
   Future<List<Coin>> removeInactiveCoins(KomodoDefiSdk sdk) async {
-    final activeCoins = await sdk.assets.getActivatedAssets();
-    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
+    final activeIds = await sdk.activatedAssetsCache.getActivatedAssetIds();
 
-    return where(
-      (coin) => activeCoinsMap.contains(coin.id),
-    ).unmodifiable().toList();
+    return where((coin) => activeIds.contains(coin.id)).unmodifiable().toList();
   }
 
   Future<List<Coin>> removeActiveCoins(KomodoDefiSdk sdk) async {
-    final activeCoins = await sdk.assets.getActivatedAssets();
-    final activeCoinsMap = activeCoins.map((e) => e.id).toSet();
+    final activeIds = await sdk.activatedAssetsCache.getActivatedAssetIds();
 
     return where(
-      (coin) => !activeCoinsMap.contains(coin.id),
+      (coin) => !activeIds.contains(coin.id),
     ).unmodifiable().toList();
   }
 

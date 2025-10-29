@@ -346,6 +346,8 @@ class _TakerOrderConfirmationState extends State<TakerOrderConfirmation> {
     final tradingEntitiesBloc = RepositoryProvider.of<TradingEntitiesBloc>(
       context,
     );
+    // Give MM2/KDF a short moment to register the swap before first fetch
+    await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tradingEntitiesBloc.fetch();
   }
 }

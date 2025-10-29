@@ -26,6 +26,9 @@ abstract class ICustomTokenImportRepository {
 
   /// Get the API name for the given coin subclass.
   String? getNetworkApiName(CoinSubClass coinType);
+
+  /// Release any held resources.
+  void dispose();
 }
 
 class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
@@ -33,11 +36,13 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
     this._kdfSdk,
     this._coinsRepo, {
     http.Client? httpClient,
-  }) : _httpClient = httpClient ?? http.Client();
+  }) : _httpClient = httpClient ?? http.Client(),
+       _ownsHttpClient = httpClient == null;
 
   final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _kdfSdk;
   final http.Client _httpClient;
+  final bool _ownsHttpClient;
   final _log = Logger('KdfCustomTokenImportRepository');
 
   @override
@@ -203,6 +208,13 @@ class KdfCustomTokenImportRepository implements ICustomTokenImportRepository {
         return null; // Unable to find working url
       default:
         return null;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_ownsHttpClient) {
+      _httpClient.close();
     }
   }
 }

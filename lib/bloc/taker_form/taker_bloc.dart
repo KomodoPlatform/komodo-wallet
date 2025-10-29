@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/app_config/app_config.dart';
+import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/taker_form/taker_event.dart';
 import 'package:web_dex/bloc/taker_form/taker_state.dart';
-import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/bloc/taker_form/taker_validator.dart';
 import 'package:web_dex/bloc/transformers.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
@@ -24,11 +27,9 @@ import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/dex_form_error.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
+import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
-import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
-import 'package:web_dex/analytics/events/transaction_events.dart';
-import 'package:web_dex/model/wallet.dart';
 
 class TakerBloc extends Bloc<TakerEvent, TakerState> {
   TakerBloc({
@@ -99,6 +100,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
   bool _isLoggedIn = false;
   late TakerValidator _validator;
   late StreamSubscription<KdfUser?> _authorizationSubscription;
+  final Logger _log = Logger('TakerBloc');
 
   Future<void> _onStartSwap(
     TakerStartSwap event,
@@ -123,8 +125,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
 
       // Log swap failure analytics event for immediate RPC errors
       final walletType =
-          (await _sdk.auth.currentUser)?.wallet.config.type.name ??
-          'unknown';
+          (await _sdk.auth.currentUser)?.wallet.config.type.name ?? 'unknown';
       _analyticsBloc.logEvent(
         SwapFailedEventData(
           asset: state.sellCoin!.abbr,
@@ -447,53 +448,62 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
       );
     }
 
-    // Required here because of the manual RPC calls that bypass the sdk
-    final activeAssets = await _sdk.assets.getActivatedAssets();
-    final isAssetActive = activeAssets.any(
-      (asset) => asset.id == state.sellCoin!.id,
-    );
-    if (!isAssetActive) {
-      // Intentionally leave the state as loading so that a spinner is shown
-      // instead of a "0.00" balance hinting that the asset is active when it
-      // is not.
-      if (state.availableBalanceState != AvailableBalanceState.loading) {
-        emitter(
-          state.copyWith(
-            availableBalanceState: () => AvailableBalanceState.loading,
-          ),
-        );
+    try {
+      // Required here because of the manual RPC calls that bypass the sdk
+      final activeAssets = await _sdk.assets.getActivatedAssets();
+      final isAssetActive = activeAssets.any(
+        (asset) => asset.id == state.sellCoin!.id,
+      );
+      if (!isAssetActive) {
+        // Intentionally leave the state as loading so that a spinner is shown
+        // instead of a "0.00" balance hinting that the asset is active when it
+        // is not.
+        if (state.availableBalanceState != AvailableBalanceState.loading) {
+          emitter(
+            state.copyWith(
+              availableBalanceState: () => AvailableBalanceState.loading,
+            ),
+          );
+        }
+        return;
       }
-      return;
-    }
 
-    if (!_isLoggedIn) {
-      emitter(
-        state.copyWith(
-          availableBalanceState: () => AvailableBalanceState.unavailable,
-        ),
-      );
-    } else {
-      Rational? maxSellAmount = await _dexRepo.getMaxTakerVolume(
-        state.sellCoin!.abbr,
-      );
-      if (maxSellAmount != null) {
+      if (!_isLoggedIn) {
         emitter(
           state.copyWith(
-            maxSellAmount: () => maxSellAmount,
-            availableBalanceState: () => AvailableBalanceState.success,
+            availableBalanceState: () => AvailableBalanceState.unavailable,
           ),
         );
       } else {
-        maxSellAmount = await _frequentlyGetMaxTakerVolume();
-        emitter(
-          state.copyWith(
-            maxSellAmount: () => maxSellAmount,
-            availableBalanceState: maxSellAmount == null
-                ? () => AvailableBalanceState.failure
-                : () => AvailableBalanceState.success,
-          ),
+        Rational? maxSellAmount = await _dexRepo.getMaxTakerVolume(
+          state.sellCoin!.abbr,
         );
+        if (maxSellAmount != null) {
+          emitter(
+            state.copyWith(
+              maxSellAmount: () => maxSellAmount,
+              availableBalanceState: () => AvailableBalanceState.success,
+            ),
+          );
+        } else {
+          maxSellAmount = await _frequentlyGetMaxTakerVolume();
+          emitter(
+            state.copyWith(
+              maxSellAmount: () => maxSellAmount,
+              availableBalanceState: maxSellAmount == null
+                  ? () => AvailableBalanceState.failure
+                  : () => AvailableBalanceState.success,
+            ),
+          );
+        }
       }
+    } catch (e, s) {
+      _log.severe('Failed to update max sell amount', e, s);
+      emitter(
+        state.copyWith(
+          availableBalanceState: () => AvailableBalanceState.failure,
+        ),
+      );
     }
   }
 

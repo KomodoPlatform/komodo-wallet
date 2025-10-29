@@ -203,4 +203,10 @@ class CustomTokenImportBloc
       );
     }
   }
+
+  @override
+  Future<void> close() async {
+    _repository.dispose();
+    await super.close();
+  }
 }

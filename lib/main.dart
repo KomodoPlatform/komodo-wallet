@@ -63,12 +63,12 @@ Future<void> main() async {
     // The current focus is migrating mm2Api to the new sdk, so that the sdk
     // is the only/primary API/repository for KDF
     final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
-    
+
     // Configure SDK debug logging to match app configuration
     KdfApiClient.enableDebugLogging = kDebugElectrumLogs;
     KomodoDefiFramework.enableDebugLogging = kDebugElectrumLogs;
-    BalanceManager.enableDebugLogging = kDebugElectrumLogs;
-    
+    // BalanceManager.enableDebugLogging = kDebugElectrumLogs;
+
     final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
     // Sparkline is dependent on Hive initialization, so we pass it on to the
     // bootstrapper here
@@ -101,7 +101,9 @@ Future<void> main() async {
       try {
         final result = await FdMonitorService().start(intervalSeconds: 60.0);
         if (result['success'] == true) {
-          log('FD Monitor started successfully in ${kDebugMode ? "DEBUG" : "RELEASE"} mode');
+          log(
+            'FD Monitor started successfully in ${kDebugMode ? "DEBUG" : "RELEASE"} mode',
+          );
         } else {
           log('FD Monitor failed to start: ${result['message']}');
         }

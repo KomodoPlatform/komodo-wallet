@@ -77,7 +77,7 @@ class TradingEntitiesBloc implements BlocBase {
   void runUpdate() {
     bool updateInProgress = false;
 
-    timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+    timer = Timer.periodic(const Duration(seconds: 10), (_) async {
       if (_closed) return;
       if (updateInProgress) return;
       // TODO!: do not run for hidden login or HW

@@ -17,6 +17,7 @@ import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/fiat_repository.dart';
+import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
 import 'package:web_dex/bloc/fiat/payment_status_type.dart';
 import 'package:web_dex/model/forms/fiat/currency_input.dart';
@@ -31,10 +32,12 @@ part 'fiat_form_state.dart';
 class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   FiatFormBloc({
     required FiatRepository repository,
+    required CoinsRepo coinsRepo,
     required KomodoDefiSdk sdk,
     int pubkeysMaxRetryAttempts = 20,
     Duration pubkeysRetryDelay = const Duration(milliseconds: 500),
   }) : _fiatRepository = repository,
+       _coinsRepo = coinsRepo,
        _sdk = sdk,
        _pubkeysMaxRetryAttempts = pubkeysMaxRetryAttempts,
        _pubkeysRetryDelay = pubkeysRetryDelay,
@@ -44,7 +47,8 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     // can happen frequently and we want to avoid race conditions.
     on<FiatFormCoinSelected>(_onCoinSelected, transformer: restartable());
     on<FiatFormPaymentMethodSelected>(_onPaymentMethodSelected);
-    on<FiatFormSubmitted>(_onFormSubmitted);
+    // Use droppable here to prevent multiple simultaneous submissions
+    on<FiatFormSubmitted>(_onFormSubmitted, transformer: droppable());
     on<FiatFormPaymentStatusMessageReceived>(_onPaymentStatusMessage);
     on<FiatFormModeUpdated>(_onModeUpdated);
     on<FiatFormResetRequested>(_onAccountCleared);
@@ -73,6 +77,7 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   }
 
   final FiatRepository _fiatRepository;
+  final CoinsRepo _coinsRepo;
   final KomodoDefiSdk _sdk;
   final int _pubkeysMaxRetryAttempts;
   final Duration _pubkeysRetryDelay;
@@ -114,17 +119,18 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
         return emit(state.copyWith(selectedAssetAddress: () => null));
       }
 
-      // Necessary to add the coin to the wallet coins list for now since
-      // CoinsRepository is not used here to manually activate the coin -
-      // which would propagate it to the coins_bloc state.
-      await _sdk.addActivatedCoins([event.selectedCoin.getAbbr()]);
+      // Activate the asset via CoinsRepo to ensure broadcasts reach CoinsBloc
       final asset = event.selectedCoin.toAsset(_sdk);
+      await _coinsRepo.activateAssetsSync([asset]);
       // TODO: increase the max delay in the SDK or make it adjustable
-      final assetPubkeys = await retry(
-        () async => _sdk.pubkeys.getPubkeys(asset),
-        maxAttempts: _pubkeysMaxRetryAttempts,
-        backoffStrategy: ConstantBackoff(delay: _pubkeysRetryDelay),
-      );
+      AssetPubkeys? assetPubkeys = _sdk.pubkeys.lastKnown(asset.id);
+      if (assetPubkeys == null) {
+        assetPubkeys = await retry<AssetPubkeys>(
+          () async => _sdk.pubkeys.getPubkeys(asset),
+          maxAttempts: _pubkeysMaxRetryAttempts,
+          backoffStrategy: ConstantBackoff(delay: _pubkeysRetryDelay),
+        );
+      }
       final address = assetPubkeys.keys.firstOrNull;
 
       emit(
@@ -169,15 +175,18 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     FiatFormSubmitted event,
     Emitter<FiatFormState> emit,
   ) async {
-    final formValidationError = getFormIssue();
+    final formValidationError = _getFormIssue();
     if (formValidationError != null || !state.isValid) {
       _log.warning('Form validation failed. Validation: ${state.isValid}');
       return;
     }
 
-    if (state.checkoutUrl.isNotEmpty) {
-      emit(state.copyWith(checkoutUrl: ''));
-    }
+    emit(
+      state.copyWith(
+        fiatOrderStatus: FiatOrderStatus.submitting,
+        checkoutUrl: '',
+      ),
+    );
 
     try {
       final newOrder = await _fiatRepository.buyCoin(
@@ -229,12 +238,11 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
   WebViewDialogMode _determineWebViewMode() {
     final bool isLinux = !kIsWeb && !kIsWasm && Platform.isLinux;
     const bool isWeb = kIsWeb || kIsWasm;
-    final bool isBanxa = state.selectedPaymentMethod.providerId == 'Banxa';
 
     // Banxa "Return to Komodo" button attempts to navigate the top window to
     // the return URL, which is not supported in a dialog. So we need to open
     // it in a new tab.
-    if (isLinux || (isWeb && isBanxa)) {
+    if (isLinux || (isWeb && state.isBanxaSelected)) {
       return WebViewDialogMode.newTab;
     } else if (isWeb) {
       return WebViewDialogMode.dialog;
@@ -415,7 +423,12 @@ class FiatFormBloc extends Bloc<FiatFormEvent, FiatFormState> {
     );
   }
 
-  String? getFormIssue() {
+  @Deprecated(
+    'Validation is handled by formz in dedicated inputs like [FiatAmountInput]'
+    'This function should be removed once the cases are confirmed to be '
+    'covered by formz inputs',
+  )
+  String? _getFormIssue() {
     // TODO: ? show on the UI and localise? These are currently used as more of
     // a boolean "is there an error?" rather than "what is the error?"
     if (state.paymentMethods.isEmpty) {

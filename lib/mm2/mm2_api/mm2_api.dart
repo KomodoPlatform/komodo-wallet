@@ -70,6 +70,10 @@ class Mm2Api {
   late Mm2ApiNft nft;
   VersionResponse? _versionResponse;
 
+  Future<void> dispose() async {
+    nft.dispose();
+  }
+
   Future<void> disableCoin(String coinId) async {
     try {
       await _mm2.call(DisableCoinReq(coin: coinId));
@@ -87,7 +91,8 @@ class Mm2Api {
   @Deprecated('Use balance from KomoDefiSdk instead')
   Future<String?> getBalance(String abbr) async {
     final sdkAsset = _sdk.assets.assetsFromTicker(abbr).single;
-    final addresses = await sdkAsset.getPubkeys(_sdk);
+    final cached = _sdk.pubkeys.lastKnown(sdkAsset.id);
+    final addresses = cached ?? await sdkAsset.getPubkeys(_sdk);
 
     return addresses.balance.total.toString();
   }

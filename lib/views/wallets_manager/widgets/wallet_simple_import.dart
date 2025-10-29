@@ -149,6 +149,17 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _seedController.addListener(_onSeedChanged);
+  }
+
+  void _onSeedChanged() {
+    // Rebuild to update custom seed toggle visibility as user types
+    setState(() {});
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _seedController.dispose();
@@ -258,7 +269,7 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         const SizedBox(height: 20),
         _buildImportFileButton(),
         const SizedBox(height: 15),
-        if (!_isHdMode) _buildCheckBoxCustomSeed(),
+        if (_shouldShowCustomSeedToggle) _buildCheckBoxCustomSeed(),
         const SizedBox(height: 15),
         EulaTosCheckboxes(
           key: const Key('import-wallet-eula-checks'),
@@ -420,5 +431,17 @@ class _WalletImportWrapperState extends State<WalletSimpleImport> {
         // 24 are valid
         LocaleKeys.mnemonicInvalidLengthError.tr(args: ['12', '24']),
     };
+  }
+
+  bool get _shouldShowCustomSeedToggle {
+    if (_isHdMode) return false;
+    if (_allowCustomSeed) return true; // keep visible once enabled
+
+    final seed = _seedController.text.trim();
+    if (seed.isEmpty) return false;
+
+    final validator = context.read<KomodoDefiSdk>().mnemonicValidator;
+    final isBip39 = validator.validateBip39(seed);
+    return !isBip39;
   }
 }

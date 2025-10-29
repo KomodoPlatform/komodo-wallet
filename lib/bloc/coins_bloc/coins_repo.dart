@@ -12,7 +12,8 @@ import 'package:komodo_defi_types/komodo_defi_type_utils.dart'
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:logging/logging.dart';
-import 'package:web_dex/app_config/app_config.dart' show excludedAssetList, kDebugElectrumLogs;
+import 'package:web_dex/app_config/app_config.dart'
+    show excludedAssetList, kDebugElectrumLogs;
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_service.dart'
     show TradingStatusService;
@@ -20,7 +21,6 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/bloc_response.dart';
-import 'package:web_dex/mm2/mm2_api/rpc/disable_coin/disable_coin_req.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_errors.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/withdraw_request.dart';
 import 'package:web_dex/model/cex_price.dart';
@@ -31,6 +31,14 @@ import 'package:web_dex/model/withdraw_details/withdraw_details.dart';
 import 'package:web_dex/services/arrr_activation/arrr_activation_service.dart';
 import 'package:web_dex/services/fd_monitor_service.dart';
 import 'package:web_dex/shared/utils/platform_tuner.dart';
+
+/// Exception used to indicate that ZHTLC activation was cancelled by the user.
+class ZhtlcActivationCancelled implements Exception {
+  ZhtlcActivationCancelled(this.coinId);
+  final String coinId;
+  @override
+  String toString() => 'ZhtlcActivationCancelled: $coinId';
+}
 
 class CoinsRepo {
   CoinsRepo({
@@ -45,6 +53,10 @@ class CoinsRepo {
     enabledAssetsChanges = StreamController<Coin>.broadcast(
       onListen: () => _enabledAssetListenerCount += 1,
       onCancel: () => _enabledAssetListenerCount -= 1,
+    );
+    balanceChanges = StreamController<Coin>.broadcast(
+      onListen: () => _balanceListenerCount += 1,
+      onCancel: () => _balanceListenerCount -= 1,
     );
   }
 
@@ -89,6 +101,21 @@ class CoinsRepo {
     }
   }
 
+  /// Stream to broadcast real-time balance changes for coins
+  late final StreamController<Coin> balanceChanges;
+  int _balanceListenerCount = 0;
+  bool get _balancesHasListeners => _balanceListenerCount > 0;
+  void _broadcastBalanceChange(Coin coin) {
+    if (_balancesHasListeners) {
+      balanceChanges.add(coin);
+    } else {
+      _log.fine(
+        'No listeners for balanceChanges stream. '
+        'Skipping broadcast for ${coin.id.id}',
+      );
+    }
+  }
+
   Future<BalanceInfo?> balance(AssetId id) => _kdfSdk.balances.getBalance(id);
 
   BalanceInfo? lastKnownBalance(AssetId id) => _kdfSdk.balances.lastKnown(id);
@@ -111,6 +138,9 @@ class CoinsRepo {
           balance: balanceInfo.total.toDouble(),
           spendable: balanceInfo.spendable.toDouble(),
         );
+
+        // Broadcast updated coin for UI to refresh via bloc
+        _broadcastBalanceChange(_assetToCoinWithoutAddress(asset));
       },
     );
   }
@@ -126,6 +156,7 @@ class CoinsRepo {
       subscription.cancel();
     }
     _balanceWatchers.clear();
+    _invalidateActivatedAssetsCache();
   }
 
   void dispose() {
@@ -135,6 +166,25 @@ class CoinsRepo {
     _balanceWatchers.clear();
 
     enabledAssetsChanges.close();
+    balanceChanges.close();
+  }
+
+  Future<Set<AssetId>> getActivatedAssetIds({bool forceRefresh = false}) {
+    return _kdfSdk.activatedAssetsCache.getActivatedAssetIds(
+      forceRefresh: forceRefresh,
+    );
+  }
+
+  Future<bool> isAssetActivated(
+    AssetId assetId, {
+    bool forceRefresh = false,
+  }) async {
+    final activated = await getActivatedAssetIds(forceRefresh: forceRefresh);
+    return activated.contains(assetId);
+  }
+
+  void _invalidateActivatedAssetsCache() {
+    _kdfSdk.activatedAssetsCache.invalidate();
   }
 
   /// Returns all known coins, optionally filtering out excluded assets.
@@ -298,7 +348,7 @@ class CoinsRepo {
         '[ACTIVATION] Starting activation of ${assets.length} coins: [$coinIdList]',
       );
       _log.info('[ACTIVATION] Protocol breakdown: $protocolBreakdown');
-      
+
       // Log detailed parameters for each asset being activated
       for (final asset in assets) {
         _log.info(
@@ -344,38 +394,40 @@ class CoinsRepo {
     for (final asset in assets) {
       final coin = _assetToCoinWithoutAddress(asset);
       try {
-        if (notifyListeners) {
-          _broadcastAsset(coin.copyWith(state: CoinState.activating));
+        // Check if asset is already activated to avoid SDK exception.
+        // The SDK throws an exception when trying to activate an already-activated
+        // asset, so we need this manual check to prevent unnecessary retries.
+        final isAlreadyActivated = await isAssetActivated(asset.id);
+
+        if (isAlreadyActivated) {
+          _log.info(
+            'Asset ${asset.id.id} is already activated. Skipping activation.',
+          );
+        } else {
+          if (notifyListeners) {
+            _broadcastAsset(coin.copyWith(state: CoinState.activating));
+          }
+
+          // Use retry with exponential backoff for activation
+          await retry<void>(
+            () async {
+              final progress = await _kdfSdk.assets.activateAsset(asset).last;
+              if (!progress.isSuccess) {
+                throw Exception(
+                  progress.errorMessage ??
+                      'Activation failed for ${asset.id.id}',
+                );
+              }
+            },
+            maxAttempts: maxRetryAttempts,
+            backoffStrategy: ExponentialBackoff(
+              initialDelay: initialRetryDelay,
+              maxDelay: maxRetryDelay,
+            ),
+          );
+
+          _log.info('Asset activated: ${asset.id.id}');
         }
-
-        // Use retry with exponential backoff for activation
-        await retry<void>(
-          () async {
-            // exception is thrown if the asset is already activated, so manual
-            // check is needed for now until specific exception type can be caught
-            final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
-            if (activatedAssets.any((a) => a.id == asset.id)) {
-              _log.info(
-                'Coin ${coin.id} is already activated. Skipping activation.',
-              );
-              return;
-            }
-
-            final progress = await _kdfSdk.assets.activateAsset(asset).last;
-            if (!progress.isSuccess) {
-              throw Exception(
-                progress.errorMessage ?? 'Activation failed for ${asset.id.id}',
-              );
-            }
-          },
-          maxAttempts: maxRetryAttempts,
-          backoffStrategy: ExponentialBackoff(
-            initialDelay: initialRetryDelay,
-            maxDelay: maxRetryDelay,
-          ),
-        );
-
-        _log.info('Asset activated: ${asset.id.id}');
         if (kDebugElectrumLogs) {
           _log.info(
             '[ACTIVATION] Successfully activated ${asset.id.id} (${asset.protocol.runtimeType})',
@@ -397,7 +449,9 @@ class CoinsRepo {
         }
         _subscribeToBalanceUpdates(asset);
         if (kDebugElectrumLogs) {
-          _log.info('[ACTIVATION] Subscribed to balance updates for ${asset.id.id}');
+          _log.info(
+            '[ACTIVATION] Subscribed to balance updates for ${asset.id.id}',
+          );
         }
         if (coin.id.parentId != null) {
           final parentAsset = _kdfSdk.assets.available[coin.id.parentId];
@@ -414,7 +468,7 @@ class CoinsRepo {
           e,
           s,
         );
-        
+
         // Capture FD snapshot when KDF asset activation fails
         if (PlatformTuner.isIOS) {
           try {
@@ -427,7 +481,7 @@ class CoinsRepo {
             _log.warning('Failed to capture FD stats: $fdError');
           }
         }
-        
+
         if (notifyListeners) {
           _broadcastAsset(asset.toCoin().copyWith(state: CoinState.suspended));
         }
@@ -442,6 +496,9 @@ class CoinsRepo {
         }
       }
     }
+
+    // Invalidate the activated assets cache once after processing all assets
+    _invalidateActivatedAssetsCache();
 
     // Rethrow the last activation exception if there was one
     if (lastActivationException != null) {
@@ -534,7 +591,8 @@ class CoinsRepo {
     final allCoinIds = <String>{};
     final allChildCoins = <Coin>[];
 
-    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+    final activatedAssets = await _kdfSdk.activatedAssetsCache
+        .getActivatedAssets();
     for (final coin in coins) {
       allCoinIds.add(coin.id.id);
 
@@ -582,44 +640,7 @@ class CoinsRepo {
     ];
     await Future.wait(deactivationTasks);
     await Future.wait([...parentCancelFutures, ...childCancelFutures]);
-  }
-
-  Future<void> _disableCoin(String coinId) async {
-    try {
-      await _mm2.call(DisableCoinReq(coin: coinId));
-    } on Exception catch (e, s) {
-      _log.shout('Error disabling $coinId', e, s);
-      return;
-    }
-  }
-
-  @Deprecated(
-    'Use SDK pubkeys.getPubkeys instead and let the user '
-    'select from the available options.',
-  )
-  Future<String?> getFirstPubkey(String coinId) async {
-    final assets = _kdfSdk.assets.findAssetsByConfigId(coinId);
-    if (assets.isEmpty) {
-      _log.warning(
-        'Unable to fetch pubkey for coinId $coinId because the asset is no longer available.',
-      );
-      return null;
-    }
-
-    if (assets.length > 1) {
-      final assetIds = assets.map((asset) => asset.id.id).join(', ');
-      final message =
-          'Multiple assets found for coinId $coinId while fetching pubkey: $assetIds';
-      _log.shout(message);
-      throw StateError(message);
-    }
-
-    final asset = assets.single;
-    final pubkeys = await _kdfSdk.pubkeys.getPubkeys(asset);
-    if (pubkeys.keys.isEmpty) {
-      return null;
-    }
-    return pubkeys.keys.first.address;
+    _invalidateActivatedAssetsCache();
   }
 
   double? getUsdPriceByAmount(String amount, String coinAbbr) {
@@ -806,7 +827,8 @@ class CoinsRepo {
     bool notifyListeners = true,
     bool addToWalletMetadata = true,
   }) async {
-    final activatedAssets = await _kdfSdk.assets.getActivatedAssets();
+    final activatedAssets = await _kdfSdk.activatedAssetsCache
+        .getActivatedAssets();
 
     for (final asset in assets) {
       final coin = coins.firstWhere((coin) => coin.id == asset.id);
@@ -923,6 +945,7 @@ class CoinsRepo {
               NetworkImage(coin.logoImageUrl!),
             );
           }
+          _invalidateActivatedAssetsCache();
         },
         error: (message) {
           _log.severe(
@@ -933,13 +956,16 @@ class CoinsRepo {
           // User cancellations have the message "Configuration cancelled by user or timed out"
           final isUserCancellation = message.contains('cancelled by user');
 
-          if (notifyListeners && !isUserCancellation) {
+          if (isUserCancellation) {
+            // Bubble up a typed cancellation so the UI can revert the toggle
+            throw ZhtlcActivationCancelled(asset.id.id);
+          }
+
+          if (notifyListeners) {
             _broadcastAsset(coin.copyWith(state: CoinState.suspended));
           }
 
-          if (!isUserCancellation) {
-            throw Exception("zcoin activaiton failed: $message");
-          }
+          throw Exception('zcoin activaiton failed: $message');
         },
         needsConfiguration: (coinId, requiredSettings) {
           _log.severe(

@@ -2,6 +2,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/model/coin.dart';
+import 'package:web_dex/shared/constants.dart';
 
 extension SdkAuthActivationExtension on KomodoDefiSdk {
   /// Waits for the enabled coins to pass the provided threshold of the provided
@@ -14,7 +15,7 @@ extension SdkAuthActivationExtension on KomodoDefiSdk {
     List<Coin> walletCoins, {
     double threshold = 0.5,
     Duration timeout = const Duration(seconds: 30),
-    Duration delay = const Duration(milliseconds: 500),
+    Duration delay = kActivationPollingInterval,
   }) async {
     if (timeout <= Duration.zero) {
       throw ArgumentError.value(timeout, 'timeout', 'is negative');
@@ -27,8 +28,10 @@ extension SdkAuthActivationExtension on KomodoDefiSdk {
     final walletCoinIds = walletCoins.map((e) => e.id).toSet();
     final stopwatch = Stopwatch()..start();
     while (true) {
-      final isAboveThreshold =
-          await _areEnabledCoinsAboveThreshold(walletCoinIds, threshold);
+      final isAboveThreshold = await _areEnabledCoinsAboveThreshold(
+        walletCoinIds,
+        threshold,
+      );
       if (isAboveThreshold) {
         log.fine(
           'Enabled coins have passed the threshold in '

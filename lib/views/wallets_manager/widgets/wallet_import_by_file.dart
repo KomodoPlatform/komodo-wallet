@@ -58,6 +58,7 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   bool _eulaAndTosChecked = false;
   bool _rememberMe = false;
   bool _allowCustomSeed = false;
+  bool _showCustomSeedToggle = false;
 
   String? _filePasswordError;
   String? _commonError;
@@ -147,11 +148,17 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
                   HDWalletModeSwitch(
                     value: _isHdMode,
                     onChanged: (value) {
-                      setState(() => _isHdMode = value);
+                      setState(() {
+                        _isHdMode = value;
+                        // Reset custom seed usage and hide toggle on HD switch
+                        if (_isHdMode) {
+                          _allowCustomSeed = false;
+                        }
+                      });
                     },
                   ),
                   const SizedBox(height: 15),
-                  if (!_isHdMode)
+                  if (_shouldShowCustomSeedToggle)
                     CustomSeedCheckbox(
                       value: _allowCustomSeed,
                       onChanged: (value) {
@@ -210,6 +217,12 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
   late final KomodoDefiSdk _sdk = context.read<KomodoDefiSdk>();
 
   Future<void> _onImport() async {
+    // Clear any previous common error before starting a new import attempt
+    if (_commonError != null) {
+      setState(() {
+        _commonError = null;
+      });
+    }
     final EncryptionTool encryptionTool = EncryptionTool();
     final String? fileData = await encryptionTool.decryptData(
       _filePasswordController.text,
@@ -240,12 +253,23 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
       if (decryptedSeed == null) return;
       if (!_isValidData) return;
 
-      if ((_isHdMode || !_allowCustomSeed) &&
-          !_sdk.mnemonicValidator.validateBip39(decryptedSeed)) {
-        setState(() {
-          _commonError = LocaleKeys.walletCreationBip39SeedError.tr();
-        });
-        return;
+      final bool isBip39 = _sdk.mnemonicValidator.validateBip39(decryptedSeed);
+      if (!isBip39) {
+        if (_isHdMode) {
+          setState(() {
+            _commonError = LocaleKeys.walletCreationHdBip39SeedError.tr();
+            _showCustomSeedToggle = true;
+          });
+          return;
+        }
+        if (!_allowCustomSeed) {
+          setState(() {
+            _commonError = LocaleKeys.walletCreationBip39SeedError.tr();
+            _showCustomSeedToggle = true;
+          });
+          return;
+        }
+        // Non-HD and custom seed allowed: continue without setting an error
       }
 
       walletConfig.seedPhrase = decryptedSeed;
@@ -292,5 +316,11 @@ class _WalletImportByFileState extends State<WalletImportByFile> {
         _commonError = LocaleKeys.somethingWrong.tr();
       });
     }
+  }
+
+  bool get _shouldShowCustomSeedToggle {
+    if (_allowCustomSeed) return true; // keep visible once enabled
+    if (_showCustomSeedToggle) return true; // show after first failure, even in HD
+    return false;
   }
 }

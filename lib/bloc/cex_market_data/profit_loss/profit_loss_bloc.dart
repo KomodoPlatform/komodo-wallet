@@ -14,6 +14,7 @@ import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/shared/constants.dart';
 
 part 'profit_loss_event.dart';
 part 'profit_loss_state.dart';
@@ -80,7 +81,10 @@ class ProfitLossBloc extends Bloc<ProfitLossEvent, ProfitLossState> {
 
       // Fetch the un-cached version of the chart to update the cache.
       if (supportedCoins.isNotEmpty) {
-        await _sdk.waitForEnabledCoinsToPassThreshold(supportedCoins);
+        await _sdk.waitForEnabledCoinsToPassThreshold(
+          supportedCoins,
+          delay: kActivationPollingInterval,
+        );
       }
       final activeCoins = await supportedCoins.removeInactiveCoins(_sdk);
       if (activeCoins.isNotEmpty) {

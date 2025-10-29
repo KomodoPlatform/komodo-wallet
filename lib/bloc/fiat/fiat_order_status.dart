@@ -5,8 +5,15 @@ enum FiatOrderStatus {
   /// Initial status: User has not yet started the payment process
   initial,
 
-  /// User has started the process, and the payment method has been opened.
-  /// E.g. Ramp or Banxa websites have been opened
+  /// Form is being submitted: Order is being created with the provider.
+  /// This is the transitional state while waiting for the provider API
+  /// response with the checkout URL.
+  submitting,
+
+  /// Order successfully created and checkout URL received from provider.
+  /// The webview dialog is ready to be opened/is opening with the provider's
+  /// payment page (e.g., Ramp or Banxa). This state triggers the webview
+  /// display and starts the order status monitoring.
   submitted,
 
   /// Payment is awaiting user action (e.g., user needs to complete payment)
@@ -30,6 +37,7 @@ enum FiatOrderStatus {
   bool get isSubmitting =>
       this == FiatOrderStatus.inProgress ||
       this == FiatOrderStatus.submitted ||
+      this == FiatOrderStatus.submitting ||
       this == FiatOrderStatus.pendingPayment;
   bool get isFailed => this == FiatOrderStatus.failed;
   bool get isSuccess => this == FiatOrderStatus.success;
@@ -66,8 +74,9 @@ enum FiatOrderStatus {
         // to avoid alarming users with "Payment failed" popup messages
         // unless we are sure that the payment has failed.
         // Ideally, this section should not be reached.
-        Logger('FiatOrderStatus')
-            .warning('Unknown status: $status, defaulting to in progress');
+        Logger(
+          'FiatOrderStatus',
+        ).warning('Unknown status: $status, defaulting to in progress');
         return FiatOrderStatus.inProgress;
     }
   }

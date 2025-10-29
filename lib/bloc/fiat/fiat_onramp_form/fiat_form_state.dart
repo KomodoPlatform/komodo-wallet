@@ -120,6 +120,9 @@ final class FiatFormState extends Equatable with FormzMixin {
       !fiatOrderStatus.isSubmitting &&
       isValid;
 
+  /// Whether the selected payment method is from the Banxa provider
+  bool get isBanxaSelected => selectedPaymentMethod.providerId == 'Banxa';
+
   FiatFormState copyWith({
     CurrencyInput<FiatCurrency>? selectedFiat,
     CurrencyInput<CryptoCurrency>? selectedAsset,

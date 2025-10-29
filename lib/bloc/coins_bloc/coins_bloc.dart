@@ -3,12 +3,11 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart' show mapEquals;
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/app_config.dart';
-import 'package:web_dex/bloc/cex_market_data/sdk_auth_activation_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_service.dart';
 import 'package:web_dex/model/cex_price.dart';
@@ -34,6 +33,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     on<CoinsSessionStarted>(_onLogin, transformer: restartable());
     on<CoinsSessionEnded>(_onLogout, transformer: restartable());
     on<CoinsWalletCoinUpdated>(_onWalletCoinUpdated, transformer: sequential());
+    on<CoinsBalanceChanged>(_onBalanceChanged, transformer: droppable());
     on<CoinsPubkeysRequested>(
       _onCoinsPubkeysRequested,
       transformer: concurrent(),
@@ -47,6 +47,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   final _log = Logger('CoinsBloc');
 
   StreamSubscription<Coin>? _enabledCoinsSubscription;
+  StreamSubscription<Coin>? _balanceChangesSubscription;
   Timer? _updateBalancesTimer;
   Timer? _updatePricesTimer;
   bool _isInitialActivationInProgress = false;
@@ -54,6 +55,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   @override
   Future<void> close() async {
     await _enabledCoinsSubscription?.cancel();
+    await _balanceChangesSubscription?.cancel();
     _updateBalancesTimer?.cancel();
     _updatePricesTimer?.cancel();
 
@@ -120,15 +122,14 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
 
     add(CoinsPricesUpdated());
     _updatePricesTimer?.cancel();
-    _updatePricesTimer = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) {
-        if (kDebugElectrumLogs) {
-          _log.info('[POLLING] Triggering periodic price update (every 1 minute)');
-        }
-        add(CoinsPricesUpdated());
-      },
-    );
+    _updatePricesTimer = Timer.periodic(const Duration(minutes: 3), (_) {
+      if (kDebugElectrumLogs) {
+        _log.info(
+          '[POLLING] Triggering periodic price update (every 3 minutes)',
+        );
+      }
+      add(CoinsPricesUpdated());
+    });
 
     // This is used to connect [CoinsBloc] to [CoinsManagerBloc] via [CoinsRepo],
     // since coins manager bloc activates and deactivates coins using the repository.
@@ -138,6 +139,12 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     await _enabledCoinsSubscription?.cancel();
     _enabledCoinsSubscription = _coinsRepo.enabledAssetsChanges.stream.listen(
       (Coin coin) => add(CoinsWalletCoinUpdated(coin)),
+    );
+
+    // Subscribe to real-time balance changes from the repository
+    await _balanceChangesSubscription?.cancel();
+    _balanceChangesSubscription = _coinsRepo.balanceChanges.stream.listen(
+      (Coin coin) => add(CoinsBalanceChanged(coin)),
     );
   }
 
@@ -187,6 +194,27 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     }
   }
 
+  /// Real-time balance update handler
+  Future<void> _onBalanceChanged(
+    CoinsBalanceChanged event,
+    Emitter<CoinsState> emit,
+  ) async {
+    final updated = event.coin;
+    final assetId = updated.id.id;
+    final existing = state.walletCoins[assetId] ?? state.coins[assetId];
+    if (existing == null) return;
+
+    // Preserve persistent state fields such as activation state
+    final merged = updated.copyWith(state: existing.state);
+
+    emit(
+      state.copyWith(
+        walletCoins: {...state.walletCoins, assetId: merged},
+        coins: {...state.coins, assetId: merged},
+      ),
+    );
+  }
+
   Future<void> _onCoinsBalanceMonitoringStopped(
     CoinsBalanceMonitoringStopped event,
     Emitter<CoinsState> emit,
@@ -199,15 +227,14 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
     Emitter<CoinsState> emit,
   ) async {
     _updateBalancesTimer?.cancel();
-    _updateBalancesTimer = Timer.periodic(
-      const Duration(minutes: 1),
-      (timer) {
-        if (kDebugElectrumLogs) {
-          _log.info('[POLLING] Triggering periodic balance refresh (every 1 minute)');
-        }
-        add(CoinsBalancesRefreshed());
-      },
-    );
+    _updateBalancesTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      if (kDebugElectrumLogs) {
+        _log.info(
+          '[POLLING] Triggering periodic balance refresh (every 1 minute)',
+        );
+      }
+      add(CoinsBalancesRefreshed());
+    });
   }
 
   Future<void> _onCoinsActivated(
@@ -290,7 +317,7 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
         _log.severe('Coin prices list empty/null');
         return;
       }
-      final didPricesChange = !mapEquals(state.prices, prices);
+      final didPricesChange = !const MapEquality().equals(state.prices, prices);
       if (!didPricesChange) {
         _log.info('Coin prices list unchanged');
         return;
@@ -385,50 +412,91 @@ class CoinsBloc extends Bloc<CoinsEvent, CoinsState> {
   void _scheduleInitialBalanceRefresh(Iterable<String> coinsToActivate) {
     if (isClosed) return;
 
-    final knownCoins = _coinsRepo.getKnownCoinsMap();
-    final walletCoinsForThreshold = coinsToActivate
-        .map((coinId) => knownCoins[coinId])
-        .whereType<Coin>()
-        .toList();
-
-    if (walletCoinsForThreshold.isEmpty) {
+    final Set<String> targetIds = coinsToActivate.toSet();
+    if (targetIds.isEmpty) {
       add(CoinsBalancesRefreshed());
       add(CoinsBalanceMonitoringStarted());
       return;
     }
 
     unawaited(() async {
+      final stopwatch = Stopwatch()..start();
       var triggeredByThreshold = false;
-      try {
-        triggeredByThreshold = await _kdfSdk.waitForEnabledCoinsToPassThreshold(
-          walletCoinsForThreshold,
-          threshold: 0.8,
-          timeout: const Duration(minutes: 1),
-        );
-      } catch (e, s) {
-        _log.shout(
-          'Failed while waiting for enabled coins threshold during login',
-          e,
-          s,
-        );
+      var fired = false;
+
+      void _fire() {
+        if (fired || isClosed) return;
+        fired = true;
+        if (triggeredByThreshold) {
+          _log.fine(
+            'Initial balance refresh triggered after 80% of coins activated.',
+          );
+        } else {
+          _log.fine(
+            'Initial balance refresh triggered after timeout while waiting for coin activation.',
+          );
+        }
+        add(CoinsBalancesRefreshed());
+        add(CoinsBalanceMonitoringStarted());
       }
 
-      if (isClosed) {
+      final activeIds = <String>{};
+
+      // Seed with currently activated assets from the SDK cache
+      try {
+        final activated = await _kdfSdk.activatedAssetsCache
+            .getActivatedAssetIds(forceRefresh: true);
+        for (final id in activated) {
+          if (targetIds.contains(id.id)) {
+            activeIds.add(id.id);
+          }
+        }
+      } catch (_) {
+        // Best-effort seeding; continue with streaming updates
+      }
+
+      bool _checkThreshold() {
+        if (targetIds.isEmpty) return true;
+        final coverage = activeIds.length / targetIds.length;
+        if (coverage >= 0.8) {
+          triggeredByThreshold = true;
+          return true;
+        }
+        return false;
+      }
+
+      if (_checkThreshold()) {
+        _fire();
         return;
       }
 
-      if (triggeredByThreshold) {
-        _log.fine(
-          'Initial balance refresh triggered after 80% of coins activated.',
-        );
-      } else {
-        _log.fine(
-          'Initial balance refresh triggered after timeout while waiting for coin activation.',
-        );
+      StreamSubscription<Coin>? tempSub;
+      tempSub = _coinsRepo.enabledAssetsChanges.stream.listen((coin) {
+        if (isClosed || fired) return;
+        if (!targetIds.contains(coin.id.id)) return;
+        if (coin.isActive) {
+          activeIds.add(coin.id.id);
+          if (_checkThreshold()) {
+            final sub = tempSub;
+            tempSub = null;
+            sub?.cancel();
+            _fire();
+          }
+        }
+      });
+
+      // Fallback: timeout to avoid waiting indefinitely
+      const timeout = Duration(minutes: 1);
+      await Future<void>.delayed(timeout);
+      final sub = tempSub;
+      tempSub = null;
+      await sub?.cancel();
+      if (!fired) {
+        triggeredByThreshold = false;
+        _fire();
       }
 
-      add(CoinsBalancesRefreshed());
-      add(CoinsBalanceMonitoringStarted());
+      stopwatch.stop();
     }());
   }
 

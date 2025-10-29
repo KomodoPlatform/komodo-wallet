@@ -372,6 +372,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.1.1"
+  flutter_client_sse:
+    dependency: transitive
+    description:
+      name: flutter_client_sse
+      sha256: "4ce0297206473dfc064b255fe086713240002e149f52519bd48c21423e4aa5d2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   flutter_driver:
     dependency: transitive
     description: flutter

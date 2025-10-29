@@ -48,7 +48,6 @@ import 'package:web_dex/bloc/system_health/system_health_bloc.dart';
 import 'package:web_dex/bloc/taker_form/taker_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_bloc.dart';
 import 'package:web_dex/bloc/trading_status/trading_status_service.dart';
-import 'package:web_dex/bloc/transaction_history/transaction_history_bloc.dart';
 import 'package:web_dex/bloc/transaction_history/transaction_history_repo.dart';
 import 'package:web_dex/bloc/version_info/version_info_bloc.dart';
 import 'package:web_dex/blocs/kmd_rewards_bloc.dart';
@@ -210,10 +209,6 @@ class AppBlocRoot extends StatelessWidget {
               portfolioGrowthRepository: portfolioGrowthRepo,
               sdk: komodoDefiSdk,
             ),
-          ),
-          BlocProvider<TransactionHistoryBloc>(
-            create: (BuildContext ctx) =>
-                TransactionHistoryBloc(sdk: komodoDefiSdk),
           ),
           BlocProvider<SettingsBloc>(
             create: (context) =>

@@ -28,7 +28,7 @@
 <body>
   <iframe id="fiat-onramp-iframe" title="Fiat On-Ramp Widget"
     sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-top-navigation-by-user-action"
-    src="">
+    allow="payment; encrypted-media; microphone; camera; midi" src="">
     <!-- Placeholder fallback message -->
     <p>Your browser does not support iframes.</p>
     <p>Please use a modern browser to view this content.</p>
@@ -67,7 +67,7 @@
 
     /**
      * Get URL parameter by name
-     * 
+     *
      * @param {string} name - The name of the URL parameter to retrieve
      * @returns {string|null} - The value of the URL parameter or null if not found
      */
@@ -76,10 +76,10 @@
       return params.get(name);
     }
 
-    /** 
+    /**
      * Handle messages from the iframe
-     * 
-     * @param {MessageEvent} messageEvent 
+     *
+     * @param {MessageEvent} messageEvent
      */
     function _komodoOnMessageHandler(messageEvent) {
       let messageData;
@@ -96,18 +96,18 @@
       }
     }
 
-    /** 
+    /**
      * Post a message to the parent window
-     * 
-     * @param {string|object} messageData 
-     */
+     *
+ * @param {string|object} messageData 
+ */
     function _komodoPostMessageToParent(messageData) {
       const messageString = (typeof messageData === 'object') ? JSON.stringify(messageData) : String(messageData);
 
       // flutter_inappwebview
       console.log(messageString);
 
-      // universal_url opener 
+      // universal_url opener
       if (window.opener) {
         return window.opener.postMessage(messageString, "*");
       }
@@ -117,7 +117,7 @@
       }
 
       // Windows WebView2 (desktop_webview_window)
-      // https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/communicate-btwn-web-native 
+      // https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/communicate-btwn-web-native
       if (window.chrome && window.chrome.webview) {
         return window.chrome.webview.postMessage(messageString);
       }

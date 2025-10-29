@@ -2,6 +2,8 @@ import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart'
+    show AssetIdFaucetExtension;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
@@ -222,7 +224,7 @@ class AddressCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Flexible(child: AddressText(address: address.address)),
                       const SizedBox(width: 8),
-                      if (coin.hasFaucet)
+                      if (coin.id.hasFaucet)
                         ConstrainedBox(
                           constraints: BoxConstraints(
                             minWidth: 80,
@@ -257,7 +259,7 @@ class AddressCard extends StatelessWidget {
                       coinAbbr: coin.abbr,
                     ),
                     QrButton(coin: coin, address: address),
-                    if (coin.hasFaucet)
+                    if (coin.id.hasFaucet)
                       ConstrainedBox(
                         constraints: BoxConstraints(
                           minWidth: 80,

@@ -119,7 +119,9 @@ class CoinAddressesBloc extends Bloc<CoinAddressesEvent, CoinAddressesState> {
 
     try {
       final asset = getSdkAsset(sdk, assetId);
-      final addresses = (await asset.getPubkeys(sdk)).keys;
+      // Prefer cached pubkeys to avoid unnecessary RPC delay
+      final cached = sdk.pubkeys.lastKnown(asset.id);
+      final addresses = (cached ?? await asset.getPubkeys(sdk)).keys;
 
       final reasons = await asset.getCantCreateNewAddressReasons(sdk);
 

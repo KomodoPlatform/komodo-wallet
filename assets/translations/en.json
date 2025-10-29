@@ -209,7 +209,8 @@
   "transactionDetailsTitle": "Transaction completed",
   "customSeedWarningText": "Custom seed phrases are generally less secure and easier to crack than a generated BIP39-compliant seed phrase. To confirm you understand and are aware of the risk, type \"I understand\" in the box below.",
   "customSeedIUnderstand": "i understand",
-  "walletCreationBip39SeedError": "BIP39 seed phrase validation failed, try again or select 'Allow custom seed'",
+
+  "walletCreationBip39SeedError": "BIP39 seed phrase validation failed, try again or select 'Use custom seed phrase / private key (WIF)' to proceed",
   "walletCreationHdBip39SeedError": "Your input seed phrase is not BIP39 compliant, and can not be used in multi-address wallet mode. Please try again, or disable multi-address wallet mode and select 'Allow custom seed' to proceed.",
   "walletPageNoSuchAsset": "No assets match search criteria",
   "swap": "Swap",

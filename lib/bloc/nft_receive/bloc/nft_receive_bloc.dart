@@ -11,12 +11,10 @@ part 'nft_receive_event.dart';
 part 'nft_receive_state.dart';
 
 class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
-  NftReceiveBloc({
-    required CoinsRepo coinsRepo,
-    required KomodoDefiSdk sdk,
-  })  : _coinsRepo = coinsRepo,
-        _sdk = sdk,
-        super(NftReceiveInitial()) {
+  NftReceiveBloc({required CoinsRepo coinsRepo, required KomodoDefiSdk sdk})
+    : _coinsRepo = coinsRepo,
+      _sdk = sdk,
+      super(NftReceiveInitial()) {
     on<NftReceiveStarted>(_onInitial);
     on<NftReceiveRefreshRequested>(_onRefresh);
     on<NftReceiveAddressChanged>(_onChangeAddress);
@@ -47,13 +45,13 @@ class NftReceiveBloc extends Bloc<NftReceiveEvent, NftReceiveState> {
     final walletConfig = (await _sdk.currentWallet())?.config;
     if (walletConfig?.hasBackup == false && !coin.isTestCoin) {
       _log.warning('Wallet does not have backup and is not a test coin');
-      return emit(
-        NftReceiveBackupSuccess(),
-      );
+      return emit(NftReceiveBackupSuccess());
     }
 
     final asset = _sdk.assets.available[coin.id]!;
-    final pubkeys = await _sdk.pubkeys.getPubkeys(asset);
+    final pubkeys =
+        _sdk.pubkeys.lastKnown(asset.id) ??
+        await _sdk.pubkeys.getPubkeys(asset);
     if (pubkeys.keys.isEmpty) {
       _log.warning('No pubkey found for the asset: ${coin.id.id}');
       return emit(

@@ -146,69 +146,76 @@ class _ExpandableCoinListItemState extends State<ExpandableCoinListItem> {
           // Use CoinItem with large size for mobile, matching GroupedAssetTickerItem
           AssetIcon(widget.coin.id, size: CoinItemSize.large.coinLogo),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Coin name - using headlineMedium for bold 16px text
-              Text(
-                widget.coin.displayName,
-                style: theme.textTheme.headlineMedium,
-              ),
-              // Crypto balance - using bodySmall for 12px secondary text
-              Text(
-                '${doubleToString(widget.coin.balance(context.sdk) ?? 0)} ${widget.coin.abbr}',
-                style: theme.textTheme.bodySmall,
-              ),
-            ],
+          Expanded(
+            flex: 8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Coin name - using headlineMedium for bold 16px text
+                AutoScrollText(
+                  text: widget.coin.displayName,
+                  style: theme.textTheme.headlineMedium,
+                ),
+                // Crypto balance - using bodySmall for 12px secondary text
+                AutoScrollText(
+                  text:
+                      '${doubleToString(widget.coin.balance(context.sdk) ?? 0)} ${widget.coin.abbr}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ),
           ),
           const Spacer(),
           // Right side: Price and trend info
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Current balance in USD - using headlineMedium for bold 16px text
-              if (widget.coin.lastKnownUsdBalance(context.sdk) != null)
-                Text(
-                  '\$${NumberFormat("#,##0.00").format(widget.coin.lastKnownUsdBalance(context.sdk)!)}',
-                  style: theme.textTheme.headlineMedium,
-                ),
-              const SizedBox(height: 2),
-              // Trend percentage
-              BlocBuilder<CoinsBloc, CoinsState>(
-                builder: (context, state) {
-                  final usdBalance = widget.coin.lastKnownUsdBalance(
-                    context.sdk,
-                  );
-                  if (usdBalance == null) {
-                    return const SizedBox.shrink();
-                  }
+          Expanded(
+            flex: 7,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Current balance in USD - using headlineMedium for bold 16px text
+                if (widget.coin.lastKnownUsdBalance(context.sdk) != null)
+                  Text(
+                    '\$${NumberFormat("#,##0.00").format(widget.coin.lastKnownUsdBalance(context.sdk)!)}',
+                    style: theme.textTheme.headlineMedium,
+                  ),
+                const SizedBox(height: 2),
+                // Trend percentage
+                BlocBuilder<CoinsBloc, CoinsState>(
+                  builder: (context, state) {
+                    final usdBalance = widget.coin.lastKnownUsdBalance(
+                      context.sdk,
+                    );
+                    if (usdBalance == null) {
+                      return const SizedBox.shrink();
+                    }
 
-                  final change24hPercent = usdBalance == 0.0
-                      ? 0.0
-                      : state.get24hChangeForAsset(widget.coin.id);
-                  // Calculate the 24h USD change value
-                  final change24hValue =
-                      change24hPercent != null && usdBalance > 0
-                      ? (change24hPercent * usdBalance / 100)
-                      : 0.0;
-                  final themeCustom =
-                      Theme.of(context).brightness == Brightness.dark
-                      ? Theme.of(context).extension<ThemeCustomDark>()!
-                      : Theme.of(context).extension<ThemeCustomLight>()!;
-                  return TrendPercentageText(
-                    percentage: change24hPercent,
-                    value: change24hValue,
-                    upColor: themeCustom.increaseColor,
-                    downColor: themeCustom.decreaseColor,
-                    valueFormatter: (value) =>
-                        NumberFormat.currency(symbol: '\$').format(value),
-                    iconSize: 12,
-                    spacing: 2,
-                    textStyle: theme.textTheme.bodySmall,
-                  );
-                },
-              ),
-            ],
+                    final change24hPercent = usdBalance == 0.0
+                        ? 0.0
+                        : state.get24hChangeForAsset(widget.coin.id);
+                    // Calculate the 24h USD change value
+                    final change24hValue =
+                        change24hPercent != null && usdBalance > 0
+                        ? (change24hPercent * usdBalance / 100)
+                        : 0.0;
+                    final themeCustom =
+                        Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context).extension<ThemeCustomDark>()!
+                        : Theme.of(context).extension<ThemeCustomLight>()!;
+                    return TrendPercentageText(
+                      percentage: change24hPercent,
+                      value: change24hValue,
+                      upColor: themeCustom.increaseColor,
+                      downColor: themeCustom.decreaseColor,
+                      valueFormatter: (value) =>
+                          NumberFormat.currency(symbol: '\$').format(value),
+                      iconSize: 12,
+                      spacing: 2,
+                      textStyle: theme.textTheme.bodySmall,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -53,20 +53,15 @@ class _MobileLayout extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        const BackupSeedNotification(),
+        const BackupSeedNotification(hideOnMobile: false),
         if (header != null) header!,
         Flexible(
           child: PagePlate(
             noBackground: noBackground,
             padding: padding,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                content,
-              ],
-            ),
+            child: Column(mainAxisSize: MainAxisSize.max, children: [content]),
           ),
-        )
+        ),
       ],
     );
   }
@@ -97,10 +92,7 @@ class _DesktopLayout extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (header != null) ...[
-                  const SizedBox(height: 23),
-                  header!,
-                ],
+                if (header != null) ...[const SizedBox(height: 23), header!],
                 content,
               ],
             ),

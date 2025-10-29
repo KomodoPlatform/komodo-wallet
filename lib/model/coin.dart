@@ -125,8 +125,6 @@ class Coin extends Equatable {
     return type != CoinType.tendermintToken && type != CoinType.tendermint;
   }
 
-  bool get hasFaucet => coinsWithFaucet.contains(abbr);
-
   static bool checkSegwitByAbbr(String abbr) => abbr.contains('-segwit');
   static String normalizeAbbr(String abbr) => abbr.replaceAll('-segwit', '');
 

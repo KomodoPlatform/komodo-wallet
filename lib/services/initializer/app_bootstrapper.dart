@@ -17,7 +17,7 @@ final class AppBootstrapper {
     if (_isInitialized) return;
 
     // Register core services with GetIt
-    _registerDependencies(kdfSdk, mm2Api);
+    _registerDependencies(kdfSdk, mm2Api, sparklineRepository);
 
     final timer = Stopwatch()..start();
     await logger.init();
@@ -36,10 +36,15 @@ final class AppBootstrapper {
   }
 
   /// Register all dependencies with GetIt
-  void _registerDependencies(KomodoDefiSdk kdfSdk, Mm2Api mm2Api) {
+  void _registerDependencies(
+    KomodoDefiSdk kdfSdk,
+    Mm2Api mm2Api,
+    SparklineRepository sparklineRepository,
+  ) {
     // Register core services
     GetIt.I.registerSingleton<KomodoDefiSdk>(kdfSdk);
     GetIt.I.registerSingleton<Mm2Api>(mm2Api);
+    GetIt.I.registerSingleton<SparklineRepository>(sparklineRepository);
   }
 
   /// A list of futures that should be completed before the app starts

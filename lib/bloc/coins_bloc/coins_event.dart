@@ -41,6 +41,16 @@ final class CoinsDeactivated extends CoinsEvent {
 
 final class CoinsPricesUpdated extends CoinsEvent {}
 
+/// Emitted when a coin's balance has changed (real-time from SDK)
+final class CoinsBalanceChanged extends CoinsEvent {
+  const CoinsBalanceChanged(this.coin);
+
+  final Coin coin;
+
+  @override
+  List<Object> get props => [coin];
+}
+
 /// Successful user login (session)
 /// NOTE: has to be called from the UI layer for now, to ensure that wallet
 /// metadata is saved to the current user. Auth state changes from the SDK

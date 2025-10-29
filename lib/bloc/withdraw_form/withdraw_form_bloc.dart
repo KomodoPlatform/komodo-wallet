@@ -59,7 +59,8 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     Emitter<WithdrawFormState> emit,
   ) async {
     try {
-      final pubkeys = await state.asset.getPubkeys(_sdk);
+      final cached = _sdk.pubkeys.lastKnown(state.asset.id);
+      final pubkeys = cached ?? await state.asset.getPubkeys(_sdk);
       final fundedKeys = pubkeys.keys
           .where((key) => key.balance.spendable > Decimal.zero)
           .toList();

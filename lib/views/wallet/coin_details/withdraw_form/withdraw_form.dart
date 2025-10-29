@@ -2,26 +2,28 @@ import 'dart:async' show Timer;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:komodo_ui_kit/komodo_ui_kit.dart';
-import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:komodo_ui/komodo_ui.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/analytics/events/transaction_events.dart';
 import 'package:web_dex/bloc/analytics/analytics_bloc.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
-import 'package:web_dex/analytics/events/transaction_events.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
-import 'package:web_dex/shared/utils/utils.dart';
-import 'package:web_dex/shared/widgets/copied_text.dart' show CopiedTextV2;
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
-import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
 import 'package:web_dex/shared/utils/extensions/kdf_user_extensions.dart';
+import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/widgets/asset_amount_with_fiat.dart';
+import 'package:web_dex/shared/widgets/copied_text.dart' show CopiedTextV2;
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fields.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
+import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
 
 bool _isMemoSupportedProtocol(Asset asset) {
   final protocol = asset.protocol;
@@ -302,49 +304,153 @@ class ZhtlcPreviewDelayNote extends StatelessWidget {
 
 class WithdrawPreviewDetails extends StatelessWidget {
   final WithdrawalPreview preview;
+  final double widthThreshold;
+  final double minPadding;
+  final double maxPadding;
 
-  const WithdrawPreviewDetails({required this.preview, super.key});
+  const WithdrawPreviewDetails({
+    required this.preview,
+    super.key,
+    this.widthThreshold = 400,
+    this.minPadding = 2,
+    this.maxPadding = 16,
+  });
+
+  double _calculatePadding(double width) {
+    if (width >= widthThreshold) {
+      return maxPadding;
+    }
+
+    // Scale padding linearly based on width below threshold
+    final ratio = width / widthThreshold;
+    final scaledPadding = minPadding + (maxPadding - minPadding) * ratio;
+
+    return scaledPadding.clamp(minPadding, maxPadding);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextRow(
-              LocaleKeys.amount.tr(),
-              preview.balanceChanges.netChange.toString(),
-            ),
-            const SizedBox(height: 8),
-            _buildTextRow(LocaleKeys.fee.tr(), preview.fee.formatTotal()),
-            const SizedBox(height: 8),
-            _buildRow(
-              LocaleKeys.recipientAddress.tr(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final recipient in preview.to)
-                    CopiedTextV2(copiedValue: recipient, fontSize: 14),
-                ],
-              ),
-            ),
-            if (preview.memo != null) ...[
-              const SizedBox(height: 8),
-              _buildTextRow(LocaleKeys.memo.tr(), preview.memo!),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
+    final sdk = context.sdk;
 
-  Widget _buildTextRow(String label, String value) {
-    return _buildRow(
-      label,
-      AutoScrollText(text: value, textAlign: TextAlign.right),
+    final assets = sdk.getSdkAsset(preview.coin);
+    final feeAssets = sdk.getSdkAsset(preview.fee.coin);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final padding = _calculatePadding(constraints.maxWidth);
+        final useRowLayout = constraints.maxWidth >= widthThreshold;
+
+        return Card(
+          child: Padding(
+            padding: EdgeInsets.all(padding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (useRowLayout)
+                  _buildRow(
+                    LocaleKeys.amount.tr(),
+                    AssetAmountWithFiat(
+                      assetId: assets.id,
+                      // netchange for withdrawals is expected to be negative
+                      // so we display the absolute value here to avoid
+                      // confusion with the negative sign
+                      amount: preview.balanceChanges.netChange.abs(),
+                      isAutoScrollEnabled: true,
+                    ),
+                  )
+                else ...[
+                  Text(
+                    LocaleKeys.amount.tr(),
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  AssetAmountWithFiat(
+                    assetId: assets.id,
+                    amount: preview.balanceChanges.netChange,
+                    isAutoScrollEnabled: true,
+                  ),
+                ],
+                const SizedBox(height: 16),
+                if (useRowLayout)
+                  _buildRow(
+                    LocaleKeys.fee.tr(),
+                    AssetAmountWithFiat(
+                      assetId: feeAssets.id,
+                      amount: preview.fee.totalFee,
+                      isAutoScrollEnabled: true,
+                    ),
+                  )
+                else ...[
+                  Text(
+                    LocaleKeys.fee.tr(),
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  AssetAmountWithFiat(
+                    assetId: feeAssets.id,
+                    amount: preview.fee.totalFee,
+                    isAutoScrollEnabled: true,
+                  ),
+                ],
+                const SizedBox(height: 16),
+                if (useRowLayout)
+                  _buildRow(
+                    LocaleKeys.recipientAddress.tr(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final recipient in preview.to)
+                          CopiedTextV2(copiedValue: recipient, fontSize: 14),
+                      ],
+                    ),
+                  )
+                else ...[
+                  Text(
+                    LocaleKeys.recipientAddress.tr(),
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final recipient in preview.to)
+                        CopiedTextV2(copiedValue: recipient, fontSize: 14),
+                    ],
+                  ),
+                ],
+                if (preview.memo?.isNotEmpty ?? false) ...[
+                  const SizedBox(height: 16),
+                  if (useRowLayout)
+                    _buildRow(
+                      LocaleKeys.memo.tr(),
+                      Text(
+                        preview.memo!,
+                        textAlign: TextAlign.right,
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      ),
+                    )
+                  else ...[
+                    Text(
+                      LocaleKeys.memo.tr(),
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      preview.memo!,
+                      textAlign: TextAlign.left,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -352,9 +458,10 @@ class WithdrawPreviewDetails extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label),
+        Expanded(flex: 2, child: Text(label)),
         const SizedBox(width: 12),
         Expanded(
+          flex: 3,
           child: Align(alignment: Alignment.centerRight, child: value),
         ),
       ],

@@ -1,11 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:komodo_defi_rpc_methods/komodo_defi_rpc_methods.dart';
+import 'package:app_theme/app_theme.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_bloc.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_event.dart';
 import 'package:web_dex/bloc/security_settings/security_settings_state.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/security_action_plate.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/unban_pubkeys_dialog.dart';
 
@@ -36,12 +39,18 @@ class _UnbanPubkeysPlateState extends State<UnbanPubkeysPlate> {
             icon: Icon(Icons.block),
             title: LocaleKeys.unbanPubkeys.tr(),
             description: LocaleKeys.unbanPubkeysDescription.tr(),
-            actionText: state.isUnbanningPubkeys
-                ? '${LocaleKeys.unbanPubkeys.tr()}...'
-                : LocaleKeys.unbanPubkeys.tr(),
-            onActionPressed: state.isUnbanningPubkeys
-                ? null
-                : () => _handleUnbanPressed(context),
+            trailingWidget: UiPrimaryButton(
+              onPressed:
+                  state.isUnbanningPubkeys ? null : () => _handleUnbanPressed(context),
+              width: isMobile ? double.infinity : 210.0,
+              height: isMobile ? 52.0 : 40.0,
+              text: state.isUnbanningPubkeys
+                  ? '${LocaleKeys.unbanPubkeys.tr()}...'
+                  : LocaleKeys.unbanPubkeys.tr(),
+              textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: theme.custom.defaultGradientButtonTextColor,
+              ),
+            ),
           );
         },
       ),

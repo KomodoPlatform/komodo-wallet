@@ -241,7 +241,17 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
         (state.action == CoinsManagerAction.remove && wasSelected);
 
     if (shouldActivate) {
-      await _tryActivateCoin(coin);
+      try {
+        await _tryActivateCoin(coin);
+      } on ZhtlcActivationCancelled {
+        // Revert optimistic selection and show a friendly message
+        selectedCoins.remove(coin);
+        emit(state.copyWith(
+          selectedCoins: selectedCoins.toList(),
+          errorMessage: 'Activation canceled.',
+        ));
+        return;
+      }
     } else {
       await _tryDeactivateCoin(coin);
     }
@@ -265,8 +275,12 @@ class CoinsManagerBloc extends Bloc<CoinsManagerEvent, CoinsManagerState> {
   Future<void> _tryActivateCoin(Coin coin) async {
     try {
       await _coinsRepo.activateCoinsSync([coin]);
+    } on ZhtlcActivationCancelled {
+      // Rethrow so the caller can revert the optimistic toggle and show UI
+      rethrow;
     } catch (e, s) {
       _log.warning('Failed to activate coin ${coin.abbr}', e, s);
+      return;
     }
     _analyticsBloc.logEvent(
       AssetEnabledEventData(

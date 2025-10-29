@@ -60,12 +60,14 @@ class FiatInputs extends StatefulWidget {
 class FiatInputsState extends State<FiatInputs> {
   TextEditingController fiatController = TextEditingController();
   late final Debouncer _debouncer;
+  late final FocusNode _fiatFocusNode;
   bool _hasUserInput = false;
 
   @override
   void dispose() {
     fiatController.dispose();
     _debouncer.dispose();
+    _fiatFocusNode.dispose();
     super.dispose();
   }
 
@@ -73,6 +75,7 @@ class FiatInputsState extends State<FiatInputs> {
   void initState() {
     super.initState();
     _debouncer = Debouncer(duration: const Duration(milliseconds: 300));
+    _fiatFocusNode = FocusNode();
     fiatController.text = widget.initialFiatAmount?.toString() ?? '';
   }
 
@@ -128,6 +131,13 @@ class FiatInputsState extends State<FiatInputs> {
     });
   }
 
+  void _onFiatAmountSubmitted(String value) {
+    // Dismiss keyboard when user presses done/enter
+    _fiatFocusNode.unfocus();
+    // Trigger final update if needed
+    widget.onFiatAmountUpdate(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: refactor currency type to use AssetId/Asset to avoid
@@ -153,8 +163,10 @@ class FiatInputsState extends State<FiatInputs> {
         CustomFiatInputField(
           key: const Key('fiat-amount-form-field'),
           controller: fiatController,
+          focusNode: _fiatFocusNode,
           hintText: '${LocaleKeys.enterAmount.tr()} $boundariesString',
           onTextChanged: fiatAmountChanged,
+          onSubmitted: _onFiatAmountSubmitted,
           label: Text(LocaleKeys.spend.tr()),
           assetButton: FiatCurrencyItem(
             key: const Key('fiat-onramp-fiat-dropdown'),
@@ -204,18 +216,20 @@ class FiatInputsState extends State<FiatInputs> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  SizedBox(
-                    height: 48,
-                    child: FiatCurrencyItem(
-                      key: const Key('fiat-onramp-coin-dropdown'),
-                      foregroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onSurfaceVariant,
-                      disabled: coinListLoading,
-                      currency: widget.selectedAsset,
-                      icon: Icon(_getDefaultAssetIcon('coin')),
-                      onTap: () => _showAssetSelectionDialog('coin'),
-                      isListTile: false,
+                  Flexible(
+                    child: SizedBox(
+                      height: 48,
+                      child: FiatCurrencyItem(
+                        key: const Key('fiat-onramp-coin-dropdown'),
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant,
+                        disabled: coinListLoading,
+                        currency: widget.selectedAsset,
+                        icon: Icon(_getDefaultAssetIcon('coin')),
+                        onTap: () => _showAssetSelectionDialog('coin'),
+                        isListTile: false,
+                      ),
                     ),
                   ),
                 ],
@@ -245,6 +259,9 @@ class FiatInputsState extends State<FiatInputs> {
   }
 
   void _showAssetSelectionDialog(String type) {
+    // Dismiss keyboard before showing dialog
+    _fiatFocusNode.unfocus();
+
     final isFiat = type == 'fiat';
     final icon = Icon(_getDefaultAssetIcon(type));
 
