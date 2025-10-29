@@ -326,6 +326,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
           maxSellAmount: () => null,
         ),
       );
+      return;
     }
 
     await _autoActivateCoin(state.sellCoin?.abbr);
@@ -490,34 +491,26 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
         return;
       }
 
-      if (!_isLoggedIn) {
+      Rational? maxSellAmount = await _dexRepo.getMaxTakerVolume(
+        state.sellCoin!.abbr,
+      );
+      if (maxSellAmount != null) {
         emitter(
           state.copyWith(
-            availableBalanceState: () => AvailableBalanceState.unavailable,
+            maxSellAmount: () => maxSellAmount,
+            availableBalanceState: () => AvailableBalanceState.success,
           ),
         );
       } else {
-        Rational? maxSellAmount = await _dexRepo.getMaxTakerVolume(
-          state.sellCoin!.abbr,
+        maxSellAmount = await _frequentlyGetMaxTakerVolume();
+        emitter(
+          state.copyWith(
+            maxSellAmount: () => maxSellAmount,
+            availableBalanceState: maxSellAmount == null
+                ? () => AvailableBalanceState.failure
+                : () => AvailableBalanceState.success,
+          ),
         );
-        if (maxSellAmount != null) {
-          emitter(
-            state.copyWith(
-              maxSellAmount: () => maxSellAmount,
-              availableBalanceState: () => AvailableBalanceState.success,
-            ),
-          );
-        } else {
-          maxSellAmount = await _frequentlyGetMaxTakerVolume();
-          emitter(
-            state.copyWith(
-              maxSellAmount: () => maxSellAmount,
-              availableBalanceState: maxSellAmount == null
-                  ? () => AvailableBalanceState.failure
-                  : () => AvailableBalanceState.success,
-            ),
-          );
-        }
       }
     } catch (e, s) {
       _log.severe('Failed to update max sell amount', e, s);
