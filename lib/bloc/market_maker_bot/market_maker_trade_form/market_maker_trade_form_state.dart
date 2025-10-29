@@ -13,10 +13,7 @@ enum MarketMakerTradeFormStatus { initial, loading, success, error }
 // Usually this would be a dedicated tab contoller/ui flow bloc, but because
 // there is only two stages (initial and confirmationRequired), and for the
 // sake of simplicity, we are using the form state to manage the form stages.
-enum MarketMakerTradeFormStage {
-  initial,
-  confirmationRequired,
-}
+enum MarketMakerTradeFormStage { initial, confirmationRequired }
 
 /// The state of the market maker trade form. The state is a formz mixin
 /// which allows the form to be validated and checked for errors.
@@ -34,21 +31,23 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
     required this.stage,
     this.tradePreImageError,
     this.tradePreImage,
+    this.maxMakerVolume,
   });
 
   MarketMakerTradeFormState.initial()
-      : sellCoin = const CoinSelectInput.pure(),
-        buyCoin = const CoinSelectInput.pure(),
-        minimumTradeVolume = const TradeVolumeInput.pure(0.1),
-        maximumTradeVolume = const TradeVolumeInput.pure(0.9),
-        sellAmount = const CoinTradeAmountInput.pure(),
-        buyAmount = const CoinTradeAmountInput.pure(),
-        tradeMargin = const TradeMarginInput.pure(),
-        updateInterval = const UpdateIntervalInput.pure(),
-        status = MarketMakerTradeFormStatus.initial,
-        stage = MarketMakerTradeFormStage.initial,
-        tradePreImageError = null,
-        tradePreImage = null;
+    : sellCoin = const CoinSelectInput.pure(),
+      buyCoin = const CoinSelectInput.pure(),
+      minimumTradeVolume = const TradeVolumeInput.pure(0.1),
+      maximumTradeVolume = const TradeVolumeInput.pure(0.9),
+      sellAmount = const CoinTradeAmountInput.pure(),
+      buyAmount = const CoinTradeAmountInput.pure(),
+      tradeMargin = const TradeMarginInput.pure(),
+      updateInterval = const UpdateIntervalInput.pure(),
+      status = MarketMakerTradeFormStatus.initial,
+      stage = MarketMakerTradeFormStage.initial,
+      tradePreImageError = null,
+      tradePreImage = null,
+      maxMakerVolume = null;
 
   /// The coin being sold in the trade pair (base coin).
   final CoinSelectInput sellCoin;
@@ -87,6 +86,10 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
 
   /// The preimage of the trade pair, used to calculate the trade pair fees.
   final TradePreimage? tradePreImage;
+
+  /// The maximum maker volume available for swaps for the sell coin.
+  /// This value is fetched from the DEX API and cached in the state.
+  final Rational? maxMakerVolume;
 
   /// The price of the trade pair derived from the USD price of the coins.
   /// Price = baseCoinUsdPrice / relCoinUsdPrice.
@@ -163,6 +166,7 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
     MarketMakerTradeFormError? preImageError,
     MarketMakerTradeFormStage? stage,
     TradePreimage? tradePreImage,
+    Rational? maxMakerVolume,
   }) {
     return MarketMakerTradeFormState(
       sellCoin: sellCoin ?? this.sellCoin,
@@ -177,6 +181,7 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
       tradePreImageError: preImageError,
       stage: stage ?? this.stage,
       tradePreImage: tradePreImage ?? this.tradePreImage,
+      maxMakerVolume: maxMakerVolume ?? this.maxMakerVolume,
     );
   }
 
@@ -201,13 +206,13 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
 
   @override
   List<FormzInput<dynamic, dynamic>> get inputs => [
-        sellCoin,
-        buyCoin,
-        minimumTradeVolume,
-        maximumTradeVolume,
-        tradeMargin,
-        updateInterval,
-      ];
+    sellCoin,
+    buyCoin,
+    minimumTradeVolume,
+    maximumTradeVolume,
+    tradeMargin,
+    updateInterval,
+  ];
 
   @override
   bool get isValid {
@@ -218,17 +223,18 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
 
   @override
   List<Object?> get props => [
-        sellCoin,
-        buyCoin,
-        minimumTradeVolume,
-        maximumTradeVolume,
-        sellAmount,
-        buyAmount,
-        tradeMargin,
-        updateInterval,
-        tradePreImageError,
-        stage,
-        status,
-        tradePreImage,
-      ];
+    sellCoin,
+    buyCoin,
+    minimumTradeVolume,
+    maximumTradeVolume,
+    sellAmount,
+    buyAmount,
+    tradeMargin,
+    updateInterval,
+    tradePreImageError,
+    stage,
+    status,
+    tradePreImage,
+    maxMakerVolume,
+  ];
 }
