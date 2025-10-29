@@ -1,4 +1,5 @@
 import 'package:formz/formz.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 enum TradeMarginValidationError {
   /// Input is empty
@@ -23,7 +24,7 @@ class TradeMarginInput extends FormzInput<String, TradeMarginValidationError> {
   const TradeMarginInput.dirty(String value, {this.min = 0, this.max = 1000})
       : super.dirty(value);
 
-  double get valueAsDouble => double.tryParse(value) ?? 0;
+  double get valueAsDouble => tryParseLocaleAwareDouble(value) ?? 0;
 
   @override
   TradeMarginValidationError? validator(String value) {
@@ -31,7 +32,7 @@ class TradeMarginInput extends FormzInput<String, TradeMarginValidationError> {
       return TradeMarginValidationError.empty;
     }
 
-    final margin = double.tryParse(value);
+    final margin = tryParseLocaleAwareDouble(value);
     if (margin == null) {
       return TradeMarginValidationError.invalidNumber;
     }

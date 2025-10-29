@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:formz/formz.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 /// Validation errors for the fiat amount form field.
 enum FiatAmountValidationError {
@@ -50,43 +51,4 @@ class FiatAmountInput extends FormzInput<String, FiatAmountValidationError> {
 
     return null;
   }
-}
-
-/// Normalizes and parses a decimal string value that might use different 
-/// locale formats
-// TODO: refactor into sdk or extension class for Decimal
-Decimal? parseLocaleAwareDecimal(String value) {
-  if (value.isEmpty) return null;
-
-  // First attempt: standard format with period as decimal separator (123.45)
-  // This covers standard format and numbers without thousand separators
-  final decimalValue = Decimal.tryParse(value);
-  if (decimalValue != null) return decimalValue;
-
-  // Second attempt: US/UK format with commas as thousand separators (1,234.56)
-  if (value.contains(',') && value.contains('.')) {
-    final normalizedValue = value.replaceAll(',', '');
-    final usFormat = Decimal.tryParse(normalizedValue);
-    if (usFormat != null) return usFormat;
-  }
-
-  // Third attempt: European format (1.234,56) or other edge cases
-  // Only try this if there's a comma and either no period or the period
-  // appears before the comma
-  if (value.contains(',')) {
-    final lastCommaIndex = value.lastIndexOf(',');
-    final lastPeriodIndex = value.lastIndexOf('.');
-
-    // Check if this looks like a European format number:
-    // - Has a comma
-    // - Either no period, or all periods appear before the last comma 
-    // (as thousand separators)
-    if (lastPeriodIndex == -1 || lastPeriodIndex < lastCommaIndex) {
-      final europeanFormat = value.replaceAll('.', '').replaceAll(',', '.');
-      final euFormat = Decimal.tryParse(europeanFormat);
-      if (euFormat != null) return euFormat;
-    }
-  }
-
-  return null;
 }

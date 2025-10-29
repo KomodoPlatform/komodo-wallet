@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
 import 'package:web_dex/model/text_error.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 class WithdrawFormState extends Equatable {
   final Asset asset;
@@ -69,13 +70,9 @@ class WithdrawFormState extends Equatable {
 
     // Amount must be greater than zero unless max amount is selected
     if (!isMaxAmount) {
-      try {
-        final parsedAmount = Decimal.parse(amount);
-        if (parsedAmount <= Decimal.zero) {
-          return false;
-        }
-      } catch (_) {
-        return false; // Invalid number format
+      final parsedAmount = parseLocaleAwareDecimal(amount);
+      if (parsedAmount == null || parsedAmount <= Decimal.zero) {
+        return false;
       }
     }
 
@@ -194,7 +191,7 @@ class WithdrawFormState extends Equatable {
     return WithdrawParameters(
       asset: asset.id.id,
       toAddress: recipientAddress,
-      amount: isMaxAmount ? null : Decimal.parse(amount),
+      amount: isMaxAmount ? null : parseLocaleAwareDecimal(amount),
       fee: isCustomFee ? customFee : null,
       from: selectedSourceAddress?.derivationPath != null
           ? WithdrawalSource.hdDerivationPath(

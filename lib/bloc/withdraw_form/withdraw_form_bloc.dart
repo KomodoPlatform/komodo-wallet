@@ -16,6 +16,7 @@ export 'package:web_dex/bloc/withdraw_form/withdraw_form_state.dart';
 export 'package:web_dex/bloc/withdraw_form/withdraw_form_step.dart';
 
 import 'package:decimal/decimal.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   final KomodoDefiSdk _sdk;
@@ -221,14 +222,15 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     if (state.isMaxAmount) return;
 
     try {
-      final amount = Decimal.parse(event.amount);
+      final normalized = normalizeDecimalString(event.amount);
+      final amount = Decimal.parse(normalized);
       // Use the selected address balance if available
       final balance = state.selectedSourceAddress?.balance.spendable;
 
       if (balance != null && amount > balance) {
         emit(
           state.copyWith(
-            amount: event.amount,
+            amount: normalized,
             amountError: () => TextError(error: 'Insufficient funds'),
           ),
         );
@@ -238,7 +240,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       if (amount <= Decimal.zero) {
         emit(
           state.copyWith(
-            amount: event.amount,
+            amount: normalized,
             amountError: () =>
                 TextError(error: 'Amount must be greater than 0'),
           ),
@@ -248,7 +250,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
 
       emit(
         state.copyWith(
-          amount: event.amount,
+          amount: normalized,
           amountError: () => null,
           previewError: () => null,
         ),
@@ -256,7 +258,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
     } catch (e) {
       emit(
         state.copyWith(
-          amount: event.amount,
+          amount: normalizeDecimalString(event.amount),
           amountError: () => TextError(error: 'Invalid amount'),
         ),
       );

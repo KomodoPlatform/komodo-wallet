@@ -135,6 +135,61 @@ class DecimalTextInputFormatter extends TextInputFormatter {
   }
 }
 
+/// Normalizes a user-entered decimal string into a KDF-friendly canonical form.
+///
+/// Rules:
+/// - Trims whitespace
+/// - If both ',' and '.' exist: assumes the last occurring symbol is the decimal
+///   separator; removes the other as thousands separator
+/// - If only ',' exists: converts it to '.'
+/// - If only '.' exists: keeps as is
+/// Example: "1.234,56" -> "1234.56", "1,234.56" -> "1234.56", "0,1" -> "0.1"
+String normalizeDecimalString(String value) {
+  String v = value.trim();
+  if (v.isEmpty) return v;
+
+  final hasComma = v.contains(',');
+  final hasDot = v.contains('.');
+
+  if (hasComma && hasDot) {
+    final lastComma = v.lastIndexOf(',');
+    final lastDot = v.lastIndexOf('.');
+    if (lastComma > lastDot) {
+      // Likely EU format: 1.234,56
+      v = v.replaceAll('.', '').replaceAll(',', '.');
+    } else {
+      // Likely US format: 1,234.56
+      v = v.replaceAll(',', '');
+    }
+    return v;
+  }
+
+  if (hasComma && !hasDot) {
+    return v.replaceAll(',', '.');
+  }
+
+  return v;
+}
+
+/// Parses a decimal string tolerant to locale-specific separators.
+/// Returns null if parsing fails.
+Decimal? parseLocaleAwareDecimal(String value) {
+  if (value.isEmpty) return null;
+
+  // Fast path
+  final direct = Decimal.tryParse(value);
+  if (direct != null) return direct;
+
+  final normalized = normalizeDecimalString(value);
+  return Decimal.tryParse(normalized);
+}
+
+/// Parses a double tolerant to locale-specific separators.
+double? tryParseLocaleAwareDouble(String value) {
+  final d = parseLocaleAwareDecimal(value);
+  return d?.toDouble();
+}
+
 const _maxTimestampMillisecond = 8640000000000000;
 const _minTimestampMillisecond = -8639999999999999;
 

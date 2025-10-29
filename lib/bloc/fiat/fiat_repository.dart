@@ -5,6 +5,7 @@ import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/fiat/base_fiat_provider.dart';
 import 'package:web_dex/bloc/fiat/fiat_order_status.dart';
 import 'package:web_dex/bloc/fiat/models/models.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 
 class FiatRepository {
   FiatRepository(this.fiatProviders, this._coinsRepo);
@@ -136,7 +137,10 @@ class FiatRepository {
     }
 
     try {
-      final fiat = Decimal.parse(fiatAmount);
+      final fiat = parseLocaleAwareDecimal(fiatAmount);
+      if (fiat == null) {
+        throw FormatException('Invalid fiat amount');
+      }
 
       final coinAmount = fiat / spotPriceIncludingFee;
       return coinAmount.toDecimal(
@@ -185,7 +189,7 @@ class FiatRepository {
         return method.copyWith(
           priceInfo: method.priceInfo.copyWith(
             coinAmount: coinAmount,
-            fiatAmount: Decimal.tryParse(sourceAmount) ?? Decimal.zero,
+            fiatAmount: parseLocaleAwareDecimal(sourceAmount) ?? Decimal.zero,
           ),
         );
       }).toList();
