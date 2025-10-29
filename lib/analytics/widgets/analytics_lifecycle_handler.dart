@@ -69,10 +69,18 @@ class _AnalyticsLifecycleHandlerState extends State<AnalyticsLifecycleHandler>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
+    log('AnalyticsLifecycleHandler: App lifecycle state changed to $state');
+
     // Log app opened event when app is resumed (but not on initial open)
     if (state == AppLifecycleState.resumed && _hasLoggedInitialOpen) {
+      log('AnalyticsLifecycleHandler: App resumed, triggering health check after backoff');
       _logAppOpenedEvent();
-      _checkAuthStatus();
+      // Add 150ms backoff before health check to avoid race where native status
+      // reports "running" but HTTP listener hasn't bound yet after iOS backgrounding
+      Future.delayed(const Duration(milliseconds: 150), () {
+        log('AnalyticsLifecycleHandler: Backoff complete, checking auth status');
+        _checkAuthStatus();
+      });
     }
   }
 

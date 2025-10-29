@@ -1,5 +1,6 @@
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/rpc_extras.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/withdraw/fee/fee_request.dart';
 
 class WithdrawRequestParams {
@@ -48,6 +49,7 @@ class WithdrawRequest
   @override
   Map<String, dynamic> toJson() {
     final FeeRequest? fee = params.fee;
+    final extras = RpcExtras.withdrawForCoin(params.coin);
 
     return <String, dynamic>{
       'method': method,
@@ -60,7 +62,7 @@ class WithdrawRequest
         if (params.memo != null) 'memo': params.memo,
         if (params.amount != null) 'amount': params.amount,
         if (fee != null) 'fee': fee.toJson(),
-      },
+      }..addAll(extras),
     };
   }
 }
