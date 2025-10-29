@@ -82,6 +82,7 @@ class _MarketMakerBotFormContentState extends State<MarketMakerBotFormContent> {
                       maximumTradeVolume: state.maximumTradeVolume,
                       onItemSelected: _onSelectSellCoin,
                       onTradeVolumeChanged: _onVolumeRangeChanged,
+                      showSellAmountSpinner: state.isLoadingMaxMakerVolume,
                     ),
                     bottomWidget: BuyCoinSelectDropdown(
                       key: const Key('$keyPrefix-buy-select'),

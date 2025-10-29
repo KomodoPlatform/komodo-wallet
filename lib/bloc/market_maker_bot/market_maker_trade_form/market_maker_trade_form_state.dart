@@ -32,6 +32,7 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
     this.tradePreImageError,
     this.tradePreImage,
     this.maxMakerVolume,
+    this.isLoadingMaxMakerVolume = false,
   });
 
   MarketMakerTradeFormState.initial()
@@ -47,7 +48,8 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
       stage = MarketMakerTradeFormStage.initial,
       tradePreImageError = null,
       tradePreImage = null,
-      maxMakerVolume = null;
+      maxMakerVolume = null,
+      isLoadingMaxMakerVolume = false;
 
   /// The coin being sold in the trade pair (base coin).
   final CoinSelectInput sellCoin;
@@ -90,6 +92,9 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
   /// The maximum maker volume available for swaps for the sell coin.
   /// This value is fetched from the DEX API and cached in the state.
   final Rational? maxMakerVolume;
+
+  /// Indicates whether the max maker volume is currently being fetched.
+  final bool isLoadingMaxMakerVolume;
 
   /// The price of the trade pair derived from the USD price of the coins.
   /// Price = baseCoinUsdPrice / relCoinUsdPrice.
@@ -167,6 +172,7 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
     MarketMakerTradeFormStage? stage,
     TradePreimage? tradePreImage,
     Rational? maxMakerVolume,
+    bool? isLoadingMaxMakerVolume,
   }) {
     return MarketMakerTradeFormState(
       sellCoin: sellCoin ?? this.sellCoin,
@@ -182,6 +188,8 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
       stage: stage ?? this.stage,
       tradePreImage: tradePreImage ?? this.tradePreImage,
       maxMakerVolume: maxMakerVolume ?? this.maxMakerVolume,
+      isLoadingMaxMakerVolume:
+          isLoadingMaxMakerVolume ?? this.isLoadingMaxMakerVolume,
     );
   }
 
@@ -236,5 +244,6 @@ class MarketMakerTradeFormState extends Equatable with FormzMixin {
     status,
     tradePreImage,
     maxMakerVolume,
+    isLoadingMaxMakerVolume,
   ];
 }

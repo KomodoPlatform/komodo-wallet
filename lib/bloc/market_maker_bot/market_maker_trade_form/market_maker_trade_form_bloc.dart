@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
+import 'package:get_it/get_it.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:rational/rational.dart';
+import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
 import 'package:web_dex/bloc/dex_repository.dart';
 import 'package:web_dex/bloc/market_maker_bot/market_maker_order_list/trade_pair.dart';
@@ -64,19 +67,28 @@ class MarketMakerTradeFormBloc
   /// when they are selected in the trade form
   final CoinsRepo _coinsRepo;
 
+  final _sdk = GetIt.I<KomodoDefiSdk>();
+
   Future<void> _onSellCoinChanged(
     MarketMakerTradeFormSellCoinChanged event,
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
     final identicalBuyAndSellCoins = state.buyCoin.value == event.sellCoin;
-    final sellCoin = event.sellCoin?.abbr;
 
-    // Fetch and cache max maker volume for the sell coin instead of overall 
-    // spendable balance, as it includes non-swappable funds in addresses 
-    // beyond the dedicated swap address
-    final maxMakerVolume = sellCoin == null
-        ? null
-        : await _dexRepository.getMaxMakerVolume(sellCoin);
+    // Emit immediately with new coin selection for fast UI update
+    emit(
+      state.copyWith(
+        sellCoin: CoinSelectInput.dirty(event.sellCoin),
+        buyCoin: identicalBuyAndSellCoins
+            ? const CoinSelectInput.dirty(null, -1)
+            : state.buyCoin,
+        status: MarketMakerTradeFormStatus.success,
+        isLoadingMaxMakerVolume: true,
+      ),
+    );
+
+    // Fetch max maker volume with fallback to swap address balance
+    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(event.sellCoin);
 
     final maxMakerVolumeDouble = maxMakerVolume?.toDouble() ?? 0;
     final newSellAmount = CoinTradeAmountInput.dirty(
@@ -93,17 +105,13 @@ class MarketMakerTradeFormBloc
       newBuyAmount = CoinTradeAmountInput.dirty(buyAmountValue.toString());
     }
 
-    // Emit immediately with new coin selection for fast UI update
+    // Emit with calculated amounts after fetching max maker volume
     emit(
       state.copyWith(
-        sellCoin: CoinSelectInput.dirty(event.sellCoin),
         sellAmount: newSellAmount,
-        buyCoin: identicalBuyAndSellCoins
-            ? const CoinSelectInput.dirty(null, -1)
-            : state.buyCoin,
         buyAmount: newBuyAmount,
         maxMakerVolume: maxMakerVolume,
-        status: MarketMakerTradeFormStatus.success,
+        isLoadingMaxMakerVolume: false,
       ),
     );
 
@@ -235,11 +243,20 @@ class MarketMakerTradeFormBloc
     MarketMakerTradeFormSwapCoinsRequested event,
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
-    // Fetch max maker volume for the new sell coin (previously buy coin)
-    final buyCoinAbbr = state.buyCoin.value?.abbr;
-    final maxMakerVolume = buyCoinAbbr == null
-        ? null
-        : await _dexRepository.getMaxMakerVolume(buyCoinAbbr);
+    // Emit immediately with swapped coins for fast UI update
+    emit(
+      state.copyWith(
+        sellCoin: CoinSelectInput.dirty(state.buyCoin.value),
+        buyCoin: CoinSelectInput.dirty(state.sellCoin.value, -1, -1),
+        buyAmount: const CoinTradeAmountInput.dirty('0', -1),
+        isLoadingMaxMakerVolume: true,
+      ),
+    );
+
+    // Fetch max maker volume with fallback to swap address balance
+    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(
+      state.buyCoin.value,
+    );
 
     final maxMakerVolumeDouble = maxMakerVolume?.toDouble() ?? 0;
     final maxVolumeValue =
@@ -247,28 +264,24 @@ class MarketMakerTradeFormBloc
 
     final newSellAmount = maxVolumeValue * maxMakerVolumeDouble;
 
+    // Calculate buy amount if applicable
+    final newBuyAmount = state.buyCoin.value != null
+        ? _getBuyAmountFromSellAmount(
+            newSellAmount.toString(),
+            state.priceFromUsdWithMargin,
+          )
+        : 0.0;
+
+    // Emit with calculated amounts after fetching max maker volume
+    // Always clear loading flag, even on error
     emit(
       state.copyWith(
-        sellCoin: CoinSelectInput.dirty(state.buyCoin.value),
         sellAmount: CoinTradeAmountInput.dirty(newSellAmount.toString()),
-        buyCoin: CoinSelectInput.dirty(state.sellCoin.value, -1, -1),
-        buyAmount: const CoinTradeAmountInput.dirty('0', -1),
+        buyAmount: CoinTradeAmountInput.dirty(newBuyAmount.toString()),
         maxMakerVolume: maxMakerVolume,
+        isLoadingMaxMakerVolume: false,
       ),
     );
-
-    if (state.buyCoin.value != null) {
-      final newBuyAmount = _getBuyAmountFromSellAmount(
-        newSellAmount.toString(),
-        state.priceFromUsdWithMargin,
-      );
-
-      emit(
-        state.copyWith(
-          buyAmount: CoinTradeAmountInput.dirty(newBuyAmount.toString()),
-        ),
-      );
-    }
   }
 
   Future<void> _onTradeMarginChanged(
@@ -323,10 +336,8 @@ class MarketMakerTradeFormBloc
     final maxTradeVolume = event.tradePair.config.maxVolume?.value ?? 0.9;
     final minTradeVolume = event.tradePair.config.minVolume?.value ?? 0.01;
 
-    // Fetch max maker volume for the sell coin
-    final maxMakerVolume = sellCoin.value?.abbr == null
-        ? null
-        : await _dexRepository.getMaxMakerVolume(sellCoin.value!.abbr);
+    // Fetch max maker volume with fallback to swap address balance
+    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(sellCoin.value);
 
     final maxMakerVolumeDouble = maxMakerVolume?.toDouble() ?? 0;
     final sellAmountFromVolume = maxTradeVolume * maxMakerVolumeDouble;
@@ -576,6 +587,58 @@ class MarketMakerTradeFormBloc
       if (parentCoin != null && !parentCoin.isActive) {
         await _coinsRepo.activateCoinsSync([parentCoin]);
       }
+    }
+  }
+
+  /// Fetches the max maker volume for a coin with automatic fallback.
+  ///
+  /// First attempts to fetch from the DEX API via [getMaxMakerVolume].
+  /// If that fails or returns null, falls back to [_getSwapAddressBalance].
+  ///
+  /// Returns null if the coin is null or all attempts fail.
+  Future<Rational?> _getMaxMakerVolumeWithFallback(Coin? coin) async {
+    if (coin == null) {
+      return null;
+    }
+
+    try {
+      // Fetch max maker volume from DEX API
+      final maxMakerVolume = await _dexRepository.getMaxMakerVolume(coin.abbr);
+
+      // Fallback to swap address balance if RPC fails
+      if (maxMakerVolume == null) {
+        return await _getSwapAddressBalance(coin);
+      }
+
+      return maxMakerVolume;
+    } catch (e) {
+      // Fallback to swap address balance on error
+      return await _getSwapAddressBalance(coin);
+    }
+  }
+
+  /// Get the swap address balance as a fallback when getMaxMakerVolume fails.
+  /// This method retrieves the spendable balance from the address marked as
+  /// active for swaps (derivationPath ending with '/0' or null).
+  Future<Rational?> _getSwapAddressBalance(Coin coin) async {
+    try {
+      final asset = _sdk.getSdkAsset(coin.abbr);
+      final pubkeys = _sdk.pubkeys.lastKnown(asset.id);
+
+      if (pubkeys == null) {
+        return null;
+      }
+
+      // Find the swap address (isActiveForSwap = true)
+      final swapAddress = pubkeys.keys.firstWhere(
+        (pubkey) => pubkey.isActiveForSwap,
+        orElse: () => pubkeys.keys.first,
+      );
+
+      final spendable = swapAddress.balance.spendable;
+      return Rational.parse(spendable.toString());
+    } catch (e) {
+      return null;
     }
   }
 }
