@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
+import 'package:logging/logging.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -43,6 +44,7 @@ class MarketMakerTradeFormBloc
     required CoinsRepo coinsRepo,
   }) : _dexRepository = dexRepo,
        _coinsRepo = coinsRepo,
+       _log = Logger('MarketMakerTradeFormBloc'),
        super(MarketMakerTradeFormState.initial()) {
     on<MarketMakerTradeFormSellCoinChanged>(_onSellCoinChanged);
     on<MarketMakerTradeFormBuyCoinChanged>(_onBuyCoinChanged);
@@ -66,6 +68,8 @@ class MarketMakerTradeFormBloc
   /// The coins repository is used to activate coins that are not active
   /// when they are selected in the trade form
   final CoinsRepo _coinsRepo;
+
+  final Logger _log;
 
   final _sdk = GetIt.I<KomodoDefiSdk>();
 
@@ -556,7 +560,12 @@ class MarketMakerTradeFormBloc
       );
 
       return preimageData;
-    } catch (e) {
+    } catch (e, s) {
+      _log.shout(
+        'Failed to get preimage data for ${state.sellCoin.value?.abbr}/${state.buyCoin.value?.abbr}',
+        e,
+        s,
+      );
       return DataFromService(
         error: TradePreimagePriceTooLowError(
           price: '0',
@@ -611,7 +620,12 @@ class MarketMakerTradeFormBloc
       }
 
       return maxMakerVolume;
-    } catch (e) {
+    } catch (e, s) {
+      _log.warning(
+        'Failed to get max maker volume for ${coin.abbr}, falling back to swap address balance',
+        e,
+        s,
+      );
       // Fallback to swap address balance on error
       return await _getSwapAddressBalance(coin);
     }
@@ -637,7 +651,8 @@ class MarketMakerTradeFormBloc
 
       final spendable = swapAddress.balance.spendable;
       return Rational.parse(spendable.toString());
-    } catch (e) {
+    } catch (e, s) {
+      _log.shout('Failed to get swap address balance for ${coin.abbr}', e, s);
       return null;
     }
   }
