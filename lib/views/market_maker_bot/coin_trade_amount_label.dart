@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/model/coin.dart';
-import 'package:web_dex/views/dex/dex_helpers.dart';
+import 'package:web_dex/shared/utils/formatters.dart' show formatAmt;
+import 'package:web_dex/views/dex/dex_helpers.dart' show getFormattedFiatAmount;
 
 class CoinTradeAmountLabel extends StatelessWidget {
   const CoinTradeAmountLabel({
@@ -88,9 +89,7 @@ class TradeAmountDisplayText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedValue = value.toDouble().toStringAsFixed(
-      coin?.decimals ?? 8,
-    );
+    final formattedValue = formatAmt(value.toDouble());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
