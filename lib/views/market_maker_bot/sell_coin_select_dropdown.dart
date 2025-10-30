@@ -9,7 +9,7 @@ import 'package:web_dex/model/forms/coin_trade_amount_input.dart';
 import 'package:web_dex/model/forms/trade_volume_input.dart';
 import 'package:web_dex/views/dex/common/front_plate.dart';
 import 'package:web_dex/views/market_maker_bot/coin_selection_and_amount_input.dart';
-import 'package:web_dex/views/market_maker_bot/coin_trade_amount_form_field.dart';
+import 'package:web_dex/views/market_maker_bot/coin_trade_amount_label.dart';
 import 'package:web_dex/views/market_maker_bot/market_maker_form_error_message_extensions.dart';
 
 class SellCoinSelectDropdown extends StatelessWidget {
@@ -61,10 +61,9 @@ class SellCoinSelectDropdown extends StatelessWidget {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      CoinTradeAmountFormField(
+                      CoinTradeAmountLabel(
                         coin: sellCoin.value,
-                        initialValue: sellAmount.value,
-                        isEnabled: false,
+                        value: sellAmount.valueAsRational,
                         errorText: sellCoin.displayError?.text(sellCoin.value),
                       ),
                       Padding(

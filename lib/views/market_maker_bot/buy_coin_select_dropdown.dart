@@ -6,7 +6,7 @@ import 'package:web_dex/model/coin.dart';
 import 'package:web_dex/model/forms/coin_select_input.dart';
 import 'package:web_dex/model/forms/coin_trade_amount_input.dart';
 import 'package:web_dex/views/market_maker_bot/coin_selection_and_amount_input.dart';
-import 'package:web_dex/views/market_maker_bot/coin_trade_amount_form_field.dart';
+import 'package:web_dex/views/market_maker_bot/coin_trade_amount_label.dart' show CoinTradeAmountLabel;
 import 'package:web_dex/views/market_maker_bot/market_maker_form_error_message_extensions.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
@@ -56,10 +56,9 @@ class BuyCoinSelectDropdown extends StatelessWidget {
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          CoinTradeAmountFormField(
+          CoinTradeAmountLabel(
             coin: buyCoin.value,
-            initialValue: buyAmount.value,
-            isEnabled: false,
+            value: buyAmount.valueAsRational,
             errorText: buyCoin.displayError?.text(buyCoin.value),
           ),
           Padding(
