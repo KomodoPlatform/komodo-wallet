@@ -76,9 +76,12 @@ class MarketMakerTradeFormBloc
   ) async {
     final identicalBuyAndSellCoins = state.buyCoin.value == event.sellCoin;
     final sellCoin = event.sellCoin?.id;
-    final sellCoinBalance = sellCoin == null
-        ? 0
-        : (await _coinsRepo.tryGetBalanceInfo(sellCoin)).spendable.toDouble();
+    double sellCoinBalance = 0;
+    if (sellCoin != null) {
+      // Use repo guard to avoid SDK calls if inactive
+      sellCoinBalance =
+          (await _coinsRepo.tryGetBalanceInfo(sellCoin)).spendable.toDouble();
+    }
     final newSellAmount = CoinTradeAmountInput.dirty(
       (state.maximumTradeVolume.value * sellCoinBalance).toString(),
     );
@@ -175,9 +178,12 @@ class MarketMakerTradeFormBloc
     MarketMakerTradeFormTradeVolumeChanged event,
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
-    final sellCoinBalance =
-        await state.sellCoin.value?.getBalance(_sdk) ?? BalanceInfo.zero();
-    final spendableBalance = sellCoinBalance.spendable.toDouble();
+    BalanceInfo sellCoinBalanceInfo = BalanceInfo.zero();
+    if (state.sellCoin.value?.isActive == true) {
+      sellCoinBalanceInfo =
+          await state.sellCoin.value?.getBalance(_sdk) ?? BalanceInfo.zero();
+    }
+    final spendableBalance = sellCoinBalanceInfo.spendable.toDouble();
 
     final maximumTradeVolume =
         double.tryParse(event.maximumTradeVolume.toString()) ?? 0.0;
@@ -310,8 +316,11 @@ class MarketMakerTradeFormBloc
     );
     final maxTradeVolume = event.tradePair.config.maxVolume?.value ?? 0.9;
     final minTradeVolume = event.tradePair.config.minVolume?.value ?? 0.01;
-    final coinBalance =
-        (await sellCoin.value?.getBalance(_sdk)) ?? BalanceInfo.zero();
+    var coinBalance = BalanceInfo.zero();
+    if (sellCoin.value?.isActive == true) {
+      coinBalance =
+          (await sellCoin.value?.getBalance(_sdk)) ?? BalanceInfo.zero();
+    }
     final sellAmountFromVolume =
         maxTradeVolume * coinBalance.spendable.toDouble();
 
@@ -549,6 +558,11 @@ class MarketMakerTradeFormBloc
     if (coin == null) {
       return;
     }
+
+    // Gate auto-activations until initial activation completes
+    await _coinsRepo.waitForInitialActivationToComplete(
+      timeout: const Duration(seconds: 30),
+    );
 
     if (!coin.isActive) {
       await _coinsRepo.activateCoinsSync([coin]);
