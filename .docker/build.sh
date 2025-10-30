@@ -113,8 +113,8 @@ else
 fi
 # Add web-specific build arguments if the target is web
 if [ "$BUILD_TARGET" = "web" ]; then
-    echo "Adding web-specific build arguments: --no-web-resources-cdn"
-    BUILD_CMD="$BUILD_CMD --no-web-resources-cdn"
+    echo "Adding web-specific build arguments: --csp --no-web-resources-cdn"
+    BUILD_CMD="$BUILD_CMD --csp --no-web-resources-cdn"
 fi
 # Use the provided arguments for flutter build
 # Build a second time if needed, as asset downloads will require a rebuild on the first attempt

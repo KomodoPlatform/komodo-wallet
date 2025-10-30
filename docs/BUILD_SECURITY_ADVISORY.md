@@ -7,6 +7,7 @@ When building the Komodo Wallet for production, **always** use the following fla
 ```bash
 --enforce-lockfile  # When running 'flutter pub get'
 --no-pub            # When running 'flutter build'
+--csp               # When building for web (required for event streaming worker)
 --no-web-resources-cdn  # When building for web
 ```
 
@@ -45,6 +46,17 @@ This flag prevents Flutter from using Google-hosted CDNs for engine resources wh
 - **Improves privacy**: Prevents user browsers from making connections to third-party servers when using the application.
 - **Guarantees availability**: Application will function even if external CDNs become unavailable or are blocked in certain regions.
 - **Simplifies security audits**: All resources are contained within your deployment, making the security perimeter clearer.
+
+### `--csp`
+
+This flag enables Content Security Policy (CSP) compatibility mode for Flutter web builds.
+
+**Why this matters:**
+
+- **Required for Web Workers**: The event streaming worker (SharedWorker/Worker) requires CSP-compatible code generation to function properly.
+- **Enhanced security**: CSP-compatible builds generate code that works with strict Content Security Policy headers, preventing inline script execution.
+- **Browser compatibility**: Ensures the application functions correctly in environments with strict CSP policies.
+- **Future-proofing**: As browsers and security standards evolve, CSP compliance becomes increasingly important for web applications.
 
 ## Implementation Recommendations
 

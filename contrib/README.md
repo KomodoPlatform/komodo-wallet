@@ -80,7 +80,7 @@ flutter pub get --enforce-lockfile
 pushd macos; pod deintegrate; pod install; popd    # Generating Pods project
 
 # 2. Fetch all required artifacts (this runs komodo_wallet_build_transformer)
-flutter build web --no-pub -v
+flutter build web --csp --no-pub -v
 
 # 3. Build the macOS release application (ensure --flavor production is present)
 flutter build macos --no-pub --release -v \
