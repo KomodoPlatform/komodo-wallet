@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 import 'package:get_it/get_it.dart';
@@ -49,7 +50,11 @@ class MarketMakerTradeFormBloc
     on<MarketMakerTradeFormSellCoinChanged>(_onSellCoinChanged);
     on<MarketMakerTradeFormBuyCoinChanged>(_onBuyCoinChanged);
     on<MarketMakerTradeFormTradeVolumeChanged>(_onTradeVolumeChanged);
-    on<MarketMakerTradeFormSwapCoinsRequested>(_onSwapCoinsRequested);
+    // Prevent/reduce spamming by only processing one event at a time
+    on<MarketMakerTradeFormSwapCoinsRequested>(
+      _onSwapCoinsRequested,
+      transformer: droppable(),
+    );
     on<MarketMakerTradeFormTradeMarginChanged>(_onTradeMarginChanged);
     on<MarketMakerTradeFormUpdateIntervalChanged>(_onUpdateIntervalChanged);
     on<MarketMakerTradeFormClearRequested>(_onClearForm);
@@ -248,19 +253,19 @@ class MarketMakerTradeFormBloc
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
     // Emit immediately with swapped coins for fast UI update
+    final sellCoin = state.buyCoin.value;
+    final buyCoin = state.sellCoin.value;
     emit(
       state.copyWith(
-        sellCoin: CoinSelectInput.dirty(state.buyCoin.value),
-        buyCoin: CoinSelectInput.dirty(state.sellCoin.value, -1, -1),
+        sellCoin: CoinSelectInput.dirty(sellCoin),
+        buyCoin: CoinSelectInput.dirty(buyCoin, -1, -1),
         buyAmount: const CoinTradeAmountInput.dirty('0', -1),
         isLoadingMaxMakerVolume: true,
       ),
     );
 
     // Fetch max maker volume with fallback to swap address balance
-    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(
-      state.buyCoin.value,
-    );
+    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(sellCoin);
 
     final maxMakerVolumeDouble = maxMakerVolume?.toDouble() ?? 0;
     final maxVolumeValue =

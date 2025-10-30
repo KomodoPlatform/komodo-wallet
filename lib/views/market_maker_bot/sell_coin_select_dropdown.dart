@@ -50,7 +50,7 @@ class SellCoinSelectDropdown extends StatelessWidget {
                 ? const Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                      padding: EdgeInsets.only(right: 18),
+                      padding: EdgeInsets.only(right: 18, top: 27, bottom: 27),
                       child: SizedBox(
                         width: 20,
                         height: 20,
