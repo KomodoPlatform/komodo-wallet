@@ -192,6 +192,9 @@ class TransactionHistoryBloc
                 blockHeight: sanitized.blockHeight,
                 fee: sanitized.fee ?? existing.fee,
                 memo: sanitized.memo ?? existing.memo,
+                // Update the timestamp to change date from "Now" once tx
+                // is confirmed on the blockchain
+                timestamp: sanitized.timestamp,
               );
             }
 
@@ -250,8 +253,12 @@ class TransactionHistoryBloc
 
   int _compareTransactions(Transaction left, Transaction right) {
     // Unconfirmed (pending) transactions should appear first.
-    final leftIsUnconfirmed = left.confirmations == 0;
-    final rightIsUnconfirmed = right.confirmations == 0;
+    // Because tx stream events don't include confirmations, only consider
+    // 0 confirmations AND 0 timestamp as unconfirmed (1970)
+    final leftIsUnconfirmed =
+        left.confirmations == 0 && left.timestamp.millisecondsSinceEpoch == 0;
+    final rightIsUnconfirmed =
+        right.confirmations == 0 && right.timestamp.millisecondsSinceEpoch == 0;
 
     if (leftIsUnconfirmed != rightIsUnconfirmed) {
       return leftIsUnconfirmed ? -1 : 1;
