@@ -14,6 +14,8 @@ const Duration kActivationPollingInterval = Duration(
 
 // stored app preferences
 const String storedSettingsKey = '_atomicDexStoredSettings';
+// New settings key to avoid breaking older versions reading the legacy key
+const String storedSettingsKeyV2 = 'komodo_wallet_settings_v2';
 const String storedAnalyticsSettingsKey = 'analytics_settings';
 const String storedMarketMakerSettingsKey = 'market_maker_settings';
 const String lastLoggedInWalletKey = 'last_logged_in_wallet';

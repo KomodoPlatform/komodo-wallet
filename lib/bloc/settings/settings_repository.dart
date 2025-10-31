@@ -18,14 +18,32 @@ class SettingsRepository {
   }
 
   Future<void> updateSettings(StoredSettings settings) async {
-    final String encodedData = jsonEncode(settings.toJson());
-    await _storage.write(storedSettingsKey, encodedData);
+    // Write the new versioned key for current app reads
+    final String v2Data = jsonEncode(settings.toJson());
+    await _storage.write(storedSettingsKeyV2, v2Data);
+
+    // Also write a backward-compatible legacy shape so older app versions
+    // can continue to read their expected key without crashing.
+    final String legacyData = jsonEncode(settings.toLegacyJson());
+    await _storage.write(storedSettingsKey, legacyData);
   }
 
   static Future<StoredSettings> loadStoredSettings() async {
     final storage = getStorage();
-    final dynamic storedAppPrefs = await storage.read(storedSettingsKey);
+    try {
+      // Prefer V2 settings if present
+      final dynamic v2 = await storage.read(storedSettingsKeyV2);
+      if (v2 is Map<String, dynamic>) {
+        return StoredSettings.fromJson(v2);
+      }
 
-    return StoredSettings.fromJson(storedAppPrefs);
+      // Fallback to legacy key
+      final dynamic legacy = await storage.read(storedSettingsKey);
+      return StoredSettings.fromJson(
+        legacy is Map<String, dynamic> ? legacy : null,
+      );
+    } catch (_) {
+      return StoredSettings.initial();
+    }
   }
 }

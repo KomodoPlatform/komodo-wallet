@@ -62,6 +62,19 @@ class StoredSettings {
     };
   }
 
+  // Legacy representation kept for backward-compatible writes to
+  // shared_preferences.json so older app versions can still parse it.
+  Map<String, dynamic> toLegacyJson() {
+    return <String, dynamic>{
+      'themeModeIndex': mode.index,
+      storedAnalyticsSettingsKey: analytics.toJson(),
+      storedMarketMakerSettingsKey: marketMakerBotSettings.toLegacyJson(),
+      'testCoinsEnabled': testCoinsEnabled,
+      'weakPasswordsAllowed': weakPasswordsAllowed,
+      'hideZeroBalanceAssets': hideZeroBalanceAssets,
+    };
+  }
+
   StoredSettings copyWith({
     ThemeMode? mode,
     AnalyticsSettings? analytics,
