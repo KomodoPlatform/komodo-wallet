@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
-import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:logging/logging.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/bloc/coins_bloc/asset_coin_extension.dart';
 import 'package:web_dex/bloc/coins_bloc/coins_repo.dart';
@@ -44,11 +45,16 @@ class MarketMakerTradeFormBloc
     required CoinsRepo coinsRepo,
   }) : _dexRepository = dexRepo,
        _coinsRepo = coinsRepo,
+       _log = Logger('MarketMakerTradeFormBloc'),
        super(MarketMakerTradeFormState.initial()) {
     on<MarketMakerTradeFormSellCoinChanged>(_onSellCoinChanged);
     on<MarketMakerTradeFormBuyCoinChanged>(_onBuyCoinChanged);
     on<MarketMakerTradeFormTradeVolumeChanged>(_onTradeVolumeChanged);
-    on<MarketMakerTradeFormSwapCoinsRequested>(_onSwapCoinsRequested);
+    // Prevent/reduce spamming by only processing one event at a time
+    on<MarketMakerTradeFormSwapCoinsRequested>(
+      _onSwapCoinsRequested,
+      transformer: droppable(),
+    );
     on<MarketMakerTradeFormTradeMarginChanged>(_onTradeMarginChanged);
     on<MarketMakerTradeFormUpdateIntervalChanged>(_onUpdateIntervalChanged);
     on<MarketMakerTradeFormClearRequested>(_onClearForm);
@@ -60,8 +66,6 @@ class MarketMakerTradeFormBloc
     );
   }
 
-  final _sdk = GetIt.I<KomodoDefiSdk>();
-
   /// The dex repository is used to get the trade preimage, which is used
   /// to pre-emptively check if a trade will be successful
   final DexRepository _dexRepository;
@@ -70,17 +74,34 @@ class MarketMakerTradeFormBloc
   /// when they are selected in the trade form
   final CoinsRepo _coinsRepo;
 
+  final Logger _log;
+
+  final _sdk = GetIt.I<KomodoDefiSdk>();
+
   Future<void> _onSellCoinChanged(
     MarketMakerTradeFormSellCoinChanged event,
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
     final identicalBuyAndSellCoins = state.buyCoin.value == event.sellCoin;
-    final sellCoin = event.sellCoin?.id;
-    final sellCoinBalance = sellCoin == null
-        ? 0
-        : (await _coinsRepo.tryGetBalanceInfo(sellCoin)).spendable.toDouble();
+
+    // Emit immediately with new coin selection for fast UI update
+    emit(
+      state.copyWith(
+        sellCoin: CoinSelectInput.dirty(event.sellCoin),
+        buyCoin: identicalBuyAndSellCoins
+            ? const CoinSelectInput.dirty(null, -1)
+            : state.buyCoin,
+        status: MarketMakerTradeFormStatus.success,
+        isLoadingMaxMakerVolume: true,
+      ),
+    );
+
+    // Fetch max maker volume with fallback to swap address balance
+    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(event.sellCoin);
+
+    final maxMakerVolumeDouble = maxMakerVolume?.toDouble() ?? 0;
     final newSellAmount = CoinTradeAmountInput.dirty(
-      (state.maximumTradeVolume.value * sellCoinBalance).toString(),
+      (state.maximumTradeVolume.value * maxMakerVolumeDouble).toString(),
     );
 
     // Calculate buy amount if applicable
@@ -93,21 +114,18 @@ class MarketMakerTradeFormBloc
       newBuyAmount = CoinTradeAmountInput.dirty(buyAmountValue.toString());
     }
 
-    // Emit immediately with new coin selection for fast UI update
+    // Emit with calculated amounts after fetching max maker volume
     emit(
       state.copyWith(
-        sellCoin: CoinSelectInput.dirty(event.sellCoin),
         sellAmount: newSellAmount,
-        buyCoin: identicalBuyAndSellCoins
-            ? const CoinSelectInput.dirty(null, -1)
-            : state.buyCoin,
         buyAmount: newBuyAmount,
-        status: MarketMakerTradeFormStatus.success,
+        maxMakerVolume: maxMakerVolume,
+        isLoadingMaxMakerVolume: false,
       ),
     );
 
     // Activate coin before checking preimage
-    // TODO: consider removing this, as only enabled coins with a balance are 
+    // TODO: consider removing this, as only enabled coins with a balance are
     // displayed in the sell coins dropdown
     await _autoActivateCoin(event.sellCoin);
 
@@ -175,16 +193,16 @@ class MarketMakerTradeFormBloc
     MarketMakerTradeFormTradeVolumeChanged event,
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
-    final sellCoinBalance =
-        await state.sellCoin.value?.getBalance(_sdk) ?? BalanceInfo.zero();
-    final spendableBalance = sellCoinBalance.spendable.toDouble();
+    // Use cached maxMakerVolume instead of spendable balance, as only one
+    // address in HD mode can be used for swaps, the "Swap address"
+    final maxMakerVolumeDouble = state.maxMakerVolume?.toDouble() ?? 0;
 
     final maximumTradeVolume =
         double.tryParse(event.maximumTradeVolume.toString()) ?? 0.0;
     final newSellAmount = CoinTradeAmountInput.dirty(
-      (maximumTradeVolume * spendableBalance).toString(),
+      (maximumTradeVolume * maxMakerVolumeDouble).toString(),
       0,
-      spendableBalance,
+      maxMakerVolumeDouble,
     );
 
     final newBuyAmount = _getBuyAmountFromSellAmount(
@@ -202,7 +220,13 @@ class MarketMakerTradeFormBloc
       ),
     );
 
-    // Check for preimage errors asynchronously
+    // Trade preimage requires both buy and sell coins to be set, so no use in
+    // calling it before both are set. _getPreimageData checks this internally,
+    // but emits unnecessary failure states.
+    if (state.buyCoin.value == null || state.sellCoin.value == null) {
+      return;
+    }
+
     final preImage = await _getPreimageData(state);
     final preImageError = await _getPreImageError(preImage.error, state);
     final newSellAmountFromPreImage = await _getMaxSellAmountFromPreImage(
@@ -228,35 +252,45 @@ class MarketMakerTradeFormBloc
     MarketMakerTradeFormSwapCoinsRequested event,
     Emitter<MarketMakerTradeFormState> emit,
   ) async {
-    final buyCoinBalance =
-        await state.buyCoin.value?.getBalance(_sdk) ?? BalanceInfo.zero();
-    final spendableBalance = buyCoinBalance.spendable.toDouble();
-    final maxVolumeValue =
-        double.tryParse(state.maximumTradeVolume.value.toString()) ?? 0.0;
-
-    final newSellAmount = maxVolumeValue * spendableBalance;
-
+    // Emit immediately with swapped coins for fast UI update
+    final sellCoin = state.buyCoin.value;
+    final buyCoin = state.sellCoin.value;
     emit(
       state.copyWith(
-        sellCoin: CoinSelectInput.dirty(state.buyCoin.value),
-        sellAmount: CoinTradeAmountInput.dirty(newSellAmount.toString()),
-        buyCoin: CoinSelectInput.dirty(state.sellCoin.value, -1, -1),
+        sellCoin: CoinSelectInput.dirty(sellCoin),
+        buyCoin: CoinSelectInput.dirty(buyCoin, -1, -1),
         buyAmount: const CoinTradeAmountInput.dirty('0', -1),
+        isLoadingMaxMakerVolume: true,
       ),
     );
 
-    if (state.buyCoin.value != null) {
-      final newBuyAmount = _getBuyAmountFromSellAmount(
-        newSellAmount.toString(),
-        state.priceFromUsdWithMargin,
-      );
+    // Fetch max maker volume with fallback to swap address balance
+    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(sellCoin);
 
-      emit(
-        state.copyWith(
-          buyAmount: CoinTradeAmountInput.dirty(newBuyAmount.toString()),
-        ),
-      );
-    }
+    final maxMakerVolumeDouble = maxMakerVolume?.toDouble() ?? 0;
+    final maxVolumeValue =
+        double.tryParse(state.maximumTradeVolume.value.toString()) ?? 0.0;
+
+    final newSellAmount = maxVolumeValue * maxMakerVolumeDouble;
+
+    // Calculate buy amount if applicable
+    final newBuyAmount = state.buyCoin.value != null
+        ? _getBuyAmountFromSellAmount(
+            newSellAmount.toString(),
+            state.priceFromUsdWithMargin,
+          )
+        : 0.0;
+
+    // Emit with calculated amounts after fetching max maker volume
+    // Always clear loading flag, even on error
+    emit(
+      state.copyWith(
+        sellAmount: CoinTradeAmountInput.dirty(newSellAmount.toString()),
+        buyAmount: CoinTradeAmountInput.dirty(newBuyAmount.toString()),
+        maxMakerVolume: maxMakerVolume,
+        isLoadingMaxMakerVolume: false,
+      ),
+    );
   }
 
   Future<void> _onTradeMarginChanged(
@@ -310,15 +344,17 @@ class MarketMakerTradeFormBloc
     );
     final maxTradeVolume = event.tradePair.config.maxVolume?.value ?? 0.9;
     final minTradeVolume = event.tradePair.config.minVolume?.value ?? 0.01;
-    final coinBalance =
-        (await sellCoin.value?.getBalance(_sdk)) ?? BalanceInfo.zero();
-    final sellAmountFromVolume =
-        maxTradeVolume * coinBalance.spendable.toDouble();
+
+    // Fetch max maker volume with fallback to swap address balance
+    final maxMakerVolume = await _getMaxMakerVolumeWithFallback(sellCoin.value);
+
+    final maxMakerVolumeDouble = maxMakerVolume?.toDouble() ?? 0;
+    final sellAmountFromVolume = maxTradeVolume * maxMakerVolumeDouble;
 
     final sellAmount = CoinTradeAmountInput.dirty(
       sellAmountFromVolume.toString(),
       0,
-      coinBalance.spendable.toDouble(),
+      maxMakerVolumeDouble,
     );
     final tradeMargin = TradeMarginInput.dirty(
       event.tradePair.config.margin.toStringAsFixed(2),
@@ -337,6 +373,7 @@ class MarketMakerTradeFormBloc
         buyAmount: const CoinTradeAmountInput.dirty('0'),
         tradeMargin: tradeMargin,
         updateInterval: updateInterval,
+        maxMakerVolume: maxMakerVolume,
       ),
     );
 
@@ -466,14 +503,11 @@ class MarketMakerTradeFormBloc
       if (sellCoin.value?.abbr != preImageError.coin) {
         return sellAmountValue;
       }
-      final sellId = sellCoin.value?.assetId;
-      final balance = sellId != null ? await _coinsRepo.balance(sellId) : null;
 
       final requiredAmount = double.tryParse(preImageError.required) ?? 0;
-      final sellCoinBalance = balance ?? BalanceInfo.zero();
-      final newSellAmount =
-          sellAmountValue -
-          (requiredAmount - sellCoinBalance.spendable.toDouble());
+      final maxMakerVolume = state.maxMakerVolume?.toDouble() ?? 0;
+      final newSellAmount = sellAmountValue - (requiredAmount - maxMakerVolume);
+
       // Clamp to minimum of 0 to prevent negative sell amounts
       return newSellAmount.clamp(0, double.infinity);
     }
@@ -531,7 +565,12 @@ class MarketMakerTradeFormBloc
       );
 
       return preimageData;
-    } catch (e) {
+    } catch (e, s) {
+      _log.shout(
+        'Failed to get preimage data for ${state.sellCoin.value?.abbr}/${state.buyCoin.value?.abbr}',
+        e,
+        s,
+      );
       return DataFromService(
         error: TradePreimagePriceTooLowError(
           price: '0',
@@ -557,6 +596,64 @@ class MarketMakerTradeFormBloc
       if (parentCoin != null && !parentCoin.isActive) {
         await _coinsRepo.activateCoinsSync([parentCoin]);
       }
+    }
+  }
+
+  /// Fetches the max maker volume for a coin with automatic fallback.
+  ///
+  /// First attempts to fetch from the DEX API via [getMaxMakerVolume].
+  /// If that fails or returns null, falls back to [_getSwapAddressBalance].
+  ///
+  /// Returns null if the coin is null or all attempts fail.
+  Future<Rational?> _getMaxMakerVolumeWithFallback(Coin? coin) async {
+    if (coin == null) {
+      return null;
+    }
+
+    try {
+      // Fetch max maker volume from DEX API
+      final maxMakerVolume = await _dexRepository.getMaxMakerVolume(coin.abbr);
+
+      // Fallback to swap address balance if RPC fails
+      if (maxMakerVolume == null) {
+        return await _getSwapAddressBalance(coin);
+      }
+
+      return maxMakerVolume;
+    } catch (e, s) {
+      _log.warning(
+        'Failed to get max maker volume for ${coin.abbr}, falling back to swap address balance',
+        e,
+        s,
+      );
+      // Fallback to swap address balance on error
+      return await _getSwapAddressBalance(coin);
+    }
+  }
+
+  /// Get the swap address balance as a fallback when getMaxMakerVolume fails.
+  /// This method retrieves the spendable balance from the address marked as
+  /// active for swaps (derivationPath ending with '/0' or null).
+  Future<Rational?> _getSwapAddressBalance(Coin coin) async {
+    try {
+      final asset = _sdk.getSdkAsset(coin.abbr);
+      final pubkeys = _sdk.pubkeys.lastKnown(asset.id);
+
+      if (pubkeys == null) {
+        return null;
+      }
+
+      // Find the swap address (isActiveForSwap = true)
+      final swapAddress = pubkeys.keys.firstWhere(
+        (pubkey) => pubkey.isActiveForSwap,
+        orElse: () => pubkeys.keys.first,
+      );
+
+      final spendable = swapAddress.balance.spendable;
+      return Rational.parse(spendable.toString());
+    } catch (e, s) {
+      _log.shout('Failed to get swap address balance for ${coin.abbr}', e, s);
+      return null;
     }
   }
 }

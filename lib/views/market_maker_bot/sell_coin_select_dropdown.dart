@@ -9,7 +9,7 @@ import 'package:web_dex/model/forms/coin_trade_amount_input.dart';
 import 'package:web_dex/model/forms/trade_volume_input.dart';
 import 'package:web_dex/views/dex/common/front_plate.dart';
 import 'package:web_dex/views/market_maker_bot/coin_selection_and_amount_input.dart';
-import 'package:web_dex/views/market_maker_bot/coin_trade_amount_form_field.dart';
+import 'package:web_dex/views/market_maker_bot/coin_trade_amount_label.dart';
 import 'package:web_dex/views/market_maker_bot/market_maker_form_error_message_extensions.dart';
 
 class SellCoinSelectDropdown extends StatelessWidget {
@@ -23,6 +23,7 @@ class SellCoinSelectDropdown extends StatelessWidget {
     this.onTradeVolumeChanged,
     super.key,
     this.padding = EdgeInsets.zero,
+    this.showSellAmountSpinner = false,
   });
   final CoinSelectInput sellCoin;
   final CoinTradeAmountInput sellAmount;
@@ -32,6 +33,7 @@ class SellCoinSelectDropdown extends StatelessWidget {
   final EdgeInsets padding;
   final Function(Coin?)? onItemSelected;
   final Function(RangeValues)? onTradeVolumeChanged;
+  final bool showSellAmountSpinner;
 
   @override
   Widget build(BuildContext context) {
@@ -44,30 +46,41 @@ class SellCoinSelectDropdown extends StatelessWidget {
             coins: coins,
             onItemSelected: onItemSelected,
             useFrontPlate: false,
-            trailing: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                CoinTradeAmountFormField(
-                  coin: sellCoin.value,
-                  initialValue: sellAmount.value,
-                  isEnabled: false,
-                  errorText: sellCoin.displayError?.text(sellCoin.value),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 18),
-                  child: Text(
-                    '* ${LocaleKeys.mmBotFirstTradeEstimate.tr()}',
-                    style: TextStyle(
-                      color: dexPageColors.inactiveText,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+            trailing: showSellAmountSpinner
+                ? const Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 18, top: 27, bottom: 27),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                     ),
-                    textAlign: TextAlign.end,
-                    overflow: TextOverflow.ellipsis,
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      CoinTradeAmountLabel(
+                        coin: sellCoin.value,
+                        value: sellAmount.valueAsRational,
+                        errorText: sellCoin.displayError?.text(sellCoin.value),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 18),
+                        child: Text(
+                          '* ${LocaleKeys.mmBotFirstTradeEstimate.tr()}',
+                          style: TextStyle(
+                            color: dexPageColors.inactiveText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textAlign: TextAlign.end,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
           PercentageRangeSlider(
             title: AutoScrollText(
