@@ -71,7 +71,11 @@ class TradingEntitiesBloc implements BlocBase {
 
   @override
   void dispose() {
+    _closed = true;
     _authModeListener?.cancel();
+    timer?.cancel();
+    _myOrdersController.close();
+    _swapsController.close();
   }
 
   void runUpdate() {

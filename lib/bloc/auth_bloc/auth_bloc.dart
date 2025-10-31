@@ -98,6 +98,10 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
       // Log and continue to clear local auth state so UI can recover.
       _log.shout('Error during sign out, proceeding to reset state', e, s);
     } finally {
+      // Explicitly disconnect SSE on sign-out
+      _log.info('User signed out, disconnecting SSE...');
+      _kdfSdk.streaming.disconnect();
+      
       await _authChangesSubscription?.cancel();
       emit(AuthBlocState.initial());
     }
@@ -139,6 +143,11 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
 
       _log.info('Successfully logged in to wallet');
       emit(AuthBlocState.loggedIn(currentUser));
+      
+      // Explicitly connect SSE after successful login
+      _log.info('User authenticated, connecting SSE for streaming...');
+      _kdfSdk.streaming.connectIfNeeded();
+      
       _listenToAuthStateChanges();
     } catch (e, s) {
       if (e is AuthException) {
@@ -453,6 +462,17 @@ class AuthBloc extends Bloc<AuthBlocEvent, AuthBlocState> with TrezorAuthMixin {
           ? AuthorizeMode.logIn
           : AuthorizeMode.noLogin;
       add(AuthModeChanged(mode: event, currentUser: user));
+      
+      // Tie SSE connection lifecycle to authentication state
+      if (user != null) {
+        // User authenticated - connect SSE for balance/tx history streaming
+        _log.info('User authenticated, connecting SSE for streaming...');
+        _kdfSdk.streaming.connectIfNeeded();
+      } else {
+        // User signed out - disconnect SSE to clean up resources
+        _log.info('User signed out, disconnecting SSE...');
+        _kdfSdk.streaming.disconnect();
+      }
     });
   }
 

@@ -5,6 +5,8 @@ import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/withdraw_form/withdraw_form_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
+import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
+import 'package:web_dex/mm2/mm2_api/rpc/send_raw_transaction/send_raw_transaction_request.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/services/fd_monitor_service.dart';
@@ -21,12 +23,15 @@ import 'package:decimal/decimal.dart';
 class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
   final KomodoDefiSdk _sdk;
   final WalletType? _walletType;
+  final Mm2Api _mm2Api;
 
   WithdrawFormBloc({
     required Asset asset,
     required KomodoDefiSdk sdk,
+    required Mm2Api mm2Api,
     WalletType? walletType,
   }) : _sdk = sdk,
+       _mm2Api = mm2Api,
        _walletType = walletType,
        super(
          WithdrawFormState(
@@ -471,34 +476,48 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         state.copyWith(
           isSending: true,
           transactionError: () => null,
+          // No second device interaction is needed on confirm
           isAwaitingTrezorConfirmation: false,
         ),
       );
-
-      // Show Trezor progress message for hardware wallets
-      if (_walletType == WalletType.trezor) {
-        emit(state.copyWith(isAwaitingTrezorConfirmation: true));
+      final preview = state.preview;
+      if (preview == null) {
+        throw Exception('Missing withdrawal preview');
       }
 
-      await for (final progress in _sdk.withdrawals.withdraw(
-        state.toWithdrawParameters(),
-      )) {
-        if (progress.status == WithdrawalStatus.complete) {
-          emit(
-            state.copyWith(
-              step: WithdrawFormStep.success,
-              result: () => progress.withdrawalResult,
-              isSending: false,
-              isAwaitingTrezorConfirmation: false,
-            ),
-          );
-          return;
-        }
+      final response = await _mm2Api.sendRawTransaction(
+        SendRawTransactionRequest(
+          coin: preview.coin,
+          txHex: preview.txHex,
+        ),
+      );
 
-        if (progress.status == WithdrawalStatus.error) {
-          throw Exception(progress.errorMessage);
-        }
+      if (response.txHash == null) {
+        throw Exception(response.error?.message ?? 'Broadcast failed');
       }
+
+      final result = WithdrawalResult(
+        txHash: response.txHash!,
+        balanceChanges: preview.balanceChanges,
+        coin: preview.coin,
+        toAddress: preview.to.first,
+        fee: preview.fee,
+        kmdRewardsEligible:
+            preview.kmdRewards != null &&
+            Decimal.parse(preview.kmdRewards!.amount) > Decimal.zero,
+      );
+
+      emit(
+        state.copyWith(
+          step: WithdrawFormStep.success,
+          result: () => result,
+          // Clear cached preview after successful broadcast
+          preview: () => null,
+          isSending: false,
+          isAwaitingTrezorConfirmation: false,
+        ),
+      );
+      return;
     } catch (e) {
       // Capture FD snapshot when KDF withdrawal submission fails
       if (PlatformTuner.isIOS) {

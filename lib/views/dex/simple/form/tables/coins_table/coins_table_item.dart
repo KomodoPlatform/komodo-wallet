@@ -13,6 +13,7 @@ class CoinsTableItem<T> extends StatelessWidget {
     required this.coin,
     this.isGroupHeader = false,
     this.subtitleText,
+    this.trailing,
   });
 
   final T? data;
@@ -20,6 +21,7 @@ class CoinsTableItem<T> extends StatelessWidget {
   final Function(T) onSelect;
   final bool isGroupHeader;
   final String? subtitleText;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,10 @@ class CoinsTableItem<T> extends StatelessWidget {
             showNetworkLogo: !isGroupHeader,
           ),
           const SizedBox(width: 8),
-          if (coin.isActive) CoinBalance(coin: coin, isVertical: true),
+          if (trailing != null)
+            trailing!
+          else if (coin.isActive)
+            CoinBalance(coin: coin, isVertical: true),
         ],
       ),
     );
