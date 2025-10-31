@@ -1,9 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/message_service_config/message_service_config.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
 
 /// Settings for the KDF Simple Market Maker Bot.
 class MarketMakerBotSettings extends Equatable {
+  static final Logger _log = Logger('MarketMakerBotSettings');
+
   const MarketMakerBotSettings({
     required this.isMMBotEnabled,
     required this.botRefreshRate,
@@ -38,31 +41,40 @@ class MarketMakerBotSettings extends Equatable {
     final dynamic configsRaw = json['trade_coin_pair_configs'];
     final List<TradeCoinPairConfig> configs = (configsRaw is List)
         ? configsRaw
-            .whereType<Map<String, dynamic>>()
-            .map((e) {
-              try {
-                // Skip invalid entries that are missing required fields
-                if (!e.containsKey('name') ||
-                    !e.containsKey('base') ||
-                    !e.containsKey('rel') ||
-                    !e.containsKey('spread') ||
-                    !e.containsKey('enable')) {
+              .map((dynamic e) {
+                // Log before skipping, rather than silently filtering invalid entries
+                if (e is! Map<String, dynamic>) {
+                  _log.warning('Invalid trade coin pair config: $e');
                   return null;
                 }
-                return TradeCoinPairConfig.fromJson(e);
-              } catch (_) {
-                return null;
-              }
-            })
-            .whereType<TradeCoinPairConfig>()
-            .toList()
+
+                try {
+                  // Skip invalid entries rather than crashing on startup
+                  if (!e.containsKey('name') ||
+                      !e.containsKey('base') ||
+                      !e.containsKey('rel') ||
+                      !e.containsKey('spread') ||
+                      !e.containsKey('enable')) {
+                    _log.warning('Invalid trade coin pair config: $e');
+                    return null;
+                  }
+                  return TradeCoinPairConfig.fromJson(e);
+                } catch (error, stackTrace) {
+                  _log.warning(
+                    'Invalid trade coin pair config',
+                    error,
+                    stackTrace,
+                  );
+                  return null;
+                }
+              })
+              .whereType<TradeCoinPairConfig>()
+              .toList()
         : const <TradeCoinPairConfig>[];
 
-    final MessageServiceConfig? messageCfg = (json['message_service_config']
-                is Map<String, dynamic>)
-        ? MessageServiceConfig.fromJson(
-            json['message_service_config'] as Map<String, dynamic>,
-          )
+    final MessageServiceConfig? messageCfg =
+        (json['message_service_config'] is Map<String, dynamic>)
+        ? MessageServiceConfig.fromJson(json['message_service_config'])
         : null;
 
     return MarketMakerBotSettings(
