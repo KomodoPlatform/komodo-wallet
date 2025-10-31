@@ -44,6 +44,11 @@ const Duration kPerformanceLogInterval = Duration(minutes: 1);
 /// - Balance and price update polling
 const bool kDebugElectrumLogs = true;
 
+/// Temporary failure simulation toggles for testing UI/flows.
+/// Guarded by kDebugMode in calling sites.
+const bool kSimulateBestOrdersFailure = false;
+const double kSimulatedBestOrdersFailureRate = 0.5; // 50%
+
 // This information is here because it is not contextual and is branded.
 // Names of their own are not localized. Also, the application is initialized before
 // the localization package is initialized.

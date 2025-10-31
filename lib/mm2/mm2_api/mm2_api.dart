@@ -241,7 +241,27 @@ class Mm2Api {
 
   Future<Map<String, dynamic>?> getBestOrders(BestOrdersRequest request) async {
     try {
-      return await _mm2.call(request) as Map<String, dynamic>?;
+      final Map<String, dynamic>? response = await retry(
+        () async {
+          final Map<String, dynamic>? resp =
+              await _mm2.call(request) as Map<String, dynamic>?;
+          if (resp == null) {
+            throw Exception('null response');
+          }
+          if (resp['error'] != null) {
+            // Throw to allow a quick retry during transient auth/session races
+            throw Exception(resp['error'].toString());
+          }
+          return resp;
+        },
+        maxAttempts: 4,
+        backoffStrategy: const LinearBackoff(
+          initialDelay: Duration(milliseconds:  500),
+          increment: Duration(milliseconds: 250),
+          maxDelay: Duration(seconds: 3),
+        ),
+      );
+      return response;
     } catch (e, s) {
       log(
         'Error getting best orders ${request.coin}: $e',

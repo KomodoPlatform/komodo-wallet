@@ -1,3 +1,5 @@
+import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:rational/rational.dart';
 import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
@@ -19,6 +21,8 @@ import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_request.da
 import 'package:web_dex/mm2/mm2_api/rpc/trade_preimage/trade_preimage_response.dart';
 import 'package:web_dex/model/data_from_service.dart';
 import 'package:web_dex/model/swap.dart';
+import 'package:web_dex/router/state/routing_state.dart';
+import 'package:web_dex/model/main_menu_value.dart';
 import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/services/mappers/trade_preimage_mappers.dart';
@@ -54,9 +58,12 @@ class DexRepository {
       swapMethod: swapMethod,
       max: max,
     );
-    final ApiResponse<TradePreimageRequest, TradePreimageResponseResult,
-            Map<String, dynamic>> response =
-        await _mm2Api.getTradePreimage(request);
+    final ApiResponse<
+      TradePreimageRequest,
+      TradePreimageResponseResult,
+      Map<String, dynamic>
+    >
+    response = await _mm2Api.getTradePreimage(request);
 
     final Map<String, dynamic>? error = response.error;
     final TradePreimageResponseResult? result = response.result;
@@ -88,8 +95,9 @@ class DexRepository {
   }
 
   Future<Rational?> getMaxTakerVolume(String coinAbbr) async {
-    final MaxTakerVolResponse? response =
-        await _mm2Api.getMaxTakerVolume(MaxTakerVolRequest(coin: coinAbbr));
+    final MaxTakerVolResponse? response = await _mm2Api.getMaxTakerVolume(
+      MaxTakerVolRequest(coin: coinAbbr),
+    );
     if (response == null) {
       return null;
     }
@@ -98,8 +106,9 @@ class DexRepository {
   }
 
   Future<Rational?> getMaxMakerVolume(String coinAbbr) async {
-    final MaxMakerVolResponse? response =
-        await _mm2Api.getMaxMakerVolume(MaxMakerVolRequest(coin: coinAbbr));
+    final MaxMakerVolResponse? response = await _mm2Api.getMaxMakerVolume(
+      MaxMakerVolRequest(coin: coinAbbr),
+    );
     if (response == null) {
       return null;
     }
@@ -108,8 +117,9 @@ class DexRepository {
   }
 
   Future<Rational?> getMinTradingVolume(String coinAbbr) async {
-    final MinTradingVolResponse? response =
-        await _mm2Api.getMinTradingVol(MinTradingVolRequest(coin: coinAbbr));
+    final MinTradingVolResponse? response = await _mm2Api.getMinTradingVol(
+      MinTradingVolRequest(coin: coinAbbr),
+    );
     if (response == null) {
       return null;
     }
@@ -122,28 +132,82 @@ class DexRepository {
   }
 
   Future<BestOrders> getBestOrders(BestOrdersRequest request) async {
+    // Only allow best_orders when user is on Swap (DEX) or Bridge pages
+    final MainMenuValue current = routingState.selectedMenu;
+    final bool isTradingPage =
+        current == MainMenuValue.dex || current == MainMenuValue.bridge;
+    if (!isTradingPage) {
+      // Not an error – we intentionally suppress best_orders away from trading pages
+      return BestOrders(result: <String, List<BestOrder>>{});
+    }
+
+    // Testing aid: opt-in random failure in debug mode
+    if (kDebugMode &&
+        kSimulateBestOrdersFailure &&
+        Random().nextDouble() < kSimulatedBestOrdersFailureRate) {
+      return BestOrders(
+        error: TextError(error: 'Simulated best_orders failure (debug)'),
+      );
+    }
+
     Map<String, dynamic>? response;
     try {
       response = await _mm2Api.getBestOrders(request);
-    } catch (e) {
+    } catch (e, s) {
+      log(
+        'best_orders request failed: $e',
+        trace: s,
+        path: 'api => getBestOrders',
+        isError: true,
+      ).ignore();
       return BestOrders(error: TextError.fromString(e.toString()));
     }
 
-    final isErrorResponse =
-        (response?['error'] as String?)?.isNotEmpty ?? false;
-    final hasResult =
-        (response?['result'] as Map<String, dynamic>?)?.isNotEmpty ?? false;
-
-    if (isErrorResponse) {
-      return BestOrders(error: TextError(error: response!['error']!));
+    if (response == null) {
+      return BestOrders(
+        error: TextError(error: 'best_orders returned null response'),
+      );
     }
 
-    if (!hasResult) {
-      return BestOrders(error: TextError(error: 'Orders not found!'));
+    final String? errorText = response['error'] as String?;
+    if (errorText != null && errorText.isNotEmpty) {
+      // Map known "no orders" network condition to empty result so UI shows a
+      // graceful "Nothing found" instead of an error panel.
+      final String? errorType = response['error_type'] as String?;
+      final String? errorPath = response['error_path'] as String?;
+      final bool isNoOrdersNetworkCondition =
+          errorPath == 'best_orders' &&
+          errorType == 'P2PError' &&
+          errorText.contains('No response from any peer');
+
+      // Mm2Api.getBestOrders may wrap MM2 errors in an Exception() during
+      // retry handling, yielding text like: "Exception: No response from any peer"
+      // (without error_type/error_path). Treat these as "no orders" as well.
+      final bool isWrappedNoOrdersText = errorText.toLowerCase().contains(
+        'no response from any peer',
+      );
+
+      if (isNoOrdersNetworkCondition || isWrappedNoOrdersText) {
+        return BestOrders(result: <String, List<BestOrder>>{});
+      }
+
+      log(
+        'best_orders returned error: $errorText',
+        path: 'api => getBestOrders',
+        isError: true,
+      ).ignore();
+      return BestOrders(error: TextError(error: errorText));
+    }
+
+    final Map<String, dynamic>? result =
+        response['result'] as Map<String, dynamic>?;
+    if (result == null || result.isEmpty) {
+      // No error and no result → no liquidity available
+      return BestOrders(result: <String, List<BestOrder>>{});
     }
 
     try {
-      return BestOrders.fromJson(response!);
+      return BestOrders.fromJson(response);
     } catch (e, s) {
       log('Error parsing best_orders response: $e', trace: s, isError: true);
 
@@ -156,8 +220,9 @@ class DexRepository {
   }
 
   Future<Swap> getSwapStatus(String swapUuid) async {
-    final response =
-        await _mm2Api.getSwapStatus(MySwapStatusReq(uuid: swapUuid));
+    final response = await _mm2Api.getSwapStatus(
+      MySwapStatusReq(uuid: swapUuid),
+    );
 
     if (response['error'] != null) {
       throw TextError(error: response['error']);

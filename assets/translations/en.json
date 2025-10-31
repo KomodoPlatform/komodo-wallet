@@ -507,6 +507,8 @@
   "orderBookNoAsks": "No asks found",
   "orderBookNoBids": "No bids found",
   "orderBookEmpty": "Orderbook is empty",
+  "dexNoSwapOffers": "No swap offers available for the selected asset.",
+  "bridgeNoCrossNetworkRoutes": "No cross-network routes found for this asset.",
   "freshAddress": "Fresh address",
   "userActionRequired": "User action required",
   "unknown": "Unknown",
