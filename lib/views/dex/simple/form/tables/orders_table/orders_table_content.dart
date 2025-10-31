@@ -11,10 +11,11 @@ import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/base.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/best_orders/best_orders.dart';
 import 'package:web_dex/model/authorize_mode.dart';
-import 'package:web_dex/views/dex/simple/form/tables/nothing_found.dart';
 import 'package:web_dex/views/dex/simple/form/tables/orders_table/grouped_list_view.dart';
 import 'package:web_dex/views/dex/simple/form/tables/table_utils.dart';
 import 'package:komodo_ui_kit/komodo_ui_kit.dart';
+import 'package:web_dex/router/state/routing_state.dart';
+import 'package:web_dex/model/main_menu_value.dart';
 
 class OrdersTableContent extends StatelessWidget {
   const OrdersTableContent({
@@ -61,7 +62,9 @@ class OrdersTableContent extends StatelessWidget {
                   .testCoinsEnabled,
             );
 
-            if (orders.isEmpty) return const NothingFound();
+            if (orders.isEmpty) {
+              return const _NoOrdersCta();
+            }
 
             return GroupedListView<BestOrder>(
               items: orders,
@@ -110,6 +113,40 @@ class _ErrorMessage extends StatelessWidget {
                     context.read<TakerBloc>().add(TakerUpdateBestOrders()),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NoOrdersCta extends StatelessWidget {
+  const _NoOrdersCta();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 30, 12, 20),
+      alignment: const Alignment(0, 0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            LocaleKeys.dexNoSwapOffers.tr(),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 8),
+          UiSimpleButton(
+            child: Text(
+              // Reuse existing localization for Maker order label
+              LocaleKeys.makerOrder.tr(),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            onPressed: () {
+              routingState.selectedMenu = MainMenuValue.dex;
+              routingState.dexState.orderType = 'maker';
+            },
           ),
         ],
       ),
