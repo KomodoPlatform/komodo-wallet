@@ -166,7 +166,7 @@ runs:
         echo "Running build command: $BUILD_CMD"
         set +e  # Don't exit immediately on error
         $BUILD_CMD
-        ls -la /build/web/kdf/kdf/bin/
+        ls -la build/web/kdf/kdf/bin/
         exit_status=$?
         set -e  # Restore exit on error behavior
 
