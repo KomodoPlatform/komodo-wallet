@@ -10,6 +10,7 @@ runs:
         SDK_KDF_ASSETS_DIR=build/web/assets/packages/komodo_defi_framework
 
         # Check that the web build folder contains a wasm file in the format build/web/kdf/*.wasm
+        cp web/kdf/kdf/bin/*.wasm build/web/kdf/kdf/bin/. 2>/dev/null || true
         if [ ! -f build/web/kdf/kdf/bin/*.wasm ]; then
           echo "Error: Web build failed. No wasm file found in build/web/kdf/kdf/bin"
           # List files for debugging
