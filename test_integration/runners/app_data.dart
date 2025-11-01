@@ -3,7 +3,7 @@
 import 'dart:io';
 
 //app data path for mac and linux
-const String macAppData = '/Library/Containers/com.komodo.komodowallet';
+const String macAppData = '/Library/Containers/com.komodo.wallet';
 const String linuxAppData = '/.local/share/com.komodo.KomodoWallet';
 const String windowsAppData = r'\AppData\Roaming\com.komodo';
 
