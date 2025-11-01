@@ -10,6 +10,7 @@ class SettingsState extends Equatable {
     required this.testCoinsEnabled,
     required this.weakPasswordsAllowed,
     required this.hideZeroBalanceAssets,
+    required this.diagnosticLoggingEnabled,
   });
 
   factory SettingsState.fromStored(StoredSettings stored) {
@@ -19,6 +20,7 @@ class SettingsState extends Equatable {
       testCoinsEnabled: stored.testCoinsEnabled,
       weakPasswordsAllowed: stored.weakPasswordsAllowed,
       hideZeroBalanceAssets: stored.hideZeroBalanceAssets,
+      diagnosticLoggingEnabled: stored.diagnosticLoggingEnabled,
     );
   }
 
@@ -27,6 +29,7 @@ class SettingsState extends Equatable {
   final bool testCoinsEnabled;
   final bool weakPasswordsAllowed;
   final bool hideZeroBalanceAssets;
+  final bool diagnosticLoggingEnabled;
 
   @override
   List<Object?> get props => [
@@ -35,6 +38,7 @@ class SettingsState extends Equatable {
         testCoinsEnabled,
         weakPasswordsAllowed,
         hideZeroBalanceAssets,
+        diagnosticLoggingEnabled,
       ];
 
   SettingsState copyWith({
@@ -43,6 +47,7 @@ class SettingsState extends Equatable {
     bool? testCoinsEnabled,
     bool? weakPasswordsAllowed,
     bool? hideZeroBalanceAssets,
+    bool? diagnosticLoggingEnabled,
   }) {
     return SettingsState(
       themeMode: mode ?? themeMode,
@@ -51,6 +56,8 @@ class SettingsState extends Equatable {
       weakPasswordsAllowed: weakPasswordsAllowed ?? this.weakPasswordsAllowed,
       hideZeroBalanceAssets:
           hideZeroBalanceAssets ?? this.hideZeroBalanceAssets,
+      diagnosticLoggingEnabled:
+          diagnosticLoggingEnabled ?? this.diagnosticLoggingEnabled,
     );
   }
 }

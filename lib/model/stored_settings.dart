@@ -11,6 +11,7 @@ class StoredSettings {
     required this.testCoinsEnabled,
     required this.weakPasswordsAllowed,
     required this.hideZeroBalanceAssets,
+    required this.diagnosticLoggingEnabled,
   });
 
   final ThemeMode mode;
@@ -19,6 +20,7 @@ class StoredSettings {
   final bool testCoinsEnabled;
   final bool weakPasswordsAllowed;
   final bool hideZeroBalanceAssets;
+  final bool diagnosticLoggingEnabled;
 
   static StoredSettings initial() {
     return StoredSettings(
@@ -28,6 +30,7 @@ class StoredSettings {
       testCoinsEnabled: true,
       weakPasswordsAllowed: false,
       hideZeroBalanceAssets: false,
+      diagnosticLoggingEnabled: false,
     );
   }
 
@@ -43,6 +46,7 @@ class StoredSettings {
       testCoinsEnabled: json['testCoinsEnabled'] ?? true,
       weakPasswordsAllowed: json['weakPasswordsAllowed'] ?? false,
       hideZeroBalanceAssets: json['hideZeroBalanceAssets'] ?? false,
+      diagnosticLoggingEnabled: json['diagnosticLoggingEnabled'] ?? false,
     );
   }
 
@@ -54,6 +58,7 @@ class StoredSettings {
       'testCoinsEnabled': testCoinsEnabled,
       'weakPasswordsAllowed': weakPasswordsAllowed,
       'hideZeroBalanceAssets': hideZeroBalanceAssets,
+      'diagnosticLoggingEnabled': diagnosticLoggingEnabled,
     };
   }
 
@@ -64,6 +69,7 @@ class StoredSettings {
     bool? testCoinsEnabled,
     bool? weakPasswordsAllowed,
     bool? hideZeroBalanceAssets,
+    bool? diagnosticLoggingEnabled,
   }) {
     return StoredSettings(
       mode: mode ?? this.mode,
@@ -74,6 +80,8 @@ class StoredSettings {
       weakPasswordsAllowed: weakPasswordsAllowed ?? this.weakPasswordsAllowed,
       hideZeroBalanceAssets:
           hideZeroBalanceAssets ?? this.hideZeroBalanceAssets,
+      diagnosticLoggingEnabled:
+          diagnosticLoggingEnabled ?? this.diagnosticLoggingEnabled,
     );
   }
 }
