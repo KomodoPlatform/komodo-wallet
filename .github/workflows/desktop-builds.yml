@@ -73,6 +73,10 @@ jobs:
       - name: Fetch packages, generate assets, and build for ${{ matrix.platform }}
         env:
           GITHUB_API_PUBLIC_READONLY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Disable code signing for macOS PR builds
+          CODE_SIGNING_ALLOWED: ${{ matrix.platform == 'macos' && github.event_name == 'pull_request' && 'NO' || '' }}
+          CODE_SIGNING_REQUIRED: ${{ matrix.platform == 'macos' && github.event_name == 'pull_request' && 'NO' || '' }}
+          EXPANDED_CODE_SIGN_IDENTITY: ${{ matrix.platform == 'macos' && github.event_name == 'pull_request' && '-' || '' }}
         uses: ./.github/actions/generate-assets
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
