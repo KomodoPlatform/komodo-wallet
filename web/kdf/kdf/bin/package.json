@@ -1,0 +1,34 @@
+{
+  "name": "mm2_bin_lib",
+  "type": "module",
+  "collaborators": [
+    "James Lee",
+    "Artem Pikulin",
+    "Artem Grinblat",
+    "Omar S.",
+    "Onur Ozkan",
+    "Alina Sharon",
+    "Caglar Kaya",
+    "Cipi",
+    "Sergey Boiko",
+    "Samuel Onoja",
+    "Roman Sztergbaum",
+    "Kadan Stadelmann <ca333@komodoplatform.com>",
+    "Dimxy",
+    "Omer Yacine",
+    "DeckerSU",
+    "dragonhound <smk@komodoplatform>",
+    "Devin AI"
+  ],
+  "version": "2.5.2-beta",
+  "files": [
+    "kdflib_bg.wasm",
+    "kdflib.js",
+    "kdflib.d.ts"
+  ],
+  "main": "kdflib.js",
+  "types": "kdflib.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
