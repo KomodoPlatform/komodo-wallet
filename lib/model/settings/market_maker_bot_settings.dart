@@ -1,9 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:logging/logging.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/message_service_config/message_service_config.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/market_maker_bot/trade_coin_pair_config.dart';
 
 /// Settings for the KDF Simple Market Maker Bot.
 class MarketMakerBotSettings extends Equatable {
+  static final Logger _log = Logger('MarketMakerBotSettings');
+
   const MarketMakerBotSettings({
     required this.isMMBotEnabled,
     required this.botRefreshRate,
@@ -28,21 +31,57 @@ class MarketMakerBotSettings extends Equatable {
   /// Returns the initial settings if the JSON map is null or does not contain
   /// the required `is_market_maker_bot_enabled` key.
   factory MarketMakerBotSettings.fromJson(Map<String, dynamic>? json) {
-    if (json == null || !json.containsKey('is_market_maker_bot_enabled')) {
-      return MarketMakerBotSettings.initial();
-    }
+    if (json == null) return MarketMakerBotSettings.initial();
+
+    final bool? enabled = json['is_market_maker_bot_enabled'] as bool?;
+    final int refresh = (json['bot_refresh_rate'] is int)
+        ? json['bot_refresh_rate'] as int
+        : int.tryParse('${json['bot_refresh_rate']}') ?? 60;
+
+    final dynamic configsRaw = json['trade_coin_pair_configs'];
+    final List<TradeCoinPairConfig> configs = (configsRaw is List)
+        ? configsRaw
+              .map((dynamic e) {
+                // Log before skipping, rather than silently filtering invalid entries
+                if (e is! Map<String, dynamic>) {
+                  _log.warning('Invalid trade coin pair config: $e');
+                  return null;
+                }
+
+                try {
+                  // Skip invalid entries rather than crashing on startup
+                  if (!e.containsKey('name') ||
+                      !e.containsKey('base') ||
+                      !e.containsKey('rel') ||
+                      !e.containsKey('spread') ||
+                      !e.containsKey('enable')) {
+                    _log.warning('Invalid trade coin pair config: $e');
+                    return null;
+                  }
+                  return TradeCoinPairConfig.fromJson(e);
+                } catch (error, stackTrace) {
+                  _log.warning(
+                    'Invalid trade coin pair config',
+                    error,
+                    stackTrace,
+                  );
+                  return null;
+                }
+              })
+              .whereType<TradeCoinPairConfig>()
+              .toList()
+        : const <TradeCoinPairConfig>[];
+
+    final MessageServiceConfig? messageCfg =
+        (json['message_service_config'] is Map<String, dynamic>)
+        ? MessageServiceConfig.fromJson(json['message_service_config'])
+        : null;
 
     return MarketMakerBotSettings(
-      isMMBotEnabled: json['is_market_maker_bot_enabled'] as bool,
-      botRefreshRate: json['bot_refresh_rate'] as int,
-      tradeCoinPairConfigs: (json['trade_coin_pair_configs'] as List<dynamic>)
-          .map((e) => TradeCoinPairConfig.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      messageServiceConfig: json['message_service_config'] == null
-          ? null
-          : MessageServiceConfig.fromJson(
-              json['message_service_config'] as Map<String, dynamic>,
-            ),
+      isMMBotEnabled: enabled ?? false,
+      botRefreshRate: refresh,
+      tradeCoinPairConfigs: configs,
+      messageServiceConfig: messageCfg,
     );
   }
 
@@ -63,6 +102,22 @@ class MarketMakerBotSettings extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'is_market_maker_bot_enabled': isMMBotEnabled,
+      'bot_refresh_rate': botRefreshRate,
+      'trade_coin_pair_configs': tradeCoinPairConfigs
+          .map((e) => e.toJson())
+          .toList(),
+      if (messageServiceConfig != null)
+        'message_service_config': messageServiceConfig?.toJson(),
+    };
+  }
+
+  // Legacy representation kept for backward-compatible writes
+  Map<String, dynamic> toLegacyJson() {
+    return {
+      'is_market_maker_bot_enabled': isMMBotEnabled,
+      // Old builds included a price_url; provide the previous default
+      'price_url':
+          'https://defi-stats.komodo.earth/api/v3/prices/tickers_v2?expire_at=60',
       'bot_refresh_rate': botRefreshRate,
       'trade_coin_pair_configs': tradeCoinPairConfigs
           .map((e) => e.toJson())
