@@ -106,6 +106,7 @@ class _WithdrawFormState extends State<WithdrawForm> {
 
               if (spendable != null && entered != null && amountsMatchWithTolerance(entered, spendable)) {
                 if (mounted) setState(() { _suppressPreviewError = true; });
+                final bloc = context.read<WithdrawFormBloc>();
                 final agreed = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -129,7 +130,6 @@ class _WithdrawFormState extends State<WithdrawForm> {
                 if (mounted) setState(() { _suppressPreviewError = false; });
 
                 if (agreed == true) {
-                  final bloc = context.read<WithdrawFormBloc>();
                   bloc.add(const WithdrawFormMaxAmountEnabled(true));
                   bloc.add(const WithdrawFormPreviewSubmitted());
                 }
