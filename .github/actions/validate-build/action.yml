@@ -9,19 +9,21 @@ runs:
       run: |
         SDK_KDF_ASSETS_DIR=build/web/assets/packages/komodo_defi_framework
 
-        # Check that the web build folder contains a wasm file in the format build/web/kdf/*.wasm
-        cp -r web/kdf/kdf/bin/*.wasm build/web/kdf/kdf/bin/. 2>/dev/null || true
-        if [ ! -f build/web/kdf/kdf/bin/*.wasm ]; then
+        # Check that the web build folder contains a wasm file in the format build/web/kdf/kdf/bin/*.wasm
+        shopt -s nullglob
+        wasm_files=(build/web/kdf/kdf/bin/*.wasm)
+        if [ ${#wasm_files[@]} -eq 0 ]; then
           echo "Error: Web build failed. No wasm file found in build/web/kdf/kdf/bin"
           # List files for debugging
-          echo "Listing files in build/web recursively"
-          ls -R build/web
+          echo "Listing files in build/web/kdf recursively"
+          ls -R build/web/kdf 2>/dev/null || echo "build/web/kdf directory does not exist"
 
-          echo "Listing files in web recursively"
-          ls -R web
+          echo "Listing files in web/kdf recursively"
+          ls -R web/kdf 2>/dev/null || echo "web/kdf directory does not exist"
 
           exit 1
         fi
+        echo "Found wasm files: ${wasm_files[@]}"
 
         # Check that the index.html is present and that it is equal to the source index.html
         if ! cmp -s web/index.html build/web/index.html; then

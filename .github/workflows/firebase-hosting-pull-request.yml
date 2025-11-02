@@ -55,6 +55,12 @@ jobs:
           MATOMO_SITE_ID: ${{ secrets.MATOMO_SITE_ID }}
           ANALYTICS_DISABLED: true
 
+      - name: Copy KDF wasm files to build directory
+        shell: bash
+        run: |
+          mkdir -p build/web/kdf/kdf/bin
+          cp -v web/kdf/kdf/bin/* build/web/kdf/kdf/bin/
+
       - name: Validate build
         uses: ./.github/actions/validate-build
 
