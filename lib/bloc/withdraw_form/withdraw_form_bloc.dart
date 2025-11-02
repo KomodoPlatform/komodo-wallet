@@ -448,12 +448,14 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         try {
           await FdMonitorService().logDetailedStatus();
           final stats = await FdMonitorService().getCurrentCount();
-          print('FD stats at withdrawal preview failure for ${state.asset.id.id}: $stats');
+          print(
+            'FD stats at withdrawal preview failure for ${state.asset.id.id}: $stats',
+          );
         } catch (fdError) {
           print('Failed to capture FD stats: $fdError');
         }
       }
-      
+
       emit(
         state.copyWith(
           previewError: () =>
@@ -486,10 +488,7 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
       }
 
       final response = await _mm2Api.sendRawTransaction(
-        SendRawTransactionRequest(
-          coin: preview.coin,
-          txHex: preview.txHex,
-        ),
+        SendRawTransactionRequest(coin: preview.coin, txHex: preview.txHex),
       );
 
       if (response.txHash == null) {
@@ -524,12 +523,14 @@ class WithdrawFormBloc extends Bloc<WithdrawFormEvent, WithdrawFormState> {
         try {
           await FdMonitorService().logDetailedStatus();
           final stats = await FdMonitorService().getCurrentCount();
-          print('FD stats at withdrawal submission failure for ${state.asset.id.id}: $stats');
+          print(
+            'FD stats at withdrawal submission failure for ${state.asset.id.id}: $stats',
+          );
         } catch (fdError) {
           print('Failed to capture FD stats: $fdError');
         }
       }
-      
+
       emit(
         state.copyWith(
           transactionError: () => TextError(error: 'Transaction failed: $e'),
