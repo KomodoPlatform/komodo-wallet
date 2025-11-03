@@ -7,6 +7,7 @@ import 'package:web_dex/shared/widgets/hidden_without_wallet.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/import_swaps.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_download_logs.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_analytics.dart';
+import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_diagnostic_logging.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_test_coins.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_trading_bot.dart';
 import 'package:web_dex/views/settings/widgets/general_settings/settings_manage_weak_passwords.dart';
@@ -41,6 +42,8 @@ class GeneralSettings extends StatelessWidget {
             isHiddenForHw: true,
             child: SettingsManageTradingBot(),
           ),
+        const SizedBox(height: 25),
+        const SettingsManageDiagnosticLogging(),
         const SizedBox(height: 25),
         const HiddenWithoutWallet(child: SettingsDownloadLogs()),
         const SizedBox(height: 25),

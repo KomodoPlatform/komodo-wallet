@@ -64,10 +64,8 @@ Future<void> main() async {
     // is the only/primary API/repository for KDF
     final KomodoDefiSdk komodoDefiSdk = await mm2.initialize();
 
-    // Configure SDK debug logging to match app configuration
-    KdfApiClient.enableDebugLogging = kDebugElectrumLogs;
-    KomodoDefiFramework.enableDebugLogging = kDebugElectrumLogs;
-    // BalanceManager.enableDebugLogging = kDebugElectrumLogs;
+    // Note: SDK debug logging is now controlled by the diagnostic logging toggle
+    // in Settings. The flags are initialized in SettingsBloc from stored settings.
 
     final mm2Api = Mm2Api(mm2: mm2, sdk: komodoDefiSdk);
     // Sparkline is dependent on Hive initialization, so we pass it on to the
