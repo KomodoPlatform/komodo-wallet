@@ -680,6 +680,8 @@
   "testCoins": "Test coins",
   "enableTradingBot": "Enable Trading Bot",
   "enableTestCoins": "Enable Test Coins",
+  "diagnosticLogging": "Diagnostic Logging",
+  "enableDiagnosticLogging": "Enable Diagnostic Logging",
   "makeMarket": "Make Market",
   "custom": "Custom",
   "edit": "Edit",

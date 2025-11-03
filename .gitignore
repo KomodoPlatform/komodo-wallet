@@ -84,3 +84,6 @@ venv/
 AGENTS_1.md
 # .dmg Release
 dist/
+ 
+# KDF generated binaries
+web/kdf/kdf/bin/
