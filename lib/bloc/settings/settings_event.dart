@@ -40,3 +40,11 @@ class HideZeroBalanceAssetsChanged extends SettingsEvent {
   const HideZeroBalanceAssetsChanged({required this.hideZeroBalanceAssets});
   final bool hideZeroBalanceAssets;
 }
+
+class DiagnosticLoggingChanged extends SettingsEvent {
+  const DiagnosticLoggingChanged({required this.diagnosticLoggingEnabled});
+  final bool diagnosticLoggingEnabled;
+
+  @override
+  List<Object> get props => [diagnosticLoggingEnabled];
+}

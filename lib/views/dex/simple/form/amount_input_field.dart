@@ -94,7 +94,7 @@ class _AmountInputFieldState extends State<AmountInputField> {
   void _onDataChange(Rational? value) {
     if (!mounted) return;
     final String currentText = _controller.text;
-    if (currentText.isNotEmpty && Rational.parse(currentText) == value) return;
+    if (currentText.isNotEmpty && parseLocaleAwareRational(currentText) == value) return;
 
     final String newText = value == null ? '' : formatDexAmt(value);
 

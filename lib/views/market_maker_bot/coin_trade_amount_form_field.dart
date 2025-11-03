@@ -76,7 +76,7 @@ class _CoinTradeAmountFormFieldState extends State<CoinTradeAmountFormField> {
   @override
   Widget build(BuildContext context) {
     final amount = _controller.text.isNotEmpty
-        ? Rational.parse(_controller.text)
+        ? parseLocaleAwareRational(_controller.text)
         : Rational.zero;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 250),

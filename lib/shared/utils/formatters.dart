@@ -368,3 +368,117 @@ String formatUsdValue(double? value) {
   if (value == null) return '\$0.00';
   return '\$${formatAmt(value)}';
 }
+
+/// Normalizes a decimal string to use dot as decimal separator, handling
+/// locale-specific formats (comma as decimal separator, various grouping
+/// separators).
+///
+/// This function:
+/// - Trims whitespace
+/// - Removes grouping separators (spaces, NBSP, NNBSP, apostrophes, underscores)
+/// - Handles mixed separators (last occurrence of comma/dot is decimal separator)
+/// - Converts leading comma/dot to "0."
+/// - Validates the result contains only digits and at most one decimal separator
+///
+/// Examples:
+/// - "1,23" -> "1.23"
+/// - "1.234,56" -> "1234.56" (European format)
+/// - "1,234.56" -> "1234.56" (US format)
+/// - "1 234,56" -> "1234.56" (French format with space grouping)
+/// - ",5" -> "0.5"
+/// - ".5" -> "0.5"
+///
+/// Returns normalized string or throws FormatException if invalid.
+String normalizeDecimalString(String raw) {
+  if (raw.isEmpty) {
+    throw const FormatException('Empty string cannot be normalized');
+  }
+
+  // Trim whitespace
+  String normalized = raw.trim();
+
+  // Remove grouping separators: regular space, NBSP (U+00A0), NNBSP (U+202F),
+  // apostrophe, underscore
+  normalized = normalized
+      .replaceAll(' ', '')
+      .replaceAll('\u00A0', '') // NBSP
+      .replaceAll('\u202F', '') // NNBSP
+      .replaceAll("'", '')
+      .replaceAll('_', '');
+
+  // Handle negative numbers (reject them for now as amounts should be positive)
+  if (normalized.startsWith('-')) {
+    throw const FormatException('Negative numbers are not allowed');
+  }
+
+  // Find positions of comma and dot
+  final lastCommaIndex = normalized.lastIndexOf(',');
+  final lastDotIndex = normalized.lastIndexOf('.');
+
+  // If both comma and dot exist, the last one is the decimal separator
+  if (lastCommaIndex != -1 && lastDotIndex != -1) {
+    if (lastCommaIndex > lastDotIndex) {
+      // Comma is decimal separator, remove all dots (thousands separators)
+      normalized = normalized.replaceAll('.', '').replaceAll(',', '.');
+    } else {
+      // Dot is decimal separator, remove all commas (thousands separators)
+      normalized = normalized.replaceAll(',', '');
+    }
+  } else if (lastCommaIndex != -1) {
+    // Only comma exists, treat it as decimal separator
+    normalized = normalized.replaceAll(',', '.');
+  }
+  // If only dot exists or neither exists, no change needed
+
+  // Handle leading decimal separator: ",5" or ".5" -> "0.5"
+  if (normalized.startsWith('.')) {
+    normalized = '0$normalized';
+  }
+
+  // Validate: should only contain digits and at most one dot
+  final dotCount = '.'.allMatches(normalized).length;
+  if (dotCount > 1) {
+    throw const FormatException('Multiple decimal separators found');
+  }
+
+  // Check if all characters are digits or a single dot
+  final validPattern = RegExp(r'^\d+\.?\d*$');
+  if (!validPattern.hasMatch(normalized)) {
+    throw FormatException('Invalid number format: $normalized');
+  }
+
+  return normalized;
+}
+
+/// Parses a locale-aware decimal string to a Decimal, handling comma as
+/// decimal separator and various grouping separators.
+///
+/// This is a convenience wrapper around [normalizeDecimalString] and
+/// [Decimal.parse].
+///
+/// Examples:
+/// - "1,23" -> Decimal(1.23)
+/// - "1.234,56" -> Decimal(1234.56)
+/// - "1,234.56" -> Decimal(1234.56)
+///
+/// Throws FormatException if the string cannot be parsed.
+Decimal parseLocaleAwareDecimal(String raw) {
+  final normalized = normalizeDecimalString(raw);
+  return Decimal.parse(normalized);
+}
+
+/// Parses a locale-aware decimal string to a Rational, handling comma as
+/// decimal separator and various grouping separators.
+///
+/// This is a convenience wrapper around [normalizeDecimalString] and
+/// [Rational.parse].
+///
+/// Examples:
+/// - "1,23" -> Rational(123, 100)
+/// - "1.234,56" -> Rational(123456, 100)
+///
+/// Throws FormatException if the string cannot be parsed.
+Rational parseLocaleAwareRational(String raw) {
+  final normalized = normalizeDecimalString(raw);
+  return Rational.parse(normalized);
+}

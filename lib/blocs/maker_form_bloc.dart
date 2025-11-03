@@ -569,7 +569,7 @@ class MakerFormBloc implements BlocBase {
       amount = null;
     } else {
       try {
-        amount = Rational.parse(amountStr);
+        amount = parseLocaleAwareRational(amountStr);
       } catch (_) {
         amount = null;
       }
@@ -591,7 +591,7 @@ class MakerFormBloc implements BlocBase {
       amount = null;
     } else {
       try {
-        amount = Rational.parse(amountStr);
+        amount = parseLocaleAwareRational(amountStr);
       } catch (_) {
         amount = null;
       }
@@ -609,7 +609,7 @@ class MakerFormBloc implements BlocBase {
     if (priceStr.isEmpty) {
       priceValue = null;
     } else {
-      priceValue = Rational.parse(priceStr);
+      priceValue = parseLocaleAwareRational(priceStr);
     }
 
     if (priceValue == price) return;

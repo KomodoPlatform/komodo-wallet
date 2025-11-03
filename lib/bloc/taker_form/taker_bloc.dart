@@ -29,6 +29,7 @@ import 'package:web_dex/model/text_error.dart';
 import 'package:web_dex/model/trade_preimage.dart';
 import 'package:web_dex/model/wallet.dart';
 import 'package:web_dex/shared/utils/utils.dart';
+import 'package:web_dex/shared/utils/formatters.dart';
 import 'package:web_dex/views/dex/dex_helpers.dart';
 
 class TakerBloc extends Bloc<TakerEvent, TakerState> {
@@ -196,7 +197,7 @@ class TakerBloc extends Bloc<TakerEvent, TakerState> {
     Emitter<TakerState> emit,
   ) {
     final Rational? amount = event.value.isNotEmpty
-        ? Rational.parse(event.value)
+        ? parseLocaleAwareRational(event.value)
         : null;
 
     if (amount == state.sellAmount) return;
