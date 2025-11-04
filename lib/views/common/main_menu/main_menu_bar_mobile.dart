@@ -52,11 +52,10 @@ class MainMenuBarMobile extends StatelessWidget {
                   ),
                   Expanded(
                     child: Tooltip(
-                      message:
-                          isHardware ? LocaleKeys.trezorUnavailableTooltip.tr() : '',
+                      message: '',
                       child: MainMenuBarMobileItem(
                         value: MainMenuValue.fiat,
-                        enabled: currentWallet?.isHW != true,
+                        enabled: true,
                         isActive: selected == MainMenuValue.fiat,
                       ),
                     ),

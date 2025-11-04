@@ -85,12 +85,10 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                               ),
                             ),
                             Tooltip(
-                              message: isHardware
-                                  ? LocaleKeys.trezorUnavailableTooltip.tr()
-                                  : '',
+                              message: '',
                               child: DesktopMenuDesktopItem(
                                 key: const Key('main-menu-fiat'),
-                                enabled: currentWallet?.isHW != true,
+                                enabled: true,
                                 menu: MainMenuValue.fiat,
                                 onTap: onTapItem,
                                 isSelected: _checkSelectedItem(
