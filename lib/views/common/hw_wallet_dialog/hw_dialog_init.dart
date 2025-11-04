@@ -24,6 +24,11 @@ class HwDialogInit extends StatelessWidget {
             }
           },
         ),
+        const SizedBox(height: 8),
+        Text(
+          LocaleKeys.trezorWalletModeOnly.tr(),
+          textAlign: TextAlign.center,
+        ),
         Padding(
           padding: const EdgeInsets.only(top: 12),
           child: UiUnderlineTextButton(

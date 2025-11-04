@@ -43,6 +43,7 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                 .isEnabled;
             final SettingsBloc settings = context.read<SettingsBloc>();
             final currentWallet = state.currentUser?.wallet;
+            final bool isHardware = currentWallet?.isHW == true;
 
             return Container(
               height: double.infinity,
@@ -83,19 +84,26 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                                 MainMenuValue.wallet,
                               ),
                             ),
-                            DesktopMenuDesktopItem(
-                              key: const Key('main-menu-fiat'),
-                              enabled: currentWallet?.isHW != true,
-                              menu: MainMenuValue.fiat,
-                              onTap: onTapItem,
-                              isSelected: _checkSelectedItem(
-                                MainMenuValue.fiat,
+                            Tooltip(
+                              message: isHardware
+                                  ? LocaleKeys.trezorUnavailableTooltip.tr()
+                                  : '',
+                              child: DesktopMenuDesktopItem(
+                                key: const Key('main-menu-fiat'),
+                                enabled: currentWallet?.isHW != true,
+                                menu: MainMenuValue.fiat,
+                                onTap: onTapItem,
+                                isSelected: _checkSelectedItem(
+                                  MainMenuValue.fiat,
+                                ),
                               ),
                             ),
                             Tooltip(
-                              message: tradingEnabled
-                                  ? ''
-                                  : LocaleKeys.tradingDisabledTooltip.tr(),
+                              message: isHardware
+                                  ? LocaleKeys.trezorUnavailableTooltip.tr()
+                                  : (tradingEnabled
+                                      ? ''
+                                      : LocaleKeys.tradingDisabledTooltip.tr()),
                               child: DesktopMenuDesktopItem(
                                 key: const Key('main-menu-dex'),
                                 enabled: currentWallet?.isHW != true,
@@ -107,9 +115,11 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                               ),
                             ),
                             Tooltip(
-                              message: tradingEnabled
-                                  ? ''
-                                  : LocaleKeys.tradingDisabledTooltip.tr(),
+                              message: isHardware
+                                  ? LocaleKeys.trezorUnavailableTooltip.tr()
+                                  : (tradingEnabled
+                                      ? ''
+                                      : LocaleKeys.tradingDisabledTooltip.tr()),
                               child: DesktopMenuDesktopItem(
                                 key: const Key('main-menu-bridge'),
                                 enabled: currentWallet?.isHW != true,
@@ -122,9 +132,12 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                             ),
                             if (isMMBotEnabled && isAuthenticated)
                               Tooltip(
-                                message: tradingEnabled
-                                    ? ''
-                                    : LocaleKeys.tradingDisabledTooltip.tr(),
+                                message: isHardware
+                                    ? LocaleKeys.trezorUnavailableTooltip.tr()
+                                    : (tradingEnabled
+                                        ? ''
+                                        : LocaleKeys.tradingDisabledTooltip
+                                            .tr()),
                                 child: DesktopMenuDesktopItem(
                                   key: const Key('main-menu-market-maker-bot'),
                                   enabled: currentWallet?.isHW != true,
@@ -135,12 +148,18 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                                   ),
                                 ),
                               ),
-                            DesktopMenuDesktopItem(
-                              key: const Key('main-menu-nft'),
-                              enabled: currentWallet?.isHW != true,
-                              menu: MainMenuValue.nft,
-                              onTap: onTapItem,
-                              isSelected: _checkSelectedItem(MainMenuValue.nft),
+                            Tooltip(
+                              message: isHardware
+                                  ? LocaleKeys.trezorUnavailableTooltip.tr()
+                                  : '',
+                              child: DesktopMenuDesktopItem(
+                                key: const Key('main-menu-nft'),
+                                enabled: currentWallet?.isHW != true,
+                                menu: MainMenuValue.nft,
+                                onTap: onTapItem,
+                                isSelected:
+                                    _checkSelectedItem(MainMenuValue.nft),
+                              ),
                             ),
                             const Spacer(),
                             Divider(thickness: 1),
