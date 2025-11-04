@@ -112,6 +112,9 @@ class TransactionHistoryBloc
                   blockHeight: sanitized.blockHeight,
                   fee: sanitized.fee ?? existing.fee,
                   memo: sanitized.memo ?? existing.memo,
+                  // Update the timestamp to change date from "Now" once tx
+                  // is confirmed on the blockchain
+                  timestamp: sanitized.timestamp,
                 );
               }
 
@@ -192,6 +195,9 @@ class TransactionHistoryBloc
                 blockHeight: sanitized.blockHeight,
                 fee: sanitized.fee ?? existing.fee,
                 memo: sanitized.memo ?? existing.memo,
+                // Update the timestamp to change date from "Now" once tx
+                // is confirmed on the blockchain
+                timestamp: sanitized.timestamp,
               );
             }
 
@@ -240,12 +246,6 @@ class TransactionHistoryBloc
     Emitter<TransactionHistoryState> emit,
   ) {
     emit(state.copyWith(loading: false, error: event.error));
-  }
-
-  DateTime _sortTime(Transaction tx) {
-    if (tx.timestamp.millisecondsSinceEpoch != 0) return tx.timestamp;
-    final firstSeen = _firstSeenAtById[tx.internalId];
-    return firstSeen ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   int _compareTransactions(Transaction left, Transaction right) {
