@@ -252,13 +252,36 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     // _sdkPrivateKeys AFTER the dialog closes, we ensure the state is preserved when the widget rebuilds.
     Map<AssetId, List<PrivateKey>>? fetchedKeys;
     
+    // Store SDK reference before async operations to avoid BuildContext usage across async gaps
+    final sdk = context.sdk;
+    
     final bool success = await walletPasswordDialogWithLoading(
       context,
       onPasswordValidated: (String password) async {
         try {
+          // Invalidate the activated assets cache to ensure fresh data from RPC
+          sdk.activatedAssetsCache.invalidate();
+
+          // Direct RPC call to getEnabledCoins to verify what the RPC returns
+          final rpcResponse = await sdk.client.rpc.generalActivation.getEnabledCoins();
+          print('[PrivkeysInvestigation] getEnabledCoins RPC response:');
+          print('[PrivkeysInvestigation] Result count: ${rpcResponse.result.length}');
+          for (final coinInfo in rpcResponse.result) {
+            print('[PrivkeysInvestigation] - ticker: ${coinInfo.ticker}');
+          }
+
+          // Force refresh activated assets cache to ensure fresh data from RPC
+          // This guarantees that getEnabledCoins RPC will be called and cache
+          // will be repopulated with latest data, mimicking the behavior when
+          // a new coin is added. This ensures getPrivateKeys() gets complete
+          // and up-to-date list of activated assets.
+          await sdk.activatedAssetsCache.getActivatedAssets(
+            forceRefresh: true,
+          );
+            
           // Fetch private keys directly into local UI state
           // This keeps sensitive data in minimal scope
-          final privateKeys = await context.sdk.security.getPrivateKeys();
+          final privateKeys = await sdk.security.getPrivateKeys();
 
           // Filter out excluded assets (NFTs only)
           // Geo-blocked assets are handled by the UI toggle
