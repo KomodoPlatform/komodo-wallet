@@ -112,7 +112,7 @@ class _ZhtlcConfigurationHandlerState extends State<ZhtlcConfigurationHandler> {
         _log.info(
           'User provided configuration for ${configRequest.asset.id.id}',
         );
-        _arrrActivationService.submitConfiguration(
+        await _arrrActivationService.submitConfiguration(
           configRequest.asset.id,
           config,
         );

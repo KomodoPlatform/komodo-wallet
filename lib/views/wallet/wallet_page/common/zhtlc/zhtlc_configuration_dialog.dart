@@ -17,6 +17,7 @@ import 'package:komodo_defi_types/komodo_defi_types.dart' show Asset;
 import 'package:komodo_defi_types/komodo_defi_types.dart';
 import 'package:web_dex/bloc/auth_bloc/auth_bloc.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
+import 'package:web_dex/shared/utils/platform_tuner.dart';
 
 enum ZhtlcSyncType { earliest, height, date }
 
@@ -152,6 +153,11 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // Web and Mobile should not see the path configuration field as they
+    // should not/cannot change it on those platforms. Only native desktop can
+    // or should have the ability to do so.
+    final shouldShowPathField = PlatformTuner.isNativeDesktop;
+
     return AlertDialog(
       title: Text(
         LocaleKeys.zhtlcConfigureTitle.tr(args: [widget.asset.id.id]),
@@ -164,7 +170,7 @@ class _ZhtlcConfigurationDialogState extends State<ZhtlcConfigurationDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!kIsWeb) ...[
+                if (shouldShowPathField) ...[
                   TextField(
                     controller: zcashPathController,
                     readOnly: widget.prefilledZcashPath != null,
