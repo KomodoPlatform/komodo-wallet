@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:dragon_logs/dragon_logs.dart';
 import 'package:flutter/foundation.dart';
+import 'package:komodo_defi_sdk/komodo_defi_sdk.dart'
+    show DevToolsIntegrationService, RpcLogFilter;
 import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
-import 'package:web_dex/services/devtools/devtools_integration_service.dart';
-import 'package:web_dex/services/devtools/kdf_log_interceptor.dart';
 import 'package:web_dex/services/logger/logger.dart';
 import 'package:web_dex/services/logger/mock_logger.dart';
 import 'package:web_dex/services/logger/universal_logger.dart';
@@ -49,11 +49,8 @@ Future<void> initializeLogger(Mm2Api mm2Api) async {
   Logger.root.level = kReleaseMode ? Level.INFO : Level.ALL;
   Logger.root.onRecord.listen(_logToUniversalLogger);
 
-  // Initialize DevTools integration
+  // Initialize DevTools integration for log streaming
   await DevToolsIntegrationService.instance.initialize();
-
-  // Initialize KDF log interceptor to capture RPC calls
-  KdfLogInterceptor.instance.initialize();
 }
 
 /// Copied over existing code from utils.dart log function to avoid breaking
@@ -85,8 +82,8 @@ Future<void> _logToUniversalLogger(LogRecord record) async {
     }
 
     // Post to DevTools extension (skip RPC logs to avoid double logging)
-    // RPC logs are captured separately by KdfLogInterceptor
-    if (!KdfLogInterceptor.isRpcLogMessage(record.message)) {
+    // RPC analytics are captured inside the SDK now.
+    if (!RpcLogFilter.isSdkRpcLog(record.message)) {
       DevToolsIntegrationService.instance.postLogEntry(
         id: '${DateTime.now().millisecondsSinceEpoch}_${record.hashCode}',
         timestamp: record.time,
