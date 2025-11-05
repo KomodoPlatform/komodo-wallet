@@ -185,6 +185,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dap:
+    dependency: transitive
+    description:
+      name: dap
+      sha256: "42b0b083a09c59a118741769e218fc3738980ab591114f09d1026241d2b9c290"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.0"
+  dart_service_protocol_shared:
+    dependency: transitive
+    description:
+      name: dart_service_protocol_shared
+      sha256: "1737875c176d7e3d87bb3a359182828b542fe20a0b34198b8d31a81af5c7a76d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   dbus:
     dependency: transitive
     description:
@@ -193,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  dds_service_extensions:
+    dependency: transitive
+    description:
+      name: dds_service_extensions
+      sha256: afe0fce921953ac0c5bb276bccd7e36fa5035d7769567d122523fdd09beb4d03
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   decimal:
     dependency: "direct main"
     description:
@@ -217,6 +241,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.3"
+  devtools_app_shared:
+    dependency: transitive
+    description:
+      name: devtools_app_shared
+      sha256: "04cc1fa26220ea65d815b30fd6d070264adc02442dc0c4446bce8da5e4f21d4d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+  devtools_extensions:
+    dependency: transitive
+    description:
+      name: devtools_extensions
+      sha256: ffb198ff8f6f5126daaa835f86bd9e53a782fbfaefc0ce611c1d267b07c8b91b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+  devtools_shared:
+    dependency: transitive
+    description:
+      name: devtools_shared
+      sha256: "275e48a8a145fa09c7ae433a96fd433c01cc079d39b40acf5ba883236ae2c887"
+      url: "https://pub.dev"
+    source: hosted
+    version: "12.0.0"
   dragon_charts_flutter:
     dependency: "direct main"
     description:
@@ -231,6 +279,14 @@ packages:
       relative: true
     source: path
     version: "2.0.0"
+  dtd:
+    dependency: transitive
+    description:
+      name: dtd
+      sha256: "09ddb228b3d1478a093556357692a4c203ff4f9d5f8cda05dfdca0ff3fb7c5d3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   easy_localization:
     dependency: "direct main"
     description:
@@ -263,6 +319,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.7"
+  extension_discovery:
+    dependency: transitive
+    description:
+      name: extension_discovery
+      sha256: de1fce715ab013cdfb00befc3bdf0914bea5e409c3a567b7f8f144bc061611a7
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   fake_async:
     dependency: transitive
     description:
@@ -706,6 +770,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
+  json_rpc_2:
+    dependency: transitive
+    description:
+      name: json_rpc_2
+      sha256: "3c46c2633aec07810c3d6a2eb08d575b5b4072980db08f1344e66aeb53d6e4a7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   komodo_cex_market_data:
     dependency: "direct main"
     description:
@@ -762,6 +834,13 @@ packages:
       relative: true
     source: path
     version: "0.3.2+1"
+  komodo_flutter_dev_tools:
+    dependency: "direct dev"
+    description:
+      path: "sdk/packages/komodo_flutter_dev_tools"
+      relative: true
+    source: path
+    version: "0.1.0+1"
   komodo_ui:
     dependency: "direct main"
     description:
@@ -1056,6 +1135,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  pointer_interceptor:
+    dependency: transitive
+    description:
+      name: pointer_interceptor
+      sha256: "57210410680379aea8b1b7ed6ae0c3ad349bfd56fe845b8ea934a53344b9d523"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1+2"
+  pointer_interceptor_ios:
+    dependency: transitive
+    description:
+      name: pointer_interceptor_ios
+      sha256: "03c5fa5896080963ab4917eeffda8d28c90f22863a496fb5ba13bc10943e40e4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1+1"
+  pointer_interceptor_platform_interface:
+    dependency: transitive
+    description:
+      name: pointer_interceptor_platform_interface
+      sha256: "0597b0560e14354baeb23f8375cd612e8bd4841bf8306ecb71fcd0bb78552506"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0+1"
+  pointer_interceptor_web:
+    dependency: transitive
+    description:
+      name: pointer_interceptor_web
+      sha256: "460b600e71de6fcea2b3d5f662c92293c049c4319e27f0829310e5a953b3ee2a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.3"
   pointycastle:
     dependency: transitive
     description:
@@ -1269,6 +1380,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
+  sse:
+    dependency: transitive
+    description:
+      name: sse
+      sha256: fcc97470240bb37377f298e2bd816f09fd7216c07928641c0560719f50603643
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.8"
   stack_trace:
     dependency: transitive
     description:
@@ -1349,6 +1468,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  unified_analytics:
+    dependency: transitive
+    description:
+      name: unified_analytics
+      sha256: "8d1429a4b27320a9c4fc854287d18c8fde1549bf622165c5837202a9f370b53d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.0.5"
   universal_html:
     dependency: "direct main"
     description:
@@ -1614,6 +1741,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.3"
+  yaml_edit:
+    dependency: transitive
+    description:
+      name: yaml_edit
+      sha256: fb38626579fb345ad00e674e2af3a5c9b0cc4b9bfb8fd7f7ff322c7c9e62aef5
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
 sdks:
-  dart: ">=3.8.1 <4.0.0"
+  dart: ">=3.9.2 <4.0.0"
   flutter: ">=3.35.3"

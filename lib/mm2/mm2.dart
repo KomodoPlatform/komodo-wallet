@@ -4,6 +4,7 @@ import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/version/version_request.dart';
 import 'package:web_dex/mm2/mm2_api/rpc/version/version_response.dart';
+import 'package:web_dex/services/devtools/rpc_tracking_client.dart';
 import 'package:web_dex/shared/utils/utils.dart';
 
 final MM2 mm2 = MM2();
@@ -83,7 +84,9 @@ final class MM2 {
                 ? requestWithUserpass.toJson() as JsonMap
                 : requestWithUserpass as JsonMap);
 
-      return await _kdfSdk.client.executeRpc(jsonRequest);
+      // Use tracking client to wrap the SDK client
+      final trackingClient = RpcTrackingClient(_kdfSdk.client);
+      return await trackingClient.executeRpc(jsonRequest);
     } catch (e) {
       log('RPC call error: $e', path: 'mm2 => call', isError: true).ignore();
       rethrow;

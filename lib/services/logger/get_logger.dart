@@ -7,6 +7,8 @@ import 'package:logging/logging.dart';
 import 'package:web_dex/app_config/package_information.dart';
 import 'package:web_dex/mm2/mm2_api/mm2_api.dart';
 import 'package:web_dex/performance_analytics/performance_analytics.dart';
+import 'package:web_dex/services/devtools/devtools_integration_service.dart';
+import 'package:web_dex/services/devtools/kdf_log_interceptor.dart';
 import 'package:web_dex/services/logger/logger.dart';
 import 'package:web_dex/services/logger/mock_logger.dart';
 import 'package:web_dex/services/logger/universal_logger.dart';
@@ -34,7 +36,7 @@ Future<void> initializeLogger(Mm2Api mm2Api) async {
   final platformInfo = PlatformInfo.getInstance();
   final localeName =
       await getStorage().read('locale').catchError((_) => null) as String? ??
-          '';
+      '';
   DragonLogs.setSessionMetadata({
     'appVersion': packageInformation.packageVersion,
     'mm2Version': await mm2Api.version(),
@@ -46,6 +48,12 @@ Future<void> initializeLogger(Mm2Api mm2Api) async {
 
   Logger.root.level = kReleaseMode ? Level.INFO : Level.ALL;
   Logger.root.onRecord.listen(_logToUniversalLogger);
+
+  // Initialize DevTools integration
+  await DevToolsIntegrationService.instance.initialize();
+
+  // Initialize KDF log interceptor to capture RPC calls
+  KdfLogInterceptor.instance.initialize();
 }
 
 /// Copied over existing code from utils.dart log function to avoid breaking
@@ -74,6 +82,23 @@ Future<void> _logToUniversalLogger(LogRecord record) async {
     // debugging purposes in case errors are found in PR testing.
     if (kProfileMode && record.stackTrace != null) {
       await logger.write('\nStacktrace: ${record.stackTrace}\n');
+    }
+
+    // Post to DevTools extension (skip RPC logs to avoid double logging)
+    // RPC logs are captured separately by KdfLogInterceptor
+    if (!KdfLogInterceptor.isRpcLogMessage(record.message)) {
+      DevToolsIntegrationService.instance.postLogEntry(
+        id: '${DateTime.now().millisecondsSinceEpoch}_${record.hashCode}',
+        timestamp: record.time,
+        level: record.level,
+        category: record.loggerName,
+        message: record.message,
+        metadata: {
+          if (record.error != null) 'error': record.error.toString(),
+          if (record.stackTrace != null)
+            'stackTrace': record.stackTrace.toString(),
+        },
+      );
     }
 
     performance.logTimeWritingLogs(timer.elapsedMilliseconds);

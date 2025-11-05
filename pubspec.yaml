@@ -192,6 +192,13 @@ dependencies:
   flutter_window_close: ^1.2.0
 
 dev_dependencies:
+  komodo_flutter_dev_tools:
+    path: sdk/packages/komodo_flutter_dev_tools # Option 1: Local path via sdk submodule (pinned). See docs/SDK_SUBMODULE_MANAGEMENT.md
+    # git: # Option 2: Git dependency
+    #   url: https://github.com/KomodoPlatform/komodo-defi-sdk-flutter.git
+    #   path: packages/komodo_flutter_dev_tools
+    #   ref: dev
+    # ^0.1.0+1 # Option 3: Pub.dev dependency
   test: ^1.24.1 # dart.dev
 
   # The "flutter_lints" package below contains a set of recommended lints to
