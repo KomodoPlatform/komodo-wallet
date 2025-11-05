@@ -80,6 +80,8 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
       await widget.activationService.clearActivationStatus(assetId);
     }
 
+    // Clear cached statuses even if not mounted, since this class is at or near
+    // the root of the widget tree.
     if (!mounted) {
       _cachedStatuses = {};
       return;
@@ -97,6 +99,8 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
     final activeStatuses = _cachedStatuses.entries.where((entry) {
       final status = entry.value;
       return status.when(
+        // Only show in-progress statuses where currentStep, a required
+        // parameter for the status bar below, is not null.
         inProgress:
             (
               assetId,
@@ -104,7 +108,7 @@ class _ZhtlcActivationStatusBarState extends State<ZhtlcActivationStatusBar> {
               progressPercentage,
               currentStep,
               statusMessage,
-            ) => true,
+            ) => currentStep != null,
         completed: (coinId, completionTime) =>
             DateTime.now().difference(completionTime).inSeconds < 5,
         error: (coinId, errorMessage, errorTime) =>
