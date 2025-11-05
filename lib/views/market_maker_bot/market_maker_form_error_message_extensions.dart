@@ -68,7 +68,8 @@ extension AmountValidationErrorText on AmountValidationError {
         return LocaleKeys.dexInsufficientFundsError
             .tr(args: [balance.toString(), coin?.abbr ?? '']);
       case AmountValidationError.lessThanMinimum:
-        return LocaleKeys.mmBotMinimumTradeVolume.tr(args: ["0.00000001"]);
+        return LocaleKeys.mmBotMinimumTradeVolume
+            .tr(args: ["0.00000001 ${coin?.abbr ?? ''}"]);
     }
   }
 }
@@ -93,9 +94,27 @@ extension MarketMakerTradeFormErrorText on MarketMakerTradeFormError {
         return LocaleKeys.withdrawNotEnoughBalanceForGasError
             .tr(args: [relCoin?.parentCoin?.abbr ?? relCoin?.abbr ?? '']);
       case MarketMakerTradeFormError.insufficientTradeAmount:
-        return LocaleKeys.mmBotMinimumTradeVolume.tr(args: ["0.00000001"]);
+        return LocaleKeys.mmBotMinimumTradeVolume
+            .tr(args: ["too low for ${baseCoin?.abbr ?? ''}"]);
       default:
         return LocaleKeys.dexErrorMessage.tr();
     }
+  }
+}
+
+extension MarketMakerTradeFormErrorTextWithMin on MarketMakerTradeFormError {
+  String textWithMin(
+    Coin? baseCoin,
+    Coin? relCoin,
+    String? minTradingVolume,
+  ) {
+    if (this == MarketMakerTradeFormError.insufficientTradeAmount) {
+      final ticker = baseCoin?.abbr ?? '';
+      final minText = (minTradingVolume?.isNotEmpty ?? false)
+          ? minTradingVolume
+          : 'too low for';
+      return LocaleKeys.mmBotMinimumTradeVolume.tr(args: ['$minText $ticker']);
+    }
+    return text(baseCoin, relCoin);
   }
 }

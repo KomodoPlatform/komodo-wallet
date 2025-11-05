@@ -135,12 +135,16 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                                   ),
                                 ),
                               ),
-                            DesktopMenuDesktopItem(
-                              key: const Key('main-menu-nft'),
-                              enabled: currentWallet?.isHW != true,
-                              menu: MainMenuValue.nft,
-                              onTap: onTapItem,
-                              isSelected: _checkSelectedItem(MainMenuValue.nft),
+                            Tooltip(
+                              message: LocaleKeys.nftDisabledTooltip.tr(),
+                              child: DesktopMenuDesktopItem(
+                                key: const Key('main-menu-nft'),
+                                enabled: false,
+                                menu: MainMenuValue.nft,
+                                onTap: onTapItem,
+                                isSelected:
+                                    _checkSelectedItem(MainMenuValue.nft),
+                              ),
                             ),
                             const Spacer(),
                             Divider(thickness: 1),

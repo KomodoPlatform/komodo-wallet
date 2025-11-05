@@ -94,10 +94,13 @@ class MainMenuBarMobile extends StatelessWidget {
                       ),
                     ),
                   Expanded(
-                    child: MainMenuBarMobileItem(
-                      value: MainMenuValue.nft,
-                      enabled: currentWallet?.isHW != true,
-                      isActive: selected == MainMenuValue.nft,
+                    child: Tooltip(
+                      message: LocaleKeys.nftDisabledTooltip.tr(),
+                      child: MainMenuBarMobileItem(
+                        value: MainMenuValue.nft,
+                        enabled: false,
+                        isActive: selected == MainMenuValue.nft,
+                      ),
                     ),
                   ),
                   Expanded(

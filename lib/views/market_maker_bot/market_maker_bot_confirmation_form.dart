@@ -133,10 +133,11 @@ class _MarketMakerBotConfirmationFormState
                 TotalFees(preimage: state.tradePreImage),
                 const SizedBox(height: 24),
                 SwapErrorMessage(
-                  errorMessage: state.tradePreImageError?.text(
-                    state.sellCoin.value,
-                    state.buyCoin.value,
-                  ),
+                  errorMessage: state.rawErrorMessage ??
+                      state.tradePreImageError?.text(
+                        state.sellCoin.value,
+                        state.buyCoin.value,
+                      ),
                   context: context,
                 ),
                 Flexible(

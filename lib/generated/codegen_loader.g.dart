@@ -503,6 +503,8 @@ abstract class  LocaleKeys {
   static const orderBookNoAsks = 'orderBookNoAsks';
   static const orderBookNoBids = 'orderBookNoBids';
   static const orderBookEmpty = 'orderBookEmpty';
+  static const dexNoSwapOffers = 'dexNoSwapOffers';
+  static const bridgeNoCrossNetworkRoutes = 'bridgeNoCrossNetworkRoutes';
   static const freshAddress = 'freshAddress';
   static const userActionRequired = 'userActionRequired';
   static const unknown = 'unknown';
@@ -742,6 +744,7 @@ abstract class  LocaleKeys {
   static const trend7d = 'trend7d';
   static const tradingDisabledTooltip = 'tradingDisabledTooltip';
   static const tradingDisabled = 'tradingDisabled';
+  static const nftDisabledTooltip = 'nftDisabledTooltip';
   static const includeBlockedAssets = 'includeBlockedAssets';
   static const unbanPubkeysResults = 'unbanPubkeysResults';
   static const unbannedPubkeys = 'unbannedPubkeys';
