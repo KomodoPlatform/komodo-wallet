@@ -245,6 +245,13 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   ///
   /// This approach provides better UX by showing loading state during the entire operation.
   Future<void> onViewPrivateKeysPressed(BuildContext context) async {
+    // IMPORTANT: Store keys in a local variable first to avoid state loss during async operations.
+    // The onPasswordValidated callback executes asynchronously within WidgetsBinding.instance.addPostFrameCallback,
+    // and setting _sdkPrivateKeys directly inside the callback may cause the state to be lost when the widget
+    // rebuilds or when the dialog closes. By storing data in a local variable first and then assigning it to
+    // _sdkPrivateKeys AFTER the dialog closes, we ensure the state is preserved when the widget rebuilds.
+    Map<AssetId, List<PrivateKey>>? fetchedKeys;
+    
     final bool success = await walletPasswordDialogWithLoading(
       context,
       onPasswordValidated: (String password) async {
@@ -258,15 +265,13 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           final filteredPrivateKeyEntries = privateKeys.entries.where(
             (entry) => !excludedAssetList.contains(entry.key.id),
           );
-          _sdkPrivateKeys = Map.fromEntries(filteredPrivateKeyEntries);
+          fetchedKeys = Map.fromEntries(filteredPrivateKeyEntries);
 
           return true; // Success
         } catch (e) {
           // Clear sensitive data on any error
-          _clearPrivateKeyData();
-
-          // Log error for debugging
-          debugPrint('Failed to retrieve private keys: ${e.toString()}');
+          fetchedKeys?.clear();
+          fetchedKeys = null;
 
           return false; // Failure
         }
@@ -277,9 +282,21 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       passwordFieldKey: 'confirmation-showing-private-keys',
     );
 
-    if (!mounted) return;
+    if (!mounted) {
+      // Safely clear sensitive data before exiting if widget is unmounted
+      fetchedKeys?.clear();
+      fetchedKeys = null;
+      return;
+    }
 
-    if (success) {
+    if (success && fetchedKeys != null) {
+      // Set the keys AFTER dialog closes to ensure state is preserved
+      _sdkPrivateKeys = fetchedKeys;
+      // Clear the local reference to minimize the number of places holding sensitive data
+      // Note: fetchedKeys is a reference to the same Map object, so we only set it to null
+      // to remove the extra reference, not clear() which would clear the data used by _sdkPrivateKeys
+      fetchedKeys = null;
+      
       // Private keys are ready, show the private keys screen
       // ignore: use_build_context_synchronously
       context.read<SecuritySettingsBloc>().add(const ShowPrivateKeysEvent());
