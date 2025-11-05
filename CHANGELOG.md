@@ -1,102 +1,224 @@
 # Komodo Wallet v0.9.3 Release Notes
 
-This release sharpens sign-in convenience, analytics coverage, and operational resilience ahead of the 0.9.3 cut. Highlights include one-click remember-me login, a dual analytics pipeline with Matomo support, a hardened feedback workflow, and improved compliance guardrails across platforms.
+This release delivers significant performance improvements, enhanced analytics capabilities, and a comprehensive overhaul of authentication and wallet management. Key highlights include real-time portfolio streaming, a dual analytics pipeline with persistent queueing, one-click sign-in, Z-HTLC support, and extensive optimisations that reduce RPC usage while improving responsiveness across all platforms.
 
 ## 🚀 New Features
 
-- **One-Click Remember Me Sign-In** ([@CharlVS], #3041) - Adds a quick login toggle that remembers hashed wallet metadata, auto-detects password manager autofill, and lets you resume the last wallet in one tap across desktop and mobile.
-- **Feedback Portal Overhaul** ([@CharlVS], #3017) - Rebuilds the in-app feedback flow with provider plugins, optional contact opt-out, log attachments capped under 10 MB, and screenshot scrubbing for sensitive dialogs.
-- **Dual Analytics Pipeline** ([@CharlVS], #2932) - Runs Firebase and Matomo providers side by side with persistent event queues, CI-aware disables, and configurable Matomo dimensions.
-- **Wallet Import Renaming & Validation** ([@CharlVS], #2792) - Validates wallet names on creation or import and lets you rename imports before they enter the manager.
-- **Version Insight Panel** ([@takenagain], #3109) - Adds a bloc-driven settings panel that surfaces app, mm2, and coin-config commits with periodic polling.
-- **ZHTLC (Zcash HTLC) Coin Support** [SDK] ([@takenagain], [SDK#227](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/227)) - Full integration of ZHTLC coins with enhanced activation strategy, task-based RPCs, Zcash params downloader, orderbook v2 support, and activation progress estimation.
-- **Custom Token Support in Coin Config** [SDK] ([@takenagain], [SDK#225](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/225)) - Adds custom token storage and management within the coin config system with Hive-based persistence and recovery mechanisms.
-- **CoinPaprika Market Data Provider** [SDK] ([@takenagain], [SDK#215](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/215)) - Integrates CoinPaprika API as a fallback provider for CEX market data, improving data availability and resilience.
-- **External SDK Logging Support** [SDK] ([@CharlVS], [SDK#222](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/222)) - Enables passing external logger functions to the SDK for custom logging with managed subscriptions and improved callback error handling.
-- **Trading-Related RPCs** [SDK] ([@CharlVS], [SDK#191](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/191)) - Implements comprehensive trading, orderbook, and Lightning RPCs with type-safe interfaces and SDK-level swap manager functionality.
-- **Flutter Web WASM Support** [SDK] ([@CharlVS], [SDK#176](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/176)) - Comprehensive WASM support with OPFS interop extensions and unified cross-compatible storage implementation.
+- **Realtime Portfolio Streaming** ([@CharlVS], #3253) - Live balance updates throughout the app via `CoinsBloc` streaming, eliminating the need for manual refreshes
+- **One-Click "Remember Me" Sign-In** ([@CharlVS], #3041) - Securely cache wallet metadata for instant access with improved post-login routing
+- **Dual Analytics Pipeline** ([@CharlVS], #2932) - Firebase and Matomo integration with persistent event queueing, CI toggles, and comprehensive event tracking
+- **Z-HTLC Support** ([@Francois], #3158) - Full support for privacy-preserving Hash Time Locked Contracts with configurable activation toggles and optional sync parameters
+- **Enhanced Feedback System** ([@CharlVS], #3017) - Comprehensive feedback portal overhaul with provider plugins, opt-out contact handling, screenshot scrubbing, and analytics integration
+- **Geo-blocking Bouncer** ([@CharlVS], #3150) - Privacy coin restrictions with regulated build overrides for compliance
+- **Transaction Broadcast Details** ([@smk762], #3308) - View transaction details immediately after broadcasting withdrawals
+- **Market Maker Mobile Improvements** ([@Francois], #3220) - Status indicators and start/stop controls now available in mobile view
+- **Swap Data Export** ([@Kadan], #3220) - Copy and export swap data for reference and debugging
+- **Tendermint Faucet Support** ([@Francois], #3206) - Request test coins for Tendermint-based assets with activation guardrails
+- **Optional Verbose Logging** ([@Kadan], #3332) - Configurable logging levels for development and troubleshooting
+- **SDK Log Integration** ([@CharlVS], #3159) - SDK logs now route through the app logger for unified log management
 
-## 🎨 UI & UX
+### SDK Updates (komodo-defi-sdk-flutter)
 
-- **Asset List Loading Guards** ([@takenagain], #3134) - Hides portfolio rows until fiat pricing lands and shows placeholders instead of flickering zeroes.
-- **Token Parent Labeling** ([@smk762], #2988) - Marks parent chains as native, adopts SDK display names, and keeps network suffixes visible across wallet views.
-- **DEX Address Pill Consistency** ([@smk762], #2974) - Aligns the address pill style between list and detail flows for clearer swap confirmations.
-- **Coin Detail Fiat Per Address** ([@takenagain], #3049) - Restores fiat balance context for individual addresses on the coin detail screen.
-- **Memo Field Contextualization** ([@smk762], #2998) - Only renders memo inputs for Tendermint and ZHTLC assets so other withdrawals stay clutter-free.
-- **Parent Display Name Suffix** [SDK] ([@CharlVS], [SDK#213](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/213)) - Adds token standard suffix support via `CoinSubClass.tokenStandardSuffix` for clearer parent chain identification.
+This release integrates [komodo-defi-sdk v1.0.0-pre.1](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter) with 82 commits bringing substantial improvements:
 
-## 🔒 Security & Compliance
+- **Flutter Web WASM Support** ([SDK#176](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/176)) - WASM support with OPFS integration and unified storage
+- **Enhanced RPC Coverage** ([SDK#179](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/179), [#188](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/188), [#191](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/191)) - Trading, orderbook, and Lightning RPC support
+- **Streaming Infrastructure** ([SDK#178](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/178), [#232](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/232), [#269](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/269)) - Pubkey and balance watch streams with comprehensive caching
+- **Multi-Provider Market Data** ([SDK#145](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/145), [#224](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/224)) - CoinPaprika fallback and refined Binance quotes
+- **Custom Token Storage** ([SDK#225](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/225), [#190](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/190)) - Runtime coin updates integration
+- **Platform Support** ([SDK#237](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/237), [#247](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/247)) - macOS universal binary and packaging updates
 
-- **Geo Blocker Bouncer Integration** ([@CharlVS], #3150) - Streams the new trading-status API, filters blocked assets during wallet bootstrap, and exposes an override for regulated builds.
-- **Password Policy Hardening** ([@CharlVS], #3149/#3141) - Expands password limits to 128 characters across forms and makes validation consistent between Flutter and SDK layers.
-- **Weak Password Flag Fix** ([@smk762], #3101) - Ensures the configuration flag actually respects weak-password bypass scenarios.
-- **Pubkey Hygiene on Logout** ([@CharlVS], #3144) - Clears cached pubkeys when switching wallets or signing out to prevent stale address reuse.
-- **Bip39 Compatibility Storage Fix** [SDK] ([@takenagain], [SDK#216](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/216)) - Ensures bip39 compatibility is stored regardless of wallet type, fixing HD wallet seed validation errors.
-- **Trezor PIN/Passphrase Security** [SDK] ([@takenagain], [SDK#126](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/126)) - Mitigates potential exposure of Trezor PIN/passphrase by adding custom converters to prevent sensitive data in logs.
-- **HD Wallet Message Signing** [SDK] ([@CharlVS], [SDK#198](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/198)) - Adds support for message signing with HD wallets including derivation path specification.
-- **Trezor Connection Polling** [SDK] ([@takenagain], [SDK#126](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/126)) - Automatic polling of Trezor device connection status with auto sign-out when disconnected, preventing stale sessions.
+See the [full SDK changelog](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/releases) for complete details.
 
-## ⚡ Performance & Reliability
+## 🎨 UI/UX Improvements
 
-- **Fiat Onramp Debounce** ([@takenagain], #3125) - Debounces fiat amount edits so API calls only fire after user pauses typing.
-- **Custom Token Activation Guardrails** ([@takenagain], #3129) - Waits for token propagation, limits retry loops, and deactivates test imports if the dialog closes without confirmation.
-- **Legacy Wallet Import Stability** ([@takenagain], #3126) - Re-applies migrated coin lists after legacy imports and filters unsupported assets before activation.
-- **SDK Subscription Lifecycle Management** [SDK] ([@takenagain], [SDK#232](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/232)) - Closes balance and pubkey subscriptions on auth state changes to prevent memory leaks and resource waste.
-- **Market Metrics Log Reduction** [SDK] ([@takenagain], [SDK#223](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/223)) - Reduces market metrics log verbosity and removes duplicate logging for better performance.
-- **Binance Per-Coin Currency Lists** [SDK] ([@takenagain], [SDK#224](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/224)) - Uses per-coin supported quote currency lists with USD stablecoin fallback mappings.
-- **Multi-Provider Market Data System** [SDK] ([@takenagain], [SDK#145](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/145)) - Adds support for multiple market data providers with fallback logic and retry mechanisms.
-- **Pubkey Watch Stream** [SDK] ([@takenagain], [SDK#178](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/178)) - Adds reactive public key monitoring with automatic auth state handling.
+- **Fiat Value Display** ([@Francois], #3049) - Coin detail pages now show fiat balance for individual addresses
+- **Withdraw Form Enhancements** ([@Francois], #3274) - Vertical responsive layout, fiat value previews for amount and fee, and alignment improvements
+- **Loading State Placeholders** ([@Francois], #3134) - Hide asset lists and show placeholders until fiat prices are available for better UX
+- **Transaction History Ordering** ([@CharlVS], #9900372) - Unconfirmed transactions now appear first in the list
+- **Token Parent Labelling** ([@dragonhound], #2988) - Parent coins now tagged as "native" for clearer asset hierarchy
+- **Trezor Visibility Toggles** ([@smk762], #3214) - Password and PIN visibility controls for Trezor authentication
+- **Market Maker Value Display** ([@smk762], #3215) - Fixed bot maker order values display
+- **Activation Filter Compatibility** ([@smk762], #3249) - Only show compatible activation filter options to prevent errors
+- **Buy Coin List Sorting** ([@smk762], #3328) - Market maker buy coin list now sorted with price filters and "add assets" footer
+- **Keyboard Dismissal** ([@Francois], #3225) - Dismiss keyboard on scroll for fiat and swap inputs
+- **Mobile Seed Backup Banner** ([@Francois], #3225) - Seed backup banner now visible in mobile view
+- **Post-Login Navigation** ([@smk762], #3262) - Consistent routing to wallet page after login or logout with delayed navigation for Trezor PIN/passphrase entry
+- **Custom Seed Toggle** ([@smk762], #3260) - Hide custom seed toggle unless BIP39 validation fails
+- **NFT Withdraw QR Scanning** ([@smk762], #3243) - QR code scan button added to NFT withdrawal address input
+- **Consistent Pill Styling** ([@dragonhound], #2974) - Applied uniform "swap address" pill style throughout the app
+- **Thoughtful Scrollbar Disposal** ([@dragonhound], #3008) - Improved scrollbar lifecycle management
+
+## ⚡ Performance Enhancements
+
+- **RPC Spam Reduction** ([@CharlVS], #3253) - Comprehensive SDK-side caching and streaming support drastically reduces redundant RPC calls
+- **Fiat On-Ramp Debouncing** ([@Francois], #3125) - Reduced API calls on user input changes for smoother fiat amount entry
+- **Balance Watch Streams** (SDK, #178) - Realtime balance updates from SDK eliminate polling
+- **Pubkey Caching** ([@CharlVS], #3251) - Prefer cached pubkeys before RPC across the app with post-swap fetch delays
+- **Best Orders Optimization** ([@smk762], #3328) - Avoid best_orders calls unless on DEX/bridge; fail gracefully and retry
+- **Activation Patience** ([@smk762], #3272) - Await initial activations and avoid duplicated activation tasks with proper parent/child coin sync
 
 ## 🐛 Bug Fixes
 
-- **Unauthenticated Coin State Fixes** ([@CharlVS], #3138) - Repairs coin list and sparkline loading when viewing portfolios before logging in.
-- **DEX Precision Regression** ([@CharlVS], #3123) - Eliminates precision loss in taker forms and adds tests for large rational conversions.
-- **macOS File Picker Entitlements** ([@CharlVS], #3111) - Restores the native file picker by adding the required read-only entitlement and window focus handling.
-- **NFT IPFS Fallbacks** ([@takenagain], #3020) - Introduces an IPFS gateway manager with retries, cooldowns, and unit tests so NFT media loads consistently.
-- **SDK Disposal Crash** ([@DeckerSU], #3117) - Avoids crashes when mm2 shuts down mid-fetch by guarding the periodic fetch loop.
-- **Price/Version Reporting** ([@DeckerSU], #3115) - Ensures the settings screen shows the actual mm2 commit hash instead of a closure string.
-- **Custom Token Import & Refresh** [SDK] ([@takenagain], [SDK#220](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/220)) - Fixes custom token refresh, lowercase icon identifiers, and parent-child relationships.
-- **ZHTLC Activation Resilience** [SDK] ([@takenagain], [SDK#227](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/227)) - Multiple fixes for ZHTLC activation including config transformation and orderbook v2 alignment.
-- **Coingecko OHLC Parsing** [SDK] ([@takenagain], [SDK#203](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/203)) - Fixes OHLC data parsing differences between Coingecko and Binance formats.
-- **External Logger Memory Leak** [SDK] ([@CharlVS], [SDK#222](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/222)) - Resolves memory leak from native callback by properly disposing \_kdfOperations.
-- **BIP39 Validation for Legacy Wallets** [SDK] ([@takenagain], [SDK#216](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/216)) - Simplifies HD bip39 verification and allows custom seeds for legacy wallets.
-- **Runtime Coin Updates Asset Ordering** [SDK] ([@takenagain], [SDK#217](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/217)) - Fixes Linux segfault by sorting assets before returning.
-- **WASM JS Call Error Handling** [SDK] ([@takenagain], [SDK#185](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/185)) - Improves JS call error handling on startup for WASM operations.
-- **Market Data Price Fetching** [SDK] ([@takenagain], [SDK#167](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/167)) - Prioritizes KomodoPriceRepository over CexRepository for current prices.
+- **Transaction History Cross-Asset Bleed** ([@CharlVS], #3289) - Isolated `TransactionHistoryBloc` per-coin to prevent history mixing
+- **Balance Update State Preservation** ([@CharlVS], #3253) - Realtime balance updates now preserve coin activation state to avoid turning off the Send button
+- **Transaction Sorting** ([@CharlVS], #3253) - Fixed transaction history list sorting logic
+- **Dropdown Null Safety** ([@Cursor Agent], #3050) - Fixed null safety issues in `UiDropdown` widget, preventing app freeze on logout
+- **Legacy Wallet Migration** ([@CharlVS], #3207) - Preserve legacy flag, sanitise wallet names, ensure uniqueness, and avoid duplicate imports during migration
+- **Wallet Coin Restoration** ([@Francois], #3126) - Restore wallet coins for legacy wallet migrations and seed file imports
+- **Password Length Validation** ([@CharlVS], #3141, #3149) - Consistent 128-character password handling across all flows with hardened validation
+- **Custom Token Import** ([@Francois], #3129) - Check platform in deduplication and correctly update fields; refresh asset list on import
+- **Precision Loss in Wallet** ([@CharlVS], #3123) - Resolved DEX precision regression with comprehensive tests
+- **Withdraw Form Fixes** ([@Francois], #3274) - Fixed fiat alignment, max value detection, and use signed hex from preview for broadcast
+- **ZHTLC Activation Toggle** ([@smk762], #3283) - Revert toggle on ZHTLC activation config cancel
+- **Coin Variant Sum** ([@smk762], #3317) - Fixed coin variant sum display in dropdowns
+- **Decimals Precision** ([@Kadan], #3297) - Added unit tests and fixed decimal handling with proper fiat amount input refactoring
+- **Trading Bot Improvements** ([@Francois], #3223, #3328) - Remove price URL parameter to default to KDF URL list; add guard against swap button spamming; use `max_maker_vol` for spendable balance
+- **Market Maker Dropdown** ([@Francois], #3187) - Fixed sell coin dropdown reverting to previous coin with occasional flickering
+- **ARRR Reactivation** ([@Francois], #3184) - Fixed ARRR not reappearing in coins list after deactivation and reactivation
+- **Pubkey Clearing** ([@CharlVS], #3144) - Clear pubkeys on wallet change or logout to prevent cross-wallet contamination
+- **Unban Pubkeys Null Check** ([@smk762], #3276) - Avoid null check error on unban_pubkey button press
+- **Timer Leaks** ([@Kadan], #3305) - Fixed timer leaks preventing proper cleanup
+- **SSE Lifecycle** ([@Kadan], #3313, #3318) - Tie SSE to the auth state lifecycle and remove the SSE package for better stability
+- **iOS/macOS KDF Reinitialization** ([@Kadan], #3286) - Proper KDF health check and reinitialisation on iOS/macOS
+- **Withdrawal Form** ([@Kadan], #3288) - Fixed withdrawal regression
+- **KDF Disposal Crash** ([@DeckerSU], #3117) - Fixed crash when `KomodoDefiSdk` is disposed during periodic fetch
+- **Fiat On-Ramp CSP** ([@Francois], #3225) - Disable overly restrictive CSP with limited platform support; add Komodo and sandbox domains to allowlist
+- **NFT IPFS Loading** ([@Francois], #3020) - Add IPFS gateway resolution, retry, and fallback to improve NFT image loading
+- **macOS File Picker** ([@CharlVS], #3111) - Show file picker by adding user-selected read-only entitlement
+- **Settings Version Isolation** ([@smk762], #3324) - Isolate version settings in shared_preferences.json for backwards compatibility
+- **Unconfirmed Transaction Detection** ([@Francois], #3328) - Only consider empty timestamps and confirmations as unconfirmed
 
-## 🛠️ Build & Developer Experience
+## 🔒 Security & Compliance
 
-- **Flutter 3.35.1 & SDK Roll** ([@CharlVS], #3108) - Upgrades Flutter, aligns SDK dependencies, and refreshes package overrides for the new mono-repo workspace.
-- **SDK Git Submodule Adoption** ([@takenagain], #3110) - Vendors komodo-defi-sdk as a submodule with workspace overrides and adds tooling for deterministic rolls.
-- **Matomo Build Validation** ([@DeckerSU], #3165) - Validates Matomo tracking parameters during CI builds to prevent misconfigured releases.
-- **Build Script Environment Sanitization** ([@DeckerSU], #3037/#3055/#3058) - Normalises docker env defines, forces web builds off CDN resources, and removes stray .dgph artifacts from iOS outputs.
-- **Linux Build Workflow Check** ([@DeckerSU], #3106) - Adds a GitHub workflow that exercises the Linux build script after SDK rolls.
-- **Devcontainer Modernisation** ([@CharlVS], #3114) - Switches the devcontainer to lightweight .docker images and consolidates post-create provisioning.
-- **SDK Dart Pub Workspaces Migration** [SDK] ([@CharlVS], [SDK#204](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/204)) - Migrates SDK to Dart Pub workspaces, bumps Dart SDK to >=3.9.0, unifies Flutter constraints (>=3.35.0 <3.36.0).
-- **SDK Coin Updates Integration** [SDK] ([@takenagain], [SDK#190](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/190)) - Integrates komodo_coin_updates into komodo_coins with Hive CE migration and runtime update capabilities.
-- **KDF API Branch Update** [SDK] ([@CharlVS], sdk/72c9de3) - Updates API branch to hotfix-remove-memorydb-size-metric with refreshed checksums for all platform binaries.
-- **SDK Package Publishing** [SDK] ([@CharlVS], [SDK#204](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/204)) - Prepares SDK packages for pub.dev with updated dependencies, licenses, and repository links.
-- **GitHub Token Authentication** [SDK] ([@CharlVS], [SDK#176](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/176)) - Adds GITHUB_API_PUBLIC_READONLY_TOKEN support to prevent API rate limiting (60→5,000 requests/hour).
+- **128-Character Password Support** ([@CharlVS], #3141, #3149) - Increased password length limit to 128 characters with consistent validation across all auth flows
+- **Pubkey Hygiene** ([@CharlVS], #3144, #3251) - Purge cached pubkeys on wallet change, prefer cached pubkeys before RPC, and add post-swap delays
+- **Geo-blocking Bouncer** ([@CharlVS], #3150) - Privacy coin restrictions with FD monitoring and regulated build overrides
+- **Legacy Wallet Sanitisation** ([@CharlVS], #3207) - Sanitise names, preserve flags, and prevent duplicate imports during legacy wallet migration
+
+## 💻 Platform-Specific Changes
+
+### All Platforms
+
+- **Flutter 3.35.1 Upgrade** ([@CharlVS], #3108) - Updated Flutter SDK with dependency roll and improved roll script
+- **SDK Submodule Integration** ([@Francois], #3110) - SDK adopted as a git submodule with path overrides and deterministic roll script
+
+### macOS
+
+- **Production Scheme & Signing** ([@DeckerSU], #3185) - Added macOS production scheme and Developer ID Application signing support for standalone distribution
+- **Universal Binary Support** (SDK, #237) - macOS universal binary (Intel + Apple Silicon) support
+- **Development Team Update** ([@DeckerSU], #3177, [@DeckerSU] SDK #239) - Changed development team to production identifier (WDS9WYN969→8HPBYKKKQP)
+- **KDF Binary Placement** (SDK, #247) - Streamlined KDF binary placement and updated signing flow
+
+### Linux
+
+- **GLib Compatibility** ([@DeckerSU], #3105) - Guard `G_APPLICATION_DEFAULT_FLAGS` behind GLib ≥ 2.74 with fallback for older versions
+- **Single-Instance Enforcement** ([@CharlVS], #3063) - Enforce single-instance; focus existing window; prevent zombie processes
+- **Build Script Validation** ([@DeckerSU], #3106) - Added GitHub Actions workflow to validate Linux build script
+
+### Windows
+
+- **Single-Instance Enforcement** ([@CharlVS], #3063) - Prevent multiple instances and zombie processes
+
+### iOS
+
+- **FD Monitoring** ([@Kadan], #3259) - File descriptor monitoring for release mode
+- **Health Check Integration** ([@Kadan], #3257) - Added KDF health check with reinitialization support
+- **Xcode Configuration** ([@DeckerSU], #3324) - Added FdMonitor.swift to Xcode project configuration and updated DEVELOPMENT_TEAM identifier
+- **Build Artifact Cleanup** ([@DeckerSU], #3058) - Removed .dgph build artifacts from iOS project
+- **Ruby Installation Guide** ([@Francois], #3128) - Added Ruby installation step for iOS builds
+
+### Web
+
+- **WASM Support** (SDK, #176) - Flutter Web WASM support with OPFS integration and unified storage implementation
+- **CDN Disable** ([@DeckerSU], #3055) - Add `--no-web-resources-cdn` to web build in build.sh
+
+### Docker & DevOps
+
+- **DevContainer Modernization** ([@CharlVS], #3114) - Switched to .docker images and Linux-only devcontainer
+- **Environment Variable Passing** ([@DeckerSU], #3037) - Correct env vars passing to Docker and Dart via --dart-define
+- **Matomo Validation** ([@DeckerSU], #3165) - Added Matomo tracking params validation in build script
+- **CI Improvements** ([@CharlVS], #3167, #3336) - Fix missing secrets, remove duplicate steps; fix CI issues
+- **Artifact Naming** ([@dragonhound], #3181) - Append short commit hash to upload-artifact filenames
+- **Submodule Updates** ([@DeckerSU], #3139) - Clean submodules before update to fix build errors
+
+## 🔧 Technical Improvements
+
+### SDK Integration (komodo-defi-sdk v1.0.0-pre.1)
+
+- **RPC Coverage Expansion** ([SDK#179](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/179), [#188](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/188), [#191](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/191)) - Implemented missing RPCs, including trading-related endpoints and Lightning support
+- **Message Signing** ([SDK#198](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/198), [#231](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/231)) - HD wallet support for message signing with derivation path; added AddressPath type and refactored to use Asset/PubkeyInfo
+- **Multi-Provider Market Data** ([SDK#145](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/145), [#215](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/215)) - Support for multiple market data providers with CoinPaprika fallback option
+- **Custom Token Integration** ([SDK#225](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/225), [#190](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/190)) - Custom token support in coin config manager; integrate komodo_coin_updates into komodo_coins
+- **Balance & Pubkey Streaming** ([SDK#178](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/178), [#232](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/232), [#262](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/262), [#269](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/269)) - Add pubkey watch function similar to balance watch; comprehensive caching and streaming support
+- **ETH-BASE Support** ([SDK#254](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/254)) - Add support for ETH-BASE and derived assets
+- **Asset Tagging Fixes** ([SDK#244](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/244)) - Correct UTXO coins incorrectly tagged as Smart Chain
+- **ZHTLC Fixes** ([SDK#227](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/227), [#264](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/264)) - ZHTLC activation fixes with optional sync params and sign-out cleanup
+- **Binance Quote Fixes** ([SDK#224](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/224)) - Use per-coin supported quote currency list instead of global cache
+- **Market Metrics Logging** ([SDK#223](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/223)) - Reduce market metrics log verbosity and duplication
+- **Etherscan URLs** ([SDK#217](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/217)) - Fix Etherscan URL formatting
+- **Sparkline Configuration** ([SDK#248](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/248)) - Add configurable sparkline baseline
+- **Dragon Charts Migration** ([SDK#164](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/164)) - Migrate dragon_charts_flutter to monorepo packages
+- **Trezor Polling** ([SDK#126](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/126)) - Poll Trezor connection status and sign out when disconnected
+- **KDF Version Updates** ([SDK#218](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/218), [#237](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/237), [#249](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/249), [#241](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/241), [#247](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/247)) - Roll KDF to latest releases with checksum updates
+- **Runtime Fetch Libraries** ([SDK#280](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/280)) - Use runtime fetch libraries with updated checksums
+
+### Analytics & Monitoring
+
+- **Persistent Event Queue** ([@CharlVS], #2932) - Analytics events persist across sessions with a standardised event structure
+- **CI Analytics Toggles** ([@CharlVS], #2932, #3165) - Disable analytics in CI builds with Matomo validation
+- **NFT Analytics Integration** ([@dragonhound], #3202) - Use AnalyticsRepo to enqueue NFT analytics events
+- **Updated Events** ([@CharlVS], #3194) - Update completed events and remove scroll attempt tracking
+- **Settings Logging** ([@Francois], #3324) - Add logging and avoid silent skipping in settings
+
+### Developer Experience
+
+- **PR Body Template** ([@CharlVS], #3207) - Add PR_BODY.md helper file for CLI editing
+- **SDK Submodule Management** ([@Francois], #3110) - Deterministic SDK roll script with path overrides
+- **API Commit Hash Display** ([@DeckerSU], #3115) - Fix logging of apiCommitHash to output actual value instead of closure
+- **Dependency Documentation** ([@Francois], #3128) - Ruby installation guide for iOS/macOS builds
+- **Optional Verbose Logging** ([@Kadan], #3332, SDK #278) - Configurable logging levels for debugging
+
+### Code Quality
+
+- **Null Safety Improvements** ([@Cursor Agent], #3050) - Fixed null safety issues in UiDropdown widget
+- **Type Safety** ([@Kadan], #3279, #3280) - Bound checking, non-nullable type tweaks, explicit enum mapping, defensive array access guards, cast num to int
+- **Error Propagation** ([@smk762], #3328) - Propagate best_orders failures, avoid masking as no liquidity
+- **Unused Code Cleanup** ([@Francois], #3225) - Remove unused widgets and update enum docs
+- **Code Formatting** ([@CharlVS], #3251) - Run dart format on pubkey cache call-sites and taker delay
+- **Logging Improvements** ([@Francois], #3328) - Add logging for errors not propagated to UI layer
 
 ## 📚 Documentation
 
-- **Matomo Analytics Guide** ([@CharlVS], #2932) - Documents how to enable Matomo alongside Firebase, including CI toggles and queue behaviour.
-- **SDK Submodule Management** ([@takenagain], #3110) - Provides end-to-end instructions for updating, hotfixing, and testing the vendored SDK.
-- **macOS/iOS Build Prerequisites** ([@takenagain], #3128) - Expands setup docs with Ruby installation steps and refreshed platform notes.
-- **SDK Package Documentation Overhaul** [SDK] ([@CharlVS], [SDK#201](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/201)) - Major documentation improvements across all SDK packages with comprehensive guides and API references.
-- **ZHTLC Technical Documentation** [SDK] ([@takenagain], [SDK#227](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/227)) - Adds activation refactoring plan, Firebase deployment setup, and tech debt report for ZHTLC implementations.
+- **SDK Changelog Cross-Linking** ([@CharlVS], #3172) - Link SDK PRs with short labels and mark SDK items in wallet changelog
+- **Ruby Installation Guide** ([@Francois], #3128) - Added Ruby installation step for iOS and macOS builds
+- **SDK Documentation** ([SDK#201](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/pull/201)) - Document project and packages for pub.dev release
 
-## ⚠️ Breaking Changes
+## ⚠️ Known Issues
 
-- **SDK Dart/Flutter Version Requirements** [SDK] - Minimum Dart SDK version is now `^3.9.0` and Flutter version constraint is `>=3.35.0 <3.36.0`
-- **ZHTLC Activation Parameters** [SDK] - Breaking changes to activation params serialization and structure for ZHTLC and ERC20 coins
-- **SDK Workspace Migration** [SDK] - Legacy pubspec_overrides.yaml files removed in favor of Dart Pub workspace resolution
+- Full automated test suite remains triaged; manual QA recommended per `docs/MANUAL_TESTING_DEBUGGING.md`
+- Some analytics events may require additional validation on specific platforms
+- Large portfolios (>100 assets) may experience slower initial loading times during first activation
 
-## 📦 SDK Changes
+## 🙏 Contributors
 
-**SDK Version**: Updated from `68429b23dac43eddd53434dda1bd23296523f27d` to `72c9de3b370f1b4169ebbb3150e8adedf4ed3b23`
+This release includes contributions from 11 developers:
+
+- @CharlVS
+- @takenagain
+- @ca333
+- @smk762
+- @DeckerSU
+- @gcharang
+- @TazzyMeister
+- @naezith
+- Cursor Agent (automated refactoring)
 
 **Full Changelog**: [0.9.2...0.9.3](https://github.com/KomodoPlatform/komodo-wallet/compare/0.9.2...0.9.3)
+
+---
+
+_For developers building with Komodo DeFi SDK: This release includes [komodo-defi-sdk v1.0.0-pre.1](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/releases) with breaking changes related to streaming APIs and caching behaviour. Review the [SDK changelog](https://github.com/KomodoPlatform/komodo-defi-sdk-flutter/blob/main/CHANGELOG.md) for migration guidance._
 
 # Komodo Wallet v0.9.2 Release Notes
 

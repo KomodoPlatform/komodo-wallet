@@ -249,24 +249,13 @@ class TransactionHistoryBloc
   }
 
   int _compareTransactions(Transaction left, Transaction right) {
-    // Unconfirmed (pending) transactions should appear first.
-    final leftIsUnconfirmed = left.confirmations == 0;
-    final rightIsUnconfirmed = right.confirmations == 0;
-
-    if (leftIsUnconfirmed != rightIsUnconfirmed) {
-      return leftIsUnconfirmed ? -1 : 1;
+    final unconfirmedTimestamp = DateTime.fromMillisecondsSinceEpoch(0);
+    if (right.timestamp == unconfirmedTimestamp) {
+      return 1;
+    } else if (left.timestamp == unconfirmedTimestamp) {
+      return -1;
     }
-
-    // Within each group, sort by effective time (handles zero timestamps)
-    final timeComparison = _sortTime(right).compareTo(_sortTime(left));
-    if (timeComparison != 0) return timeComparison;
-
-    // Prefer higher block heights first
-    final heightComparison = right.blockHeight.compareTo(left.blockHeight);
-    if (heightComparison != 0) return heightComparison;
-
-    // Final tiebreaker to ensure deterministic ordering
-    return right.internalId.compareTo(left.internalId);
+    return right.timestamp.compareTo(left.timestamp);
   }
 }
 

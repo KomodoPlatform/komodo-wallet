@@ -509,6 +509,8 @@
   "orderBookNoAsks": "No asks found",
   "orderBookNoBids": "No bids found",
   "orderBookEmpty": "Orderbook is empty",
+  "dexNoSwapOffers": "No swap offers available for the selected asset.",
+  "bridgeNoCrossNetworkRoutes": "No cross-network routes found for this asset.",
   "freshAddress": "Fresh address",
   "userActionRequired": "User action required",
   "unknown": "Unknown",
@@ -750,6 +752,7 @@
   "trend7d": "7d trend",
   "tradingDisabledTooltip": "Trading features are currently disabled",
   "tradingDisabled": "Trading unavailable in your location",
+  "nftDisabledTooltip": "NFT functionality is currently disabled. Improvements are on the way!",
   "includeBlockedAssets": "Include blocked assets",
   "unbanPubkeysResults": "Unban Pubkeys Results",
   "unbannedPubkeys": {

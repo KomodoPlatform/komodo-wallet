@@ -149,10 +149,10 @@ class _MainMenuDesktopState extends State<MainMenuDesktop> {
                             Tooltip(
                               message: isHardware
                                   ? LocaleKeys.trezorUnavailableTooltip.tr()
-                                  : '',
+                                  : LocaleKeys.nftDisabledTooltip.tr(),
                               child: DesktopMenuDesktopItem(
                                 key: const Key('main-menu-nft'),
-                                enabled: currentWallet?.isHW != true,
+                                enabled: false,
                                 menu: MainMenuValue.nft,
                                 onTap: onTapItem,
                                 isSelected:

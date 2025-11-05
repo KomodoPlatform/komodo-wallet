@@ -29,6 +29,16 @@ class _TakerFormState extends State<TakerForm> {
     takerBloc.add(TakerSetDefaults());
     takerBloc.add(TakerSetWalletIsReady(authBlocState.isSignedIn));
     routingState.dexState.addListener(_consumeRouteParameters);
+    // If entering the swap page while already authenticated, ensure the
+    // available balance initializes without waiting for further user action.
+    if (authBlocState.isSignedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final currentSellCoin = takerBloc.state.sellCoin;
+        if (currentSellCoin != null) {
+          takerBloc.add(TakerSetSellCoin(currentSellCoin));
+        }
+      });
+    }
     super.initState();
   }
 
@@ -87,6 +97,21 @@ class _TakerFormState extends State<TakerForm> {
       listener: (context, state) {
         final takerBloc = context.read<TakerBloc>();
         takerBloc.add(TakerSetWalletIsReady(state.isSignedIn));
+
+        // When the user becomes authenticated while on the swap page,
+        // refresh the available balance/max sell amount immediately so it
+        // doesn't remain at 0.00 until the user re-selects the sell coin.
+        if (state.isSignedIn) {
+          final currentSellCoin = takerBloc.state.sellCoin;
+          if (currentSellCoin != null) {
+            // Re-dispatching the same sell coin sets up periodic polling
+            // and triggers max-sell/min-sell refresh without user action.
+            takerBloc.add(TakerSetSellCoin(currentSellCoin));
+          } else {
+            // Ensure defaults are set so the form initializes properly.
+            takerBloc.add(TakerSetDefaults());
+          }
+        }
       },
       child: const TakerFormLayout(),
     );
