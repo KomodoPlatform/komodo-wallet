@@ -251,6 +251,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     // rebuilds or when the dialog closes. By storing data in a local variable first and then assigning it to
     // _sdkPrivateKeys AFTER the dialog closes, we ensure the state is preserved when the widget rebuilds.
     Map<AssetId, List<PrivateKey>>? fetchedKeys;
+    bool isEmptyKeys = false;
     
     // Store SDK reference before async operations to avoid BuildContext usage across async gaps
     final sdk = context.sdk;
@@ -259,29 +260,16 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       context,
       onPasswordValidated: (String password) async {
         try {
-          // Invalidate the activated assets cache to ensure fresh data from RPC
-          sdk.activatedAssetsCache.invalidate();
-
-          // Direct RPC call to getEnabledCoins to verify what the RPC returns
-          final rpcResponse = await sdk.client.rpc.generalActivation.getEnabledCoins();
-          print('[PrivkeysInvestigation] getEnabledCoins RPC response:');
-          print('[PrivkeysInvestigation] Result count: ${rpcResponse.result.length}');
-          for (final coinInfo in rpcResponse.result) {
-            print('[PrivkeysInvestigation] - ticker: ${coinInfo.ticker}');
-          }
-
-          // Force refresh activated assets cache to ensure fresh data from RPC
-          // This guarantees that getEnabledCoins RPC will be called and cache
-          // will be repopulated with latest data, mimicking the behavior when
-          // a new coin is added. This ensures getPrivateKeys() gets complete
-          // and up-to-date list of activated assets.
-          await sdk.activatedAssetsCache.getActivatedAssets(
-            forceRefresh: true,
-          );
-            
           // Fetch private keys directly into local UI state
           // This keeps sensitive data in minimal scope
           final privateKeys = await sdk.security.getPrivateKeys();
+
+          // Check if private keys are empty (e.g., when coins haven't been activated yet)
+          if (privateKeys.isEmpty) {
+            fetchedKeys = null;
+            isEmptyKeys = true;
+            return false; // Failure - empty private keys
+          }
 
           // Filter out excluded assets (NFTs only)
           // Geo-blocked assets are handled by the UI toggle
@@ -295,6 +283,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           // Clear sensitive data on any error
           fetchedKeys?.clear();
           fetchedKeys = null;
+          isEmptyKeys = false; // Exception occurred, not empty keys
 
           return false; // Failure
         }
@@ -325,8 +314,12 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
       context.read<SecuritySettingsBloc>().add(const ShowPrivateKeysEvent());
     } else {
       // Show error to user
+      // Check if failure was due to empty private keys
+      final errorMessage = isEmptyKeys
+          ? LocaleKeys.privateKeysEmptyError.tr()
+          : LocaleKeys.privateKeyRetrievalFailed.tr();
       // ignore: use_build_context_synchronously
-      _showPrivateKeyError(context, LocaleKeys.privateKeyRetrievalFailed.tr());
+      _showPrivateKeyError(context, errorMessage);
     }
   }
 
