@@ -298,7 +298,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
     if (success && fetchedKeys != null) {
       // Set the keys AFTER dialog closes to ensure state is preserved
-      _sdkPrivateKeys = fetchedKeys;
+      setState(() {
+        _sdkPrivateKeys = fetchedKeys;
+      });
       // Clear the local reference to minimize the number of places holding sensitive data
       // Note: fetchedKeys is a reference to the same Map object, so we only set it to null
       // to remove the extra reference, not clear() which would clear the data used by _sdkPrivateKeys
