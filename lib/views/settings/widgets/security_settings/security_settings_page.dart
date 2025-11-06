@@ -284,6 +284,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           fetchedKeys?.clear();
           fetchedKeys = null;
           isEmptyKeys = false; // Exception occurred, not empty keys
+          // Clear any previously stored private keys to prevent stale data from persisting
+          _clearPrivateKeyData();
 
           return false; // Failure
         }
