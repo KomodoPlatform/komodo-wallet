@@ -266,7 +266,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
           // Check if private keys are empty (e.g., when coins haven't been activated yet)
           if (privateKeys.isEmpty) {
-            fetchedKeys = null;
             isEmptyKeys = true;
             return false; // Failure - empty private keys
           }
@@ -280,9 +279,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
           return true; // Success
         } catch (e) {
-          // Clear sensitive data on any error
-          fetchedKeys?.clear();
-          fetchedKeys = null;
           isEmptyKeys = false; // Exception occurred, not empty keys
           // Clear any previously stored private keys to prevent stale data from persisting
           _clearPrivateKeyData();
@@ -297,9 +293,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     );
 
     if (!mounted) {
-      // Safely clear sensitive data before exiting if widget is unmounted
-      fetchedKeys?.clear();
-      fetchedKeys = null;
       return;
     }
 
