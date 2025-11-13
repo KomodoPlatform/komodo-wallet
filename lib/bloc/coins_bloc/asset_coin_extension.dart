@@ -65,6 +65,8 @@ extension AssetCoinExtension on Asset {
 extension CoinTypeExtension on CoinSubClass {
   CoinType toCoinType() {
     switch (this) {
+      case CoinSubClass.base:
+        return CoinType.base20;
       case CoinSubClass.ftm20:
         return CoinType.ftm20;
       case CoinSubClass.arbitrum:
@@ -112,6 +114,8 @@ extension CoinTypeExtension on CoinSubClass {
 
   bool isEvmProtocol() {
     switch (this) {
+      case CoinSubClass.base:
+        return true;
       case CoinSubClass.avx20:
       case CoinSubClass.bep20:
       case CoinSubClass.ftm20:
@@ -137,6 +141,8 @@ extension CoinTypeExtension on CoinSubClass {
 extension CoinSubClassExtension on CoinType {
   CoinSubClass toCoinSubClass() {
     switch (this) {
+      case CoinType.base20:
+        return CoinSubClass.base;
       case CoinType.ftm20:
         return CoinSubClass.ftm20;
       case CoinType.arb20:

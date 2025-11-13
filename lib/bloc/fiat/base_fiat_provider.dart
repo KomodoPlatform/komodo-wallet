@@ -128,6 +128,8 @@ abstract class BaseFiatProvider {
         return 'FTM';
       case CoinType.arb20:
         return 'ARB';
+      case CoinType.base20:
+        return 'BASE';
       case CoinType.hrc20:
         return 'HARMONY';
       case CoinType.plg20:
@@ -238,6 +240,8 @@ abstract class BaseFiatProvider {
       case 'ARBITRUM':
       case 'ARB':
         return CoinType.arb20;
+      case 'BASE':
+        return CoinType.base20;
       case 'HARMONY':
         return CoinType.hrc20;
       case 'MATIC':

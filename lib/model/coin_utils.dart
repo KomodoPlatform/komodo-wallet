@@ -147,6 +147,8 @@ String getCoinTypeName(CoinType type, [String? symbol]) {
       return 'FTM-20';
     case CoinType.arb20:
       return 'ARB-20';
+    case CoinType.base20:
+      return 'BASE';
     case CoinType.etc:
       return 'ETC';
     case CoinType.avx20:
@@ -193,6 +195,8 @@ bool isParentCoin(CoinType type, String symbol) {
       return symbol == 'FTM';
     case CoinType.arb20:
       return symbol == 'ETH-ARB20';
+    case CoinType.base20:
+      return symbol == 'ETH-BASE';
     case CoinType.hrc20:
       return symbol == 'ONE';
     case CoinType.plg20:
