@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:js_interop';
 
 import 'package:web/web.dart' as web;
@@ -17,7 +18,11 @@ class FileLoaderWeb implements FileLoader {
   }) async {
     switch (type) {
       case LoadFileType.text:
-        await _saveAsTextFile(filename: fileName, data: data);
+        if (fileName.toLowerCase().endsWith('.json')) {
+          await _saveAsJsonFile(filename: fileName, data: data);
+        } else {
+          await _saveAsTextFile(filename: fileName, data: data);
+        }
       case LoadFileType.compressed:
         await _saveAsCompressedFile(fileName: fileName, data: data);
     }
@@ -47,6 +52,38 @@ class FileLoaderWeb implements FileLoader {
         ..remove();
     } finally {
       // Revoke the object URL
+      web.URL.revokeObjectURL(url);
+    }
+  }
+
+  Future<void> _saveAsJsonFile({
+    required String filename,
+    required String data,
+  }) async {
+    String prettyData = data;
+    try {
+      final dynamic decoded = json.decode(data);
+      prettyData = const JsonEncoder.withIndent('  ').convert(decoded);
+    } catch (_) {}
+
+    final dataArray = web.TextEncoder().encode(prettyData);
+    final blob = web.Blob(
+      [dataArray].toJS,
+      web.BlobPropertyBag(type: 'application/json'),
+    );
+
+    final url = web.URL.createObjectURL(blob);
+
+    try {
+      final anchor = web.HTMLAnchorElement()
+        ..href = url
+        ..download = filename
+        ..style.display = 'none';
+      web.document.body?.append(anchor);
+      anchor
+        ..click()
+        ..remove();
+    } finally {
       web.URL.revokeObjectURL(url);
     }
   }

@@ -65,30 +65,30 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     switch (authState.status) {
       case AuthenticationStatus.initializing:
         return AuthBlocState.trezorInitializing(
-          message: authState.message ?? 'Initializing Trezor device...',
+          message: authState.message ?? LocaleKeys.trezorInitializingMessage.tr(),
           taskId: authState.taskId,
         );
       case AuthenticationStatus.waitingForDevice:
         return AuthBlocState.trezorInitializing(
           message:
-              authState.message ?? 'Waiting for Trezor device connection...',
+              authState.message ?? LocaleKeys.trezorWaitingForDeviceMessage.tr(),
           taskId: authState.taskId,
         );
       case AuthenticationStatus.waitingForDeviceConfirmation:
         return AuthBlocState.trezorAwaitingConfirmation(
           message:
               authState.message ??
-              'Please follow instructions on your Trezor device',
+              LocaleKeys.trezorAwaitingConfirmationMessage.tr(),
           taskId: authState.taskId,
         );
       case AuthenticationStatus.pinRequired:
         return AuthBlocState.trezorPinRequired(
-          message: authState.message ?? 'Please enter your Trezor PIN',
+          message: authState.message ?? LocaleKeys.trezorPinRequiredMessage.tr(),
           taskId: authState.taskId!,
         );
       case AuthenticationStatus.passphraseRequired:
         return AuthBlocState.trezorPassphraseRequired(
-          message: authState.message ?? 'Please enter your Trezor passphrase',
+          message: authState.message ?? LocaleKeys.trezorPassphraseRequiredMessage.tr(),
           taskId: authState.taskId!,
         );
       case AuthenticationStatus.authenticating:
@@ -98,14 +98,14 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       case AuthenticationStatus.error:
         return AuthBlocState.error(
           AuthException(
-            authState.error ?? 'Trezor authentication failed',
+            authState.error ?? LocaleKeys.trezorAuthFailedMessage.tr(),
             type: AuthExceptionType.generalAuthError,
           ),
         );
       case AuthenticationStatus.cancelled:
         return AuthBlocState.error(
           AuthException(
-            'Trezor authentication was cancelled',
+            LocaleKeys.trezorAuthCancelledMessage.tr(),
             type: AuthExceptionType.generalAuthError,
           ),
         );
@@ -123,7 +123,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
     if (authState.user == null) {
       return AuthBlocState.error(
         AuthException(
-          'Trezor initialization failed',
+          LocaleKeys.trezorInitializationFailed.tr(),
           type: AuthExceptionType.generalAuthError,
         ),
       );
@@ -155,7 +155,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         emit(
           AuthBlocState.error(
             AuthException(
-              'No task ID found',
+              LocaleKeys.trezorNoTaskIdFound.tr(),
               type: AuthExceptionType.generalAuthError,
             ),
           ),
@@ -169,7 +169,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       emit(
         AuthBlocState.error(
           AuthException(
-            'Failed to provide PIN',
+            LocaleKeys.trezorProvidePinFailed.tr(),
             type: AuthExceptionType.generalAuthError,
           ),
         ),
@@ -187,7 +187,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
         emit(
           AuthBlocState.error(
             AuthException(
-              'No task ID found',
+              LocaleKeys.trezorNoTaskIdFound.tr(),
               type: AuthExceptionType.generalAuthError,
             ),
           ),
@@ -201,7 +201,7 @@ mixin TrezorAuthMixin on Bloc<AuthBlocEvent, AuthBlocState> {
       emit(
         AuthBlocState.error(
           AuthException(
-            'Failed to provide passphrase',
+            LocaleKeys.trezorProvidePassphraseFailed.tr(),
             type: AuthExceptionType.generalAuthError,
           ),
         ),

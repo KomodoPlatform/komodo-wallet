@@ -174,7 +174,7 @@ class _FeedbackTypeDropdown extends StatelessWidget {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
       validator: (value) =>
-          value == null ? 'Please select a feedback type' : null,
+          value == null ? LocaleKeys.feedbackSelectTypeValidation.tr() : null,
       items: FeedbackType.values
           .map(
             (type) => DropdownMenuItem<FeedbackType>(

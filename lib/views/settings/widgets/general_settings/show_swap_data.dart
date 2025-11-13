@@ -103,8 +103,7 @@ class _ShowSwapDataState extends State<ShowSwapData> {
       borderColor: theme.custom.specificButtonBorderColor,
       backgroundColor: theme.custom.specificButtonBackgroundColor,
       fontWeight: FontWeight.w500,
-      // Use a static label since no translation key exists for export.
-      text: 'Export swap data',
+      text: LocaleKeys.exportSwapData.tr(),
       icon: _isDownloading
           ? const UiSpinner()
           : Icon(

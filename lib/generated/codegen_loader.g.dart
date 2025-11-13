@@ -316,6 +316,7 @@ abstract class  LocaleKeys {
   static const feedbackFormMatrix = 'feedbackFormMatrix';
   static const feedbackFormTelegram = 'feedbackFormTelegram';
   static const feedbackFormSelectContactMethod = 'feedbackFormSelectContactMethod';
+  static const feedbackSelectTypeValidation = 'feedbackSelectTypeValidation';
   static const feedbackFormDiscordHint = 'feedbackFormDiscordHint';
   static const feedbackFormMatrixHint = 'feedbackFormMatrixHint';
   static const feedbackFormTelegramHint = 'feedbackFormTelegramHint';
@@ -377,6 +378,17 @@ abstract class  LocaleKeys {
   static const trezorSelectSubTitle = 'trezorSelectSubTitle';
   static const trezorBrowserUnsupported = 'trezorBrowserUnsupported';
   static const trezorTransactionInProgressMessage = 'trezorTransactionInProgressMessage';
+  static const trezorInitializingMessage = 'trezorInitializingMessage';
+  static const trezorWaitingForDeviceMessage = 'trezorWaitingForDeviceMessage';
+  static const trezorAwaitingConfirmationMessage = 'trezorAwaitingConfirmationMessage';
+  static const trezorPinRequiredMessage = 'trezorPinRequiredMessage';
+  static const trezorPassphraseRequiredMessage = 'trezorPassphraseRequiredMessage';
+  static const trezorAuthFailedMessage = 'trezorAuthFailedMessage';
+  static const trezorAuthCancelledMessage = 'trezorAuthCancelledMessage';
+  static const trezorInitializationFailed = 'trezorInitializationFailed';
+  static const trezorNoTaskIdFound = 'trezorNoTaskIdFound';
+  static const trezorProvidePinFailed = 'trezorProvidePinFailed';
+  static const trezorProvidePassphraseFailed = 'trezorProvidePassphraseFailed';
   static const mixedCaseError = 'mixedCaseError';
   static const addressConvertedToMixedCase = 'addressConvertedToMixedCase';
   static const invalidAddressChecksum = 'invalidAddressChecksum';
@@ -511,6 +523,7 @@ abstract class  LocaleKeys {
   static const unableToActiveCoin = 'unableToActiveCoin';
   static const coinIsNotActive = 'coinIsNotActive';
   static const feedback = 'feedback';
+  static const feedbackDefaultType = 'feedbackDefaultType';
   static const feedbackViewTitle = 'feedbackViewTitle';
   static const feedbackPageDescription = 'feedbackPageDescription';
   static const feedbackThankyou = 'feedbackThankyou';
@@ -521,6 +534,9 @@ abstract class  LocaleKeys {
   static const totalFees = 'totalFees';
   static const selectProtocol = 'selectProtocol';
   static const showSwapData = 'showSwapData';
+  static const exportSwapData = 'exportSwapData';
+  static const orderUuid = 'orderUuid';
+  static const swapUuid = 'swapUuid';
   static const importSwaps = 'importSwaps';
   static const changeTheme = 'changeTheme';
   static const available = 'available';

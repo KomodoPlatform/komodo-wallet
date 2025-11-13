@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
 import 'package:komodo_defi_types/komodo_defi_type_utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 
 import 'package:web_dex/services/feedback/feedback_provider.dart';
 import 'package:web_dex/services/feedback/providers/cloudflare_feedback_provider.dart';
@@ -86,7 +88,7 @@ class FeedbackService {
       await provider.submitFeedback(
         description: feedback.text,
         screenshot: feedback.screenshot,
-        type: feedbackType ?? 'User Feedback',
+        type: feedbackType ?? LocaleKeys.feedbackDefaultType.tr(),
         metadata: metadata,
       );
       return true;

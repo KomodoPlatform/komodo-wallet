@@ -14,6 +14,8 @@ import 'package:web_dex/blocs/wallets_repository.dart';
 import 'package:web_dex/model/authorize_mode.dart';
 import 'package:web_dex/model/kdf_auth_metadata_extension.dart';
 import 'package:web_dex/model/wallet.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:web_dex/generated/codegen_loader.g.dart';
 
 part 'auth_bloc_event.dart';
 part 'auth_bloc_state.dart';

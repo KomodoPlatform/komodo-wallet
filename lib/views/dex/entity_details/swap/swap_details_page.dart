@@ -52,24 +52,27 @@ class _SwapDetailsPageState extends State<SwapDetailsPage> {
       children: [
         TradingDetailsHeader(title: _headerText),
         SwapProgressStatus(progress: _progress, isFailed: _isFailed),
-        SwapDetails(swapStatus: widget.swapStatus, isFailed: _isFailed),
-        const SizedBox(height: 20),
-        UiBorderButton(
-          width: 160,
-          height: 32,
-          borderWidth: 1,
-          borderColor: theme.custom.specificButtonBorderColor,
-          backgroundColor: theme.custom.specificButtonBackgroundColor,
-          fontWeight: FontWeight.w500,
-          text: 'Export swap data',
-          icon: _isExporting
-              ? const UiSpinner()
-              : Icon(
-                  Icons.file_download,
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                  size: 18,
-                ),
-          onPressed: _isExporting ? null : _exportSwapData,
+        SwapDetails(
+          swapStatus: widget.swapStatus,
+          isFailed: _isFailed,
+          belowUuid: UiBorderButton(
+            width: 160,
+            height: 32,
+            borderWidth: 0,
+            borderColor: theme.custom.subCardBackgroundColor,
+            backgroundColor: theme.custom.subCardBackgroundColor,
+            fontWeight: FontWeight.w500,
+            fontSize: 11,
+            text: LocaleKeys.exportSwapData.tr(),
+            icon: _isExporting
+                ? const UiSpinner()
+                : Icon(
+                    Icons.file_download,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                    size: 18,
+                  ),
+            onPressed: _isExporting ? null : _exportSwapData,
+          ),
         ),
       ],
     );

@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as p;
 import 'package:web_dex/services/file_loader/file_loader.dart';
 import 'package:web_dex/shared/utils/zip.dart';
 
@@ -15,7 +17,11 @@ class FileLoaderNativeDesktop implements FileLoader {
   }) async {
     switch (type) {
       case LoadFileType.text:
-        await _saveAsTextFile(fileName, data);
+        if (p.extension(fileName).toLowerCase() == '.json') {
+          await _saveAsJsonFile(fileName, data);
+        } else {
+          await _saveAsTextFile(fileName, data);
+        }
       case LoadFileType.compressed:
         await _saveAsCompressedFile(fileName, data);
     }
@@ -46,11 +52,32 @@ class FileLoaderNativeDesktop implements FileLoader {
   }
 
   Future<void> _saveAsTextFile(String fileName, String data) async {
+    final String suggestedName =
+        p.extension(fileName).isEmpty ? '$fileName.txt' : fileName;
     final String? fileFullPath =
-        await FilePicker.platform.saveFile(fileName: '$fileName.txt');
+        await FilePicker.platform.saveFile(fileName: suggestedName);
     if (fileFullPath == null) return;
     final File file = File(fileFullPath)..createSync(recursive: true);
     await file.writeAsString(data);
+  }
+
+  Future<void> _saveAsJsonFile(String fileName, String data) async {
+    final String suggestedName =
+        p.extension(fileName).isEmpty ? '$fileName.json' : fileName;
+    final String? fileFullPath =
+        await FilePicker.platform.saveFile(fileName: suggestedName);
+    if (fileFullPath == null) return;
+
+    String prettyData = data;
+    try {
+      final dynamic decoded = json.decode(data);
+      prettyData = const JsonEncoder.withIndent('  ').convert(decoded);
+    } catch (_) {
+      // If not valid JSON, keep original content
+    }
+
+    final File file = File(fileFullPath)..createSync(recursive: true);
+    await file.writeAsString(prettyData);
   }
 
   Future<void> _saveAsCompressedFile(
