@@ -25,6 +25,7 @@ import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_for
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/fill_form/fields/fill_form_memo.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/trezor_withdraw_progress_dialog.dart';
 import 'package:web_dex/views/wallet/coin_details/withdraw_form/widgets/withdraw_form_header.dart';
+import 'package:decimal/decimal.dart';
 import 'package:web_dex/views/wallet/coin_details/transactions/transaction_details.dart';
 
 bool _isMemoSupportedProtocol(Asset asset) {
@@ -51,6 +52,7 @@ class WithdrawForm extends StatefulWidget {
 class _WithdrawFormState extends State<WithdrawForm> {
   late final WithdrawFormBloc _formBloc;
   late final _sdk = context.read<KomodoDefiSdk>();
+  bool _suppressPreviewError = false;
   late final _mm2Api = context.read<Mm2Api>();
 
   @override
@@ -78,6 +80,62 @@ class _WithdrawFormState extends State<WithdrawForm> {
       value: _formBloc,
       child: MultiBlocListener(
         listeners: [
+          BlocListener<WithdrawFormBloc, WithdrawFormState>(
+            listenWhen: (prev, curr) => prev.previewError != curr.previewError && curr.previewError != null,
+            listener: (context, state) async {
+              // If a preview failed and the user entered essentially their entire
+              // spendable balance (but didn't select Max), offer to deduct the fee
+              // by switching to max withdrawal.
+              if (state.isMaxAmount) return;
+
+              final spendable = state.selectedSourceAddress?.balance.spendable;
+              Decimal? entered;
+              try {
+                entered = Decimal.parse(state.amount);
+              } catch (_) {
+                entered = null;
+              }
+
+              bool amountsMatchWithTolerance(Decimal a, Decimal b) {
+                // Use a tiny epsilon to account for formatting/rounding differences
+                const epsStr = '0.000000000000000001';
+                final epsilon = Decimal.parse(epsStr);
+                final diff = (a - b).abs();
+                return diff <= epsilon;
+              }
+
+              if (spendable != null && entered != null && amountsMatchWithTolerance(entered, spendable)) {
+                if (mounted) setState(() { _suppressPreviewError = true; });
+                final bloc = context.read<WithdrawFormBloc>();
+                final agreed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(LocaleKeys.userActionRequired.tr()),
+                    content: const Text(
+                      'Since you\'re sending your full amount, the network fee will be deducted from the amount. Do you agree?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(LocaleKeys.cancel.tr()),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text(LocaleKeys.ok.tr()),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (mounted) setState(() { _suppressPreviewError = false; });
+
+                if (agreed == true) {
+                  bloc.add(const WithdrawFormMaxAmountEnabled(true));
+                  bloc.add(const WithdrawFormPreviewSubmitted());
+                }
+              }
+            },
+          ),
           BlocListener<WithdrawFormBloc, WithdrawFormState>(
             listenWhen: (prev, curr) =>
                 prev.step != curr.step && curr.step == WithdrawFormStep.success,
@@ -141,6 +199,7 @@ class _WithdrawFormState extends State<WithdrawForm> {
         ],
         child: WithdrawFormContent(
           onBackButtonPressed: widget.onBackButtonPressed,
+          suppressPreviewError: _suppressPreviewError,
           onSuccess: widget.onSuccess,
         ),
       ),
@@ -150,9 +209,15 @@ class _WithdrawFormState extends State<WithdrawForm> {
 
 class WithdrawFormContent extends StatelessWidget {
   final VoidCallback? onBackButtonPressed;
+  final bool suppressPreviewError;
   final VoidCallback onSuccess;
 
-  const WithdrawFormContent({required this.onSuccess, this.onBackButtonPressed, super.key});
+  const WithdrawFormContent({
+    required this.onSuccess,
+    required this.suppressPreviewError,
+    this.onBackButtonPressed,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +252,7 @@ class WithdrawFormContent extends StatelessWidget {
   Widget _buildStep(WithdrawFormStep step) {
     switch (step) {
       case WithdrawFormStep.fill:
-        return const WithdrawFormFillSection();
+        return WithdrawFormFillSection(suppressPreviewError: suppressPreviewError);
       case WithdrawFormStep.confirm:
         return const WithdrawFormConfirmSection();
       case WithdrawFormStep.success:
@@ -502,7 +567,9 @@ class WithdrawResultDetails extends StatelessWidget {
 }
 
 class WithdrawFormFillSection extends StatelessWidget {
-  const WithdrawFormFillSection({super.key});
+  final bool suppressPreviewError;
+
+  const WithdrawFormFillSection({required this.suppressPreviewError, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -619,7 +686,7 @@ class WithdrawFormFillSection extends StatelessWidget {
             const SizedBox(height: 24),
             // TODO! Refactor to use Formz and replace with the appropriate
             // error state value.
-            if (state.hasPreviewError)
+            if (state.hasPreviewError && !suppressPreviewError)
               ErrorDisplay(
                 message: LocaleKeys.withdrawPreviewError.tr(),
                 detailedMessage: state.previewError!.message,
