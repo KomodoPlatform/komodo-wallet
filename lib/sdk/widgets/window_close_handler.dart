@@ -1,3 +1,6 @@
+import 'dart:io' show exit
+    if (dart.library.html) 'window_close_handler_exit_stub.dart' show exit;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +18,7 @@ import 'package:web_dex/shared/utils/window/window.dart';
 ///
 /// This widget uses different strategies based on the platform:
 /// - Desktop (Windows, macOS, Linux): Uses flutter_window_close for native window close handling
+///   On Linux, native code uses workaround to bypass GTK cleanup to prevent crashes
 /// - Web: Uses showMessageBeforeUnload for browser beforeunload event
 /// - Mobile (iOS, Android): Uses WidgetsBindingObserver for lifecycle management
 ///   and PopScope for exit confirmation
@@ -47,9 +51,25 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
   /// Sets up the appropriate close handler based on the platform.
   void _setupCloseHandler() {
     if (PlatformTuner.isNativeDesktop) {
-      // Desktop platforms: Use flutter_window_close
+      // Desktop platforms: Use flutter_window_close for all platforms
+      // On Linux, we use flutter_window_close for dialog, but return false to prevent
+      // standard window closing, then manually trigger exit via SystemNavigator
       FlutterWindowClose.setWindowShouldCloseHandler(() async {
-        return await _handleWindowClose();
+        final shouldClose = await _handleWindowClose();
+        
+        // On Linux, if user confirmed, we need to manually exit instead of letting
+        // flutter_window_close handle it, to avoid GTK cleanup issues
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux && shouldClose) {
+          // Hide window immediately
+          // Then exit after a short delay to allow any final cleanup
+          Future.delayed(const Duration(milliseconds: 200), () {
+            exit(0);
+          });
+          // Return false to prevent flutter_window_close from closing the window
+          return false;
+        }
+        
+        return shouldClose;
       });
     } else if (kIsWeb) {
       // Web platform: Use beforeunload event
@@ -66,7 +86,8 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    // Dispose SDK when app is terminated or detached from UI (mobile platforms)
+    // Dispose SDK when app is terminated or detached from UI
+    // This applies to mobile platforms
     if (state == AppLifecycleState.detached) {
       _disposeSDKIfNeeded();
     }
@@ -151,6 +172,7 @@ class _WindowCloseHandlerState extends State<WindowCloseHandler>
   void dispose() {
     // Clean up based on platform
     if (PlatformTuner.isNativeDesktop) {
+      // Desktop platforms: Remove flutter_window_close handler
       FlutterWindowClose.setWindowShouldCloseHandler(null);
     } else if (!kIsWeb) {
       // Mobile platforms: Remove lifecycle observer

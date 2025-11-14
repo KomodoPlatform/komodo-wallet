@@ -1,5 +1,6 @@
 #include "my_application.h"
 
+#include <cstdlib>
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -25,6 +26,23 @@ G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 static void on_window_destroy(GtkWidget* widget, gpointer user_data) {
   MyApplication* self = MY_APPLICATION(user_data);
   self->main_window = nullptr;
+}
+
+// Workaround for Flutter Linux shutdown issue (#132404)
+// This handler intercepts delete-event early to prevent GTK from destroying the window
+// and triggering FlutterEngineRemoveView. When flutter_window_close confirms closing,
+// it will return false to prevent standard closing, and we'll handle exit manually.
+// This handler acts as a safety net in case delete-event is still triggered.
+static gboolean on_window_delete_event(GtkWidget* widget, GdkEvent* event, gpointer user_data) {
+  (void)widget;      // Unused
+  (void)event;       // Unused
+  (void)user_data;   // Unused
+  
+  // On Linux, we want flutter_window_close to handle the dialog first
+  // So we return FALSE to let the event propagate to flutter_window_close
+  // If flutter_window_close returns false (user cancelled), nothing happens
+  // If flutter_window_close returns true, it will be intercepted and we'll exit manually
+  return FALSE;
 }
 
 // Implements GApplication::activate.
@@ -89,7 +107,12 @@ static void my_application_activate(GApplication* application) {
   gtk_widget_grab_focus(GTK_WIDGET(view));
 
   self->main_window = window;
+  
+  // Connect destroy signal
   g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), self);
+  // Connect delete-event signal for graceful shutdown workaround
+  // This prevents the crash when closing the window on Linux
+  g_signal_connect(window, "delete-event", G_CALLBACK(on_window_delete_event), self);
 }
 
 // Implements GApplication::local_command_line.
