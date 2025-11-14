@@ -17,6 +17,7 @@ class MainMenuBarMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     final MainMenuValue selected = routingState.selectedMenu;
     final currentWallet = context.watch<AuthBloc>().state.currentUser?.wallet;
+    final bool isHardware = currentWallet?.isHW == true;
 
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
@@ -50,17 +51,22 @@ class MainMenuBarMobile extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: MainMenuBarMobileItem(
-                      value: MainMenuValue.fiat,
-                      enabled: currentWallet?.isHW != true,
-                      isActive: selected == MainMenuValue.fiat,
+                    child: Tooltip(
+                      message: '',
+                      child: MainMenuBarMobileItem(
+                        value: MainMenuValue.fiat,
+                        enabled: true,
+                        isActive: selected == MainMenuValue.fiat,
+                      ),
                     ),
                   ),
                   Expanded(
                     child: Tooltip(
-                      message: tradingEnabled
-                          ? ''
-                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                      message: isHardware
+                          ? LocaleKeys.trezorUnavailableTooltip.tr()
+                          : (tradingEnabled
+                              ? ''
+                              : LocaleKeys.tradingDisabledTooltip.tr()),
                       child: MainMenuBarMobileItem(
                         value: MainMenuValue.dex,
                         enabled: currentWallet?.isHW != true,
@@ -70,9 +76,11 @@ class MainMenuBarMobile extends StatelessWidget {
                   ),
                   Expanded(
                     child: Tooltip(
-                      message: tradingEnabled
-                          ? ''
-                          : LocaleKeys.tradingDisabledTooltip.tr(),
+                      message: isHardware
+                          ? LocaleKeys.trezorUnavailableTooltip.tr()
+                          : (tradingEnabled
+                              ? ''
+                              : LocaleKeys.tradingDisabledTooltip.tr()),
                       child: MainMenuBarMobileItem(
                         value: MainMenuValue.bridge,
                         enabled: currentWallet?.isHW != true,
@@ -83,9 +91,11 @@ class MainMenuBarMobile extends StatelessWidget {
                   if (isMMBotEnabled)
                     Expanded(
                       child: Tooltip(
-                        message: tradingEnabled
-                            ? ''
-                            : LocaleKeys.tradingDisabledTooltip.tr(),
+                        message: isHardware
+                            ? LocaleKeys.trezorUnavailableTooltip.tr()
+                            : (tradingEnabled
+                                ? ''
+                                : LocaleKeys.tradingDisabledTooltip.tr()),
                         child: MainMenuBarMobileItem(
                           enabled: currentWallet?.isHW != true,
                           value: MainMenuValue.marketMakerBot,
@@ -95,7 +105,8 @@ class MainMenuBarMobile extends StatelessWidget {
                     ),
                   Expanded(
                     child: Tooltip(
-                      message: LocaleKeys.nftDisabledTooltip.tr(),
+                      message:
+                          isHardware ? LocaleKeys.trezorUnavailableTooltip.tr() : LocaleKeys.nftDisabledTooltip.tr(),
                       child: MainMenuBarMobileItem(
                         value: MainMenuValue.nft,
                         enabled: false,
