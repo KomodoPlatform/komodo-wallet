@@ -423,6 +423,7 @@ class CoinListView extends StatelessWidget {
         );
       case AuthorizeMode.hiddenLogin:
       case AuthorizeMode.noLogin:
+        // Assets are sorted by priority at the group level in AssetsList._groupAssetsByTicker()
         return AssetsList(
           useGroupedView: true,
           assets: context

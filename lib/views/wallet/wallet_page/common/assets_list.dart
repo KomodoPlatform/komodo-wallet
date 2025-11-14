@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
+import 'package:web_dex/app_config/app_config.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/asset_list_item.dart';
 import 'package:web_dex/views/wallet/wallet_page/common/grouped_asset_ticker_item.dart';
 
@@ -95,9 +96,32 @@ class AssetsList extends StatelessWidget {
       groupedAssets.putIfAbsent(symbol, () => []).add(asset);
     }
 
-    return Map.fromEntries(
-      groupedAssets.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
-    );
+    // Sort groups: priority tickers first (in order from list), then others (alphabetically)
+    final groups = groupedAssets.entries.toList();
+    groups.sort((a, b) {
+      final String tickerA = a.key;
+      final String tickerB = b.key;
+      
+      final int indexA = unauthenticatedUserPriorityTickers.indexOf(tickerA);
+      final int indexB = unauthenticatedUserPriorityTickers.indexOf(tickerB);
+      
+      final bool aIsPriority = indexA != -1;
+      final bool bIsPriority = indexB != -1;
+      
+      // Priority tickers come first
+      if (aIsPriority && !bIsPriority) return -1;
+      if (!aIsPriority && bIsPriority) return 1;
+      
+      // If both are priority, sort by their order in the priority list
+      if (aIsPriority && bIsPriority) {
+        return indexA.compareTo(indexB);
+      }
+      
+      // If both are not priority, sort alphabetically
+      return tickerA.compareTo(tickerB);
+    });
+
+    return Map.fromEntries(groups);
   }
 
   /// Filters assets based on search phrase
