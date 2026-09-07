@@ -4,6 +4,11 @@ import 'bloc/legal_agreement/legal_agreement_bloc_test.dart'
 import 'views/wallets_manager/widgets/inline_legal_acceptance_test.dart'
     as inline_legal_acceptance_test;
 
+import 'services/initializer/app_error_handling_test.dart'
+    as app_error_handling_test;
+import 'views/wallets_manager/widgets/wallet_simple_import_test.dart'
+    as wallet_simple_import_test;
+
 // Suites that only expose `main()`, imported with a prefix so they can be
 // aggregated here. CI runs *only* this file
 // (.github/workflows/unit-tests-on-pr.yml), so a test file that is not
@@ -112,6 +117,7 @@ import 'tests/wallet/coin_details/withdraw_form_fill_section_test.dart';
 import 'tests/wallet/coin_details/coin_addresses_bloc_gasless_revalidation_test.dart';
 import 'tests/wallet/coin_activation_state_bridge_test.dart';
 import 'tests/auth/auth_bloc_test.dart';
+import 'tests/wallet/wallet_operation_identity_test.dart';
 import 'tests/wallet/coins_bloc_activation_recovery_test.dart';
 import 'tests/wallet/coins_bloc_pubkeys_retry_test.dart';
 import 'tests/utils/convert_double_to_string_tests.dart';
@@ -141,6 +147,8 @@ import 'tests/utils/transaction_history/sanitize_transaction_tests.dart';
 ///   --dart-define=TRON_GASLESS_SERVICE_PROVIDER=TLntW9Z59LYY5KEi9cmwk3PKjQga828ird
 /// ```
 void main() {
+  app_error_handling_test.main();
+  wallet_simple_import_test.main();
   group('App update:', () {
     testUpdateVersionCompare();
     testUpdateDownloadUri();
@@ -239,6 +247,7 @@ void main() {
 
   testCoinActivationStateBridge();
   testAuthBloc();
+  testWalletOperationIdentity();
   nft_main_bloc_test.testNftMainBloc();
   nft_main_repo_test.testNftMainRepo();
   nft_tabs_widget_test.testNftTabsWidget();
