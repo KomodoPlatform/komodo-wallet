@@ -244,11 +244,9 @@ void main() {
 
     setUpAll(() {
       hostingConfig =
-          _readJsonWithComments('firebase.json')['hosting']
-              as Map<String, dynamic>;
+          _readJson('firebase.json')['hosting'] as Map<String, dynamic>;
       deployTargets =
-          _readJsonWithComments('.firebaserc')['targets']
-              as Map<String, dynamic>;
+          _readJson('.firebaserc')['targets'] as Map<String, dynamic>;
     });
 
     test('allows the wallet origin to use its Trezor WebUSB transport', () {
@@ -431,72 +429,17 @@ String? _headerValue(
   return null;
 }
 
-/// Reads a JSON-with-comments file from the repository root.
-Map<String, dynamic> _readJsonWithComments(String path) {
+/// Reads a strict JSON file from the repository root.
+Map<String, dynamic> _readJson(String path) {
   final file = File(path);
   expect(file.existsSync(), isTrue, reason: 'run from the repository root');
 
   try {
-    return jsonDecode(_stripJsonComments(file.readAsStringSync()))
-        as Map<String, dynamic>;
+    return jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
   } on FormatException catch (error) {
     fail(
-      '$path did not parse after comments were stripped, so these tests '
+      '$path did not parse as strict JSON, so these tests '
       'could not run: $error',
     );
   }
-}
-
-/// Strips `//` and `/* */` comments outside string literals.
-///
-/// firebase-tools reads firebase.json as JSON-with-comments, and this file is
-/// comment-heavy. Handling only whole-line `//` would make these tests fail on
-/// a trailing comment that firebase-tools itself accepts, reporting a config
-/// problem where there is none.
-String _stripJsonComments(String source) {
-  final out = StringBuffer();
-  var inString = false;
-  var escaped = false;
-  var i = 0;
-
-  while (i < source.length) {
-    final char = source[i];
-
-    if (inString) {
-      out.write(char);
-      if (escaped) {
-        escaped = false;
-      } else if (char == r'\') {
-        escaped = true;
-      } else if (char == '"') {
-        inString = false;
-      }
-      i++;
-      continue;
-    }
-
-    if (char == '"') {
-      inString = true;
-      out.write(char);
-      i++;
-      continue;
-    }
-
-    if (source.startsWith('//', i)) {
-      final end = source.indexOf('\n', i);
-      i = end == -1 ? source.length : end;
-      continue;
-    }
-
-    if (source.startsWith('/*', i)) {
-      final end = source.indexOf('*/', i + 2);
-      i = end == -1 ? source.length : end + 2;
-      continue;
-    }
-
-    out.write(char);
-    i++;
-  }
-
-  return out.toString();
 }

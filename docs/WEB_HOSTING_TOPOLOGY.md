@@ -112,6 +112,37 @@ and production cannot be deployed from this config at all — the CLI aborts wit
 "Deploy target web not configured". `test_units/tests/fiat/fiat_checkout_url_allowlist_test.dart`
 fails if that mapping is dropped or repointed.
 
+## Header and cache rules
+
+Keep `firebase.json` as standard JSON without comments. The reasons for its
+settings live here so the same file can be consumed by strict JSON tooling and
+the Firebase CLI. The wallet's existing hosting-config tests also parse it as
+strict JSON.
+
+Each header glob owns a distinct set of header keys. Firebase combines matching
+entries, so the global security headers also apply to the narrower cache rules.
+
+- `Content-Security-Policy: frame-ancestors 'self'` allows the wallet's own
+  same-origin payment wrapper to be framed. `X-Frame-Options: SAMEORIGIN` keeps
+  equivalent protection for older clients.
+- `Permissions-Policy` keeps USB available to the wallet's Trezor transport
+  through `usb=(self)`. Camera, microphone, payment, encrypted-media, and MIDI
+  are deliberately not denied globally, allowing the wrapper to delegate the
+  capabilities needed by provider checkout and identity-verification frames.
+- Do not enable `Cross-Origin-Embedder-Policy: credentialless` as a routine
+  hardening change. It strips cross-origin credentials needed by provider
+  identity-verification flows and can break checkout.
+
+| Files | Cache policy | Reason |
+|---|---|---|
+| `index.html`, `flutter_bootstrap.js`, `flutter.js`, `main.dart.js`, `flutter_service_worker.js`, `version.json` | `no-cache, max-age=0, must-revalidate` | Stable boot URLs and update-version checks must revalidate so a reload can install the deployed app. Revalidating only the HTML shell can still load an older cached application. |
+| Bundled coin icons | `public, max-age=2592000` | A bounded 30-day lifetime reduces repeat downloads. Icons are not content-hashed, so this is not an `immutable` policy. |
+| `/assets/assets/web_pages/**` | `public, max-age=0, must-revalidate` | Shipped native clients fetch these wrappers at runtime and need the latest checkout restrictions after a deployment. |
+
+An icon fallback only handles missing assets; it does not replace an old but
+successfully loaded cached icon. If an in-place icon replacement must reach
+clients promptly, shorten its cache lifetime or give it a new filename.
+
 ## Verifying a deploy
 
 `tool/verify_web_deploy.sh` asks a deployed site whether it is hardened. It
