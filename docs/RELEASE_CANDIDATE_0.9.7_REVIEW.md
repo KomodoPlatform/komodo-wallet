@@ -1,6 +1,31 @@
 # v0.9.7 release candidate review
 
-Reviewed on 2026-09-05 against [PR #3525](https://github.com/GLEECBTC/gleec-wallet/pull/3525).
+Initially reviewed on 2026-09-05 against [PR #3525](https://github.com/GLEECBTC/gleec-wallet/pull/3525); integration state refreshed on 2026-09-07.
+
+## Current integration state
+
+- SDK [PR #374](https://github.com/GLEECBTC/komodo-defi-sdk-flutter/pull/374) merged into `main` on 2026-09-07 at `4d386b0a710fd78aa4e5e0d782eb6d9e49d3e828`. The wallet now pins that `main` commit. Its complete Git tree is identical to the previously tested `a7abc2c00a35838c08fb4e4aacc728571f7e731f` snapshot; package versions remain SDK `0.8.0-rc.1` and local-auth `0.6.0-rc.1`.
+- Wallet [PR #3528](https://github.com/GLEECBTC/gleec-wallet/pull/3528) includes `dev` through `042e68d1ed51d5cd12b7f6a220e5b35bfe105438`: Firebase startup #3520, inline legal acceptance #3527 and spacing #3529, and checkout/web updates #3514 (including #3526) are already merged into `dev`.
+- Merging #3528 into `dev` brings the review corrections, SDK `main` pointer, and completed v0.9.7 changelog into RC #3525 automatically, because that PR compares `dev` with `main`. The RC description records this expected state while keeping #3528's merge and final release checks pending until completed.
+- The KDF pin remains `f3efd2ca10420f2982fa127dde84dcc17891f577`. No SDK source, package version, storage format, or dependency-lockfile change is introduced by this pointer update.
+
+Validation of the SDK `main` pointer on 2026-09-07, using Flutter `3.41.4`:
+
+| Check | Result |
+| --- | --- |
+| Wallet unit/widget aggregator with all four GasFree defines | 826 passed, 3 skipped |
+| Wallet dependency resolution with the enforced lockfile, offline | Passed; lockfile unchanged |
+| CI static analysis | Passed; no errors, with 55 existing warnings and 2,119 information diagnostics |
+| SDK merge tree compared with the previously tested `a7abc2c0` tree | Identical |
+| Whitespace checks | Passed; no Dart source changed in this synchronization |
+
+Build-generated coin configuration changes were restored. Earlier SDK suite,
+browser, Wasm-build, and preview-smoke results below retain their original
+scope. Final CI and release smoke testing must be confirmed on the resulting
+`dev`/RC revision after #3528 merges.
+
+The sections below retain the original review and validation history; earlier
+commit pins and test counts identify the snapshots tested at those stages.
 
 ## Review basis
 
@@ -94,7 +119,7 @@ The local-auth code is unchanged by this correction; its 74-test result above re
 
 ## Release boundaries
 
-- The app review branch targets `dev` to feed RC #3525; the SDK fixes and RC preparation are pushed to PR #374 against `main`. No GitHub merge, release tag, production deployment, or funded transfer is part of this review.
+- The app review branch targets `dev` to feed RC #3525. SDK #374 has merged into SDK `main`; the wallet integration is still carried by #3528. Release tags, production deployment, and funded transfers remain separate release actions.
 - Signed distribution and production rollout remain release actions. At wallet commit `2fdd6b166`, Android, iOS, Linux, macOS, Windows, unit, replay/performance, and preview checks passed. The deployed Firebase preview passed startup/onboarding/cancellation smoke testing. The Chrome integration job failed; Safari reported success but its browser logs showed aborted suites, so neither is accepted as passing integration validation.
 - Production-hosted wrapper protection reaches shipped native clients only when the updated wrapper and headers are actually deployed. The included deployment verifier checks that separate release action.
 
@@ -125,16 +150,17 @@ Git-pinned wallet testing does not require package publication. Publishable RC
 distribution requires confirming the complete dependency chain and publishing
 local-auth before the SDK.
 
-After SDK PR #374 merges, repin the wallet to its resulting `main` commit if the
-merge changes the tested commit identity (for example, a squash merge), refresh
-the lockfile if needed, and run the app's gates on that pin. Carry the SDK fix
-into `dev` through the normal synchronization. Tags, package uploads, signing,
-and production rollout remain release actions after the reviewed RC is accepted.
+SDK PR #374 has merged, and the wallet is repinned to the resulting `main`
+commit as recorded above. The merge preserves the tested SDK tree and package
+versions, so the wallet lockfile needs no update. Synchronization of SDK `dev`,
+tags, package uploads, signing, and production rollout remain separate release
+actions after the reviewed RC is accepted.
 
 ## Follow-up: wallet import and trustworthy browser checks
 
-The SDK is frozen at the approved `a7abc2c0` commit. This follow-up changes only
-wallet application code, wallet tests, and wallet documentation.
+This follow-up used the approved SDK `a7abc2c0` snapshot and changed only wallet
+application code, wallet tests, and wallet documentation. The current SDK pin
+is its tree-identical `main` merge commit, recorded above.
 
 The import password step did not subscribe to password-validity updates, leaving
 the button state stale. It now follows both password fields and resets validity
