@@ -53,6 +53,8 @@ import 'views/wallets_manager/widgets/wallets_manager_test.dart'
 import 'tests/dex/order_model_validation_test.dart';
 import 'tests/dex/trading_entities_guards_test.dart';
 import 'tests/encryption/encrypt_data_tests.dart';
+import 'tests/fiat/fiat_checkout_url_allowlist_test.dart'
+    as fiat_checkout_url_allowlist_test;
 import 'tests/formatter/compare_dex_to_cex_tests.dart';
 import 'tests/formatter/cut_trailing_zeros_tests.dart';
 import 'tests/formatter/duration_format_tests.dart';
@@ -70,6 +72,7 @@ import 'tests/helpers/max_min_rational_tests.dart';
 import 'tests/helpers/total_24_change_tests.dart';
 import 'tests/helpers/total_fee_test.dart';
 import 'tests/helpers/update_sell_amount_tests.dart';
+import 'tests/helpers/update_version_compare_tests.dart';
 import 'tests/gasless/tron_gasless_policy_test.dart';
 import 'tests/password/validate_password_tests.dart';
 import 'tests/password/validate_rpc_password_tests.dart';
@@ -138,6 +141,11 @@ import 'tests/utils/transaction_history/sanitize_transaction_tests.dart';
 ///   --dart-define=TRON_GASLESS_SERVICE_PROVIDER=TLntW9Z59LYY5KEi9cmwk3PKjQga828ird
 /// ```
 void main() {
+  group('App update:', () {
+    testUpdateVersionCompare();
+    testUpdateDownloadUri();
+  });
+
   terms_consent_text_test.main();
   legal_agreement_bloc_test.main();
   inline_legal_acceptance_test.main();
@@ -260,6 +268,7 @@ void main() {
   firebase_analytics_api_test.main();
   custom_token_import_bloc_test.main();
   custom_token_import_repository_test.main();
+  fiat_checkout_url_allowlist_test.main();
   fiat_default_preference_test.main();
   tron_fiat_mapping_test.main();
   tron_gasless_provider_config_test.main();
