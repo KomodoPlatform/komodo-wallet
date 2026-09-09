@@ -2,10 +2,20 @@ import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Semantic tone of a [NoticeBanner].
-enum NoticeBannerVariant { info, warning, success }
+enum NoticeBannerVariant { info, warning, success, critical }
 
-/// Resolved banner palette: a tinted background plus a foreground that is
-/// legible on it in the active theme.
+/// GLEEC brand red, mirroring [ColorSchemeExtension.error] and
+/// `theme.custom.warningColor`.
+///
+/// Held locally rather than read from the theme singleton so [NoticeBanner]
+/// keeps working under nested `Theme` scopes and in bare-`MaterialApp` widget
+/// tests, matching how the other variants fall back. Deliberately *not*
+/// `colorScheme.errorContainer`, which the light scheme still carries as the
+/// Material 2 `#B00020` block.
+const Color _brandCritical = Color(0xFFE52167);
+
+/// Resolved palette: a tinted background plus a foreground that is legible on
+/// it in the active theme.
 class NoticeBannerStyle {
   const NoticeBannerStyle({
     required this.background,
@@ -33,6 +43,7 @@ class NoticeBanner extends StatelessWidget {
     required this.child,
     this.variant = NoticeBannerVariant.warning,
     this.icon,
+    this.title,
     this.footer,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     super.key,
@@ -43,6 +54,11 @@ class NoticeBanner extends StatelessWidget {
   final Widget child;
 
   final NoticeBannerVariant variant;
+
+  /// Optional bold headline above [child], coloured with the variant
+  /// foreground. Use it when the banner needs to state its point before the
+  /// reader commits to the paragraph.
+  final String? title;
 
   /// Optional leading icon, tinted with the variant accent.
   final IconData? icon;
@@ -65,43 +81,52 @@ class NoticeBanner extends StatelessWidget {
 
     switch (variant) {
       case NoticeBannerVariant.info:
+        // `secondaryContainer` is Material 2's teal in the light scheme - an
+        // accident of `ColorScheme.copyWith`, not a brand colour - so this
+        // draws on the neutral surface tokens instead. `bodyMedium` is the
+        // foreground both global themes already use for body copy.
+        final neutral = theme.textTheme.bodyMedium?.color ?? theme.hintColor;
         return NoticeBannerStyle(
-          background: theme.colorScheme.secondaryContainer.withValues(
-            alpha: 0.35,
-          ),
-          foreground: theme.colorScheme.onSecondaryContainer,
-          accent: theme.colorScheme.onSecondaryContainer,
+          background: scheme?.s10 ?? theme.colorScheme.surfaceContainerHigh,
+          foreground: neutral,
+          accent: scheme?.secondary ?? neutral,
         );
       case NoticeBannerVariant.warning:
-        // Brand warning hue with a legible shade per brightness; falls back
-        // to the Material amber pairing when the theme extension is absent
-        // (e.g. bare-MaterialApp widget tests).
-        final orange = scheme?.orange;
+        // Brand warning hue, falling back to Material amber when the theme
+        // extension is absent (bare-MaterialApp widget tests, and the global
+        // themes, which do not register it). Both paths go through
+        // [_legibleShade]: the fallback previously used `amber.shade900`
+        // directly, which is only 2.49:1 on its own tint in light mode.
+        final orange = scheme?.orange ?? Colors.amber;
         return NoticeBannerStyle(
-          background: (orange ?? Colors.amber).withValues(
-            alpha: isDark ? 0.22 : 0.16,
+          background: orange.withValues(alpha: isDark ? 0.22 : 0.16),
+          foreground: _legibleShade(orange, isDark: isDark),
+          accent: _legibleShade(orange, isDark: isDark),
+        );
+      case NoticeBannerVariant.critical:
+        // Highest severity. Severity must not rest on hue alone - `build`
+        // gives this variant a border so it still outranks `warning` for
+        // anyone who cannot separate red from amber.
+        return NoticeBannerStyle(
+          background: (scheme?.error ?? _brandCritical).withValues(
+            alpha: isDark ? 0.22 : 0.12,
           ),
-          foreground: orange != null
-              ? _legibleShade(orange, isDark: isDark)
-              : (isDark ? Colors.amber.shade200 : Colors.amber.shade900),
-          accent: orange != null
-              ? _legibleShade(orange, isDark: isDark)
-              : (isDark ? Colors.amber.shade200 : Colors.amber.shade900),
+          foreground: _legibleShade(
+            scheme?.error ?? _brandCritical,
+            isDark: isDark,
+          ),
+          accent: _legibleShade(
+            scheme?.error ?? _brandCritical,
+            isDark: isDark,
+          ),
         );
       case NoticeBannerVariant.success:
-        final green = scheme?.green;
+        final green = scheme?.green ?? Colors.green;
         return NoticeBannerStyle(
           background:
-              scheme?.g20 ??
-              (isDark
-                  ? Colors.green.withValues(alpha: 0.22)
-                  : Colors.green.withValues(alpha: 0.16)),
-          foreground: green != null
-              ? _legibleShade(green, isDark: isDark)
-              : (isDark ? Colors.green.shade200 : Colors.green.shade900),
-          accent: green != null
-              ? _legibleShade(green, isDark: isDark)
-              : (isDark ? Colors.green.shade200 : Colors.green.shade900),
+              scheme?.g20 ?? green.withValues(alpha: isDark ? 0.22 : 0.16),
+          foreground: _legibleShade(green, isDark: isDark),
+          accent: _legibleShade(green, isDark: isDark),
         );
     }
   }
@@ -124,11 +149,17 @@ class NoticeBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.background,
         borderRadius: BorderRadius.circular(12),
-        border: variant == NoticeBannerVariant.info
-            ? Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.35),
-              )
-            : null,
+        border: switch (variant) {
+          NoticeBannerVariant.info => Border.all(
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.35),
+          ),
+          // Weight, not just hue, so the highest severity reads as the
+          // highest severity without relying on colour vision.
+          NoticeBannerVariant.critical => Border.all(
+            color: style.accent.withValues(alpha: 0.5),
+          ),
+          _ => null,
+        },
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +171,25 @@ class NoticeBanner extends StatelessWidget {
                 Icon(icon, size: 20, color: style.accent),
                 const SizedBox(width: 12),
               ],
-              Expanded(child: child),
+              Expanded(
+                child: title == null
+                    ? child
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title!,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(
+                                  color: style.foreground,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          child,
+                        ],
+                      ),
+              ),
             ],
           ),
           if (footer != null) footer!,
