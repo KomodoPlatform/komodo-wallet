@@ -76,7 +76,8 @@ ThemeData get themeGlobalDark {
   final theme = ThemeData(
     useMaterial3: false,
     fontFamily: 'Manrope',
-    scaffoldBackgroundColor: colorScheme.onSurface,
+    // The canvas is its own value, not a foreground role read backwards.
+    scaffoldBackgroundColor: const Color(0xFF000000),
     cardColor: colorScheme.surface,
     cardTheme: CardThemeData(
       color: colorScheme.surface,

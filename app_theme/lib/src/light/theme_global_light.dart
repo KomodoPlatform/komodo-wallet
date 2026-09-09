@@ -11,14 +11,53 @@ ThemeData get themeGlobalLight {
         borderRadius: BorderRadius.circular(12),
       );
 
+  // `ColorScheme.copyWith` resolves every nullable role through its *getter*,
+  // against the pre-override `ColorScheme.light()` constants rather than the
+  // values set here. Roles left unset therefore freeze silently: the
+  // `surfaceContainer` family collapses onto `surface`, `onSurfaceVariant`
+  // and the outlines onto the old black `onSurface`, and the container roles
+  // onto Material 2's teal and `#B00020`.
+  //
+  // Every accidental role below is pinned at the value it already ships, so
+  // this is a no-op by construction and `onSurface` can move on its own. The
+  // FREEZE comments mark values nobody chose - they are the light palette's
+  // clean-up backlog, not design intent.
   final ColorScheme colorScheme = const ColorScheme.light().copyWith(
     primary: const Color(0xFF8C41FF), // GLEEC Purple primary
+    onPrimary: const Color(0xFFFFFFFF),
     inversePrimary: const Color(0xFFB87DFF), // Lighter purple for gradients
     secondary: const Color(0xFF666666), // Muted gray for accents
     tertiary: const Color.fromARGB(255, 192, 225, 255),
     surface: const Color.fromRGBO(255, 255, 255, 1),
     onSurface: const Color.fromRGBO(251, 251, 251, 1),
     error: const Color.fromRGBO(229, 33, 103, 1),
+
+    primaryContainer: const Color(0xFF6200EE), // FREEZE: M2 purple
+    onPrimaryContainer: const Color(0xFFFFFFFF),
+    secondaryContainer: const Color(0xFF03DAC6), // FREEZE: M2 teal
+    onSecondaryContainer: const Color(0xFF000000),
+    onTertiary: const Color(0xFF000000),
+    tertiaryContainer: const Color(0xFF03DAC6), // FREEZE: M2 teal
+    onTertiaryContainer: const Color(0xFF000000),
+    errorContainer: const Color(0xFFB00020), // FREEZE: M2 error
+    onErrorContainer: const Color(0xFFFFFFFF),
+
+    // FREEZE: the whole elevation ramp is currently pure white, so every
+    // tinted container is invisible in light mode.
+    surfaceDim: const Color(0xFFFFFFFF),
+    surfaceBright: const Color(0xFFFFFFFF),
+    surfaceContainerLowest: const Color(0xFFFFFFFF),
+    surfaceContainerLow: const Color(0xFFFFFFFF),
+    surfaceContainer: const Color(0xFFFFFFFF),
+    surfaceContainerHigh: const Color(0xFFFFFFFF),
+    surfaceContainerHighest: const Color(0xFFFFFFFF),
+
+    onSurfaceVariant: const Color(0xFF000000), // FREEZE: old black onSurface
+    outline: const Color(0xFF000000), // FREEZE
+    outlineVariant: const Color(0xFF000000), // FREEZE
+    inverseSurface: const Color(0xFF000000),
+    onInverseSurface: const Color(0xFFFFFFFF),
+    surfaceTint: const Color(0xFF6200EE), // FREEZE: inert while useM3 is false
   );
 
   final TextTheme textTheme = TextTheme(
@@ -56,25 +95,26 @@ ThemeData get themeGlobalLight {
   );
 
   SnackBarThemeData snackBarThemeLight() => SnackBarThemeData(
-        elevation: 12.0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: colorScheme.primaryContainer,
-        contentTextStyle: textTheme.bodyLarge!.copyWith(
-          color: colorScheme.onPrimaryContainer,
-        ),
-        actionTextColor: colorScheme.onPrimaryContainer,
-        showCloseIcon: true,
-        closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
-      );
+    elevation: 12.0,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    ),
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: colorScheme.primaryContainer,
+    contentTextStyle: textTheme.bodyLarge!.copyWith(
+      color: colorScheme.onPrimaryContainer,
+    ),
+    actionTextColor: colorScheme.onPrimaryContainer,
+    showCloseIcon: true,
+    closeIconColor: colorScheme.onPrimaryContainer.withAlpha(179), // 70%
+  );
 
   final customTheme = ThemeCustomLight();
   final theme = ThemeData(
     useMaterial3: false,
     fontFamily: 'Manrope',
-    scaffoldBackgroundColor: colorScheme.onSurface,
+    // The canvas is its own value, not a foreground role read backwards.
+    scaffoldBackgroundColor: const Color(0xFFFBFBFB),
     cardColor: colorScheme.surface,
     cardTheme: CardThemeData(
       color: colorScheme.surface,
@@ -164,22 +204,22 @@ ThemeData get themeGlobalLight {
       ),
     ),
     switchTheme: SwitchThemeData(
-      trackColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary.withOpacity(0.5);
-          }
-          return const Color(0xFFD1D1D1);
-        },
-      ),
-      thumbColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary;
-          }
-          return Colors.white;
-        },
-      ),
+      trackColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary.withOpacity(0.5);
+        }
+        return const Color(0xFFD1D1D1);
+      }),
+      thumbColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary;
+        }
+        return Colors.white;
+      }),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: SegmentedButton.styleFrom(
