@@ -197,6 +197,9 @@ class _FakeAuth implements KomodoDefiLocalAuth {
   Future<KdfUser?> get currentUser async => user;
 
   @override
+  Stream<KdfUser?> get authStateChanges => const Stream.empty();
+
+  @override
   Future<void> updateActiveUserKeyValue(
     String key,
     dynamic Function(dynamic currentValue) transform, {

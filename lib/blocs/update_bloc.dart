@@ -235,21 +235,59 @@ class UpdateVersionInfo {
   final String downloadUrl;
   final UpdateStatus status;
 
-  /// The download URL as a usable http(s) [Uri], or null when it is absent or
-  /// not something we are willing to hand to the platform's URL launcher.
+  /// Only the official wallet's HTTPS GitHub release pages and assets may be
+  /// launched. Both the popup gate and the action use this check, including
+  /// required updates, whose popup does not offer "remind later".
   Uri? get downloadUri {
+    try {
+      return _parseDownloadUri();
+    } on FormatException {
+      // URI parsing defers validation of ports and percent-decoded path
+      // bytes. Invalid input must also fail closed when reading those fields.
+      return null;
+    }
+  }
+
+  Uri? _parseDownloadUri() {
     final url = downloadUrl.trim();
     if (url.isEmpty || RegExp(r'[\\\s\u0000-\u001f\u007f]').hasMatch(url)) {
       return null;
     }
     final uri = Uri.tryParse(url);
     if (uri == null ||
-        !(uri.isScheme('https') || uri.isScheme('http')) ||
+        !uri.isScheme('https') ||
         !uri.hasAuthority ||
-        uri.host.isEmpty ||
-        uri.userInfo.isNotEmpty) {
+        uri.host != 'github.com' ||
+        uri.port != 443 ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasQuery ||
+        uri.hasFragment) {
       return null;
     }
-    return uri;
+
+    final segments = uri.pathSegments;
+    if (segments.length < 3 ||
+        segments[0].toLowerCase() != 'gleecbtc' ||
+        segments[1].toLowerCase() != 'gleec-wallet' ||
+        segments[2] != 'releases' ||
+        segments.any(
+          (segment) =>
+              segment.isEmpty ||
+              segment == '.' ||
+              segment == '..' ||
+              RegExp(r'[/\\\u0000-\u001f\u007f]').hasMatch(segment),
+        )) {
+      return null;
+    }
+
+    final isReleasePage =
+        segments.length == 3 ||
+        (segments.length == 4 && segments[3] == 'latest') ||
+        (segments.length == 5 && segments[3] == 'tag');
+    final isReleaseAsset =
+        segments.length == 6 &&
+        (segments[3] == 'download' ||
+            (segments[3] == 'latest' && segments[4] == 'download'));
+    return isReleasePage || isReleaseAsset ? uri : null;
   }
 }

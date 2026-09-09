@@ -717,6 +717,18 @@ abstract class LocaleKeys {
       'withdrawGaslessSupportDiagnosticsAction';
   static const withdrawGaslessStorageUnavailable =
       'withdrawGaslessStorageUnavailable';
+  static const withdrawGaslessClearRecoveryAction =
+      'withdrawGaslessClearRecoveryAction';
+  static const withdrawGaslessClearRecoveryTitle =
+      'withdrawGaslessClearRecoveryTitle';
+  static const withdrawGaslessClearRecoveryWarning =
+      'withdrawGaslessClearRecoveryWarning';
+  static const withdrawGaslessClearRecoveryAcknowledgement =
+      'withdrawGaslessClearRecoveryAcknowledgement';
+  static const withdrawGaslessClearRecoverySubmittedAt =
+      'withdrawGaslessClearRecoverySubmittedAt';
+  static const withdrawGaslessClearRecoveryFailed =
+      'withdrawGaslessClearRecoveryFailed';
   static const gaslessConsolidationTitle = 'gaslessConsolidationTitle';
   static const gaslessConsolidationBody = 'gaslessConsolidationBody';
   static const gaslessConsolidationFeeNotice = 'gaslessConsolidationFeeNotice';

@@ -1,6 +1,11 @@
 import 'package:test/test.dart';
 import 'package:web_dex/blocs/update_bloc.dart';
 
+void main() {
+  testUpdateVersionCompare();
+  testUpdateDownloadUri();
+}
+
 /// Covers [UpdateBloc.isVersionGreaterThan], which decides whether the update
 /// popup is offered at all.
 void testUpdateVersionCompare() {
@@ -142,14 +147,52 @@ void testUpdateDownloadUri() {
       downloadUrl: url,
     );
 
-    test('accepts http(s) release URLs', () {
-      expect(
-        infoWith(
-          'https://github.com/GLEECBTC/gleec-wallet/releases/tag/0.9.6',
-        ).downloadUri,
-        isNotNull,
-      );
-      expect(infoWith('  https://example.com/a  ').downloadUri, isNotNull);
+    test('accepts official HTTPS wallet release pages and assets', () {
+      for (final url in [
+        'https://github.com/GLEECBTC/gleec-wallet/releases',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/latest',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag/0.9.6',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/download/0.9.7/wallet.dmg',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/latest/download/wallet.dmg',
+        '  https://GITHUB.COM/gleecbtc/GLEEC-WALLET/releases/tag/0.9.7  ',
+      ]) {
+        expect(infoWith(url).downloadUri, isNotNull, reason: url);
+      }
+    });
+
+    test('rejects untrusted update destinations even for required updates', () {
+      for (final url in [
+        'http://github.com/GLEECBTC/gleec-wallet/releases/latest',
+        'https://example.com/wallet.dmg',
+        'https://github.com.attacker.example/GLEECBTC/gleec-wallet/releases',
+        'https://github.com./GLEECBTC/gleec-wallet/releases',
+        'https://github.com:444/GLEECBTC/gleec-wallet/releases',
+        'https://github.com:99999999999999999999999999/GLEECBTC/gleec-wallet/releases',
+        'https://github.com/attacker/gleec-wallet/releases',
+        'https://github.com/GLEECBTC/other-wallet/releases',
+        'https://github.com/GLEECBTC/gleec-wallet.evil/releases',
+        'https://github.com/GLEECBTC/gleec-wallet/issues/1',
+        'https://github.com/login?return_to=https://attacker.example',
+        'https://github.com/GLEECBTC/gleec-wallet/releases?redirect=https://attacker.example',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/download/0.9.7',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag/%2fmalformed',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag/%5cmalformed',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag/%00malformed',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag/%FF',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag/%C0%AF',
+        'https://github.com/GLEECBTC/gleec-wallet/releases/tag/%ED%A0%80',
+      ]) {
+        for (final status in [UpdateStatus.available, UpdateStatus.required]) {
+          final info = UpdateVersionInfo(
+            status: status,
+            version: '0.9.8',
+            changelog: '',
+            downloadUrl: url,
+          );
+          expect(info.downloadUri, isNull, reason: '$status: $url');
+        }
+      }
     });
 
     test('rejects everything that is not an http(s) URL', () {
