@@ -37,42 +37,45 @@ const _canvas = <String, int>{
   'new dark': 0xFF000000,
 };
 
-/// Roles the light scheme materializes by accident.
+/// Every light role that `copyWith` would otherwise materialize implicitly.
 ///
 /// `theme_global_light.dart` builds its scheme with
 /// `const ColorScheme.light().copyWith(...)`, and `ColorScheme.copyWith`
-/// resolves every nullable role through its *getter* against the pre-override
-/// constants. The result is a scheme carrying Material 2 defaults nobody
-/// chose: an M2 teal `secondaryContainer`, an M2 `#B00020` `errorContainer`,
-/// a `surfaceContainer` family collapsed onto pure white, and black outlines.
+/// resolves nullable roles through their *getters* against the pre-override
+/// constants. Anything left unset therefore freezes at a Material 2 default
+/// nobody chose, which is how the surface ramp ended up collapsed onto pure
+/// white and the outlines onto black.
 ///
-/// These are pinned at the values actually shipping today, not at the values
-/// they ought to have. That is deliberate: it makes the accidents visible in
-/// review, and it lets the surrounding migration prove that decoupling
-/// consumers from `onSurface` changes nothing before the token itself moves.
-const _lightAccidentalRoles = <String, int>{
-  'primaryContainer': 0xFF6200EE,
+/// Pinning them here means an accidental re-derivation shows up as a failing
+/// diff rather than as a screen nobody looks at. The FREEZE entries are the
+/// M2 leftovers still awaiting a brand decision; the rest are chosen values.
+const _lightPinnedRoles = <String, int>{
+  'primaryContainer': 0xFF6200EE, // FREEZE: M2 purple
   'onPrimaryContainer': 0xFFFFFFFF,
-  'secondaryContainer': 0xFF03DAC6,
+  'secondaryContainer': 0xFF03DAC6, // FREEZE: M2 teal
   'onSecondaryContainer': 0xFF000000,
-  'tertiaryContainer': 0xFF03DAC6,
+  'tertiaryContainer': 0xFF03DAC6, // FREEZE: M2 teal
   'onTertiaryContainer': 0xFF000000,
   'onTertiary': 0xFF000000,
-  'errorContainer': 0xFFB00020,
+  'errorContainer': 0xFFB00020, // FREEZE: M2 error
   'onErrorContainer': 0xFFFFFFFF,
-  'surfaceDim': 0xFFFFFFFF,
+
+  // The elevation ramp: steps darker than the #FBFBFB canvas so a container
+  // reads as a container.
+  'surfaceDim': 0xFFE4E8F4,
   'surfaceBright': 0xFFFFFFFF,
   'surfaceContainerLowest': 0xFFFFFFFF,
-  'surfaceContainerLow': 0xFFFFFFFF,
-  'surfaceContainer': 0xFFFFFFFF,
-  'surfaceContainerHigh': 0xFFFFFFFF,
-  'surfaceContainerHighest': 0xFFFFFFFF,
-  'onSurfaceVariant': 0xFF000000,
-  'outline': 0xFF000000,
-  'outlineVariant': 0xFF000000,
+  'surfaceContainerLow': 0xFFF8F9FC,
+  'surfaceContainer': 0xFFF1F3F9,
+  'surfaceContainerHigh': 0xFFEBEDF5,
+  'surfaceContainerHighest': 0xFFE4E8F4,
+
+  'onSurfaceVariant': 0xFF4D6882,
+  'outline': 0xFFD0D6ED,
+  'outlineVariant': 0xFFE4E8F4,
   'inverseSurface': 0xFF000000,
   'onInverseSurface': 0xFFFFFFFF,
-  'surfaceTint': 0xFF6200EE,
+  'surfaceTint': 0xFF6200EE, // FREEZE: inert while useMaterial3 is false
 };
 
 /// `onSurface` per theme. Split out from the tables above because this is the
@@ -139,10 +142,10 @@ void _testPinnedValues(Map<String, ThemeData> themes) {
       });
 
       if (data.brightness == Brightness.light) {
-        test('$name still carries its accidental copyWith roles', () {
+        test('$name pins every implicitly-derived role', () {
           final actual = _rolesOf(data.colorScheme);
           final mismatches = <String>[];
-          _lightAccidentalRoles.forEach((role, argb) {
+          _lightPinnedRoles.forEach((role, argb) {
             final got = actual[role]!;
             if (got.toARGB32() != argb) {
               mismatches.add(
@@ -164,13 +167,6 @@ void _testPinnedValues(Map<String, ThemeData> themes) {
 /// skipped rather than deleted so the fix commit's diff is the un-skip - that
 /// is the evidence the migration worked.
 void _testRoleSemantics(Map<String, ThemeData> themes) {
-  // The light elevation ramp is still flat: every surfaceContainer role is
-  // pinned at pure white, so a tinted container is invisible there. That is
-  // the light palette's problem, not onSurface's.
-  const flatLightRamp =
-      'Fails until the light surface roles get real elevation values; '
-      'un-skip in the "correct the light colour-role palette" commit.';
-
   group('role semantics', () {
     themes.forEach((name, data) {
       final scheme = data.colorScheme;
@@ -205,21 +201,17 @@ void _testRoleSemantics(Map<String, ThemeData> themes) {
         }
       });
 
-      test(
-        '$name gives elevated containers a visible tint',
-        () {
-          expect(
-            describeColor(scheme.surfaceContainer),
-            isNot(describeColor(scheme.surface)),
-            reason: 'a container that matches the surface is an invisible box',
-          );
-          expect(
-            describeColor(scheme.surfaceContainerHighest),
-            isNot(describeColor(scheme.surface)),
-          );
-        },
-        skip: data.brightness == Brightness.light ? flatLightRamp : null,
-      );
+      test('$name gives elevated containers a visible tint', () {
+        expect(
+          describeColor(scheme.surfaceContainer),
+          isNot(describeColor(scheme.surface)),
+          reason: 'a container that matches the surface is an invisible box',
+        );
+        expect(
+          describeColor(scheme.surfaceContainerHighest),
+          isNot(describeColor(scheme.surface)),
+        );
+      });
 
       // Green today in both brightnesses - this is the guard that stops a
       // "fix" which swaps onSurface and surface and inverts the whole app.

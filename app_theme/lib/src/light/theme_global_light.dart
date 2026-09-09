@@ -42,19 +42,23 @@ ThemeData get themeGlobalLight {
     errorContainer: const Color(0xFFB00020), // FREEZE: M2 error
     onErrorContainer: const Color(0xFFFFFFFF),
 
-    // FREEZE: the whole elevation ramp is currently pure white, so every
-    // tinted container is invisible in light mode.
-    surfaceDim: const Color(0xFFFFFFFF),
+    // A real elevation ramp. The canvas is #FBFBFB and `surface` is white, so
+    // containers step *darker* to be seen at all; every level below still
+    // clears AA for both `onSurface` (5.4:1 - 6.6:1) and `onSurfaceVariant`
+    // (4.7:1 - 5.8:1).
+    surfaceDim: const Color(0xFFE4E8F4),
     surfaceBright: const Color(0xFFFFFFFF),
     surfaceContainerLowest: const Color(0xFFFFFFFF),
-    surfaceContainerLow: const Color(0xFFFFFFFF),
-    surfaceContainer: const Color(0xFFFFFFFF),
-    surfaceContainerHigh: const Color(0xFFFFFFFF),
-    surfaceContainerHighest: const Color(0xFFFFFFFF),
+    surfaceContainerLow: const Color(0xFFF8F9FC),
+    surfaceContainer: const Color(0xFFF1F3F9),
+    surfaceContainerHigh: const Color(0xFFEBEDF5),
+    surfaceContainerHighest: const Color(0xFFE4E8F4),
 
-    onSurfaceVariant: const Color(0xFF000000), // FREEZE: old black onSurface
-    outline: const Color(0xFF000000), // FREEZE
-    outlineVariant: const Color(0xFF000000), // FREEZE
+    // Secondary foreground: lighter than the #456078 body text so it reads as
+    // de-emphasised, and still 4.97:1 on the darkest container.
+    onSurfaceVariant: const Color(0xFF4D6882),
+    outline: const Color(0xFFD0D6ED), // matches the theme's dividerColor
+    outlineVariant: const Color(0xFFE4E8F4),
     inverseSurface: const Color(0xFF000000),
     onInverseSurface: const Color(0xFFFFFFFF),
     surfaceTint: const Color(0xFF6200EE), // FREEZE: inert while useM3 is false

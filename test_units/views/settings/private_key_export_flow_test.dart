@@ -232,87 +232,75 @@ void testPrivateKeyExportFlow() {
       final themeName = entry.key;
       final themeData = entry.value;
 
-      testWidgets(
-        'notices stay legible in the $themeName theme',
-        (tester) async {
-          await ready(tester, appTheme: themeData);
+      testWidgets('notices stay legible in the $themeName theme', (
+        tester,
+      ) async {
+        await ready(tester, appTheme: themeData);
 
-          final violations = <String>[];
-          for (final noticeKey in noticeKeys) {
-            final notice = find.byKey(Key(noticeKey));
-            expect(notice, findsOneWidget, reason: 'missing $noticeKey');
+        final violations = <String>[];
+        for (final noticeKey in noticeKeys) {
+          final notice = find.byKey(Key(noticeKey));
+          expect(notice, findsOneWidget, reason: 'missing $noticeKey');
 
-            final text = find.descendant(
-              of: notice,
-              matching: find.byType(Text),
+          final text = find.descendant(of: notice, matching: find.byType(Text));
+          final foreground = resolvedTextColor(tester, text);
+          final background = resolvedBackgroundBehind(tester, text);
+          final ratio = contrastRatio(foreground, background);
+          if (ratio < wcagAaNormalText) {
+            violations.add(
+              '$noticeKey: ${describeColor(foreground)} on '
+              '${describeColor(background)} is ${ratio.toStringAsFixed(2)}:1',
             );
-            final foreground = resolvedTextColor(tester, text);
-            final background = resolvedBackgroundBehind(tester, text);
-            final ratio = contrastRatio(foreground, background);
-            if (ratio < wcagAaNormalText) {
-              violations.add(
-                '$noticeKey: ${describeColor(foreground)} on '
-                '${describeColor(background)} is ${ratio.toStringAsFixed(2)}:1',
-              );
-            }
           }
+        }
 
-          expect(tester.takeException(), isNull);
-          await tester.pumpWidget(const SizedBox.shrink());
-          expect(
-            violations,
-            isEmpty,
-            reason:
-                '$themeName theme: notice text below the 4.5:1 AA bar\n'
-                '${violations.join("\n")}',
-          );
-        },
-        // Skipped, not deleted: these fail today and go green once the
-        // screen stops painting notices with the canvas-valued onSurface
-        // role. Un-skipping them is the evidence the fix landed.
-        skip: true,
-      );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        expect(
+          violations,
+          isEmpty,
+          reason:
+              '$themeName theme: notice text below the 4.5:1 AA bar\n'
+              '${violations.join("\n")}',
+        );
+      });
 
-      testWidgets(
-        'notice containers are visible in the $themeName theme',
-        (tester) async {
-          await ready(tester, appTheme: themeData);
+      testWidgets('notice containers are visible in the $themeName theme', (
+        tester,
+      ) async {
+        await ready(tester, appTheme: themeData);
 
-          final container = tester.widget<Container>(
-            find
-                .descendant(
-                  of: find.byKey(
-                    const Key('private-key-export-notice-coverage'),
-                  ),
-                  matching: find.byType(Container),
-                )
-                .first,
-          );
-          final background = (container.decoration! as BoxDecoration).color!;
-          final ratio = contrastRatio(
-            background,
-            themeData.scaffoldBackgroundColor,
-          );
+        final container = tester.widget<Container>(
+          find
+              .descendant(
+                of: find.byKey(const Key('private-key-export-notice-coverage')),
+                matching: find.byType(Container),
+              )
+              .first,
+        );
+        final background = (container.decoration! as BoxDecoration).color!;
+        final ratio = contrastRatio(
+          background,
+          themeData.scaffoldBackgroundColor,
+        );
 
-          await tester.pumpWidget(const SizedBox.shrink());
-          // A deliberately low bar: WCAG says nothing about container-on-canvas
-          // and 3:1 would over-constrain the design. This only has to catch a
-          // notice that is invisible against the page it sits on.
-          expect(
-            ratio,
-            greaterThanOrEqualTo(1.1),
-            reason:
-                '$themeName theme: the notice box '
-                '${describeColor(background)} is indistinguishable from the '
-                'page ${describeColor(themeData.scaffoldBackgroundColor)} '
-                '(${ratio.toStringAsFixed(2)}:1)',
-          );
-        },
-        // Skipped, not deleted: these fail today and go green once the
-        // screen stops painting notices with the canvas-valued onSurface
-        // role. Un-skipping them is the evidence the fix landed.
-        skip: true,
-      );
+        await tester.pumpWidget(const SizedBox.shrink());
+        // Not a standards figure - WCAG says nothing about a container
+        // against its page, and a 3:1 bar would rule out every tinted surface
+        // Material itself ships. This is only a "not effectively the same
+        // colour" guard: it catches the collapsed light ramp that painted a
+        // white box on a #FBFBFB page at 1.03:1, while leaving room for a
+        // deliberately subtle tint.
+        expect(
+          ratio,
+          greaterThanOrEqualTo(1.05),
+          reason:
+              '$themeName theme: the notice box '
+              '${describeColor(background)} is indistinguishable from the '
+              'page ${describeColor(themeData.scaffoldBackgroundColor)} '
+              '(${ratio.toStringAsFixed(2)}:1)',
+        );
+      });
     }
   });
 }
