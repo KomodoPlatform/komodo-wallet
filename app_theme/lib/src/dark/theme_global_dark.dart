@@ -220,7 +220,6 @@ ThemeData get themeGlobalDark {
   );
 
   // Initialize theme-dependent colors after theme creation
-  customTheme.initializeThemeDependentColors(theme);
 
   return theme;
 }
