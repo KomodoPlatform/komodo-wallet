@@ -5,11 +5,12 @@
 /// With acceptance now implicit in continuing, having the record matters more,
 /// not less.
 ///
-/// [documentShas] pins *which* text was accepted. The documents refresh from
-/// GitHub and their SHAs are already cached, so a genuine change to the EULA or
-/// Terms invalidates the record on its own, without anyone remembering to bump
-/// a version. [termsVersion] is the manual override for the cases a SHA cannot
-/// see - a policy change that does not touch those two files.
+/// [documentShas] pins *which* text was accepted using Git blob content hashes,
+/// including for bundled assets. A genuine change to the EULA or Terms
+/// invalidates the record on its own, without anyone remembering to bump a
+/// version. [termsVersion] is the manual override for the cases a SHA cannot
+/// see - a policy change that does not touch those two files, or legacy records
+/// without content hashes.
 class LegalAcceptance {
   const LegalAcceptance({
     required this.termsVersion,
@@ -38,7 +39,10 @@ class LegalAcceptance {
           DateTime.fromMillisecondsSinceEpoch(0),
       surface: rawSurface is String ? rawSurface : 'unknown',
       documentShas: rawShas is Map
-          ? rawShas.map((k, v) => MapEntry('$k', '$v'))
+          ? <String, String>{
+              for (final entry in rawShas.entries)
+                if (entry.value != null) '${entry.key}': '${entry.value}',
+            }
           : const <String, String>{},
     );
   }

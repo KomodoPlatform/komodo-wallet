@@ -93,6 +93,7 @@ import 'tests/balance_utils/coins_state_usd_conversion_test.dart';
 import 'tests/analytics/frame_gap_metrics_test.dart';
 import 'tests/sorting/coin_sort_order_test.dart';
 import 'tests/wallet/coins_bloc_balance_emit_test.dart';
+import 'tests/wallet/coins_repo_activation_wallet_race_test.dart';
 import 'tests/services/legal_acceptance_test.dart';
 import 'tests/services/storage_persistence_gate_test.dart';
 import 'tests/wallet/seed_backup_policy_test.dart';
@@ -207,6 +208,7 @@ void main() {
   });
 
   testTronGaslessPolicy();
+  testCoinsRepoActivationWalletRace();
 
   group('Crypto:', () {
     testEncryptDataTool();
