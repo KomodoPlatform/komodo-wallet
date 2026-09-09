@@ -38,16 +38,27 @@ class PrivateKeyShow extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _Notice(
+              key: const Key('private-key-export-notice-security'),
               text: LocaleKeys.privateKeySecurityWarning.tr(),
               warning: true,
             ),
             const SizedBox(height: 12),
-            _Notice(text: LocaleKeys.copyWarning.tr(), warning: true),
+            _Notice(
+              key: const Key('private-key-export-notice-copy'),
+              text: LocaleKeys.copyWarning.tr(),
+              warning: true,
+            ),
             const SizedBox(height: 12),
-            _Notice(text: LocaleKeys.privateKeyExportCoverageNotice.tr()),
+            _Notice(
+              key: const Key('private-key-export-notice-coverage'),
+              text: LocaleKeys.privateKeyExportCoverageNotice.tr(),
+            ),
             if (state.hasLimitedDisplayedCoverage) ...[
               const SizedBox(height: 12),
-              _Notice(text: LocaleKeys.privateKeyExportActiveTronCoverage.tr()),
+              _Notice(
+                key: const Key('private-key-export-notice-tron-coverage'),
+                text: LocaleKeys.privateKeyExportActiveTronCoverage.tr(),
+              ),
             ],
             const SizedBox(height: 16),
             Wrap(
@@ -105,7 +116,7 @@ class PrivateKeyShow extends StatelessWidget {
 }
 
 class _Notice extends StatelessWidget {
-  const _Notice({required this.text, this.warning = false});
+  const _Notice({required this.text, this.warning = false, super.key});
   final String text;
   final bool warning;
 

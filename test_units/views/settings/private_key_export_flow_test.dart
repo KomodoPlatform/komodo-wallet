@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:app_theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,8 @@ import 'package:web_dex/views/settings/widgets/security_settings/private_key_set
 import 'package:web_dex/views/wallet/coin_details/receive/qr_code_address.dart';
 
 import '../../services/security/private_key_export_test_support.dart';
+import '../../support/contrast.dart';
+import '../../support/contrast_widget.dart';
 
 void main() => testPrivateKeyExportFlow();
 
@@ -40,6 +43,7 @@ void testPrivateKeyExportFlow() {
       WidgetTester tester, {
       bool pending = false,
       bool ownExportBloc = false,
+      ThemeData? appTheme,
     }) async {
       ownsBloc = ownExportBloc;
       service = FakePrivateKeyExportService();
@@ -64,6 +68,13 @@ void testPrivateKeyExportFlow() {
               locale: context.locale,
               supportedLocales: context.supportedLocales,
               localizationsDelegates: context.localizationDelegates,
+              // Both slots get the same object so the result cannot depend on
+              // the ambient platform brightness, and the animation is zeroed
+              // so Theme.of never returns an interpolated mid-transition
+              // colour to a contrast assertion.
+              theme: appTheme,
+              darkTheme: appTheme,
+              themeAnimationDuration: Duration.zero,
               home: MultiBlocProvider(
                 providers: [
                   if (ownExportBloc)
@@ -85,8 +96,8 @@ void testPrivateKeyExportFlow() {
       await tester.pumpAndSettle();
     }
 
-    Future<void> ready(WidgetTester tester) async {
-      await pump(tester);
+    Future<void> ready(WidgetTester tester, {ThemeData? appTheme}) async {
+      await pump(tester, appTheme: appTheme);
       bloc.add(PrivateKeyExportRequested());
       await tester.pumpAndSettle();
       expect(bloc.state.phase, PrivateKeyExportPhase.awaitingPassword);
@@ -196,6 +207,113 @@ void testPrivateKeyExportFlow() {
         expect(tester.takeException(), isNull);
       },
     );
+
+    // The notices on this screen are the reported bug: they follow Material's
+    // contract (surfaceContainer behind onSurface) while the app themes use
+    // onSurface as the page background, so the body text is painted in the
+    // canvas colour. Nothing caught it because every other test here pumps a
+    // bare MaterialApp with no theme and asserts only that strings are present.
+    //
+    // Both cases unmount the tree before asserting. A failing assertion that
+    // leaves the tree mounted deadlocks this group's tearDown against the
+    // fake service's synchronous broadcast controller, and a regression guard
+    // that hangs the runner instead of failing is worth very little.
+    const noticeKeys = [
+      'private-key-export-notice-security',
+      'private-key-export-notice-copy',
+      'private-key-export-notice-coverage',
+      'private-key-export-notice-tron-coverage',
+    ];
+
+    for (final entry in {
+      'light': theme.global.light,
+      'dark': theme.global.dark,
+    }.entries) {
+      final themeName = entry.key;
+      final themeData = entry.value;
+
+      testWidgets(
+        'notices stay legible in the $themeName theme',
+        (tester) async {
+          await ready(tester, appTheme: themeData);
+
+          final violations = <String>[];
+          for (final noticeKey in noticeKeys) {
+            final notice = find.byKey(Key(noticeKey));
+            expect(notice, findsOneWidget, reason: 'missing $noticeKey');
+
+            final text = find.descendant(
+              of: notice,
+              matching: find.byType(Text),
+            );
+            final foreground = resolvedTextColor(tester, text);
+            final background = resolvedBackgroundBehind(tester, text);
+            final ratio = contrastRatio(foreground, background);
+            if (ratio < wcagAaNormalText) {
+              violations.add(
+                '$noticeKey: ${describeColor(foreground)} on '
+                '${describeColor(background)} is ${ratio.toStringAsFixed(2)}:1',
+              );
+            }
+          }
+
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+          expect(
+            violations,
+            isEmpty,
+            reason:
+                '$themeName theme: notice text below the 4.5:1 AA bar\n'
+                '${violations.join("\n")}',
+          );
+        },
+        // Skipped, not deleted: these fail today and go green once the
+        // screen stops painting notices with the canvas-valued onSurface
+        // role. Un-skipping them is the evidence the fix landed.
+        skip: true,
+      );
+
+      testWidgets(
+        'notice containers are visible in the $themeName theme',
+        (tester) async {
+          await ready(tester, appTheme: themeData);
+
+          final container = tester.widget<Container>(
+            find
+                .descendant(
+                  of: find.byKey(
+                    const Key('private-key-export-notice-coverage'),
+                  ),
+                  matching: find.byType(Container),
+                )
+                .first,
+          );
+          final background = (container.decoration! as BoxDecoration).color!;
+          final ratio = contrastRatio(
+            background,
+            themeData.scaffoldBackgroundColor,
+          );
+
+          await tester.pumpWidget(const SizedBox.shrink());
+          // A deliberately low bar: WCAG says nothing about container-on-canvas
+          // and 3:1 would over-constrain the design. This only has to catch a
+          // notice that is invisible against the page it sits on.
+          expect(
+            ratio,
+            greaterThanOrEqualTo(1.1),
+            reason:
+                '$themeName theme: the notice box '
+                '${describeColor(background)} is indistinguishable from the '
+                'page ${describeColor(themeData.scaffoldBackgroundColor)} '
+                '(${ratio.toStringAsFixed(2)}:1)',
+          );
+        },
+        // Skipped, not deleted: these fail today and go green once the
+        // screen stops painting notices with the canvas-valued onSurface
+        // role. Un-skipping them is the evidence the fix landed.
+        skip: true,
+      );
+    }
   });
 }
 
