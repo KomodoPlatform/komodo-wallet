@@ -79,10 +79,10 @@ const _lightAccidentalRoles = <String, int>{
 /// single role the migration deliberately moves; keeping it separate makes the
 /// flip a one-line diff in this file.
 const _onSurface = <String, int>{
-  'global light': 0xFFFBFBFB,
-  'global dark': 0xFF000000,
-  'new light': 0xFFFBFBFB,
-  'new dark': 0xFF000000,
+  'global light': 0xFF456078,
+  'global dark': 0xFFFFFFFF,
+  'new light': 0xFF456078,
+  'new dark': 0xFFFFFFFF,
 };
 
 Map<String, Color> _rolesOf(ColorScheme c) => {
@@ -164,9 +164,12 @@ void _testPinnedValues(Map<String, ThemeData> themes) {
 /// skipped rather than deleted so the fix commit's diff is the un-skip - that
 /// is the evidence the migration worked.
 void _testRoleSemantics(Map<String, ThemeData> themes) {
-  const pending =
-      'Fails until onSurface is restored to a foreground value; un-skip in the '
-      '"restore onSurface to its Material meaning" commit.';
+  // The light elevation ramp is still flat: every surfaceContainer role is
+  // pinned at pure white, so a tinted container is invisible there. That is
+  // the light palette's problem, not onSurface's.
+  const flatLightRamp =
+      'Fails until the light surface roles get real elevation values; '
+      'un-skip in the "correct the light colour-role palette" commit.';
 
   group('role semantics', () {
     themes.forEach((name, data) {
@@ -180,7 +183,7 @@ void _testRoleSemantics(Map<String, ThemeData> themes) {
               'onSurface is content drawn *on* a surface; using it as the page '
               'background makes every Material-correct widget illegible',
         );
-      }, skip: pending);
+      });
 
       test('$name onSurface is legible on every surface role', () {
         for (final surface in _surfaceFamily(scheme)) {
@@ -190,7 +193,7 @@ void _testRoleSemantics(Map<String, ThemeData> themes) {
             because: '$name: onSurface on ${describeColor(surface)}',
           );
         }
-      }, skip: pending);
+      });
 
       test('$name onSurfaceVariant is legible on every surface role', () {
         for (final surface in _surfaceFamily(scheme)) {
@@ -200,7 +203,7 @@ void _testRoleSemantics(Map<String, ThemeData> themes) {
             because: '$name: onSurfaceVariant on ${describeColor(surface)}',
           );
         }
-      }, skip: pending);
+      });
 
       test(
         '$name gives elevated containers a visible tint',
@@ -215,7 +218,7 @@ void _testRoleSemantics(Map<String, ThemeData> themes) {
             isNot(describeColor(scheme.surface)),
           );
         },
-        skip: data.brightness == Brightness.light ? pending : null,
+        skip: data.brightness == Brightness.light ? flatLightRamp : null,
       );
 
       // Green today in both brightnesses - this is the guard that stops a

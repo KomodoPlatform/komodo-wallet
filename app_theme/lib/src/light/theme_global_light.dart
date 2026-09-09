@@ -29,7 +29,7 @@ ThemeData get themeGlobalLight {
     secondary: const Color(0xFF666666), // Muted gray for accents
     tertiary: const Color.fromARGB(255, 192, 225, 255),
     surface: const Color.fromRGBO(255, 255, 255, 1),
-    onSurface: const Color.fromRGBO(251, 251, 251, 1),
+    onSurface: textColor, // Content drawn on a surface
     error: const Color.fromRGBO(229, 33, 103, 1),
 
     primaryContainer: const Color(0xFF6200EE), // FREEZE: M2 purple

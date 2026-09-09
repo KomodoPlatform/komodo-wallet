@@ -19,7 +19,7 @@ ThemeData get themeGlobalDark {
     // secondary: const Color(0xFF00C3AA),
     tertiary: const Color(0xFF0A0A0A), // CORRECTED - darker for sidebar/header
     surface: const Color(0xFF141414), // Card color (correct)
-    onSurface: const Color(0xFF000000), // Pure black main background
+    onSurface: const Color(0xFFFFFFFF), // Content drawn on a surface
     error: const Color.fromRGBO(202, 78, 61, 1),
     // `fromSeed` derives each `onX` from its own tonal palette, so overriding
     // `primary` and `error` above left their partners pointing at the seed's
