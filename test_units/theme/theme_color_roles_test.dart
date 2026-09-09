@@ -234,32 +234,19 @@ void _testRoleSemantics(Map<String, ThemeData> themes) {
         }
       });
 
-      // `ColorScheme.fromSeed` derives each `onX` from its own tonal
-      // palette, but the dark theme then hard-overrides `primary` and `error`
-      // to brand colours. The generated partners were never regenerated, so
-      // they no longer pair with the colours they sit on - the same class of
-      // defect as the `onSurface` bug, one role moved without its partner.
-      const unpairedDarkRole =
-          'Fails until the fromSeed-generated on-colour is paired with the '
-          'overridden brand colour; un-skip in the "make on-colours legible on '
-          'their brand colours" commit.';
-      final isDark = data.brightness == Brightness.dark;
-
-      for (final (label, foreground, background, minimum, skipWhen) in [
-        ('primary', scheme.onPrimary, scheme.primary, wcagAaNormalText, isDark),
+      for (final (label, foreground, background, minimum) in [
+        ('primary', scheme.onPrimary, scheme.primary, wcagAaNormalText),
         (
           'errorContainer',
           scheme.onErrorContainer,
           scheme.errorContainer,
           wcagAaNormalText,
-          false,
         ),
         (
           'secondaryContainer',
           scheme.onSecondaryContainer,
           scheme.secondaryContainer,
           wcagAaNormalText,
-          false,
         ),
         // White on the GLEEC brand red (#E52167) measures 4.43:1 - a 1.6%
         // shortfall against AA for normal text, and clear of the 3:1 bar for
@@ -267,20 +254,16 @@ void _testRoleSemantics(Map<String, ThemeData> themes) {
         // colour, which is a brand decision rather than a theming one, so
         // this holds the large-text bar and pins the shortfall in place so
         // nobody narrows it by accident.
-        ('error', scheme.onError, scheme.error, wcagAaLargeText, isDark),
+        ('error', scheme.onError, scheme.error, wcagAaLargeText),
       ]) {
-        test(
-          '$name pairs on$label with $label',
-          () {
-            expectContrast(
-              foreground,
-              background,
-              atLeast: minimum,
-              because: '$name: on$label on $label',
-            );
-          },
-          skip: skipWhen ? unpairedDarkRole : null,
-        );
+        test('$name pairs on$label with $label', () {
+          expectContrast(
+            foreground,
+            background,
+            atLeast: minimum,
+            because: '$name: on$label on $label',
+          );
+        });
       }
 
       // Deliberately not asserted: ColorSchemeExtension tokens. Their names do

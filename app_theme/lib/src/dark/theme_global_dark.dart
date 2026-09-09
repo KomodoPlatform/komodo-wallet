@@ -21,6 +21,12 @@ ThemeData get themeGlobalDark {
     surface: const Color(0xFF141414), // Card color (correct)
     onSurface: const Color(0xFF000000), // Pure black main background
     error: const Color.fromRGBO(202, 78, 61, 1),
+    // `fromSeed` derives each `onX` from its own tonal palette, so overriding
+    // `primary` and `error` above left their partners pointing at the seed's
+    // colours instead: #39255C on #8C41FF is 2.71:1 and #690005 on #CA4E3D is
+    // 2.91:1. White clears AA on both (4.87:1 and 4.50:1).
+    onPrimary: const Color(0xFFFFFFFF),
+    onError: const Color(0xFFFFFFFF),
   );
 
   final TextTheme textTheme = TextTheme(
