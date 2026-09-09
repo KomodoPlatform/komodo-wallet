@@ -135,7 +135,7 @@ logging, logout invalidation timing, mutable request selection, cross-manager
 capabilities, parent activation states, final delivery checks, browser delivery
 reporting, asset exclusions, stale QR requests and feedback screenshot capture
 timing. Final validation results and reviewed commit identifiers are recorded in
-the accompanying validation record.
+the [validation record](PRIVATE_KEY_EXPORT_VALIDATION.md).
 
 ### Limits
 
