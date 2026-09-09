@@ -1,12 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:komodo_defi_types/komodo_defi_types.dart';
-import 'package:web_dex/bloc/security_settings/private_key_export_bloc.dart';
-import 'package:web_dex/bloc/security_settings/private_key_export_event.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
-import 'package:web_dex/services/security/private_key_export_delivery.dart';
+import 'package:web_dex/shared/widgets/notice_banner.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_export_labels.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/widgets/private_key_export_key_tile.dart';
 
 class PrivateKeyExportAssetSection extends StatelessWidget {
   const PrivateKeyExportAssetSection({
@@ -21,126 +19,179 @@ class PrivateKeyExportAssetSection extends StatelessWidget {
   final bool canDeliver;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            outcome.assetId.id,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          if (outcome.coverage case final coverage?)
-            Text(privateKeyExportCoverageText(coverage)),
-          if (outcome.signingAssetId != null &&
-              outcome.signingAssetId != outcome.assetId)
-            Text(
-              LocaleKeys.privateKeyExportSharedSigningKey.tr(
-                namedArgs: {'asset': outcome.signingAssetId!.id},
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _AssetHeader(outcome: outcome),
+            // A failure used to render as body text identical to the
+            // informational coverage line right beside it, so "the key could
+            // not be retrieved" read like a footnote.
+            if (outcome.failure case final failure?) ...[
+              const SizedBox(height: 12),
+              NoticeBanner(
+                icon: Icons.error_outline,
+                child: Text(privateKeyExportFailureText(failure)),
               ),
-            ),
-          if (outcome.failure case final failure?)
-            Text(privateKeyExportFailureText(failure)),
-          if (outcome.keys.isNotEmpty)
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(
-                LocaleKeys.privateKeyExportKeyCount.tr(
-                  namedArgs: {'count': '${outcome.keys.length}'},
+            ],
+            if (outcome.coverage case final coverage?) ...[
+              const SizedBox(height: 12),
+              _Detail(
+                icon: Icons.account_tree_outlined,
+                label: LocaleKeys.privateKeyExportCoverageLabel.tr(),
+                value: privateKeyExportCoverageText(coverage),
+              ),
+            ],
+            if (outcome.signingAssetId != null &&
+                outcome.signingAssetId != outcome.assetId) ...[
+              const SizedBox(height: 8),
+              _Detail(
+                icon: Icons.key_outlined,
+                label: '',
+                value: LocaleKeys.privateKeyExportSharedSigningKey.tr(
+                  namedArgs: {'asset': outcome.signingAssetId!.id},
                 ),
               ),
-              children: [
-                for (var index = 0; index < outcome.keys.length; index++)
-                  _ExportKeyTile(
-                    key: ValueKey(index),
-                    privateKey: outcome.keys[index],
-                    assetId: outcome.assetId,
-                    index: index,
-                    showKeys: showKeys,
-                    canDeliver: canDeliver,
-                  ),
-              ],
-            ),
-        ],
+            ],
+            // Rendered inline rather than behind an ExpansionTile whose only
+            // header content ("Keys included: N") restated the coverage line
+            // directly above it and put a click between the reader and the
+            // thing they came for.
+            if (outcome.keys.isNotEmpty) ...[
+              Divider(height: 24, color: theme.dividerColor),
+              for (var index = 0; index < outcome.keys.length; index++)
+                PrivateKeyExportKeyTile(
+                  key: ValueKey(index),
+                  privateKey: outcome.keys[index],
+                  assetId: outcome.assetId,
+                  index: index,
+                  showKeys: showKeys,
+                  canDeliver: canDeliver,
+                  showDivider: index < outcome.keys.length - 1,
+                  showOrdinal: outcome.keys.length > 1,
+                ),
+            ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-class _ExportKeyTile extends StatelessWidget {
-  const _ExportKeyTile({
-    required this.privateKey,
-    required this.assetId,
-    required this.index,
-    required this.showKeys,
-    required this.canDeliver,
-    super.key,
-  });
+class _AssetHeader extends StatelessWidget {
+  const _AssetHeader({required this.outcome});
 
-  final PrivateKey privateKey;
-  final AssetId assetId;
-  final int index;
-  final bool showKeys;
-  final bool canDeliver;
+  final PrivateKeyExportOutcome outcome;
 
   @override
   Widget build(BuildContext context) {
-    final key = privateKey;
-    final revealed = context.select<PrivateKeyExportBloc, bool>(
-      (bloc) => bloc.state.revealedKeys.contains((assetId, index)),
-    );
-    final bloc = context.read<PrivateKeyExportBloc>();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (key.hdInfo?.derivationPath case final String path)
-            SelectableText(path),
-          Text(LocaleKeys.address.tr()),
-          SelectableText(key.publicKeyAddress),
-          if (key.publicKeySecp256k1.isNotEmpty) ...[
-            Text(LocaleKeys.privateKeyExportPublicKey.tr()),
-            SelectableText(key.publicKeySecp256k1),
-          ],
-          const SizedBox(height: 8),
-          SelectableText(showKeys && revealed ? key.privateKey : '••••••••'),
-          Wrap(
+    final theme = Theme.of(context);
+    final available = outcome.keys.isNotEmpty;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                tooltip: LocaleKeys.showPrivateKeys.tr(),
-                onPressed: showKeys
-                    ? () => bloc.add(
-                        PrivateKeyExportKeyVisibilityToggled(assetId, index),
-                      )
-                    : null,
-                icon: Icon(revealed ? Icons.visibility_off : Icons.visibility),
+              Text(
+                outcome.assetId.displayName,
+                style: theme.textTheme.titleMedium,
               ),
-              IconButton(
-                tooltip: LocaleKeys.copyDisplayedKey.tr(),
-                onPressed: canDeliver
-                    ? () => bloc.add(
-                        PrivateKeyExportDeliveryRequested(
-                          PrivateKeyExportAction.copy,
-                          assetId: assetId,
-                          keyIndex: index,
-                        ),
-                      )
-                    : null,
-                icon: const Icon(Icons.copy),
-              ),
-              IconButton(
-                tooltip: LocaleKeys.privateKeyExportShowQr.tr(),
-                onPressed: canDeliver
-                    ? () =>
-                          bloc.add(PrivateKeyExportQrRequested(assetId, index))
-                    : null,
-                icon: const Icon(Icons.qr_code),
+              Text(
+                outcome.assetId.id,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
-          const Divider(),
+        ),
+        _StatusBadge(
+          label: available
+              ? LocaleKeys.privateKeyExportIncludedBadge.tr(
+                  namedArgs: {'count': '${outcome.keys.length}'},
+                )
+              : LocaleKeys.privateKeyExportUnavailableBadge.tr(),
+          critical: !available,
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.label, required this.critical});
+
+  final String label;
+  final bool critical;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: critical
+            ? theme.colorScheme.error.withValues(alpha: 0.12)
+            : theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: critical
+              ? theme.colorScheme.error
+              : theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+class _Detail extends StatelessWidget {
+  const _Detail({required this.icon, required this.label, required this.value});
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return MergeSemantics(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(
+              icon,
+              size: 16,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (label.isNotEmpty)
+                  Text(
+                    label,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                Text(value, style: theme.textTheme.bodyMedium),
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -1338,7 +1338,33 @@ abstract class LocaleKeys {
   static const privateKeyExportNoAssets = 'privateKeyExportNoAssets';
   static const privateKeyExportSharedSigningKey =
       'privateKeyExportSharedSigningKey';
-  static const privateKeyExportKeyCount = 'privateKeyExportKeyCount';
   static const privateKeyExportShowQr = 'privateKeyExportShowQr';
   static const privateKeyExportPublicKey = 'privateKeyExportPublicKey';
+  static const privateKeyExportCriticalTitle = 'privateKeyExportCriticalTitle';
+  static const privateKeyExportSummaryCounts = 'privateKeyExportSummaryCounts';
+  static const privateKeyExportSomeUnavailable =
+      'privateKeyExportSomeUnavailable';
+  static const privateKeyExportCoverageDetailsTitle =
+      'privateKeyExportCoverageDetailsTitle';
+  static const privateKeyExportCoverageLabel = 'privateKeyExportCoverageLabel';
+  static const privateKeyExportRevealGateHint =
+      'privateKeyExportRevealGateHint';
+  static const privateKeyExportRevealGateHintOn =
+      'privateKeyExportRevealGateHintOn';
+  static const privateKeyExportRevealKey = 'privateKeyExportRevealKey';
+  static const privateKeyExportHideKey = 'privateKeyExportHideKey';
+  static const privateKeyExportKeyHidden = 'privateKeyExportKeyHidden';
+  static const privateKeyExportPrivateKeyLabel =
+      'privateKeyExportPrivateKeyLabel';
+  static const privateKeyExportAddressLabel = 'privateKeyExportAddressLabel';
+  static const privateKeyExportDerivationPath =
+      'privateKeyExportDerivationPath';
+  static const privateKeyExportViewingKey = 'privateKeyExportViewingKey';
+  static const privateKeyExportIncludedBadge = 'privateKeyExportIncludedBadge';
+  static const privateKeyExportUnavailableBadge =
+      'privateKeyExportUnavailableBadge';
+  static const privateKeyExportAllFiltered = 'privateKeyExportAllFiltered';
+  static const privateKeyExportLoading = 'privateKeyExportLoading';
+  static const privateKeyExportBulkActionsTitle =
+      'privateKeyExportBulkActionsTitle';
 }

@@ -49,8 +49,12 @@ class NoticeBanner extends StatelessWidget {
     super.key,
   });
 
-  /// Main content, laid out to the right of [icon]. The child owns its text
-  /// styles; use [styleOf] to color text with the variant foreground.
+  /// Main content, laid out to the right of [icon].
+  ///
+  /// Text inside inherits the variant foreground through a merged
+  /// [DefaultTextStyle], so a plain [Text] is legible on the banner tint
+  /// without the caller re-deriving the palette. Children that set their own
+  /// colour still win.
   final Widget child;
 
   final NoticeBannerVariant variant;
@@ -161,39 +165,44 @@ class NoticeBanner extends StatelessWidget {
           _ => null,
         },
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 20, color: style.accent),
-                const SizedBox(width: 12),
+      // Merged rather than replaced so callers keep their own sizes and
+      // weights, and any explicit colour still overrides this one.
+      child: DefaultTextStyle.merge(
+        style: TextStyle(color: style.foreground),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 20, color: style.accent),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: title == null
+                      ? child
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title!,
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(
+                                    color: style.foreground,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                            const SizedBox(height: 4),
+                            child,
+                          ],
+                        ),
+                ),
               ],
-              Expanded(
-                child: title == null
-                    ? child
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title!,
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(
-                                  color: style.foreground,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                          ),
-                          const SizedBox(height: 4),
-                          child,
-                        ],
-                      ),
-              ),
-            ],
-          ),
-          if (footer != null) footer!,
-        ],
+            ),
+            if (footer != null) footer!,
+          ],
+        ),
       ),
     );
   }

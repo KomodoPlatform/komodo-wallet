@@ -7,22 +7,57 @@ import 'package:web_dex/bloc/security_settings/private_key_export_state.dart';
 import 'package:web_dex/common/screen.dart';
 import 'package:web_dex/generated/codegen_loader.g.dart';
 import 'package:web_dex/shared/screenshot/screenshot_sensitivity.dart';
+import 'package:web_dex/shared/widgets/notice_banner.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_actions_widget.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/private_key_export_asset_section.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/widgets/private_key_export_empty_state.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/widgets/private_key_export_header.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/widgets/private_key_export_loading_view.dart';
+import 'package:web_dex/views/settings/widgets/security_settings/private_key_settings/widgets/private_key_reveal_gate.dart';
 import 'package:web_dex/views/settings/widgets/security_settings/seed_settings/seed_back_button.dart';
 
+/// Private key export.
+///
+/// The notices are ranked rather than stacked: one critical banner for the
+/// standing security rule, one informational banner for what the export does
+/// and does not cover, and the clipboard caution moved inside the reveal gate
+/// where it is actually actionable. Four identically-weighted full-width
+/// blocks meant none of them read as more important than the others.
 class PrivateKeyShow extends StatelessWidget {
   const PrivateKeyShow({super.key});
 
   @override
   Widget build(BuildContext context) => ScreenshotSensitive(
     child: BlocBuilder<PrivateKeyExportBloc, PrivateKeyExportState>(
-      builder: (context, state) {
-        if (state.phase != PrivateKeyExportPhase.ready) {
-          return const SizedBox.shrink();
-        }
-        final bloc = context.read<PrivateKeyExportBloc>();
-        return Column(
+      builder: (context, state) => switch (state.phase) {
+        PrivateKeyExportPhase.starting ||
+        PrivateKeyExportPhase.exporting => const PrivateKeyExportLoadingView(),
+        PrivateKeyExportPhase.ready => _ReadyView(state: state),
+        _ => const SizedBox.shrink(),
+      },
+    ),
+  );
+}
+
+class _ReadyView extends StatelessWidget {
+  const _ReadyView({required this.state});
+
+  final PrivateKeyExportState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<PrivateKeyExportBloc>();
+    final outcomes = state.displayedOutcomes;
+    final unavailable = outcomes.where((o) => o.keys.isEmpty).length;
+
+    return Align(
+      alignment: Alignment.topLeft,
+      // Settings gives this pane the full desktop width, which turned the
+      // notices into ~1300px single-column paragraphs. Matches the measure
+      // the sibling seed screen already uses.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!isMobile)
@@ -32,108 +67,77 @@ class PrivateKeyShow extends StatelessWidget {
                   () => bloc.add(const PrivateKeyExportCancelled()),
                 ),
               ),
-            Text(
-              LocaleKeys.privateKeyExportTitle.tr(),
-              style: Theme.of(context).textTheme.titleLarge,
+            PrivateKeyExportHeader(
+              assetCount: outcomes.length,
+              keyCount: outcomes.fold(0, (sum, o) => sum + o.keys.length),
+              unavailableCount: unavailable,
             ),
             const SizedBox(height: 16),
-            _Notice(
+            NoticeBanner(
               key: const Key('private-key-export-notice-security'),
-              text: LocaleKeys.privateKeySecurityWarning.tr(),
-              warning: true,
+              variant: NoticeBannerVariant.critical,
+              icon: Icons.gpp_maybe_outlined,
+              title: LocaleKeys.privateKeyExportCriticalTitle.tr(),
+              child: Text(LocaleKeys.privateKeySecurityWarning.tr()),
             ),
             const SizedBox(height: 12),
-            _Notice(
-              key: const Key('private-key-export-notice-copy'),
-              text: LocaleKeys.copyWarning.tr(),
-              warning: true,
-            ),
-            const SizedBox(height: 12),
-            _Notice(
+            NoticeBanner(
               key: const Key('private-key-export-notice-coverage'),
-              text: LocaleKeys.privateKeyExportCoverageNotice.tr(),
-            ),
-            if (state.hasLimitedDisplayedCoverage) ...[
-              const SizedBox(height: 12),
-              _Notice(
-                key: const Key('private-key-export-notice-tron-coverage'),
-                text: LocaleKeys.privateKeyExportActiveTronCoverage.tr(),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 16,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Switch(
-                      key: const Key('private-key-export-visibility'),
-                      value: state.showKeys,
-                      onChanged: (visible) =>
-                          bloc.add(PrivateKeyExportVisibilityChanged(visible)),
+              variant: NoticeBannerVariant.info,
+              icon: Icons.fact_check_outlined,
+              title: LocaleKeys.privateKeyExportCoverageDetailsTitle.tr(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(LocaleKeys.privateKeyExportCoverageNotice.tr()),
+                  if (state.hasLimitedDisplayedCoverage) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      LocaleKeys.privateKeyExportActiveTronCoverage.tr(),
+                      key: const Key('private-key-export-notice-tron-coverage'),
                     ),
-                    Text(LocaleKeys.showPrivateKeys.tr()),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const PrivateKeyRevealGate(),
+            if (state.hasBlockedAssets)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: state.includeBlockedAssets,
+                      onChanged: state.isDelivering
+                          ? null
+                          : (value) => bloc.add(
+                              PrivateKeyExportBlockedAssetsChanged(
+                                value ?? false,
+                              ),
+                            ),
+                    ),
+                    Expanded(child: Text(LocaleKeys.includeBlockedAssets.tr())),
                   ],
                 ),
-                if (state.hasBlockedAssets)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Checkbox(
-                        value: state.includeBlockedAssets,
-                        onChanged: state.isDelivering
-                            ? null
-                            : (value) => bloc.add(
-                                PrivateKeyExportBlockedAssetsChanged(
-                                  value ?? false,
-                                ),
-                              ),
-                      ),
-                      Text(LocaleKeys.includeBlockedAssets.tr()),
-                    ],
-                  ),
-                const PrivateKeyActionsWidget(),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (state.displayedOutcomes.isEmpty)
-              Text(LocaleKeys.privateKeyExportNoAssets.tr()),
-            for (final outcome in state.displayedOutcomes)
-              PrivateKeyExportAssetSection(
-                key: ValueKey((state.operationId, outcome.assetId)),
-                outcome: outcome,
-                showKeys: state.showKeys,
-                canDeliver: state.canDeliver,
               ),
+            const SizedBox(height: 16),
+            const PrivateKeyActionsWidget(),
+            const SizedBox(height: 16),
+            if (outcomes.isEmpty)
+              PrivateKeyExportEmptyState(
+                hiddenByFilter:
+                    state.hasBlockedAssets && !state.includeBlockedAssets,
+              )
+            else
+              for (final outcome in outcomes)
+                PrivateKeyExportAssetSection(
+                  key: ValueKey((state.operationId, outcome.assetId)),
+                  outcome: outcome,
+                  showKeys: state.showKeys,
+                  canDeliver: state.canDeliver,
+                ),
           ],
-        );
-      },
-    ),
-  );
-}
-
-class _Notice extends StatelessWidget {
-  const _Notice({required this.text, this.warning = false, super.key});
-  final String text;
-  final bool warning;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: warning ? colors.errorContainer : colors.surfaceContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: warning ? colors.onErrorContainer : colors.onSurface,
         ),
       ),
     );

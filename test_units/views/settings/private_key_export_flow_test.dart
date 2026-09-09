@@ -124,14 +124,12 @@ void testPrivateKeyExportFlow() {
       expect(find.textContaining('addresses 0–10'), findsOneWidget);
       expect(find.textContaining('still activating'), findsOneWidget);
       expect(find.text(exportKeySentinel), findsNothing);
-      expect(
-        tester
-            .widget<ActionChip>(
-              find.byKey(const Key('private-key-export-copy')),
-            )
-            .onPressed,
-        isNull,
-      );
+      // Asserted through the BLoC rather than by casting the button to a
+      // concrete widget type: `canDeliver` is what actually gates delivery,
+      // and the previous `ActionChip` cast turned a presentational change
+      // into a failing test that said nothing about behaviour.
+      expect(bloc.state.canDeliver, isFalse);
+      expect(find.byKey(const Key('private-key-export-copy')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -218,11 +216,12 @@ void testPrivateKeyExportFlow() {
     // leaves the tree mounted deadlocks this group's tearDown against the
     // fake service's synchronous broadcast controller, and a regression guard
     // that hangs the runner instead of failing is worth very little.
-    const noticeKeys = [
+    // Every notice, every run of text inside it, in both live themes. The
+    // screen paints these on tinted containers, so the assertion composites
+    // the whole painted stack rather than trusting a declared colour.
+    const restingNotices = [
       'private-key-export-notice-security',
-      'private-key-export-notice-copy',
       'private-key-export-notice-coverage',
-      'private-key-export-notice-tron-coverage',
     ];
 
     for (final entry in {
@@ -237,20 +236,38 @@ void testPrivateKeyExportFlow() {
       ) async {
         await ready(tester, appTheme: themeData);
 
+        // Unlock so the clipboard caution - which only appears once copying
+        // is possible - is on screen and covered too.
+        bloc.add(const PrivateKeyExportVisibilityChanged(true));
+        await tester.pumpAndSettle();
+
         final violations = <String>[];
-        for (final noticeKey in noticeKeys) {
+        for (final noticeKey in [
+          ...restingNotices,
+          'private-key-export-notice-copy',
+        ]) {
           final notice = find.byKey(Key(noticeKey));
           expect(notice, findsOneWidget, reason: 'missing $noticeKey');
 
-          final text = find.descendant(of: notice, matching: find.byType(Text));
-          final foreground = resolvedTextColor(tester, text);
-          final background = resolvedBackgroundBehind(tester, text);
-          final ratio = contrastRatio(foreground, background);
-          if (ratio < wcagAaNormalText) {
-            violations.add(
-              '$noticeKey: ${describeColor(foreground)} on '
-              '${describeColor(background)} is ${ratio.toStringAsFixed(2)}:1',
-            );
+          final texts = find.descendant(
+            of: notice,
+            matching: find.byType(Text),
+          );
+          final count = tester.widgetList<Text>(texts).length;
+          expect(count, greaterThan(0), reason: '$noticeKey has no text');
+
+          for (var i = 0; i < count; i++) {
+            final text = texts.at(i);
+            final foreground = resolvedTextColor(tester, text);
+            final background = resolvedBackgroundBehind(tester, text);
+            final ratio = contrastRatio(foreground, background);
+            if (ratio < wcagAaNormalText) {
+              violations.add(
+                '$noticeKey[$i]: ${describeColor(foreground)} on '
+                '${describeColor(background)} is '
+                '${ratio.toStringAsFixed(2)}:1',
+              );
+            }
           }
         }
 
@@ -265,20 +282,20 @@ void testPrivateKeyExportFlow() {
         );
       });
 
-      testWidgets('notice containers are visible in the $themeName theme', (
+      testWidgets('the reveal gate reads against the page in $themeName', (
         tester,
       ) async {
         await ready(tester, appTheme: themeData);
 
-        final container = tester.widget<Container>(
+        final gate = tester.widget<Container>(
           find
-              .descendant(
-                of: find.byKey(const Key('private-key-export-notice-coverage')),
+              .ancestor(
+                of: find.byKey(const Key('private-key-export-visibility')),
                 matching: find.byType(Container),
               )
-              .first,
+              .last,
         );
-        final background = (container.decoration! as BoxDecoration).color!;
+        final background = (gate.decoration! as BoxDecoration).color!;
         final ratio = contrastRatio(
           background,
           themeData.scaffoldBackgroundColor,
@@ -295,7 +312,7 @@ void testPrivateKeyExportFlow() {
           ratio,
           greaterThanOrEqualTo(1.05),
           reason:
-              '$themeName theme: the notice box '
+              '$themeName theme: the reveal gate '
               '${describeColor(background)} is indistinguishable from the '
               'page ${describeColor(themeData.scaffoldBackgroundColor)} '
               '(${ratio.toStringAsFixed(2)}:1)',
