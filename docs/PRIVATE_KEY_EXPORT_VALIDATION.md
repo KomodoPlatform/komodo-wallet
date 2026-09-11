@@ -58,6 +58,15 @@ has the same tree as merged SDK #376 (`5c9f7d82`), which is an ancestor of the
 new SDK pin. Keeping `12cda755` therefore retains those corrections. This merge
 also brings in the existing `docs/PR_3525_REVIEW_VALIDATION.md` from wallet `dev`.
 
+Wallet `dev` at `d39db831606c3cbd96dc26512c18472ae605da7d` (after wallet #3532)
+was merged into this branch afterwards. The only conflict was again the SDK
+gitlink: `dev` pinned `a63ae5ce`, the pre-squash head of SDK #377, while this
+branch keeps `12cda755`, which descends from `223fd1d9`, the byte-identical
+squash of that PR. Keeping `12cda755` therefore retains the gas-free disposal
+correction as well. The merge otherwise brings in `dev`'s updated
+`docs/PR_3525_REVIEW_VALIDATION.md` and browser integration-test selectors; no
+`pubspec.lock` line moved.
+
 Fresh checks against the reconciled wallet implementation at
 `b7d7833d08ef5d6fc21bb4e123aa8d494a7b6170`, using Flutter 3.41.4 / Dart 3.11.1:
 
@@ -71,6 +80,13 @@ Fresh checks against the reconciled wallet implementation at
 | Hosting deploy URL reader fixtures | Passed |
 | Bitrefill message bridge tests | Passed |
 | Git whitespace and unintended generated-file checks | Passed |
+
+Re-run at the second merge commit `aa9827ed0` (Flutter 3.41.4 / Dart 3.11.1):
+full `test_units/main.dart` with the four GasFree defines 1,076 passed with the
+same 3 skips; `flutter pub get --enforce-lockfile` passed without changing the
+lockfile; analysis reported no errors, 55 warnings and 2,087 informational
+findings; the theme colour-role fixtures and guard and the 13 Bitrefill message
+bridge tests passed.
 
 No Dart source was manually changed for this repin or conflict resolution.
 The initial isolated analysis lacked the SDK's own test dependency resolution;
