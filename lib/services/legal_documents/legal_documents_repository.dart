@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
@@ -179,10 +180,19 @@ class LegalDocumentsRepository {
 
     final current = await _currentDocumentShas();
     for (final entry in current.entries) {
-      final accepted = acceptance.documentShas[entry.key];
-      // A document with no SHA on either side is the bundled asset, which
-      // cannot have drifted - only a real remote change invalidates consent.
-      if (accepted != null && accepted != entry.value) return false;
+      var accepted = acceptance.documentShas[entry.key];
+      // Legacy records without a document identity retain their version-only
+      // fallback. New records always identify the actual accepted content.
+      if (accepted == null) continue;
+      if (accepted == 'bundled') {
+        final document = _consentDocuments.firstWhere(
+          (document) => document.cacheKey == entry.key,
+        );
+        accepted = _contentSha(
+          await _assetBundle.loadString(document.assetPath),
+        );
+      }
+      if (accepted != entry.value) return false;
     }
     return true;
   }
@@ -190,10 +200,20 @@ class LegalDocumentsRepository {
   Future<Map<String, String>> _currentDocumentShas() async {
     final shas = <String, String>{};
     for (final document in _consentDocuments) {
-      final cached = await _readCachedContent(document);
-      shas[document.cacheKey] = cached?.sha ?? 'bundled';
+      final content = await loadPreferredContent(document);
+      shas[document.cacheKey] = _contentSha(content.markdown);
     }
     return shas;
+  }
+
+  /// Git's blob format keeps these identities compatible with existing GitHub
+  /// SHA records, regardless of whether the text came from assets or the cache.
+  String _contentSha(String markdown) {
+    final bytes = utf8.encode(markdown);
+    return sha1.convert([
+      ...utf8.encode('blob ${bytes.length}\u0000'),
+      ...bytes,
+    ]).toString();
   }
 
   Future<LegalDocumentContent?> _readCachedContent(

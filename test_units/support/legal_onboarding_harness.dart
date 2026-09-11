@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:app_theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:komodo_defi_sdk/komodo_defi_sdk.dart';
@@ -91,6 +92,15 @@ class LegalEnglishLoader extends AssetLoader {
           as Map<String, dynamic>;
 }
 
+/// Uses the actual document bytes with futures owned by the widget test zone.
+/// Platform asset I/O completes outside FakeAsync, so pumpAndSettle cannot
+/// flush a fire-and-forget acceptance that waits on rootBundle there.
+class _LegalDocumentAssets extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async =>
+      ByteData.sublistView(File(key).readAsBytesSync());
+}
+
 Wallet legalTestWallet() => Wallet(
   id: 'sample-wallet',
   name: 'My wallet',
@@ -112,7 +122,10 @@ class LegalFormHarness {
         documentShas: {},
       ).toJson();
     }
-    repository = LegalDocumentsRepository(storage: storage);
+    repository = LegalDocumentsRepository(
+      storage: storage,
+      assetBundle: _LegalDocumentAssets(),
+    );
     agreement = LegalAgreementBloc(repository)
       ..add(const LegalAgreementOpened());
   }
