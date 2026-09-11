@@ -1,6 +1,6 @@
 # Validation and independent review record
 
-Date: 2026-09-09. Toolchain: Flutter 3.41.4 on macOS. All added test credentials,
+Original review date: 2026-09-09. Toolchain: Flutter 3.41.4 on macOS. All added test credentials,
 mnemonics and keys are synthetic. No feedback was submitted to a live provider,
 and no blockchain transaction was broadcast.
 
@@ -20,7 +20,7 @@ descendant security fixes before adding the remediation. KDF remains
 existing Delete fix is retained. Test-generated build configuration changes were
 restored; KDF pins are unchanged.
 
-## Follow-up after this review
+## Initial follow-up after this review
 
 Pull request review raised two findings, addressed in SDK commits
 `0606d009437d290c293e8f36297db2dc63e67ed1`, which keeps a running log export out
@@ -28,7 +28,7 @@ of the export clear, and `6d753cae2161eeafabb19821bf3eb862abec4928`, which
 versions the packages this candidate changes. Neither commit is covered by the
 independent review recorded here.
 
-The app now pins `6d753cae2161eeafabb19821bf3eb862abec4928`, which carries
+At that stage the app pinned `6d753cae2161eeafabb19821bf3eb862abec4928`, which carries
 `00821337492faf939e2fe88f7c1119849aa9dcdd` in its history, and `pubspec.lock`
 records the five raised SDK package versions. Dependency resolution is otherwise
 unchanged.
@@ -36,7 +36,61 @@ unchanged.
 See [the implementation notes](PRIVATE_KEY_EXPORT_SECURITY.md) for boundaries,
 coverage semantics, migration behavior and limitations.
 
-## Results
+## Adoption of merged SDK 0.8.0 — 2026-09-11
+
+The app now pins `12cda755e7d1b0b77a865623841437aa3648597c`, the merged
+[SDK preparation PR #381](https://github.com/GLEECBTC/komodo-defi-sdk-flutter/pull/381).
+[SDK RC PR #382](https://github.com/GLEECBTC/komodo-defi-sdk-flutter/pull/382)
+tracks its promotion from `dev` to `main`. This commit includes the token-only
+TRC20 export and native cross-instance retention fixes from the subsequent
+reviews on SDK #375. TRON export remains limited to its verified active address;
+native export ownership remains scoped to one Dart isolate.
+
+`pubspec.lock` records the seven stable package versions: SDK 0.8.0, local-auth
+0.6.0, framework 0.6.0, types 0.6.0, RPC methods 0.7.0, coin updates 2.1.1 and
+Dragon Logs 3.0.0. No other dependency resolution changed. KDF and coin pins
+remain unchanged.
+
+Wallet `dev` at `10bcc8dbb35d06f3463181e1086b93a81f2dbb3e` was merged into
+this branch so its existing wallet-isolation and GasFree corrections remain
+present. The only conflict was the SDK gitlink. The older SDK pin `f990692f`
+has the same tree as merged SDK #376 (`5c9f7d82`), which is an ancestor of the
+new SDK pin. Keeping `12cda755` therefore retains those corrections. This merge
+also brings in the existing `docs/PR_3525_REVIEW_VALIDATION.md` from wallet `dev`.
+
+Fresh checks against the reconciled wallet implementation at
+`b7d7833d08ef5d6fc21bb4e123aa8d494a7b6170`, using Flutter 3.41.4 / Dart 3.11.1:
+
+| Check | Result |
+| --- | --- |
+| Full wallet `test_units/main.dart`, all four required GasFree defines | 1,076 passed, 3 existing skips |
+| Offline dependency resolution with `--enforce-lockfile` | Passed |
+| SDK workspace dependency resolution | Passed |
+| Full wallet/workspace analysis | No errors; 55 warnings and 2,070 informational findings |
+| Theme colour-role fixtures and guard | Passed |
+| Hosting deploy URL reader fixtures | Passed |
+| Bitrefill message bridge tests | Passed |
+| Git whitespace and unintended generated-file checks | Passed |
+
+No Dart source was manually changed for this repin or conflict resolution.
+The initial isolated analysis lacked the SDK's own test dependency resolution;
+resolving that workspace removed the setup errors before the final analysis
+above. Plain `flutter analyze --no-pub` remains nonzero for the existing warning
+and information diagnostics; no analyzer suppression was added.
+
+The merged SDK has exactly the same Git tree as release-preparation head
+`043031f4`. Its [release checklist](https://github.com/GLEECBTC/komodo-defi-sdk-flutter/blob/12cda755e7d1b0b77a865623841437aa3648597c/docs/RELEASE_0.8.0_CHECKLIST.md)
+records all 16 passing SDK package suites, Chrome/Wasm races, native/browser
+logging, the pinned-KDF export contract, HD/Iguana replay and both web example
+builds. Those checks were run during release preparation and were not repeated
+for this tree-identical merge. The checklist separately identifies the existing
+sample-test failures and unperformed platform checks.
+
+This is fresh consumer validation, not an extension of the original independent
+security-review attestation to later commits. The historical results and limits
+below remain tied to their original implementation commits.
+
+## Original validation results — 2026-09-09
 
 Counts below identify separate suites; focused tests can also be included in a
 package or app aggregate, so the rows must not be added together.
