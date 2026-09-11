@@ -15,11 +15,23 @@ Both repositories use `fix/release-diagnostics-and-key-export`.
 
 The SDK branch includes `origin/dev`
 `c696117ade94511c1a6a2c17e47583a57f645f53` and preserves the app's existing
-descendant security fixes before adding the remediation. The app pins the exact
-reviewed SDK commit. KDF remains `3.1.0-beta_f3efd2c`, source
-`f3efd2ca10420f2982fa127dde84dcc17891f577`. The existing Delete fix is retained.
-Test-generated build configuration changes were restored; dependency lockfiles
-and KDF pins are unchanged.
+descendant security fixes before adding the remediation. KDF remains
+`3.1.0-beta_f3efd2c`, source `f3efd2ca10420f2982fa127dde84dcc17891f577`. The
+existing Delete fix is retained. Test-generated build configuration changes were
+restored; KDF pins are unchanged.
+
+## Follow-up after this review
+
+Pull request review raised two findings, addressed in SDK commits
+`0606d009437d290c293e8f36297db2dc63e67ed1`, which keeps a running log export out
+of the export clear, and `6d753cae2161eeafabb19821bf3eb862abec4928`, which
+versions the packages this candidate changes. Neither commit is covered by the
+independent review recorded here.
+
+The app now pins `6d753cae2161eeafabb19821bf3eb862abec4928`, which carries
+`00821337492faf939e2fe88f7c1119849aa9dcdd` in its history, and `pubspec.lock`
+records the five raised SDK package versions. Dependency resolution is otherwise
+unchanged.
 
 See [the implementation notes](PRIVATE_KEY_EXPORT_SECURITY.md) for boundaries,
 coverage semantics, migration behavior and limitations.
